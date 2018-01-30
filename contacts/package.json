@@ -1,0 +1,17 @@
+{
+  "name": "contacts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa contacts API.",
+  "main": "handler.js",
+  "dependencies": {
+    "aws-sdk": "^2.188.0",
+    "shortid": "^2.2.8"
+  },
+  "devDependencies": {
+    "serverless-webpack": "^4.2.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "author": "Paul SEBASTIEN",
+  "license": "UNLICENSED"
+}
