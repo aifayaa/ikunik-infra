@@ -1,6 +1,18 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    "import/prefer-default-export": "allow"
+    "import/prefer-default-export": "allow",
+    "no-bitwise": [
+      "error",
+      {
+        "int32Hint": true
+      }
+    ],
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allow": ["_id"]
+      }
+    ]
   }
 }

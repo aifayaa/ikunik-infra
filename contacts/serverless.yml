@@ -3,23 +3,42 @@ service: contacts
 provider:
   name: aws
   runtime: nodejs6.10
+  stage: dev
   memorySize: 128
   timeout: 60
   environment:
     AWS_KEY: AKIAJGROD5HF6C67HFHA
     AWS_SECRET: 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
+    COLL_NAME: ${self:service}
+    DB_NAME: crowdaaDev
+    LIMIT_DEFAULT: 10
+    LIMIT_MAX: 100
+    MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
 functions:
+  getContacts:
+    handler: handler.handleGetContacts
+    events:
+      - http:
+          path: contacts
+          method: get
+          authorizer: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
   import:
     handler: handler.handleImport
     events:
       - http: POST contacts/import
 
 plugins:
+  - serverless-domain-manager
   - serverless-webpack
 
 package:
   individually: true
 
 custom:
+  customDomain:
+    domainName: 'api.aws.crowdaa.com'
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
   webpackIncludeModules: true
