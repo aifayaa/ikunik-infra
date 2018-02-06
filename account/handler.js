@@ -22,7 +22,7 @@ const generatePolicy = (Effect, Resource, principalId) => ({
       {
         Action: 'execute-api:Invoke',
         Effect,
-        Resource,
+        Resource: '*',
       },
     ],
   },

@@ -21,7 +21,7 @@
     "X-Forwarded-Proto": "https"
   },
   "queryStringParameters": {
-    "limit": "100",
+    "limit": "10",
     "skip": "20"
   },
   "pathParameters": null,
