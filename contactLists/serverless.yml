@@ -1,4 +1,4 @@
-service: contacts
+service: contactLists
 
 provider:
   name: aws
@@ -7,27 +7,23 @@ provider:
   memorySize: 128
   timeout: 60
   environment:
-    AWS_KEY: AKIAJGROD5HF6C67HFHA
-    AWS_SECRET: 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
-    COLL_NAME: ${self:service}
+    COLL_NAME: artistContactList
     DB_NAME: crowdaaDev
-    LIMIT_DEFAULT: '10'
-    LIMIT_MAX: '100'
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
 functions:
-  getContacts:
-    handler: handler.handleGetContacts
+  getContactList:
+    handler: handler.handleGetContactList
     events:
       - http:
-          path: /
+          path: /{id}
           method: get
           authorizer: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
           cors: true
-  import:
-    handler: handler.handleImport
-    events:
-      - http: POST /import
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-domain-manager
@@ -39,7 +35,7 @@ package:
 custom:
   customDomain:
     domainName: 'api.aws.crowdaa.com'
-    basePath: 'contacts'
+    basePath: 'contactLists'
     stage: ${self:provider.stage}
     createRoute53Record: true
   webpackIncludeModules: true

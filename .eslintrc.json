@@ -13,6 +13,13 @@
       {
         "allow": ["_id"]
       }
+    ],
+    "object-curly-newline": [
+      "error",
+      {
+        "minProperties": 10,
+        "consistent": true
+      }
     ]
   }
 }
