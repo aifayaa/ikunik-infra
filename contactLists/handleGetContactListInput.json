@@ -1,0 +1,59 @@
+{
+    "resource": "/contactLists/{id}",
+    "path": "/contactLists/5ZvM7WrJshaAvMHLu",
+    "httpMethod": "GET",
+    "headers": {
+      "Accept": "*/*",
+      "Authorization": "Bearer e71A_Eba4mXZOeJmnnFnzsHcWTqrmKSDWV6GRUg2pSM",
+      "CloudFront-Forwarded-Proto": "https",
+      "CloudFront-Is-Desktop-Viewer": "true",
+      "CloudFront-Is-Mobile-Viewer": "false",
+      "CloudFront-Is-SmartTV-Viewer": "false",
+      "CloudFront-Is-Tablet-Viewer": "false",
+      "CloudFront-Viewer-Country": "RE",
+      "Host": "5s8bc47j9k.execute-api.us-east-1.amazonaws.com",
+      "User-Agent": "curl/7.54.0",
+      "Via": "2.0 d10e0115903b50001036753d910516ef.cloudfront.net (CloudFront)",
+      "X-Amz-Cf-Id": "JWmKpqwZNvtJb7Vc6FTIZi_PJMNio-MVBSbgNCoL4m7JT-dEuzlJkQ==",
+      "X-Amzn-Trace-Id": "Root=1-5a71ab83-75d59c9e1bc5e84f037e91e6",
+      "X-Forwarded-For": "41.213.201.186, 216.137.62.76",
+      "X-Forwarded-Port": "443",
+      "X-Forwarded-Proto": "https"
+    },
+    "queryStringParameters": null,
+    "pathParameters": {
+      "id": "5ZvM7WrJshaAvMHLu"
+    },
+    "stageVariables": null,
+    "requestContext": {
+      "resourceId": "1aveq6",
+      "authorizer": {
+        "principalId": "dXZifsqv7i8Edt8nb"
+      },
+      "resourcePath": "/contactLists/{id}",
+      "httpMethod": "GET",
+      "requestTime": "31/Jan/2018:11:41:55 +0000",
+      "path": "/dev/contactLists/5ZvM7WrJshaAvMHLu",
+      "accountId": "630176884077",
+      "protocol": "HTTP/1.1",
+      "stage": "dev",
+      "requestTimeEpoch": 1517398915052,
+      "requestId": "bca5b35a-067b-11e8-9e1a-b190727379ba",
+      "identity": {
+        "cognitoIdentityPoolId": null,
+        "accountId": null,
+        "cognitoIdentityId": null,
+        "caller": null,
+        "sourceIp": "41.213.201.186",
+        "accessKey": null,
+        "cognitoAuthenticationType": null,
+        "cognitoAuthenticationProvider": null,
+        "userArn": null,
+        "userAgent": "curl/7.54.0",
+        "user": null
+      },
+      "apiId": "5s8bc47j9k"
+    },
+    "body": null,
+    "isBase64Encoded": false
+  }
