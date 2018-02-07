@@ -1,0 +1,57 @@
+{
+  "resource": "/",
+  "path": "/genres/",
+  "httpMethod": "GET",
+  "headers": {
+    "Accept": "*/*",
+    "Authorization": "Bearer e71A_Eba4mXZOeJmnnFnzsHcWTqrmKSDWV6GRUg2pSM",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "RE",
+    "Host": "api.aws.crowdaa.com",
+    "User-Agent": "curl/7.52.1",
+    "Via": "2.0 5a823cd7a77f31b6fc2df20714f357d8.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "wpiA62EfFpUDseiiEE0CFLTm_QybsQmGjK68MNCTUZ6O3Gqhk9wnSw==",
+    "X-Amzn-Trace-Id": "Root=1-5a79a366-00ba74d50669a6222d14d869",
+    "X-Forwarded-For": "41.213.201.186, 216.137.56.87",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "queryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "1xsr73hb8k",
+    "authorizer": {
+      "principalId": "dXZifsqv7i8Edt8nb"
+    },
+    "resourcePath": "/",
+    "httpMethod": "GET",
+    "requestTime": "06/Feb/2018:12:45:26 +0000",
+    "path": "/genres/",
+    "accountId": "630176884077",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "requestTimeEpoch": 1517921126560,
+    "requestId": "9af62ae7-0b3b-11e8-a5c2-af8ed236b578",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "41.213.201.186",
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "curl/7.52.1",
+      "user": null
+    },
+    "apiId": "7iajfmwxhh"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}
