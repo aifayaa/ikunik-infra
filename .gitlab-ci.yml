@@ -1,0 +1,17 @@
+image: node:latest
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - lint
+
+before_script:
+  - npm install -g recursive-install
+  - npm-recursive-install
+
+eslint:
+  stage: lint
+  script:
+    - ./node_modules/.bin/eslint . --ext .js --ignore-path .gitignore
