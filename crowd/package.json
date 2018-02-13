@@ -1,13 +1,12 @@
 {
-  "name": "contacts",
+  "name": "crowd",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa contacts API.",
+  "description": "Crowdaa crowd API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.188.0",
+    "lodash": "^4.17.5",
     "mongodb": "^3.0.2",
-    "shortid": "^2.2.8",
     "winston": "^2.4.0"
   },
   "devDependencies": {
@@ -15,6 +14,6 @@
     "serverless-webpack": "^4.2.0",
     "webpack-node-externals": "^1.6.0"
   },
-  "author": "Paul SEBASTIEN",
+  "author": "Crowdaa",
   "license": "UNLICENSED"
 }
