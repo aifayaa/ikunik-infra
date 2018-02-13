@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import shortid from 'shortid';
 import { MongoClient } from 'mongodb';
+import winston from 'winston';
 
 AWS.config.update({
   accessKeyId: process.env.AWS_KEY,
@@ -9,7 +10,9 @@ AWS.config.update({
 
 const dynamoDB = new AWS.DynamoDB();
 
-const doGetContacts = async (userId, { idsOnly, limit, search, skip, type }) => {
+const doGetContacts = async (userId, {
+  idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
+}) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const selector = {
@@ -30,6 +33,10 @@ const doGetContacts = async (userId, { idsOnly, limit, search, skip, type }) => 
     }
     if (type === 'email') selector.email = { $exists: true };
     if (type === 'text') selector.cleandedPhoneNumber = { $exists: true };
+    if (filter) {
+      const contactIDs = JSON.parse(decodeURIComponent(filter));
+      selector._id = { $in: contactIDs };
+    }
     const opts = {};
     if (idsOnly) {
       opts.fields = { _id: 1 };
@@ -40,12 +47,13 @@ const doGetContacts = async (userId, { idsOnly, limit, search, skip, type }) => 
         if (opts.limit > process.env.LIMIT_MAX | 0) throw new Error(`above ${process.env.LIMIT_MAX} contacts limit`);
       }
       if (skip) opts.skip = skip | 0;
+      if (sortBy && sortOrder) opts.sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
     }
-
-    const contacts = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .find(selector, opts).toArray();
-    const totalCount = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .find(selector, opts).count();
+    const [contacts, totalCount] = await Promise.all([
+      client.db(process.env.DB_NAME).collection(process.env.COLL_NAME).find(selector, opts)
+        .toArray(),
+      client.db(process.env.DB_NAME).collection(process.env.COLL_NAME).find(selector, opts).count(),
+    ]);
     return { contacts, totalCount };
   } finally {
     client.close();
@@ -55,8 +63,13 @@ const doGetContacts = async (userId, { idsOnly, limit, search, skip, type }) => 
 export const handleGetContacts = async (event, context, callback) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
-    const { idsOnly, limit, search, skip, type } = event.queryStringParameters || {};
-    const results = await doGetContacts(userId, { idsOnly, limit, search, skip, type });
+    winston.info(userId, event.queryStringParameters);
+    const {
+      idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
+    } = event.queryStringParameters || {};
+    const results = await doGetContacts(userId, {
+      idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
+    });
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
@@ -67,6 +80,7 @@ export const handleGetContacts = async (event, context, callback) => {
     };
     callback(null, response);
   } catch (e) {
+    winston.error(e);
     const response = {
       statusCode: 500,
       message: e.message,
