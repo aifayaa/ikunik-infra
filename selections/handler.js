@@ -79,7 +79,7 @@ const doGetSelection = async (selectionId) => {
         {
           $group: Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
             _id: '$_id',
-            content_IDs: { $addToSet: '$contentId' },
+            content_IDs: { $push: '$contentId' },
           }),
         },
       ]).toArray();
