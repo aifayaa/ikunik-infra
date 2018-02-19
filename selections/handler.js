@@ -70,16 +70,46 @@ const doGetSelection = async (selectionId) => {
           },
         },
         {
+          $lookup: {
+            from: 'audio',
+            localField: 'project.highlight',
+            foreignField: '_id',
+            as: 'audioHighlight',
+          },
+        },
+        {
+          $lookup: {
+            from: 'video',
+            localField: 'project.highlight',
+            foreignField: '_id',
+            as: 'videoHighlight',
+          },
+        },
+        {
           $project: Object.assign({}, ...selectionFields.map(field => ({ [field]: `$${field}` })), {
-            contentId: {
-              $ifNull: ['$project.highlight', '$track._id'],
+            trackHighlight: {
+              $concatArrays: ['$audioHighlight', '$videoHighlight'],
+            },
+            track: '$track',
+          }),
+        },
+        {
+          $unwind: {
+            path: '$trackHighlight',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: Object.assign({}, ...selectionFields.map(field => ({ [field]: `$${field}` })), {
+            track: {
+              $ifNull: ['$trackHighlight', '$track'],
             },
           }),
         },
         {
           $group: Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
             _id: '$_id',
-            content_IDs: { $push: '$contentId' },
+            tracks: { $push: '$track' },
           }),
         },
       ]).toArray();
