@@ -3,35 +3,46 @@ service: maintenance
 provider:
   name: aws
   runtime: nodejs6.10
-  stage: dev
+  stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
   environment:
     COLL_NAME: ${self:service}
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
   getMaintenance:
     handler: handler.handleGetMaintenance
     events:
       - http:
-          path: /
+          path: maintenance/
           method: get
-          authorizer: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: maintenanceAuthorizer
           cors: true
 
 plugins:
-  - serverless-domain-manager
   - serverless-webpack
 
 package:
   individually: true
 
 custom:
-  customDomain:
-    domainName: 'api.aws.crowdaa.com'
-    basePath: 'maintenance'
-    stage: ${self:provider.stage}
-    createRoute53Record: true
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
   webpackIncludeModules: true

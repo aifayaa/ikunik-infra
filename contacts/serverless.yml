@@ -3,7 +3,7 @@ service: contacts
 provider:
   name: aws
   runtime: nodejs6.10
-  stage: dev
+  stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
   environment:
@@ -14,32 +14,92 @@ provider:
     LIMIT_DEFAULT: '10'
     LIMIT_MAX: '100'
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
   getContacts:
     handler: handler.handleGetContacts
     events:
       - http:
-          path: /
+          path: contacts/
           method: get
-          authorizer: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: contactsAuthorizer
           cors: true
-  import:
-    handler: handler.handleImport
-    events:
-      - http: POST /import
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings:
+                filter: false
+                idsOnly: false
+                limit: false
+                search: false
+                skip: false
+                sortBy: false
+                sortOrder: false
+                type: false
+  # import:
+  #   handler: handler.handleImport
+  #   events:
+  #     - http: POST contacts/import
 
 plugins:
-  - serverless-domain-manager
   - serverless-webpack
 
 package:
   individually: true
 
 custom:
-  customDomain:
-    domainName: 'api.aws.crowdaa.com'
-    basePath: 'contacts'
-    stage: ${self:provider.stage}
-    createRoute53Record: true
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
   webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodContactsGet:
+      Properties:
+        RequestParameters:
+          method.request.header.Authorization: true
+          method.request.querystring.filter: false
+          method.request.querystring.idsOnly: false
+          method.request.querystring.limit: false
+          method.request.querystring.search: false
+          method.request.querystring.skip: false
+          method.request.querystring.sortBy: false
+          method.request.querystring.sortOrder: false
+          method.request.querystring.type: false
+        Integration:
+          RequestParameters:
+            integration.request.querystring.filter: method.request.querystring.filter
+            integration.request.querystring.idsOnly: method.request.querystring.idsOnly
+            integration.request.querystring.limit: method.request.querystring.limit
+            integration.request.querystring.search: method.request.querystring.search
+            integration.request.querystring.skip: method.request.querystring.skip
+            integration.request.querystring.sortBy: method.request.querystring.sortBy
+            integration.request.querystring.sortOrder: method.request.querystring.sortOrder
+            integration.request.querystring.type: method.request.querystring.type
+          CacheNamespace: ApiGatewayMethodContactsGetCacheNS
+          CacheKeyParameters:
+            - method.request.header.Authorization
+            - method.request.querystring.filter
+            - method.request.querystring.idsOnly
+            - method.request.querystring.limit
+            - method.request.querystring.search
+            - method.request.querystring.skip
+            - method.request.querystring.sortBy
+            - method.request.querystring.sortOrder
+            - method.request.querystring.type

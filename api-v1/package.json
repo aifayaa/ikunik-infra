@@ -1,15 +1,12 @@
 {
-  "name": "maintenance",
+  "name": "api-v1",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa maintenance API.",
+  "description": "Crowdaa base API v1.",
   "main": "handler.js",
-  "dependencies": {
-    "lodash": "^4.17.5",
-    "mongodb": "^3.0.2",
-    "winston": "^2.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "serverless-domain-manager": "^2.2.2",
     "serverless-webpack": "^4.2.0",
     "webpack-node-externals": "^1.6.0"
   },

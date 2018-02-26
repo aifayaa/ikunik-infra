@@ -10,7 +10,6 @@
     "shortid": "^2.2.8"
   },
   "devDependencies": {
-    "serverless-domain-manager": "^2.2.2",
     "serverless-webpack": "^4.2.0",
     "webpack": "^3.10.0",
     "webpack-node-externals": "^1.6.0"
