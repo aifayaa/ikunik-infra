@@ -25,7 +25,7 @@
   "requestContext": {
     "resourceId": "fstcs4",
     "authorizer": {
-      "principalId": "hGGyEYhXBbB4MrdBe"
+      "principalId": "6HDQRKcXcwDS4LH8q"
     },
     "resourcePath": "/credits",
     "httpMethod": "GET",
