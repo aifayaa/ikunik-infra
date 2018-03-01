@@ -3,35 +3,127 @@ service: crowd
 provider:
   name: aws
   runtime: nodejs6.10
-  stage: dev
+  stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
   environment:
     COLL_NAME: Project
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
   search:
     handler: handler.handleSeach
     events:
       - http:
-          path: /
+          path: crowd/
           method: get
-          authorizer: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: crowdAuthorizer
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings:
+                artist: false
+                city: false
+                country: false
+                gender: false
+                languages: false
+                limit: false
+                maximumAge: false
+                minFBFriends: false
+                minimumAge: false
+                page: false
+                project: false
+                purchased: false
+                search: false
+                sortBy: false
+                sortOrder: false
+                track: false
 
 plugins:
-  - serverless-domain-manager
   - serverless-webpack
 
 package:
   individually: true
 
 custom:
-  customDomain:
-    domainName: 'api.aws.crowdaa.com'
-    basePath: 'crowd'
-    stage: ${self:provider.stage}
-    createRoute53Record: true
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
   webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodCrowdGet:
+      Properties:
+        RequestParameters:
+          method.request.header.Authorization: true
+          method.request.querystring.artist: false
+          method.request.querystring.city: false
+          method.request.querystring.country: false
+          method.request.querystring.gender: false
+          method.request.querystring.languages: false
+          method.request.querystring.limit: false
+          method.request.querystring.maximumAge: false
+          method.request.querystring.minFBFriends: false
+          method.request.querystring.minimumAge: false
+          method.request.querystring.page: false
+          method.request.querystring.project: false
+          method.request.querystring.purchased: false
+          method.request.querystring.search: false
+          method.request.querystring.sortBy: false
+          method.request.querystring.sortOrder: false
+          method.request.querystring.track: false
+        Integration:
+          RequestParameters:
+            integration.request.querystring.artist: method.request.querystring.artist
+            integration.request.querystring.city: method.request.querystring.city
+            integration.request.querystring.country: method.request.querystring.country
+            integration.request.querystring.gender: method.request.querystring.gender
+            integration.request.querystring.languages: method.request.querystring.languages
+            integration.request.querystring.limit: method.request.querystring.limit
+            integration.request.querystring.maximumAge: method.request.querystring.maximumAge
+            integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
+            integration.request.querystring.minimumAge: method.request.querystring.minimumAge
+            integration.request.querystring.page: method.request.querystring.page
+            integration.request.querystring.project: method.request.querystring.project
+            integration.request.querystring.purchased: method.request.querystring.purchased
+            integration.request.querystring.search: method.request.querystring.search
+            integration.request.querystring.sortBy: method.request.querystring.sortBy
+            integration.request.querystring.sortOrder: method.request.querystring.sortOrder
+            integration.request.querystring.track: method.request.querystring.track
+          CacheNamespace: ApiGatewayMethodCrowdCacheNS
+          CacheKeyParameters:
+            - method.request.header.Authorization
+            - method.request.querystring.artist
+            - method.request.querystring.city
+            - method.request.querystring.country
+            - method.request.querystring.gender
+            - method.request.querystring.languages
+            - method.request.querystring.limit
+            - method.request.querystring.maximumAge
+            - method.request.querystring.minFBFriends
+            - method.request.querystring.minimumAge
+            - method.request.querystring.page
+            - method.request.querystring.project
+            - method.request.querystring.purchased
+            - method.request.querystring.search
+            - method.request.querystring.sortBy
+            - method.request.querystring.sortOrder
+            - method.request.querystring.track
