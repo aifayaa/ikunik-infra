@@ -1,0 +1,62 @@
+service: balances
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 60
+  environment:
+    DB_NAME: crowdaaDev
+    MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+
+functions:
+  getBalances:
+    handler: handler.handleGetBalances
+    events:
+      - http:
+          path: balances/
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: balancesAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
+  webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodBalanceGet:
+      Properties:
+        RequestParameters:
+          method.request.header.Authorization: true
+        Integration:
+          CacheNamespace: ApiGatewayMethodBalancesGetCacheNS
+          CacheKeyParameters:
+            - method.request.header.Authorization
