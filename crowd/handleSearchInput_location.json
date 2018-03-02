@@ -1,0 +1,70 @@
+{
+  "resource": "/",
+  "path": "/crowd",
+  "httpMethod": "GET",
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7",
+    "Authorization": "Bearer xMNufM_zOz7BNaVRlCrs_C8_UgXSnpH3mPJT95kS0J6",
+    "cache-control": "no-cache",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "RE",
+    "dnt": "1",
+    "Host": "api.aws.crowdaa.com",
+    "origin": "http://localhost:3000",
+    "pragma": "no-cache",
+    "Referer": "http://localhost:3000/crowd",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36",
+    "Via": "2.0 523db8f46d98334ac6b5debbf315e15b.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "NiEhYynn0ZiEtkxsqol_JnZ6s9YHLe7wkjYuxWvyaRAGQXqNC0kDdQ==",
+    "X-Amzn-Trace-Id": "Root=1-5a867f3f-d22960f499531d1c5d874b04",
+    "X-Forwarded-For": "41.213.201.186, 54.182.244.60",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "queryStringParameters": {
+    "limit": "10",
+    "location": "%7B%22lat%22%3A%22-21.33686141863471%22%2C%22lng%22%3A%2255.44376851002346%22%7D",
+    "page": "1",
+    "project": "9i8xNEEYTFMsmqiMk",
+    "range": 50000
+  },
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "hmn6ldnfe7",
+    "authorizer": {
+      "principalId": "dXZifsqv7i8Edt8nb"
+    },
+    "resourcePath": "/",
+    "httpMethod": "GET",
+    "requestTime": "16/Feb/2018:06:50:39 +0000",
+    "path": "/crowd",
+    "accountId": "630176884077",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "requestTimeEpoch": 1518763839702,
+    "requestId": "b322e7f0-12e5-11e8-88c3-dfd4308709a3",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "41.213.201.186",
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36",
+      "user": null
+    },
+    "apiId": "maf1nzyck5"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}
