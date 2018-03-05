@@ -22,7 +22,22 @@ functions:
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: usersAuthorizer
+            name: usersBalancesAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getPurchases:
+    handler: handler.handleGetPurchases
+    events:
+      - http:
+          path: users/{id}/projects/purchases
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersPurchasesAuthorizer
           cors: true
           request:
             parameters:
