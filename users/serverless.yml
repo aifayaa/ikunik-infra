@@ -18,12 +18,16 @@ functions:
     handler: handler.handleGetBalances
     events:
       - http:
-          path: users/me/balances
+          path: users/{id}/balances
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
             name: usersAuthorizer
           cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack

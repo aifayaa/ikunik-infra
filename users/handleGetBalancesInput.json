@@ -1,5 +1,5 @@
 {
-  "resource": "/users/me/balances",
+  "resource": "/users/{id}/balances",
   "path": "/",
   "httpMethod": "GET",
   "headers": {
@@ -27,10 +27,10 @@
     "authorizer": {
       "principalId": "FrqHiwN6A54uskHbY"
     },
-    "resourcePath": "/users/me/balances",
+    "resourcePath": "/users/{id}/balances",
     "httpMethod": "GET",
     "requestTime": "30/Jan/2018:16:38:10 +0000",
-    "path": "/dev/users/me/balances",
+    "path": "/dev/users/FrqHiwN6A54uskHbY/balances",
     "accountId": "630176884077",
     "protocol": "HTTP/1.1",
     "stage": "dev",

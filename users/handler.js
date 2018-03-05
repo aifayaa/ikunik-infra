@@ -71,6 +71,19 @@ const doGetBalances = async (userId) => {
 
 export const handleGetBalances = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: 'Forbidden',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+    return;
+  }
   try {
     const results = await doGetBalances(userId);
     const response = {
