@@ -1,5 +1,5 @@
 {
-  "resource": "/users/{id}/balances",
+  "resource": "/users/{id}/projects/purchases",
   "path": "/",
   "httpMethod": "GET",
   "headers": {
@@ -21,18 +21,18 @@
     "X-Forwarded-Proto": "https"
   },
   "pathParameters": {
-    "id": "FrqHiwN6A54uskHbY"
+    "id": "dXZifsqv7i8Edt8nb"
   },
   "stageVariables": null,
   "requestContext": {
     "resourceId": "fstcs4",
     "authorizer": {
-      "principalId": "FrqHiwN6A54uskHbY"
+      "principalId": "dXZifsqv7i8Edt8nb"
     },
-    "resourcePath": "/users/{id}/balances",
+    "resourcePath": "/users/{id}/projects/purchases",
     "httpMethod": "GET",
     "requestTime": "30/Jan/2018:16:38:10 +0000",
-    "path": "/dev/users/FrqHiwN6A54uskHbY/balances",
+    "path": "/dev/users/dXZifsqv7i8Edt8nb/projects/purchases",
     "accountId": "630176884077",
     "protocol": "HTTP/1.1",
     "stage": "dev",
