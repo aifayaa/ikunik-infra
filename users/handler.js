@@ -139,6 +139,55 @@ const doGetPurchases = async (userId) => {
   }
 };
 
+const doGetPayouts = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const record = await client.db(process.env.DB_NAME).collection('profil')
+      .aggregate([
+        { $match: { UserId: userId } },
+        {
+          $lookup: {
+            from: 'payouts',
+            localField: '_id',
+            foreignField: 'profileId',
+            as: 'payouts',
+          },
+        },
+        {
+          $unwind: {
+            path: '$payouts',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalBaseAmount: { $sum: '$payouts.baseAmount' },
+            totalFees: { $sum: '$payouts.fees' },
+            totalCrowdaa: { $sum: '$payouts.crowdaa' },
+            totalIncome: { $sum: '$payouts.income' },
+            payouts: { $push: '$payouts' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalBaseAmount: 1,
+            totalFees: 1,
+            totalCrowdaa: 1,
+            totalIncome: 1,
+            payouts: 1,
+            unity: { $literal: 'credits' },
+            symbol: { $literal: 'credits' },
+          },
+        },
+      ]).toArray();
+    return record[0];
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetBalances = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
   const urlId = event.pathParameters.id;
@@ -183,6 +232,37 @@ export const handleGetPurchases = async (event, context, callback) => {
   }
   try {
     const results = await doGetPurchases(userId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetPayouts = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: 'Forbidden',
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const results = await doGetPayouts(userId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
