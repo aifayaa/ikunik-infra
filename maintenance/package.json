@@ -1,16 +1,18 @@
 {
-  "name": "contactLists",
+  "name": "maintenance",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa contactLists API.",
+  "description": "Crowdaa maintenance API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.0.2"
+    "lodash": "^4.17.5",
+    "mongodb": "^3.0.2",
+    "winston": "^2.4.0"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",
     "webpack-node-externals": "^1.6.0"
   },
-  "author": "Paul SEBASTIEN",
+  "author": "Crowdaa",
   "license": "UNLICENSED"
 }

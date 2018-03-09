@@ -1,0 +1,18 @@
+{
+  "credit10": {
+    "price": 0.99,
+    "credits": 10
+  },
+  "credit50": {
+    "price": 4.99,
+    "credits": 50
+  },
+  "credit100": {
+    "price": 9.99,
+    "credits": 100
+  },
+  "credit160": {
+    "price": 14.99,
+    "credits": 160
+  }
+}

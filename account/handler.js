@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { MongoClient } from 'mongodb';
+import winston from 'winston';
 
 const doAuthorize = async (hashedToken) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -36,9 +37,11 @@ const hashLoginToken = (loginToken) => {
 
 export const handleAuthorize = async ({ authorizationToken, methodArn }, context, callback) => {
   try {
+    winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
     const userId = await doAuthorize(hashedLoginToken);
+    winston.info(userId);
     callback(null, generatePolicy('allow', methodArn, userId));
   } catch (e) {
     const response = {

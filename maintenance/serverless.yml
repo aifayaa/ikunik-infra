@@ -1,4 +1,4 @@
-service: contactLists
+service: maintenance
 
 provider:
   name: aws
@@ -7,7 +7,7 @@ provider:
   memorySize: 128
   timeout: 60
   environment:
-    COLL_NAME: artistContactList
+    COLL_NAME: ${self:service}
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   apiGateway:
@@ -15,22 +15,16 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
-  getContactList:
-    handler: handler.handleGetContactList
+  getMaintenance:
+    handler: handler.handleGetMaintenance
     events:
       - http:
-          path: contactLists/{id}
+          path: maintenance/
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: contactListsAuthorizer
+            name: maintenanceAuthorizer
           cors: true
-          request:
-            parameters:
-              headers:
-                Authorization: true
-              paths:
-                id: true
 
 plugins:
   - serverless-webpack
@@ -52,18 +46,3 @@ custom:
     prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
 
   webpackIncludeModules: true
-
-resources:
-  Resources:
-    ApiGatewayMethodContactlistsIdVarGet:
-      Properties:
-        RequestParameters:
-          method.request.header.Authorization: true
-          method.request.path.id: true
-        Integration:
-          RequestParameters:
-            integration.request.path.id: method.request.path.id
-          CacheNamespace: ApiGatewayMethodContactlistsIdVarGetCacheNS
-          CacheKeyParameters:
-            - method.request.header.Authorization
-            - method.request.path.id

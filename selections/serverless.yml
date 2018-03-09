@@ -1,4 +1,4 @@
-service: contactLists
+service: selections
 
 provider:
   name: aws
@@ -7,7 +7,7 @@ provider:
   memorySize: 128
   timeout: 60
   environment:
-    COLL_NAME: artistContactList
+    COLL_NAME: selection
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   apiGateway:
@@ -15,20 +15,18 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
-  getContactList:
-    handler: handler.handleGetContactList
+  getSelection:
+    handler: handler.handleGetSelection
     events:
       - http:
-          path: contactLists/{id}
+          path: selections/{id}
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: contactListsAuthorizer
+            name: selectionsAuthorizer
           cors: true
           request:
             parameters:
-              headers:
-                Authorization: true
               paths:
                 id: true
 
@@ -55,15 +53,13 @@ custom:
 
 resources:
   Resources:
-    ApiGatewayMethodContactlistsIdVarGet:
+    ApiGatewayMethodSelectionsIdVarGet:
       Properties:
         RequestParameters:
-          method.request.header.Authorization: true
           method.request.path.id: true
         Integration:
           RequestParameters:
             integration.request.path.id: method.request.path.id
-          CacheNamespace: ApiGatewayMethodContactlistsIdVarGetCacheNS
+          CacheNamespace: ApiGatewayMethodSelectionsIdVarGetCacheNS
           CacheKeyParameters:
-            - method.request.header.Authorization
             - method.request.path.id

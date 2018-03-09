@@ -1,16 +1,17 @@
 {
-  "name": "contactLists",
+  "name": "credits",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa contactLists API.",
+  "description": "Crowdaa credits API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.0.2"
+    "mongodb": "^3.0.2",
+    "validator": "^9.4.0"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",
     "webpack-node-externals": "^1.6.0"
   },
-  "author": "Paul SEBASTIEN",
+  "author": "Crowdaa",
   "license": "UNLICENSED"
 }

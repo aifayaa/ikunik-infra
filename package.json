@@ -5,15 +5,18 @@
   "description": "Crowdaa AWS microservices implemented via serverless.",
   "main": "index.js",
   "dependencies": {
-    "babel-runtime": "^6.26.0"
+    "babel-runtime": "^6.26.0",
+    "eslint": "^4.17.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2016": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
-    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "webpack": "^3.10.0"
   },

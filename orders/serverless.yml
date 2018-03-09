@@ -1,4 +1,4 @@
-service: contactLists
+service: orders
 
 provider:
   name: aws
@@ -6,8 +6,16 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
-    COLL_NAME: artistContactList
+    REGION: us-east-1
+    IOS_FEES: 0.3
+    COLL_NAME: billing
+    STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   apiGateway:
@@ -15,22 +23,16 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
-  getContactList:
-    handler: handler.handleGetContactList
+  openOrder:
+    handler: handler.handleOpenOrder
     events:
       - http:
-          path: contactLists/{id}
-          method: get
+          path: orders/
+          method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: contactListsAuthorizer
+            name: ordersAuthorizer
           cors: true
-          request:
-            parameters:
-              headers:
-                Authorization: true
-              paths:
-                id: true
 
 plugins:
   - serverless-webpack
@@ -52,18 +54,3 @@ custom:
     prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
 
   webpackIncludeModules: true
-
-resources:
-  Resources:
-    ApiGatewayMethodContactlistsIdVarGet:
-      Properties:
-        RequestParameters:
-          method.request.header.Authorization: true
-          method.request.path.id: true
-        Integration:
-          RequestParameters:
-            integration.request.path.id: method.request.path.id
-          CacheNamespace: ApiGatewayMethodContactlistsIdVarGetCacheNS
-          CacheKeyParameters:
-            - method.request.header.Authorization
-            - method.request.path.id
