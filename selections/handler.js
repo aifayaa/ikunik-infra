@@ -113,6 +113,7 @@ const doGetSelection = async (selectionId) => {
           }),
         },
       ]).toArray();
+    if (!selection[0]) throw new Error('Not found');
     return selection[0];
   } finally {
     client.close();
@@ -122,6 +123,7 @@ const doGetSelection = async (selectionId) => {
 export const handleGetSelection = async (event, context, callback) => {
   try {
     const selectionId = event.pathParameters.id;
+    if (!selectionId) throw new Error('Missing id');
     const results = await doGetSelection(selectionId);
     const response = {
       statusCode: 200,
@@ -133,10 +135,14 @@ export const handleGetSelection = async (event, context, callback) => {
     };
     callback(null, response);
   } catch (e) {
+    let statusCode = 500;
+    if (e.message === 'Not found') {
+      statusCode = 404;
+    }
     winston.error(e);
     const response = {
-      statusCode: 500,
-      message: e.message,
+      statusCode,
+      body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
   }
