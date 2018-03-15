@@ -15,11 +15,11 @@ const doGetContacts = async (userId, {
 }) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
+    const profile = await client.db(process.env.DB_NAME).collection('profil').findOne({
+      UserId: userId,
+    });
     const selector = {
-      $or: [
-        { invitedByUserID: userId },
-        { invitedByUser_ID: userId },
-      ],
+      invitedByProfil_ID: profile._id,
     };
     // FIXME: $text need complete words, regex slow performances
     // if (search) selector.$text = { $search: search };
