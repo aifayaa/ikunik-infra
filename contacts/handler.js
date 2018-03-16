@@ -131,3 +131,54 @@ export const handleImport = async (event, context, callback) => {
     callback(null, response);
   }
 };
+
+
+const doDeleteContact = async (userId, contactId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const profile = await client.db(process.env.DB_NAME).collection('profil').findOne({
+      UserId: userId,
+    });
+    if (!profile) throw new Error('No profile found');
+
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME).deleteOne({
+      invitedByProfil_ID: profile._id,
+      _id: contactId,
+    });
+
+    // Updates all contact lists
+    await client.db(process.env.DB_NAME).collection('artistContactList').updateMany({
+      profil_ID: profile._id,
+      contactIDs: contactId,
+    }, {
+      $pull: { contactIDs: contactId },
+    });
+
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
+export const handleDeleteContact = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const contactId = event.pathParameters.id;
+    const results = await doDeleteContact(userId, contactId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify(e.message),
+    };
+    callback(null, response);
+  }
+};

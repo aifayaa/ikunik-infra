@@ -19,6 +19,23 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
+  deleteContact:
+    handler: handler.handleDeleteContact
+    events:
+      - http:
+          path: contacts/{id}
+          method: delete
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: contactsAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
   getContacts:
     handler: handler.handleGetContacts
     events:
