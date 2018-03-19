@@ -20,7 +20,10 @@
       "X-Forwarded-Port": "443",
       "X-Forwarded-Proto": "https"
     },
-    "queryStringParameters": null,
+    "queryStringParameters": {
+      "limit": 5,
+      "skip": 5
+    },
     "pathParameters": {
       "id": "5ZvM7WrJshaAvMHLu"
     },
