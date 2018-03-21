@@ -5,7 +5,9 @@
   "description": "Crowdaa balance API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.0.2"
+    "aws-sdk": "^2.188.0",
+    "mongodb": "^3.0.2",
+    "validator": "^9.4.0"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",

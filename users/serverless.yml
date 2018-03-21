@@ -6,7 +6,15 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
+    STAGE: ${self:provider.stage}
+    MINIMUM_PAYOUT: 600
+    CROWDAA_FEES: 0.2
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   apiGateway:
@@ -14,6 +22,21 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
+  getProfile:
+    handler: handler.handleGetProfile
+    events:
+      - http:
+          path: users/{id}/profile
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   getBalances:
     handler: handler.handleGetBalances
     events:
@@ -50,6 +73,20 @@ functions:
       - http:
           path: users/{id}/payouts
           method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  addPayout:
+    handler: handler.handleAddPayout
+    events:
+      - http:
+          path: users/{id}/payouts
+          method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
             name: usersAuthorizer
