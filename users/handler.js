@@ -1,4 +1,10 @@
 import { MongoClient } from 'mongodb';
+import validator from 'validator';
+import Lambda from 'aws-sdk/clients/lambda';
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 const doGetBalances = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -188,13 +194,92 @@ const doGetPayouts = async (userId) => {
   }
 };
 
+const doGetProfile = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const profile = await client.db(process.env.DB_NAME).collection('profil')
+      .findOne({ UserId: userId });
+    return profile;
+  } finally {
+    client.close();
+  }
+};
+
+const doGetPaymentInfoByMethod = async (userId, method, profile) => {
+  let wProfile;
+  if (method === 'paypal' || method === 'btc') {
+    wProfile = profile || await doGetProfile(userId);
+    if (!wProfile) throw new Error('no profile found');
+  }
+  switch (method) {
+    case 'paypal':
+      if (!wProfile.payPalEmail) throw new Error('no paypal account found');
+      return wProfile.payPalEmail;
+    case 'credits':
+      return userId;
+    case 'btc':
+      if (!wProfile.btcAddress) throw new Error('no bitcoin address account found');
+      return wProfile.btcAddress;
+    default:
+      throw new Error(`payment method ${method} not supported yet`);
+  }
+};
+
+const doAskPayout = async (userId, amount, method) => {
+  const payouts = await doGetPayouts(userId);
+  const purchases = await doGetPurchases(userId);
+  const maxDemand = purchases.total - payouts.totalBaseAmount;
+  if (!validator.isInt(amount, {
+    min: process.env.MINIMUM_PAYOUT,
+    allow_leading_zeroes: false,
+    max: maxDemand,
+  })) {
+    throw new Error('Wrong amount');
+  }
+  const profile = await doGetProfile(userId);
+  if (!profile) throw new Error('no profile found');
+
+  const params = {
+    FunctionName: `fees-${process.env.STAGE}-getFees`,
+  };
+  const { Payload } = await lambda.invoke(params).promise();
+  const res = JSON.parse(Payload);
+  if (res.statusCode !== 200) {
+    throw new Error(`getFees handler failed: ${res.body}`);
+  }
+  const feesPercentage = JSON.parse(res.body).globalAvgFees / 100;
+  const fees = Number(Math.round(feesPercentage * amount));
+  const crowdaa = Number(Math.round(process.env.CROWDAA_FEES * (amount - fees)));
+  const payoutData = {
+    method,
+    userId,
+    fees,
+    crowdaa,
+    date: new Date(),
+    baseAmount: Number(amount),
+    income: Number((amount - fees - crowdaa)),
+    receiver: await doGetPaymentInfoByMethod(userId, method, profile),
+    state: 'pending',
+    profileId: profile._id,
+  };
+
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    await client.db(process.env.DB_NAME).collection('payouts')
+      .insertOne(payoutData);
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetBalances = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
   const urlId = event.pathParameters.id;
   if (userId !== urlId) {
     const response = {
       statusCode: 403,
-      body: 'Forbidden',
+      body: JSON.stringify({ message: 'Forbidden' }),
     };
     callback(null, response);
     return;
@@ -213,7 +298,7 @@ export const handleGetBalances = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
   }
@@ -225,7 +310,7 @@ export const handleGetPurchases = async (event, context, callback) => {
   if (userId !== urlId) {
     const response = {
       statusCode: 403,
-      body: 'Forbidden',
+      body: JSON.stringify({ message: 'Forbidden' }),
     };
     callback(null, response);
     return;
@@ -244,7 +329,7 @@ export const handleGetPurchases = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
   }
@@ -256,7 +341,7 @@ export const handleGetPayouts = async (event, context, callback) => {
   if (userId !== urlId) {
     const response = {
       statusCode: 403,
-      body: 'Forbidden',
+      body: JSON.stringify({ message: 'Forbidden' }),
     };
     callback(null, response);
     return;
@@ -275,7 +360,73 @@ export const handleGetPayouts = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleAddPayout = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const { amount, method } = JSON.parse(event.body);
+    if (!amount || !method) {
+      throw new Error('Bad arguments');
+    }
+    const results = await doAskPayout(userId, amount, method);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetProfile = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const results = await doGetProfile(userId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
   }
