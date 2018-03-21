@@ -24,7 +24,8 @@ const doOpenOrder = async (creditPackId, userId) => {
       fees: computeiOSFees(price),
       credits,
       date: new Date(),
-      provider: 'ios',
+      provider: 'apple',
+      status: 'paid',
     };
 
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
