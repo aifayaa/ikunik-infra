@@ -1,0 +1,19 @@
+{
+  "name": "fees",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa fees API.",
+  "main": "handler.js",
+  "dependencies": {
+    "mongo-round": "^1.0.0",
+    "mongodb": "^3.0.2"
+  },
+  "devDependencies": {
+    "serverless-domain-manager": "^2.2.2",
+    "serverless-webpack": "^4.2.0",
+    "webpack": "^3.10.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}
