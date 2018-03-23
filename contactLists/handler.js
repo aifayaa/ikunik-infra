@@ -30,7 +30,7 @@ const doGetContactList = async (userId, contactListId, {
       {
         $unwind: {
           path: '$list.contactIDs',
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -48,7 +48,7 @@ const doGetContactList = async (userId, contactListId, {
     aggregation = aggregation.concat([{
       $unwind: {
         path: '$contact',
-        preserveNullAndEmptyArrays: false,
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
