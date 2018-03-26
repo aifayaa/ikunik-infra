@@ -3,13 +3,12 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import winston from 'winston';
 
-const pipelineLocationStart = (location, range) => [
+const pipelineLocationStart = (coordinates, range) => [
   {
     $geoNear: {
       near: {
         type: 'Point',
-        coordinates: Object.values(JSON.parse(decodeURIComponent(location))).reverse()
-          .map(Number.parseFloat),
+        coordinates: Object.values(JSON.parse(coordinates)).reverse(),
       },
       distanceField: 'result',
       includeLocs: 'location.loc',
@@ -155,10 +154,10 @@ const pipelineStart = (userId => [
 const doPipeline = (userId, {
   artist,
   city,
+  coordinates,
   country,
   gender,
   languages,
-  location,
   maximumAge,
   minFBFriends,
   minimumAge,
@@ -170,10 +169,10 @@ const doPipeline = (userId, {
   sortBy,
   sortOrder,
 }) => {
-  const pipeline = location ? pipelineLocationStart(location, range) : pipelineStart(userId);
+  const pipeline = coordinates ? pipelineLocationStart(coordinates, range) : pipelineStart(userId);
   pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'desc' ? 1 : -1) } });
 
-  if (location) {
+  if (coordinates) {
     if (project || artist || track) pipeline.splice(9, 0, { $match: { $and: [] } });
 
     if (project) pipeline[9].$match.$and.push({ 'project._id': project });
@@ -215,16 +214,16 @@ const doPipeline = (userId, {
   return pipeline;
 };
 
-const doSeach = async (pipeline, { page, limit = 20, location }) => {
+const doSeach = async (pipeline, { page, limit = 20, coordinates }) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const countPipeline = pipeline.concat({ $group: { _id: null, fancount: { $sum: 1 } } });
     if (page > 1) pipeline.push({ $skip: (page - 1) * limit | 0 });
     pipeline.push({ $limit: limit | 0 });
     const [crowd, fancount] = await Promise.all([
-      client.db(process.env.DB_NAME).collection(location ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
+      client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
         .toArray(),
-      client.db(process.env.DB_NAME).collection(location ? 'users' : process.env.COLL_NAME).aggregate(countPipeline)
+      client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(countPipeline)
         .toArray(),
     ]);
     return { crowd, count: get(fancount, '[0].fancount', 0) };

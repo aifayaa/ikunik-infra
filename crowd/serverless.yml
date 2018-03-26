@@ -32,11 +32,11 @@ functions:
               querystrings:
                 artist: false
                 city: false
+                coordinates: false
                 country: false
                 gender: false
                 languages: false
                 limit: false
-                location: false
                 maximumAge: false
                 minFBFriends: false
                 minimumAge: false
@@ -77,11 +77,11 @@ resources:
           method.request.header.Authorization: true
           method.request.querystring.artist: false
           method.request.querystring.city: false
+          method.request.querystring.coordinates: false
           method.request.querystring.country: false
           method.request.querystring.gender: false
           method.request.querystring.languages: false
           method.request.querystring.limit: false
-          method.request.querystring.location: false
           method.request.querystring.maximumAge: false
           method.request.querystring.minFBFriends: false
           method.request.querystring.minimumAge: false
@@ -96,11 +96,11 @@ resources:
           RequestParameters:
             integration.request.querystring.artist: method.request.querystring.artist
             integration.request.querystring.city: method.request.querystring.city
+            integration.request.querystring.coordinates: method.request.querystring.coordinates
             integration.request.querystring.country: method.request.querystring.country
             integration.request.querystring.gender: method.request.querystring.gender
             integration.request.querystring.languages: method.request.querystring.languages
             integration.request.querystring.limit: method.request.querystring.limit
-            integration.request.querystring.location: method.request.querystring.location
             integration.request.querystring.maximumAge: method.request.querystring.maximumAge
             integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
             integration.request.querystring.minimumAge: method.request.querystring.minimumAge
@@ -116,11 +116,11 @@ resources:
             - method.request.header.Authorization
             - method.request.querystring.artist
             - method.request.querystring.city
+            - method.request.querystring.coordinates
             - method.request.querystring.country
             - method.request.querystring.gender
             - method.request.querystring.languages
             - method.request.querystring.limit
-            - method.request.querystring.location
             - method.request.querystring.maximumAge
             - method.request.querystring.minFBFriends
             - method.request.querystring.minimumAge
