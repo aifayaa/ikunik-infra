@@ -36,6 +36,7 @@ functions:
                 gender: false
                 languages: false
                 limit: false
+                location: false
                 maximumAge: false
                 minFBFriends: false
                 minimumAge: false
@@ -80,6 +81,7 @@ resources:
           method.request.querystring.gender: false
           method.request.querystring.languages: false
           method.request.querystring.limit: false
+          method.request.querystring.location: false
           method.request.querystring.maximumAge: false
           method.request.querystring.minFBFriends: false
           method.request.querystring.minimumAge: false
@@ -98,6 +100,7 @@ resources:
             integration.request.querystring.gender: method.request.querystring.gender
             integration.request.querystring.languages: method.request.querystring.languages
             integration.request.querystring.limit: method.request.querystring.limit
+            integration.request.querystring.location: method.request.querystring.location
             integration.request.querystring.maximumAge: method.request.querystring.maximumAge
             integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
             integration.request.querystring.minimumAge: method.request.querystring.minimumAge
@@ -117,6 +120,7 @@ resources:
             - method.request.querystring.gender
             - method.request.querystring.languages
             - method.request.querystring.limit
+            - method.request.querystring.location
             - method.request.querystring.maximumAge
             - method.request.querystring.minFBFriends
             - method.request.querystring.minimumAge
