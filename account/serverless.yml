@@ -11,7 +11,9 @@ provider:
 functions:
   authorize:
     handler: handler.handleAuthorize
-    
+  authorizeAdmin:
+    handler: handler.handleAuthorizeAdmin
+
 plugins:
   - serverless-webpack
 

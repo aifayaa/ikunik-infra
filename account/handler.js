@@ -15,6 +15,22 @@ const doAuthorize = async (hashedToken) => {
   }
 };
 
+const doAuthorizeAdmin = async (hashedToken) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const user = await client.db('crowdaaDev').collection('users').findOne(
+      {
+        'services.resume.loginTokens': { $elemMatch: { hashedToken } },
+        'profile.isSuperAdmin': true,
+      },
+      { projection: { _id: 1 } },
+    );
+    return user._id;
+  } finally {
+    client.close();
+  }
+};
+
 const generatePolicy = (Effect, Resource, principalId) => ({
   principalId,
   policyDocument: {
@@ -41,6 +57,24 @@ export const handleAuthorize = async ({ authorizationToken, methodArn }, context
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
     const userId = await doAuthorize(hashedLoginToken);
+    winston.info(userId);
+    callback(null, generatePolicy('allow', methodArn, userId));
+  } catch (e) {
+    const response = {
+      statusCode: 401,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleAuthorizeAdmin = async ({ authorizationToken, methodArn }, context
+  , callback) => {
+  try {
+    winston.info(authorizationToken, methodArn);
+    const loginToken = authorizationToken.split(' ')[1];
+    const hashedLoginToken = hashLoginToken(loginToken);
+    const userId = await doAuthorizeAdmin(hashedLoginToken);
     winston.info(userId);
     callback(null, generatePolicy('allow', methodArn, userId));
   } catch (e) {
