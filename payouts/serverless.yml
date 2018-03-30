@@ -14,6 +14,7 @@ provider:
   environment:
     REGION: us-east-1
     COLL_NAME: payouts
+    TX_CREDITS: 0.1
     STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
@@ -28,6 +29,16 @@ functions:
       - http:
           path: payouts/
           method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: payoutsAuthorizer
+          cors: true
+  putPayout:
+    handler: handler.handlePutPayout
+    events:
+      - http:
+          path: payouts/
+          method: put
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
             name: payoutsAuthorizer
