@@ -1,43 +1,69 @@
 import { MongoClient } from 'mongodb';
 
-const doGetContactList = async (userId, contactListId) => {
+const doGetContactList = async (userId, contactListId, {
+  limit, skip, sortBy, sortOrder,
+}) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const contactList = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .aggregate([
-        { $match: { _id: contactListId, user_ID: userId } },
-        {
-          $unwind: {
-            path: '$contactIDs',
-            preserveNullAndEmptyArrays: false,
-          },
+    const opts = {};
+    opts.limit = limit | 0;
+    if (skip) opts.skip = skip;
+    if (sortBy && sortOrder) opts.sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
+
+    let aggregation = [
+      { $match: { UserId: userId } },
+      {
+        $lookup: {
+          from: process.env.COLL_NAME,
+          localField: '_id',
+          foreignField: 'profil_ID',
+          as: 'list',
         },
-        {
-          $lookup: {
-            from: 'contacts',
-            localField: 'contactIDs',
-            foreignField: '_id',
-            as: 'contact',
-          },
+      },
+      {
+        $unwind: {
+          path: '$list',
+          preserveNullAndEmptyArrays: false,
         },
-        {
-          $unwind: {
-            path: '$contact',
-            preserveNullAndEmptyArrays: false,
-          },
+      },
+      { $match: { 'list._id': contactListId } },
+      {
+        $unwind: {
+          path: '$list.contactIDs',
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $group: {
-            _id: '$_id',
-            contacts: { $addToSet: '$contact' },
-            contactListName: { $first: '$contactListName' },
-            date: { $first: '$date' },
-            profil_ID: { $first: '$profil_ID' },
-            type: { $first: '$type' },
-            user_ID: { $first: '$user_ID' },
-          },
+      },
+      {
+        $lookup: {
+          from: 'contacts',
+          localField: 'list.contactIDs',
+          foreignField: '_id',
+          as: 'contact',
         },
-      ]).toArray();
+      },
+    ];
+    if (opts.sort) aggregation.push({ $sort: opts.sort });
+    if (opts.skip) aggregation.push({ $skip: opts.skip });
+    if (opts.limit) aggregation.push({ $limit: opts.limit });
+    aggregation = aggregation.concat([{
+      $unwind: {
+        path: '$contact',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $group: {
+        _id: '$list._id',
+        contacts: { $addToSet: '$contact' },
+        contactListName: { $first: '$list.contactListName' },
+        date: { $first: '$list.date' },
+        profil_ID: { $first: '$list.profil_ID' },
+        type: { $first: '$list.type' },
+        user_ID: { $first: '$list.user_ID' },
+      },
+    }]);
+    const contactList = await client.db(process.env.DB_NAME).collection('profil')
+      .aggregate(aggregation).toArray();
     return contactList[0];
   } finally {
     client.close();
@@ -48,7 +74,12 @@ export const handleGetContactList = async (event, context, callback) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
     const contactListId = event.pathParameters.id;
-    const results = await doGetContactList(userId, contactListId);
+    const {
+      limit, skip, sortBy, sortOrder,
+    } = event.queryStringParameters || {};
+    const results = await doGetContactList(userId, contactListId, {
+      limit, skip, sortBy, sortOrder,
+    });
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
