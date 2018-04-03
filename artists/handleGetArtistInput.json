@@ -1,0 +1,59 @@
+{
+  "resource": "/artists/{id}",
+  "path": "/artists/0",
+  "httpMethod": "GET",
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate",
+    "cache-control": "no-cache",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "RE",
+    "Host": "xoayfol0ig.execute-api.us-east-1.amazonaws.com",
+    "Postman-Token": "e371109f-916c-4051-951e-ccdf8feadf99",
+    "User-Agent": "PostmanRuntime/7.1.1",
+    "Via": "1.1 79503619d600dbc1c9e04a650d3d7f3f.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "ljANohHoxT6Rf-ORyzqys_iq_JWde6K_331oyeODMU0I1cD-CEZ6nQ==",
+    "X-Amzn-Trace-Id": "Root=1-5ac32a8d-e95bf274f2530a3ad8b28803",
+    "X-Forwarded-For": "41.213.201.186, 54.182.239.53",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "queryStringParameters": null,
+  "pathParameters": {
+    "id": "bXsEMyQyL7kW4QaPj"
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "b0l8fq",
+    "resourcePath": "/artists/{id}",
+    "httpMethod": "GET",
+    "extendedRequestId": "EwOWFE5foAMFmXw=",
+    "requestTime": "03/Apr/2018:07:17:33 +0000",
+    "path": "/dev/artists/0",
+    "accountId": "630176884077",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "requestTimeEpoch": 1522739853365,
+    "requestId": "13f4d6d0-370f-11e8-a87e-a5b0df710e70",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "41.213.201.186",
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "PostmanRuntime/7.1.1",
+      "user": null
+    },
+    "apiId": "xoayfol0ig"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}

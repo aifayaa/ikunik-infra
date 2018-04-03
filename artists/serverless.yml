@@ -1,0 +1,69 @@
+service: artists
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 60
+  environment:
+    COLL_NAME: artists
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+
+functions:
+  getArtist:
+    handler: handler.handleGetArtist
+    events:
+      - http:
+          path: artists/{id}
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: artistsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
+  mongoDB:
+    dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
+    prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+
+  webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodArtistsIdVarGet:
+      Properties:
+        RequestParameters:
+          method.request.path.id: true
+        Integration:
+          RequestParameters:
+            integration.request.path.id: method.request.path.id
+          CacheNamespace: ApiGatewayMethodArtistsIdVarGetCacheNS
+          CacheKeyParameters:
+            - method.request.path.id
