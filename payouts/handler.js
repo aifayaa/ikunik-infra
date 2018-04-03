@@ -41,7 +41,7 @@ const doPutPayout = async (id, resp) => {
     const payout = await doGetPayout(id);
     if (!payout) throw new Error('payout not found');
 
-    const {income, state, method, receiver } = payout;
+    const { income, state, method, receiver } = payout;
     if (!validator.isIn(state, ['processing', 'pending'])) {
       throw new Error('invalid payout state');
     }
@@ -57,24 +57,24 @@ const doPutPayout = async (id, resp) => {
       patch = {
         state: 'rejected',
         rejectedAt: new Date(),
-      }
+      };
     } else if (state === 'processing') {
       patch = {
         state: 'done',
         paidAt: new Date(),
-      }
+      };
     } else if (state === 'pending') {
       if (method === 'paypal') {
         patch = {
           state: 'processing',
           validatedAt: new Date(),
-        }
+        };
       }
       if (method === 'credits') {
         patch = {
           state: 'done',
           paidAt: new Date(),
-        }
+        };
         const params = {
           FunctionName: `credits-${process.env.STAGE}-addCredits`,
           Payload: JSON.stringify({ userId: receiver, amount: `${income}` }),
@@ -89,7 +89,7 @@ const doPutPayout = async (id, resp) => {
     }
 
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .updateOne({ _id: id }, { $set: patch });    
+      .updateOne({ _id: id }, { $set: patch });
     return true;
   } finally {
     client.close();
@@ -120,7 +120,7 @@ export const handleGetPayouts = async (event, context, callback) => {
 export const handlePutPayout = async (event, context, callback) => {
   try {
     const { id, resp } = JSON.parse(event.body);
-    if (!id || typeof(resp) !== 'boolean') {
+    if (!id || typeof resp !== 'boolean') {
       throw new Error('mal formed request');
     }
     const results = await doPutPayout(id, resp);
