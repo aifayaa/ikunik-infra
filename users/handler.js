@@ -145,6 +145,7 @@ const doGetPurchases = async (userId) => {
   }
 };
 
+// TODO substract rejected payout from others
 const doGetPayouts = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
