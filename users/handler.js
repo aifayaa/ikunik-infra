@@ -1,6 +1,7 @@
+import phone from 'phone';
 import { MongoClient } from 'mongodb';
-import validator from 'validator';
 import Lambda from 'aws-sdk/clients/lambda';
+import validator from 'validator';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -70,6 +71,17 @@ const doGetBalances = async (userId) => {
         },
       ]).toArray();
     return record[0];
+  } finally {
+    client.close();
+  }
+};
+
+const doGetEndpoints = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const endpoints = await client.db(process.env.DB_NAME).collection('pushNotifications')
+      .find({ userId }).toArray();
+    return endpoints;
   } finally {
     client.close();
   }
@@ -206,6 +218,17 @@ const doGetProfile = async (userId) => {
   }
 };
 
+const doGetUser = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const user = await client.db(process.env.DB_NAME).collection('users')
+      .findOne({ _id: userId });
+    return user;
+  } finally {
+    client.close();
+  }
+};
+
 const doGetPaymentInfoByMethod = async (userId, method, profile) => {
   let wProfile;
   if (method === 'paypal' || method === 'btc') {
@@ -271,6 +294,125 @@ const doAskPayout = async (userId, amount, method) => {
     return true;
   } finally {
     client.close();
+  }
+};
+
+export const handleBlastEmail = async (event, context, callback) => {
+  try {
+    // TODO: check if user is a fan of artist when DB repaired
+    const userId = event.pathParameters.id;
+    const { subject, template } = JSON.parse(event.body);
+    const user = await doGetUser(userId);
+    const contacts = [{
+      email: user.email || user.profile.email || user.emails[0].address,
+      name: user.firstname || user.username,
+    }];
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastEmail`,
+      Payload: JSON.stringify({ contacts, subject, template }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleBlastNotification = async (event, context, callback) => {
+  try {
+    // TODO: check if user is a fan of artist when DB repaired
+    const userId = event.pathParameters.id;
+    const { artistName, message } = JSON.parse(event.body);
+    const endpoints = await doGetEndpoints(userId);
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastNotification`,
+      Payload: JSON.stringify({ artistName, endpoints, message }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleBlastText = async (event, context, callback) => {
+  try {
+    // TODO: check if user is a fan of artist when DB repaired
+    const userId = event.pathParameters.id;
+    const { message } = JSON.parse(event.body);
+    const user = await doGetUser(userId);
+    const phones = [phone(user.profile.phone)[0]];
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastText`,
+      Payload: JSON.stringify({ phones, message }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleIsBlastable = async (event, context, callback) => {
+  try {
+    const userId = event.pathParameters.id;
+    const [endpoints, user] = await Promise.all([doGetEndpoints(userId), doGetUser(userId)]);
+    const results = {
+      email: !!(user.email || user.profile.email || user.emails[0].address),
+      notifications: !!endpoints,
+      text: !!user.profile.phone,
+    };
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
   }
 };
 
