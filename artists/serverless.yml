@@ -29,6 +29,20 @@ functions:
             parameters:
               paths:
                 id: true
+  getArtistPicture:
+    handler: handler.handleGetArtistPicture
+    events:
+      - http:
+          path: artists/{id}/picture
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: artistsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack
