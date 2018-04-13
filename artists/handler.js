@@ -14,9 +14,6 @@ const doGetArtist = async (artistId) => {
 const doGetArtistPicture = async (artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const artist = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .findOne({ _id: artistId, avatar: { $exists: true } });
-    if (artist) return { src: artist.avatar, title: artist.artistName };
     const project = await client.db(process.env.DB_NAME).collection('Project')
       .findOne({
         artist_ID: artistId,
@@ -35,10 +32,18 @@ const doGetArtistPicture = async (artistId) => {
 export const handleGetArtist = async (event, context, callback) => {
   try {
     const artistId = event.pathParameters.id;
-    const results = await doGetArtist(artistId);
+    const artist = await doGetArtist(artistId);
+    if (!artist.avatar) {
+      try {
+        const pic = await doGetArtistPicture(artistId);
+        artist.avatar = pic.src;
+      } catch (e) {
+        console.error('error while getting picture', e);
+      }
+    }
     const response = {
       statusCode: 200,
-      body: JSON.stringify(results),
+      body: JSON.stringify(artist),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -56,8 +61,14 @@ export const handleGetArtist = async (event, context, callback) => {
 
 export const handleGetArtistPicture = async (event, context, callback) => {
   try {
+    let results;
     const artistId = event.pathParameters.id;
-    const results = await doGetArtistPicture(artistId);
+    const artist = await doGetArtist(artistId);
+    if (artist && artist.avatar) {
+      results = { src: artist.avatar, title: artist.artistName };
+    } else {
+      results = await doGetArtistPicture(artistId);
+    }
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
