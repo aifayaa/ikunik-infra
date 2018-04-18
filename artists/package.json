@@ -5,7 +5,8 @@
   "description": "Crowdaa artists API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.0.2"
+    "mongodb": "^3.0.2",
+    "serverless": "^1.26.1"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",

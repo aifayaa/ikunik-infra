@@ -11,6 +11,33 @@ const doGetArtist = async (artistId) => {
   }
 };
 
+const doGetGenre = async (artistId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const project = await client.db(process.env.DB_NAME).collection('Project')
+      .aggregate([{
+        $match: {
+          artist_ID: artistId,
+          projectIsValidated: true,
+        },
+      }, {
+        $project: {
+          'selectedGenres.text': 1,
+          _id: 0,
+        },
+      }, {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      ]).toArray();
+    if (!project) throw new Error('Not Found');
+    return { genre: project };
+  } finally {
+    client.close();
+  }
+};
+
 const doGetArtistPicture = async (artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -33,6 +60,12 @@ export const handleGetArtist = async (event, context, callback) => {
   try {
     const artistId = event.pathParameters.id;
     const artist = await doGetArtist(artistId);
+    try {
+      const genre = await doGetGenre(artistId);
+      artist.genre = genre.genre[0].selectedGenres[0].text;
+    } catch (e) {
+      console.error('error while getting genre', e);
+    }
     if (!artist.avatar) {
       try {
         const pic = await doGetArtistPicture(artistId);
