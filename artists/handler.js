@@ -10,7 +10,10 @@ const doGetArtist = async (artistId) => {
             _id: artistId,
           },
         }, {
-          $unwind: '$project_IDs',
+          $unwind: {
+            path: '$project_IDs',
+            preserveNullAndEmptyArrays: true,
+          },
         }, {
           $lookup: {
             from: 'Project',
@@ -42,10 +45,17 @@ const doGetArtist = async (artistId) => {
             twitter: { $arrayElemAt: ['$twitter', 0] },
             profil_ID: { $arrayElemAt: ['$profil_ID', 0] },
             project_ID: { $arrayElemAt: ['$project_ID', 0] },
+            project_IDs: '$project_IDs',
             genres: { $arrayElemAt: ['$genres', 0] },
+          },
+        }, {
+          $unwind: {
+            path: '$genres',
+            preserveNullAndEmptyArrays: true,
           },
         },
       ]).toArray();
+    console.log(artist[0]);
     if (!artist) throw new Error('Not Found');
     return (artist[0]);
   } finally {
