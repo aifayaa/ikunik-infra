@@ -22,40 +22,31 @@ const doGetArtist = async (artistId) => {
             as: 'projectObject',
           },
         }, {
-          $group: {
-            _id: '$_id',
-            artistName: { $push: '$artistName' },
-            biography: { $push: '$biography' },
-            snapshat: { $push: '$snapshat' },
-            facebook: { $push: '$facebook' },
-            instagram: { $push: '$instagram' },
-            twitter: { $push: '$twitter' },
-            profil_ID: { $push: '$profil_ID' },
-            project_IDs: { $push: '$project_IDs' },
-            project_ID: { $push: '$project_ID' },
-            genres: { $addToSet: '$projectObject.selectedGenres.text' },
-          },
-        }, {
-          $project: {
-            artistName: { $arrayElemAt: ['$artistName', 0] },
-            biography: { $arrayElemAt: ['$biography', 0] },
-            snapshat: { $arrayElemAt: ['$snapshat', 0] },
-            facebook: { $arrayElemAt: ['$facebook', 0] },
-            instagram: { $arrayElemAt: ['$instagram', 0] },
-            twitter: { $arrayElemAt: ['$twitter', 0] },
-            profil_ID: { $arrayElemAt: ['$profil_ID', 0] },
-            project_ID: { $arrayElemAt: ['$project_ID', 0] },
-            project_IDs: '$project_IDs',
-            genres: { $arrayElemAt: ['$genres', 0] },
+          $unwind: {
+            path: '$projectObject',
+            preserveNullAndEmptyArrays: true,
           },
         }, {
           $unwind: {
-            path: '$genres',
+            path: '$projectObject.selectedGenres',
             preserveNullAndEmptyArrays: true,
+          },
+        }, {
+          $group: {
+            _id: '$_id',
+            artistName: { $first: '$artistName' },
+            biography: { $first: '$biography' },
+            snapshat: { $first: '$snapshat' },
+            facebook: { $first: '$facebook' },
+            instagram: { $first: '$instagram' },
+            twitter: { $first: '$twitter' },
+            profil_ID: { $first: '$profil_ID' },
+            project_IDs: { $first: '$project_IDs' },
+            project_ID: { $first: '$project_ID' },
+            genres: { $addToSet: '$projectObject.selectedGenres.text' },
           },
         },
       ]).toArray();
-    console.log(artist[0]);
     if (!artist) throw new Error('Not Found');
     return (artist[0]);
   } finally {
