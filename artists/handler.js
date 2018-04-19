@@ -1,43 +1,5 @@
 import { MongoClient } from 'mongodb';
 
-// const doGetArtist = async (artistId) => {
-//   const client = await MongoClient.connect(process.env.MONGO_URL);
-//   try {
-//     const artist = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-//       .findOne({ _id: artistId });
-//     return artist;
-//   } finally {
-//     client.close();
-//   }
-// };
-
-const doGetGenre = async (artistId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const project = await client.db(process.env.DB_NAME).collection('Project')
-      .aggregate([{
-        $match: {
-          artist_ID: artistId,
-          projectIsValidated: true,
-        },
-      }, {
-        $project: {
-          'selectedGenres.text': 1,
-          _id: 0,
-        },
-      }, {
-        $sort: {
-          createdAt: -1,
-        },
-      },
-      ]).toArray();
-    if (!project) throw new Error('Not Found');
-    return { genre: project };
-  } finally {
-    client.close();
-  }
-};
-
 const doGetArtist = async (artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
