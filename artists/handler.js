@@ -1,15 +1,15 @@
 import { MongoClient } from 'mongodb';
 
-const doGetArtist = async (artistId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const artist = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .findOne({ _id: artistId });
-    return artist;
-  } finally {
-    client.close();
-  }
-};
+// const doGetArtist = async (artistId) => {
+//   const client = await MongoClient.connect(process.env.MONGO_URL);
+//   try {
+//     const artist = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+//       .findOne({ _id: artistId });
+//     return artist;
+//   } finally {
+//     client.close();
+//   }
+// };
 
 const doGetGenre = async (artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -38,6 +38,59 @@ const doGetGenre = async (artistId) => {
   }
 };
 
+const doGetArtist = async (artistId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const artist = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .aggregate([
+        {
+          $match: {
+            _id: artistId,
+          },
+        }, {
+          $unwind: '$project_IDs',
+        }, {
+          $lookup: {
+            from: 'Project',
+            localField: 'project_IDs',
+            foreignField: '_id',
+            as: 'projectObject',
+          },
+        }, {
+          $group: {
+            _id: '$_id',
+            artistName: { $push: '$artistName' },
+            biography: { $push: '$biography' },
+            snapshat: { $push: '$snapshat' },
+            facebook: { $push: '$facebook' },
+            instagram: { $push: '$instagram' },
+            twitter: { $push: '$twitter' },
+            profil_ID: { $push: '$profil_ID' },
+            project_IDs: { $push: '$project_IDs' },
+            project_ID: { $push: '$project_ID' },
+            genres: { $addToSet: '$projectObject.selectedGenres.text' },
+          },
+        }, {
+          $project: {
+            artistName: { $arrayElemAt: ['$artistName', 0] },
+            biography: { $arrayElemAt: ['$biography', 0] },
+            snapshat: { $arrayElemAt: ['$snapshat', 0] },
+            facebook: { $arrayElemAt: ['$facebook', 0] },
+            instagram: { $arrayElemAt: ['$instagram', 0] },
+            twitter: { $arrayElemAt: ['$twitter', 0] },
+            profil_ID: { $arrayElemAt: ['$profil_ID', 0] },
+            project_ID: { $arrayElemAt: ['$project_ID', 0] },
+            genres: { $arrayElemAt: ['$genres', 0] },
+          },
+        },
+      ]).toArray();
+    if (!artist) throw new Error('Not Found');
+    return (artist[0]);
+  } finally {
+    client.close();
+  }
+};
+
 const doGetArtistPicture = async (artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -60,12 +113,6 @@ export const handleGetArtist = async (event, context, callback) => {
   try {
     const artistId = event.pathParameters.id;
     const artist = await doGetArtist(artistId);
-    try {
-      const genre = await doGetGenre(artistId);
-      artist.genre = genre.genre[0].selectedGenres[0].text;
-    } catch (e) {
-      console.error('error while getting genre', e);
-    }
     if (!artist.avatar) {
       try {
         const pic = await doGetArtistPicture(artistId);
