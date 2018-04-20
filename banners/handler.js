@@ -6,7 +6,7 @@ const doGetBanners = async () => {
     const selector = {};
 
     const banners = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .find(selector).toArray();
+      .find(selector, { sort: [['date', -1]] }).toArray();
     return { banners };
   } finally {
     client.close();
