@@ -1,18 +1,16 @@
 {
-  "name": "contactLists",
+  "name": "lineup",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa contactLists API.",
+  "description": "Crowdaa lineup API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.223.1",
-    "mongodb": "^3.0.2",
-    "phone": "^2.0.0-rc.1"
+    "mongodb": "^3.0.2"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",
     "webpack-node-externals": "^1.6.0"
   },
-  "author": "Paul SEBASTIEN",
+  "author": "Crowdaa",
   "license": "UNLICENSED"
 }

@@ -22,6 +22,51 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
+  blastEmail:
+    handler: handler.handleBlastEmail
+    events:
+      - http:
+          path: users/{id}/blast/email
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  
+  blastNotification:
+    handler: handler.handleBlastNotification
+    events:
+      - http:
+          path: users/{id}/blast/notification
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  
+  blastText:
+    handler: handler.handleBlastText
+    events:
+      - http:
+          path: users/{id}/blast/text
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   getProfile:
     handler: handler.handleGetProfile
     events:
@@ -81,6 +126,22 @@ functions:
             parameters:
               paths:
                 id: true
+  
+  isBlastable:
+    handler: handler.handleIsBlastable
+    events:
+      - http:
+          path: users/{id}/isBlastable
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   addPayout:
     handler: handler.handleAddPayout
     events:

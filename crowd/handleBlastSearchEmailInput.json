@@ -1,0 +1,61 @@
+{
+  "resource": "/crowd/blast/email",
+  "path": "/v1/crowd/blast/email",
+  "httpMethod": "POST",
+  "headers": {
+    "Accept": "*/*",
+    "Authorization": "Bearer dCtCsSAMiOjAo80rVUTLHIVQGERchwVeBteaI5Q0uhS",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "RE",
+    "content-type": "application/x-www-form-urlencoded",
+    "Host": "dev-api.aws.crowdaa.com",
+    "User-Agent": "curl/7.54.0",
+    "Via": "2.0 87ce1a2818e8b605bc0c86bdab0851bf.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "Ovk6HIZDKj1puE20JuOCQs0lA1NcfKr-AClPLv7L8oRZ0lApLXSwPA==",
+    "X-Amzn-Trace-Id": "Root=1-5ad77f9c-6dd9d7b69431fc446f60cade",
+    "X-Forwarded-For": "41.213.160.48, 52.46.38.52",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "queryStringParameters": {
+    "limit": "10"
+  },
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "hu2cam",
+    "authorizer": {
+      "principalId": "dXZifsqv7i8Edt8nb"
+    },
+    "resourcePath": "/crowd/blast/email",
+    "httpMethod": "POST",
+    "extendedRequestId": "FjDgcHh0oAMFQOQ=",
+    "requestTime": "18/Apr/2018:17:25:48 +0000",
+    "path": "/v1/crowd/blast/email",
+    "accountId": "630176884077",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "requestTimeEpoch": 1524072348451,
+    "requestId": "88eb479f-432d-11e8-88df-6decb0d46447",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "41.213.160.48",
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "curl/7.54.0",
+      "user": null
+    },
+    "apiId": "diqdv4fvol"
+  },
+  "body": "{\"subject\":\"BTNHResurrection is out! ;-)\",\"template\":{\"name\":\"albumOut\",\"data\":{\"intro\":\"It's a special moment for me today! I'm so exited to share with you my last project that I released today!\",\"image\":\"http://music-2068.kxcdn.com/MediumStorage/wvsHpLhcvAyva36wg-mediumFile_Bone_Thugs_n_Harmony_Flesh_n_Bone_Is_Home_A_Documentary_Film.jpg\",\"album\":\"BTNHResurrection\",\"message\":\"We are working of this track since a long time. The track is very positive because we wanned to inspire people in their every day challenges! I played the piano and Jimmy the bass. Josh have made a wonderful job on the arrangement sending us right back to the 70's. We are really proud of it! I hope that you will love it.\"}}}",
+  "isBase64Encoded": false
+}
