@@ -1,0 +1,22 @@
+{
+  "contacts": [
+    {
+      "email": "paul@crowdaa.com",
+      "name": "Paul"
+    },
+    {
+      "email": "paul.sebastien974@gmail.com",
+      "name": "Paul"
+    }
+  ],
+  "subject": "BTNHResurrection is out! ;-)",
+  "template": {
+    "name": "albumOut",
+    "data": {
+      "intro": "It's a special moment for me today! I'm so exited to share with you my last project that I released today!",
+      "image": "http://music-2068.kxcdn.com/MediumStorage/wvsHpLhcvAyva36wg-mediumFile_Bone_Thugs_n_Harmony_Flesh_n_Bone_Is_Home_A_Documentary_Film.jpg",
+      "album": "BTNHResurrection",
+      "message": "We are working of this track since a long time. The track is very positive because we wanned to inspire people in their every day challenges! I played the piano and Jimmy the bass. Josh have made a wonderful job on the arrangement sending us right back to the 70's. We are really proud of it! I hope that you will love it."
+    }
+  }
+}

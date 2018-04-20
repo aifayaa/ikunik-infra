@@ -9,14 +9,63 @@ provider:
   environment:
     COLL_NAME: Project
     DB_NAME: crowdaaDev
-    MONGO_URL: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    STAGE: ${self:provider.stage}
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
+  blastSearchEmail:
+    handler: handler.handleBlastSearchEmail
+    events:
+      - http:
+          path: crowd/blast/email
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: crowdAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings: ${self:custom.querystrings}
+
+  blastSearchNotification:
+    handler: handler.handleBlastSearchNotification
+    events:
+      - http:
+          path: crowd/blast/notification
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: crowdAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings: ${self:custom.querystrings}
+  
+  blastSearchText:
+    handler: handler.handleBlastSearchText
+    events:
+      - http:
+          path: crowd/blast/text
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: crowdAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings: ${self:custom.querystrings}
+
   search:
-    handler: handler.handleSeach
+    handler: handler.handleSearch
     events:
       - http:
           path: crowd/
@@ -29,24 +78,7 @@ functions:
             parameters:
               headers:
                 Authorization: true
-              querystrings:
-                artist: false
-                city: false
-                coordinates: false
-                country: false
-                gender: false
-                languages: false
-                limit: false
-                maximumAge: false
-                minFBFriends: false
-                minimumAge: false
-                page: false
-                project: false
-                purchased: false
-                search: false
-                sortBy: false
-                sortOrder: false
-                track: false
+              querystrings: ${self:custom.querystrings}
 
 plugins:
   - serverless-webpack
@@ -67,50 +99,86 @@ custom:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
     prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
 
+  IntegrationRequestParameters:
+    integration.request.querystring.artist: method.request.querystring.artist
+    integration.request.querystring.city: method.request.querystring.city
+    integration.request.querystring.coordinates: method.request.querystring.coordinates
+    integration.request.querystring.country: method.request.querystring.country
+    integration.request.querystring.gender: method.request.querystring.gender
+    integration.request.querystring.hasEmail: method.request.querystring.hasEmail
+    integration.request.querystring.hasNotification: method.request.querystring.hasNotification
+    integration.request.querystring.hasText: method.request.querystring.hasText
+    integration.request.querystring.languages: method.request.querystring.languages
+    integration.request.querystring.limit: method.request.querystring.limit
+    integration.request.querystring.maximumAge: method.request.querystring.maximumAge
+    integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
+    integration.request.querystring.minimumAge: method.request.querystring.minimumAge
+    integration.request.querystring.page: method.request.querystring.page
+    integration.request.querystring.project: method.request.querystring.project
+    integration.request.querystring.purchased: method.request.querystring.purchased
+    integration.request.querystring.search: method.request.querystring.search
+    integration.request.querystring.sortBy: method.request.querystring.sortBy
+    integration.request.querystring.sortOrder: method.request.querystring.sortOrder
+    integration.request.querystring.track: method.request.querystring.track
+
+  mongoDB:
+    dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
+    prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+
+  querystrings:
+    artist: false
+    city: false
+    coordinates: false
+    country: false
+    gender: false
+    hasEmail: false
+    hasNotification: false
+    hasText: false
+    languages: false
+    limit: false
+    maximumAge: false
+    minFBFriends: false
+    minimumAge: false
+    page: false
+    project: false
+    purchased: false
+    search: false
+    sortBy: false
+    sortOrder: false
+    track: false
+
+  RequestParameters: 
+    method.request.header.Authorization: true
+    method.request.querystring.artist: false
+    method.request.querystring.city: false
+    method.request.querystring.coordinates: false
+    method.request.querystring.country: false
+    method.request.querystring.gender: false
+    method.request.querystring.hasEmail: false
+    method.request.querystring.hasNotification: false
+    method.request.querystring.hasText: false
+    method.request.querystring.languages: false
+    method.request.querystring.limit: false
+    method.request.querystring.maximumAge: false
+    method.request.querystring.minFBFriends: false
+    method.request.querystring.minimumAge: false
+    method.request.querystring.page: false
+    method.request.querystring.project: false
+    method.request.querystring.purchased: false
+    method.request.querystring.search: false
+    method.request.querystring.sortBy: false
+    method.request.querystring.sortOrder: false
+    method.request.querystring.track: false
+
   webpackIncludeModules: true
 
 resources:
   Resources:
     ApiGatewayMethodCrowdGet:
       Properties:
-        RequestParameters:
-          method.request.header.Authorization: true
-          method.request.querystring.artist: false
-          method.request.querystring.city: false
-          method.request.querystring.coordinates: false
-          method.request.querystring.country: false
-          method.request.querystring.gender: false
-          method.request.querystring.languages: false
-          method.request.querystring.limit: false
-          method.request.querystring.maximumAge: false
-          method.request.querystring.minFBFriends: false
-          method.request.querystring.minimumAge: false
-          method.request.querystring.page: false
-          method.request.querystring.project: false
-          method.request.querystring.purchased: false
-          method.request.querystring.search: false
-          method.request.querystring.sortBy: false
-          method.request.querystring.sortOrder: false
-          method.request.querystring.track: false
+        RequestParameters: ${self:custom.RequestParameters}
         Integration:
-          RequestParameters:
-            integration.request.querystring.artist: method.request.querystring.artist
-            integration.request.querystring.city: method.request.querystring.city
-            integration.request.querystring.coordinates: method.request.querystring.coordinates
-            integration.request.querystring.country: method.request.querystring.country
-            integration.request.querystring.gender: method.request.querystring.gender
-            integration.request.querystring.languages: method.request.querystring.languages
-            integration.request.querystring.limit: method.request.querystring.limit
-            integration.request.querystring.maximumAge: method.request.querystring.maximumAge
-            integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
-            integration.request.querystring.minimumAge: method.request.querystring.minimumAge
-            integration.request.querystring.page: method.request.querystring.page
-            integration.request.querystring.project: method.request.querystring.project
-            integration.request.querystring.purchased: method.request.querystring.purchased
-            integration.request.querystring.search: method.request.querystring.search
-            integration.request.querystring.sortBy: method.request.querystring.sortBy
-            integration.request.querystring.sortOrder: method.request.querystring.sortOrder
-            integration.request.querystring.track: method.request.querystring.track
+          RequestParameters: ${self:custom.IntegrationRequestParameters}
           CacheNamespace: ApiGatewayMethodCrowdCacheNS
           CacheKeyParameters:
             - method.request.header.Authorization
@@ -119,6 +187,9 @@ resources:
             - method.request.querystring.coordinates
             - method.request.querystring.country
             - method.request.querystring.gender
+            - method.request.querystring.hasEmail
+            - method.request.querystring.hasNotification
+            - method.request.querystring.hasText
             - method.request.querystring.languages
             - method.request.querystring.limit
             - method.request.querystring.maximumAge

@@ -1,7 +1,14 @@
 import { MongoClient } from 'mongodb';
+import flatten from 'lodash/flatten';
 import get from 'lodash/get';
+import Lambda from 'aws-sdk/clients/lambda';
+import phone from 'phone';
 import set from 'lodash/set';
 import winston from 'winston';
+
+const lambda = new Lambda({
+  region: process.env.AWS_REGION,
+});
 
 const pipelineLocationStart = (coordinates, range) => [
   {
@@ -157,6 +164,9 @@ const doPipeline = (userId, {
   coordinates,
   country,
   gender,
+  hasEmail,
+  hasNotification,
+  hasText,
   languages,
   maximumAge,
   minFBFriends,
@@ -170,6 +180,14 @@ const doPipeline = (userId, {
   sortOrder,
 }) => {
   const pipeline = coordinates ? pipelineLocationStart(coordinates, range) : pipelineStart(userId);
+  pipeline.push({
+    $lookup: {
+      from: 'pushNotifications',
+      localField: 'user_ID',
+      foreignField: 'userId',
+      as: 'endpoints',
+    },
+  });
   pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'desc' ? 1 : -1) } });
 
   if (coordinates) {
@@ -201,6 +219,15 @@ const doPipeline = (userId, {
   if (minimumAge) match.$match.$and.push({ 'user.services.facebook.age_range.min': { $gte: minimumAge } });
   if (maximumAge) match.$match.$and.push({ 'user.services.facebook.age_range.max': { $lte: maximumAge } });
   if (get(gender, 'length') > 0) match.$match.$and.push({ 'user.profile.gender': gender });
+  if (hasEmail) {
+    match.$match.$and.push({ $or: [
+      { 'user.email': { $exists: true } },
+      { 'user.profile.email': { $exists: true } },
+      { 'user.emails[0].address': { $exists: true } },
+    ] });
+  }
+  if (hasNotification) match.$match.$and.push({ endpoints: { $exists: true, $ne: [] } });
+  if (hasText) match.$match.$and.push({ 'user.profile.phone': { $exists: true } });
   if (get(languages, 'length') > 0) match.$match.$and.push({ 'user.services.facebook.locale': languages });
   if (get(country, 'length') > 0) match.$match.$and.push({ 'user.country': country });
   if (get(city, 'length') > 0) match.$match.$and.push({ 'user.location.city': city });
@@ -214,12 +241,23 @@ const doPipeline = (userId, {
   return pipeline;
 };
 
-const doSeach = async (pipeline, { page, limit = 20, coordinates }) => {
+const doSeach = async (pipeline, { page, limit = 20, coordinates, filterUserInfo }) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const countPipeline = pipeline.concat({ $group: { _id: null, fancount: { $sum: 1 } } });
     if (page > 1) pipeline.push({ $skip: (page - 1) * limit | 0 });
     pipeline.push({ $limit: limit | 0 });
+    if (filterUserInfo) {
+      pipeline.push({
+        $project: {
+          _id: 1,
+          'user.profile.username': 1,
+          shares: 1,
+          user_ID: 1,
+          views: 1,
+        },
+      });
+    }
     const [crowd, fancount] = await Promise.all([
       client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
         .toArray(),
@@ -232,12 +270,113 @@ const doSeach = async (pipeline, { page, limit = 20, coordinates }) => {
   }
 };
 
-export const handleSeach = async (event, context, callback) => {
+export const handleBlastSearchEmail = async (event, context, callback) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
-    winston.info('request', userId, event.queryStringParameters);
+    const { subject, template } = JSON.parse(event.body);
+    Object.assign(event.queryStringParameters, { hasEmail: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
     const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const contacts = results.crowd.map(fan => ({
+      email: fan.user.email || fan.user.profile.email || fan.user.emails[0].address,
+      name: fan.user.profile.username,
+    }));
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastEmail`,
+      Payload: JSON.stringify({ contacts, subject, template }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    winston.error(e);
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleBlastSearchNotification = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const { artistName, message } = JSON.parse(event.body);
+    Object.assign(event.queryStringParameters, { hasNotification: true });
+    const pipeline = doPipeline(userId, event.queryStringParameters || {});
+    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const endpoints = flatten(results.crowd.map(fan => fan.endpoints));
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastNotification`,
+      Payload: JSON.stringify({ artistName, endpoints, message }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    winston.error(e);
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleBlastSearchText = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const { message } = JSON.parse(event.body);
+    Object.assign(event.queryStringParameters, { hasText: true });
+    const pipeline = doPipeline(userId, event.queryStringParameters || {});
+    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const phones = results.crowd.map(fan => phone(fan.user.profile.phone)[0])
+      .filter(phoneNumber => phoneNumber);
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastText`,
+      Payload: JSON.stringify({ phones, message }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    winston.error(e);
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleSearch = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const pipeline = doPipeline(userId, event.queryStringParameters || {});
+    Object.assign(event.queryStringParameters, { filterUserInfo: true });
+    const results = await doSeach(pipeline, event.queryStringParameters ||
+      { filterUserInfo: true });
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

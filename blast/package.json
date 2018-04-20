@@ -1,18 +1,19 @@
 {
-  "name": "contactLists",
+  "name": "blast",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa contactLists API.",
+  "description": "Crowdaa blast API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.223.1",
-    "mongodb": "^3.0.2",
-    "phone": "^2.0.0-rc.1"
+    "aws-sdk": "^2.222.1",
+    "mailgun-js": "^0.16.0",
+    "nodemailer": "^4.6.4",
+    "premailer-api": "^1.0.4"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",
     "webpack-node-externals": "^1.6.0"
   },
-  "author": "Paul SEBASTIEN",
+  "author": "Crowdaa",
   "license": "UNLICENSED"
 }

@@ -1,8 +1,14 @@
 import { MongoClient } from 'mongodb';
+import Lambda from 'aws-sdk/clients/lambda';
+import phone from 'phone';
+
+const lambda = new Lambda({
+  region: process.env.AWS_REGION,
+});
 
 const doGetContactList = async (userId, contactListId, {
   limit, skip, sortBy, sortOrder,
-}) => {
+} = {}) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const opts = {};
@@ -67,6 +73,68 @@ const doGetContactList = async (userId, contactListId, {
     return contactList[0];
   } finally {
     client.close();
+  }
+};
+
+export const handleBlastContactListEmail = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const contactListId = event.pathParameters.id;
+    const { subject, template } = JSON.parse(event.body);
+    let { contacts } = await doGetContactList(userId, contactListId);
+    contacts = contacts.map(contact => ({ email: contact.email, name: contact.name }))
+      .filter(contact => contact.email);
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastEmail`,
+      Payload: JSON.stringify({ contacts, subject, template }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleBlastContactListText = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const contactListId = event.pathParameters.id;
+    const { message } = JSON.parse(event.body);
+    const { contacts } = await doGetContactList(userId, contactListId);
+    const phones = contacts.map(contact => phone(contact.phone || contact.cleandedPhoneNumber)[0])
+      .filter(phoneNumber => phoneNumber);
+    const params = {
+      FunctionName: `blast-${process.env.STAGE}-blastText`,
+      Payload: JSON.stringify({ phones, message }),
+    };
+    const res = await lambda.invoke(params).promise();
+    const response = {
+      statusCode: 200,
+      body: res,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      message: e.message,
+    };
+    callback(null, response);
   }
 };
 

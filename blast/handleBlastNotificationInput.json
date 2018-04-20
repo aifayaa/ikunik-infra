@@ -1,0 +1,17 @@
+{
+  "artistName": "Selena Gomez",
+  "endpoints": [
+    {
+      "_id": "cZcSnXLw9gDexe3dv",
+      "deviceUUID": "6d3ff1ac838a4fca",
+      "Platform": "GCM",
+      "platform": "Android",
+      "PlatformApplicationArn": "arn:aws:sns:us-west-2:630176884077:app/GCM/Crowdaa-android",
+      "Token": "eeyahfVRirM:APA91bH6a3vzF4NWEeJPIT2GTdEtJuuS530h0NY5TcHrjrVLW4tFzWttQvvAqGCGFirZFeavFQcVRUo3OtCDWLpLybpLb74VqZYP470Y9Aqv2z6ZvLQzbUMKcBmtTM84DyUhygnmoFDt",
+      "EndpointArn": "arn:aws:sns:us-west-2:630176884077:endpoint/GCM/Crowdaa-android/c8919ca7-bd29-3b91-9459-e237f40a73c7",
+      "SNSUserData": "e02732c9-a999-4752-9a37-61ecc3a2e078",
+      "userId": "YxnMZHiupRiNRau2C"
+    }
+  ],
+  "message": "Hello World"
+}
