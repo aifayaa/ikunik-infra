@@ -13,17 +13,16 @@ export const generateEmailHTML = ({ name, data, html }, contact) => {
               <tr>
                 <td>
                   
-                  <h3>Hi, <i>${contact.name}</i> </h3>
+                  <h3>Salut <i>${contact.name}</i> !</h3>
                   <p class="lead">${data.intro}</p>
                   
                   <!-- A Real Hero (and a real human being) -->
                   <p class="text-center"><img src="${data.image}" /></p><!-- /hero -->
                   
                   
-                  <h3><strong>"${data.album}"</strong> is out!</h3>
+                  <h3><strong>"${data.album}"</strong> est disponible!</h3>
                   <p>${data.message}</p>
     
-                  <p>You can discover our music on Crowdaa. The app it's free and whitout ads! Take a look and please click on the "unlock" button when your on the app. It means a lot for us!</p>
     
                   <a style="margin-left: 30px;" href="https://play.google.com/store/apps/details?id=com.crowdaa.free.www">
                   <img style="width: 200px; " src="http://website-2068.kxcdn.com/android_btn.png">
@@ -48,7 +47,7 @@ export const generateEmailHTML = ({ name, data, html }, contact) => {
                     padding:16px 31px;
                     text-decoration:none;
                     text-shadow:0px 1px 0px #2f6627;
-        "> You are an artist? Visite Crowdaa! </button>
+        "> Vous êtes un artiste? Rejoignez nous sur Crowdaa! </button>
                     
                   </div>
                               
@@ -64,7 +63,6 @@ export const generateEmailHTML = ({ name, data, html }, contact) => {
                         <table align="left" class="column">
                           <tr>
                             <td>
-                              <h5 style="font-weight:900; font-size: 17px;">Connect with us on Crowdaa:</h5>
                               
     
                               <a  style="margin-left: 30px;" href="https://www.facebook.com/crowdaa/">
@@ -103,7 +101,7 @@ export const generateEmailHTML = ({ name, data, html }, contact) => {
               <tr>
                 <td align="center">
                   <p>
-                    <a href="#"><unsubscribe>Unsubscribe</unsubscribe></a>
+                    <a href="%unsubscribe_url%"><unsubscribe>Se désabonner</unsubscribe></a>
                   </p>
                 </td>
               </tr>
