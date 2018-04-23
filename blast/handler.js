@@ -4,7 +4,6 @@ import Mailgun from 'mailgun-js';
 import phone from 'phone';
 import queue from 'async/queue';
 import SNS from 'aws-sdk/clients/sns';
-import { prepare } from 'premailer-api';
 
 import { generateEmailHTML } from './emailUtils';
 
@@ -24,22 +23,19 @@ const sns = new SNS({
 const AWSId = () => [8, 4, 4, 4, 8].map(crypto.randomBytes).map(id => id.toString('hex')).join('-');
 
 const doBlastEmail = ({ contact, template, subject }, cb) => {
-  prepare({ html: generateEmailHTML(template, contact) }, (err, { html }) => {
-    if (err) return cb(err);
-    const mail = new MailComposer({
-      subject,
-      html,
-      from: `${process.env.FROM}@${process.env.MAILGUN_DOMAIN}`,
+  const mail = new MailComposer({
+    subject,
+    html: generateEmailHTML(template, contact),
+    from: `${process.env.FROM}@${process.env.MAILGUN_DOMAIN}`,
+    to: contact.email,
+  });
+  return mail.compile().build((error, message) => {
+    if (error) return cb(error);
+    const dataToSend = {
+      message: message.toString('ascii'),
       to: contact.email,
-    });
-    return mail.compile().build((error, message) => {
-      if (error) return cb(error);
-      const dataToSend = {
-        message: message.toString('ascii'),
-        to: contact.email,
-      };
-      return mailgun.messages().sendMime(dataToSend, cb);
-    });
+    };
+    return mailgun.messages().sendMime(dataToSend, cb);
   });
 };
 
@@ -95,6 +91,7 @@ export const handleBlastEmail = async ({
   template,
 }, context, callback) => {
   try {
+    console.log({ contacts, subject, template });
     const sendEmails = queue(doBlastEmail, 20);
     const results = [];
     sendEmails.drain = () => {
@@ -128,6 +125,7 @@ export const handleBlastEmail = async ({
 export const handleBlastNotification = async ({ artistName, endpoints, message }, context
   , callback) => {
   try {
+    console.log({ artistName, endpoints, message });
     const sendNotifications = queue(doBlastNotification, 50);
     const results = [];
     sendNotifications.drain = () => {
@@ -160,6 +158,7 @@ export const handleBlastNotification = async ({ artistName, endpoints, message }
 
 export const handleBlastText = async ({ phones, message }, context, callback) => {
   try {
+    console.log({ phones, message });
     const sendTexts = queue(doBlastText, 50);
     const results = [];
     sendTexts.drain = () => {
