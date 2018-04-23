@@ -1,0 +1,85 @@
+service: favorites
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 60
+  environment:
+    COLL_NAME: favArtists
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+
+functions:
+  addFavorite:
+    handler: handler.handleAddFavorite
+    events:
+      - http:
+          path: artists/{artistId}/favorites
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: favoritesAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                artistId: true
+  unfavorite:
+    handler: handler.handleUnfavorite
+    events:
+      - http:
+          path: artists/{artistId}/favorites
+          method: delete
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: favoritesAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                artistId: true          
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
+  mongoDB:
+    dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
+    prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+
+  webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodfavoritesIdVarGet:
+      Properties:
+        RequestParameters:
+          method.request.path.id: true
+        Integration:
+          RequestParameters:
+            integration.request.path.id: method.request.path.id
+          CacheNamespace: ApiGatewayMethodfavoritesIdVarGetCacheNS
+          CacheKeyParameters:
+            - method.request.path.id
