@@ -42,6 +42,43 @@ export const doUnfavorite = async (userId, artistId) => {
   }
 };
 
+export const doGetFavorite = async (userId, artistId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+
+  try {
+    const data = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .findOne({ userId, artistId });
+    if (!data) throw new Error('Not Found');
+    return data;
+  } finally {
+    client.close();
+  }
+};
+
+export const handleGetFavorite = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const { artistId } = event.pathParameters;
+
+  try {
+    const result = await doGetFavorite(userId, artistId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(result),
+      header: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials:': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
 export const handleAddFavorite = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
   const { artistId } = event.pathParameters;

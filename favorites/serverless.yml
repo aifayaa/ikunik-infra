@@ -45,6 +45,22 @@ functions:
                 Authorization: true
               paths:
                 artistId: true          
+  getFavorite:
+    handler: handler.handleGetFavorite
+    events:
+      - http:
+          path: artists/{artistId}/favorites
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: favoritesAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                artistId: true
 
 plugins:
   - serverless-webpack
