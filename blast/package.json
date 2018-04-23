@@ -9,8 +9,7 @@
     "aws-sdk": "^2.222.1",
     "mailgun-js": "^0.16.0",
     "nodemailer": "^4.6.4",
-    "phone": "^2.0.0-rc.1",
-    "premailer-api": "^1.0.4"
+    "phone": "^2.0.0-rc.1"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",
