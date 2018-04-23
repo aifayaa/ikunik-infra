@@ -8,6 +8,7 @@ export const doAddFavorite = async (userId, artistId) => {
     date: new Date(),
   };
   const client = await MongoClient.connect(process.env.MONGO_URL);
+
   try {
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .update({ userId, artistId }, favoriteData, { upsert: true });
@@ -43,7 +44,7 @@ export const doUnfavorite = async (userId, artistId) => {
 
 export const handleAddFavorite = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const artistId = event.pathParameters.artistId;
+  const { artistId } = event.pathParameters;
 
   try {
     const result = await doAddFavorite(userId, artistId);
@@ -67,7 +68,7 @@ export const handleAddFavorite = async (event, context, callback) => {
 
 export const handleUnfavorite = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const artistId = event.pathParameters.artistId;
+  const { artistId } = event.pathParameters;
 
   try {
     const result = await doUnfavorite(userId, artistId);
