@@ -1,5 +1,17 @@
 import { MongoClient } from 'mongodb';
 
+const selectionFields = [
+  'artistName',
+  'biography',
+  'snapshat',
+  'facebook',
+  'instagram',
+  'twitter',
+  'profil_ID',
+  'project_IDs',
+  'project_ID',
+];
+
 const doGetArtist = async (artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -19,32 +31,24 @@ const doGetArtist = async (artistId) => {
             from: 'Project',
             localField: 'project_IDs',
             foreignField: '_id',
-            as: 'projectObject',
+            as: 'project',
           },
         }, {
           $unwind: {
-            path: '$projectObject',
+            path: '$project',
             preserveNullAndEmptyArrays: true,
           },
         }, {
           $unwind: {
-            path: '$projectObject.selectedGenres',
+            path: '$project.selectedGenres',
             preserveNullAndEmptyArrays: true,
           },
         }, {
-          $group: {
-            _id: '$_id',
-            artistName: { $first: '$artistName' },
-            biography: { $first: '$biography' },
-            snapshat: { $first: '$snapshat' },
-            facebook: { $first: '$facebook' },
-            instagram: { $first: '$instagram' },
-            twitter: { $first: '$twitter' },
-            profil_ID: { $first: '$profil_ID' },
-            project_IDs: { $first: '$project_IDs' },
-            project_ID: { $first: '$project_ID' },
-            genres: { $addToSet: '$projectObject.selectedGenres.text' },
-          },
+          $group:
+            Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
+              _id: '$_id',
+              genres: { $addToSet: '$project.selectedGenres.text' },
+            }),
         },
       ]).toArray();
     if (!artist) throw new Error('Not Found');
