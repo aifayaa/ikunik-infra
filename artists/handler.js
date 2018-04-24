@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const selectionFields = [
+const artistFields = [
   'artistName',
   'biography',
   'snapshat',
@@ -45,7 +45,7 @@ const doGetArtist = async (artistId) => {
           },
         }, {
           $group:
-            Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
+            Object.assign({}, ...artistFields.map(field => ({ [field]: { $first: `$${field}` } })), {
               _id: '$_id',
               genres: { $addToSet: '$project.selectedGenres.text' },
             }),
