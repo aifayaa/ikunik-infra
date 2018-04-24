@@ -1,13 +1,19 @@
 import { MongoClient } from 'mongodb';
 
 export const doAddFavorite = async (userId, artistId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const data = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    .findOne({ userId, artistId });
   const favoriteData = {
     userId,
     artistId,
     isFavorite: true,
     date: new Date(),
   };
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+
+  if (data != null) {
+    favoriteData.isFavorite = !(data.isFavorite);
+  }
 
   try {
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
@@ -48,7 +54,6 @@ export const doGetFavorite = async (userId, artistId) => {
   try {
     const data = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .findOne({ userId, artistId });
-    if (!data) throw new Error('Not Found');
     return data;
   } finally {
     client.close();
@@ -57,14 +62,14 @@ export const doGetFavorite = async (userId, artistId) => {
 
 export const handleGetFavorite = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const { artistId } = event.pathParameters;
+  const { id } = event.pathParameters;
 
   try {
-    const result = await doGetFavorite(userId, artistId);
+    const result = await doGetFavorite(userId, id);
     const response = {
       statusCode: 200,
       body: JSON.stringify(result),
-      header: {
+      headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials:': true,
       },
@@ -81,14 +86,14 @@ export const handleGetFavorite = async (event, context, callback) => {
 
 export const handleAddFavorite = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const { artistId } = event.pathParameters;
+  const { id } = event.pathParameters;
 
   try {
-    const result = await doAddFavorite(userId, artistId);
+    const result = await doAddFavorite(userId, id);
     const response = {
       statusCode: 200,
       body: JSON.stringify(result),
-      header: {
+      headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
       },
@@ -105,14 +110,14 @@ export const handleAddFavorite = async (event, context, callback) => {
 
 export const handleUnfavorite = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const { artistId } = event.pathParameters;
+  const { id } = event.pathParameters;
 
   try {
-    const result = await doUnfavorite(userId, artistId);
+    const result = await doUnfavorite(userId, id);
     const response = {
       statusCode: 200,
       body: JSON.stringify(result),
-      header: {
+      headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
       },

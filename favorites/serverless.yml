@@ -59,8 +59,6 @@ functions:
           cors: true
           request:
             parameters:
-              headers:
-                Authorization: true
               paths:
                 id: true
 

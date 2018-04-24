@@ -21,7 +21,7 @@
     "X-Forwarded-Proto": "https"
   },
   "pathParameters": {
-    "artistId": "4FmMTmnJQHpWc6xXp"
+    "artistId": "ovvYZTo6yLh987RJL"
   },
   "stageVariables": null,
   "requestContext": {
@@ -32,7 +32,7 @@
     "resourcePath": "/artists/{artistId}/favorites",
     "httpMethod": "POST",
     "requestTime": "30/Jan/2018:16:38:10 +0000",
-    "path": "/dev/artists/4FmMTmnJQHpWc6xXp/favorites",
+    "path": "/dev/artists/ovvYZTo6yLh987RJL/favorites",
     "accountId": "630176884077",
     "protocol": "HTTP/1.1",
     "stage": "dev",
