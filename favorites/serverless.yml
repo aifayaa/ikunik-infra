@@ -13,13 +13,15 @@ provider:
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiResources:
+      /artists/{id}: ${self:custom.endpoints.artists.${self:provider.stage}}
 
 functions:
   addFavorite:
     handler: handler.handleAddFavorite
     events:
       - http:
-          path: artists/{artistId}/favorites
+          path: artists/{id}/favorites
           method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -28,12 +30,12 @@ functions:
           request:
             parameters:
               paths:
-                artistId: true
+                id: true
   unfavorite:
     handler: handler.handleUnfavorite
     events:
       - http:
-          path: artists/{artistId}/favorites
+          path: artists/{id}/favorites
           method: delete
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -44,12 +46,12 @@ functions:
               headers:
                 Authorization: true
               paths:
-                artistId: true          
+                id: true          
   getFavorite:
     handler: handler.handleGetFavorite
     events:
       - http:
-          path: artists/{artistId}/favorites
+          path: artists/{id}/favorites
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -60,7 +62,7 @@ functions:
               headers:
                 Authorization: true
               paths:
-                artistId: true
+                id: true
 
 plugins:
   - serverless-webpack
@@ -76,6 +78,10 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
+  endpoints:
+    artists:
+      dev: yuiww2
+      prod: z405t7
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
@@ -87,15 +93,15 @@ custom:
 
   webpackIncludeModules: true
 
-resources:
-  Resources:
-    ApiGatewayMethodfavoritesIdVarGet:
-      Properties:
-        RequestParameters:
-          method.request.path.id: true
-        Integration:
-          RequestParameters:
-            integration.request.path.id: method.request.path.id
-          CacheNamespace: ApiGatewayMethodfavoritesIdVarGetCacheNS
-          CacheKeyParameters:
-            - method.request.path.id
+# resources:
+#   Resources:
+#     ApiGatewayMethodFavoritesIdVarGet:
+#       Properties:
+#         RequestParameters:
+#           method.request.path.id: true
+#         Integration:
+#           RequestParameters:
+#             integration.request.path.id: method.request.path.id
+#           CacheNamespace: ApiGatewayMethodFavoritesIdVarGetCacheNS
+#           CacheKeyParameters:
+#             - method.request.path.id
