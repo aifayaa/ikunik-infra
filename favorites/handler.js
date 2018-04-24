@@ -2,18 +2,12 @@ import { MongoClient } from 'mongodb';
 
 export const doAddFavorite = async (userId, artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
-  const data = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-    .findOne({ userId, artistId });
   const favoriteData = {
     userId,
     artistId,
     isFavorite: true,
     date: new Date(),
   };
-
-  if (data != null) {
-    favoriteData.isFavorite = !(data.isFavorite);
-  }
 
   try {
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
@@ -26,18 +20,13 @@ export const doAddFavorite = async (userId, artistId) => {
 
 export const doUnfavorite = async (userId, artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
-  const data = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-    .findOne({ userId, artistId });
-  let value;
-
-  if (data) { value = !data.isFavorite; }
 
   try {
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .updateOne(
         { userId, artistId },
         {
-          $set: { isFavorite: value, date: new Date() },
+          $set: { isFavorite: false, date: new Date() },
         }, {
           upsert: true,
         },
