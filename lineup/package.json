@@ -5,7 +5,9 @@
   "description": "Crowdaa lineup API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.0.2"
+    "aws-sdk": "^2.226.1",
+    "mongodb": "^3.0.2",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",
