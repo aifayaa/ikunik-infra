@@ -1,5 +1,5 @@
 {
-  "resource": "/artists/{artistId}/favorites",
+  "resource": "/artists/{id}/favorites",
   "path": "/",
   "httpMethod": "POST",
   "headers": {
@@ -21,7 +21,7 @@
     "X-Forwarded-Proto": "https"
   },
   "pathParameters": {
-    "artistId": "ovvYZTo6yLh987RJL"
+    "id": "ovvYZTo6yLh987RJL"
   },
   "stageVariables": null,
   "requestContext": {
@@ -29,10 +29,10 @@
     "authorizer": {
       "principalId": "Fve6BiCsX7a6XtwPc"
     },
-    "resourcePath": "/artists/{artistId}/favorites",
+    "resourcePath": "/artists/{id}/favorites",
     "httpMethod": "POST",
     "requestTime": "30/Jan/2018:16:38:10 +0000",
-    "path": "/dev/artists/ovvYZTo6yLh987RJL/favorites",
+    "path": "/dev/artists/{id}/favorites",
     "accountId": "630176884077",
     "protocol": "HTTP/1.1",
     "stage": "dev",

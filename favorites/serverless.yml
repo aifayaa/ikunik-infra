@@ -12,13 +12,12 @@ provider:
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
-    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
     restApiResources:
       /artists/{id}: ${self:custom.endpoints.artists.${self:provider.stage}}
 
 functions:
-  addFavorite:
-    handler: handler.handleAddFavorite
+  manageFavorite:
+    handler: handler.handleFavorite
     events:
       - http:
           path: artists/{id}/favorites
@@ -29,11 +28,10 @@ functions:
           cors: true
           request:
             parameters:
+              headers:
+                Authorization: true
               paths:
                 id: true
-  unfavorite:
-    handler: handler.handleUnfavorite
-    events:
       - http:
           path: artists/{id}/favorites
           method: delete
@@ -47,9 +45,6 @@ functions:
                 Authorization: true
               paths:
                 id: true          
-  getFavorite:
-    handler: handler.handleGetFavorite
-    events:
       - http:
           path: artists/{id}/favorites
           method: get
@@ -59,6 +54,8 @@ functions:
           cors: true
           request:
             parameters:
+              headers:
+                Authorization: true
               paths:
                 id: true
 
@@ -90,16 +87,3 @@ custom:
     prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
   webpackIncludeModules: true
-
-# resources:
-#   Resources:
-#     ApiGatewayMethodFavoritesIdVarGet:
-#       Properties:
-#         RequestParameters:
-#           method.request.path.id: true
-#         Integration:
-#           RequestParameters:
-#             integration.request.path.id: method.request.path.id
-#           CacheNamespace: ApiGatewayMethodFavoritesIdVarGetCacheNS
-#           CacheKeyParameters:
-#             - method.request.path.id
