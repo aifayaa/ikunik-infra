@@ -78,23 +78,32 @@ const doPostLineup = async (festivalId, sceneId, artistId, startDate, endDate, t
   const day = wDate.getDate();
   const month = wDate.getMonth() + 1;
   const jobId = `CronJobLineup-${lineupId}`;
+  const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
   const paramsRule = {
     Name: jobId,
-    Description: `Cron job for ${startDate}/${ticketingURL}`,
+    Description: `Cron job for ${lineupId}/${startDate} to trigger on ${wDate}`,
     ScheduleExpression: `cron(${min} ${hours} ${day} ${month} ? *)`,
   };
   const paramsTarget = {
     Rule: jobId,
     Targets: [
       {
-        Arn: `arn:aws:lambda:us-east-1:630176884077:function:lineup-${process.env.STAGE}-notifyLineup`,
+        Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
         Id: 'CronLineupTarget',
         Input: JSON.stringify({ lineupId }),
       },
     ],
   };
+  const paramsLambda = {
+    Action: "lambda:InvokeFunction",
+    FunctionName: notifyFuncName,
+    Principal: "events.amazonaws.com",
+    StatementId: `${jobId}_permission`,
+  };
+
   await cloudwatchevents.putRule(paramsRule).promise();
   await cloudwatchevents.putTargets(paramsTarget).promise();
+  await lambda.addPermission(paramsLambda).promise();
 
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -224,7 +233,10 @@ const doNotifyLineup = async (lineupId) => {
       await lambda.invoke(paramsNotif).promise();
       await lambda.invoke(paramsText).promise();
     });
-    // await cloudwatchevents.deleteRule({ Name: `CronJobLineup-${lineupId}` });*/
+    const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
+    const jobId = `CronJobLineup-${lineupId}`;
+    await lambda.removePermission({ FunctionName: notifyFuncName, StatementId: `${jobId}_permission` }).promise();
+    await cloudwatchevents.deleteRule({ Name: jobId });
     return true;
   } finally {
     client.close();

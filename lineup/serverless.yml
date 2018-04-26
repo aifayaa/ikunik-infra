@@ -26,6 +26,10 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
+    - Effect: Allow
+      Action:
+        - lambda:AddPermission
+      Resource: "*"
   environment:
     STAGE: ${self:provider.stage}
     REGION: us-east-1
@@ -129,7 +133,7 @@ custom:
   
   blast:
     text:
-      dev: blast-dev-blastText
+      dev: blast-prod-blastText
       prod: blast-prod-blastText
     notif:
       dev: blast-prod-blastNotification
