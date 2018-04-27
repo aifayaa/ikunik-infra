@@ -13,7 +13,15 @@ provider:
       Resource: "*"
     - Effect: Allow
       Action:
+        - events:DeleteRule
+      Resource: "*"
+    - Effect: Allow
+      Action:
         - events:PutTargets
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - events:RemoveTargets
       Resource: "*"
     - Effect: Allow
       Action: 
@@ -29,6 +37,10 @@ provider:
     - Effect: Allow
       Action:
         - lambda:AddPermission
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - lambda:RemovePermission
       Resource: "*"
   environment:
     STAGE: ${self:provider.stage}

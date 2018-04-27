@@ -13,6 +13,10 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
+const getRuleName = lineupId => `CronJobLineup-${lineupId}`;
+const getTargetId = lineupId => `CronLineupTarget-${lineupId}`;
+const getStatementId = lineupId => `${getRuleName(lineupId)}_permission`;
+
 const doGetLineup = async (someId, type) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -77,7 +81,7 @@ const doPostLineup = async (festivalId, sceneId, artistId, startDate, endDate, t
   const hours = wDate.getHours();
   const day = wDate.getDate();
   const month = wDate.getMonth() + 1;
-  const jobId = `CronJobLineup-${lineupId}`;
+  const jobId = getRuleName(lineupId);
   const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
   const paramsRule = {
     Name: jobId,
@@ -89,18 +93,18 @@ const doPostLineup = async (festivalId, sceneId, artistId, startDate, endDate, t
     Targets: [
       {
         Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
-        Id: 'CronLineupTarget',
+        Id: getTargetId(lineupId),
         Input: JSON.stringify({ lineupId }),
       },
     ],
   };
   const paramsLambda = {
-    Action: "lambda:InvokeFunction",
+    Action: 'lambda:InvokeFunction',
     FunctionName: notifyFuncName,
-    Principal: "events.amazonaws.com",
-    StatementId: `${jobId}_permission`,
+    Principal: 'events.amazonaws.com',
+    StatementId: getStatementId(lineupId),
   };
-
+  console.log('====', getStatementId(lineupId), jobId, getTargetId(lineupId));
   await cloudwatchevents.putRule(paramsRule).promise();
   await cloudwatchevents.putTargets(paramsTarget).promise();
   await lambda.addPermission(paramsLambda).promise();
@@ -211,7 +215,7 @@ const doNotifyLineup = async (lineupId) => {
         },
       ]).toArray();
     if (toNotify.length === 0) return true;
-    toNotify.forEach(async (locale) => {
+    const promises = toNotify.map(async (locale) => {
       console.log('======', locale._id.split('-')[0]);
       const { artistName, sceneName } = locale;
       const paramsNotif = {
@@ -226,17 +230,33 @@ const doNotifyLineup = async (lineupId) => {
         FunctionName: process.env.BLAST_TEXT,
         Payload: JSON.stringify({
           phones: locale.phone,
-          message: `${artistName} : Votre concert va bientôt commencer sur la scène du ${sceneName} !!!`
+          message: `${artistName} : Votre concert va bientôt commencer sur la scène du ${sceneName} !!!`,
         }),
       };
       console.log('>>>>>>>', paramsNotif, paramsText);
       await lambda.invoke(paramsNotif).promise();
       await lambda.invoke(paramsText).promise();
     });
+    await Promise.all(promises);
     const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
-    const jobId = `CronJobLineup-${lineupId}`;
-    await lambda.removePermission({ FunctionName: notifyFuncName, StatementId: `${jobId}_permission` }).promise();
-    await cloudwatchevents.deleteRule({ Name: jobId });
+    const jobId = getRuleName(lineupId);
+    const targetId = getTargetId(lineupId);
+    const permId = getStatementId(lineupId);
+    console.log('====', permId, jobId, targetId);
+    try {
+      await lambda.removePermission({
+        FunctionName: notifyFuncName,
+        StatementId: permId,
+      }).promise();
+      console.log('permm.....');
+      await cloudwatchevents.removeTargets({ Rule: jobId, Ids: [targetId] }).promise();
+      console.log('targets.....');
+      await cloudwatchevents.deleteRule({ Name: jobId }).promise();
+      console.log('rule......');
+    } catch (e) {
+      console.log(')))))))))))', e);
+      throw e;
+    }
     return true;
   } finally {
     client.close();
@@ -322,7 +342,6 @@ export const handlePostLineup = async (event, context, callback) => {
 
 export const handlerNotifyLineup = async (event, context, callback) => {
   try {
-    console.log('>>>>>>>>>>>>=========================', event);
     const { lineupId } = event;
     const results = await doNotifyLineup(lineupId);
     const response = {
