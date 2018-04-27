@@ -47,7 +47,7 @@ export const handleFavorite = async (event, context, callback) => {
         result = await doToggleFavorite(userId, id, false);
         break;
       default:
-        result = await doGetFavorite(userId, id);
+        throw new Error(`METHOD_${event.httpMethod}_NOT_IMPLEMENTED`);
     }
     const response = {
       statusCode: 200,

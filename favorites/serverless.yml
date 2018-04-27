@@ -7,7 +7,7 @@ provider:
   memorySize: 128
   timeout: 60
   environment:
-    COLL_NAME: favArtists
+    COLL_NAME: artistsFav
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
@@ -70,9 +70,6 @@ custom:
     restApiId:
       dev: diqdv4fvol
       prod: xbtq2qqal5
-    restApiRootResourceId:
-      dev: aus9fmgcr3
-      prod: hp7jubgyp7
   endpoints:
     artists:
       dev: yuiww2
