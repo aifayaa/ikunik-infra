@@ -2,6 +2,10 @@ import { MongoClient } from 'mongodb';
 import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
+import i18n from 'i18n';
+
+import './locales/fr.json';
+import './locales/en.json';
 
 const THRESHOLD = 15; // minutes
 
@@ -11,6 +15,10 @@ const cloudwatchevents = new CloudWatchEvents({
 
 const lambda = new Lambda({
   region: process.env.REGION,
+});
+
+i18n.configure({
+  directory: './locales',
 });
 
 const getRuleName = lineupId => `CronJobLineup-${lineupId}`;
@@ -104,7 +112,7 @@ const doPostLineup = async (festivalId, sceneId, artistId, startDate, endDate, t
     Principal: 'events.amazonaws.com',
     StatementId: getStatementId(lineupId),
   };
-  console.log('====', getStatementId(lineupId), jobId, getTargetId(lineupId));
+
   await cloudwatchevents.putRule(paramsRule).promise();
   await cloudwatchevents.putTargets(paramsTarget).promise();
   await lambda.addPermission(paramsLambda).promise();
@@ -216,45 +224,44 @@ const doNotifyLineup = async (lineupId) => {
       ]).toArray();
     if (toNotify.length === 0) return true;
     const promises = toNotify.map(async (locale) => {
-      console.log('======', locale._id.split('-')[0]);
       const { artistName, sceneName } = locale;
-      const paramsNotif = {
-        FunctionName: process.env.BLAST_NOTIF,
-        Payload: JSON.stringify({
-          artistName,
-          endpoints: locale.endpoints,
-          message: `Votre concert va bientôt commencer sur la scène du ${sceneName} !!!`,
-        }),
-      };
-      const paramsText = {
-        FunctionName: process.env.BLAST_TEXT,
-        Payload: JSON.stringify({
-          phones: locale.phone,
-          message: `${artistName} : Votre concert va bientôt commencer sur la scène du ${sceneName} !!!`,
-        }),
-      };
-      console.log('>>>>>>>', paramsNotif, paramsText);
-      await lambda.invoke(paramsNotif).promise();
-      await lambda.invoke(paramsText).promise();
+      i18n.setLocale(locale._id.split('-')[0]);
+      if (locale.endpoints.length > 0) {
+        const paramsNotif = {
+          FunctionName: process.env.BLAST_NOTIF,
+          Payload: JSON.stringify({
+            artistName,
+            endpoints: locale.endpoints,
+            message: i18n.__('msg_notif', sceneName),
+          }),
+        };
+        await lambda.invoke(paramsNotif).promise();
+      }
+      if (locale.phone.length > 0) {
+        const paramsText = {
+          FunctionName: process.env.BLAST_TEXT,
+          Payload: JSON.stringify({
+            phones: locale.phone,
+            message: i18n.__('msg_text', { artistName, sceneName }),
+          }),
+        };
+        await lambda.invoke(paramsText).promise();
+      }
     });
     await Promise.all(promises);
     const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
     const jobId = getRuleName(lineupId);
     const targetId = getTargetId(lineupId);
     const permId = getStatementId(lineupId);
-    console.log('====', permId, jobId, targetId);
     try {
       await lambda.removePermission({
         FunctionName: notifyFuncName,
         StatementId: permId,
       }).promise();
-      console.log('permm.....');
       await cloudwatchevents.removeTargets({ Rule: jobId, Ids: [targetId] }).promise();
-      console.log('targets.....');
       await cloudwatchevents.deleteRule({ Name: jobId }).promise();
-      console.log('rule......');
     } catch (e) {
-      console.log(')))))))))))', e);
+      console.error('Failed to delete cronjob', e);
       throw e;
     }
     return true;

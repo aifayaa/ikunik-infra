@@ -1,4 +1,4 @@
 {
   "msg_notif": "Your show will soon begin on the %s stage!!!",
-  "msg_text": "__artistName__ : Your show will soon begin on the __sceneName__ stage!!!"
+  "msg_text": "{{artistName}} : Your show will soon begin on the {{sceneName}} stage!!!"
 }
