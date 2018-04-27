@@ -145,10 +145,10 @@ custom:
   
   blast:
     text:
-      dev: blast-prod-blastText
+      dev: blast-dev-blastText
       prod: blast-prod-blastText
     notif:
-      dev: blast-prod-blastNotification
+      dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
   mongoDB:
     dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
