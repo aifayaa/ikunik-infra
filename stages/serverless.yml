@@ -1,4 +1,4 @@
-service: scenes
+service: stages
 
 provider:
   name: aws
@@ -7,7 +7,7 @@ provider:
   memorySize: 128
   timeout: 60
   environment:
-    COLL_NAME: scenes
+    COLL_NAME: stages
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
@@ -15,15 +15,15 @@ provider:
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
 
 functions:
-  getScene:
-    handler: handler.handleGetScene
+  getStage:
+    handler: handler.handleGetStage
     events:
       - http:
-          path: scenes/{id}
+          path: stages/{id}
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: scenesAuthorizer
+            name: stagesAuthorizer
           cors: true
           request:
             parameters:
