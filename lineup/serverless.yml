@@ -72,10 +72,10 @@ custom:
       prod: z405t7
     festivals:
       dev: m2gnhw
-      prod: #TO FILL
+      prod: 5r44d6
     stages:
       dev: 1wseq9
-      prod: #TO FILL
+      prod: 0jqhf3
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
