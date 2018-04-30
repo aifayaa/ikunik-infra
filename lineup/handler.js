@@ -38,15 +38,15 @@ const doGetLineup = async (someId, type) => {
         },
         {
           $lookup: {
-            from: 'scenes',
-            localField: 'sceneId',
+            from: 'stages',
+            localField: 'stageId',
             foreignField: '_id',
-            as: 'scene',
+            as: 'stage',
           },
         },
         {
           $unwind: {
-            path: '$scene',
+            path: '$stage',
             preserveNullAndEmptyArrays: false,
           },
         },
@@ -65,8 +65,8 @@ export const handleGetLineup = async (event, context, callback) => {
       case 'artists':
         type = 'artistId';
         break;
-      case 'scenes':
-        type = 'sceneId';
+      case 'stages':
+        type = 'stageId';
         break;
       case 'festivals':
         type = 'festivalId';
