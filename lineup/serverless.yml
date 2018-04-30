@@ -15,7 +15,7 @@ provider:
     restApiResources:
       /artists/{id}: ${self:custom.endpoints.artists.${self:provider.stage}}
       /festivals/{id}: ${self:custom.endpoints.festivals.${self:provider.stage}}
-      /scenes/{id}: ${self:custom.endpoints.scenes.${self:provider.stage}}
+      /stages/{id}: ${self:custom.endpoints.stages.${self:provider.stage}}
 
 functions:
   getLineup:
@@ -44,7 +44,7 @@ functions:
               paths:
                 id: true
       - http:
-          path: scenes/{id}/lineup
+          path: stages/{id}/lineup
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -73,8 +73,8 @@ custom:
     festivals:
       dev: m2gnhw
       prod: #TO FILL
-    scenes:
-      dev: jq59p9
+    stages:
+      dev: 1wseq9
       prod: #TO FILL
 
   authorizer:

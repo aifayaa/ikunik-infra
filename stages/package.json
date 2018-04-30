@@ -1,8 +1,8 @@
 {
-  "name": "scenes",
+  "name": "stages",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa scenes API.",
+  "description": "Crowdaa stages API.",
   "main": "handler.js",
   "dependencies": {
     "mongodb": "^3.0.2"

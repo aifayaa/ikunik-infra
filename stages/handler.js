@@ -1,20 +1,20 @@
 import { MongoClient } from 'mongodb';
 
-const doGetScene = async (sceneId) => {
+const doGetStage = async (stageId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const scene = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .findOne({ _id: sceneId });
-    return scene;
+    const stage = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .findOne({ _id: stageId });
+    return stage;
   } finally {
     client.close();
   }
 };
 
-export const handleGetScene = async (event, context, callback) => {
+export const handleGetStage = async (event, context, callback) => {
   try {
-    const sceneId = event.pathParameters.id;
-    const results = await doGetScene(sceneId);
+    const stageId = event.pathParameters.id;
+    const results = await doGetStage(stageId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
