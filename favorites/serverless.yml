@@ -1,0 +1,86 @@
+service: favorites
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 60
+  environment:
+    COLL_NAME: artistsFav
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiResources:
+      /artists/{id}: ${self:custom.endpoints.artists.${self:provider.stage}}
+
+functions:
+  manageFavorite:
+    handler: handler.handleFavorite
+    events:
+      - http:
+          path: artists/{id}/favorites
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: favoritesAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+      - http:
+          path: artists/{id}/favorites
+          method: delete
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: favoritesAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true          
+      - http:
+          path: artists/{id}/favorites
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: favoritesAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+  endpoints:
+    artists:
+      dev: yuiww2
+      prod: z405t7
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
+  mongoDB:
+    dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
+    prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+
+  webpackIncludeModules: true
