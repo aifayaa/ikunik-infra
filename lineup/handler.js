@@ -82,7 +82,7 @@ const doGetLineup = async (someId, type) => {
   }
 };
 
-const doPostLineup = async (festivalId, sceneId, artistId, startDate, endDate, ticketingURL) => {
+const doPostLineup = async (festivalId, stageId, artistId, startDate, endDate, ticketingURL) => {
   const lineupId = uuidv4();
   const wDate = new Date(new Date(startDate).valueOf() - (THRESHOLD * 60000));
   const min = wDate.getMinutes();
@@ -123,7 +123,7 @@ const doPostLineup = async (festivalId, sceneId, artistId, startDate, endDate, t
       .insertOne({
         _id: lineupId,
         festivalId,
-        sceneId,
+        stageId,
         artistId,
         startDate,
         endDate,
@@ -196,15 +196,15 @@ const doNotifyLineup = async (lineupId) => {
         },
         {
           $lookup: {
-            from: 'scenes',
-            localField: 'sceneId',
+            from: 'stages',
+            localField: 'stageId',
             foreignField: '_id',
-            as: 'scenes',
+            as: 'stages',
           },
         },
         {
           $unwind: {
-            path: '$scenes', preserveNullAndEmptyArrays: true,
+            path: '$stages', preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -218,13 +218,13 @@ const doNotifyLineup = async (lineupId) => {
             },
             phone: { $addToSet: '$users.profile.phone' },
             artistName: { $first: '$artists.artistName' },
-            sceneName: { $first: '$scenes.name' },
+            stageName: { $first: '$stages.name' },
           },
         },
       ]).toArray();
     if (toNotify.length === 0) return true;
     const promises = toNotify.map(async (locale) => {
-      const { artistName, sceneName } = locale;
+      const { artistName, stageName } = locale;
       i18n.setLocale(locale._id.split('-')[0]);
       if (locale.endpoints.length > 0) {
         const paramsNotif = {
@@ -232,7 +232,7 @@ const doNotifyLineup = async (lineupId) => {
           Payload: JSON.stringify({
             artistName,
             endpoints: locale.endpoints,
-            message: i18n.__('msg_notif', sceneName),
+            message: i18n.__('msg_notif', stageName),
           }),
         };
         await lambda.invoke(paramsNotif).promise();
@@ -242,7 +242,7 @@ const doNotifyLineup = async (lineupId) => {
           FunctionName: process.env.BLAST_TEXT,
           Payload: JSON.stringify({
             phones: locale.phone,
-            message: i18n.__('msg_text', { artistName, sceneName }),
+            message: i18n.__('msg_text', { artistName, stageName }),
           }),
         };
         await lambda.invoke(paramsText).promise();
@@ -310,20 +310,20 @@ export const handlePostLineup = async (event, context, callback) => {
   try {
     const {
       festivalId,
-      sceneId,
+      stageId,
       artistId,
       startDate,
       endDate,
       ticketingURL,
     } = JSON.parse(event.body);
 
-    if (!festivalId || !sceneId || !artistId || !startDate || !endDate || !ticketingURL) {
+    if (!festivalId || !stageId || !artistId || !startDate || !endDate || !ticketingURL) {
       throw new Error('Bad arguments');
     }
 
     const results = await doPostLineup(
       festivalId,
-      sceneId,
+      stageId,
       artistId,
       startDate,
       endDate,
