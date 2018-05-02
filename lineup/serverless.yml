@@ -130,10 +130,10 @@ custom:
       prod: z405t7
     festivals:
       dev: m2gnhw
-      prod: 5r44d6
+      prod: t9ig8r
     stages:
       dev: 1wseq9
-      prod: 0jqhf3
+      prod: i0ojub
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
