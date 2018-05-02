@@ -1,4 +1,4 @@
 {
   "msg_notif": "Votre concert va bientôt commencer sur la scène du %s !!!",
-  "msg_text": "{{artistName}} : Votre concert va bientôt commencer sur la scène du {{sceneName}} !!!"
+  "msg_text": "{{artistName}} : Votre concert va bientôt commencer sur la scène du {{stageName}} !!!"
 }
