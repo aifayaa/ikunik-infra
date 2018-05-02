@@ -11,7 +11,7 @@
     "no-underscore-dangle": [
       "error",
       {
-        "allow": ["_id"]
+        "allow": ["_id", "__"]
       }
     ],
     "object-curly-newline": [

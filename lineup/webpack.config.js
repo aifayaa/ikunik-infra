@@ -13,6 +13,18 @@ module.exports = {
         include: __dirname,
         exclude: /node_modules/,
       },
+      {
+        test: /\.(json)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              regExp: /\/([a-z0-9]+)\/[a-z0-9]+\.json$/,
+              name: '[path][name].[ext]',
+            },
+          },
+        ],
+      },
     ],
   },
 };
