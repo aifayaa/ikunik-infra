@@ -6,9 +6,18 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
+    REGION: us-east-1
+    STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    PRINTFUL_URL: ${self:custom.printfulURL.${self:provider.stage}}
+    PRINTFUL_KEY: NzV2Z25oMHEtaXY2MS1ubnJpOjg5bGotaW9yemxka2c3Zmxx
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
@@ -40,7 +49,7 @@ functions:
                 id: true
   postShopOrder:
     handler: handler.handlePostShopOrder
-     events:
+    events:
       - http:
           path: shop/orders
           method: post
@@ -71,5 +80,9 @@ custom:
   mongoDB:
     dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
     prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
-
+  
+  printfulURL:
+    dev: https://api.printful.com/orders
+    prod: https://api.printful.com/orders?confirm=1
+  
   webpackIncludeModules: true
