@@ -24,6 +24,30 @@ functions:
             arn: ${self:custom.authorizer.${self:provider.stage}}
             name: shopAuthorizer
           cors: true
+  getShopItem:
+    handler: handler.handleGetShopItem
+    events:
+      - http:
+          path: shop/items/{id}
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: shopAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  postShopOrder:
+    handler: handler.handlePostShopOrder
+     events:
+      - http:
+          path: shop/orders
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: shopAuthorizer
+          cors: true
 
 plugins:
   - serverless-webpack
