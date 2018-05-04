@@ -32,6 +32,9 @@ functions:
 
   addCredits:
     handler: handler.handleAddCredits
+  
+  removeCredits:
+    handler: handler.handleRemoveCredits
 
 plugins:
   - serverless-webpack
