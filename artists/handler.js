@@ -10,6 +10,7 @@ const artistFields = [
   'profil_ID',
   'project_IDs',
   'project_ID',
+  'avatar',
 ];
 
 const doGetArtist = async (artistId) => {
