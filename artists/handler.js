@@ -2,15 +2,16 @@ import { MongoClient } from 'mongodb';
 
 const artistFields = [
   'artistName',
+  'avatar',
   'biography',
-  'snapshat',
   'facebook',
   'instagram',
-  'twitter',
   'profil_ID',
-  'project_IDs',
   'project_ID',
-  'avatar',
+  'project_IDs',
+  'snapshat',
+  'twitter',
+  'website',
 ];
 
 const doGetArtist = async (artistId) => {
