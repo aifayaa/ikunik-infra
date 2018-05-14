@@ -235,9 +235,11 @@ const doNotifyLineup = async (lineupId) => {
             message: i18n.__('msg_notif', stageName),
           }),
         };
+        console.log('Notifications will be sent to', locale.endpoints);
         await lambda.invoke(paramsNotif).promise();
       }
-      if (locale.phone.length > 0) {
+      console.log('Text messages activated:', process.env.USE_BLAST_TEXT);
+      if (locale.phone.length > 0 && process.env.USE_BLAST_TEXT === 'true') {
         const paramsText = {
           FunctionName: process.env.BLAST_TEXT,
           Payload: JSON.stringify({
@@ -245,6 +247,7 @@ const doNotifyLineup = async (lineupId) => {
             message: i18n.__('msg_text', { artistName, stageName }),
           }),
         };
+        console.log('Text messages will be sent to', locale.phone);
         await lambda.invoke(paramsText).promise();
       }
     });

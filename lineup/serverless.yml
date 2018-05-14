@@ -50,6 +50,7 @@ provider:
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
     BLAST_TEXT: ${self:custom.blast.text.${self:provider.stage}}
     BLAST_NOTIF: ${self:custom.blast.notif.${self:provider.stage}}
+    USE_BLAST_TEXT: false
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
