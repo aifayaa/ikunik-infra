@@ -64,8 +64,8 @@ custom:
     prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
 
   mongoDB:
-    dev: mongodb://crowdaaDev:crowdaaDev@35.164.98.157:27017/crowdaaDev
-    prod: mongodb://crowdaaDev:crowdaaDev@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+    dev: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@35.164.98.157:27017/crowdaaDev
+    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
   webpackIncludeModules: true
 
