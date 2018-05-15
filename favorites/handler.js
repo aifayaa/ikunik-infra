@@ -1,4 +1,22 @@
 import { MongoClient } from 'mongodb';
+import Lambda from 'aws-sdk/clients/lambda';
+
+const MSG = {
+  POST: {
+    'fr-FR': 'Vous recevrez une notification 15 minutes avant le début du concert',
+    'fr-RE': 'Vous recevrez une notification 15 minutes avant le début du concert',
+    'us-US': 'You will receive a notification 15 minutes before the show begins',
+  },
+  DELETE: {
+    'fr-FR': 'Vous ne recevrez plus de notification avant le début du concert',
+    'fr-RE': 'Vous ne recevrez plus de notification avant le début du concert',
+    'us-US': 'You will not receive notification before the show begins',
+  },
+};
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 export const doGetFavorite = async (userId, artistId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -57,6 +75,22 @@ export const handleFavorite = async (event, context, callback) => {
         'Access-Control-Allow-Credentials': true,
       },
     };
+    if (['POST', 'DELETE'].includes(event.httpMethod)) {
+      // Notify user after callback
+      const user = await lambda.invoke({
+        FunctionName: `users-${process.env.STAGE}-getUser`,
+        Payload: JSON.stringify({ userId }),
+      }).promise();
+      const notifyEvent = {
+        body: JSON.stringify({ artistName: 'CROWDAA', message: MSG[event.httpMethod][JSON.parse(JSON.parse(user.Payload).body).locale] }),
+        pathParameters: { id: userId },
+      };
+      console.log('notifyEvent', notifyEvent);
+      await lambda.invoke({
+        FunctionName: `users-${process.env.STAGE}-blastNotification`,
+        Payload: JSON.stringify(notifyEvent),
+      }).promise();
+    }
     callback(null, response);
   } catch (e) {
     const response = {
