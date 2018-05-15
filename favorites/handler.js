@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import get from 'lodash/get';
 import Lambda from 'aws-sdk/clients/lambda';
 
 const MSG = {
@@ -82,7 +83,7 @@ export const handleFavorite = async (event, context, callback) => {
         Payload: JSON.stringify({ userId }),
       }).promise();
       const notifyEvent = {
-        body: JSON.stringify({ artistName: 'CROWDAA', message: MSG[event.httpMethod][JSON.parse(JSON.parse(user.Payload).body).locale] }),
+        body: JSON.stringify({ artistName: 'CROWDAA', message: MSG[event.httpMethod][get(JSON.parse(JSON.parse(user.Payload).body), 'locale', 'fr-FR')] }),
         pathParameters: { id: userId },
       };
       console.log('notifyEvent', notifyEvent);
