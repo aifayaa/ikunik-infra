@@ -127,6 +127,9 @@ functions:
               paths:
                 id: true
   
+  getUser:
+    handler: handler.handleGetUser
+  
   isBlastable:
     handler: handler.handleIsBlastable
     events:
