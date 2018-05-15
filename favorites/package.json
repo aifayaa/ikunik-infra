@@ -6,6 +6,7 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.238.1",
+    "lodash": "^4.17.10",
     "mongodb": "^3.0.2"
   },
   "devDependencies": {
