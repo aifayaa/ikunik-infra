@@ -8,6 +8,7 @@ provider:
   timeout: 60
   environment:
     COLL_NAME: selection
+    USER_SUBS_COLL_NAME: userSubscriptions
     DB_NAME: crowdaaDev
     MONGO_URL: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   apiGateway:

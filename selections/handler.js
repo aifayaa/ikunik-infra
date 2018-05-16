@@ -14,10 +14,15 @@ const selectionFields = [
   'selectionCollection',
 ];
 
-const doGetSelection = async (selectionId) => {
+const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const selection = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    const userSubscriptions = await (client.db(process.env.DB_NAME)
+      .collection(process.env.USER_SUBS_COLL_NAME)
+      .find({ userId }, { projection: { subscriptionId: 1 } }).toArray())
+      .map(item => item.subscriptionId);
+
+    const [selection] = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .aggregate([
         { $match: { _id: selectionId } },
         {
@@ -113,8 +118,9 @@ const doGetSelection = async (selectionId) => {
           }),
         },
       ]).toArray();
-    if (!selection[0]) throw new Error('Not found');
-    return selection[0];
+    selection.tracks.forEach((track) => { track.isLocked = !userSubscriptions.includes(track.subscriptionId); });
+    if (!selection) throw new Error('Not found');
+    return selection;
   } finally {
     client.close();
   }
@@ -123,8 +129,9 @@ const doGetSelection = async (selectionId) => {
 export const handleGetSelection = async (event, context, callback) => {
   try {
     const selectionId = event.pathParameters.id;
+    const userId = event.requestContext.authorizer.principalId;
     if (!selectionId) throw new Error('Missing id');
-    const results = await doGetSelection(selectionId);
+    const results = await doGetSelection(selectionId, userId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
