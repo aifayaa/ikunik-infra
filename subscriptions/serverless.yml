@@ -6,7 +6,14 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
+    REGION: us-east-1
+    STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
@@ -20,6 +27,20 @@ functions:
       - http:
           path: subscriptions/{id}
           method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: subscriptionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  postSubscription:
+    handler: handler.handlePostSubscription
+    events:
+      - http:
+          path: subscriptions/{id}
+          method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
             name: subscriptionsAuthorizer
