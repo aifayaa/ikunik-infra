@@ -19,6 +19,8 @@ provider:
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiResources:
+      /users/{id}: ${self:custom.endpoints.users.${self:provider.stage}}
 
 functions:
   getSubscription:
@@ -35,6 +37,21 @@ functions:
             parameters:
               paths:
                 id: true
+  getUserSubscriptions:
+    handler: handler.handleGetUserSubscriptions
+    events:
+      - http:
+          path: users/{id}/subscriptions
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: subscriptionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   postSubscription:
     handler: handler.handlePostSubscription
     events:
@@ -64,6 +81,10 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
+  endpoints:
+    users:
+      dev: 2wgs1k
+      prod: zlxmac
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
