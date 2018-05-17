@@ -13,110 +13,112 @@ const doGetSelection = async (selectionId, userId) => {
         .find({ userId }, { projection: { subscriptionId: 1 } }).toArray(),
     ]);
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
+    const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
     const [audioTracks, videoTracks] = await Promise.all([
       client.db(process.env.DB_NAME)
         .collection('audio')
         .find(
           JSON.parse(selection.selectionFindQuery),
-          Object.assign(
-            JSON.parse(selection.selectionOptionQuery),
-            { projection: { project_ID: true } },
-          ),
-        )
-        .toArray(),
+          JSON.parse(selection.selectionOptionQuery),
+        ).toArray(),
       client.db(process.env.DB_NAME)
         .collection('video')
         .find(
           JSON.parse(selection.selectionFindQuery),
-          Object.assign(
-            JSON.parse(selection.selectionOptionQuery),
-            { projection: { project_ID: true } },
-          ),
-        )
-        .toArray(),
+          JSON.parse(selection.selectionOptionQuery),
+        ).toArray(),
     ]);
-    const trackProjects = audioTracks.concat(videoTracks);
-    const projectIds = [...new Set(trackProjects.map(track => track.project_ID))];
+    const rawTracks = audioTracks.concat(videoTracks);
+    if (onlyHighlighted) {
+      const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
+      const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
+        .aggregate([
+          { $match: { _id: { $in: projectIds } } },
+          {
+            $lookup: {
+              from: 'audio',
+              localField: '_id',
+              foreignField: 'project_ID',
+              as: 'audio',
+            },
+          },
+          {
+            $lookup: {
+              from: 'video',
+              localField: '_id',
+              foreignField: 'project_ID',
+              as: 'video',
+            },
+          },
+          {
+            $lookup: {
+              from: 'audio',
+              localField: 'highlight',
+              foreignField: '_id',
+              as: 'audioHighlight',
+            },
+          },
+          {
+            $lookup: {
+              from: 'video',
+              localField: 'highlight',
+              foreignField: '_id',
+              as: 'videoHighlight',
+            },
+          },
+          {
+            $project: {
+              track: {
+                $concatArrays: ['$audio', '$video'],
+              },
+              trackHighlight: {
+                $concatArrays: ['$audioHighlight', '$videoHighlight'],
+              },
+            },
+          },
+          {
+            $unwind: {
+              path: '$trackHighlight',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              track: {
+                $ifNull: ['$trackHighlight', '$track'],
+              },
+            },
+          },
+          {
+            $unwind: {
+              path: '$track',
+            },
+          },
+          {
+            $sort: JSON.parse(selection.selectionOptionQuery).sort || { modifiedAt: 1 },
+          },
+          {
+            $group: {
+              _id: '$_id',
+              track: {
+                $first: '$track',
+              },
+            },
+          },
+        ]).toArray();
+      selection.tracks = projectTracks.map(projectTrack => ({
+        ...projectTrack.track,
+        isLocked: projectTrack.track.subscriptionId &&
+          !userSubsriptionIds.includes(projectTrack.track.subscriptionId),
+      }));
+    } else {
+      rawTracks.forEach((track) => {
+        track.isLocked = !!track.subscriptionId &&
+          !userSubsriptionIds.includes(track.subscriptionId);
+      });
+      selection.tracks = rawTracks;
+    }
 
-    const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
-      .aggregate([
-        { $match: { _id: { $in: projectIds } } },
-        {
-          $lookup: {
-            from: 'audio',
-            localField: '_id',
-            foreignField: 'project_ID',
-            as: 'audio',
-          },
-        },
-        {
-          $lookup: {
-            from: 'video',
-            localField: '_id',
-            foreignField: 'project_ID',
-            as: 'video',
-          },
-        },
-        {
-          $lookup: {
-            from: 'audio',
-            localField: 'highlight',
-            foreignField: '_id',
-            as: 'audioHighlight',
-          },
-        },
-        {
-          $lookup: {
-            from: 'video',
-            localField: 'highlight',
-            foreignField: '_id',
-            as: 'videoHighlight',
-          },
-        },
-        {
-          $project: {
-            track: {
-              $concatArrays: ['$audio', '$video'],
-            },
-            trackHighlight: {
-              $concatArrays: ['$audioHighlight', '$videoHighlight'],
-            },
-          },
-        },
-        {
-          $unwind: {
-            path: '$trackHighlight',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: {
-            track: {
-              $ifNull: ['$trackHighlight', '$track'],
-            },
-          },
-        },
-        {
-          $unwind: {
-            path: '$track',
-          },
-        },
-        {
-          $sort: JSON.parse(selection.selectionOptionQuery).sort || { modifiedAt: 1 },
-        },
-        {
-          $group: {
-            _id: '$_id',
-            track: {
-              $first: '$track',
-            },
-          },
-        },
-      ]).toArray();
-    selection.tracks = projectTracks.map(projectTrack => ({
-      ...projectTrack.track,
-      isLocked: !userSubsriptionIds.includes(projectTrack.track.subscriptionId),
-    }));
     if (!selection) throw new Error('Not found');
     return selection;
   } finally {
