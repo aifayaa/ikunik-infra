@@ -108,13 +108,13 @@ const doGetSelection = async (selectionId, userId) => {
         ]).toArray();
       selection.tracks = projectTracks.map(projectTrack => ({
         ...projectTrack.track,
-        isLocked: projectTrack.track.subscriptionId &&
-          !userSubsriptionIds.includes(projectTrack.track.subscriptionId),
+        isLocked: projectTrack.track.subscriptionIds &&
+          !projectTrack.track.subscriptionIds.find(id => userSubsriptionIds.includes(id)),
       }));
     } else {
       rawTracks.forEach((track) => {
-        track.isLocked = !!track.subscriptionId &&
-          !userSubsriptionIds.includes(track.subscriptionId);
+        track.isLocked = !!track.subscriptionIds &&
+          !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
       });
       selection.tracks = rawTracks;
     }
