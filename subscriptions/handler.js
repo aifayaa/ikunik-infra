@@ -70,10 +70,10 @@ const doSubscribe = async (userId, subId) => {
     if (!credits) throw new Error('unable to get credits from service response');
     if (credits < price) throw new Error('insufficient credits on user account');
     const [value, unit] = duration.split('_');
-    const expiredAt = moment().add(value, unit).toDate();
+    const expireAt = moment().add(value, unit).toDate();
     const subscription = {
       userId,
-      expiredAt,
+      expireAt,
       subscriptionId: subId,
       createdAt: new Date(),
       amount: price,
@@ -89,7 +89,7 @@ const doSubscribe = async (userId, subId) => {
     if (res.statusCode !== 200) {
       throw new Error(`removeCredits handler failed: ${res.body}`);
     }
-    return { _id: insertedId, expiredAt };
+    return { _id: insertedId, expireAt };
   } catch (e) {
     throw e;
   } finally {
