@@ -1,83 +1,66 @@
 import { MongoClient } from 'mongodb';
 import winston from 'winston';
 
-const selectionFields = [
-  'selectionName',
-  'selectionDisplayName',
-  'selectionFindQuery',
-  'selectionOptionQuery',
-  'date',
-  'createAt',
-  'selectionRank',
-  'iconeThumbFileUrl',
-  'updatedAt',
-  'selectionCollection',
-];
-
 const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const userSubscriptions = await (client.db(process.env.DB_NAME)
-      .collection(process.env.USER_SUBS_COLL_NAME)
-      .find({ userId }, { projection: { subscriptionId: 1 } }).toArray())
-      .map(item => item.subscriptionId);
+    const [selection, userSubscriptions] = await Promise.all([
+      client.db(process.env.DB_NAME)
+        .collection(process.env.COLL_NAME)
+        .findOne({ _id: selectionId }),
+      client.db(process.env.DB_NAME)
+        .collection(process.env.USER_SUBS_COLL_NAME)
+        .find({ userId }, { projection: { subscriptionId: 1 } }).toArray(),
+    ]);
+    const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
+    const [audioTracks, videoTracks] = await Promise.all([
+      client.db(process.env.DB_NAME)
+        .collection('audio')
+        .find(
+          JSON.parse(selection.selectionFindQuery),
+          Object.assign(
+            JSON.parse(selection.selectionOptionQuery),
+            { projection: { project_ID: true } },
+          ),
+        )
+        .toArray(),
+      client.db(process.env.DB_NAME)
+        .collection('video')
+        .find(
+          JSON.parse(selection.selectionFindQuery),
+          Object.assign(
+            JSON.parse(selection.selectionOptionQuery),
+            { projection: { project_ID: true } },
+          ),
+        )
+        .toArray(),
+    ]);
+    const trackProjects = audioTracks.concat(videoTracks);
+    const projectIds = [...new Set(trackProjects.map(track => track.project_ID))];
 
-    const [selection] = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
       .aggregate([
-        { $match: { _id: selectionId } },
-        {
-          $unwind: {
-            path: '$content_IDs',
-            preserveNullAndEmptyArrays: false,
-          },
-        },
+        { $match: { _id: { $in: projectIds } } },
         {
           $lookup: {
             from: 'audio',
-            localField: 'content_IDs',
-            foreignField: '_id',
+            localField: '_id',
+            foreignField: 'project_ID',
             as: 'audio',
           },
         },
         {
           $lookup: {
             from: 'video',
-            localField: 'content_IDs',
-            foreignField: '_id',
+            localField: '_id',
+            foreignField: 'project_ID',
             as: 'video',
-          },
-        },
-        {
-          $project: Object.assign({}, ...selectionFields.map(field => ({ [field]: `$${field}` })), {
-            track: {
-              $concatArrays: ['$audio', '$video'],
-            },
-          }),
-        },
-        {
-          $unwind: {
-            path: '$track',
-            preserveNullAndEmptyArrays: false,
-          },
-        },
-        {
-          $lookup: {
-            from: 'Project',
-            localField: 'track.project_ID',
-            foreignField: '_id',
-            as: 'project',
-          },
-        },
-        {
-          $unwind: {
-            path: '$project',
-            preserveNullAndEmptyArrays: false,
           },
         },
         {
           $lookup: {
             from: 'audio',
-            localField: 'project.highlight',
+            localField: 'highlight',
             foreignField: '_id',
             as: 'audioHighlight',
           },
@@ -85,18 +68,20 @@ const doGetSelection = async (selectionId, userId) => {
         {
           $lookup: {
             from: 'video',
-            localField: 'project.highlight',
+            localField: 'highlight',
             foreignField: '_id',
             as: 'videoHighlight',
           },
         },
         {
-          $project: Object.assign({}, ...selectionFields.map(field => ({ [field]: `$${field}` })), {
+          $project: {
+            track: {
+              $concatArrays: ['$audio', '$video'],
+            },
             trackHighlight: {
               $concatArrays: ['$audioHighlight', '$videoHighlight'],
             },
-            track: '$track',
-          }),
+          },
         },
         {
           $unwind: {
@@ -105,20 +90,33 @@ const doGetSelection = async (selectionId, userId) => {
           },
         },
         {
-          $project: Object.assign({}, ...selectionFields.map(field => ({ [field]: `$${field}` })), {
+          $project: {
             track: {
               $ifNull: ['$trackHighlight', '$track'],
             },
-          }),
+          },
         },
         {
-          $group: Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
+          $unwind: {
+            path: '$track',
+          },
+        },
+        {
+          $sort: JSON.parse(selection.selectionOptionQuery).sort || { modifiedAt: 1 },
+        },
+        {
+          $group: {
             _id: '$_id',
-            tracks: { $push: '$track' },
-          }),
+            track: {
+              $first: '$track',
+            },
+          },
         },
       ]).toArray();
-    selection.tracks.forEach((track) => { track.isLocked = !userSubscriptions.includes(track.subscriptionId); });
+    selection.tracks = projectTracks.map(projectTrack => ({
+      ...projectTrack.track,
+      isLocked: !userSubsriptionIds.includes(projectTrack.track.subscriptionId),
+    }));
     if (!selection) throw new Error('Not found');
     return selection;
   } finally {
