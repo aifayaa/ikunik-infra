@@ -10,7 +10,11 @@ const doGetSelection = async (selectionId, userId) => {
         .findOne({ _id: selectionId }),
       client.db(process.env.DB_NAME)
         .collection(process.env.USER_SUBS_COLL_NAME)
-        .find({ userId }, { projection: { subscriptionId: 1 } }).toArray(),
+        .find({
+          userId,
+          expireAt: { $gt: new Date() },
+        }, { projection: { subscriptionId: 1 } })
+        .toArray(),
     ]);
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
