@@ -14,22 +14,25 @@ const doGetSelection = async (selectionId, userId) => {
     ]);
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
-    const [audioTracks, videoTracks] = await Promise.all([
+    const selectionCollection = typeof selection.selectionCollection === 'string' ?
+      [selection.selectionCollection] : selection.selectionCollection;
+
+    const audioPromise = selectionCollection.includes('audio') ?
       client.db(process.env.DB_NAME)
         .collection('audio')
         .find(
           JSON.parse(selection.selectionFindQuery),
           JSON.parse(selection.selectionOptionQuery),
-        ).toArray(),
+        ).toArray() : [];
+    const videoPromise = selectionCollection.includes('video') ?
       client.db(process.env.DB_NAME)
         .collection('video')
         .find(
           JSON.parse(selection.selectionFindQuery),
           JSON.parse(selection.selectionOptionQuery),
-        ).toArray(),
-    ]);
+        ).toArray() : [];
+    const [audioTracks, videoTracks] = await Promise.all([audioPromise, videoPromise]);
     const rawTracks = audioTracks.concat(videoTracks);
-    if (onlyHighlighted) {
       const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
       const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
         .aggregate([
