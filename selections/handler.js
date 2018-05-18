@@ -18,23 +18,27 @@ const doGetSelection = async (selectionId, userId) => {
     ]);
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
-    const [audioTracks, videoTracks] = await Promise.all([
+    const selectionCollection = typeof selection.selectionCollection === 'string' ?
+      [selection.selectionCollection] : selection.selectionCollection;
+
+    const audioPromise = selectionCollection.includes('audio') ?
       client.db(process.env.DB_NAME)
         .collection('audio')
         .find(
           JSON.parse(selection.selectionFindQuery),
           JSON.parse(selection.selectionOptionQuery),
-        ).toArray(),
+        ).toArray() : [];
+    const videoPromise = selectionCollection.includes('video') ?
       client.db(process.env.DB_NAME)
         .collection('video')
         .find(
           JSON.parse(selection.selectionFindQuery),
           JSON.parse(selection.selectionOptionQuery),
-        ).toArray(),
-    ]);
+        ).toArray() : [];
+    const [audioTracks, videoTracks] = await Promise.all([audioPromise, videoPromise]);
     const rawTracks = audioTracks.concat(videoTracks);
+    const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
     if (onlyHighlighted) {
-      const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
       const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
         .aggregate([
           { $match: { _id: { $in: projectIds } } },
@@ -72,6 +76,7 @@ const doGetSelection = async (selectionId, userId) => {
           },
           {
             $project: {
+              iconeThumbFileUrl: true,
               track: {
                 $concatArrays: ['$audio', '$video'],
               },
@@ -88,6 +93,7 @@ const doGetSelection = async (selectionId, userId) => {
           },
           {
             $project: {
+              iconeThumbFileUrl: true,
               track: {
                 $ifNull: ['$trackHighlight', '$track'],
               },
@@ -99,11 +105,14 @@ const doGetSelection = async (selectionId, userId) => {
             },
           },
           {
-            $sort: JSON.parse(selection.selectionOptionQuery).sort || { modifiedAt: 1 },
+            $sort: JSON.parse(selection.selectionOptionQuery).sort.keys || { 'track.modifiedAt': 1 },
           },
           {
             $group: {
               _id: '$_id',
+              projectThumbFileUrl: {
+                $first: '$iconeThumbFileUrl',
+              },
               track: {
                 $first: '$track',
               },
@@ -112,11 +121,18 @@ const doGetSelection = async (selectionId, userId) => {
         ]).toArray();
       selection.tracks = projectTracks.map(projectTrack => ({
         ...projectTrack.track,
-        isLocked: projectTrack.track.subscriptionIds &&
+        isLocked: !!projectTrack.track.subscriptionIds &&
           !projectTrack.track.subscriptionIds.find(id => userSubsriptionIds.includes(id)),
+        projectThumbFileUrl: projectTrack.projectThumbFileUrl,
       }));
     } else {
+      const projects = await client.db(process.env.DB_NAME).collection('Project').find(
+        { _id: { $in: projectIds } },
+        { projection: { iconeThumbFileUrl: true } },
+      ).toArray();
       rawTracks.forEach((track) => {
+        const trackProject = projects.find(project => project._id === track.project_ID) || {};
+        track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
         track.isLocked = !!track.subscriptionIds &&
           !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
       });
