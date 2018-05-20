@@ -6,6 +6,22 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
+function makeResponse(statusCode, error, result) {
+  const res = {
+    statusCode,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+  };
+  if (error) {
+    res.body = error.message;
+    return res;
+  }
+  res.body = JSON.stringify(result);
+  return res;
+}
+
 const doGetSubscription = async (subId) => {
   let client;
   try {
@@ -44,6 +60,20 @@ const doGetUserSubscriptions = async (userId) => {
     return { subscriptions: res };
   } catch (e) {
     throw e;
+  } finally {
+    client.close();
+  }
+};
+
+export const doIsUserSubscribed = async (userId, subIds) => {
+  if (!subIds) return true;
+  subIds = Array.isArray(subIds) ? subIds : [subIds];
+  if (!subIds.length) return true;
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const res = await client.db(process.env.DB_NAME).collection('userSubscriptions')
+      .findOne({ userId, subscriptionId: { $in: subIds }, expireAt: { $gt: new Date() } });
+    return !!res;
   } finally {
     client.close();
   }
@@ -147,6 +177,15 @@ export const handleGetUserSubscriptions = async (event, context, callback) => {
       body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
+  }
+};
+
+export const handleIsUserSubscribed = async ({ userId, subIds }, context, callback) => {
+  try {
+    const results = await doIsUserSubscribed(userId, subIds);
+    callback(null, makeResponse(200, null, results));
+  } catch (e) {
+    callback(null, makeResponse(500, e));
   }
 };
 
