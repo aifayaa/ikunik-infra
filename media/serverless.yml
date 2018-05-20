@@ -1,4 +1,4 @@
-service: subscriptions
+service: media
 
 provider:
   name: aws
@@ -7,66 +7,38 @@ provider:
   memorySize: 128
   timeout: 60
   iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-      Resource: "*"
+   - Effect: Allow
+     Action:
+       - lambda:InvokeFunction
+     Resource: "*"
   environment:
     REGION: us-east-1
     STAGE: ${self:provider.stage}
+    COLL_AUDIOS: audio
+    COLL_VIDEOS: video
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
-    restApiResources:
-      /users/{id}: ${self:custom.endpoints.users.${self:provider.stage}}
 
 functions:
-  getSubscription:
-    handler: handler.handleGetSubscription
+  getMedium:
+    handler: handler.handleGetMedium
     events:
       - http:
-          path: subscriptions/{id}
+          path: media/{type}/{id}
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: subscriptionsAuthorizer
+            name: mediaAuthorizer
           cors: true
           request:
             parameters:
+              headers:
+                Authorization: true
               paths:
-                id: true
-  getUserSubscriptions:
-    handler: handler.handleGetUserSubscriptions
-    events:
-      - http:
-          path: users/{id}/subscriptions
-          method: get
-          authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: subscriptionsAuthorizer
-          cors: true
-          request:
-            parameters:
-              paths:
-                id: true
-  isUserSubscribed:
-    handler: handler.handleIsUserSubscribed
-
-  postSubscription:
-    handler: handler.handlePostSubscription
-    events:
-      - http:
-          path: subscriptions/{id}
-          method: post
-          authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: subscriptionsAuthorizer
-          cors: true
-          request:
-            parameters:
-              paths:
+                type: true
                 id: true
 
 plugins:
@@ -83,10 +55,6 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
-  endpoints:
-    users:
-      dev: 2wgs1k
-      prod: zlxmac
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
