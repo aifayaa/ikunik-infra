@@ -40,6 +40,24 @@ functions:
               paths:
                 type: true
                 id: true
+  
+  postMediumView:
+    handler: handler.handlePostMediumView
+    events:
+      - http:
+          path: media/{type}/{id}/views
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: mediaAuthorizer
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                type: true
+                id: true
 
 plugins:
   - serverless-webpack
