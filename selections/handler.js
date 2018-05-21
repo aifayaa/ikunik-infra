@@ -21,27 +21,36 @@ const doGetSelection = async (selectionId, userId) => {
     const selectionCollection = typeof selection.selectionCollection === 'string' ?
       [selection.selectionCollection] : selection.selectionCollection;
 
-    const audioPromise = selectionCollection.includes('audio') ?
+    const [isAudioSelection, isVideoSelection] = [selectionCollection.includes('audio'), selectionCollection.includes('video')];
+    const selectionFindQuery = JSON.parse(selection.selectionFindQuery);
+    selectionFindQuery.isPublished = true;
+
+    const sort = JSON.parse(selection.selectionOptionQuery).sort || {};
+    const trackSort = {};
+    Object.keys(sort).forEach((key) => { trackSort[`track.${key}`] = sort[key]; });
+
+    const audioPromise = isAudioSelection ?
       client.db(process.env.DB_NAME)
         .collection('audio')
         .find(
-          JSON.parse(selection.selectionFindQuery),
+          selectionFindQuery,
           JSON.parse(selection.selectionOptionQuery),
         ).toArray() : [];
-    const videoPromise = selectionCollection.includes('video') ?
+    const videoPromise = isVideoSelection ?
       client.db(process.env.DB_NAME)
         .collection('video')
         .find(
-          JSON.parse(selection.selectionFindQuery),
+          selectionFindQuery,
           JSON.parse(selection.selectionOptionQuery),
         ).toArray() : [];
     const [audioTracks, videoTracks] = await Promise.all([audioPromise, videoPromise]);
     const rawTracks = audioTracks.concat(videoTracks);
     const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
+
     if (onlyHighlighted) {
-      const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
-        .aggregate([
-          { $match: { _id: { $in: projectIds } } },
+      let aggregationPipeline = [{ $match: { _id: { $in: projectIds } } }];
+      if (isAudioSelection) {
+        aggregationPipeline = aggregationPipeline.concat([
           {
             $lookup: {
               from: 'audio',
@@ -52,18 +61,22 @@ const doGetSelection = async (selectionId, userId) => {
           },
           {
             $lookup: {
-              from: 'video',
-              localField: '_id',
-              foreignField: 'project_ID',
-              as: 'video',
-            },
-          },
-          {
-            $lookup: {
               from: 'audio',
               localField: 'highlight',
               foreignField: '_id',
               as: 'audioHighlight',
+            },
+          },
+        ]);
+      }
+      if (isVideoSelection) {
+        aggregationPipeline = aggregationPipeline.concat([
+          {
+            $lookup: {
+              from: 'video',
+              localField: '_id',
+              foreignField: 'project_ID',
+              as: 'video',
             },
           },
           {
@@ -74,51 +87,62 @@ const doGetSelection = async (selectionId, userId) => {
               as: 'videoHighlight',
             },
           },
-          {
-            $project: {
-              iconeThumbFileUrl: true,
-              track: {
-                $concatArrays: ['$audio', '$video'],
-              },
-              trackHighlight: {
-                $concatArrays: ['$audioHighlight', '$videoHighlight'],
-              },
+        ]);
+      }
+      aggregationPipeline = aggregationPipeline.concat([
+        {
+          $project: {
+            iconeThumbFileUrl: true,
+            track: {
+              $concatArrays: [
+                isAudioSelection ? '$audio' : [],
+                isVideoSelection ? '$video' : [],
+              ],
+            },
+            trackHighlight: {
+              $concatArrays: [
+                isAudioSelection ? '$audioHighlight' : [],
+                isVideoSelection ? '$videoHighlight' : [],
+              ],
             },
           },
-          {
-            $unwind: {
-              path: '$trackHighlight',
-              preserveNullAndEmptyArrays: true,
+        },
+        {
+          $unwind: {
+            path: '$trackHighlight',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            iconeThumbFileUrl: true,
+            track: {
+              $ifNull: ['$trackHighlight', '$track'],
             },
           },
-          {
-            $project: {
-              iconeThumbFileUrl: true,
-              track: {
-                $ifNull: ['$trackHighlight', '$track'],
-              },
+        },
+        {
+          $unwind: {
+            path: '$track',
+          },
+        },
+        {
+          $sort: Object.keys(trackSort).length ? trackSort : { 'track.createdAt': -1 },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            projectThumbFileUrl: {
+              $first: '$iconeThumbFileUrl',
+            },
+            track: {
+              $first: '$track',
             },
           },
-          {
-            $unwind: {
-              path: '$track',
-            },
-          },
-          {
-            $sort: JSON.parse(selection.selectionOptionQuery).sort.keys || { 'track.modifiedAt': 1 },
-          },
-          {
-            $group: {
-              _id: '$_id',
-              projectThumbFileUrl: {
-                $first: '$iconeThumbFileUrl',
-              },
-              track: {
-                $first: '$track',
-              },
-            },
-          },
-        ]).toArray();
+        },
+      ]);
+      const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
+        .aggregate(aggregationPipeline).toArray();
       selection.tracks = projectTracks.map(projectTrack => ({
         ...projectTrack.track,
         isLocked: !!projectTrack.track.subscriptionIds &&
