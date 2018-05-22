@@ -186,7 +186,11 @@ const doCreateNotifyAll = async () => {
   try {
     client = await MongoClient.connect(process.env.MONGO_URL);
     const lineup = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .find({ startDate: { $gt: new Date() } });
+      .find({ startDate: { $gt: new Date() } }, { projection: { _id: 1 } }).toArray();
+    const promises = lineup.map(async (lid) => {
+      await doCreateNotify(lid);
+    });
+    await Promise.all(promises);
     return true;
   } catch (e) {
     throw e;
@@ -438,6 +442,27 @@ export const handlerCreateNotifyLineup = async (event, context, callback) => {
   try {
     const lineupId = event.pathParameters.id;
     const results = await doCreateNotify(lineupId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handlerCreateNotifyAllLineup = async (event, context, callback) => {
+  try {
+    const results = await doCreateNotifyAll();
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
