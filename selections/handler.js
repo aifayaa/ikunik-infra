@@ -176,6 +176,28 @@ const doGetSelection = async (selectionId, userId) => {
   }
 };
 
+const doGetSelections = async (type) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selector = {
+      isPublished: true,
+    };
+    if (type && ['audio', 'video'].includes(type)) {
+      selector.selectionCollection = type;
+    }
+
+    const selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find(selector)
+      .sort({ selectionRank: 1 })
+      .toArray();
+
+    return selections;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetSelection = async (event, context, callback) => {
   try {
     const selectionId = event.pathParameters.id;
@@ -196,6 +218,30 @@ export const handleGetSelection = async (event, context, callback) => {
     if (e.message === 'Not found') {
       statusCode = 404;
     }
+    winston.error(e);
+    const response = {
+      statusCode,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetSelections = async (event, context, callback) => {
+  try {
+    const { type } = event.queryStringParameters || {};
+    const results = await doGetSelections(type);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const statusCode = 500;
     winston.error(e);
     const response = {
       statusCode,
