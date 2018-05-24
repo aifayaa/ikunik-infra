@@ -4,6 +4,7 @@ const artistFields = [
   'artistName',
   'avatar',
   'biography',
+  'country',
   'facebook',
   'instagram',
   'profil_ID',
