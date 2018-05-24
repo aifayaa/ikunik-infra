@@ -140,6 +140,12 @@ const doGetSelection = async (selectionId, userId) => {
             },
           },
         },
+        {
+          $sort: Object.keys(trackSort).length ? trackSort : { 'track.createdAt': -1 },
+        },
+        {
+          $limit: selection.limit || parseInt(process.env.DEFAULT_LIMIT, 10),
+        },
       ]);
       const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
         .aggregate(aggregationPipeline).toArray();

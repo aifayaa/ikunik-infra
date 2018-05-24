@@ -8,9 +8,10 @@ provider:
   timeout: 60
   environment:
     COLL_NAME: selection
-    USER_SUBS_COLL_NAME: userSubscriptions
     DB_NAME: crowdaaDev
+    DEFAULT_LIMIT: 15
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    USER_SUBS_COLL_NAME: userSubscriptions
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
