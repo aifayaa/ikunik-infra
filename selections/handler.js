@@ -193,7 +193,7 @@ const doGetSelections = async (type) => {
       .sort({ selectionRank: 1 })
       .toArray();
 
-    return selections;
+    return { selections };
   } finally {
     client.close();
   }
