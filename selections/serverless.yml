@@ -32,6 +32,21 @@ functions:
               paths:
                 id: true
 
+  getSelections:
+    handler: handler.handleGetSelections
+    events:
+      - http:
+          path: selections
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: selectionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                type: false
+
 plugins:
   - serverless-webpack
 
