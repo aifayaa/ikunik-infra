@@ -3,6 +3,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import i18n from 'i18n';
+import PromisePool from 'es6-promise-pool';
 
 import './locales/fr.json';
 import './locales/en.json';
@@ -187,10 +188,19 @@ const doCreateNotifyAll = async () => {
     client = await MongoClient.connect(process.env.MONGO_URL);
     const lineup = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .find({ startDate: { $gt: new Date() } }, { projection: { _id: 1 } }).toArray();
-    const promises = lineup.map(async (lid) => {
-      await doCreateNotify(lid);
+    // TODO limit async call using async/map
+    /* const promises = lineup.map(async ({ _id }) => {
+      await doCreateNotify(_id);
     });
-    await Promise.all(promises);
+    await Promise.all(promises); */
+
+    const generatePromises = lineup.forEach(function* generateNotifyCall({ _id }) {
+      yield doCreateNotify(_id);
+    });
+
+    const promiseIterator = generatePromises();
+    const pool = new PromisePool(promiseIterator, 5);
+    await pool.start();
     return true;
   } catch (e) {
     throw e;
