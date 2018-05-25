@@ -16,6 +16,7 @@ const doGetSelection = async (selectionId, userId) => {
         }, { projection: { subscriptionId: 1 } })
         .toArray(),
     ]);
+    if (!selection) throw new Error('Not found');
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
     const selectionCollection = typeof selection.selectionCollection === 'string' ?
@@ -46,6 +47,7 @@ const doGetSelection = async (selectionId, userId) => {
     const [audioTracks, videoTracks] = await Promise.all([audioPromise, videoPromise]);
     const rawTracks = audioTracks.concat(videoTracks);
     const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
+    let projects;
 
     if (onlyHighlighted) {
       let aggregationPipeline = [{ $match: { _id: { $in: projectIds } } }];
@@ -151,25 +153,24 @@ const doGetSelection = async (selectionId, userId) => {
         .aggregate(aggregationPipeline).toArray();
       selection.tracks = projectTracks.map(projectTrack => ({
         ...projectTrack.track,
-        isLocked: !!projectTrack.track.subscriptionIds &&
-          !projectTrack.track.subscriptionIds.find(id => userSubsriptionIds.includes(id)),
         projectThumbFileUrl: projectTrack.projectThumbFileUrl,
       }));
     } else {
-      const projects = await client.db(process.env.DB_NAME).collection('Project').find(
+      projects = await client.db(process.env.DB_NAME).collection('Project').find(
         { _id: { $in: projectIds } },
         { projection: { iconeThumbFileUrl: true } },
       ).toArray();
-      rawTracks.forEach((track) => {
-        const trackProject = projects.find(project => project._id === track.project_ID) || {};
-        track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
-        track.isLocked = !!track.subscriptionIds &&
-          !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
-      });
       selection.tracks = rawTracks;
     }
-
-    if (!selection) throw new Error('Not found');
+    selection.tracks.forEach((track) => {
+      if (projects) {
+        const trackProject = projects.find(project => project._id === track.project_ID) || {};
+        track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
+      }
+      track.isLocked = !!track.subscriptionIds &&
+        !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
+      if (track.isLocked) delete track.url;
+    });
     return selection;
   } finally {
     client.close();
