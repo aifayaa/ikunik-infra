@@ -130,6 +130,21 @@ functions:
   getUser:
     handler: handler.handleGetUser
   
+  getUserPublic:
+    handler: handler.handleGetUserPublic
+    events:
+      - http:
+          path: users/{id}
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   isBlastable:
     handler: handler.handleIsBlastable
     events:
