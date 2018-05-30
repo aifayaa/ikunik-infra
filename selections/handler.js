@@ -177,7 +177,7 @@ const doGetSelection = async (selectionId, userId) => {
   }
 };
 
-const doGetSelections = async (type) => {
+const doGetSelections = async (type, web) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const selector = {
@@ -186,7 +186,9 @@ const doGetSelections = async (type) => {
     if (type && ['audio', 'video'].includes(type)) {
       selector.selectionCollection = type;
     }
-
+    if (web === 'true') {
+      selector.isWebPublished = true;
+    }
     const selections = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find(selector)
@@ -230,8 +232,8 @@ export const handleGetSelection = async (event, context, callback) => {
 
 export const handleGetSelections = async (event, context, callback) => {
   try {
-    const { type } = event.queryStringParameters || {};
-    const results = await doGetSelections(type);
+    const { type, web } = event.queryStringParameters || {};
+    const results = await doGetSelections(type, web);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
