@@ -3,6 +3,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import i18n from 'i18n';
+import { PromisePoolExecutor } from 'promise-pool-executor';
 
 import './locales/fr.json';
 import './locales/en.json';
@@ -135,6 +136,74 @@ const doPostLineup = async (festivalId, stageId, artistId, startDate, endDate, t
   }
 };
 
+const doCreateNotify = async (lineupId) => {
+  let client;
+  try {
+    client = await MongoClient.connect(process.env.MONGO_URL);
+    const lineup = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .findOne({ _id: lineupId });
+    const jobId = getRuleName(lineupId);
+    const { startDate } = lineup;
+    const wDate = new Date(new Date(startDate).valueOf() - (THRESHOLD * 60000));
+    const min = wDate.getMinutes();
+    const hours = wDate.getHours();
+    const day = wDate.getDate();
+    const month = wDate.getMonth() + 1;
+    const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
+    const paramsRule = {
+      Name: jobId,
+      Description: `Cron job for ${lineupId}/${startDate} to trigger on ${wDate}`,
+      ScheduleExpression: `cron(${min} ${hours} ${day} ${month} ? *)`,
+    };
+    const paramsTarget = {
+      Rule: jobId,
+      Targets: [
+        {
+          Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
+          Id: getTargetId(lineupId),
+          Input: JSON.stringify({ lineupId }),
+        },
+      ],
+    };
+    const paramsLambda = {
+      Action: 'lambda:InvokeFunction',
+      FunctionName: notifyFuncName,
+      Principal: 'events.amazonaws.com',
+      StatementId: getStatementId(lineupId),
+    };
+    await cloudwatchevents.putRule(paramsRule).promise();
+    await cloudwatchevents.putTargets(paramsTarget).promise();
+    await lambda.addPermission(paramsLambda).promise();
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    client.close();
+  }
+};
+
+const doCreateNotifyAll = async () => {
+  let client;
+  try {
+    client = await MongoClient.connect(process.env.MONGO_URL);
+    const lineup = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .find({ startDate: { $gt: new Date() } }, { projection: { _id: 1 } }).toArray();
+
+    const pool = new PromisePoolExecutor({
+      concurrencyLimit: 5,
+    });
+    await pool.addEachTask({
+      data: lineup,
+      generator: ({ _id }) => doCreateNotify(_id),
+    }).promise();
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    client.close();
+  }
+};
+
 const doNotifyLineup = async (lineupId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -222,36 +291,38 @@ const doNotifyLineup = async (lineupId) => {
           },
         },
       ]).toArray();
-    if (toNotify.length === 0) return true;
-    const promises = toNotify.map(async (locale) => {
-      const { artistName, stageName } = locale;
-      i18n.setLocale(locale._id.split('-')[0]);
-      if (locale.endpoints.length > 0) {
-        const paramsNotif = {
-          FunctionName: process.env.BLAST_NOTIF,
-          Payload: JSON.stringify({
-            artistName,
-            endpoints: locale.endpoints,
-            message: i18n.__('msg_notif', stageName),
-          }),
-        };
-        console.log('Notifications will be sent to', locale.endpoints);
-        await lambda.invoke(paramsNotif).promise();
-      }
-      console.log('Text messages activated:', process.env.USE_BLAST_TEXT);
-      if (locale.phone.length > 0 && process.env.USE_BLAST_TEXT === 'true') {
-        const paramsText = {
-          FunctionName: process.env.BLAST_TEXT,
-          Payload: JSON.stringify({
-            phones: locale.phone,
-            message: i18n.__('msg_text', { artistName, stageName }),
-          }),
-        };
-        console.log('Text messages will be sent to', locale.phone);
-        await lambda.invoke(paramsText).promise();
-      }
-    });
-    await Promise.all(promises);
+    console.log('Notifications length', toNotify.length);
+    if (toNotify.length !== 0) {
+      const promises = toNotify.map(async (locale) => {
+        const { artistName, stageName } = locale;
+        i18n.setLocale(locale._id.split('-')[0]);
+        if (locale.endpoints.length > 0) {
+          const paramsNotif = {
+            FunctionName: process.env.BLAST_NOTIF,
+            Payload: JSON.stringify({
+              artistName,
+              endpoints: locale.endpoints,
+              message: i18n.__('msg_notif', stageName),
+            }),
+          };
+          console.log('Notifications will be sent to', locale.endpoints);
+          await lambda.invoke(paramsNotif).promise();
+        }
+        console.log('Text messages activated:', process.env.USE_BLAST_TEXT);
+        if (locale.phone.length > 0 && process.env.USE_BLAST_TEXT === 'true') {
+          const paramsText = {
+            FunctionName: process.env.BLAST_TEXT,
+            Payload: JSON.stringify({
+              phones: locale.phone,
+              message: i18n.__('msg_text', { artistName, stageName }),
+            }),
+          };
+          console.log('Text messages will be sent to', locale.phone);
+          await lambda.invoke(paramsText).promise();
+        }
+      });
+      await Promise.all(promises);
+    }
     const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
     const jobId = getRuleName(lineupId);
     const targetId = getTargetId(lineupId);
@@ -354,6 +425,49 @@ export const handlerNotifyLineup = async (event, context, callback) => {
   try {
     const { lineupId } = event;
     const results = await doNotifyLineup(lineupId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handlerCreateNotifyLineup = async (event, context, callback) => {
+  try {
+    const lineupId = event.pathParameters.id;
+    const results = await doCreateNotify(lineupId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handlerCreateNotifyAllLineup = async (event, context, callback) => {
+  try {
+    const results = await doCreateNotifyAll();
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

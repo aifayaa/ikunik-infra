@@ -2,6 +2,7 @@ import phone from 'phone';
 import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
+import pick from 'lodash/pick';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -578,6 +579,45 @@ export const handleGetProfile = async (event, context, callback) => {
 export const handleGetUser = async ({ userId }, context, callback) => {
   try {
     const results = await doGetUser(userId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetUserPublic = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const urlId = event.pathParameters.id;
+    if (userId !== urlId) {
+      const response = {
+        statusCode: 403,
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
+      callback(null, response);
+      return;
+    }
+    const results = pick(await doGetUser(userId), [
+      'createdAt',
+      'username',
+      'emails',
+      'profile',
+      'country',
+      'locale',
+    ]);
+
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
