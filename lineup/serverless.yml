@@ -73,6 +73,32 @@ functions:
             arn: ${self:custom.authorizerAdmin.${self:provider.stage}}
             name: lineupAdminAuthorizer
           cors: true
+  
+  createNotifyLineup:
+    handler: handler.handlerCreateNotifyLineup
+    events:
+      - http:
+          path: lineup/{id}/notifications
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizerAdmin.${self:provider.stage}}
+            name: lineupAdminAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  
+  createNotifyAllLineup:
+    handler: handler.handlerCreateNotifyAllLineup
+    events:
+      - http:
+          path: lineup/notifications
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizerAdmin.${self:provider.stage}}
+            name: lineupAdminAuthorizer
+          cors: true
 
   getLineup:
     handler: handler.handleGetLineup
