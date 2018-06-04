@@ -103,12 +103,36 @@ const pipelineLocationStart = (coordinates, range) => [
 const pipelineStart = (userId => [
   { $match: { fromUserId: userId } },
   {
+    $lookup: {
+      from: 'audio',
+      localField: '_id',
+      foreignField: 'project_ID',
+      as: 'audios',
+    },
+  },
+  {
+    $lookup: {
+      from: 'video',
+      localField: '_id',
+      foreignField: 'project_ID',
+      as: 'videos',
+    },
+  },
+  {
     $project: {
       audioIds: {
-        $cond: { if: { $isArray: ['$listOAudioIDs'] }, then: '$listOAudioIDs', else: [] },
+        $map: {
+          input: '$audios',
+          as: 'audio',
+          in: '$$audio._id',
+        },
       },
       videoIds: {
-        $cond: { if: { $isArray: ['$listOVideoIDs'] }, then: '$listOVideoIDs', else: [] },
+        $map: {
+          input: '$videos',
+          as: 'video',
+          in: '$$video._id',
+        },
       },
     },
   },
