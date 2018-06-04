@@ -61,13 +61,13 @@ const doBlastNotification = ({ artistName, endpoint, message }, cb) => {
     MessageStructure: 'json',
     TargetArn: endpoint.EndpointArn,
   };
-  return sns.publish(params, cb);
-  // return cb(null, {
-  //   ResponseMetadata: {
-  //     RequestId: AWSId(),
-  //     MessageId: AWSId(),
-  //   },
-  // });
+  if (process.env.STAGE === 'prod') return sns.publish(params, cb);
+  return cb(null, {
+    ResponseMetadata: {
+      RequestId: AWSId(),
+      MessageId: AWSId(),
+    },
+  });
 };
 
 const doBlastText = ({ message, phoneNumber }, cb) => {
