@@ -283,7 +283,7 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
     }));
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastEmail`,
-      Payload: JSON.stringify({ contacts, subject, template }),
+      Payload: JSON.stringify({ contacts, subject, template, opts: { userId } }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -315,7 +315,7 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     const endpoints = flatten(results.crowd.map(fan => fan.endpoints));
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastNotification`,
-      Payload: JSON.stringify({ artistName, endpoints, message }),
+      Payload: JSON.stringify({ artistName, endpoints, message, opts: { userId } }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -348,7 +348,7 @@ export const handleBlastSearchText = async (event, context, callback) => {
       .filter(phoneNumber => phoneNumber);
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastText`,
-      Payload: JSON.stringify({ phones, message }),
+      Payload: JSON.stringify({ phones, message, opts: { userId } }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {

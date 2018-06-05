@@ -308,9 +308,13 @@ export const handleBlastEmail = async (event, context, callback) => {
       email: user.email || user.profile.email || user.emails[0].address,
       name: user.firstname || user.username,
     }];
+
+    // To charge the user profile if this method is called from http
+    const opts = {};
+    if (event.httpMethod) opts.userId = event.requestContext.authorizer.principalId;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastEmail`,
-      Payload: JSON.stringify({ contacts, subject, template }),
+      Payload: JSON.stringify({ contacts, subject, template, opts }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -334,12 +338,17 @@ export const handleBlastEmail = async (event, context, callback) => {
 export const handleBlastNotification = async (event, context, callback) => {
   try {
     // TODO: check if user is a fan of artist when DB repaired
+
     const userId = event.pathParameters.id;
     const { artistName, message } = JSON.parse(event.body);
     const endpoints = await doGetEndpoints(userId);
+
+    // To charge the user profile if this method is called from http
+    const opts = {};
+    if (event.httpMethod) opts.userId = event.requestContext.authorizer.principalId;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastNotification`,
-      Payload: JSON.stringify({ artistName, endpoints, message }),
+      Payload: JSON.stringify({ artistName, endpoints, message, opts }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -363,13 +372,18 @@ export const handleBlastNotification = async (event, context, callback) => {
 export const handleBlastText = async (event, context, callback) => {
   try {
     // TODO: check if user is a fan of artist when DB repaired
+
     const userId = event.pathParameters.id;
     const { message } = JSON.parse(event.body);
     const user = await doGetUser(userId);
     const phones = [phone(user.profile.phone)[0]];
+
+    // To charge the user profile if this method is called from http
+    const opts = {};
+    if (event.httpMethod) opts.userId = event.requestContext.authorizer.principalId;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastText`,
-      Payload: JSON.stringify({ phones, message }),
+      Payload: JSON.stringify({ phones, message, opts }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
