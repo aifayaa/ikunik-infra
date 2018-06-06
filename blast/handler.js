@@ -183,7 +183,6 @@ export const handleBlastEmail = async ({
     let successfulBlast = 0;
     sendEmails.drain = () => {
       const body = JSON.stringify(results);
-      console.log(body);
       const { userId } = opts;
       if (userId) {
         handleRemoveBlastToken({ type: 'email', userId, qte: `${successfulBlast}` }, null, () => {});
@@ -205,7 +204,6 @@ export const handleBlastEmail = async ({
       });
     });
   } catch (e) {
-    console.log(e.message);
     const response = {
       body: e.message,
       statusCode: 500,
@@ -223,7 +221,6 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
     let successfulBlast = 0;
     sendNotifications.drain = () => {
       const body = JSON.stringify(results);
-      console.log(body);
       const { userId } = opts;
       if (userId) {
         handleRemoveBlastToken({ type: 'notification', userId, qte: `${successfulBlast}` }, null, () => {});
@@ -245,7 +242,6 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
       });
     });
   } catch (e) {
-    console.log(e.message);
     const response = {
       body: e.message,
       statusCode: 500,
@@ -262,7 +258,6 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
     let successfulBlast = 0;
     sendTexts.drain = () => {
       const body = JSON.stringify(results);
-      console.log(body);
       const { userId } = opts;
       if (userId) {
         handleRemoveBlastToken({ type: 'text', userId, qte: `${successfulBlast}` }, null, () => {});
@@ -284,7 +279,6 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
       });
     });
   } catch (e) {
-    console.log(e.message);
     const response = {
       body: e.message,
       statusCode: 500,
