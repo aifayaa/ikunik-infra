@@ -184,9 +184,6 @@ export const handleBlastEmail = async ({
     sendEmails.drain = () => {
       const body = JSON.stringify(results);
       const { userId } = opts;
-      if (userId) {
-        handleRemoveBlastToken({ type: 'email', userId, qte: `${successfulBlast}` }, null, () => {});
-      }
       const response = {
         body,
         statusCode: 200,
@@ -195,7 +192,18 @@ export const handleBlastEmail = async ({
           'Access-Control-Allow-Credentials': true,
         },
       };
-      callback(null, response);
+
+      if (userId) {
+        handleRemoveBlastToken({ type: 'email', userId, qte: `${successfulBlast}` }, null, (err, resp) => {
+          if (err || resp.statusCode !== 200) {
+            callback(null, { body: (resp.body || err.message), statusCode: 500 });
+            return;
+          }
+          callback(null, response);
+        });
+      } else {
+        callback(null, response);
+      }
     };
     contacts.forEach((contact) => {
       sendEmails.push({ contact, template, subject }, (error, res) => {
@@ -222,9 +230,6 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
     sendNotifications.drain = () => {
       const body = JSON.stringify(results);
       const { userId } = opts;
-      if (userId) {
-        handleRemoveBlastToken({ type: 'notification', userId, qte: `${successfulBlast}` }, null, () => {});
-      }
       const response = {
         body,
         statusCode: 200,
@@ -233,7 +238,17 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
           'Access-Control-Allow-Credentials': true,
         },
       };
-      callback(null, response);
+      if (userId) {
+        handleRemoveBlastToken({ type: 'notification', userId, qte: `${successfulBlast}` }, null, (err, resp) => {
+          if (err || resp.statusCode !== 200) {
+            callback(null, { body: (resp.body || err.message), statusCode: 500 });
+            return;
+          }
+          callback(null, response);
+        });
+      } else {
+        callback(null, response);
+      }
     };
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ artistName, endpoint, message }, (error, res) => {
@@ -259,9 +274,6 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
     sendTexts.drain = () => {
       const body = JSON.stringify(results);
       const { userId } = opts;
-      if (userId) {
-        handleRemoveBlastToken({ type: 'text', userId, qte: `${successfulBlast}` }, null, () => {});
-      }
       const response = {
         body,
         statusCode: 200,
@@ -270,7 +282,18 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
           'Access-Control-Allow-Credentials': true,
         },
       };
-      callback(null, response);
+
+      if (userId) {
+        handleRemoveBlastToken({ type: 'text', userId, qte: `${successfulBlast}` }, null, (err, resp) => {
+          if (err || resp.statusCode !== 200) {
+            callback(null, { body: (resp.body || err.message), statusCode: 500 });
+            return;
+          }
+          callback(null, response);
+        });
+      } else {
+        callback(null, response);
+      }
     };
     phones.forEach((phoneNumber) => {
       sendTexts.push({ message, phoneNumber }, (error, res) => {
