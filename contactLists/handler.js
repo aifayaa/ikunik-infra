@@ -86,7 +86,12 @@ export const handleBlastContactListEmail = async (event, context, callback) => {
       .filter(contact => contact.email);
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastEmail`,
-      Payload: JSON.stringify({ contacts, subject, template }),
+      Payload: JSON.stringify({
+        contacts,
+        subject,
+        template,
+        opts: { userId, listId: contactListId },
+      }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -117,7 +122,11 @@ export const handleBlastContactListText = async (event, context, callback) => {
       .filter(phoneNumber => phoneNumber);
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastText`,
-      Payload: JSON.stringify({ phones, message }),
+      Payload: JSON.stringify({
+        phones,
+        message,
+        opts: { userId, listId: contactListId },
+      }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
