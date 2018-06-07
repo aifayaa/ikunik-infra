@@ -128,6 +128,43 @@ const doRemoveBlastToken = async (type, profileId, qte) => {
   }
 };
 
+const doLogBlast = async (type, message, qte, { userId, listId, projectId }) => {
+  let client;
+  let profileId;
+  try {
+    if (userId) {
+      const res = await lambda.invoke({
+        FunctionName: `users-${process.env.STAGE}-getProfile`,
+        Payload: JSON.stringify({
+          pathParameters: { id: userId },
+          requestContext: { authorizer: { principalId: userId } },
+        }),
+      }).promise();
+      const { StatusCode, Payload } = res;
+      if (StatusCode !== 200) throw new Error('failed to get profile');
+      const { body } = JSON.parse(Payload);
+      if (!body) throw new Error('wrong profile');
+      profileId = JSON.parse(body)._id;
+    }
+
+    client = await MongoClient.connect(process.env.MONGO_URL);
+    await client.db(process.env.DB_NAME).collection('blasts')
+      .insertOne({
+        message,
+        type,
+        date: new Date(),
+        fromList_ID: listId || null,
+        fromProfil_ID: profileId || null,
+        fromProject_ID: projectId || null,
+        fromUser_ID: userId || null,
+        numRecipients: Number(qte),
+      });
+    return { profileId };
+  } finally {
+    client.close();
+  }
+};
+
 export const handleRemoveBlastToken = async ({ type, userId, qte }, context, callback) => {
   try {
     if (!userId) throw new Error('missing user');
@@ -192,18 +229,20 @@ export const handleBlastEmail = async ({
           'Access-Control-Allow-Credentials': true,
         },
       };
-
-      if (userId) {
-        handleRemoveBlastToken({ type: 'email', userId, qte: `${successfulBlast}` }, null, (err, resp) => {
-          if (err || resp.statusCode !== 200) {
-            callback(null, { body: (resp.body || err.message), statusCode: 500 });
-            return;
+      doLogBlast('email', subject, `${successfulBlast}`, opts)
+        .then((res) => {
+          if (userId) {
+            const { profileId } = res;
+            return doRemoveBlastToken('email', profileId, `${successfulBlast}`);
           }
+          return null;
+        })
+        .then(() => {
           callback(null, response);
+        })
+        .catch((err) => {
+          callback(null, { body: err.message, statusCode: 500 });
         });
-      } else {
-        callback(null, response);
-      }
     };
     contacts.forEach((contact) => {
       sendEmails.push({ contact, template, subject }, (error, res) => {
@@ -238,17 +277,20 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
           'Access-Control-Allow-Credentials': true,
         },
       };
-      if (userId) {
-        handleRemoveBlastToken({ type: 'notification', userId, qte: `${successfulBlast}` }, null, (err, resp) => {
-          if (err || resp.statusCode !== 200) {
-            callback(null, { body: (resp.body || err.message), statusCode: 500 });
-            return;
+      doLogBlast('notification', message, `${successfulBlast}`, opts)
+        .then((res) => {
+          if (userId) {
+            const { profileId } = res;
+            return doRemoveBlastToken('notification', profileId, `${successfulBlast}`);
           }
+          return null;
+        })
+        .then(() => {
           callback(null, response);
+        })
+        .catch((err) => {
+          callback(null, { body: err.message, statusCode: 500 });
         });
-      } else {
-        callback(null, response);
-      }
     };
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ artistName, endpoint, message }, (error, res) => {
@@ -282,18 +324,20 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
           'Access-Control-Allow-Credentials': true,
         },
       };
-
-      if (userId) {
-        handleRemoveBlastToken({ type: 'text', userId, qte: `${successfulBlast}` }, null, (err, resp) => {
-          if (err || resp.statusCode !== 200) {
-            callback(null, { body: (resp.body || err.message), statusCode: 500 });
-            return;
+      doLogBlast('text-message', message, `${successfulBlast}`, opts)
+        .then((res) => {
+          if (userId) {
+            const { profileId } = res;
+            return doRemoveBlastToken('text', profileId, `${successfulBlast}`);
           }
+          return null;
+        })
+        .then(() => {
           callback(null, response);
+        })
+        .catch((err) => {
+          callback(null, { body: err.message, statusCode: 500 });
         });
-      } else {
-        callback(null, response);
-      }
     };
     phones.forEach((phoneNumber) => {
       sendTexts.push({ message, phoneNumber }, (error, res) => {
