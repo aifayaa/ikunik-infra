@@ -227,7 +227,7 @@ const doPipeline = (userId, {
 
     if (artist) set(pipeline, '[0].$match.artist_ID', artist);
 
-    if (track) pipeline.splice(4, 0, { $match: { contentIds: track } });
+    if (track) pipeline.splice(6, 0, { $match: { contentIds: track } });
   }
 
   const match = { $match: { $and: [] } };
