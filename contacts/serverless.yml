@@ -13,7 +13,7 @@ provider:
     DB_NAME: crowdaaDev
     LIMIT_DEFAULT: '10'
     LIMIT_MAX: '100'
-    MONGO_URL: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
@@ -82,6 +82,11 @@ custom:
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
     prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
+  mongoDB:
+    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
+    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+
 
   webpackIncludeModules: true
 

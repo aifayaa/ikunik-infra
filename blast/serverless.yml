@@ -6,6 +6,11 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 2048
   timeout: 300
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
     MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
     MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
@@ -13,7 +18,10 @@ provider:
     SNS_ACCESS_KEY_ID: AKIAI3H2I7ZIK4ARL2NA
     SNS_REGION: us-west-2
     SNS_SECRET_ACCESS_KEY: 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
+    LAMBDA_REGION: us-east-1
     STAGE: ${self:provider.stage}
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
 
 functions:
   blastEmail:
@@ -22,6 +30,8 @@ functions:
     handler: handler.handleBlastNotification
   blastText:
     handler: handler.handleBlastText
+  removeBlastToken:
+    handler: handler.handleRemoveBlastToken
 
 plugins:
   - serverless-webpack
@@ -36,4 +46,7 @@ custom:
   MAILGUN_DOMAIN:
     dev: sandboxe8ecbf94ba82415c9ce55b169129af2e.mailgun.org
     prod: mg.crowdaa.com
+  mongoDB:
+    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
+    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   webpackIncludeModules: true

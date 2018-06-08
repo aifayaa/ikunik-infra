@@ -227,7 +227,7 @@ const doPipeline = (userId, {
 
     if (artist) set(pipeline, '[0].$match.artist_ID', artist);
 
-    if (track) pipeline.splice(4, 0, { $match: { contentIds: track } });
+    if (track) pipeline.splice(6, 0, { $match: { contentIds: track } });
   }
 
   const match = { $match: { $and: [] } };
@@ -305,9 +305,15 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
       email: fan.user.email || fan.user.profile.email || fan.user.emails[0].address,
       name: fan.user.profile.username,
     }));
+    const { project } = event.queryStringParameters;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastEmail`,
-      Payload: JSON.stringify({ contacts, subject, template }),
+      Payload: JSON.stringify({
+        contacts,
+        subject,
+        template,
+        opts: { userId, projectId: project },
+      }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -337,9 +343,15 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
     const results = await doSeach(pipeline, event.queryStringParameters || {});
     const endpoints = flatten(results.crowd.map(fan => fan.endpoints));
+    const { project } = event.queryStringParameters;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastNotification`,
-      Payload: JSON.stringify({ artistName, endpoints, message }),
+      Payload: JSON.stringify({
+        artistName,
+        endpoints,
+        message,
+        opts: { userId, projectId: project },
+      }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
@@ -370,9 +382,14 @@ export const handleBlastSearchText = async (event, context, callback) => {
     const results = await doSeach(pipeline, event.queryStringParameters || {});
     const phones = results.crowd.map(fan => phone(fan.user.profile.phone)[0])
       .filter(phoneNumber => phoneNumber);
+    const { project } = event.queryStringParameters;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastText`,
-      Payload: JSON.stringify({ phones, message }),
+      Payload: JSON.stringify({
+        phones,
+        message,
+        opts: { userId, projectId: project },
+      }),
     };
     const res = await lambda.invoke(params).promise();
     const response = {
