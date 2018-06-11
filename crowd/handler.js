@@ -318,7 +318,7 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -356,7 +356,7 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -394,7 +394,7 @@ export const handleBlastSearchText = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,

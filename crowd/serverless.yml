@@ -6,6 +6,11 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
     COLL_NAME: Project
     DB_NAME: crowdaaDev
