@@ -13,6 +13,8 @@ provider:
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiResources:
+      users/{id}: ${self:custom.endpoints.users.${self:provider.stage}}
 
 functions:
   getArtist:
@@ -29,11 +31,27 @@ functions:
             parameters:
               paths:
                 id: true
+
   getArtistPicture:
     handler: handler.handleGetArtistPicture
     events:
       - http:
           path: artists/{id}/picture
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: artistsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  
+  getUserArtists:
+    handler: handler.handleGetUserArtists
+    events:
+      - http:
+          path: users/{id}/artists
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -58,6 +76,10 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
+  endpoints:
+    users:
+      dev: unwb90
+      prod: # TODO change to id on prod
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize

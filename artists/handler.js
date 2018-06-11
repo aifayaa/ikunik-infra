@@ -79,6 +79,28 @@ const doGetArtistPicture = async (artistId) => {
   }
 };
 
+const doGetUserArtists = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const [profil] = await client.db(process.env.DB_NAME).collection('profil')
+      .aggregate([
+        { $match: { UserId: userId } },
+        {
+          $lookup: {
+            from: 'artists',
+            localField: '_id',
+            foreignField: 'profil_ID',
+            as: 'artists',
+          },
+        },
+      ]).toArray();
+    if (!profil) return [];
+    return profil.artists;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetArtist = async (event, context, callback) => {
   try {
     const artistId = event.pathParameters.id;
@@ -119,6 +141,36 @@ export const handleGetArtistPicture = async (event, context, callback) => {
     } else {
       results = await doGetArtistPicture(artistId);
     }
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetUserArtists = async (event, context, callback) => {
+  try {
+    const userId = event.pathParameters.id;
+    if (userId !== event.requestContext.authorizer.principalId) {
+      callback(null, {
+        statusCode: 403,
+        body: JSON.stringify({ message: 'Forbidden' }),
+      });
+      return;
+    }
+    const artists = await doGetUserArtists(userId);
+    const results = { artists };
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
