@@ -1,0 +1,16 @@
+{
+  "name": "projects",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa projects API.",
+  "main": "handler.js",
+  "dependencies": {
+    "mongodb": "^3.0.2"
+  },
+  "devDependencies": {
+    "serverless-webpack": "^4.2.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}
