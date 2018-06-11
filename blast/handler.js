@@ -128,6 +128,57 @@ const doRemoveBlastToken = async (type, profileId, qte) => {
   }
 };
 
+const doGetBalanceForBlast = async (userId, type) => {
+  let client;
+  let collName;
+  switch (type) {
+    case 'email':
+      collName = 'artistEmailsBalance';
+      break;
+    case 'notification':
+      collName = 'artistNotificationBalance';
+      break;
+    case 'text':
+      collName = 'artistTextMessageBalance';
+      break;
+    default:
+  }
+  const projection = { _id: 0 };
+  projection[`${type}`] = {
+    $cond: { if: { $gt: [`$${type}.balance`, 0] }, then: `$${type}.balance`, else: 0 },
+  };
+  const defaultValue = {};
+  defaultValue[type] = 0;
+
+  try {
+    client = await MongoClient.connect(process.env.MONGO_URL);
+    const record = await client.db(process.env.DB_NAME).collection('users')
+      .aggregate([
+        { $match: { _id: userId } },
+        {
+          $lookup: {
+            from: collName,
+            localField: 'profil_ID',
+            foreignField: 'profil_ID',
+            as: type,
+          },
+        },
+        {
+          $unwind: {
+            path: `$${type}`,
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: projection,
+        },
+      ]).toArray();
+    return record[0] || defaultValue;
+  } finally {
+    client.close();
+  }
+};
+
 const doLogBlast = async (type, message, qte, { userId, listId, projectId }) => {
   let client;
   let profileId;
@@ -213,14 +264,21 @@ export const handleBlastEmail = async ({
   template,
   opts = {},
 }, context, callback) => {
+  const { userId } = opts;
   try {
+    if (userId) {
+      const res = await doGetBalanceForBlast(userId, 'email');
+      if (res.email < contacts.length) {
+        throw new Error('insufficient tokens');
+      }
+    }
+
     console.log({ contacts, subject, template });
     const sendEmails = queue(doBlastEmail, 20);
     const results = [];
     let successfulBlast = 0;
     sendEmails.drain = () => {
       const body = JSON.stringify(results);
-      const { userId } = opts;
       const response = {
         body,
         statusCode: 200,
@@ -261,14 +319,20 @@ export const handleBlastEmail = async ({
 
 export const handleBlastNotification = async ({ artistName, endpoints, message, opts = {} }, context
   , callback) => {
+  const { userId } = opts;
   try {
+    if (userId) {
+      const res = await doGetBalanceForBlast(userId, 'notification');
+      if (res.notification < endpoints.length) {
+        throw new Error('insufficient tokens');
+      }
+    }
     console.log({ artistName, endpoints, message });
     const sendNotifications = queue(doBlastNotification, 50);
     const results = [];
     let successfulBlast = 0;
     sendNotifications.drain = () => {
       const body = JSON.stringify(results);
-      const { userId } = opts;
       const response = {
         body,
         statusCode: 200,
@@ -308,14 +372,20 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
 };
 
 export const handleBlastText = async ({ phones, message, opts = {} }, context, callback) => {
+  const { userId } = opts;
   try {
+    if (userId) {
+      const res = await doGetBalanceForBlast(userId, 'text');
+      if (res.text < phones.length) {
+        throw new Error('insufficient tokens');
+      }
+    }
     console.log({ phones, message });
     const sendTexts = queue(doBlastText, 50);
     const results = [];
     let successfulBlast = 0;
     sendTexts.drain = () => {
       const body = JSON.stringify(results);
-      const { userId } = opts;
       const response = {
         body,
         statusCode: 200,
