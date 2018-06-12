@@ -38,6 +38,21 @@ functions:
                 Authorization: true
               querystrings:
                 type: false
+  
+  buyPackages:
+    handler: handler.handleBuyPackages
+    events:
+      - http:
+          path: tokens/packages/{id}
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: tokenPackagesAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack
