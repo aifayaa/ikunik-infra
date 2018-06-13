@@ -265,12 +265,11 @@ const doPipeline = (userId, {
   return pipeline;
 };
 
-const doSeach = async (pipeline, { page, limit = 20, coordinates, filterUserInfo }) => {
+const doSearch = async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
+  if (typeof page !== 'number') page = parseInt(page, 10);
+  if (typeof limit !== 'number') limit = parseInt(limit, 10);
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const countPipeline = pipeline.concat({ $group: { _id: null, fancount: { $sum: 1 } } });
-    if (page > 1) pipeline.push({ $skip: (page - 1) * limit | 0 });
-    pipeline.push({ $limit: limit | 0 });
     if (filterUserInfo) {
       pipeline.push({
         $project: {
@@ -282,13 +281,24 @@ const doSeach = async (pipeline, { page, limit = 20, coordinates, filterUserInfo
         },
       });
     }
-    const [crowd, fancount] = await Promise.all([
-      client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
-        .toArray(),
-      client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(countPipeline)
-        .toArray(),
-    ]);
-    return { crowd, count: get(fancount, '[0].fancount', 0) };
+    pipeline.push(
+      {
+        $group: {
+          _id: null,
+          fancount: { $sum: 1 },
+          crowd: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $project: {
+          fancount: 1, crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
+        },
+      },
+    );
+    const [{ crowd, fancount }] = await client.db(process.env.DB_NAME)
+      .collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
+      .toArray();
+    return { crowd, count: fancount };
   } finally {
     client.close();
   }
@@ -300,7 +310,7 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
     const { subject, template } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasEmail: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
-    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const results = await doSearch(pipeline, event.queryStringParameters || {});
     const contacts = results.crowd.map(fan => ({
       email: fan.user.email || fan.user.profile.email || fan.user.emails[0].address,
       name: fan.user.profile.username,
@@ -341,7 +351,7 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     const { artistName, message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasNotification: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
-    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const results = await doSearch(pipeline, event.queryStringParameters || {});
     const endpoints = flatten(results.crowd.map(fan => fan.endpoints));
     const { project } = event.queryStringParameters;
     const params = {
@@ -379,7 +389,7 @@ export const handleBlastSearchText = async (event, context, callback) => {
     const { message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasText: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
-    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const results = await doSearch(pipeline, event.queryStringParameters || {});
     const phones = results.crowd.map(fan => phone(fan.user.profile.phone)[0])
       .filter(phoneNumber => phoneNumber);
     const { project } = event.queryStringParameters;
@@ -416,7 +426,7 @@ export const handleSearch = async (event, context, callback) => {
     const userId = event.requestContext.authorizer.principalId;
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
     Object.assign(event.queryStringParameters, { filterUserInfo: true });
-    const results = await doSeach(pipeline, event.queryStringParameters ||
+    const results = await doSearch(pipeline, event.queryStringParameters ||
       { filterUserInfo: true });
     const response = {
       statusCode: 200,
