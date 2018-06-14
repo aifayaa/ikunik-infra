@@ -216,6 +216,29 @@ const doLogBlast = async (type, message, qte, { userId, listId, projectId }) => 
   }
 };
 
+const doGetBlasts = async (userId, {
+  limit, skip, sortBy, sortOrder, type,
+} = {}) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selector = {
+      fromUser_ID: userId,
+    };
+    const opts = {};
+
+    if (type) selector.type = type;
+    if (limit) opts.limit = parseInt(limit, 10);
+    if (skip) opts.skip = parseInt(skip, 10);
+    if (sortBy && sortOrder) opts.sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
+
+    const blasts = await client.db(process.env.DB_NAME).collection('blasts')
+      .find(selector, opts).toArray();
+    return { blasts };
+  } finally {
+    client.close();
+  }
+};
+
 export const handleRemoveBlastToken = async ({ type, userId, qte }, context, callback) => {
   try {
     if (!userId) throw new Error('missing user');
@@ -415,6 +438,28 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
         results.push(error || res);
       });
     });
+  } catch (e) {
+    const response = {
+      body: e.message,
+      statusCode: 500,
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetBlasts = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const results = await doGetBlasts(userId, event.queryStringParameters || {});
+    const response = {
+      body: JSON.stringify(results),
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
   } catch (e) {
     const response = {
       body: e.message,
