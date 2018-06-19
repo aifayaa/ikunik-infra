@@ -275,6 +275,31 @@ const doSearch = async (pipeline, { page = 1, limit = 20, coordinates, filterUse
         $project: {
           _id: 1,
           'user.profile.username': 1,
+          hasEmail: {
+            $cond: {
+              if: {
+                $or: [
+                  { $ifNull: ['$user.email', false] },
+                  { $ifNull: ['$user.profile.email', false] },
+                  { $ifNull: ['$user.emails', false] },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          hasPhone: {
+            $cond: {
+              if: {
+                $or: [
+                  { $ifNull: ['$user.profile.phone', false] },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          hasEndpoint: { $ne: ['$endpoints', []] },
           shares: 1,
           user_ID: 1,
           views: 1,
