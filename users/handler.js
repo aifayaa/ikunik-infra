@@ -1,8 +1,9 @@
-import phone from 'phone';
-import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
-import validator from 'validator';
+import get from 'lodash/get';
+import phone from 'phone';
 import pick from 'lodash/pick';
+import validator from 'validator';
+import { MongoClient } from 'mongodb';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -305,8 +306,8 @@ export const handleBlastEmail = async (event, context, callback) => {
     const { subject, template } = JSON.parse(event.body);
     const user = await doGetUser(userId);
     const contacts = [{
-      email: user.email || user.profile.email || user.emails[0].address,
-      name: user.firstname || user.username,
+      email: user.email || get(user, 'profile.email') || get(user, 'emails[0].address'),
+      name: user.firstname || get(user, 'profile.firstname') || user.username || get(user, 'profile.username', ''),
     }];
 
     // To charge the user profile if this method is called from http
@@ -319,7 +320,7 @@ export const handleBlastEmail = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -353,7 +354,7 @@ export const handleBlastNotification = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -388,7 +389,7 @@ export const handleBlastText = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
