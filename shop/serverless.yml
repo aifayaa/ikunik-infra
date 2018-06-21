@@ -12,6 +12,7 @@ provider:
         - lambda:InvokeFunction
       Resource: "*"
   environment:
+    COLL_NAME: shopOrders
     REGION: us-east-1
     STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
@@ -47,11 +48,11 @@ functions:
             parameters:
               paths:
                 id: true
-  postShopOrder:
-    handler: handler.handlePostShopOrder
+  postShopPreOrder:
+    handler: handler.handlePostShopPreOrder
     events:
       - http:
-          path: shop/orders
+          path: /shop/items/{id}/preorder
           method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
