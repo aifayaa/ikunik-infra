@@ -320,9 +320,10 @@ const doSearch = async (pipeline, { page = 1, limit = 20, coordinates, filterUse
         },
       },
     );
-    const [{ crowd, fancount }] = await client.db(process.env.DB_NAME)
+    const [result] = await client.db(process.env.DB_NAME)
       .collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
       .toArray();
+    const { crowd, fancount } = result || { crowd: [], fancount: 0 };
     return { crowd, count: fancount };
   } finally {
     client.close();
