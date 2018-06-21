@@ -247,7 +247,7 @@ const doPipeline = (userId, {
     match.$match.$and.push({ $or: [
       { 'user.email': { $exists: true } },
       { 'user.profile.email': { $exists: true } },
-      { 'user.emails[0].address': { $exists: true } },
+      { 'user.emails.0.address': { $exists: true } },
     ] });
   }
   if (hasNotification) match.$match.$and.push({ endpoints: { $exists: true, $ne: [] } });
@@ -281,7 +281,7 @@ const doSearch = async (pipeline, { page = 1, limit = 20, coordinates, filterUse
                 $or: [
                   { $ifNull: ['$user.email', false] },
                   { $ifNull: ['$user.profile.email', false] },
-                  { $ifNull: ['$user.emails', false] },
+                  { $ifNull: ['$user.emails.0.address', false] },
                 ],
               },
               then: true,
