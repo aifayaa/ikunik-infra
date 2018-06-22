@@ -10,7 +10,7 @@ const lambda = new Lambda({
   region: process.env.AWS_REGION,
 });
 
-const pipelineLocationStart = (coordinates, range) => [
+const pipelineLocationStart = (userId, coordinates, range) => [
   {
     $geoNear: {
       near: {
@@ -80,6 +80,9 @@ const pipelineLocationStart = (coordinates, range) => [
       path: '$project',
       preserveNullAndEmptyArrays: false,
     },
+  },
+  {
+    $match: { fromUserId: userId },
   },
   {
     $group: {
@@ -203,7 +206,9 @@ const doPipeline = (userId, {
   sortBy,
   sortOrder,
 }) => {
-  const pipeline = coordinates ? pipelineLocationStart(coordinates, range) : pipelineStart(userId);
+  const pipeline = coordinates ?
+    pipelineLocationStart(userId, coordinates, range) :
+    pipelineStart(userId);
   pipeline.push({
     $lookup: {
       from: 'pushNotifications',
