@@ -217,7 +217,7 @@ const doPipeline = (userId, {
       as: 'endpoints',
     },
   });
-  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'desc' ? 1 : -1) } });
+  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
 
   if (coordinates) {
     if (project || artist || track) pipeline.splice(9, 0, { $match: { $and: [] } });
