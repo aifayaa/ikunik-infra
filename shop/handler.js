@@ -3,7 +3,7 @@ import findIndex from 'lodash/findIndex';
 import validator from 'validator';
 import Lambda from 'aws-sdk/clients/lambda';
 import request from 'request';
-import uuidv1 from 'uuid';
+import uuidv4 from 'uuid';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -96,12 +96,12 @@ const doShopOrder = async (itemId, variantId, qte, adr, userId) => {
   }
 };
 
-const doPostShopPreOrder = async (userID, productId, itmQty, address, variantId) => {
+const doPostShopPreOrder = async (userID, productId, qty, address, variantId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
 
   try {
     /* check if 1 <= qty <=10 */
-    if (!validator.isInt(itmQty, { min: 1, allow_leading_zeroes: false, max: 10 })) {
+    if (!validator.isInt(qty, { min: 1, allow_leading_zeroes: false, max: 10 })) {
       throw new Error('Wrong quantity');
     }
 
@@ -115,21 +115,20 @@ const doPostShopPreOrder = async (userID, productId, itmQty, address, variantId)
       throw new Error('Product variant not found');
     }
 
-    const total = price * itmQty;
     const orderData = {
       userID,
       address,
       productId,
       variantId,
       price,
-      itmQty,
-      total,
+      qty,
+      status: 'pending',
       date: new Date(),
     };
 
     /* insert new order in db */
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .insertOne({ _id: uuidv1(), ...orderData });
+      .insertOne({ _id: uuidv4(), ...orderData });
     return true;
   } finally {
     client.close();
@@ -138,20 +137,21 @@ const doPostShopPreOrder = async (userID, productId, itmQty, address, variantId)
 
 export const handlePostShopPreOrder = async (event, context, callback) => {
   const userID = event.requestContext.authorizer.principalId;
-  const { productId } = event.pathParameters;
+  const productId = event.pathParameters.id;
   let result;
 
   try {
     const data = JSON.parse(event.body);
-    if (!data || !data.itmQty || !data.address || !data.variantId) {
-      throw new Error('Mal formed request');
-    }
     const {
-      itmQty,
+      qty,
       address,
       variantId,
     } = data;
-    result = await doPostShopPreOrder(userID, productId, itmQty, address, variantId);
+
+    if (!data || !qty || !address || !variantId) {
+      throw new Error('Mal formed request');
+    }
+    result = await doPostShopPreOrder(userID, productId, qty, address, variantId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(result),
