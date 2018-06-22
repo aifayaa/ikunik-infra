@@ -3,6 +3,7 @@ import findIndex from 'lodash/findIndex';
 import validator from 'validator';
 import Lambda from 'aws-sdk/clients/lambda';
 import request from 'request';
+import uuidv4 from 'uuid';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -95,6 +96,80 @@ const doShopOrder = async (itemId, variantId, qte, adr, userId) => {
   }
 };
 
+const doPostShopPreOrder = async (userID, productId, qty, address, variantId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+
+  try {
+    /* check if 1 <= qty <=10 */
+    if (!validator.isInt(qty, { min: 1, allow_leading_zeroes: false, max: 10 })) {
+      throw new Error('Wrong quantity');
+    }
+
+    /* check if the product exist */
+    const item = await doGetShopItem(productId);
+    if (!item) throw new Error('Product not found');
+
+    /* check if selected variant exist */
+    const { sizes, price } = item;
+    if (findIndex(sizes, { variantId: parseInt(variantId, 10) }) === -1) {
+      throw new Error('Product variant not found');
+    }
+
+    const orderData = {
+      userID,
+      address,
+      productId,
+      variantId,
+      price,
+      qty,
+      status: 'pending',
+      date: new Date(),
+    };
+
+    /* insert new order in db */
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .insertOne({ _id: uuidv4(), ...orderData });
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
+export const handlePostShopPreOrder = async (event, context, callback) => {
+  const userID = event.requestContext.authorizer.principalId;
+  const productId = event.pathParameters.id;
+  let result;
+
+  try {
+    const data = JSON.parse(event.body);
+    const {
+      qty,
+      address,
+      variantId,
+    } = data;
+
+    if (!data || !qty || !address || !variantId) {
+      throw new Error('Mal formed request');
+    }
+    result = await doPostShopPreOrder(userID, productId, qty, address, variantId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(result),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
 export const handleGetShopItem = async (event, context, callback) => {
   try {
     const itemId = event.pathParameters.id;
@@ -142,7 +217,7 @@ export const handlePostShopOrder = async (event, context, callback) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
     const { itemId, variantId, qte, adr } = JSON.parse(event.body);
-    if (!itemId || !variantId || !qte || !adr) {
+    if (!itemId || !variantId || !qte || !adr) {
       throw new Error('mal formed request');
     }
     const results = await doShopOrder(itemId, variantId, qte, adr, userId);
