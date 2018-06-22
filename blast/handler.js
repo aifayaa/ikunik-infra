@@ -224,16 +224,33 @@ const doGetBlasts = async (userId, {
     const selector = {
       fromUser_ID: userId,
     };
-    const opts = {};
+    let sort = {};
 
     if (type) selector.type = type;
-    if (limit) opts.limit = parseInt(limit, 10);
-    if (skip) opts.skip = parseInt(skip, 10);
-    if (sortBy && sortOrder) opts.sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
+    limit = parseInt(limit, 10) || 10;
+    skip = parseInt(skip, 10) || 0;
+    if (sortBy && sortOrder) sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
 
-    const blasts = await client.db(process.env.DB_NAME).collection('blasts')
-      .find(selector, opts).toArray();
-    return { blasts };
+    const [record] = await client.db(process.env.DB_NAME).collection('blasts')
+      .aggregate([
+        { $match: selector },
+        { $sort: sort },
+        {
+          $group: {
+            _id: null,
+            totalCount: { $sum: 1 },
+            blasts: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalCount: 1,
+            blasts: { $slice: ['$blasts', skip, limit] },
+          },
+        },
+      ]).toArray();
+    return record || { blasts: [], totalCount: 0 };
   } finally {
     client.close();
   }
