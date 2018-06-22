@@ -95,31 +95,37 @@ const doShopOrder = async (itemId, variantId, qte, adr, userId) => {
     // client.close();
   }
 };
-export const doPostShopPreOrder = async (userID, productID, data) => {
+
+const doPostShopPreOrder = async (userID, productId, itmQty, address, variantId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
-  const orderData = {
-    userID,
-    productID,
-    ...data,
-    date: new Date(),
-  };
 
   try {
+    /* check if 1 <= qty <=10 */
+    if (!validator.isInt(itmQty, { min: 1, allow_leading_zeroes: false, max: 10 })) {
+      throw new Error('Wrong quantity');
+    }
+
     /* check if the product exist */
-    const item = await doGetShopItem(productID);
-    if (!item) throw new Error('[ERROR]: Product not found');
+    const item = await doGetShopItem(productId);
+    if (!item) throw new Error('Product not found');
 
     /* check if selected variant exist */
-    const { sizes } = item;
-    const { variantId } = data;
+    const { sizes, price } = item;
     if (findIndex(sizes, { variantId: parseInt(variantId, 10) }) === -1) {
-      throw new Error('[ERROR]: Product variant not found');
+      throw new Error('Product variant not found');
     }
 
-    /* check if 1 <= qty <=10 */
-    if (!validator.isInt(data.itmQty, { min: 1, allow_leading_zeroes: false, max: 10 })) {
-      throw new Error('[Incorrect quantity selected]: Must be between 1 and 10');
-    }
+    const total = price * itmQty;
+    const orderData = {
+      userID,
+      address,
+      productId,
+      variantId,
+      price,
+      itmQty,
+      total,
+      date: new Date(),
+    };
 
     /* insert new order in db */
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
@@ -132,15 +138,20 @@ export const doPostShopPreOrder = async (userID, productID, data) => {
 
 export const handlePostShopPreOrder = async (event, context, callback) => {
   const userID = event.requestContext.authorizer.principalId;
-  const { productID } = event.pathParameters;
+  const { productId } = event.pathParameters;
   let result;
 
   try {
     const data = JSON.parse(event.body);
-    if (!data.itmQty || !data.total || !data.address || !data.variantId) {
-      throw new Error('Missing parameters for the request');
+    if (!data || !data.itmQty || !data.address || !data.variantId) {
+      throw new Error('Mal formed request');
     }
-    result = await doPostShopPreOrder(userID, productID, data);
+    const {
+      itmQty,
+      address,
+      variantId,
+    } = data;
+    result = await doPostShopPreOrder(userID, productId, itmQty, address, variantId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(result),

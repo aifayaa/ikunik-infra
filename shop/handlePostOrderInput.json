@@ -1,5 +1,5 @@
 {
-  "resource": "/shop/items/{productID}/preorder",
+  "resource": "/shop/items/{productId}/preorder",
   "path": "/",
   "httpMethod": "POST",
   "headers": {
@@ -21,7 +21,7 @@
     "X-Forwarded-Proto": "https"
   },
   "pathParameters": {
-    "productID": "5b29e1ff901da3b42535f2a9"
+    "productId": "5b29e1ff901da3b42535f2a9"
   },
   "stageVariables": null,
   "requestContext": {
@@ -53,6 +53,6 @@
     },
     "apiId": "4a0waiypsk"
   },
-  "body": "{\"itmQty\":\"1\",\"total\":\"170\", \"address\":\"2 Impasses des pendulas 9738 Sainte-Marie\", \"variantId\":\"671629246\"}",
+  "body": "{\"itmQty\":\"10\", \"address\":\"2 Impasses des pendulas 9738 Sainte-Marie\", \"variantId\":\"671629246\"}",
   "isBase64Encoded": false
 }
