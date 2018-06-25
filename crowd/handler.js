@@ -271,8 +271,8 @@ const doPipeline = (userId, {
 };
 
 const doSearch = async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
-  if (typeof page !== 'number') page = parseInt(page, 10);
-  if (typeof limit !== 'number') limit = parseInt(limit, 10);
+  if (page && typeof page !== 'number') page = parseInt(page, 10);
+  if (limit && typeof limit !== 'number') limit = parseInt(limit, 10);
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     if (filterUserInfo) {
@@ -454,11 +454,11 @@ export const handleBlastSearchText = async (event, context, callback) => {
 
 export const handleSearch = async (event, context, callback) => {
   try {
+    event.queryStringParameters = event.queryStringParameters || {};
     const userId = event.requestContext.authorizer.principalId;
-    const pipeline = doPipeline(userId, event.queryStringParameters || {});
+    const pipeline = doPipeline(userId, event.queryStringParameters);
     Object.assign(event.queryStringParameters, { filterUserInfo: true });
-    const results = await doSearch(pipeline, event.queryStringParameters ||
-      { filterUserInfo: true });
+    const results = await doSearch(pipeline, event.queryStringParameters);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
