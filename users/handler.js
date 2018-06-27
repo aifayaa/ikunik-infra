@@ -299,6 +299,25 @@ const doAskPayout = async (userId, amount, method) => {
   }
 };
 
+const doGetHistory = async (userId, { limit } = {}) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+
+  try {
+    limit = parseInt(limit, 10) || 20;
+    const history = await client.db(process.env.DB_NAME).collection('userHistory')
+      .find({ userId })
+      .sort({ date: -1 })
+      .limit(limit)
+      .toArray();
+    history.forEach((element) => {
+      console.log(element.content.title);
+    });
+    return { history };
+  } finally {
+    client.close();
+  }
+};
+
 export const handleBlastEmail = async (event, context, callback) => {
   try {
     // TODO: check if user is a fan of artist when DB repaired
@@ -633,6 +652,40 @@ export const handleGetUserPublic = async (event, context, callback) => {
       'locale',
     ]);
 
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetHistory = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const urlId = event.pathParameters.id;
+    const queryParams = event.queryStringParameters || {};
+
+    if (userId !== urlId) {
+      const response = {
+        statusCode: 403,
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
+      callback(null, response);
+      return;
+    }
+
+    const results = await doGetHistory(userId, queryParams);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

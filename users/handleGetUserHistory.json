@@ -1,10 +1,10 @@
 {
-  "resource": "/history",
+  "resource": "/users/{id}/history?limit=3",
   "path": "/",
   "httpMethod": "GET",
   "headers": {
     "Accept": "*/*",
-    "Authorization": "Bearer xCOVuk862hTzRHtkrRTzQoEYoplVbiybW3NnrcLngvb",
+    "Authorization": "Bearer e71A_Eba4mXZOeJmnnFnzsHcWTqrmKSDWV6GRUg2pSM",
     "CloudFront-Forwarded-Proto": "https",
     "CloudFront-Is-Desktop-Viewer": "true",
     "CloudFront-Is-Mobile-Viewer": "false",
@@ -20,16 +20,19 @@
     "X-Forwarded-Port": "443",
     "X-Forwarded-Proto": "https"
   },
+  "pathParameters": {
+    "id": "JXoXuigNdiEqmLdTd"
+  },
   "stageVariables": null,
   "requestContext": {
     "resourceId": "fstcs4",
     "authorizer": {
       "principalId": "JXoXuigNdiEqmLdTd"
     },
-    "resourcePath": "history/",
-    "httpMethod": "POST",
+    "resourcePath": "/users/{id}/history",
+    "httpMethod": "GET",
     "requestTime": "30/Jan/2018:16:38:10 +0000",
-    "path": "/dev/history",
+    "path": "/dev/users/dXZifsqv7i8Edt8nb/projects/purchases",
     "accountId": "630176884077",
     "protocol": "HTTP/1.1",
     "stage": "dev",
