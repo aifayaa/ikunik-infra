@@ -177,7 +177,7 @@ const doGetSelection = async (selectionId, userId) => {
   }
 };
 
-const doGetSelections = async (type, web) => {
+const doGetSelections = async (type, web, root) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const selector = {
@@ -189,6 +189,11 @@ const doGetSelections = async (type, web) => {
     if (web === 'true') {
       selector.isWebPublished = true;
     }
+
+    if (root === 'true') {
+      selector.isRoot = true;
+    }
+
     const selections = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find(selector)
@@ -232,8 +237,8 @@ export const handleGetSelection = async (event, context, callback) => {
 
 export const handleGetSelections = async (event, context, callback) => {
   try {
-    const { type, web } = event.queryStringParameters || {};
-    const results = await doGetSelections(type, web);
+    const { type, web, root } = event.queryStringParameters || {};
+    const results = await doGetSelections(type, web, root);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
