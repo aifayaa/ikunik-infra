@@ -48,11 +48,11 @@ functions:
             parameters:
               paths:
                 id: true
-  postShopPreOrder:
-    handler: handler.handlePostShopPreOrder
+  postShopOrder:
+    handler: handler.handlePostShopOrder
     events:
       - http:
-          path: /shop/items/{id}/preorder
+          path: /shop/items/{id}/order
           method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -85,5 +85,5 @@ custom:
   printfulURL:
     dev: https://api.printful.com/orders
     prod: https://api.printful.com/orders?confirm=1
-  
+
   webpackIncludeModules: true
