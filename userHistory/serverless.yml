@@ -40,10 +40,6 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
-  endpoints:
-    users:
-      dev: unwb90
-      prod: # TODO change to id on prod
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
@@ -60,8 +56,6 @@ resources:
     ApiGatewayMethodArtistsIdVarGet:
       Properties:
         Integration:
-          RequestParameters:
-            integration.request.path.id: method.request.path.id
           CacheNamespace: ApiGatewayMethodArtistsIdVarGetCacheNS
           CacheKeyParameters:
             - method.request.path.id

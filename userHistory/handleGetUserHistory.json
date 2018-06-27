@@ -20,9 +20,6 @@
     "X-Forwarded-Port": "443",
     "X-Forwarded-Proto": "https"
   },
-  "pathParameters": {
-    "id": "5b29e1ff901da3b42535f2a9"
-  },
   "stageVariables": null,
   "requestContext": {
     "resourceId": "fstcs4",
