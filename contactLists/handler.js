@@ -96,7 +96,7 @@ export const handleBlastContactListEmail = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -131,7 +131,7 @@ export const handleBlastContactListText = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,

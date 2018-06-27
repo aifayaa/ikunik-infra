@@ -10,7 +10,7 @@ const lambda = new Lambda({
   region: process.env.AWS_REGION,
 });
 
-const pipelineLocationStart = (coordinates, range) => [
+const pipelineLocationStart = (userId, coordinates, range) => [
   {
     $geoNear: {
       near: {
@@ -80,6 +80,9 @@ const pipelineLocationStart = (coordinates, range) => [
       path: '$project',
       preserveNullAndEmptyArrays: false,
     },
+  },
+  {
+    $match: { fromUserId: userId },
   },
   {
     $group: {
@@ -203,7 +206,9 @@ const doPipeline = (userId, {
   sortBy,
   sortOrder,
 }) => {
-  const pipeline = coordinates ? pipelineLocationStart(coordinates, range) : pipelineStart(userId);
+  const pipeline = coordinates ?
+    pipelineLocationStart(userId, coordinates, range) :
+    pipelineStart(userId);
   pipeline.push({
     $lookup: {
       from: 'pushNotifications',
@@ -212,7 +217,7 @@ const doPipeline = (userId, {
       as: 'endpoints',
     },
   });
-  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'desc' ? 1 : -1) } });
+  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
 
   if (coordinates) {
     if (project || artist || track) pipeline.splice(9, 0, { $match: { $and: [] } });
@@ -247,7 +252,7 @@ const doPipeline = (userId, {
     match.$match.$and.push({ $or: [
       { 'user.email': { $exists: true } },
       { 'user.profile.email': { $exists: true } },
-      { 'user.emails[0].address': { $exists: true } },
+      { 'user.emails.0.address': { $exists: true } },
     ] });
   }
   if (hasNotification) match.$match.$and.push({ endpoints: { $exists: true, $ne: [] } });
@@ -265,30 +270,66 @@ const doPipeline = (userId, {
   return pipeline;
 };
 
-const doSeach = async (pipeline, { page, limit = 20, coordinates, filterUserInfo }) => {
+const doSearch = async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
+  if (page && typeof page !== 'number') page = parseInt(page, 10);
+  if (limit && typeof limit !== 'number') limit = parseInt(limit, 10);
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const countPipeline = pipeline.concat({ $group: { _id: null, fancount: { $sum: 1 } } });
-    if (page > 1) pipeline.push({ $skip: (page - 1) * limit | 0 });
-    pipeline.push({ $limit: limit | 0 });
     if (filterUserInfo) {
       pipeline.push({
         $project: {
           _id: 1,
           'user.profile.username': 1,
+          hasEmail: {
+            $cond: {
+              if: {
+                $or: [
+                  { $ifNull: ['$user.email', false] },
+                  { $ifNull: ['$user.profile.email', false] },
+                  { $ifNull: ['$user.emails.0.address', false] },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          hasPhone: {
+            $cond: {
+              if: {
+                $or: [
+                  { $ifNull: ['$user.profile.phone', false] },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          hasEndpoint: { $ne: ['$endpoints', []] },
           shares: 1,
           user_ID: 1,
           views: 1,
         },
       });
     }
-    const [crowd, fancount] = await Promise.all([
-      client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
-        .toArray(),
-      client.db(process.env.DB_NAME).collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(countPipeline)
-        .toArray(),
-    ]);
-    return { crowd, count: get(fancount, '[0].fancount', 0) };
+    pipeline.push(
+      {
+        $group: {
+          _id: null,
+          fancount: { $sum: 1 },
+          crowd: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $project: {
+          fancount: 1, crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
+        },
+      },
+    );
+    const [result] = await client.db(process.env.DB_NAME)
+      .collection(coordinates ? 'users' : process.env.COLL_NAME).aggregate(pipeline)
+      .toArray();
+    const { crowd, fancount } = result || { crowd: [], fancount: 0 };
+    return { crowd, count: fancount };
   } finally {
     client.close();
   }
@@ -300,7 +341,7 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
     const { subject, template } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasEmail: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
-    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const results = await doSearch(pipeline, event.queryStringParameters || {});
     const contacts = results.crowd.map(fan => ({
       email: fan.user.email || fan.user.profile.email || fan.user.emails[0].address,
       name: fan.user.profile.username,
@@ -318,7 +359,7 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -341,7 +382,7 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     const { artistName, message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasNotification: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
-    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const results = await doSearch(pipeline, event.queryStringParameters || {});
     const endpoints = flatten(results.crowd.map(fan => fan.endpoints));
     const { project } = event.queryStringParameters;
     const params = {
@@ -356,7 +397,7 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -379,7 +420,7 @@ export const handleBlastSearchText = async (event, context, callback) => {
     const { message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasText: true });
     const pipeline = doPipeline(userId, event.queryStringParameters || {});
-    const results = await doSeach(pipeline, event.queryStringParameters || {});
+    const results = await doSearch(pipeline, event.queryStringParameters || {});
     const phones = results.crowd.map(fan => phone(fan.user.profile.phone)[0])
       .filter(phoneNumber => phoneNumber);
     const { project } = event.queryStringParameters;
@@ -394,7 +435,7 @@ export const handleBlastSearchText = async (event, context, callback) => {
     const res = await lambda.invoke(params).promise();
     const response = {
       statusCode: 200,
-      body: res,
+      body: JSON.stringify(res),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -413,11 +454,11 @@ export const handleBlastSearchText = async (event, context, callback) => {
 
 export const handleSearch = async (event, context, callback) => {
   try {
+    event.queryStringParameters = event.queryStringParameters || {};
     const userId = event.requestContext.authorizer.principalId;
-    const pipeline = doPipeline(userId, event.queryStringParameters || {});
+    const pipeline = doPipeline(userId, event.queryStringParameters);
     Object.assign(event.queryStringParameters, { filterUserInfo: true });
-    const results = await doSeach(pipeline, event.queryStringParameters ||
-      { filterUserInfo: true });
+    const results = await doSearch(pipeline, event.queryStringParameters);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

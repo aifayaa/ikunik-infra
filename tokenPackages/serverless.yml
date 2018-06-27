@@ -1,4 +1,4 @@
-service: artists
+service: tokenPackages
 
 provider:
   name: aws
@@ -6,56 +6,48 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 60
+  iamRoleStatements:
+   - Effect: Allow
+     Action:
+       - lambda:InvokeFunction
+     Resource: "*"
   environment:
-    COLL_NAME: artists
+    REGION: us-east-1
+    STAGE: ${self:provider.stage}
+    COLL_NAME: tokenPackages
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
-    restApiResources:
-      users/{id}: ${self:custom.endpoints.users.${self:provider.stage}}
 
 functions:
-  getArtist:
-    handler: handler.handleGetArtist
+  getPackages:
+    handler: handler.handleGetPackages
     events:
       - http:
-          path: artists/{id}
+          path: tokens/packages
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: artistsAuthorizer
+            name: tokenPackagesAuthorizer
           cors: true
           request:
             parameters:
-              paths:
-                id: true
-
-  getArtistPicture:
-    handler: handler.handleGetArtistPicture
-    events:
-      - http:
-          path: artists/{id}/picture
-          method: get
-          authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: artistsAuthorizer
-          cors: true
-          request:
-            parameters:
-              paths:
-                id: true
+              headers:
+                Authorization: true
+              querystrings:
+                type: false
   
-  getUserArtists:
-    handler: handler.handleGetUserArtists
+  buyPackages:
+    handler: handler.handleBuyPackages
     events:
       - http:
-          path: users/{id}/artists
-          method: get
+          path: tokens/packages/{id}
+          method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: artistsAuthorizer
+            name: tokenPackagesAuthorizer
           cors: true
           request:
             parameters:
@@ -76,10 +68,6 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
-  endpoints:
-    users:
-      dev: unwb90
-      prod: # TODO change to id on prod
 
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
@@ -90,16 +78,3 @@ custom:
     prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
   webpackIncludeModules: true
-
-resources:
-  Resources:
-    ApiGatewayMethodArtistsIdVarGet:
-      Properties:
-        RequestParameters:
-          method.request.path.id: true
-        Integration:
-          RequestParameters:
-            integration.request.path.id: method.request.path.id
-          CacheNamespace: ApiGatewayMethodArtistsIdVarGetCacheNS
-          CacheKeyParameters:
-            - method.request.path.id
