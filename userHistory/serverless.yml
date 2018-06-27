@@ -1,0 +1,67 @@
+service: history
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 60
+  environment:
+    COLL_NAME: userHistory
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+  apiGateway:
+    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+
+functions:
+  getUserHistory:
+    handler: handler.handleGetUserHistory
+    events:
+      - http:
+          path: history/
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: userHistoryAuthorizer
+          cors: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  apiGateway:
+    restApiId:
+      dev: diqdv4fvol
+      prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
+  endpoints:
+    users:
+      dev: unwb90
+      prod: # TODO change to id on prod
+
+  authorizer:
+    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
+    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+
+  mongoDB:
+    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
+    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
+
+  webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodArtistsIdVarGet:
+      Properties:
+        Integration:
+          RequestParameters:
+            integration.request.path.id: method.request.path.id
+          CacheNamespace: ApiGatewayMethodArtistsIdVarGetCacheNS
+          CacheKeyParameters:
+            - method.request.path.id
