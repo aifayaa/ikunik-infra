@@ -4,10 +4,28 @@ import winston from 'winston';
 const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const [selection, userSubscriptions] = await Promise.all([
+    const [selections, userSubscriptions] = await Promise.all([
       client.db(process.env.DB_NAME)
         .collection(process.env.COLL_NAME)
-        .findOne({ _id: selectionId }),
+        .aggregate([
+          {
+            $match: {
+              _id: selectionId,
+            },
+          }, {
+            $unwind: {
+              path: '$selectionIds',
+              preserveNullAndEmptyArrays: true,
+            },
+          }, {
+            $lookup: {
+              from: process.env.COLL_NAME,
+              localField: 'selectionIds',
+              foreignField: '_id',
+              as: 'selections',
+            },
+          },
+        ]).toArray(),
       client.db(process.env.DB_NAME)
         .collection(process.env.USER_SUBS_COLL_NAME)
         .find({
@@ -16,6 +34,7 @@ const doGetSelection = async (selectionId, userId) => {
         }, { projection: { subscriptionId: 1 } })
         .toArray(),
     ]);
+    const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
