@@ -4,10 +4,28 @@ import winston from 'winston';
 const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const [selection, userSubscriptions] = await Promise.all([
+    const [selections, userSubscriptions] = await Promise.all([
       client.db(process.env.DB_NAME)
         .collection(process.env.COLL_NAME)
-        .findOne({ _id: selectionId }),
+        .aggregate([
+          {
+            $match: {
+              _id: selectionId,
+            },
+          }, {
+            $unwind: {
+              path: '$selectionIds',
+              preserveNullAndEmptyArrays: true,
+            },
+          }, {
+            $lookup: {
+              from: process.env.COLL_NAME,
+              localField: 'selectionIds',
+              foreignField: '_id',
+              as: 'selections',
+            },
+          },
+        ]).toArray(),
       client.db(process.env.DB_NAME)
         .collection(process.env.USER_SUBS_COLL_NAME)
         .find({
@@ -16,6 +34,7 @@ const doGetSelection = async (selectionId, userId) => {
         }, { projection: { subscriptionId: 1 } })
         .toArray(),
     ]);
+    const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
@@ -177,7 +196,7 @@ const doGetSelection = async (selectionId, userId) => {
   }
 };
 
-const doGetSelections = async (type, web) => {
+const doGetSelections = async (type, web, root) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const selector = {
@@ -189,6 +208,11 @@ const doGetSelections = async (type, web) => {
     if (web === 'true') {
       selector.isWebPublished = true;
     }
+
+    if (root === 'true') {
+      selector.isRoot = true;
+    }
+
     const selections = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find(selector)
@@ -232,8 +256,8 @@ export const handleGetSelection = async (event, context, callback) => {
 
 export const handleGetSelections = async (event, context, callback) => {
   try {
-    const { type, web } = event.queryStringParameters || {};
-    const results = await doGetSelections(type, web);
+    const { type, web, root } = event.queryStringParameters || {};
+    const results = await doGetSelections(type, web, root);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
