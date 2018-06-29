@@ -40,6 +40,7 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
       throw new Error('Wrong quantity');
     }
 
+    qty = parseInt(qty, 10);
     /* check if the product exist */
     const item = await doGetShopItem(productId);
     if (!item) throw new Error('Product not found');
@@ -60,20 +61,17 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
     let { Payload } = await lambda.invoke(getCreditsParams).promise();
     let { statusCode, body } = JSON.parse(Payload);
     if (statusCode !== 200) throw new Error(`Unable to get credits with status ${statusCode}`);
-    if (!body) throw new Error('Body is missing');
+    if (!body) throw new Error('Credits body is missing');
     const { credits } = JSON.parse(body);
     if (credits < total) throw new Error('Not enough credits');
 
     /* remove credits from user acount */
     const removeCreditsParams = {
       FunctionName: `credits-${process.env.STAGE}-removeCredits`,
-      Payload: JSON.stringify(
-        {
-          userId: userID,
-          amount: `${total}`,
-        },
-        { requestContext: { authorizer: { principalId: userID } } },
-      ),
+      Payload: JSON.stringify({
+        userId: userID,
+        amount: `${total}`,
+      }),
     };
 
     /* check if the request was done */
