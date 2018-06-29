@@ -53,6 +53,6 @@
     },
     "apiId": "4a0waiypsk"
   },
-  "body": "{\"qty\":\"10\", \"address\":\"2 Impasses des pendulas 9738 Sainte-Marie\", \"variantId\":\"671629246\"}",
+  "body": "{\"qty\":\"2\", \"address\":\"2 Impasses des pendulas 9738 Sainte-Marie\", \"variantId\":\"671629246\"}",
   "isBase64Encoded": false
 }

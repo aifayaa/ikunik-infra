@@ -1,7 +1,12 @@
 import { MongoClient } from 'mongodb';
 import findIndex from 'lodash/findIndex';
 import validator from 'validator';
+import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid';
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 const doGetShopItems = async () => {
   let client;
@@ -44,6 +49,37 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
     if (findIndex(sizes, { variantId: parseInt(variantId, 10) }) === -1) {
       throw new Error('Product variant not found');
     }
+
+    /* check if user account contain enough credits */
+    const total = price * qty;
+    const getCreditsParams = {
+      FunctionName: `credits-${process.env.STAGE}-getCredits`,
+      Payload: JSON.stringify({ requestContext: { authorizer: { principalId: userID } } }),
+    };
+
+    let { Payload } = await lambda.invoke(getCreditsParams).promise();
+    let { statusCode, body } = JSON.parse(Payload);
+    if (statusCode !== 200) throw new Error(`Unable to get credits with status ${statusCode}`);
+    if (!body) throw new Error('Body is missing');
+    const { credits } = JSON.parse(body);
+    if (credits < total) throw new Error('Not enough credits');
+
+    /* remove credits from user acount */
+    const removeCreditsParams = {
+      FunctionName: `credits-${process.env.STAGE}-removeCredits`,
+      Payload: JSON.stringify(
+        {
+          userId: userID,
+          amount: `${total}`,
+        },
+        { requestContext: { authorizer: { principalId: userID } } },
+      ),
+    };
+
+    /* check if the request was done */
+    ({ Payload } = await lambda.invoke(removeCreditsParams).promise());
+    ({ statusCode, body } = JSON.parse(Payload));
+    if (statusCode !== 200) throw new Error(`Unable to remove credits with status ${statusCode}`);
 
     const orderData = {
       userID,
