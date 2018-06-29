@@ -1,6 +1,23 @@
 import { MongoClient } from 'mongodb';
 import winston from 'winston';
 
+const selectionFields = [
+  'selectionName',
+  'selectionDisplayName',
+  'selectionFindQuery',
+  'selectionOptionQuery',
+  'selectionRank',
+  'iconeThumbFileUrl',
+  'overrideIcon',
+  'limit',
+  'updatedAt',
+  'selectionCollection',
+  'content_IDs',
+  'isPublished',
+  'isWebPublished',
+  'isRoot',
+];
+
 const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -24,6 +41,18 @@ const doGetSelection = async (selectionId, userId) => {
               foreignField: '_id',
               as: 'selections',
             },
+          }, {
+            $unwind: {
+              path: '$selections',
+              preserveNullAndEmptyArrays: true,
+            },
+          }, {
+            $group:
+              Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
+                _id: '$_id',
+                selectionIds: { $push: '$selectionIds' },
+                selections: { $push: '$selections' },
+              }),
           },
         ]).toArray(),
       client.db(process.env.DB_NAME)
