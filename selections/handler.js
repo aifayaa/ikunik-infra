@@ -2,20 +2,24 @@ import { MongoClient } from 'mongodb';
 import winston from 'winston';
 
 const selectionFields = [
-  'selectionName',
+  'banners',
+  'content_IDs',
+  'createAt',
+  'date',
+  'iconeThumbFileUrl',
+  'isPublished',
+  'isRoot',
+  'isWebPublished',
+  'limit',
+  'onlyHighlighted',
+  'overrideIcon',
+  'selectionCollection',
   'selectionDisplayName',
   'selectionFindQuery',
+  'selectionName',
   'selectionOptionQuery',
   'selectionRank',
-  'iconeThumbFileUrl',
-  'overrideIcon',
-  'limit',
   'updatedAt',
-  'selectionCollection',
-  'content_IDs',
-  'isPublished',
-  'isWebPublished',
-  'isRoot',
 ];
 
 const doGetSelection = async (selectionId, userId) => {
