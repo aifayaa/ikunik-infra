@@ -1,5 +1,5 @@
 {
-  "resource": "/users/{id}/history?limit=3",
+  "resource": "/users/{id}/history",
   "path": "/",
   "httpMethod": "GET",
   "headers": {
@@ -19,6 +19,9 @@
     "X-Forwarded-For": "41.213.160.48, 216.137.62.47",
     "X-Forwarded-Port": "443",
     "X-Forwarded-Proto": "https"
+  },
+  "queryStringParameters": {
+    "limit": 1
   },
   "pathParameters": {
     "id": "JXoXuigNdiEqmLdTd"

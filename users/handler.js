@@ -309,9 +309,6 @@ const doGetHistory = async (userId, { limit } = {}) => {
       .sort({ date: -1 })
       .limit(limit)
       .toArray();
-    history.forEach((element) => {
-      console.log(element.content.title);
-    });
     return { history };
   } finally {
     client.close();
