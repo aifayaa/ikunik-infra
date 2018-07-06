@@ -245,8 +245,8 @@ const doPipeline = (userId, {
       ],
     });
   }
-  if (minimumAge) match.$match.$and.push({ 'user.services.facebook.age_range.min': { $gte: minimumAge } });
-  if (maximumAge) match.$match.$and.push({ 'user.services.facebook.age_range.max': { $lte: maximumAge } });
+  if (minimumAge) match.$match.$and.push({ 'user.services.facebook.age_range.min': { $gte: parseInt(minimumAge, 10) } });
+  if (maximumAge) match.$match.$and.push({ 'user.services.facebook.age_range.max': { $lte: parseInt(maximumAge, 10) } });
   if (get(gender, 'length') > 0) match.$match.$and.push({ 'user.profile.gender': gender });
   if (hasEmail) {
     match.$match.$and.push({ $or: [
@@ -260,7 +260,7 @@ const doPipeline = (userId, {
   if (get(languages, 'length') > 0) match.$match.$and.push({ 'user.services.facebook.locale': languages });
   if (get(country, 'length') > 0) match.$match.$and.push({ 'user.country': country });
   if (get(city, 'length') > 0) match.$match.$and.push({ 'user.location.city': city });
-  if (minFBFriends) match.$match.$and.push({ 'user.profile.numFBFriends': { $gte: minFBFriends } });
+  if (minFBFriends) match.$match.$and.push({ 'user.profile.numFBFriends': { $gte: parseInt(minFBFriends, 10) } });
   if (get(purchased, 'length', 0) === 1) {
     if (purchased[0] === 'yes') match.$match.$and.push({ purchased: true });
     else match.$match.$and.push({ purchased: { $exists: false } });
