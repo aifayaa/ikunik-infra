@@ -87,7 +87,7 @@ const doSubscribe = async (userId, subId) => {
   try {
     client = await MongoClient.connect(process.env.MONGO_URL);
     const userSub = await client.db(process.env.DB_NAME).collection('userSubscriptions')
-      .findOne({ userId, subscriptionId: subId });
+      .findOne({ userId, subscriptionId: subId, expireAt: { $gt: new Date() } });
     if (userSub) throw new Error('User already subscribed');
     const params = {
       FunctionName: `credits-${process.env.STAGE}-getCredits`,
