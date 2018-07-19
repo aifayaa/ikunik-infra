@@ -97,21 +97,6 @@ functions:
               paths:
                 id: true
 
-  getPurchases:
-    handler: handler.handleGetPurchases
-    events:
-      - http:
-          path: users/{id}/projects/purchases
-          method: get
-          authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: usersAuthorizer
-          cors: true
-          request:
-            parameters:
-              paths:
-                id: true
-
   getPayouts:
     handler: handler.handleGetPayouts
     events:

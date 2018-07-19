@@ -44,7 +44,7 @@ custom:
       prod: xbtq2qqal5
   endpoints:
     users:
-      dev: unwb90
+      dev: zuyf1o
       prod: z3ukbo
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
