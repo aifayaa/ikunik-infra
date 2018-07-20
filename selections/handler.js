@@ -229,10 +229,10 @@ const doGetSelection = async (selectionId, userId) => {
   }
 };
 
-const doGetSelections = async (type, web, root) => {
+const doGetSelections = async (type, web, mobile, root) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const selector = {
+    let selector = {
       isPublished: true,
     };
     if (type && ['audio', 'video'].includes(type)) {
@@ -241,11 +241,19 @@ const doGetSelections = async (type, web, root) => {
     if (web === 'true') {
       selector.isWebPublished = true;
     }
-
     if (root === 'true') {
       selector.isRoot = true;
     }
-
+    if (mobile === 'false') {
+      selector.isMobilePublished = false;
+    } else {
+      selector = {
+        $or: [
+          Object.assign({ isMobilePublished: { $not: false } }, selector),
+          Object.assign({ isMobilePublished: { $exists: false } }, selector),
+        ],
+      };
+    }
     const selections = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find(selector)
@@ -289,8 +297,8 @@ export const handleGetSelection = async (event, context, callback) => {
 
 export const handleGetSelections = async (event, context, callback) => {
   try {
-    const { type, web, root } = event.queryStringParameters || {};
-    const results = await doGetSelections(type, web, root);
+    const { type, web, mobile, root } = event.queryStringParameters || {};
+    const results = await doGetSelections(type, web, mobile, root);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

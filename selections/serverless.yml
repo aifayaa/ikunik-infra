@@ -47,6 +47,7 @@ functions:
               querystrings:
                 type: false
                 web: false
+                mobile: false
 
 plugins:
   - serverless-webpack
