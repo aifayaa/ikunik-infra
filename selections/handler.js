@@ -244,15 +244,8 @@ const doGetSelections = async (type, web, mobile, root) => {
     if (root === 'true') {
       selector.isRoot = true;
     }
-    if (mobile === 'false') {
-      selector.isMobilePublished = false;
-    } else {
-      selector = {
-        $or: [
-          Object.assign({ isMobilePublished: { $ne: false } }, selector),
-          Object.assign({ isMobilePublished: { $exists: false } }, selector),
-        ],
-      };
+    if (mobile !== 'false') {
+      selector.isMobilePublished = { $ne: false };
     }
     const selections = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
