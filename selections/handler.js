@@ -249,7 +249,7 @@ const doGetSelections = async (type, web, mobile, root) => {
     } else {
       selector = {
         $or: [
-          Object.assign({ isMobilePublished: { $not: false } }, selector),
+          Object.assign({ isMobilePublished: { $ne: false } }, selector),
           Object.assign({ isMobilePublished: { $exists: false } }, selector),
         ],
       };
