@@ -145,6 +145,21 @@ functions:
               paths:
                 id: true
 
+  addHistory:
+    handler: handler.handleAddHistory
+    events:
+      - http:
+          path: users/{id}/history/
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   isBlastable:
     handler: handler.handleIsBlastable
     events:
