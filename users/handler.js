@@ -344,7 +344,7 @@ const doAddHistory = async (userId, contentId) => {
     if (!history) {
       throw new Error('data not found');
     }
-    history._id = ObjectId().valueOf();
+    history._id = ObjectId().toString();
     history.userId = userId;
     await db.collection('userHistory').insert(history);
     return true;
@@ -358,10 +358,40 @@ const doGetHistory = async (userId, { limit } = {}) => {
 
   try {
     limit = parseInt(limit, 10) || 20;
-    const history = await client.db(process.env.DB_NAME).collection('userHistory')
-      .find({ userId })
-      .sort({ date: -1 })
-      .limit(limit)
+    const pipeline = [
+      { $match: { userId } },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+      {
+        $group: {
+          _id: '$content_ID',
+          content: { $first: '$$ROOT' },
+        },
+      },
+      {
+        $unwind: {
+          path: '$content',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: '$content',
+        },
+      },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+      { $limit: limit },
+    ];
+    const history = await client.db(process.env.DB_NAME)
+      .collection('userHistory')
+      .aggregate(pipeline)
       .toArray();
     return { history };
   } finally {
