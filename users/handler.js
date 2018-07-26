@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import phone from 'phone';
 import pick from 'lodash/pick';
 import validator from 'validator';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -294,6 +294,76 @@ const doAskPayout = async (userId, amount, method) => {
     await client.db(process.env.DB_NAME).collection('payouts')
       .insertOne(payoutData);
     return true;
+  } finally {
+    client.close();
+  }
+};
+
+const doAddHistory = async (userId, contentId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const db = client.db(process.env.DB_NAME);
+  try {
+    const pipeline = [
+      { $match: { _id: contentId } },
+      {
+        $addFields: { content: '$$ROOT' },
+      },
+      {
+        $lookup: {
+          from: 'Project',
+          localField: 'project_ID',
+          foreignField: '_id',
+          as: 'project',
+        },
+      },
+      {
+        $unwind: {
+          path: '$project',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $project: {
+          _id: null,
+          project_ID: '$project.id',
+          artistName: '$project.artistName',
+          albumName: '$project.albumName',
+          iconeThumbFileUrl: '$project.iconeThumbFileUrl',
+          collection: '$collection',
+          content_ID: '$content._id',
+          content: '$content',
+          date: new Date(),
+        },
+      },
+    ];
+    const [[audioHistory], [videoHistory]] = await Promise.all([
+      db.collection('audio').aggregate(pipeline).toArray(),
+      db.collection('video').aggregate(pipeline).toArray(),
+    ]);
+    const history = audioHistory || videoHistory;
+    if (!history) {
+      throw new Error('data not found');
+    }
+    history._id = ObjectId().valueOf();
+    history.userId = userId;
+    await db.collection('userHistory').insert(history);
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
+const doGetHistory = async (userId, { limit } = {}) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+
+  try {
+    limit = parseInt(limit, 10) || 20;
+    const history = await client.db(process.env.DB_NAME).collection('userHistory')
+      .find({ userId })
+      .sort({ date: -1 })
+      .limit(limit)
+      .toArray();
+    return { history };
   } finally {
     client.close();
   }
@@ -650,3 +720,73 @@ export const handleGetUserPublic = async (event, context, callback) => {
     callback(null, response);
   }
 };
+
+export const handleAddHistory = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const { id } = JSON.parse(event.body);
+    if (!id) {
+      throw new Error('Bad arguments');
+    }
+    const results = await doAddHistory(userId, id);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetHistory = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const urlId = event.pathParameters.id;
+    const queryParams = event.queryStringParameters || {};
+
+    if (userId !== urlId) {
+      const response = {
+        statusCode: 403,
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
+      callback(null, response);
+      return;
+    }
+
+    const results = await doGetHistory(userId, queryParams);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+

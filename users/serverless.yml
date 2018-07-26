@@ -36,7 +36,7 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
   blastNotification:
     handler: handler.handleBlastNotification
     events:
@@ -51,7 +51,7 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
   blastText:
     handler: handler.handleBlastText
     events:
@@ -111,16 +111,46 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
   getUser:
     handler: handler.handleGetUser
-  
+
   getUserPublic:
     handler: handler.handleGetUserPublic
     events:
       - http:
           path: users/{id}
           method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getHistory:
+    handler: handler.handleGetHistory
+    events:
+      - http:
+          path: users/{id}/history/
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: usersAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  addHistory:
+    handler: handler.handleAddHistory
+    events:
+      - http:
+          path: users/{id}/history/
+          method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
             name: usersAuthorizer

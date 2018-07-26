@@ -232,7 +232,7 @@ const doGetSelection = async (selectionId, userId) => {
 const doGetSelections = async (type, web, mobile, root) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    let selector = {
+    const selector = {
       isPublished: true,
     };
     if (type && ['audio', 'video'].includes(type)) {
