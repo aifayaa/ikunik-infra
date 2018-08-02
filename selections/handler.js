@@ -303,6 +303,18 @@ const doCreateUserSelection = async (name, userId) => {
   }
 };
 
+const doDeleteUserSelection = async (selectionId, userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .deleteOne({ _id: selectionId, userId });
+
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetSelection = async (event, context, callback) => {
   try {
     const selectionId = event.pathParameters.id;
@@ -390,11 +402,20 @@ export const handleGetUserSelections = async (event, context, callback) => {
 };
 
 export const handlePostUserSelection = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
   try {
-    const userId = event.requestContext.authorizer.principalId;
     const { name } = JSON.parse(event.body);
     if (!name) {
-      throw new Error('mal formed request');
+      throw new Error('malformed request');
     }
     const results = await doCreateUserSelection(name, userId);
     const response = {
@@ -414,3 +435,36 @@ export const handlePostUserSelection = async (event, context, callback) => {
     callback(null, response);
   }
 };
+
+export const handleDeleteUserSelection = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const { selectionId } = event.pathParameters;
+    const results = await doDeleteUserSelection(selectionId, userId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+

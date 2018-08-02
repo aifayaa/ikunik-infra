@@ -81,6 +81,22 @@ functions:
               paths:
                 id: true
 
+  deleteUserSelection:
+    handler: handler.handleDeleteUserSelection
+    events:
+      - http:
+          path: users/{id}/selections/{selectionId}
+          method: delete
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: selectionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+                selectionId: true
+
 plugins:
   - serverless-webpack
 
