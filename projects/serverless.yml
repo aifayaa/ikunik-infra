@@ -12,6 +12,7 @@ provider:
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
     restApiResources:
       users/{id}: ${self:custom.endpoints.users.${self:provider.stage}}
 
@@ -21,6 +22,21 @@ functions:
     events:
       - http:
           path: users/{id}/projects
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: projectsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getProject:
+    handler: handler.handleGetProject
+    events:
+      - http:
+          path: projects/{id}
           method: get
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -42,9 +58,12 @@ custom:
     restApiId:
       dev: diqdv4fvol
       prod: xbtq2qqal5
+    restApiRootResourceId:
+      dev: aus9fmgcr3
+      prod: hp7jubgyp7
   endpoints:
     users:
-      dev: 4u827d
+      dev: szyu3r
       prod: z3ukbo
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
