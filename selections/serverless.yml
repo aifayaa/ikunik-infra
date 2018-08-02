@@ -15,6 +15,8 @@ provider:
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiResources:
+      users/{id}: ${self:custom.endpoints.users.${self:provider.stage}}
 
 functions:
   getSelection:
@@ -49,6 +51,52 @@ functions:
                 web: false
                 mobile: false
 
+  getUserSelections:
+    handler: handler.handleGetUserSelections
+    events:
+      - http:
+          path: users/{id}/selections
+          method: get
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: selectionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  postUserSelection:
+    handler: handler.handlePostUserSelection
+    events:
+      - http:
+          path: users/{id}/selections
+          method: post
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: selectionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  deleteUserSelection:
+    handler: handler.handleDeleteUserSelection
+    events:
+      - http:
+          path: users/{id}/selections/{selectionId}
+          method: delete
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: selectionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+                selectionId: true
+
 plugins:
   - serverless-webpack
 
@@ -63,7 +111,10 @@ custom:
     restApiRootResourceId:
       dev: aus9fmgcr3
       prod: hp7jubgyp7
-
+  endpoints:
+    users:
+      dev: z1y5nj
+      prod: z3ukbo
   authorizer:
     dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
     prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize

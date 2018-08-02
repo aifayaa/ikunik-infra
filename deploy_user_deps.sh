@@ -46,4 +46,7 @@ sls deploy --stage "$stage";
 cd ../projects;
 sed -i '' "s/$oldUserEndpointId/$newUserEndpointId/g" serverless.yml
 sls deploy --stage "$stage";
+cd ../selections;
+sed -i '' "s/$oldUserEndpointId/$newUserEndpointId/g" serverless.yml
+sls deploy --stage "$stage";
 cd ..;
