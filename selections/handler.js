@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import winston from 'winston';
 
 const selectionFields = [
@@ -259,6 +259,50 @@ const doGetSelections = async (type, web, mobile, root) => {
   }
 };
 
+const doGetUserSelections = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ userId })
+      .toArray();
+
+    return { selections };
+  } finally {
+    client.close();
+  }
+};
+
+const doCreateUserSelection = async (name, userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selection = {
+      _id: ObjectId().toString(),
+      createAt: new Date(),
+      date: 'Anytime',
+      isPublished: true,
+      isWebPublished: true,
+      limit: 10,
+      selectionCollection: [
+        'audio',
+        'video',
+      ],
+      selectionDisplayName: name,
+      selectionFindQuery: '{"_id": {"$exists": false}}',
+      selectionName: name,
+      selectionOptionQuery: '{}',
+      userId,
+    };
+
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .insertOne(selection);
+
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetSelection = async (event, context, callback) => {
   try {
     const selectionId = event.pathParameters.id;
@@ -306,6 +350,65 @@ export const handleGetSelections = async (event, context, callback) => {
     winston.error(e);
     const response = {
       statusCode,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handleGetUserSelections = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const results = await doGetUserSelections(userId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const statusCode = 500;
+    winston.error(e);
+    const response = {
+      statusCode,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handlePostUserSelection = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const { name } = JSON.parse(event.body);
+    if (!name) {
+      throw new Error('mal formed request');
+    }
+    const results = await doCreateUserSelection(name, userId);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
       body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);

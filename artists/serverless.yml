@@ -78,7 +78,7 @@ custom:
       prod: hp7jubgyp7
   endpoints:
     users:
-      dev: 4u827d
+      dev: z1y5nj
       prod: z3ukbo
 
   authorizer:
