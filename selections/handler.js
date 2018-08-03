@@ -315,6 +315,25 @@ const doDeleteUserSelection = async (selectionId, userId) => {
   }
 };
 
+const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const patch = {};
+    if (contentIds) {
+      patch.selectionFindQuery = `{"_id": {"$in":["${contentIds.join('","')}"]}}`;
+    }
+    if (selectionIds) {
+      patch.selectionIds = selectionIds;
+    }
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .updateOne({ _id: selectionId, userId }, { $set: patch });
+
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetSelection = async (event, context, callback) => {
   try {
     const selectionId = event.pathParameters.id;
@@ -468,3 +487,38 @@ export const handleDeleteUserSelection = async (event, context, callback) => {
   }
 };
 
+export const handlePatchUserSelection = async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    const response = {
+      statusCode: 403,
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+    callback(null, response);
+    return;
+  }
+  try {
+    const { selectionId } = event.pathParameters;
+    const { contentIds, selectionIds } = JSON.parse(event.body);
+    if (!contentIds && !selectionIds) {
+      throw new Error('malformed request');
+    }
+    const results = await doPatchUserSelection(selectionId, userId, contentIds, selectionIds);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};

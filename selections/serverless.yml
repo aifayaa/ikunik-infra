@@ -96,6 +96,22 @@ functions:
               paths:
                 id: true
                 selectionId: true
+  
+  patchUserSelection:
+    handler: handler.handlePatchUserSelection
+    events:
+      - http:
+          path: users/{id}/selections/{selectionId}
+          method: patch
+          authorizer:
+            arn: ${self:custom.authorizer.${self:provider.stage}}
+            name: selectionsAuthorizer
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+                selectionId: true            
 
 plugins:
   - serverless-webpack
