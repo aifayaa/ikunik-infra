@@ -6,6 +6,7 @@ const selectionFields = [
   'content_IDs',
   'createAt',
   'date',
+  'enableShop',
   'iconeThumbFileUrl',
   'isPublished',
   'isRoot',
