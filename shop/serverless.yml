@@ -17,8 +17,6 @@ provider:
     STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
-    PRINTFUL_URL: ${self:custom.printfulURL.${self:provider.stage}}
-    PRINTFUL_KEY: NzV2Z25oMHEtaXY2MS1ubnJpOjg5bGotaW9yemxka2c3Zmxx
   apiGateway:
     restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
     restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
@@ -52,7 +50,7 @@ functions:
     handler: handler.handlePostShopOrder
     events:
       - http:
-          path: /shop/items/{id}/order
+          path: /shop/items/{id}/orders
           method: post
           authorizer:
             arn: ${self:custom.authorizer.${self:provider.stage}}
@@ -81,9 +79,5 @@ custom:
   mongoDB:
     dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
     prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
-
-  printfulURL:
-    dev: https://api.printful.com/orders
-    prod: https://api.printful.com/orders?confirm=1
 
   webpackIncludeModules: true

@@ -1,8 +1,8 @@
 import { MongoClient } from 'mongodb';
 import findIndex from 'lodash/findIndex';
-import validator from 'validator';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid';
+import validator from 'validator';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -25,13 +25,13 @@ const doGetShopItem = async (itemId) => {
   try {
     client = await MongoClient.connect(process.env.MONGO_URL);
     return await client.db(process.env.DB_NAME).collection('shopItems')
-      .findOne({ _id: itemId });
+      .findOne({ _id: itemId, status: 'active' });
   } finally {
     client.close();
   }
 };
 
-const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
+const doPostShopOrder = async (userId, productId, qty, address, variantId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
 
   try {
@@ -55,7 +55,7 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
     const total = price * qty;
     const getCreditsParams = {
       FunctionName: `credits-${process.env.STAGE}-getCredits`,
-      Payload: JSON.stringify({ requestContext: { authorizer: { principalId: userID } } }),
+      Payload: JSON.stringify({ requestContext: { authorizer: { principalId: userId } } }),
     };
 
     let { Payload } = await lambda.invoke(getCreditsParams).promise();
@@ -69,7 +69,7 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
     const removeCreditsParams = {
       FunctionName: `credits-${process.env.STAGE}-removeCredits`,
       Payload: JSON.stringify({
-        userId: userID,
+        userId,
         amount: `${total}`,
       }),
     };
@@ -80,7 +80,7 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
     if (statusCode !== 200) throw new Error(`Unable to remove credits with status ${statusCode}`);
 
     const orderData = {
-      userID,
+      userId,
       address,
       productId,
       variantId,
@@ -100,7 +100,7 @@ const doPostShopOrder = async (userID, productId, qty, address, variantId) => {
 };
 
 export const handlePostShopOrder = async (event, context, callback) => {
-  const userID = event.requestContext.authorizer.principalId;
+  const userId = event.requestContext.authorizer.principalId;
   const productId = event.pathParameters.id;
   let result;
 
@@ -115,7 +115,7 @@ export const handlePostShopOrder = async (event, context, callback) => {
     if (!data || !qty || !address || !variantId) {
       throw new Error('Mal formed request');
     }
-    result = await doPostShopOrder(userID, productId, qty, address, variantId);
+    result = await doPostShopOrder(userId, productId, qty, address, variantId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(result),
