@@ -1,0 +1,14 @@
+{
+  "name": "authorize",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa authorize API.",
+  "main": "handler.js",
+  "dependencies": {},
+  "devDependencies": {
+    "serverless-webpack": "^4.2.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}
