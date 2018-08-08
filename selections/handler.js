@@ -316,18 +316,62 @@ const doDeleteUserSelection = async (selectionId, userId) => {
   }
 };
 
-const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds) => {
+const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds, action = 'replace') => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const patch = {};
-    if (contentIds) {
-      patch.selectionFindQuery = `{"_id": {"$in":["${contentIds.join('","')}"]}}`;
+    let modifier = {};
+    const selection = (action !== 'replace') ?
+      await client.db(process.env.DB_NAME)
+        .collection(process.env.COLL_NAME)
+        .findOne({ _id: selectionId, userId }) : null;
+    const selectionFindQuery = selection && (JSON.parse(selection.selectionFindQuery) || {});
+    switch (action) {
+      case 'remove': {
+        if (contentIds) {
+          selectionFindQuery._id.$in =
+            selectionFindQuery._id.$in.filter(item => !contentIds.includes(item));
+          modifier.selectionFindQuery = JSON.stringify(selectionFindQuery);
+          modifier = { $set: modifier };
+        }
+        if (selectionIds) {
+          modifier.$pull = {
+            selectionIds: {
+              $in: selectionIds,
+            },
+          };
+        }
+        break;
+      }
+      case 'add': {
+        if (contentIds) {
+          Array.prototype.push.apply(selectionFindQuery._id.$in, contentIds);
+          selectionFindQuery._id.$in.filter = [...new Set(selectionFindQuery._id.$in)];
+          modifier.selectionFindQuery = JSON.stringify(selectionFindQuery);
+          modifier = { $set: modifier };
+        }
+        if (selectionIds) {
+          modifier.$addToSet = {
+            selectionIds: {
+              $each: selectionIds,
+            },
+          };
+        }
+        break;
+      }
+      case 'replace':
+      default: {
+        if (contentIds) {
+          modifier.selectionFindQuery = `{"_id": {"$in":["${contentIds.join('","')}"]}}`;
+        }
+        if (selectionIds) {
+          modifier.selectionIds = selectionIds;
+        }
+        modifier = { $set: modifier };
+      }
     }
-    if (selectionIds) {
-      patch.selectionIds = selectionIds;
-    }
+
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .updateOne({ _id: selectionId, userId }, { $set: patch });
+      .updateOne({ _id: selectionId, userId }, modifier);
 
     return true;
   } finally {
@@ -501,11 +545,17 @@ export const handlePatchUserSelection = async (event, context, callback) => {
   }
   try {
     const { selectionId } = event.pathParameters;
-    const { contentIds, selectionIds } = JSON.parse(event.body);
-    if (!contentIds && !selectionIds) {
+    const { contentIds, selectionIds, action } = JSON.parse(event.body);
+    if ((!contentIds && !selectionIds) || ![undefined, 'replace', 'remove', 'add'].includes(action)) {
       throw new Error('malformed request');
     }
-    const results = await doPatchUserSelection(selectionId, userId, contentIds, selectionIds);
+    const results = await doPatchUserSelection(
+      selectionId,
+      userId,
+      contentIds,
+      selectionIds,
+      action,
+    );
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
