@@ -96,7 +96,7 @@ functions:
               paths:
                 id: true
                 selectionId: true
-  
+
   patchUserSelection:
     handler: handler.handlePatchUserSelection
     events:
@@ -111,7 +111,7 @@ functions:
             parameters:
               paths:
                 id: true
-                selectionId: true            
+                selectionId: true
 
 plugins:
   - serverless-webpack
