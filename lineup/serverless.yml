@@ -5,7 +5,7 @@ provider:
   runtime: nodejs6.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
-  timeout: 60
+  timeout: 30
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -47,17 +47,17 @@ provider:
     REGION: us-east-1
     COLL_NAME: lineup
     DB_NAME: crowdaaDev
-    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
     BLAST_TEXT: ${self:custom.blast.text.${self:provider.stage}}
     BLAST_NOTIF: ${self:custom.blast.notif.${self:provider.stage}}
     USE_BLAST_TEXT: false
   apiGateway:
-    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
-    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
-      /artists/{id}: ${self:custom.endpoints.artists.${self:provider.stage}}
-      /festivals/{id}: ${self:custom.endpoints.festivals.${self:provider.stage}}
-      /stages/{id}: ${self:custom.endpoints.stages.${self:provider.stage}}
+      /artists/{id}: ${cf:artists-${self:provider.stage}.RestApiRootResourceId}
+      /festivals/{id}: ${cf:festivals-${self:provider.stage}.RestApiRootResourceId}
+      /stages/{id}: ${cf:stages-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
   notifyLineup:
@@ -70,8 +70,8 @@ functions:
           path: lineup/
           method: post
           authorizer:
-            arn: ${self:custom.authorizerAdmin.${self:provider.stage}}
-            name: lineupAdminAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
           cors: true
   
   createNotifyLineup:
@@ -81,8 +81,8 @@ functions:
           path: lineup/{id}/notifications
           method: post
           authorizer:
-            arn: ${self:custom.authorizerAdmin.${self:provider.stage}}
-            name: lineupAdminAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
           cors: true
           request:
             parameters:
@@ -96,8 +96,8 @@ functions:
           path: lineup/notifications
           method: post
           authorizer:
-            arn: ${self:custom.authorizerAdmin.${self:provider.stage}}
-            name: lineupAdminAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
           cors: true
 
   getLineup:
@@ -107,8 +107,8 @@ functions:
           path: artists/{id}/lineup
           method: get
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: lineupAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -118,8 +118,8 @@ functions:
           path: festivals/{id}/lineup
           method: get
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: lineupAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -129,8 +129,8 @@ functions:
           path: stages/{id}/lineup
           method: get
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: lineupAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -144,32 +144,6 @@ package:
   individually: true
 
 custom:
-  apiGateway:
-    restApiId:
-      dev: diqdv4fvol
-      prod: xbtq2qqal5
-    restApiRootResourceId:
-      dev: aus9fmgcr3
-      prod: hp7jubgyp7
-  endpoints:
-    artists:
-      dev: yuiww2
-      prod: z405t7
-    festivals:
-      dev: m2gnhw
-      prod: t9ig8r
-    stages:
-      dev: 1wseq9
-      prod: i0ojub
-
-  authorizer:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
-
-  authorizerAdmin:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorizeAdmin
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorizeAdmin
-  
   blast:
     text:
       dev: blast-dev-blastText
@@ -177,8 +151,4 @@ custom:
     notif:
       dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
-  mongoDB:
-    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
-    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
-
   webpackIncludeModules: true

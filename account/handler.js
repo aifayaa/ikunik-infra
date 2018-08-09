@@ -9,7 +9,7 @@ const doAuthorize = async (hashedToken) => {
       { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
       { projection: { _id: 1 } },
     );
-    return user._id;
+    return user;
   } finally {
     client.close();
   }
@@ -56,15 +56,19 @@ export const handleAuthorize = async ({ authorizationToken, methodArn }, context
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const userId = await doAuthorize(hashedLoginToken);
-    winston.info(userId);
-    callback(null, generatePolicy('allow', methodArn, userId));
+    const user = await doAuthorize(hashedLoginToken);
+    if (user) {
+      winston.info('allow', authorizationToken, user._id);
+      return callback(null, generatePolicy('allow', methodArn, user._id));
+    }
+    winston.info('deny', authorizationToken);
+    return callback(null, generatePolicy('deny', methodArn, null));
   } catch (e) {
     const response = {
-      statusCode: 401,
+      statusCode: 500,
       message: e.message,
     };
-    callback(null, response);
+    return callback(null, response);
   }
 };
 
