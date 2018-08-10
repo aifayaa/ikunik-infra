@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import Lambda from 'aws-sdk/clients/lambda';
 import winston from 'winston';
 
 const selectionFields = [
@@ -22,6 +23,10 @@ const selectionFields = [
   'selectionRank',
   'updatedAt',
 ];
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 const doCheckSelectionsOwner = async (selectionIds, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -330,12 +335,25 @@ const doDeleteUserSelection = async (selectionId, userId) => {
 };
 
 const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds, action = 'replace') => {
-  if (selectionIds && selectionIds.length > 0) {
-    const checked = await doCheckSelectionsOwner(selectionIds, userId);
-    if (!checked) throw new Error('bad arguments');
-  }
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
+    if (selectionIds && selectionIds.length > 0) {
+      const checked = await doCheckSelectionsOwner(selectionIds, userId);
+      if (!checked) throw new Error('bad selections arguments');
+    }
+    if (contentIds && contentIds.length > 0) {
+      const params = {
+        FunctionName: `media-${process.env.STAGE}-checkUserMedia`,
+        Payload: JSON.stringify({ userId, mediaIds: contentIds }),
+      };
+      const { Payload } = await lambda.invoke(params).promise();
+      const res = JSON.parse(Payload);
+      if (res.statusCode !== 200) {
+        throw new Error(`checkUserMedia handler failed: ${res.body}`);
+      }
+      if (res.body !== 'true') throw new Error('bad media arguments');
+    }
+
     let modifier = {};
     const selection = (action !== 'replace') ?
       await client.db(process.env.DB_NAME)

@@ -5,6 +5,7 @@
   "description": "Crowdaa selectionss API.",
   "main": "handler.js",
   "dependencies": {
+    "aws-sdk": "^2.290.0",
     "mongodb": "^3.0.2",
     "winston": "^2.4.0"
   },
