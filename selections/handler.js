@@ -345,6 +345,7 @@ const doPatchUserSelection = async (selectionId, userId, contentIds, selectionId
       { selectionFindQuery: { _id: { $in: [] } } }
     );
     if (!selectionFindQuery._id) selectionFindQuery._id = { $in: [] };
+    if (!selectionFindQuery._id.$in) selectionFindQuery._id.$in = [];
     delete selectionFindQuery._id.$exists;
     switch (action) {
       case 'remove': {
