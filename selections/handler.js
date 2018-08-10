@@ -23,6 +23,19 @@ const selectionFields = [
   'updatedAt',
 ];
 
+const doCheckSelectionsOwner = async (selectionIds, userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ _id: { $in: selectionIds }, userId: { $ne: userId } })
+      .count();
+    return (selections === 0);
+  } finally {
+    client.close();
+  }
+};
+
 const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -317,6 +330,10 @@ const doDeleteUserSelection = async (selectionId, userId) => {
 };
 
 const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds, action = 'replace') => {
+  if (selectionIds && selectionIds.length > 0) {
+    const checked = await doCheckSelectionsOwner(selectionIds, userId);
+    if (!checked) throw new Error('bad arguments');
+  }
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     let modifier = {};
