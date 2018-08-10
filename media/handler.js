@@ -21,6 +21,23 @@ function makeResponse(statusCode, error, result) {
   return res;
 }
 
+const doCheckUserMedia = async (userId, mediaIds) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const audios = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_AUDIOS)
+      .find({ _id: { $in: mediaIds }, fromUserId: { $ne: userId } })
+      .count();
+    const videos = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_VIDEOS)
+      .find({ _id: { $in: mediaIds }, fromUserId: { $ne: userId } })
+      .count();
+    return (audios === 0 && videos === 0);
+  } finally {
+    client.close();
+  }
+};
+
 const doGetMedium = async (userId, mediumType, mediumId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -135,5 +152,14 @@ export const handlePostMediumView = async (event, context, callback) => {
       body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
+  }
+};
+
+export const handleCheckUserMedia = async ({ userId, mediaIds }, context, callback) => {
+  try {
+    const results = await doCheckUserMedia(userId, mediaIds);
+    callback(null, makeResponse(200, null, results));
+  } catch (e) {
+    callback(null, makeResponse(500, e));
   }
 };

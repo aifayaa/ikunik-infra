@@ -6,7 +6,14 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
+  iamRoleStatements:
+   - Effect: Allow
+     Action:
+       - lambda:InvokeFunction
+     Resource: "*"
   environment:
+    REGION: us-east-1
+    STAGE: ${self:provider.stage}
     COLL_NAME: selection
     DB_NAME: crowdaaDev
     DEFAULT_LIMIT: 15

@@ -23,6 +23,9 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
+  checkUserMedia:
+    handler: handler.handleCheckUserMedia
+
   getMedium:
     handler: handler.handleGetMedium
     events:
