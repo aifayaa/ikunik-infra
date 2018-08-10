@@ -5,9 +5,9 @@ provider:
   runtime: nodejs6.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
-  timeout: 60
+  timeout: 30
   environment:
-    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
 
 functions:
   authorize:
@@ -22,8 +22,81 @@ package:
   individually: true
 
 custom:
-  mongoDB:
-    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
-    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
-
   webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayAuthorizer: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 0
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization
+        Name: authorizeAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: TOKEN
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] }
+    
+    LambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizeLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
+    ApiGatewayAuthorizerAdmin: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 300
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizeAdminLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization
+        Name: authorizeAdminAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: TOKEN
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizeAdminLambdaFunction", "Arn" ] }
+
+  Outputs:
+    ApiGatewayAuthorizerId:
+      Description: User authorizer ID
+      Value: 
+        Ref: ApiGatewayAuthorizer
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerId
+    ApiGatewayAuthorizerAdminId:
+      Description: Admin authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerAdmin
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerAdminId

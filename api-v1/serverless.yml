@@ -5,7 +5,7 @@ provider:
   stage: ${opt:stage, "dev"}
   runtime: nodejs6.10
   memorySize: 128
-  timeout: 60
+  timeout: 30
 
 functions:
   getV1:
@@ -14,9 +14,6 @@ functions:
       - http:
           path: /
           method: get
-          authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: v1Authorizer
           cors: true
 
 plugins:
@@ -27,9 +24,9 @@ package:
   individually: true
 
 custom:
-  authorizer:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+  mongoDB:
+    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
+    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
   domains:
     prod: api.aws.crowdaa.com
@@ -42,3 +39,22 @@ custom:
     createRoute53Record: true
 
   webpackIncludeModules: true
+
+resources:
+  Outputs:
+    MongoURL:
+      Description: MongoDB URL
+      Value: ${self:custom.mongoDB.${self:provider.stage}}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:MongoURL
+    RestApiId:
+      Description: Api Gateway ID
+      Value: 
+        Ref: ApiGatewayRestApi
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiId
+    RestApiRootResourceId:
+      Description: Api Gateway ID
+      Value: {"Fn::GetAtt":["ApiGatewayRestApi","RootResourceId"]}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId
