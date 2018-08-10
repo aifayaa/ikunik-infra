@@ -341,9 +341,8 @@ const doPatchUserSelection = async (selectionId, userId, contentIds, selectionId
       await client.db(process.env.DB_NAME)
         .collection(process.env.COLL_NAME)
         .findOne({ _id: selectionId, userId }) : null;
-    const selectionFindQuery = selection && (JSON.parse(selection.selectionFindQuery) ||
-      { selectionFindQuery: { _id: { $in: [] } } }
-    );
+    const selectionFindQuery = (selection && JSON.parse(selection.selectionFindQuery)) ||
+      { selectionFindQuery: { _id: { $in: [] } } };
     if (!selectionFindQuery._id) selectionFindQuery._id = { $in: [] };
     if (!selectionFindQuery._id.$in) selectionFindQuery._id.$in = [];
     delete selectionFindQuery._id.$exists;
