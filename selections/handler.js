@@ -292,6 +292,25 @@ const doGetUserSelections = async (userId) => {
   }
 };
 
+const doGetUserRootSelections = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    let selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ userId, selectionIds: { $exists: true } })
+      .toArray();
+    selections = selections.map(selection => selection.selectionIds);
+    selections = [].concat(...selections);
+    selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ userId, _id: { $nin: selections } })
+      .toArray();
+    return { selections };
+  } finally {
+    client.close();
+  }
+};
+
 const doCreateUserSelection = async (name, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -474,6 +493,7 @@ export const handleGetSelections = async (event, context, callback) => {
 export const handleGetUserSelections = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
   const urlId = event.pathParameters.id;
+  const { rootOnly } = event.queryStringParameters || {};
   if (userId !== urlId) {
     const response = {
       statusCode: 403,
@@ -483,7 +503,9 @@ export const handleGetUserSelections = async (event, context, callback) => {
     return;
   }
   try {
-    const results = await doGetUserSelections(userId);
+    let results;
+    if (rootOnly) results = await doGetUserRootSelections(userId);
+    else results = await doGetUserSelections(userId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
@@ -607,6 +629,10 @@ export const handlePatchUserSelection = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
