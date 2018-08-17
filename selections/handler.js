@@ -311,36 +311,6 @@ const doGetUserRootSelections = async (userId) => {
   }
 };
 
-const doCreateUserSelection = async (name, userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const selection = {
-      _id: ObjectId().toString(),
-      createAt: new Date(),
-      date: 'Anytime',
-      isPublished: true,
-      isWebPublished: true,
-      limit: 10,
-      selectionCollection: [
-        'audio',
-        'video',
-      ],
-      selectionDisplayName: name,
-      selectionFindQuery: '{"_id": {"$exists": false}}',
-      selectionName: name,
-      selectionOptionQuery: '{}',
-      userId,
-    };
-
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .insertOne(selection);
-
-    return true;
-  } finally {
-    client.close();
-  }
-};
-
 const doDeleteUserSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
@@ -431,6 +401,38 @@ const doPatchUserSelection = async (selectionId, userId, contentIds, selectionId
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .updateOne({ _id: selectionId, userId }, modifier);
 
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
+const doCreateUserSelection = async (name, userId, parent) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selection = {
+      _id: ObjectId().toString(),
+      createAt: new Date(),
+      date: 'Anytime',
+      isPublished: true,
+      isWebPublished: true,
+      limit: 10,
+      selectionCollection: [
+        'audio',
+        'video',
+      ],
+      selectionDisplayName: name,
+      selectionFindQuery: '{"_id": {"$exists": false}}',
+      selectionName: name,
+      selectionOptionQuery: '{}',
+      userId,
+    };
+
+    const { insertedId } = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .insertOne(selection);
+    if (parent) {
+      await doPatchUserSelection(parent, userId, undefined, [insertedId], 'add');
+    }
     return true;
   } finally {
     client.close();
@@ -538,11 +540,11 @@ export const handlePostUserSelection = async (event, context, callback) => {
     return;
   }
   try {
-    const { name } = JSON.parse(event.body);
+    const { name, parent } = JSON.parse(event.body);
     if (!name) {
       throw new Error('malformed request');
     }
-    const results = await doCreateUserSelection(name, userId);
+    const results = await doCreateUserSelection(name, userId, parent);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
