@@ -21,10 +21,10 @@ provider:
     LAMBDA_REGION: us-east-1
     STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
-    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
   apiGateway:
-    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
-    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
   blastEmail:
@@ -43,8 +43,8 @@ functions:
           path: blasts
           method: get
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: blastsAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -59,23 +59,10 @@ package:
   individually: true
 
 custom:
-  apiGateway:
-    restApiId:
-      dev: diqdv4fvol
-      prod: xbtq2qqal5
-    restApiRootResourceId:
-      dev: aus9fmgcr3
-      prod: hp7jubgyp7
-  authorizer:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
   MAILGUN_API_KEY:
     dev: key-ee8f3c350f56cbe4002b9c00cce04769
     prod: key-ee8f3c350f56cbe4002b9c00cce04769
   MAILGUN_DOMAIN:
     dev: sandboxe8ecbf94ba82415c9ce55b169129af2e.mailgun.org
     prod: mg.crowdaa.com
-  mongoDB:
-    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
-    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
   webpackIncludeModules: true

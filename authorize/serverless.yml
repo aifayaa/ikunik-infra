@@ -5,10 +5,10 @@ provider:
   runtime: nodejs6.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
-  timeout: 60
+  timeout: 30
   apiGateway:
-    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
-    restApiRootResourceId: ${self:custom.apiGateway.restApiRootResourceId.${self:provider.stage}}
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
   getAuthorize:
@@ -18,8 +18,8 @@ functions:
           path: authorize
           method: get
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: authorizeAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
 
 plugins:
@@ -29,16 +29,4 @@ package:
   individually: true
 
 custom:
-  apiGateway:
-    restApiId:
-      dev: diqdv4fvol
-      prod: xbtq2qqal5
-    restApiRootResourceId:
-      dev: aus9fmgcr3
-      prod: hp7jubgyp7
-
-  authorizer:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
-
   webpackIncludeModules: true

@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import Lambda from 'aws-sdk/clients/lambda';
 import winston from 'winston';
 
 const selectionFields = [
@@ -22,6 +23,23 @@ const selectionFields = [
   'selectionRank',
   'updatedAt',
 ];
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
+
+const doCheckSelectionsOwner = async (selectionIds, userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ _id: { $in: selectionIds }, userId: { $ne: userId } })
+      .count();
+    return (selections === 0);
+  } finally {
+    client.close();
+  }
+};
 
 const doGetSelection = async (selectionId, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -274,7 +292,122 @@ const doGetUserSelections = async (userId) => {
   }
 };
 
-const doCreateUserSelection = async (name, userId) => {
+const doGetUserRootSelections = async (userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    let selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ userId, selectionIds: { $exists: true } })
+      .toArray();
+    selections = selections.map(selection => selection.selectionIds);
+    selections = [].concat(...selections);
+    selections = await client.db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
+      .find({ userId, _id: { $nin: selections } })
+      .toArray();
+    return { selections };
+  } finally {
+    client.close();
+  }
+};
+
+const doDeleteUserSelection = async (selectionId, userId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .deleteOne({ _id: selectionId, userId });
+
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
+const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds, action = 'replace') => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    if (selectionIds && selectionIds.length > 0) {
+      const checked = await doCheckSelectionsOwner(selectionIds, userId);
+      if (!checked) throw new Error('bad selections arguments');
+    }
+    if (contentIds && contentIds.length > 0) {
+      const params = {
+        FunctionName: `media-${process.env.STAGE}-checkUserMedia`,
+        Payload: JSON.stringify({ userId, mediaIds: contentIds }),
+      };
+      const { Payload } = await lambda.invoke(params).promise();
+      const res = JSON.parse(Payload);
+      if (res.statusCode !== 200) {
+        throw new Error(`checkUserMedia handler failed: ${res.body}`);
+      }
+      if (res.body !== 'true') throw new Error('bad media arguments');
+    }
+
+    let modifier = {};
+    const selection = (action !== 'replace') ?
+      await client.db(process.env.DB_NAME)
+        .collection(process.env.COLL_NAME)
+        .findOne({ _id: selectionId, userId }) : null;
+    const selectionFindQuery = (selection && JSON.parse(selection.selectionFindQuery)) ||
+      { selectionFindQuery: { _id: { $in: [] } } };
+    if (!selectionFindQuery._id) selectionFindQuery._id = { $in: [] };
+    if (!selectionFindQuery._id.$in) selectionFindQuery._id.$in = [];
+    delete selectionFindQuery._id.$exists;
+    switch (action) {
+      case 'remove': {
+        if (contentIds) {
+          selectionFindQuery._id.$in =
+            selectionFindQuery._id.$in.filter(item => !contentIds.includes(item));
+          modifier.selectionFindQuery = JSON.stringify(selectionFindQuery);
+          modifier = { $set: modifier };
+        }
+        if (selectionIds) {
+          modifier.$pull = {
+            selectionIds: {
+              $in: selectionIds,
+            },
+          };
+        }
+        break;
+      }
+      case 'add': {
+        if (contentIds) {
+          Array.prototype.push.apply(selectionFindQuery._id.$in, contentIds);
+          selectionFindQuery._id.$in.filter = [...new Set(selectionFindQuery._id.$in)];
+          modifier.selectionFindQuery = JSON.stringify(selectionFindQuery);
+          modifier = { $set: modifier };
+        }
+        if (selectionIds) {
+          modifier.$addToSet = {
+            selectionIds: {
+              $each: selectionIds,
+            },
+          };
+        }
+        break;
+      }
+      case 'replace':
+      default: {
+        if (contentIds) {
+          modifier.selectionFindQuery = `{"_id": {"$in":["${contentIds.join('","')}"]}}`;
+        }
+        if (selectionIds) {
+          modifier.selectionIds = selectionIds;
+        }
+        modifier = { $set: modifier };
+      }
+    }
+
+    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      .updateOne({ _id: selectionId, userId }, modifier);
+
+    return true;
+  } finally {
+    client.close();
+  }
+};
+
+const doCreateUserSelection = async (name, userId, parent) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const selection = {
@@ -295,40 +428,11 @@ const doCreateUserSelection = async (name, userId) => {
       userId,
     };
 
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    const { insertedId } = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .insertOne(selection);
-
-    return true;
-  } finally {
-    client.close();
-  }
-};
-
-const doDeleteUserSelection = async (selectionId, userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .deleteOne({ _id: selectionId, userId });
-
-    return true;
-  } finally {
-    client.close();
-  }
-};
-
-const doPatchUserSelection = async (selectionId, userId, contentIds, selectionIds) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const patch = {};
-    if (contentIds) {
-      patch.selectionFindQuery = `{"_id": {"$in":["${contentIds.join('","')}"]}}`;
+    if (parent) {
+      await doPatchUserSelection(parent, userId, undefined, [insertedId], 'add');
     }
-    if (selectionIds) {
-      patch.selectionIds = selectionIds;
-    }
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .updateOne({ _id: selectionId, userId }, { $set: patch });
-
     return true;
   } finally {
     client.close();
@@ -391,6 +495,7 @@ export const handleGetSelections = async (event, context, callback) => {
 export const handleGetUserSelections = async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
   const urlId = event.pathParameters.id;
+  const { rootOnly } = event.queryStringParameters || {};
   if (userId !== urlId) {
     const response = {
       statusCode: 403,
@@ -400,7 +505,9 @@ export const handleGetUserSelections = async (event, context, callback) => {
     return;
   }
   try {
-    const results = await doGetUserSelections(userId);
+    let results;
+    if (rootOnly) results = await doGetUserRootSelections(userId);
+    else results = await doGetUserSelections(userId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
@@ -433,11 +540,11 @@ export const handlePostUserSelection = async (event, context, callback) => {
     return;
   }
   try {
-    const { name } = JSON.parse(event.body);
+    const { name, parent } = JSON.parse(event.body);
     if (!name) {
       throw new Error('malformed request');
     }
-    const results = await doCreateUserSelection(name, userId);
+    const results = await doCreateUserSelection(name, userId, parent);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
@@ -501,11 +608,17 @@ export const handlePatchUserSelection = async (event, context, callback) => {
   }
   try {
     const { selectionId } = event.pathParameters;
-    const { contentIds, selectionIds } = JSON.parse(event.body);
-    if (!contentIds && !selectionIds) {
+    const { contentIds, selectionIds, action } = JSON.parse(event.body);
+    if ((!contentIds && !selectionIds) || ![undefined, 'replace', 'remove', 'add'].includes(action)) {
       throw new Error('malformed request');
     }
-    const results = await doPatchUserSelection(selectionId, userId, contentIds, selectionIds);
+    const results = await doPatchUserSelection(
+      selectionId,
+      userId,
+      contentIds,
+      selectionIds,
+      action,
+    );
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
@@ -518,6 +631,10 @@ export const handlePatchUserSelection = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);

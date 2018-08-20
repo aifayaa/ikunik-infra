@@ -5,7 +5,7 @@ provider:
   runtime: nodejs6.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
-  timeout: 60
+  timeout: 30
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -14,12 +14,12 @@ provider:
   environment:
     COLL_NAME: artistsFav
     DB_NAME: crowdaaDev
-    MONGO_URL: ${self:custom.mongoDB.${self:provider.stage}}
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
     STAGE: ${self:provider.stage}
   apiGateway:
-    restApiId: ${self:custom.apiGateway.restApiId.${self:provider.stage}}
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiResources:
-      /artists/{id}: ${self:custom.endpoints.artists.${self:provider.stage}}
+      /artists/{id}: ${cf:artists-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
   manageFavorite:
@@ -29,8 +29,8 @@ functions:
           path: artists/{id}/favorites
           method: post
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: favoritesAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -42,8 +42,8 @@ functions:
           path: artists/{id}/favorites
           method: delete
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: favoritesAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -55,8 +55,8 @@ functions:
           path: artists/{id}/favorites
           method: get
           authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: favoritesAuthorizer
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -72,21 +72,4 @@ package:
   individually: true
 
 custom:
-  apiGateway:
-    restApiId:
-      dev: diqdv4fvol
-      prod: xbtq2qqal5
-  endpoints:
-    artists:
-      dev: yuiww2
-      prod: z405t7
-
-  authorizer:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
-
-  mongoDB:
-    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
-    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
-
   webpackIncludeModules: true

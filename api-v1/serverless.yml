@@ -1,3 +1,9 @@
+# TEMP deployment procedure:
+# - comment MethodSettings, restApiGatewayDeployment and restApiBasePathMapping on first
+# - deploy api-v1
+# - run deploy script for others MS
+# - uncomment previous then re-deploy api-v1
+
 service: api-v1
 
 provider:
@@ -5,7 +11,7 @@ provider:
   stage: ${opt:stage, "dev"}
   runtime: nodejs6.10
   memorySize: 128
-  timeout: 60
+  timeout: 30
 
 functions:
   getV1:
@@ -14,22 +20,29 @@ functions:
       - http:
           path: /
           method: get
-          authorizer:
-            arn: ${self:custom.authorizer.${self:provider.stage}}
-            name: v1Authorizer
           cors: true
 
 plugins:
-  - serverless-domain-manager
+  - serverless-plugin-bind-deployment-id
+  # - serverless-domain-manager # See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
   - serverless-webpack
 
 package:
   individually: true
 
 custom:
-  authorizer:
-    dev: arn:aws:lambda:us-east-1:630176884077:function:account-dev-authorize
-    prod: arn:aws:lambda:us-east-1:630176884077:function:account-prod-authorize
+  stageSettings:
+    CacheClusterEnabled: true
+    CacheClusterSize: '0.5'
+    MethodSettings:
+      CacheDataEncrypted: true
+      HttpMethod: "*"
+      LoggingLevel: INFO
+      CachingEnabled: true
+
+  mongoDB:
+    dev: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
+    prod: mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-eu-west-1-portal.10.dblayer.com:18012,aws-eu-west-1-portal.8.dblayer.com:18012/crowdaaDev?ssl=true
 
   domains:
     prod: api.aws.crowdaa.com
@@ -42,3 +55,61 @@ custom:
     createRoute53Record: true
 
   webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayStageDev:
+      Type: "AWS::ApiGateway::Stage"
+      Properties:
+        StageName: ${self:provider.stage}
+        Description: "dev stage of api-v1"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+        DeploymentId:
+          Ref: __deployment__
+        CacheClusterEnabled: true
+        CacheClusterSize: "0.5"
+        MethodSettings: ${file(./methodSettings.js):generateMethodSettings}
+
+    restApiGatewayDeployment:
+      Type: "AWS::ApiGateway::Deployment"
+      DependsOn: ApiGatewayMethodGet
+      Properties:
+        Description: ${self:provider.stage} Environment
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StageName: ${self:provider.stage}
+
+    restApiBasePathMapping:
+      Type: AWS::ApiGateway::BasePathMapping
+      DependsOn: restApiGatewayDeployment
+      Properties:
+        BasePath: "v1"
+        DomainName: ${self:custom.domains.${self:provider.stage}}
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Stage: ${self:provider.stage}
+
+  Outputs:
+    ApiGatewayStage:
+      Description: Api Gateway Stage
+      Value:
+        Ref: ApiGatewayStageDev
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayStage
+    MongoURL:
+      Description: MongoDB URL
+      Value: ${self:custom.mongoDB.${self:provider.stage}}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:MongoURL
+    RestApiId:
+      Description: Api Gateway ID
+      Value: 
+        Ref: ApiGatewayRestApi
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiId
+    RestApiRootResourceId:
+      Description: Api Gateway ID
+      Value: {"Fn::GetAtt":["ApiGatewayRestApi","RootResourceId"]}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId

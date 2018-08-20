@@ -1,4 +1,4 @@
-service: credits
+service: search
 
 provider:
   name: aws
@@ -7,7 +7,6 @@ provider:
   memorySize: 128
   timeout: 30
   environment:
-    COLL_NAME: credits
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
   apiGateway:
@@ -15,11 +14,13 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
-  getCredits:
-    handler: handler.handleGetCredits
+  createIndex:
+    handler: handlers/createIndex.handleCreateIndex
+  search:
+    handler: handlers/search.handleSearch
     events:
       - http:
-          path: credits/
+          path: search
           method: get
           authorizer:
             type: CUSTOM
@@ -29,12 +30,7 @@ functions:
             parameters:
               headers:
                 Authorization: true
-
-  addCredits:
-    handler: handler.handleAddCredits
-  
-  removeCredits:
-    handler: handler.handleRemoveCredits
+              querystrings: ${self:custom.querystrings}
 
 plugins:
   - serverless-webpack
@@ -43,15 +39,21 @@ package:
   individually: true
 
 custom:
-  webpackIncludeModules: true
+  IntegrationRequestParameters:
+    integration.request.querystring.text: method.request.querystring.text
+  querystrings:
+    text: false
+  RequestParameters: 
+    method.request.header.Authorization: true
 
 resources:
   Resources:
-    ApiGatewayMethodCreditsGet:
+    ApiGatewayMethodSearchGet:
       Properties:
-        RequestParameters:
-          method.request.header.Authorization: true
+        RequestParameters: ${self:custom.RequestParameters}
         Integration:
-          CacheNamespace: ApiGatewayMethodCreditsGetCacheNS
+          RequestParameters: ${self:custom.IntegrationRequestParameters}
+          CacheNamespace: ApiGatewayMethodSearchCacheNS
           CacheKeyParameters:
             - method.request.header.Authorization
+            - method.request.querystring.text
