@@ -1,0 +1,28 @@
+{
+  "audio": {
+    "author": "text",
+    "composer": "text",
+    "recorded": "text",
+    "singer": "text",
+    "title": "text"
+  },
+  "video": {
+    "author": "text",
+    "composer": "text",
+    "recorded": "text",
+    "singer": "text",
+    "title": "text"
+  },
+  "artists": {
+    "artistName": "text"
+  },
+  "Project": {
+    "albumName": "text",
+    "artistName": "text",
+    "projectName": "text"
+  },
+  "selection": {
+    "selectionDisplayName": "text",
+    "selectionName": "text"
+  }
+}
