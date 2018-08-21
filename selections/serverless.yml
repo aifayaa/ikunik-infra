@@ -131,6 +131,26 @@ custom:
 
 resources:
   Resources:
+    ApiGatewayMethodSelectionsGet:
+      Properties:
+        RequestParameters:
+          method.request.querystring.isMobilePublished: true
+          method.request.querystring.isRoot: true
+          method.request.querystring.isWebPublished: true
+          method.request.querystring.selectionCollection: true
+        Integration:
+          RequestParameters:
+            integration.request.querystring.isMobilePublished: method.request.querystring.isMobilePublished
+            integration.request.querystring.isRoot: method.request.querystring.isRoot
+            integration.request.querystring.isWebPublished: method.request.querystring.isWebPublished
+            integration.request.querystring.selectionCollection: method.request.querystring.selectionCollection
+          CacheNamespace: ApiGatewayMethodSelectionsGetCacheNS
+          CacheKeyParameters:
+            - method.request.querystring.isMobilePublished
+            - method.request.querystring.isRoot
+            - method.request.querystring.isWebPublished
+            - method.request.querystring.selectionCollection
+
     ApiGatewayMethodSelectionsIdVarGet:
       Properties:
         RequestParameters:

@@ -5,7 +5,8 @@
   "description": "Crowdaa base API v1.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.296.0"
+    "aws-sdk": "^2.296.0",
+    "lodash": "^4.17.10"
   },
   "devDependencies": {
     "serverless-domain-manager": "^2.2.2",

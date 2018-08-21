@@ -1,4 +1,5 @@
 const APIGateway = require('aws-sdk/clients/apigateway');
+const find = require('lodash/find');
 
 const apigateway = new APIGateway({
   region: 'us-east-1',
@@ -8,8 +9,11 @@ const apigateway = new APIGateway({
   },
 });
 
-module.exports.generateMethodSettings = async () => {
-  const { items } = await apigateway.getResources({ restApiId: 'i4u7qd77k3', limit: 500 }).promise();
+module.exports.generateMethodSettings = async ({ processedInput }) => {
+  const stage = processedInput.stage || 'dev';
+  const restAPIs = await apigateway.getRestApis().promise();
+  const restApi = find(restAPIs.items, { name: `${stage}-api-v1` });
+  const { items } = await apigateway.getResources({ restApiId: restApi.id, limit: 500 }).promise();
   const methodsSettings = [];
   items.forEach(({ path, resourceMethods }) => {
     if (resourceMethods) {
@@ -19,6 +23,26 @@ module.exports.generateMethodSettings = async () => {
           HttpMethod: methodType,
           CachingEnabled: false,
         };
+        if (path === '/artists/{id}' && methodType === 'GET') {
+          settings.CachingEnabled = true;
+          settings.CacheTtlInSeconds = 3600;
+          settings.CacheDataEncrypted = true;
+        }
+        if (path === '/audios/{id}' && methodType === 'GET') {
+          settings.CachingEnabled = true;
+          settings.CacheTtlInSeconds = 3600;
+          settings.CacheDataEncrypted = true;
+        }
+        if (path === '/crowd' && methodType === 'GET') {
+          settings.CachingEnabled = true;
+          settings.CacheTtlInSeconds = 3600;
+          settings.CacheDataEncrypted = true;
+        }
+        if (path === '/selections' && methodType === 'GET') {
+          settings.CachingEnabled = true;
+          settings.CacheTtlInSeconds = 3600;
+          settings.CacheDataEncrypted = true;
+        }
         if (path === '/selections/{id}' && methodType === 'GET') {
           settings.CachingEnabled = true;
           settings.CacheTtlInSeconds = 3600;
