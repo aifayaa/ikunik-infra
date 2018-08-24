@@ -54,9 +54,10 @@ functions:
           request:
             parameters:
               querystrings:
+                mobile: false
+                root: false
                 type: false
                 web: false
-                mobile: false
 
   getUserSelections:
     handler: handler.handleGetUserSelections
@@ -131,6 +132,26 @@ custom:
 
 resources:
   Resources:
+    ApiGatewayMethodSelectionsGet:
+      Properties:
+        RequestParameters:
+          method.request.querystring.mobile: true
+          method.request.querystring.root: true
+          method.request.querystring.type: true
+          method.request.querystring.web: true
+        Integration:
+          RequestParameters:
+            integration.request.querystring.mobile: method.request.querystring.mobile
+            integration.request.querystring.root: method.request.querystring.root
+            integration.request.querystring.type: method.request.querystring.type
+            integration.request.querystring.web: method.request.querystring.web
+          CacheNamespace: ApiGatewayMethodSelectionsGetCacheNS
+          CacheKeyParameters:
+            - method.request.querystring.mobile
+            - method.request.querystring.root
+            - method.request.querystring.type
+            - method.request.querystring.web
+
     ApiGatewayMethodSelectionsIdVarGet:
       Properties:
         RequestParameters:

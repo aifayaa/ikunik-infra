@@ -4,9 +4,7 @@
   "private": true,
   "description": "Crowdaa base API v1.",
   "main": "handler.js",
-  "dependencies": {
-    "aws-sdk": "^2.296.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "serverless-domain-manager": "^2.2.2",
     "serverless-plugin-bind-deployment-id": "^1.0.1",
