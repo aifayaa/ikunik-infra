@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
+import isMediaLocked from './lib/isMediaLocked';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -161,5 +162,34 @@ export const handleCheckUserMedia = async ({ userId, mediaIds }, context, callba
     callback(null, makeResponse(200, null, results));
   } catch (e) {
     callback(null, makeResponse(500, e));
+  }
+};
+
+export const handleGetMediumLockState = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const mediumType = event.pathParameters.type;
+    const mediumId = event.pathParameters.id;
+    const medium = await doGetMedium(userId, mediumType, mediumId);
+    const result = await isMediaLocked(userId, medium);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(result),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify(e.message),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
   }
 };
