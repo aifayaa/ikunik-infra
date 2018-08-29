@@ -93,7 +93,7 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
           .findOneAndUpdate({ _id: mediumId }, {
             $inc: { views: 1 },
             $set: { lastView: new Date() },
-          }).value;
+          });
         break;
       case 'video':
         mediaCol = 'video';
@@ -101,7 +101,7 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
           .findOneAndUpdate({ _id: mediumId }, {
             $inc: { views: 1 },
             $set: { lastView: new Date() },
-          }).value;
+          });
         break;
       case 'all':
         mediaCol = 'audio';
@@ -109,23 +109,24 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
           .findOneAndUpdate({ _id: mediumId }, {
             $inc: { views: 1 },
             $set: { lastView: new Date() },
-          }).value;
+          });
         if (!medium) {
           mediaCol = 'video';
           medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
             .findOneAndUpdate({ _id: mediumId }, {
               $inc: { views: 1 },
               $set: { lastView: new Date() },
-            }).value;
+            });
         }
         break;
       default:
         throw new Error('wrong type');
     }
 
+    medium = medium.value;
     if (!medium) throw new Error('medium not found');
-
     const { distribution } = medium;
+
     // Deadline should be update only if it's freePerDay distros
     if (distribution && distribution.includes('PerDay')) {
       const deadlines = await client.db(process.env.DB_NAME).collection('deadlines')
@@ -133,7 +134,8 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
           userId,
           content_ID: mediumId,
         });
-      const { deadlineDate } = deadlines;
+      const { deadlineDate } = deadlines || {};
+
       if ((deadlines && (new Date() > deadlineDate)) || !deadlines) {
         // Deadline expired or no deadline, new one
         console.log(
