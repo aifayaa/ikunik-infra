@@ -30,7 +30,7 @@ export default async (userId, medium) => {
 
     const { numviews } = views || { numviews: 0 };
     if (!medium) throw new Error('Medium not found');
-    let remaingViews;
+    let remainingViews;
     const { distribution } = medium;
 
     switch (distribution) {
@@ -38,24 +38,24 @@ export default async (userId, medium) => {
         return { isLocked: false, state: 'freeStream' };
       }
       case '1free': {
-        remaingViews = 1 - numviews;
+        remainingViews = 1 - numviews;
         return {
-          isLocked: (remaingViews <= 0),
-          state: (remaingViews <= 0) ? 'locked' : `${remaingViews}free`,
+          isLocked: (remainingViews <= 0),
+          state: (remainingViews <= 0) ? 'locked' : `${remainingViews}free`,
         };
       }
       case '2free': {
-        remaingViews = 2 - numviews;
+        remainingViews = 2 - numviews;
         return {
-          isLocked: (remaingViews <= 0),
-          state: (remaingViews <= 0) ? 'locked' : `${remaingViews}free`,
+          isLocked: (remainingViews <= 0),
+          state: (remainingViews <= 0) ? 'locked' : `${remainingViews}free`,
         };
       }
       case '3free': {
-        remaingViews = 3 - numviews;
+        remainingViews = 3 - numviews;
         return {
-          isLocked: (remaingViews <= 0),
-          state: (remaingViews <= 0) ? 'locked' : `${remaingViews}free`,
+          isLocked: (remainingViews <= 0),
+          state: (remainingViews <= 0) ? 'locked' : `${remainingViews}free`,
         };
       }
       case '1freePerDay':
