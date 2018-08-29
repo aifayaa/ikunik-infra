@@ -62,6 +62,24 @@ functions:
                 type: true
                 id: true
 
+  getMediumLockState:
+    handler: handler.handleGetMediumLockState
+    events:
+      -  http:
+          path: media/{type}/{id}/lock
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                type: true
+                id: true
+
 plugins:
   - serverless-webpack
 

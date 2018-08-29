@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
+import isMediaLocked from './lib/isMediaLocked';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -41,19 +42,27 @@ const doCheckUserMedia = async (userId, mediaIds) => {
 const doGetMedium = async (userId, mediumType, mediumId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    let mediaCol;
+    let medium;
     switch (mediumType) {
       case 'audio':
-        mediaCol = process.env.COLL_AUDIOS;
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+          .findOne({ _id: mediumId });
         break;
       case 'video':
-        mediaCol = process.env.COLL_VIDEOS;
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+          .findOne({ _id: mediumId });
+        break;
+      case 'all':
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+          .findOne({ _id: mediumId });
+        if (!medium) {
+          medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+            .findOne({ _id: mediumId });
+        }
         break;
       default:
         throw new Error('wrong type');
     }
-    const medium = await client.db(process.env.DB_NAME).collection(mediaCol)
-      .findOne({ _id: mediumId });
     if (!medium) throw new Error('medium not found');
     const params = {
       FunctionName: `subscriptions-${process.env.STAGE}-isUserSubscribed`,
@@ -75,25 +84,113 @@ const doGetMedium = async (userId, mediumType, mediumId) => {
 const doPostMediumView = async (userId, mediumType, mediumId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
+    let medium;
     let mediaCol;
     switch (mediumType) {
       case 'audio':
-        mediaCol = process.env.COLL_AUDIOS;
+        mediaCol = 'audio';
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+          .findOneAndUpdate({ _id: mediumId }, {
+            $inc: { views: 1 },
+            $set: { lastView: new Date() },
+          });
         break;
       case 'video':
-        mediaCol = process.env.COLL_VIDEOS;
+        mediaCol = 'video';
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+          .findOneAndUpdate({ _id: mediumId }, {
+            $inc: { views: 1 },
+            $set: { lastView: new Date() },
+          });
+        break;
+      case 'all':
+        mediaCol = 'audio';
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+          .findOneAndUpdate({ _id: mediumId }, {
+            $inc: { views: 1 },
+            $set: { lastView: new Date() },
+          });
+        if (!medium) {
+          mediaCol = 'video';
+          medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+            .findOneAndUpdate({ _id: mediumId }, {
+              $inc: { views: 1 },
+              $set: { lastView: new Date() },
+            });
+        }
         break;
       default:
         throw new Error('wrong type');
     }
-    const { value } = await client.db(process.env.DB_NAME).collection(mediaCol)
-      .findOneAndUpdate({ _id: mediumId }, {
-        $inc: { views: 1 },
-        $set: { lastView: new Date() },
-      });
-    if (!value) throw new Error('medium not found');
+
+    medium = medium.value;
+    if (!medium) throw new Error('medium not found');
+    const { distribution } = medium;
+
+    // Deadline should be update only if it's freePerDay distros
+    if (distribution && distribution.includes('PerDay')) {
+      const deadlines = await client.db(process.env.DB_NAME).collection('deadlines')
+        .findOne({
+          userId,
+          content_ID: mediumId,
+        });
+      const { deadlineDate } = deadlines || {};
+
+      if ((deadlines && (new Date() > deadlineDate)) || !deadlines) {
+        // Deadline expired or no deadline, new one
+        console.log(
+          'create a new deadline because',
+          `NoDeadline: ${!deadlines}`,
+          `expired:${new Date() > deadlineDate}`,
+        );
+        const newDate = new Date();
+        newDate.setDate(new Date().getDate() + 1);
+        let maxViews;
+        switch (distribution) {
+          case '1freePerDay':
+            maxViews = 1;
+            break;
+          case '2freePerDay':
+            maxViews = 2;
+            break;
+          case '3freePerDay':
+            maxViews = 3;
+            break;
+          default:
+            throw new Error('wrong distribution');
+        }
+        const newLastView = maxViews - 1;
+        await client.db(process.env.DB_NAME).collection('deadlines')
+          .updateOne({
+            userId,
+            content_ID: mediumId,
+          }, {
+            $set: {
+              deadlineDate: newDate,
+              lastView: newLastView,
+            },
+          }, {
+            upsert: true,
+          });
+      } else {
+        console.log('update an existing deadline');
+        // Simple update the deadline to decrement
+        await client.db(process.env.DB_NAME).collection('deadlines')
+          .updateOne({
+            userId,
+            content_ID: mediumId,
+          }, {
+            $inc: {
+              lastView: -1,
+            },
+          }, {
+            upsert: true,
+          });
+      }
+    }
+
     await client.db(process.env.DB_NAME).collection('Project')
-      .updateOne({ _id: value.project_ID }, {
+      .updateOne({ _id: medium.project_ID }, {
         $inc: { views: 1 },
         $set: { lastView: new Date() },
       });
@@ -161,5 +258,34 @@ export const handleCheckUserMedia = async ({ userId, mediaIds }, context, callba
     callback(null, makeResponse(200, null, results));
   } catch (e) {
     callback(null, makeResponse(500, e));
+  }
+};
+
+export const handleGetMediumLockState = async (event, context, callback) => {
+  try {
+    const userId = event.requestContext.authorizer.principalId;
+    const mediumType = event.pathParameters.type;
+    const mediumId = event.pathParameters.id;
+    const medium = await doGetMedium(userId, mediumType, mediumId);
+    const result = await isMediaLocked(userId, medium);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(result),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify(e.message),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
   }
 };
