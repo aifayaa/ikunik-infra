@@ -42,19 +42,27 @@ const doCheckUserMedia = async (userId, mediaIds) => {
 const doGetMedium = async (userId, mediumType, mediumId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    let mediaCol;
+    let medium;
     switch (mediumType) {
       case 'audio':
-        mediaCol = process.env.COLL_AUDIOS;
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+          .findOne({ _id: mediumId });
         break;
       case 'video':
-        mediaCol = process.env.COLL_VIDEOS;
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+          .findOne({ _id: mediumId });
+        break;
+      case 'all':
+        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+          .findOne({ _id: mediumId });
+        if (!medium) {
+          medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+            .findOne({ _id: mediumId });
+        }
         break;
       default:
         throw new Error('wrong type');
     }
-    const medium = await client.db(process.env.DB_NAME).collection(mediaCol)
-      .findOne({ _id: mediumId });
     if (!medium) throw new Error('medium not found');
     const params = {
       FunctionName: `subscriptions-${process.env.STAGE}-isUserSubscribed`,

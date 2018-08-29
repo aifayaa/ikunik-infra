@@ -19,7 +19,6 @@ export default async (userId, medium) => {
       db.collection('purchases').count({ 'purchase.userId': userId, 'purchase.audios._id': mediumId }),
     ]);
 
-
     if (unlocks > 0) {
       return { isLocked: false, state: 'unlocked' };
     }
@@ -32,7 +31,6 @@ export default async (userId, medium) => {
     if (!medium) throw new Error('Medium not found');
     let remainingViews;
     const { distribution } = medium;
-
     switch (distribution) {
       case 'freeStream': {
         return { isLocked: false, state: 'freeStream' };
@@ -74,10 +72,10 @@ export default async (userId, medium) => {
             state: distribution,
           };
         }
-
+        const isLocked = (lastView <= 0);
         return {
-          isLocked: !!lastView,
-          state: `${lastView}free`,
+          isLocked,
+          state: isLocked ? 'locked' : `${lastView}freePerDay`,
         };
       }
       default:
