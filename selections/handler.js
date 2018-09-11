@@ -2,6 +2,8 @@ import { MongoClient, ObjectId } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
 import winston from 'winston';
 
+import getClient from '../api-keys/getClient';
+
 const selectionFields = [
   'banners',
   'content_IDs',
@@ -41,7 +43,7 @@ const doCheckSelectionsOwner = async (selectionIds, userId) => {
   }
 };
 
-const doGetSelection = async (selectionId, userId) => {
+const doGetSelection = async (selectionId, userId, clients) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const [selections, userSubscriptions] = await Promise.all([
@@ -51,6 +53,7 @@ const doGetSelection = async (selectionId, userId) => {
           {
             $match: {
               _id: selectionId,
+              clients,
             },
           }, {
             $unwind: {
@@ -441,10 +444,11 @@ const doCreateUserSelection = async (name, userId, parent) => {
 
 export const handleGetSelection = async (event, context, callback) => {
   try {
+    const client = getClient(event.requestContext.identity.apiKey);
     const selectionId = event.pathParameters.id;
     const userId = event.requestContext.authorizer.principalId;
     if (!selectionId) throw new Error('Missing id');
-    const results = await doGetSelection(selectionId, userId);
+    const results = await doGetSelection(selectionId, userId, client);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
