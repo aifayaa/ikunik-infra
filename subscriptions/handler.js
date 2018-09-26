@@ -127,6 +127,32 @@ const doSubscribe = async (userId, subId) => {
   }
 };
 
+const doPatchSubscription = async (userId, _id, patch) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const allowedOperations = ['$set'];
+    const allowedFields = ['name', 'price', 'desc', 'duration'];
+    Object.keys(patch).forEach(((key) => {
+      if (!allowedOperations.includes(key)) {
+        throw new Error('operation not allowed');
+      }
+      Object.keys(patch[key]).forEach((fKey) => {
+        if (!allowedFields.includes(fKey)) {
+          throw new Error('operation not allowed');
+        }
+      });
+    }));
+
+    await client.db(process.env.DB_NAME).collection('subscriptions')
+      .update({ userId, _id }, patch);
+    const afterUpdate = await client.db(process.env.DB_NAME).collection('subscriptions')
+      .findOne({ userId, _id });
+    return afterUpdate;
+  } finally {
+    client.close();
+  }
+};
+
 export const handleGetSubscription = async (event, context, callback) => {
   try {
     const subId = event.pathParameters.id;
@@ -197,6 +223,30 @@ export const handlePostSubscription = async (event, context, callback) => {
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    callback(null, response);
+  } catch (e) {
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
+    };
+    callback(null, response);
+  }
+};
+
+export const handlePatchSubscription = async (event, context, callback) => {
+  try {
+    const subId = event.pathParameters.id;
+    const userId = event.requestContext.authorizer.principalId;
+    const patch = JSON.parse(event.body);
+    const results = await doPatchSubscription(userId, subId, patch);
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({ subscription: results }),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,

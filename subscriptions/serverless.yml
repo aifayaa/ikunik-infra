@@ -69,6 +69,21 @@ functions:
               paths:
                 id: true
 
+  patchSubscription:
+    handler: handler.handlePatchSubscription
+    events:
+      - http:
+          path: subscriptions/{id}
+          method: patch
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-webpack
 
