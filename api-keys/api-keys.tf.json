@@ -1,0 +1,21 @@
+{
+  "provider": {
+    "aws": {
+      "access_key": "AKIAJXAYQUZGATKPNGTQ",
+      "region": "us-east-1",
+      "secret_key": "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"
+    }
+  },
+  "resource": {
+    "aws_api_gateway_api_key": {
+      "CrowdaaApiKey": {
+        "name": "crowdaa",
+        "value": "nQ9ZO9DEgfaOzWY44Xu2J2uaPtP92t176PpBkdqu"
+      },
+      "DefJamApiKey": {
+        "name": "defJam",
+        "value": "0BpYwpfzuP1F4EAoXo8eH6BnuYPBFSiu1SnXzUrl"
+      }
+    }
+  }
+}

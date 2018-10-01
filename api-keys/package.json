@@ -1,0 +1,12 @@
+{
+  "name": "api-keys",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa API keys.",
+  "main": "apiKeys.js",
+  "author": "Crowdaa",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "lodash": "^4.17.10"
+  }
+}
