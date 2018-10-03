@@ -1,4 +1,4 @@
-export const generateTicketsHTML = ({ type, event, ticket, qrcode, html }) => {
+export const generateTicketsHTML = ({ type, data, qrcode, html }) => {
   if (html) return html;
   switch (type) {
     case 'standardTickets':
@@ -8,31 +8,29 @@ export const generateTicketsHTML = ({ type, event, ticket, qrcode, html }) => {
               <img src="https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png" width="25%"/>
           </p>
           <h1 style="margin:0;">
-              ${event.name}
+              ${data.eventName}
           </h1>
-          <p style="margin:0;">${event.date} - ${event.place}</p>
-          <h2 style="margin-bottom:0;">${ticket.name}</h2>
-          <p style="margin:0;">${ticket.cat}: ${ticket.price}€ TTC</p>
+          <p style="margin:0;">${data.date} - ${data.stageName}</p>
+          <h2 style="margin-bottom:0;">${data.ticketName}</h2>
+          <p style="margin:0;">${data.ticketCategory}: ${data.ticketPrice} crowdaa credits</p>
           <p style="text-align: center">
               <img src="${qrcode}"/>
           </p>
           <table style="" width="100%">
               <tr>
                   <td width="50%">
-                      ${event.organisationName}
+                      ${data.organisationName}
                       <br/>
-                      ${event.organisationAdr}
+                      ${data.organisationAdr}
                       <br />
-                      Email: ${event.organisationMail}
-                      <br/>
-                      N° Licence: ${event.organisationLicence}
+                      Email: ${data.organisationMail}
                       <hr/>
-                      Date de la commande: ${ticket.date}
+                      Date de la commande: ${data.orderDate}
                       <br />
-                      Billet n°${ticket._id}
+                      Billet n°${data.ticketId}
                   </td>
                   <td style="text-align:right;padding:15px;">
-                      <img src="${event.img}" width="100%"/>
+                      <img src="${data.img}" width="100%"/>
                   </td>
               </tr>
           </table>
