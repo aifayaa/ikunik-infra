@@ -51,6 +51,21 @@ functions:
               paths:
                 id: true
 
+  getSelectionSubscriptions:
+    handler: handler.handleGetSelectionSubscriptions
+    events:
+      - http:
+          path: selections/{id}/subscriptions
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   getSelections:
     handler: handler.handleGetSelections
     events:
@@ -150,6 +165,36 @@ functions:
               paths:
                 id: true
                 selectionId: true
+  
+  linkMediaToSelection:
+    handler: handler.handleLinkMediaToSelection
+    events:
+      - http:
+          path: /selections/{id}/media
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  unlinkMediaFromSelection:
+    handler: handler.handleUnlinkMediaFromSelection
+    events:
+      - http:
+          path: /selections/{id}/media
+          method: delete
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack

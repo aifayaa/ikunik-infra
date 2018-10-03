@@ -223,8 +223,12 @@ const doGetProfile = async (userId) => {
 const doGetUser = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
+    const profile = await doGetProfile(userId);
     const user = await client.db(process.env.DB_NAME).collection('users')
       .findOne({ _id: userId });
+    if (profile) {
+      user.hasArtistProfile = true;
+    }
     return user;
   } finally {
     client.close();
@@ -725,12 +729,13 @@ export const handleGetUserPublic = async (event, context, callback) => {
       return;
     }
     const results = pick(await doGetUser(userId), [
-      'createdAt',
-      'username',
-      'emails',
-      'profile',
       'country',
+      'createdAt',
+      'emails',
+      'hasArtistProfile',
       'locale',
+      'profile',
+      'username',
     ]);
 
     const response = {
