@@ -1,0 +1,42 @@
+service: tickets
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  environment:
+    COLL_NAME: tickets
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    STAGE: ${self:provider.stage}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+
+functions:
+  buyTickets:
+    handler: handler.handleBuyTickets
+    events:
+      - http:
+          path: tickets
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  webpackIncludeModules: true
