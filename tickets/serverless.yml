@@ -22,7 +22,7 @@ provider:
 
 functions:
   buyTickets:
-    handler: handler.handleBuyTickets
+    handler: handlers/buyTickets.handleBuyTickets
     events:
       - http:
           path: tickets
