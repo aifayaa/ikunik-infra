@@ -1,4 +1,4 @@
-export const generateTicketsHTML = ({ type, data, qrcode, html }) => {
+export default ({ type, data, qrcode, html }) => {
   if (html) return html;
   switch (type) {
     case 'standardTickets':
