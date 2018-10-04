@@ -1,6 +1,8 @@
 import { MongoClient } from 'mongodb';
 import QRCode from 'qrcode';
 import Lambda from 'aws-sdk/clients/lambda';
+import uuidv4 from 'uuid/v4';
+import moment from 'moment';
 
 import { generateTicketsHTML } from './ticketsUtils';
 
@@ -52,8 +54,32 @@ const doTicketsCount = async (lineupId, categoryId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const tickets = await client.db(process.env.DB_NAME).collection('tickets')
-      .count({ categoryId, lineupId });
+      .countDocuments({ categoryId, lineupId });
     return tickets;
+  } finally {
+    client.close();
+  }
+};
+
+const insertTicket = async (lineupId, categoryId, price, createdAt, email, firstname, lastname) => {
+  const ticketId = uuidv4();
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const ticket = {
+      _id: ticketId,
+      lineupId,
+      categoryId,
+      price,
+      createdAt,
+      owner: {
+        email,
+        firstname,
+        lastname,
+      },
+    };
+    await client.db(process.env.DB_NAME).collection('tickets')
+      .insertOne(ticket);
+    return ticketId;
   } finally {
     client.close();
   }
@@ -85,7 +111,7 @@ const doBuyTickets = async (lineupId, userId, categoryId, lastName, firstName, e
     throw new Error('ticket quota exceed');
   }
 
-  const { price } = ticketInfo.price;
+  const { price } = ticketInfo;
   let params = {
     FunctionName: `credits-${process.env.STAGE}-getCredits`,
     Payload: JSON.stringify({ requestContext: { authorizer: { principalId: userId } } }),
@@ -98,7 +124,15 @@ const doBuyTickets = async (lineupId, userId, categoryId, lastName, firstName, e
   if (!credits) throw new Error('unable to get credits from service response');
   if (credits < price) throw new Error('insufficient credits on user account');
 
-  // TODO // insert ticket
+  const ticketId = await insertTicket(
+    lineupId,
+    categoryId,
+    price,
+    curDate,
+    email,
+    firstName,
+    lastName,
+  );
 
   params = {
     FunctionName: `credits-${process.env.STAGE}-removeCredits`,
@@ -112,20 +146,20 @@ const doBuyTickets = async (lineupId, userId, categoryId, lastName, firstName, e
 
   const data = {
     eventName: (ticketInfo.lineup.name || ''),
-    date: ticketInfo.lineup.date,
+    date: `${moment(ticketInfo.lineup.date).format('DD/MM/YYYY')} - ${moment(ticketInfo.lineup.date).format('HH:mm')}`,
     stageName: ticketInfo.stage.name || '',
     ticketCategory: ticketInfo.name,
     ticketPrice: price,
     ticketName: `${firstName} ${lastName}`,
-    ticketId: 'XXXXXXXX',
+    ticketId,
     organisationName: ticketInfo.organisationName,
     organisationAdr: ticketInfo.organisationAdr,
     organisationMail: ticketInfo.organisationMail,
-    orderDate: curDate,
+    orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
     img: ticketInfo.lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
 
-  const qrcode = await QRCode.toDataURL('XXXXXXX', { width: 512 });
+  const qrcode = await QRCode.toDataURL(ticketId, { width: 512 });
   const tpl = generateTicketsHTML({ type: 'standardTickets', data, qrcode });
   params = {
     FunctionName: `blast-${process.env.STAGE}-blastEmail`,
