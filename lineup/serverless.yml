@@ -152,3 +152,12 @@ custom:
       dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
   webpackIncludeModules: true
+
+resources:
+  Outputs:
+    RestApiRootResourceId:
+      Description: Api Gateway lineup ID
+      Value:
+        Ref: ApiGatewayResourceLineupIdVar
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId
