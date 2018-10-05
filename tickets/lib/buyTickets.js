@@ -61,6 +61,7 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
       email,
       firstName,
       lastName,
+      userId,
       opts,
     );
 

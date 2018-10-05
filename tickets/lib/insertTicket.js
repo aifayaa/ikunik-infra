@@ -1,7 +1,17 @@
 import { MongoClient } from 'mongodb';
 import uuidv4 from 'uuid/v4';
 
-export default async (lineupId, categoryId, price, createdAt, email, firstname, lastname, opts) => {
+export default async (
+  lineupId,
+  categoryId,
+  price,
+  createdAt,
+  email,
+  firstname,
+  lastname,
+  userId,
+  opts,
+) => {
   const ticketId = uuidv4();
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
@@ -11,6 +21,7 @@ export default async (lineupId, categoryId, price, createdAt, email, firstname, 
       categoryId,
       price,
       createdAt,
+      userId,
       owner: {
         email,
         firstname,
