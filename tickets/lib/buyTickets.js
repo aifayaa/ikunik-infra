@@ -12,9 +12,9 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-export default async (lineupId, userId, categoryId, lastName, firstName, email) => {
+export default async (userId, categoryId, lastName, firstName, email) => {
   // TODO manage transaction to verify ticket available each time
-  let ticketInfo = await getTicketInfos(lineupId, categoryId);
+  let ticketInfo = await getTicketInfos(categoryId);
   if (ticketInfo.length === 0) {
     throw new Error('ticket not found');
   }
@@ -45,7 +45,6 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
     const ticketCat = await client.db(process.env.DB_NAME).collection('ticketCategories')
       .findOneAndUpdate({
         _id: categoryId,
-        lineupId,
       }, {
         $inc: { remaining: -1 },
       }, opts).then(res => res.value);
@@ -54,7 +53,6 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
     }
 
     ticketId = await insertTicket(
-      lineupId,
       categoryId,
       price,
       curDate,
