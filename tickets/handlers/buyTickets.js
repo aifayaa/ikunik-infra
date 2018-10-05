@@ -6,11 +6,11 @@ export const handleBuyTickets = async (event, context, callback) => {
     if (!event.body) {
       throw new Error('mal formed request');
     }
-    const { lineupId, categoryId, lastName, firstName, email } = JSON.parse(event.body);
-    if (!lineupId || !categoryId || !email) {
+    const { categoryId, lastName, firstName, email } = JSON.parse(event.body);
+    if (!categoryId || !email) {
       throw new Error('mal formed request');
     }
-    const results = await buyTickets(lineupId, userId, categoryId, lastName, firstName, email);
+    const results = await buyTickets(userId, categoryId, lastName, firstName, email);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

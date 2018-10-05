@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-export default async (lineupId, categoryId) => {
+export default async (categoryId) => {
   let client;
   try {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
@@ -8,7 +8,7 @@ export default async (lineupId, categoryId) => {
       .collection('ticketCategories')
       .aggregate([
         {
-          $match: { _id: categoryId, lineupId },
+          $match: { _id: categoryId },
         }, {
           $lookup: {
             from: 'lineup',
