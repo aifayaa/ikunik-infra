@@ -85,7 +85,7 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
     img: ticketInfo.lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
 
-  const qrcode = await QRCode.toDataURL(ticketId, { width: 512 });
+  const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
   const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
   params = {
     FunctionName: `blast-${process.env.STAGE}-blastEmail`,
