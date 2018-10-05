@@ -82,7 +82,7 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
     stageName: ticketInfo.stage.name || '',
     ticketCategory: ticketInfo.name,
     ticketPrice: price,
-    ticketName: `${firstName} ${lastName}`,
+    ticketName: `${firstName || ''} ${lastName || ''}`,
     ticketId,
     organisationName: ticketInfo.organisationName,
     organisationAdr: ticketInfo.organisationAdr,
