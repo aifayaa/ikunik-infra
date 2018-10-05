@@ -66,15 +66,14 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
 
     await removeCredits(userId, `${price}`, opts);
     await session.commitTransaction();
-    session.endSession();
   } catch (error) {
     if (session) {
       await session.abortTransaction();
-      session.endSession();
     }
     throw error;
   } finally {
     client.close();
+    if (session) session.endSession();
   }
   const data = {
     eventName: (ticketInfo.lineup.name || ''),

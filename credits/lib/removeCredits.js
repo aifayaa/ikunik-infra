@@ -6,8 +6,7 @@ export default async (userID, amount, opts = {}) => {
     throw new Error('Wrong amount');
   }
 
-  opts.upsert = true;
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
     const res = await client.db(process.env.DB_NAME).collection('credits')
       .findOneAndUpdate({ userID }, {
