@@ -1,14 +1,15 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import moment from 'moment';
 import QRCode from 'qrcode';
+import { MongoClient } from 'mongodb';
 
 import getTicketInfos from './getTicketInfos';
-import countTickets from './countTickets';
 import insertTicket from './insertTicket';
 import generateTicket from './generateTicket';
+import removeCredits from '../../credits/lib/removeCredits';
 
 const lambda = new Lambda({
-  region: process.env.AWS_REGION,
+  region: process.env.REGION,
 });
 
 export default async (lineupId, userId, categoryId, lastName, firstName, email) => {
@@ -32,44 +33,49 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
     throw new Error('ticket sale closed');
   }
 
-  const tickets = await countTickets(lineupId, categoryId);
-  if (tickets >= ticketInfo.quota) {
-    throw new Error('ticket quota exceed');
-  }
-
+  let ticketId;
   const { price } = ticketInfo;
-  let params = {
-    FunctionName: `credits-${process.env.STAGE}-getCredits`,
-    Payload: JSON.stringify({ requestContext: { authorizer: { principalId: userId } } }),
-  };
-  const { Payload } = await lambda.invoke(params).promise();
-  const resCredits = JSON.parse(Payload);
-  const { statusCode } = resCredits;
-  if (statusCode !== 200) throw new Error(`get credits failed: ${statusCode}`);
-  const { credits } = JSON.parse(resCredits.body);
-  if (!credits) throw new Error('unable to get credits from service response');
-  if (credits < price) throw new Error('insufficient credits on user account');
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  let opts;
+  let session;
+  try {
+    session = client.startSession();
+    session.startTransaction();
+    opts = { session, returnOriginal: false };
+    const ticketCat = await client.db(process.env.DB_NAME).collection('ticketCategories')
+      .findOneAndUpdate({
+        _id: categoryId,
+        lineupId,
+      }, {
+        $inc: { remaining: -1 },
+      }, opts).then(res => res.value);
+    if (ticketCat.remaining < 0) {
+      throw new Error('no more tickets available');
+    }
 
-  const ticketId = await insertTicket(
-    lineupId,
-    categoryId,
-    price,
-    curDate,
-    email,
-    firstName,
-    lastName,
-  );
+    ticketId = await insertTicket(
+      lineupId,
+      categoryId,
+      price,
+      curDate,
+      email,
+      firstName,
+      lastName,
+      opts,
+    );
 
-  params = {
-    FunctionName: `credits-${process.env.STAGE}-removeCredits`,
-    Payload: JSON.stringify({ userId, amount: `${price}` }),
-  };
-  let res = await lambda.invoke(params).promise();
-  res = JSON.parse(res.Payload);
-  if (res.statusCode !== 200) {
-    throw new Error(`removeCredits handler failed: ${res.body}`);
+    await removeCredits(userId, `${price}`, opts);
+    await session.commitTransaction();
+    session.endSession();
+  } catch (error) {
+    if (session) {
+      await session.abortTransaction();
+      session.endSession();
+    }
+    throw error;
+  } finally {
+    client.close();
   }
-
   const data = {
     eventName: (ticketInfo.lineup.name || ''),
     date: `${moment(ticketInfo.lineup.date).format('DD/MM/YYYY')} - ${moment(ticketInfo.lineup.date).format('HH:mm')}`,
@@ -87,7 +93,7 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
 
   const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
   const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
-  params = {
+  const params = {
     FunctionName: `blast-${process.env.STAGE}-blastEmail`,
     Payload: JSON.stringify({
       contacts: [{ email }],
@@ -95,7 +101,7 @@ export default async (lineupId, userId, categoryId, lastName, firstName, email) 
       template: { html: tpl },
     }),
   };
-  res = await lambda.invoke(params).promise();
+  const res = await lambda.invoke(params).promise();
   if (JSON.parse(res.Payload).statusCode !== 200) {
     throw new Error('Failed to send email');
   }
