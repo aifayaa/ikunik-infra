@@ -5,7 +5,7 @@ export default ({ type, data, qrcode, html }) => {
       return `
         <div style="font-family: sans-serif">
           <p style="text-align: center">
-              <img src="https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png" width="25%"/>
+              <img src="https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png" width="20%"/>
           </p>
           <h1 style="margin:0;">
               ${data.eventName}
@@ -35,7 +35,7 @@ export default ({ type, data, qrcode, html }) => {
               </tr>
           </table>
           <h6 style="margin-bottom:0;">Conditions d'utilisation</h6>
-          <small style="font-size:10">
+          <small style="font-size:8">
       Pour être valable, ce e-ticket (billet électronique) est soumis aux conditions générales de vente de Crowdaa, et le cas échéant à celles de l'organisateur que vous avez acceptées lors de la commande. RAPPEL : Ce e-ticket est non remboursable. Sauf accord contraire de l'organisateur, ce e-ticket est personnel, incessible et non échangeable.
 
           <strong>CONTRÔLE</strong> :L'accès à l'évènement est soumis au contrôle de validité de votre e-ticket. Ce e-ticket est uniquement valable pour le lieu, la séance, la date et l'heure précis de l'évènement. Passée l'heure de début, l'accès à l'évènement n'est plus garanti et ne donne droit à aucun remboursement. Nous vous conseillons par conséquent d'arriver avant le début de l'évènement. Les e-tickets partiellement imprimés, souillés, endommagés ou illisibles seront considérés comme non valables et pourront être refusés par l'organisateur.
