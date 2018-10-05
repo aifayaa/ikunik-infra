@@ -12,7 +12,7 @@ export default ({ type, data, qrcode, html }) => {
           </h1>
           <p style="margin:0;">${data.date} - ${data.stageName}</p>
           <h2 style="margin-bottom:0;">${data.ticketName}</h2>
-          <p style="margin:0;">${data.ticketCategory}: ${data.ticketPrice} crowdaa credits</p>
+          <p style="margin:0;">${data.ticketCategory}: ${data.ticketPrice * 0.1}€ TTC (${data.ticketPrice} crowdaa credits)</p>
           <p style="text-align: center">
               <img src="${qrcode}"/>
           </p>
