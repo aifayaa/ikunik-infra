@@ -5,7 +5,10 @@ export default async (lineupId) => {
   try {
     const ticketCategories = await client.db(process.env.DB_NAME)
       .collection('ticketCategories')
-      .find({ lineupId })
+      .find({
+        lineupId,
+        removed: { $ne: true },
+      })
       .toArray();
     return { ticketCategories };
   } finally {
