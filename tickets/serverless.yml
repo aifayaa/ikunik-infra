@@ -39,6 +39,26 @@ functions:
           path: lineup/{id}/ticketCategories
           method: get
           cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  scanTicket:
+    handler: handlers/scanTicket.handleScanTicket
+    events:
+      - http:
+          path: tickets/{id}
+          method: patch
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
 
 plugins:
   - serverless-webpack
