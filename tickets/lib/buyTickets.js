@@ -1,4 +1,3 @@
-import Lambda from 'aws-sdk/clients/lambda';
 import moment from 'moment';
 import QRCode from 'qrcode';
 import { MongoClient } from 'mongodb';
@@ -7,13 +6,9 @@ import getTicketInfos from './getTicketInfos';
 import insertTicket from './insertTicket';
 import generateTicket from './generateTicket';
 import removeCredits from '../../credits/lib/removeCredits';
-
-const lambda = new Lambda({
-  region: process.env.REGION,
-});
+import sendTicket from './sendTicket';
 
 export default async (userId, categoryId, lastName, firstName, email) => {
-  // TODO manage transaction to verify ticket available each time
   let ticketInfo = await getTicketInfos(categoryId);
   if (ticketInfo.length === 0) {
     throw new Error('ticket not found');
@@ -88,20 +83,18 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
     img: ticketInfo.lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
-
-  const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
-  const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
-  const params = {
-    FunctionName: `blast-${process.env.STAGE}-blastEmail`,
-    Payload: JSON.stringify({
-      contacts: [{ email }],
+  try {
+    const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
+    const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
+    const ticketMail = {
       subject: `[Crowdaa] Votre billet électronique pour ${ticketInfo.lineup.name || ''}`,
-      template: { html: tpl },
-    }),
-  };
-  const res = await lambda.invoke(params).promise();
-  if (JSON.parse(res.Payload).statusCode !== 200) {
-    throw new Error('Failed to send email');
+      body: tpl,
+      to: email,
+      attachementName: `Billet_${ticketInfo.lineup.name}.pdf`,
+    };
+    await sendTicket(ticketMail);
+    return { template: tpl };
+  } catch (e) {
+    throw e;
   }
-  return { template: tpl };
 };
