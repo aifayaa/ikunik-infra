@@ -83,14 +83,18 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
     img: ticketInfo.lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
-
-  const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
-  const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
-  const ticketMail = {
-    subject: `[Crowdaa] Votre billet électronique pour ${ticketInfo.lineup.name || ''}`,
-    body: tpl,
-    to: email,
-  };
-  await sendTicket(ticketMail);
-  return { template: tpl };
+  try {
+    const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
+    const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
+    const ticketMail = {
+      subject: `[Crowdaa] Votre billet électronique pour ${ticketInfo.lineup.name || ''}`,
+      body: tpl,
+      to: email,
+      attachementName: `Billet_${ticketInfo.lineup.name}.pdf`,
+    };
+    await sendTicket(ticketMail);
+    return { template: tpl };
+  } catch (e) {
+    throw e;
+  }
 };
