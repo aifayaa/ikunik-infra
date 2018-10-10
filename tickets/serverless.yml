@@ -59,6 +59,17 @@ functions:
               paths:
                 id: true
 
+  getTicketCategory: 
+    handler: handlers/getTicketCategory.default
+    events:
+      - http:
+          path: ticketCategories/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack
