@@ -93,7 +93,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
       attachementName: `Billet_${ticketInfo.lineup.name}.pdf`,
     };
     await sendTicket(ticketMail);
-    return { template: tpl };
+    return true;
   } catch (e) {
     throw e;
   }
