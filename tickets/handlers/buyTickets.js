@@ -23,6 +23,10 @@ export const handleBuyTickets = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
