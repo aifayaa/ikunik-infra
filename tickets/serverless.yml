@@ -82,6 +82,6 @@ custom:
     dev: key-ee8f3c350f56cbe4002b9c00cce04769
     prod: key-ee8f3c350f56cbe4002b9c00cce04769
   MAILGUN_DOMAIN:
-    dev: sandboxe8ecbf94ba82415c9ce55b169129af2e.mailgun.org
+    dev: mg.crowdaa.com
     prod: mg.crowdaa.com
   webpackIncludeModules: true
