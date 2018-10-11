@@ -80,7 +80,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     ticketId,
     organisationName: organisation.name,
     organisationAdr: organisation.addr,
-    organisationMail: organisation.mail,
+    organisationMail: organisation.email,
     orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
     img: lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
