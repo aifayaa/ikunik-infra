@@ -45,7 +45,7 @@ const doGetLineup = async (someId, type) => {
         {
           $unwind: {
             path: '$festival',
-            preserveNullAndEmptyArrays: false,
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
