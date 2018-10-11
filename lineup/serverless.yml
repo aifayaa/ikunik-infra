@@ -100,7 +100,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
           cors: true
 
-  getLineup:
+  getLineups:
     handler: handler.handleGetLineup
     events:
       - http:
@@ -128,6 +128,18 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getLineup:
+    handler: handlers/getLineup.default
+    events:
+      - http:
+          path: lineups/{id}
+          method: get
           cors: true
           request:
             parameters:
