@@ -29,7 +29,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
   }
 
   let ticketId;
-  const { price } = ticketInfo;
+  const { price, lineup } = ticketInfo;
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   let opts;
   let session;
@@ -69,28 +69,29 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     client.close();
     if (session) session.endSession();
   }
+  const { organisation } = lineup || {};
   const data = {
-    eventName: (ticketInfo.lineup.name || ''),
-    date: `${moment(ticketInfo.lineup.date).format('DD/MM/YYYY')} - ${moment(ticketInfo.lineup.date).format('HH:mm')}`,
+    eventName: (lineup.name || ''),
+    date: `${moment(lineup.date).format('DD/MM/YYYY')} - ${moment(lineup.date).format('HH:mm')}`,
     stageName: ticketInfo.stage.name || '',
     ticketCategory: ticketInfo.name,
     ticketPrice: price,
     ticketName: `${firstName || ''} ${lastName || ''}`,
     ticketId,
-    organisationName: ticketInfo.organisationName,
-    organisationAdr: ticketInfo.organisationAdr,
-    organisationMail: ticketInfo.organisationMail,
+    organisationName: organisation.name,
+    organisationAdr: organisation.addr,
+    organisationMail: organisation.mail,
     orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
-    img: ticketInfo.lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
+    img: lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
   try {
     const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
     const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
     const ticketMail = {
-      subject: `[Crowdaa] Votre billet électronique pour ${ticketInfo.lineup.name || ''}`,
+      subject: `[Crowdaa] Votre billet électronique pour ${lineup.name || ''}`,
       body: tpl,
       to: email,
-      attachementName: `Billet_${ticketInfo.lineup.name}.pdf`,
+      attachementName: `Billet_${lineup.name || ''}.pdf`,
     };
     await sendTicket(ticketMail);
     return true;
