@@ -5,6 +5,7 @@ import { MongoClient } from 'mongodb';
 import getTicketInfos from './getTicketInfos';
 import insertTicket from './insertTicket';
 import generateTicket from './generateTicket';
+import generateTicketPdf from './generateTicketPdf';
 import removeCredits from '../../credits/lib/removeCredits';
 import sendTicket from './sendTicket';
 
@@ -85,12 +86,14 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     img: lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
   try {
-    const qrcode = await QRCode.toDataURL(ticketId, { width: 128 });
+    const qrcode = await QRCode.toDataURL(ticketId, { width: 256 });
     const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
+    const tplPdf = generateTicketPdf({ type: 'standardTickets', data, qrcode });
     const ticketMail = {
       subject: `[Crowdaa] Votre billet électronique pour ${lineup.name || ''}`,
       body: tpl,
       to: email,
+      pdf: tplPdf,
       attachementName: `Billet_${lineup.name || ''}.pdf`,
     };
     await sendTicket(ticketMail);

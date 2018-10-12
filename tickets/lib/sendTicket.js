@@ -6,7 +6,7 @@ import '../wkhtmltopdf.dms';
 
 wkhtmltopdf.command = `${process.env.LAMBDA_TASK_ROOT}/wkhtmltopdf`;
 
-export default async ({ subject, body, to, attachementName }) => {
+export default async ({ subject, body, to, attachementName, pdf }) => {
   const mailgun = Mailgun({
     apiKey: process.env.MAILGUN_API_KEY,
     domain: process.env.MAILGUN_DOMAIN,
@@ -16,7 +16,7 @@ export default async ({ subject, body, to, attachementName }) => {
       subject,
       attachments: [{
         filename: attachementName,
-        content: wkhtmltopdf(body, { pageSize: 'letter', encoding: 'utf8' }),
+        content: wkhtmltopdf(pdf, { pageSize: 'letter', encoding: 'utf8' }),
         contentType: 'application/pdf',
       }],
       html: body,
