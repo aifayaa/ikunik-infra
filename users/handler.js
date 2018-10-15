@@ -5,6 +5,9 @@ import pick from 'lodash/pick';
 import validator from 'validator';
 import { MongoClient, ObjectId } from 'mongodb';
 
+
+import getProfile from './lib/getProfile';
+
 const lambda = new Lambda({
   region: process.env.REGION,
 });
@@ -209,21 +212,10 @@ const doGetPayouts = async (userId) => {
   }
 };
 
-const doGetProfile = async (userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const profile = await client.db(process.env.DB_NAME).collection('profil')
-      .findOne({ UserId: userId });
-    return profile;
-  } finally {
-    client.close();
-  }
-};
-
 const doGetUser = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const profile = await doGetProfile(userId);
+    const profile = await getProfile(userId);
     const user = await client.db(process.env.DB_NAME).collection('users')
       .findOne({ _id: userId });
     if (profile) {
@@ -238,7 +230,7 @@ const doGetUser = async (userId) => {
 const doGetPaymentInfoByMethod = async (userId, method, profile) => {
   let wProfile;
   if (method === 'paypal' || method === 'btc') {
-    wProfile = profile || await doGetProfile(userId);
+    wProfile = profile || await getProfile(userId);
     if (!wProfile) throw new Error('no profile found');
   }
   switch (method) {
@@ -266,7 +258,7 @@ const doAskPayout = async (userId, amount, method) => {
   })) {
     throw new Error('Wrong amount');
   }
-  const profile = await doGetProfile(userId);
+  const profile = await getProfile(userId);
   if (!profile) throw new Error('no profile found');
 
   const params = {
@@ -676,7 +668,7 @@ export const handleGetProfile = async (event, context, callback) => {
     return;
   }
   try {
-    const results = await doGetProfile(userId);
+    const results = await getProfile(userId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

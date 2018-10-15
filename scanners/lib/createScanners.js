@@ -3,15 +3,13 @@ import moment from 'moment';
 import uuidv4 from 'uuid/v4';
 
 import generateMail from './generateMail';
-import getLineup from '../../lineup/lib/getLineup';
+import getUserLineups from '../../lineup/lib/getUserLineups';
 import sendScanner from './sendScanner';
 
-
-export default async (lineupId, email) => {
+export default async (userId, lineupId, email) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
-    // TODO verify that lineup is owned by the user id
-    const lineup = await getLineup(lineupId);
+    const lineup = await getUserLineups(userId, lineupId);
     if (!lineup) {
       throw new Error('lineup_not_found');
     }

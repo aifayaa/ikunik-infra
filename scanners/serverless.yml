@@ -1,4 +1,4 @@
-service: tickets
+service: scanners
 
 provider:
   name: aws
@@ -18,14 +18,14 @@ provider:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
-      lineups/{id}: ${cf:lineup-${self:provider.stage}.RestApiRootResourceId}
+      lineup/{id}: ${cf:lineup-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
   createScanners:
     handler: handlers/createScanners.default
     events:
       - http:
-          path: lineups/{id}/scanners
+          path: lineup/{id}/scanners
           method: post
           authorizer:
             type: CUSTOM
