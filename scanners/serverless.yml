@@ -14,6 +14,7 @@ provider:
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
     STAGE: ${self:provider.stage}
+    FLOOD_THRESOLD: 10
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -27,6 +28,34 @@ functions:
       - http:
           path: lineup/{id}/scanners
           method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  getScannersForLineup:
+    handler: handlers/getScannersForLineup.default
+    events:
+      - http:
+          path: lineup/{id}/scanners
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  patchScanners:
+    handler: handlers/patchScanner.default
+    events:
+      - http:
+          path: scanners/{id}
+          method: patch
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
