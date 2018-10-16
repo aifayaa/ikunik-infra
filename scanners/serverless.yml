@@ -35,6 +35,20 @@ functions:
             parameters:
               paths:
                 id: true
+  getScannersForLineup:
+    handler: handlers/getScannersForLineup.default
+    events:
+      - http:
+          path: lineup/{id}/scanners
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack
