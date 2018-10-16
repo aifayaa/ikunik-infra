@@ -15,12 +15,14 @@ export default async (userId, lineupId, email) => {
     }
 
     const scannerId = uuidv4();
+    const curDate = new Date();
     const scanner = {
       _id: scannerId,
       email,
       active: true,
       lineupId,
-      createdAt: new Date(),
+      createdAt: curDate,
+      lastEmail: curDate,
     };
     await client.db(process.env.DB_NAME).collection('scanners')
       .insertOne(scanner);
