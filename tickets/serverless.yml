@@ -75,6 +75,21 @@ functions:
               paths:
                 id: true
 
+  resendTicket:
+    handler: handlers/resendTicket.handleResendTicket
+    events:
+      - http:
+          path: tickets/{id}/resend
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   getTicketCategory: 
     handler: handlers/getTicketCategory.default
     events:

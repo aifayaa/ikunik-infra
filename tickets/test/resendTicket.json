@@ -1,0 +1,111 @@
+{
+  "resource": "/tickets/{id}/resend",
+  "path": "/v1/tickets/ea49f5e1-923c-4778-89fb-cf72540c9d78/resend",
+  "httpMethod": "POST",
+  "headers": {
+    "Accept": "*/*",
+    "Authorization": "Bearer s0Bc90i5vPuNzyxj6g58fiLpMW-jSYJJ-1AUITl4dL7",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "RE",
+    "Host": "dev-api.aws.crowdaa.com",
+    "User-Agent": "curl/7.54.0",
+    "Via": "2.0 0a0db3589c5a4e8f4b58345d24c2efd6.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "SCYUKTk_GdxABnVWqtGk-o-T7n-6U-TQN6c1nn1uT8fr9vqHjznzcw==",
+    "X-Amzn-Trace-Id": "Root=1-5bc6c840-c1a61f98bfaf9ea08e18c9b8",
+    "X-Forwarded-For": "41.213.201.186, 54.239.166.128",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": [
+      "*/*"
+    ],
+    "Authorization": [
+      "Bearer s0Bc90i5vPuNzyxj6g58fiLpMW-jSYJJ-1AUITl4dL7"
+    ],
+    "CloudFront-Forwarded-Proto": [
+      "https"
+    ],
+    "CloudFront-Is-Desktop-Viewer": [
+      "true"
+    ],
+    "CloudFront-Is-Mobile-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-SmartTV-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-Tablet-Viewer": [
+      "false"
+    ],
+    "CloudFront-Viewer-Country": [
+      "RE"
+    ],
+    "Host": [
+      "dev-api.aws.crowdaa.com"
+    ],
+    "User-Agent": [
+      "curl/7.54.0"
+    ],
+    "Via": [
+      "2.0 0a0db3589c5a4e8f4b58345d24c2efd6.cloudfront.net (CloudFront)"
+    ],
+    "X-Amz-Cf-Id": [
+      "SCYUKTk_GdxABnVWqtGk-o-T7n-6U-TQN6c1nn1uT8fr9vqHjznzcw=="
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-5bc6c840-c1a61f98bfaf9ea08e18c9b8"
+    ],
+    "X-Forwarded-For": [
+      "41.213.201.186, 54.239.166.128"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": {
+    "id": "ea49f5e1-923c-4778-89fb-cf72540c9d78"
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "mxeoh1",
+    "authorizer": {
+      "principalId": "dXZifsqv7i8Edt8nb"
+    },
+    "resourcePath": "/tickets/{id}/resend",
+    "httpMethod": "POST",
+    "extendedRequestId": "O5Q6FF_GIAMFRsg=",
+    "requestTime": "17/Oct/2018:05:27:28 +0000",
+    "path": "/v1/tickets/ea49f5e1-923c-4778-89fb-cf72540c9d78/resend",
+    "accountId": "630176884077",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "requestTimeEpoch": 1539754048596,
+    "requestId": "5695d18e-d1cd-11e8-a900-e19a608db5e8",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "41.213.201.186",
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "curl/7.54.0",
+      "user": null
+    },
+    "apiId": "p4tk93xcy6"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}
