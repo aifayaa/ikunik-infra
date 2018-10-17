@@ -83,7 +83,16 @@ const doGetLineup = async (someId, type) => {
   }
 };
 
-const doPostLineup = async (festivalId, stageId, artistId, startDate, endDate, ticketingURL) => {
+const doPostLineup = async (
+  festivalId,
+  stageId,
+  artistId,
+  startDate,
+  endDate,
+  ticketingURL,
+  organisation,
+  name,
+) => {
   const lineupId = uuidv4();
   const wDate = new Date(new Date(startDate).valueOf() - (THRESHOLD * 60000));
   const min = wDate.getMinutes();
@@ -129,6 +138,8 @@ const doPostLineup = async (festivalId, stageId, artistId, startDate, endDate, t
         startDate,
         endDate,
         ticketingURL,
+        organisation,
+        name,
       });
     return true;
   } finally {
@@ -389,9 +400,11 @@ export const handlePostLineup = async (event, context, callback) => {
       startDate,
       endDate,
       ticketingURL,
+      organisation,
+      name,
     } = JSON.parse(event.body);
 
-    if (!festivalId || !stageId || !artistId || !startDate || !endDate || !ticketingURL) {
+    if (!stageId || !artistId || !startDate || !endDate || !ticketingURL) {
       throw new Error('Bad arguments');
     }
 
@@ -402,6 +415,8 @@ export const handlePostLineup = async (event, context, callback) => {
       startDate,
       endDate,
       ticketingURL,
+      organisation,
+      name,
     );
     const response = {
       statusCode: 200,
