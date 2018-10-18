@@ -170,6 +170,10 @@ export const handleGetSubscription = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -201,6 +205,10 @@ export const handleGetUserSubscriptions = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -233,6 +241,10 @@ export const handlePostSubscription = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -257,6 +269,10 @@ export const handlePatchSubscription = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }

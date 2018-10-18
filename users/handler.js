@@ -426,7 +426,11 @@ export const handleBlastEmail = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -460,7 +464,11 @@ export const handleBlastNotification = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -495,7 +503,11 @@ export const handleBlastText = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -522,7 +534,11 @@ export const handleIsBlastable = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -554,6 +570,10 @@ export const handleGetBalances = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -585,6 +605,10 @@ export const handleGetPurchases = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -616,6 +640,10 @@ export const handleGetPayouts = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -651,6 +679,10 @@ export const handleAddPayout = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -682,6 +714,10 @@ export const handleGetProfile = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -703,6 +739,10 @@ export const handleGetUser = async ({ userId }, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -743,6 +783,10 @@ export const handleGetUserPublic = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -778,6 +822,10 @@ export const handleAddHistory = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -812,6 +860,10 @@ export const handleGetHistory = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }

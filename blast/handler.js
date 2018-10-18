@@ -293,6 +293,10 @@ export const handleRemoveBlastToken = async ({ type, userId, qte }, context, cal
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -350,7 +354,11 @@ export const handleBlastEmail = async ({
     });
   } catch (e) {
     const response = {
-      body: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       statusCode: 500,
     };
     callback(null, response);
@@ -404,7 +412,11 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
     });
   } catch (e) {
     const response = {
-      body: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       statusCode: 500,
     };
     callback(null, response);
@@ -457,7 +469,11 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
     });
   } catch (e) {
     const response = {
-      body: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       statusCode: 500,
     };
     callback(null, response);
@@ -479,7 +495,11 @@ export const handleGetBlasts = async (event, context, callback) => {
     callback(null, response);
   } catch (e) {
     const response = {
-      body: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       statusCode: 500,
     };
     callback(null, response);
