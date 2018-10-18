@@ -59,6 +59,21 @@ functions:
             parameters:
               paths:
                 id: true
+  
+  postTicketCategoriesByLineup:
+    handler: handlers/postTicketCategories.default
+    events:
+      - http:
+          path: lineup/{id}/ticketCategories
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
   scanTicket:
     handler: handlers/scanTicket.handleScanTicket
