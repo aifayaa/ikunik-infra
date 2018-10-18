@@ -1,8 +1,9 @@
-import { MongoClient } from 'mongodb';
 import uuidv4 from 'uuid/v4';
+import { MongoClient } from 'mongodb';
 
 export default async (
   categoryId,
+  serial,
   price,
   createdAt,
   email,
@@ -16,6 +17,7 @@ export default async (
   try {
     const ticket = {
       _id: ticketId,
+      serial,
       categoryId,
       price,
       createdAt,
