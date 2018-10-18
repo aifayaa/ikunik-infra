@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-export default async (ticketId, scannerId) => {
+export default async (ticketSerial, scannerId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const [[ticket], scanner] = await Promise.all([
@@ -8,7 +8,7 @@ export default async (ticketId, scannerId) => {
         .collection('tickets')
         .aggregate([
           {
-            $match: { _id: ticketId },
+            $match: { serial: ticketSerial },
           },
           {
             $lookup: {
@@ -37,7 +37,7 @@ export default async (ticketId, scannerId) => {
     const updatedTicket = await client.db(process.env.DB_NAME)
       .collection('tickets')
       .findOneAndUpdate({
-        _id: ticketId,
+        _id: ticket._id,
       }, {
         $set: {
           scanStatus: 1,
