@@ -27,7 +27,7 @@ export default async (ticketId) => {
       img: ticketInfo.lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
     };
 
-    const qrcode = await QRCode.toDataURL(ticketId, { width: 256 });
+    const qrcode = await QRCode.toDataURL(ticket.serial, { width: 256 });
     const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
     const tplPdf = generateTicketPdf({ type: 'standardTickets', data, qrcode });
     const ticketMail = {
