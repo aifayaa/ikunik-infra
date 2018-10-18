@@ -31,6 +31,7 @@ const doGetLineup = async (someId, type) => {
   try {
     const selector = {};
     selector[type] = someId;
+    selector.endDate = { $gte: new Date() };
     const lineup = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
       .aggregate([
         { $match: selector },
