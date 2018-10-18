@@ -6,7 +6,7 @@ export default async (ticketId) => {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
     return await client.db(process.env.DB_NAME)
       .collection('tickets')
-      .findOne({ _id: ticketId });
+      .findOne({ _id: ticketId }, { projection: { serial: 0 } });
   } finally {
     client.close();
   }
