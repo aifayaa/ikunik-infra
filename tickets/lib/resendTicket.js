@@ -9,7 +9,7 @@ import sendTicket from './sendTicket';
 
 export default async (ticketId) => {
   try {
-    const ticket = await getTicket(ticketId);
+    const ticket = await getTicket(ticketId, true);
     const [ticketInfo] = await getTicketInfos(ticket.categoryId);
     const { organisation } = ticketInfo.lineup || {};
     const data = {
@@ -20,6 +20,7 @@ export default async (ticketId) => {
       ticketPrice: ticket.price,
       ticketName: `${ticket.owner.firstname || ''} ${ticket.owner.lastname || ''}`,
       ticketId,
+      serial: ticket.serial,
       organisationName: organisation.name,
       organisationAdr: organisation.addr,
       organisationMail: organisation.email,
