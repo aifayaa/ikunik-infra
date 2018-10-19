@@ -81,9 +81,6 @@ functions:
       - http:
           path: tickets/{id}
           method: patch
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:

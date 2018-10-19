@@ -27,7 +27,7 @@ export default ({ type, data, qrcode, html }) => {
                       <hr/>
                       Date de la commande: ${data.orderDate}
                       <br />
-                      Billet n°${data.ticketId}
+                      Billet n°${data.serial}
                   </td>
                   <td style="text-align:right;padding:15px;">
                       <img src="${data.img}" width="100%"/>

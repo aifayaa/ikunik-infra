@@ -2,17 +2,17 @@ import scanTicket from '../lib/scanTicket';
 
 export const handleScanTicket = async (event, context, callback) => {
   try {
-    const ticketId = event.pathParameters.id;
+    const serial = event.pathParameters.id;
     const { scannerId } = JSON.parse(event.body);
 
-    if (!ticketId || !scannerId) {
+    if (!serial || !scannerId) {
       const response = {
         statusCode: 400,
-        body: JSON.stringify({ message: 'mal formed request' }),
+        body: JSON.stringify({ message: 'malformed request' }),
       };
       callback(null, response);
     }
-    const results = await scanTicket(ticketId, scannerId);
+    const results = await scanTicket(serial, scannerId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

@@ -82,6 +82,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     ticketPrice: price,
     ticketName: `${firstName || ''} ${lastName || ''}`,
     ticketId,
+    serial,
     organisationName: organisation.name,
     organisationAdr: organisation.addr,
     organisationMail: organisation.email,
