@@ -97,6 +97,10 @@ export const handleFavorite = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }

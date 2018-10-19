@@ -66,7 +66,11 @@ export const handleAuthorize = async ({ authorizationToken, methodArn }, context
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     return callback(null, response);
   }
@@ -84,7 +88,11 @@ export const handleAuthorizeAdmin = async ({ authorizationToken, methodArn }, co
   } catch (e) {
     const response = {
       statusCode: 401,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }

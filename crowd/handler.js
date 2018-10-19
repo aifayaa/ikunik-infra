@@ -370,7 +370,11 @@ export const handleBlastSearchEmail = async (event, context, callback) => {
     winston.error(e);
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -408,7 +412,11 @@ export const handleBlastSearchNotification = async (event, context, callback) =>
     winston.error(e);
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -446,7 +454,11 @@ export const handleBlastSearchText = async (event, context, callback) => {
     winston.error(e);
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -472,7 +484,11 @@ export const handleSearch = async (event, context, callback) => {
     winston.error(e);
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }

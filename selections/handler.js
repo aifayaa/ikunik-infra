@@ -553,6 +553,10 @@ export const handleGetSelection = async (event, context, callback) => {
     const response = {
       statusCode,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -577,6 +581,10 @@ export const handleGetSelections = async (event, context, callback) => {
     const response = {
       statusCode,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -613,6 +621,10 @@ export const handleGetUserSelections = async (event, context, callback) => {
     const response = {
       statusCode,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -648,6 +660,10 @@ export const handlePostUserSelection = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -680,6 +696,10 @@ export const handleDeleteUserSelection = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -739,11 +759,11 @@ export const handlePatchUserSelection = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
+      body: JSON.stringify({ message: e.message }),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
       },
-      body: JSON.stringify({ message: e.message }),
     };
     callback(null, response);
   }
@@ -769,6 +789,10 @@ export const handleGetSelectionSubscriptions = async (event, context, callback) 
     const response = {
       statusCode,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -795,6 +819,10 @@ export const handleLinkMediaToSelection = async (event, context, callback) => {
     const response = {
       statusCode,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -821,6 +849,10 @@ export const handleUnlinkMediaFromSelection = async (event, context, callback) =
     const response = {
       statusCode,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
