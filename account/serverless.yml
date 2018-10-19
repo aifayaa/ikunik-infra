@@ -63,6 +63,19 @@ resources:
             - 
               - apigateway.
               - Ref: 'AWS::URLSuffix'
+    
+    ApiGatewayResponseDenied:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+        ResponseTemplates:
+          application/json: '{"message":"forbidden"}'
+        ResponseType: ACCESS_DENIED
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        StatusCode: "403"
 
     ApiGatewayAuthorizerAdmin: 
       Type: AWS::ApiGateway::Authorizer
