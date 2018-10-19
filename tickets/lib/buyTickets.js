@@ -2,10 +2,11 @@ import moment from 'moment';
 import QRCode from 'qrcode';
 import { MongoClient } from 'mongodb';
 
-import getTicketInfos from './getTicketInfos';
-import insertTicket from './insertTicket';
+import generateIntId from './generateIntId';
 import generateTicket from './generateTicket';
 import generateTicketPdf from './generateTicketPdf';
+import getTicketInfos from './getTicketInfos';
+import insertTicket from './insertTicket';
 import removeCredits from '../../credits/lib/removeCredits';
 import sendTicket from './sendTicket';
 
@@ -30,6 +31,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
   }
 
   let ticketId;
+  const serial = generateIntId();
   const { price, lineup } = ticketInfo;
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   let opts;
@@ -50,6 +52,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
 
     ticketId = await insertTicket(
       categoryId,
+      serial,
       price,
       curDate,
       email,
@@ -79,6 +82,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     ticketPrice: price,
     ticketName: `${firstName || ''} ${lastName || ''}`,
     ticketId,
+    serial,
     organisationName: organisation.name,
     organisationAdr: organisation.addr,
     organisationMail: organisation.email,
@@ -86,7 +90,7 @@ export default async (userId, categoryId, lastName, firstName, email) => {
     img: lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
   };
   try {
-    const qrcode = await QRCode.toDataURL(ticketId, { width: 256 });
+    const qrcode = await QRCode.toDataURL(serial, { width: 256 });
     const tpl = generateTicket({ type: 'standardTickets', data, qrcode });
     const tplPdf = generateTicketPdf({ type: 'standardTickets', data, qrcode });
     const ticketMail = {

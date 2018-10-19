@@ -27,7 +27,7 @@ export default ({ type, data, qrcode, html }) => {
                 <p style="text-align: center">
                   <img style="margin:0;" src="${qrcode}"/>
                   <br/>
-                  ${data.ticketId}
+                  ${data.serial}
                 </p>
               </td>
             </tr>
