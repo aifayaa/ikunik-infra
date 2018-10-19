@@ -50,6 +50,17 @@ functions:
             parameters:
               paths:
                 id: true
+  getScanner:
+    handler: handlers/getScanner.default
+    events:
+      - http:
+          path: scanners/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
   patchScanners:
     handler: handlers/patchScanner.default
     events:
