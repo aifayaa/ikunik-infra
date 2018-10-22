@@ -1,20 +1,8 @@
-import { MongoClient } from 'mongodb';
+import doGetStages from '../lib/getStages';
 
-const doGetStage = async (stageId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export const handleGetStages = async (event, context, callback) => {
   try {
-    const stage = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .findOne({ _id: stageId });
-    return stage;
-  } finally {
-    client.close();
-  }
-};
-
-export const handleGetStage = async (event, context, callback) => {
-  try {
-    const stageId = event.pathParameters.id;
-    const results = await doGetStage(stageId);
+    const results = await doGetStages();
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
