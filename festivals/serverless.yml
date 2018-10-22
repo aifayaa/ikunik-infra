@@ -15,8 +15,19 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
+  getFestivals:
+    handler: handlers/getFestivals.handleGetFestivals
+    events:
+      - http:
+          path: festivals
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+
   getFestival:
-    handler: handler.handleGetFestival
+    handler: handlers/getFestival.handleGetFestival
     events:
       - http:
           path: festivals/{id}
@@ -35,9 +46,6 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpackIncludeModules: true
 
 resources:
   Outputs:
