@@ -37,7 +37,7 @@ export default async (
       name,
       price,
       quota: qty,
-      remaining: qty,
+      sold: 0,
       startSale: new Date(startSale),
       endSale: new Date(endSale),
       createdAt: new Date(),

@@ -44,9 +44,9 @@ export default async (userId, categoryId, lastName, firstName, email) => {
       .findOneAndUpdate({
         _id: categoryId,
       }, {
-        $inc: { remaining: -1 },
+        $inc: { sold: 1 },
       }, opts).then(res => res.value);
-    if (ticketCat.remaining < 0) {
+    if (ticketCat.sold >= ticketCat.quota) {
       throw new Error('no more tickets available');
     }
 
