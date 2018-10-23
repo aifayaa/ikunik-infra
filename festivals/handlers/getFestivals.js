@@ -1,20 +1,8 @@
-import { MongoClient } from 'mongodb';
+import doGetFestivals from '../lib/getFestivals';
 
-const doGetFestival = async (festivalId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export const handleGetFestivals = async (event, context, callback) => {
   try {
-    const festival = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .findOne({ _id: festivalId });
-    return festival;
-  } finally {
-    client.close();
-  }
-};
-
-export const handleGetFestival = async (event, context, callback) => {
-  try {
-    const festivalId = event.pathParameters.id;
-    const results = await doGetFestival(festivalId);
+    const results = await doGetFestivals();
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
