@@ -14,6 +14,8 @@ functions:
     handler: handler.handleAuthorize
   authorizeAdmin:
     handler: handler.handleAuthorizeAdmin
+  authorizeArtist:
+    handler: handlers/authorizeArtist.default
 
 plugins:
   - serverless-webpack
@@ -49,12 +51,27 @@ resources:
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] }
     
-    LambdaPermissionApiGateway:
+    AuthorizeLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
         FunctionName: 
           Fn::GetAtt: 
             - AuthorizeLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
+    AuthorizeArtistLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizeArtistLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
         Principal: 
@@ -100,6 +117,29 @@ resources:
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeAdminLambdaFunction", "Arn" ] }
 
+    ApiGatewayAuthorizerArtist: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 300
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization
+        Name: authorizeArtistAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: TOKEN
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] }
+
   Outputs:
     ApiGatewayAuthorizerId:
       Description: User authorizer ID
@@ -113,3 +153,9 @@ resources:
         Ref: ApiGatewayAuthorizerAdmin
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerAdminId
+    ApiGatewayAuthorizerArtistId:
+      Description: Artist authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerArtist
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerArtistId

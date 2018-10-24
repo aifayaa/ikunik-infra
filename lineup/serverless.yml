@@ -72,7 +72,7 @@ functions:
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
   
   createNotifyLineup:
@@ -83,7 +83,7 @@ functions:
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
@@ -98,7 +98,7 @@ functions:
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
 
   getLineups:
