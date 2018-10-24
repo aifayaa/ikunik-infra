@@ -1,7 +1,7 @@
 import winston from 'winston';
-import hashLoginToken from '../lib/hashLoginToken';
 import authorizeArtist from '../lib/authorizeArtist';
 import generatePolicy from '../lib/generatePolicy';
+import hashLoginToken from '../lib/hashLoginToken';
 
 export default async ({ authorizationToken, methodArn }, context, callback) => {
   try {

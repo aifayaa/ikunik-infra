@@ -1,8 +1,8 @@
 import { MongoClient } from 'mongodb';
 import winston from 'winston';
 
-import hashLoginToken from './lib/hashLoginToken';
 import generatePolicy from './lib/generatePolicy';
+import hashLoginToken from './lib/hashLoginToken';
 
 const doAuthorize = async (hashedToken) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
