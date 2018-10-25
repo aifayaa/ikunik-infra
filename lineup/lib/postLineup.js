@@ -25,58 +25,63 @@ export default async (
   startDate,
   endDate,
   ticketingURL = null,
-  organisation,
-  name,
+  organisation = null,
+  name = null,
+  blastEnabled = false,
 ) => {
   const lineupId = uuidv4();
-  const wDate = new Date(new Date(startDate).valueOf() - (THRESHOLD * 60000));
-  const min = wDate.getMinutes();
-  const hours = wDate.getHours();
-  const day = wDate.getDate();
-  const month = wDate.getMonth() + 1;
-  const jobId = getRuleName(lineupId);
-  const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
-  const paramsRule = {
-    Name: jobId,
-    Description: `Cron job for ${lineupId}/${startDate} to trigger on ${wDate}`,
-    ScheduleExpression: `cron(${min} ${hours} ${day} ${month} ? *)`,
-  };
-  const paramsTarget = {
-    Rule: jobId,
-    Targets: [
-      {
-        Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
-        Id: getTargetId(lineupId),
-        Input: JSON.stringify({ lineupId }),
-      },
-    ],
-  };
-  const paramsLambda = {
-    Action: 'lambda:InvokeFunction',
-    FunctionName: notifyFuncName,
-    Principal: 'events.amazonaws.com',
-    StatementId: getStatementId(lineupId),
-  };
+  if (blastEnabled) {
+    const wDate = new Date(new Date(startDate).valueOf() - (THRESHOLD * 60000));
+    const min = wDate.getMinutes();
+    const hours = wDate.getHours();
+    const day = wDate.getDate();
+    const month = wDate.getMonth() + 1;
+    const jobId = getRuleName(lineupId);
+    const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
+    const paramsRule = {
+      Name: jobId,
+      Description: `Cron job for ${lineupId}/${startDate} to trigger on ${wDate}`,
+      ScheduleExpression: `cron(${min} ${hours} ${day} ${month} ? *)`,
+    };
+    const paramsTarget = {
+      Rule: jobId,
+      Targets: [
+        {
+          Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
+          Id: getTargetId(lineupId),
+          Input: JSON.stringify({ lineupId }),
+        },
+      ],
+    };
 
-  await cloudwatchevents.putRule(paramsRule).promise();
-  await cloudwatchevents.putTargets(paramsTarget).promise();
-  await lambda.addPermission(paramsLambda).promise();
+    const paramsLambda = {
+      Action: 'lambda:InvokeFunction',
+      FunctionName: notifyFuncName,
+      Principal: 'events.amazonaws.com',
+      StatementId: getStatementId(lineupId),
+    };
+
+    await cloudwatchevents.putRule(paramsRule).promise();
+    await cloudwatchevents.putTargets(paramsTarget).promise();
+    await lambda.addPermission(paramsLambda).promise();
+  }
 
   const client = await MongoClient.connect(process.env.MONGO_URL);
+  const lineup = {
+    _id: lineupId,
+    festivalId,
+    stageId,
+    artistId,
+    startDate,
+    endDate,
+    ticketingURL,
+    organisation,
+    name,
+  };
   try {
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .insertOne({
-        _id: lineupId,
-        festivalId,
-        stageId,
-        artistId,
-        startDate,
-        endDate,
-        ticketingURL,
-        organisation,
-        name,
-      });
-    return true;
+      .insertOne(lineup);
+    return lineup;
   } finally {
     client.close();
   }

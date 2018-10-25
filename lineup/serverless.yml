@@ -65,7 +65,7 @@ functions:
     handler: handler.handlerNotifyLineup
 
   postLineup:
-    handler: handler.handlePostLineup
+    handler: handlers/postLineup.default
     events:
       - http:
           path: lineup/
