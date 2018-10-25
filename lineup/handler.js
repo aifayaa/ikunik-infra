@@ -1,9 +1,13 @@
-import { MongoClient } from 'mongodb';
 import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
-import uuidv4 from 'uuid/v4';
 import i18n from 'i18n';
+import { MongoClient } from 'mongodb';
 import { PromisePoolExecutor } from 'promise-pool-executor';
+import {
+  getRuleName,
+  getTargetId,
+  getStatementId,
+} from './lib/tools';
 
 import './locales/fr.json';
 import './locales/en.json';
@@ -21,10 +25,6 @@ const lambda = new Lambda({
 i18n.configure({
   directory: './locales',
 });
-
-const getRuleName = lineupId => `CronJobLineup-${lineupId}`;
-const getTargetId = lineupId => `CronLineupTarget-${lineupId}`;
-const getStatementId = lineupId => `${getRuleName(lineupId)}_permission`;
 
 const doGetLineup = async (someId, type) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -79,70 +79,6 @@ const doGetLineup = async (someId, type) => {
         },
       ]).toArray();
     return { lineup };
-  } finally {
-    client.close();
-  }
-};
-
-const doPostLineup = async (
-  festivalId,
-  stageId,
-  artistId,
-  startDate,
-  endDate,
-  ticketingURL,
-  organisation,
-  name,
-) => {
-  const lineupId = uuidv4();
-  const wDate = new Date(new Date(startDate).valueOf() - (THRESHOLD * 60000));
-  const min = wDate.getMinutes();
-  const hours = wDate.getHours();
-  const day = wDate.getDate();
-  const month = wDate.getMonth() + 1;
-  const jobId = getRuleName(lineupId);
-  const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
-  const paramsRule = {
-    Name: jobId,
-    Description: `Cron job for ${lineupId}/${startDate} to trigger on ${wDate}`,
-    ScheduleExpression: `cron(${min} ${hours} ${day} ${month} ? *)`,
-  };
-  const paramsTarget = {
-    Rule: jobId,
-    Targets: [
-      {
-        Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
-        Id: getTargetId(lineupId),
-        Input: JSON.stringify({ lineupId }),
-      },
-    ],
-  };
-  const paramsLambda = {
-    Action: 'lambda:InvokeFunction',
-    FunctionName: notifyFuncName,
-    Principal: 'events.amazonaws.com',
-    StatementId: getStatementId(lineupId),
-  };
-
-  await cloudwatchevents.putRule(paramsRule).promise();
-  await cloudwatchevents.putTargets(paramsTarget).promise();
-  await lambda.addPermission(paramsLambda).promise();
-
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .insertOne({
-        _id: lineupId,
-        festivalId,
-        stageId,
-        artistId,
-        startDate,
-        endDate,
-        ticketingURL,
-        organisation,
-        name,
-      });
-    return true;
   } finally {
     client.close();
   }
@@ -374,55 +310,6 @@ export const handleGetLineup = async (event, context, callback) => {
         type = undefined;
     }
     const results = await doGetLineup(someId, type);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
-  } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
-  }
-};
-
-export const handlePostLineup = async (event, context, callback) => {
-  try {
-    const {
-      festivalId,
-      stageId,
-      artistId,
-      startDate,
-      endDate,
-      ticketingURL,
-      organisation,
-      name,
-    } = JSON.parse(event.body);
-
-    if (!stageId || !artistId || !startDate || !endDate || !ticketingURL) {
-      throw new Error('Bad arguments');
-    }
-
-    const results = await doPostLineup(
-      festivalId,
-      stageId,
-      artistId,
-      startDate,
-      endDate,
-      ticketingURL,
-      organisation,
-      name,
-    );
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
