@@ -1,4 +1,4 @@
-import doPostLineup from './postLineup';
+import doPostLineup from '../lib/postLineup';
 
 export default async (event, context, callback) => {
   try {
