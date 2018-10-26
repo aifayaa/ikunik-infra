@@ -6,7 +6,9 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.188.0",
-    "mongodb": "^3.0.2"
+    "mongodb": "^3.0.2",
+    "stripe": "^6.12.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "serverless-domain-manager": "^2.2.2",
