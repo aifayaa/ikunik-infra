@@ -92,3 +92,12 @@ sls deploy --stage $1
 cd ../lineup
 npm i
 sls deploy --stage $1
+
+# + lineups api id
+cd ../tickets
+npm i
+sls deploy --stage $1
+
+cd ../scanners
+npm i
+sls deploy --stage $1
