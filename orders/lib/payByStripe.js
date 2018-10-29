@@ -32,7 +32,7 @@ export default async (token, packageId, userId) => {
       credits: qty,
       date: new Date(),
       desc,
-      fees: Math.round((price * 0.03) + 30),
+      fees: (price * 0.03) + 0.3,
       provider: 'stripe',
       status: 'paid',
       token,
@@ -47,7 +47,7 @@ export default async (token, packageId, userId) => {
       amount: price * 100,
       currency: 'EUR',
       description: desc,
-      source: token,
+      source: token.id,
       metadata: {
         billingId,
         qty,
