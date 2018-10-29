@@ -18,6 +18,7 @@ provider:
     STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    STRIPE_API_KEY: ${self:custom.STRIPE_API_KEY.${self:provider.stage}}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -34,6 +35,17 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
 
+  payByStripe:
+    handler: handlers/payByStripe.default
+    events:
+      - http:
+          path: orders/stripe
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+
 plugins:
   - serverless-webpack
 
@@ -41,4 +53,7 @@ package:
   individually: true
 
 custom:
+  STRIPE_API_KEY:
+    dev: sk_test_wbtCudjJImb2OKWdxR1HvoTr
+    prod: sk_live_LRPlsPVcghchBVfGKChUTdfV
   webpackIncludeModules: true
