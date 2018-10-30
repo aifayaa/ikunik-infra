@@ -62,6 +62,21 @@ functions:
               paths:
                 id: true
 
+  createArtist:
+    handler: handlers/createArtist.default
+    events:
+      - http:
+          path: users/{id}/artists
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-webpack
 
