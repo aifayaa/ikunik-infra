@@ -40,6 +40,17 @@ functions:
             parameters:
               paths:
                 id: true
+  
+  postStages:
+    handler: handlers/postStage.default
+    events:
+      - http:
+          path: stages
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
 
 plugins:
   - serverless-webpack
