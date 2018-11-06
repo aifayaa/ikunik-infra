@@ -1,16 +1,12 @@
 {
-  "name": "scanners",
+  "name": "carts",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa scanners API.",
+  "description": "Crowdaa carts API.",
   "main": "handler.js",
   "dependencies": {
-    "mailgun-js": "^0.21.0",
-    "moment": "^2.22.2",
     "mongodb": "^3.1.0",
-    "nodemailer": "^4.6.8",
-    "source-map-support": "^0.5.8",
-    "uuid": "^3.2.1"
+    "source-map-support": "^0.5.8"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
