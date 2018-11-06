@@ -1,6 +1,5 @@
 const path = require('path');
 const slsw = require('serverless-webpack');
-const ChmodWebpackPlugin = require('chmod-webpack-plugin');
 
 module.exports = {
   entry: slsw.lib.entries,
@@ -18,17 +17,6 @@ module.exports = {
           },
         ],
       },
-      {
-        test: /\.dms$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name]',
-            },
-          },
-        ],
-      },
     ],
   },
   output: {
@@ -37,9 +25,4 @@ module.exports = {
     filename: '[name].js',
     sourceMapFilename: '[file].map',
   },
-  plugins: [
-    new ChmodWebpackPlugin([
-      { path: path.join(__dirname, '.webpack', 'payByStripe', 'wkhtmltopdf'), mode: 755 },
-    ]),
-  ],
 };

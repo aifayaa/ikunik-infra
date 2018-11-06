@@ -1,6 +1,13 @@
 import buyTickets from '../lib/buyTickets';
+import sendTicket from '../lib/sendTicket';
 
 export const handleBuyTickets = async (event, context, callback) => {
+  const response = {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+  };
   try {
     const userId = event.requestContext.authorizer.principalId;
     if (!event.body) {
@@ -10,25 +17,24 @@ export const handleBuyTickets = async (event, context, callback) => {
     if (!categoryId || !email) {
       throw new Error('mal formed request');
     }
-    const results = await buyTickets(userId, categoryId, lastName, firstName, email);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const ticketMail = await buyTickets(userId, categoryId, lastName, firstName, email);
+    // special try to not send 500 even if ticket not send
+    try {
+      await sendTicket(ticketMail);
+    } catch (error) {
+      console.warn('Failed to send ticket', error);
+    }
+    response.statusCode = 200;
+    response.body = JSON.stringify(true);
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify({ message: e.message }),
-    };
+    if (e.message === 'ticket_formatting_failed') {
+      response.statusCode = 200;
+      response.body = JSON.stringify(true);
+    } else {
+      response.statusCode = 500;
+      response.body = JSON.stringify({ message: e.message });
+    }
+  } finally {
     callback(null, response);
   }
 };

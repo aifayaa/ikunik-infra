@@ -1,8 +1,8 @@
 {
-  "name": "tickets",
+  "name": "scanners",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa tickets API.",
+  "description": "Crowdaa scanners API.",
   "main": "handler.js",
   "dependencies": {
     "mailgun-js": "^0.21.0",

@@ -12,11 +12,11 @@ export default async (event, context, callback) => {
   }
 
   try {
-    const { token, packageId } = JSON.parse(event.body);
-    if (!token || !packageId) {
+    const { token, cart } = JSON.parse(event.body);
+    if (!token || !cart) {
       throw new Error('mal_formed_request');
     }
-    const res = await payByStripe(token, packageId, userId);
+    const res = await payByStripe(token, cart, userId);
     response = {
       statusCode: 200,
       body: JSON.stringify(res),
