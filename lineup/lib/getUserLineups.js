@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 
 // TODO optimize by using another function properly for lineupId
 export default async (userId, lineupId) => {
-  const agregat = [
+  const aggregat = [
     { $match: { UserId: userId } },
     {
       $lookup: {
@@ -40,18 +40,18 @@ export default async (userId, lineupId) => {
     },
   ];
   if (lineupId) {
-    agregat.push({
+    aggregat.push({
       $unwind: {
         path: '$lineups',
         preserveNullAndEmptyArrays: true,
       },
     });
-    agregat.push({ $match: { 'lineups._id': lineupId } });
+    aggregat.push({ $match: { 'lineups._id': lineupId } });
   }
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     let lineups = await client.db(process.env.DB_NAME).collection('profil')
-      .aggregate(agregat).toArray();
+      .aggregate(aggregat).toArray();
     const [res] = lineups;
     ({ lineups } = res);
     if (lineupId) {
