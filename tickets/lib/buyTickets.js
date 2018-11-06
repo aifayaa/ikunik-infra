@@ -1,6 +1,6 @@
+import { MongoClient } from 'mongodb';
 import moment from 'moment';
 import QRCode from 'qrcode';
-import { MongoClient } from 'mongodb';
 
 import generateIntId from './generateIntId';
 import generateTicket from './generateTicket';
@@ -8,9 +8,8 @@ import generateTicketPdf from './generateTicketPdf';
 import getTicketInfos from './getTicketInfos';
 import insertTicket from './insertTicket';
 import removeCredits from '../../credits/lib/removeCredits';
-import sendTicket from './sendTicket';
 
-export default async (userId, categoryId, lastName, firstName, email) => {
+export default async (userId, categoryId, lastName, firstName, email, options = {}) => {
   let ticketInfo = await getTicketInfos(categoryId);
   if (ticketInfo.length === 0) {
     throw new Error('ticket not found');
@@ -33,12 +32,14 @@ export default async (userId, categoryId, lastName, firstName, email) => {
   let ticketId;
   const serial = generateIntId();
   const { price, lineup } = ticketInfo;
+  const hasUpperSession = !!options.session;
+
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   let opts;
   let session;
   try {
-    session = client.startSession();
-    session.startTransaction();
+    session = options.session || client.startSession();
+    if (!hasUpperSession) session.startTransaction();
     opts = { session, returnOriginal: false };
     const ticketCat = await client.db(process.env.DB_NAME).collection('ticketCategories')
       .findOneAndUpdate({
@@ -52,26 +53,26 @@ export default async (userId, categoryId, lastName, firstName, email) => {
 
     ticketId = await insertTicket(
       categoryId,
-      serial,
-      price,
       curDate,
       email,
       firstName,
       lastName,
-      userId,
       opts,
+      price,
+      serial,
+      userId,
     );
 
     await removeCredits(userId, `${price}`, opts);
-    await session.commitTransaction();
+    if (!hasUpperSession) await session.commitTransaction();
   } catch (error) {
-    if (session) {
+    if (session && !hasUpperSession) {
       await session.abortTransaction();
     }
     throw error;
   } finally {
     client.close();
-    if (session) session.endSession();
+    if (session && !hasUpperSession) session.endSession();
   }
   const { organisation } = lineup || {};
   const data = {
@@ -100,9 +101,9 @@ export default async (userId, categoryId, lastName, firstName, email) => {
       pdf: tplPdf,
       attachementName: `Billet_${lineup.name || ''}.pdf`,
     };
-    await sendTicket(ticketMail);
-    return true;
+    return ticketMail;
   } catch (e) {
-    throw e;
+    console.warn('Failed to format ticket', e);
+    throw new Error('ticket_formatting_failed');
   }
 };
