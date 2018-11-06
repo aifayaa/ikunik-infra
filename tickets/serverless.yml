@@ -47,7 +47,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
-  
+
   getTicketCategoriesByLineup:
     handler: handlers/getTicketCategoriesByLineup.handleGetTicketCategoriesByLineup
     events:
@@ -59,7 +59,20 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
+      - http:
+          path: users/{id}/lineup/{lineupId}/ticketCategories
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                lineupId: true
+                id: true
+
   postTicketCategoriesByLineup:
     handler: handlers/postTicketCategories.default
     events:
