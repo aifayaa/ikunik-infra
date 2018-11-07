@@ -53,14 +53,14 @@ export default async (userId, categoryId, lastName, firstName, email, options = 
 
     ticketId = await insertTicket(
       categoryId,
+      serial,
+      price,
       curDate,
       email,
       firstName,
       lastName,
-      opts,
-      price,
-      serial,
       userId,
+      opts,
     );
 
     await removeCredits(userId, `${price}`, opts);
