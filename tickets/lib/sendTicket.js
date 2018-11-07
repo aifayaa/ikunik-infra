@@ -4,6 +4,7 @@ import wkhtmltopdf from 'wkhtmltopdf';
 
 import '../wkhtmltopdf.dms';
 
+console.log('+++++++++++', `${process.env.LAMBDA_TASK_ROOT}/wkhtmltopdf`);
 wkhtmltopdf.command = `${process.env.LAMBDA_TASK_ROOT}/wkhtmltopdf`;
 
 export default async ({ subject, body, to, attachementName, pdf }) => {
