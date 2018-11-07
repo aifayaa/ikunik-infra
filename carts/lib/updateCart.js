@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-export default async (cartId, userId, selector) => {
+export default async (cartId, userId, selector, options) => {
   let client;
   selector._id = cartId;
   selector.userId = userId;
@@ -8,7 +8,7 @@ export default async (cartId, userId, selector) => {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
     return await client.db(process.env.DB_NAME)
       .collection('carts')
-      .findOne(selector);
+      .findOneAndUpdate(selector, { $set: { status: 'validated' } }, options);
   } finally {
     client.close();
   }
