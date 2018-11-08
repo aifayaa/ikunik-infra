@@ -6,17 +6,18 @@ export default async (event, context, callback) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': true,
   };
+
   let response;
   if (!event.body) {
     throw new Error('mal_formed_request');
   }
 
   try {
-    const { token, cart } = JSON.parse(event.body);
-    if (!token || !cart) {
+    const { token, cartId } = JSON.parse(event.body);
+    if (!token || !cartId) {
       throw new Error('mal_formed_request');
     }
-    const res = await payByStripe(token, cart, userId);
+    const res = await payByStripe(token, cartId, userId);
     response = {
       statusCode: 200,
       body: JSON.stringify(res),
