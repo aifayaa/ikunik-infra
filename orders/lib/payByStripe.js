@@ -5,8 +5,8 @@ import uuidv4 from 'uuid/v4';
 
 import addCredits from '../../credits/lib/addCredits';
 import buyTickets from '../../tickets/lib/buyTickets';
-import updateCart from '../../carts/lib/updateCart';
 import sendTicket from '../../tickets/lib/sendTicket';
+import updateCart from '../../carts/lib/updateCart';
 
 const stripe = Stripe(process.env.STRIPE_API_KEY);
 
@@ -34,7 +34,7 @@ const exeProduct = async (type, val) => {
       case 'package':
         return true;
       case 'ticket':
-        return true; // await sendTicket(val);
+        return await sendTicket(val);
       default:
         throw new Error('unknown_product_found');
     }
@@ -57,10 +57,7 @@ export default async (token, cartId, userId) => {
     session = client.startSession();
     session.startTransaction();
     opts = { session };
-    console.log('+++++++', cartId, userId);
     const cart = await updateCart(cartId, userId, { status: 'pending' }, opts).then(res => res.value);
-    console.log('objeferfgerferfefect', cart);
-    return true;
     if (!cart) throw new Error('cart_not_found');
     const { totalPrice, totalCredits } = cart;
     const billingId = uuidv4();
@@ -68,6 +65,7 @@ export default async (token, cartId, userId) => {
     const billing = {
       _id: billingId,
       amount: totalPrice,
+      cartId,
       credits: totalCredits,
       date: new Date(),
       desc,
@@ -76,7 +74,6 @@ export default async (token, cartId, userId) => {
       status: 'paid',
       token,
       userId,
-      cartId,
     };
     await client.db(process.env.DB_NAME).collection('billing')
       .insertOne(billing, opts);
