@@ -15,6 +15,17 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
+  createCart:
+    handler: handlers/createCart.default
+    events:
+      - http:
+          path: carts
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
   getCart:
     handler: handlers/getCart.default
     events:
@@ -22,6 +33,9 @@ functions:
           path: carts/{id}
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           request:
             parameters:
               paths:
