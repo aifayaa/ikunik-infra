@@ -6,13 +6,40 @@ export default async (userId) => {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
     return await client.db(process.env.DB_NAME)
       .collection('tickets')
-      .find(
-        { userId },
+      .aggregate([
+        { $match: { userId } },
         {
-          sort: { createdAt: -1 },
-          projection: { serial: 0 },
+          $lookup: {
+            from: 'ticketCategories',
+            localField: 'categoryId',
+            foreignField: '_id',
+            as: 'ticketCategory',
+          },
         },
-      ).toArray();
+        {
+          $unwind: {
+            path: '$ticketCategory',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'lineup',
+            localField: 'ticketCategory.lineupId',
+            foreignField: '_id',
+            as: 'lineup',
+          },
+        },
+        {
+          $unwind: {
+            path: '$lineup',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: { serial: 0 },
+        },
+      ]).toArray();
   } finally {
     client.close();
   }
