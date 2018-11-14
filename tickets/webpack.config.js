@@ -43,6 +43,7 @@ module.exports = {
   plugins: [
     new ChmodWebpackPlugin([
       { path: path.join(__dirname, '.webpack', 'buyTickets', 'wkhtmltopdf'), mode: 755 },
+      { path: path.join(__dirname, '.webpack', 'resendTicket', 'wkhtmltopdf'), mode: 755 },
     ]),
   ],
 };
