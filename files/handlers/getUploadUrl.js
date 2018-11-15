@@ -1,6 +1,7 @@
 import getUploadUrl from '../lib/getUploadUrl';
 
 export default async (event, context, callback) => {
+  const userId = event.requestContext.authorizer.principalId;
   const response = {
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -12,11 +13,9 @@ export default async (event, context, callback) => {
       name,
       type,
     } = JSON.parse(event.body);
-    const uploadUrl = getUploadUrl(null, name, type);
+    const info = getUploadUrl(userId, name, type);
     response.statusCode = 200;
-    response.body = JSON.stringify({
-      url: uploadUrl,
-    });
+    response.body = JSON.stringify(info);
   } catch (e) {
     response.statusCode = 500;
     response.body = JSON.stringify({
