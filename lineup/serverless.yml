@@ -105,7 +105,7 @@ functions:
     handler: handlers/getLineups.default
     events:
       - http:
-          path: /lineups
+          path: lineups/
           method: get
           cors: true
 
