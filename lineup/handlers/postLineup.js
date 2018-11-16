@@ -11,6 +11,7 @@ export default async (event, context, callback) => {
       ticketingURL,
       organisation,
       name,
+      pictureId,
     } = JSON.parse(event.body);
 
     if (!stageId || !artistId || !startDate || !endDate) {
@@ -26,6 +27,8 @@ export default async (event, context, callback) => {
       ticketingURL,
       organisation,
       name,
+      undefined,
+      pictureId,
     );
     const response = {
       statusCode: 200,
