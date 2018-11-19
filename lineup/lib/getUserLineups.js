@@ -32,6 +32,10 @@ export default async (userId, lineupId) => {
         preserveNullAndEmptyArrays: true,
       },
     },
+    { $match: { 'lineups.startDate': { $gte: new Date() } } },
+    {
+      $sort: { 'lineups.startDate': 1, 'lineups.name': 1 },
+    },
     {
       $group: {
         _id: null,
