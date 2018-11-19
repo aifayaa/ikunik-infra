@@ -28,6 +28,7 @@ export default async (
   organisation = null,
   name = null,
   blastEnabled = false,
+  pictureId,
 ) => {
   const lineupId = uuidv4();
   if (blastEnabled) {
@@ -77,6 +78,7 @@ export default async (
     ticketingURL,
     organisation,
     name,
+    pictureId,
   };
   try {
     await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
