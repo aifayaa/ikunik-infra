@@ -27,6 +27,8 @@ functions:
             parameters:
               paths:
                 id: true
+              querystrings:
+                waitCreation: false
 
 plugins:
   - serverless-webpack
