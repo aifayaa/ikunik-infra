@@ -77,6 +77,29 @@ const doGetLineup = async (someId, type) => {
             preserveNullAndEmptyArrays: false,
           },
         },
+        {
+          $lookup: {
+            from: 'pictures',
+            localField: 'pictureId',
+            foreignField: '_id',
+            as: 'pictures',
+          },
+        },
+        {
+          $unwind: {
+            path: '$pictures',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: { img: '$pictures.pictureUrl' },
+        },
+        {
+          $project: {
+            pictures: 0,
+          },
+        },
+        { $sort: { startDate: 1, name: 1 } },
       ]).toArray();
     return { lineup };
   } finally {
