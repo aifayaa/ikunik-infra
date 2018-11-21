@@ -3,7 +3,8 @@ import getPicture from '../lib/getPicture';
 export default async (event, context, callback) => {
   try {
     const { id } = event.pathParameters;
-    const results = await getPicture(id);
+    const { waitCreation } = event.queryStringParameters || {};
+    const results = await getPicture(id, { waitCreation });
     if (!results) throw new Error('picture_not_found');
     const response = {
       statusCode: 200,

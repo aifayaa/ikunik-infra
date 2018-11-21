@@ -1,13 +1,26 @@
+/* eslint-disable no-await-in-loop */
 import { MongoClient } from 'mongodb';
 
-export default async (id) => {
+const INTERVAL = 1000;
+
+export default async (id, { waitCreation }) => {
   let client;
   try {
-    console.log(id, process.env.DB_NAME, process.env.COLL_NAME);
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-    return await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
-      .findOne({ _id: id, isPublished: true });
+    let picture = null;
+    let loop = false;
+    do {
+      picture = await client.db(process.env.DB_NAME)
+        .collection(process.env.COLL_NAME)
+        .findOne({ _id: id, isPublished: true });
+      if (waitCreation === 'true') {
+        loop = !picture;
+        await new Promise((resolve) => {
+          setTimeout(resolve, INTERVAL);
+        });
+      }
+    } while (loop);
+    return picture;
   } finally {
     client.close();
   }
