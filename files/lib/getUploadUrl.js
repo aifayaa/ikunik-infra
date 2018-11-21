@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk/';
+import AWS from 'aws-sdk';
 import uuidv4 from 'uuid/v4';
 
 const s3 = new AWS.S3({

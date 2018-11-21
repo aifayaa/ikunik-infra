@@ -30,7 +30,7 @@ export default async (event, context, callback) => {
       case 'image/jpeg':
       case 'image/png':
       case 'image/gif':
-        managePicture(bucket, object, file);
+        await managePicture(bucket, object, file);
         break;
       default:
         throw new Error(`${ContentType} not handled`);
