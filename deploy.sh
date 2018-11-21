@@ -44,6 +44,9 @@ sls deploy --stage $1
 cd ../festivals
 npm i
 sls deploy --stage $1
+cd ../files
+npm i
+sls deploy --stage $1
 cd ../genres
 npm i
 sls deploy --stage $1
@@ -54,6 +57,9 @@ cd ../orders
 npm i
 sls deploy --stage $1
 cd ../payouts
+npm i
+sls deploy --stage $1
+cd ../pictures
 npm i
 sls deploy --stage $1
 cd ../shop
