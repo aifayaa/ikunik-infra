@@ -15,6 +15,10 @@
       "DefJamApiKey": {
         "name": "defJam",
         "value": "0BpYwpfzuP1F4EAoXo8eH6BnuYPBFSiu1SnXzUrl"
+      },
+      "AwaxApiKey": {
+        "name": "awax",
+        "value": "WhUEJ4liYW2JLMT7nZtlNaPyO8hYLPxh82saLDfw"
       }
     }
   }
