@@ -43,7 +43,7 @@ custom:
     integration.request.querystring.text: method.request.querystring.text
   querystrings:
     text: false
-  RequestParameters: 
+  RequestParameters:
     method.request.header.Authorization: true
 
 resources:
