@@ -46,6 +46,7 @@ npm i
 sls deploy --stage $1
 cd ../files
 npm i
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs8.10
 sls deploy --stage $1
 cd ../genres
 npm i
