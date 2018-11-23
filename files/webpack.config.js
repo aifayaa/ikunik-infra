@@ -7,20 +7,16 @@ module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   devtool: 'nosources-source-map',
   module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            query: {
-              plugins: ['transform-object-rest-spread'],
-            },
-          },
-        ],
-      },
-    ],
+    rules: [{
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: [{
+        loader: 'babel-loader',
+        query: {
+          plugins: ['transform-object-rest-spread'],
+        },
+      }],
+    }],
   },
   output: {
     libraryTarget: 'commonjs2',
@@ -28,4 +24,5 @@ module.exports = {
     filename: '[name].js',
     sourceMapFilename: '[file].map',
   },
+  externals: ['sharp'],
 };
