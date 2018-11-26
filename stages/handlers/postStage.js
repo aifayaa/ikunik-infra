@@ -5,12 +5,12 @@ export default async (event, context, callback) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const { name } = JSON.parse(event.body);
+    const { name, addr } = JSON.parse(event.body);
     if (!name) {
       throw new Error('mal_formed_request');
     }
 
-    const results = await postStage(name);
+    const results = await postStage(name, addr);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
