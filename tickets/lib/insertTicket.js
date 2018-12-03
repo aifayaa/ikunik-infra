@@ -1,0 +1,37 @@
+import uuidv4 from 'uuid/v4';
+import { MongoClient } from 'mongodb';
+
+export default async (
+  categoryId,
+  serial,
+  price,
+  createdAt,
+  email,
+  firstname,
+  lastname,
+  userId,
+  opts,
+) => {
+  const ticketId = uuidv4();
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  try {
+    const ticket = {
+      _id: ticketId,
+      serial,
+      categoryId,
+      price,
+      createdAt,
+      userId,
+      owner: {
+        email,
+        firstname,
+        lastname,
+      },
+    };
+    await client.db(process.env.DB_NAME).collection('tickets')
+      .insertOne(ticket, opts);
+    return ticketId;
+  } finally {
+    client.close();
+  }
+};

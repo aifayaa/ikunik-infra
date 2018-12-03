@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: nodejs6.10
   stage: ${opt:stage, "dev"}
-  memorySize: 128
+  memorySize: 192
   timeout: 30
   iamRoleStatements:
     - Effect: Allow
@@ -12,12 +12,16 @@ provider:
         - lambda:InvokeFunction
       Resource: "*"
   environment:
+    MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
+    MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
+    FROM: postmaster
     REGION: us-east-1
     IOS_FEES: 0.3
     COLL_NAME: billing
     STAGE: ${self:provider.stage}
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    STRIPE_API_KEY: ${self:custom.STRIPE_API_KEY.${self:provider.stage}}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -34,6 +38,17 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
 
+  payByStripe:
+    handler: handlers/payByStripe.default
+    events:
+      - http:
+          path: orders/stripe
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+
 plugins:
   - serverless-webpack
 
@@ -41,4 +56,16 @@ package:
   individually: true
 
 custom:
+  STRIPE_API_KEY:
+    dev: sk_test_wbtCudjJImb2OKWdxR1HvoTr
+    prod: sk_live_LRPlsPVcghchBVfGKChUTdfV
+    awax: sk_live_LRPlsPVcghchBVfGKChUTdfV
+  MAILGUN_API_KEY:
+    dev: key-ee8f3c350f56cbe4002b9c00cce04769
+    prod: key-ee8f3c350f56cbe4002b9c00cce04769
+    awax: key-ee8f3c350f56cbe4002b9c00cce04769
+  MAILGUN_DOMAIN:
+    dev: mg.crowdaa.com
+    prod: mg.crowdaa.com
+    awax: mg.crowdaa.com
   webpackIncludeModules: true

@@ -24,7 +24,7 @@ provider:
         - events:RemoveTargets
       Resource: "*"
     - Effect: Allow
-      Action: 
+      Action:
         - iam:PassRole
       Resource: arn:aws:iam::*:role/AWS_Events_Invoke_Targets
     - Effect: Allow
@@ -58,22 +58,23 @@ provider:
       /artists/{id}: ${cf:artists-${self:provider.stage}.RestApiRootResourceId}
       /festivals/{id}: ${cf:festivals-${self:provider.stage}.RestApiRootResourceId}
       /stages/{id}: ${cf:stages-${self:provider.stage}.RestApiRootResourceId}
+      /users/{id}: ${cf:users-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
   notifyLineup:
     handler: handler.handlerNotifyLineup
 
   postLineup:
-    handler: handler.handlePostLineup
+    handler: handlers/postLineup.default
     events:
       - http:
           path: lineup/
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
-  
+
   createNotifyLineup:
     handler: handler.handlerCreateNotifyLineup
     events:
@@ -82,13 +83,13 @@ functions:
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
               paths:
                 id: true
-  
+
   createNotifyAllLineup:
     handler: handler.handlerCreateNotifyAllLineup
     events:
@@ -97,18 +98,23 @@ functions:
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
 
-  getLineup:
+  getPublicLineups:
+    handler: handlers/getLineups.default
+    events:
+      - http:
+          path: lineups/
+          method: get
+          cors: true
+
+  getLineups:
     handler: handler.handleGetLineup
     events:
       - http:
           path: artists/{id}/lineup
           method: get
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
           request:
             parameters:
@@ -137,6 +143,33 @@ functions:
               paths:
                 id: true
 
+  getLineup:
+    handler: handlers/getLineup.default
+    events:
+      - http:
+          path: lineups/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getUserLineups:
+    handler: handlers/getUserLineups.default
+    events:
+      - http:
+          path: users/{id}/lineups
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-webpack
 
@@ -148,7 +181,18 @@ custom:
     text:
       dev: blast-dev-blastText
       prod: blast-prod-blastText
+      awax: blast-prod-blastText
     notif:
       dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
+      awax: blast-prod-blastNotification
   webpackIncludeModules: true
+
+resources:
+  Outputs:
+    RestApiRootResourceId:
+      Description: Api Gateway lineup ID
+      Value:
+        Ref: ApiGatewayResourceLineupIdVar
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId

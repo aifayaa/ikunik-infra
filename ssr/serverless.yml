@@ -1,0 +1,37 @@
+service: ssr
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    COLL_NAME: artists
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+
+functions:
+  ticket:
+    handler: handlers/ticket.handleArtist
+    events:
+      - http:
+          path: /ticket/artists/{id}
+          method: get
+
+plugins:
+  - serverless-domain-manager
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  domains:
+    dev: ssr-dev.aws.crowdaa.com
+    prod: ssr.aws.crowdaa.com
+
+  customDomain:
+    domainName: ${self:custom.domains.${self:provider.stage}}
+    stage: '${self:provider.stage}'
+    createRoute53Record: true

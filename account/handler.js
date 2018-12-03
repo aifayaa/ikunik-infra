@@ -1,6 +1,8 @@
-import crypto from 'crypto';
 import { MongoClient } from 'mongodb';
 import winston from 'winston';
+
+import generatePolicy from './lib/generatePolicy';
+import hashLoginToken from './lib/hashLoginToken';
 
 const doAuthorize = async (hashedToken) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -31,26 +33,6 @@ const doAuthorizeAdmin = async (hashedToken) => {
   }
 };
 
-const generatePolicy = (Effect, Resource, principalId) => ({
-  principalId,
-  policyDocument: {
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Action: 'execute-api:Invoke',
-        Effect,
-        Resource: '*',
-      },
-    ],
-  },
-});
-
-const hashLoginToken = (loginToken) => {
-  const hash = crypto.createHash('sha256');
-  hash.update(loginToken);
-  return hash.digest('base64');
-};
-
 export const handleAuthorize = async ({ authorizationToken, methodArn }, context, callback) => {
   try {
     winston.info(authorizationToken, methodArn);
@@ -66,7 +48,11 @@ export const handleAuthorize = async ({ authorizationToken, methodArn }, context
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     return callback(null, response);
   }
@@ -84,7 +70,11 @@ export const handleAuthorizeAdmin = async ({ authorizationToken, methodArn }, co
   } catch (e) {
     const response = {
       statusCode: 401,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }

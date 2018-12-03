@@ -1,0 +1,25 @@
+{
+  "name": "carts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa carts API.",
+  "main": "handler.js",
+  "dependencies": {
+    "mongodb": "^3.1.0",
+    "promise-pool-executor": "^1.1.1",
+    "source-map-support": "^0.5.8",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "babel-preset-env": "^1.7.0",
+    "serverless": "^1.30.0",
+    "serverless-webpack": "^5.2.0",
+    "webpack": "^4.16.5",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}

@@ -15,8 +15,19 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
+  getStages:
+    handler: handlers/getStages.handleGetStages
+    events:
+      - http:
+          path: stages
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+
   getStage:
-    handler: handler.handleGetStage
+    handler: handlers/getStage.handleGetStage
     events:
       - http:
           path: stages/{id}
@@ -29,15 +40,23 @@ functions:
             parameters:
               paths:
                 id: true
+  
+  postStages:
+    handler: handlers/postStage.default
+    events:
+      - http:
+          path: stages
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
 
 plugins:
   - serverless-webpack
 
 package:
   individually: true
-
-custom:
-  webpackIncludeModules: true
 
 resources:
   Outputs:

@@ -1,0 +1,108 @@
+service: scanners
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
+    MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
+    FROM: postmaster
+    COLL_NAME: scanners
+    DB_NAME: crowdaaDev
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    STAGE: ${self:provider.stage}
+    FLOOD_THRESOLD: 10
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      lineup/{id}: ${cf:lineup-${self:provider.stage}.RestApiRootResourceId}
+
+functions:
+  createScanners:
+    handler: handlers/createScanners.default
+    events:
+      - http:
+          path: lineup/{id}/scanners
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  getScannersForLineup:
+    handler: handlers/getScannersForLineup.default
+    events:
+      - http:
+          path: lineup/{id}/scanners
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  getScanner:
+    handler: handlers/getScanner.default
+    events:
+      - http:
+          path: scanners/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  patchScanners:
+    handler: handlers/patchScanner.default
+    events:
+      - http:
+          path: scanners/{id}
+          method: patch
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+  deleteScanners:
+    handler: handlers/deleteScanner.default
+    events:
+      - http:
+          path: scanners/{id}
+          method: delete
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  MAILGUN_API_KEY:
+    dev: key-ee8f3c350f56cbe4002b9c00cce04769
+    prod: key-ee8f3c350f56cbe4002b9c00cce04769
+    awax: key-ee8f3c350f56cbe4002b9c00cce04769
+  MAILGUN_DOMAIN:
+    dev: mg.crowdaa.com
+    prod: mg.crowdaa.com
+    awax: mg.crowdaa.com
+  webpackIncludeModules: true

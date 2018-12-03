@@ -5,6 +5,9 @@ import pick from 'lodash/pick';
 import validator from 'validator';
 import { MongoClient, ObjectId } from 'mongodb';
 
+
+import getProfile from './lib/getProfile';
+
 const lambda = new Lambda({
   region: process.env.REGION,
 });
@@ -209,21 +212,10 @@ const doGetPayouts = async (userId) => {
   }
 };
 
-const doGetProfile = async (userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const profile = await client.db(process.env.DB_NAME).collection('profil')
-      .findOne({ UserId: userId });
-    return profile;
-  } finally {
-    client.close();
-  }
-};
-
 const doGetUser = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const profile = await doGetProfile(userId);
+    const profile = await getProfile(userId);
     const user = await client.db(process.env.DB_NAME).collection('users')
       .findOne({ _id: userId });
     if (profile) {
@@ -238,7 +230,7 @@ const doGetUser = async (userId) => {
 const doGetPaymentInfoByMethod = async (userId, method, profile) => {
   let wProfile;
   if (method === 'paypal' || method === 'btc') {
-    wProfile = profile || await doGetProfile(userId);
+    wProfile = profile || await getProfile(userId);
     if (!wProfile) throw new Error('no profile found');
   }
   switch (method) {
@@ -266,7 +258,7 @@ const doAskPayout = async (userId, amount, method) => {
   })) {
     throw new Error('Wrong amount');
   }
-  const profile = await doGetProfile(userId);
+  const profile = await getProfile(userId);
   if (!profile) throw new Error('no profile found');
 
   const params = {
@@ -434,7 +426,11 @@ export const handleBlastEmail = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -468,7 +464,11 @@ export const handleBlastNotification = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -503,7 +503,11 @@ export const handleBlastText = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -530,7 +534,11 @@ export const handleIsBlastable = async (event, context, callback) => {
   } catch (e) {
     const response = {
       statusCode: 500,
-      message: e.message,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -562,6 +570,10 @@ export const handleGetBalances = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -593,6 +605,10 @@ export const handleGetPurchases = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -624,6 +640,10 @@ export const handleGetPayouts = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -659,6 +679,10 @@ export const handleAddPayout = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -676,7 +700,7 @@ export const handleGetProfile = async (event, context, callback) => {
     return;
   }
   try {
-    const results = await doGetProfile(userId);
+    const results = await getProfile(userId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
@@ -690,6 +714,10 @@ export const handleGetProfile = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -711,6 +739,10 @@ export const handleGetUser = async ({ userId }, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -751,6 +783,10 @@ export const handleGetUserPublic = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -786,6 +822,10 @@ export const handleAddHistory = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
@@ -820,6 +860,10 @@ export const handleGetHistory = async (event, context, callback) => {
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
     };
     callback(null, response);
   }
