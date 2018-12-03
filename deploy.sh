@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# WARNING: carts MS not handled
-
 # no deps
 cd api-v1
 npm i
@@ -29,6 +27,9 @@ cd ../banners
 npm i
 sls deploy --stage $1 --region $2
 cd ../blast
+npm i
+sls deploy --stage $1 --region $2
+cd ../carts
 npm i
 sls deploy --stage $1 --region $2
 cd ../contactLists
