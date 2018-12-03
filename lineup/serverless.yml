@@ -24,7 +24,7 @@ provider:
         - events:RemoveTargets
       Resource: "*"
     - Effect: Allow
-      Action: 
+      Action:
         - iam:PassRole
       Resource: arn:aws:iam::*:role/AWS_Events_Invoke_Targets
     - Effect: Allow
@@ -74,7 +74,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
-  
+
   createNotifyLineup:
     handler: handler.handlerCreateNotifyLineup
     events:
@@ -89,7 +89,7 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
   createNotifyAllLineup:
     handler: handler.handlerCreateNotifyAllLineup
     events:
@@ -100,7 +100,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
-  
+
   getPublicLineups:
     handler: handlers/getLineups.default
     events:
@@ -154,7 +154,7 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
   getUserLineups:
     handler: handlers/getUserLineups.default
     events:
@@ -181,9 +181,11 @@ custom:
     text:
       dev: blast-dev-blastText
       prod: blast-prod-blastText
+      awax: blast-prod-blastText
     notif:
       dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
+      awax: blast-prod-blastNotification
   webpackIncludeModules: true
 
 resources:
