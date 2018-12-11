@@ -2,8 +2,9 @@ import { MongoClient, ObjectId } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
 import winston from 'winston';
 import doGetSelectionSubscriptions from './libs/doGetSelectionSubscriptions';
-import { doLinkMediaToSelection, doUnlinkMediaFromSelection } from './libs/mediaSelections';
+import queryReplace from './libs/queryReplace';
 import { doDeleteUserSelectionTree } from './libs/doDeleteUserSelection';
+import { doLinkMediaToSelection, doUnlinkMediaFromSelection } from './libs/mediaSelections';
 
 import getClient from '../api-keys/getClient';
 
@@ -101,6 +102,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
 
     const [isAudioSelection, isVideoSelection] = [selectionCollection.includes('audio'), selectionCollection.includes('video')];
     const selectionFindQuery = JSON.parse(selection.selectionFindQuery);
+    queryReplace(selectionFindQuery);
     if (selectionFindQuery) selectionFindQuery.isPublished = true;
 
     const sort = JSON.parse(selection.selectionOptionQuery).sort || {};
@@ -392,6 +394,7 @@ const generatePatchUserSelection = async (selectionId, userId, contentIds, selec
     const selectionFindQuery = (selection && selection.selectionFindQuery &&
       JSON.parse(selection.selectionFindQuery)) ||
       (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
+    queryReplace(selectionFindQuery);
     if (!selectionFindQuery._id) selectionFindQuery._id = { $in: [] };
     if (!selectionFindQuery._id.$in) selectionFindQuery._id.$in = [];
     delete selectionFindQuery._id.$exists;
