@@ -48,7 +48,7 @@ export default async (
       Rule: jobId,
       Targets: [
         {
-          Arn: `arn:aws:lambda:us-east-1:630176884077:function:${notifyFuncName}`,
+          Arn: `arn:aws:lambda:${process.env.REGION}:630176884077:function:${notifyFuncName}`,
           Id: getTargetId(lineupId),
           Input: JSON.stringify({ lineupId }),
         },
