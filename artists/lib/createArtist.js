@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectID } from 'mongodb';
 
 const splitParagraphes = (biography = '') => {
   const tmp = biography.split(/(?:\r\n|\r|\n)/g);
@@ -20,6 +20,7 @@ export default async (userId, info) => {
       throw new Error('profil_not_found');
     }
     const artist = {
+      _id: new ObjectID().toString(),
       artistName: info.name,
       profil_ID: profil._id,
       biography: info.biography,
