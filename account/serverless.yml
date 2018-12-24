@@ -8,6 +8,7 @@ provider:
   timeout: 30
   environment:
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    PUBLIC_TOKEN: huDnjgA4I4yf8ay1IIzqk5kZdK4EYMCn8yJNsyAvdFXji8LtFRkTj9GxFgwFvLfX
 
 functions:
   authorize:
@@ -16,6 +17,8 @@ functions:
     handler: handler.handleAuthorizeAdmin
   authorizeArtist:
     handler: handlers/authorizeArtist.default
+  authorizePublic:
+    handler: handlers/authorizePublic.default
 
 plugins:
   - serverless-webpack
@@ -140,6 +143,44 @@ resources:
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] }
 
+    ApiGatewayAuthorizerPublic: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 300
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization
+        Name: authorizePublicAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: TOKEN
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] }
+
+    AuthorizePublicLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizePublicLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
   Outputs:
     ApiGatewayAuthorizerId:
       Description: User authorizer ID
@@ -159,3 +200,9 @@ resources:
         Ref: ApiGatewayAuthorizerArtist
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerArtistId
+    ApiGatewayAuthorizerPublicId:
+      Description: public authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerPublic
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerPublicId
