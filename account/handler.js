@@ -3,19 +3,7 @@ import winston from 'winston';
 
 import generatePolicy from './lib/generatePolicy';
 import hashLoginToken from './lib/hashLoginToken';
-
-const doAuthorize = async (hashedToken) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  try {
-    const user = await client.db('crowdaaDev').collection('users').findOne(
-      { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-      { projection: { _id: 1 } },
-    );
-    return user;
-  } finally {
-    client.close();
-  }
-};
+import authorizeUser from './lib/authorizeUser';
 
 const doAuthorizeAdmin = async (hashedToken) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
@@ -38,7 +26,7 @@ export const handleAuthorize = async ({ authorizationToken, methodArn }, context
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const user = await doAuthorize(hashedLoginToken);
+    const user = await authorizeUser(hashedLoginToken);
     if (user) {
       winston.info('allow', authorizationToken, user._id);
       return callback(null, generatePolicy('allow', methodArn, user._id));
