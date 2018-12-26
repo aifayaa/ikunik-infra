@@ -1,17 +1,53 @@
-image: node:latest
-
-cache:
-  paths:
-    - node_modules/
-
 stages:
   - lint
-
-before_script:
-  - npm install -g recursive-install
-  - npm-recursive-install
+  - pushDev
+  - pushProd
 
 eslint:
+  image: node:latest
+
+  cache:
+    paths:
+      - node_modules/
+
+  before_script:
+    - npm install -g recursive-install
+    - npm-recursive-install
+
   stage: lint
   script:
     - ./node_modules/.bin/eslint . --ext .js --ignore-path .gitignore
+
+pushDevToAWS:
+  variables:
+    S3_BUCKET_NAME: "crowdaa-ms-in-dev"
+
+  image: python:latest
+  stage: pushDev
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq zip
+
+  script:
+    - pip install awscli
+    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
+    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
+
+  only:
+    - dev
+
+pushProdToAWS:
+  variables:
+    S3_BUCKET_NAME: "crowdaa-ms-in-prod"
+
+  image: python:latest
+  stage: pushProd
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq zip
+
+  script:
+    - pip install awscli
+    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
+    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
+
+  only:
+    - master
