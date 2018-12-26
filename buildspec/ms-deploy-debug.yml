@@ -1,0 +1,12 @@
+version: 0.2
+
+phases:
+  pre_build: 
+    commands:
+      - rm -rf package-lock.json
+      - npm i -g serverless
+      - npm i
+
+  build:
+    commands:
+      - npm run deploy:dev
