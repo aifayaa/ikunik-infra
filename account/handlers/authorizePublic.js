@@ -4,7 +4,8 @@ import authorizeUser from '../lib/authorizeUser';
 import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
 
-export default async ({ authorizationToken, methodArn }, context, callback) => {
+export default async ({ headers, methodArn }, context, callback) => {
+  const authorizationToken = headers.Authorization;
   try {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
@@ -15,23 +16,10 @@ export default async ({ authorizationToken, methodArn }, context, callback) => {
       winston.info('allow', authorizationToken, user._id);
       return callback(null, generatePolicy('allow', methodArn, user._id));
     }
-
-    if (loginToken === process.env.PUBLIC_TOKEN) {
-      winston.info('allow', authorizationToken, 'public api key');
-      return callback(null, generatePolicy('allow', methodArn, null));
-    }
-
-    winston.info('deny', authorizationToken);
-    return callback(null, generatePolicy('deny', methodArn, null));
+    winston.info('allow', authorizationToken);
+    return callback(null, generatePolicy('allow', methodArn, null));
   } catch (e) {
-    const response = {
-      statusCode: 401,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    return callback(null, response);
+    winston.info('allow (error)', e);
+    return callback(null, generatePolicy('allow', methodArn, null));
   }
 };

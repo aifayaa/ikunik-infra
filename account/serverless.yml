@@ -8,7 +8,6 @@ provider:
   timeout: 30
   environment:
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    PUBLIC_TOKEN: huDnjgA4I4yf8ay1IIzqk5kZdK4EYMCn8yJNsyAvdFXji8LtFRkTj9GxFgwFvLfX
 
 functions:
   authorize:
@@ -162,7 +161,7 @@ resources:
         IdentitySource: method.request.header.Authorization
         Name: authorizePublicAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
-        Type: TOKEN
+        Type: REQUEST
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] }
 
