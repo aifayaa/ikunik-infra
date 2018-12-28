@@ -8,6 +8,10 @@ export default async ({ headers, methodArn }, context, callback) => {
   const authorizationToken = headers.Authorization;
   try {
     winston.info(authorizationToken, methodArn);
+    if (!authorizationToken) {
+      winston.info('deny', authorizationToken);
+      return callback(null, generatePolicy('allow', methodArn, null));
+    }
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
     const user = await authorizeUser(hashedLoginToken);
@@ -19,7 +23,14 @@ export default async ({ headers, methodArn }, context, callback) => {
     winston.info('deny', authorizationToken);
     return callback(null, generatePolicy('deny', methodArn, null));
   } catch (e) {
-    winston.info('allow (error)', e);
-    return callback(null, generatePolicy('allow', methodArn, null));
+    const response = {
+      statusCode: 401,
+      body: JSON.stringify({ message: e.message }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+    };
+    return callback(null, response);
   }
 };
