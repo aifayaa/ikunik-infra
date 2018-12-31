@@ -1,7 +1,9 @@
-import { MongoClient, ObjectId } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
 import winston from 'winston';
+import { MongoClient, ObjectId } from 'mongodb';
+
 import doGetSelectionSubscriptions from './libs/doGetSelectionSubscriptions';
+import generateSignedURL from '../libs/aws/generateSignedURL';
 import queryReplace from './libs/queryReplace';
 import { doDeleteUserSelectionTree } from './libs/doDeleteUserSelection';
 import { doLinkMediaToSelection, doUnlinkMediaFromSelection } from './libs/mediaSelections';
@@ -37,11 +39,12 @@ const lambda = new Lambda({
 const doCheckSelectionsOwner = async (selectionIds, userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const selections = await client.db(process.env.DB_NAME)
+    const selections = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find({ _id: { $in: selectionIds }, userId: { $ne: userId } })
       .count();
-    return (selections === 0);
+    return selections === 0;
   } finally {
     client.close();
   }
@@ -51,7 +54,8 @@ const doGetSelection = async (selectionId, userId, clients) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const [selections, userSubscriptions] = await Promise.all([
-      client.db(process.env.DB_NAME)
+      client
+        .db(process.env.DB_NAME)
         .collection(process.env.COLL_NAME)
         .aggregate([
           {
@@ -59,117 +63,144 @@ const doGetSelection = async (selectionId, userId, clients) => {
               _id: selectionId,
               clients,
             },
-          }, {
+          },
+          {
             $unwind: {
               path: '$selectionIds',
               preserveNullAndEmptyArrays: true,
             },
-          }, {
+          },
+          {
             $lookup: {
               from: process.env.COLL_NAME,
               localField: 'selectionIds',
               foreignField: '_id',
               as: 'selections',
             },
-          }, {
+          },
+          {
             $unwind: {
               path: '$selections',
               preserveNullAndEmptyArrays: true,
             },
-          }, {
-            $group:
-              Object.assign({}, ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })), {
+          },
+          {
+            $group: Object.assign(
+              {},
+              ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })),
+              {
                 _id: '$_id',
                 selectionIds: { $push: '$selectionIds' },
                 selections: { $push: '$selections' },
-              }),
+              },
+            ),
           },
-        ]).toArray(),
-      client.db(process.env.DB_NAME)
+        ])
+        .toArray(),
+      client
+        .db(process.env.DB_NAME)
         .collection(process.env.USER_SUBS_COLL_NAME)
-        .find({
-          userId,
-          expireAt: { $gt: new Date() },
-        }, { projection: { subscriptionId: 1 } })
+        .find(
+          {
+            userId,
+            expireAt: { $gt: new Date() },
+          },
+          { projection: { subscriptionId: 1 } },
+        )
         .toArray(),
     ]);
     const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
     const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
-    const selectionCollection = typeof selection.selectionCollection === 'string' ?
-      [selection.selectionCollection] : selection.selectionCollection;
+    const selectionCollection =
+      typeof selection.selectionCollection === 'string'
+        ? [selection.selectionCollection]
+        : selection.selectionCollection;
 
-    const [isAudioSelection, isVideoSelection] = [selectionCollection.includes('audio'), selectionCollection.includes('video')];
+    const [isAudioSelection, isVideoSelection] = [
+      selectionCollection.includes('audio'),
+      selectionCollection.includes('video'),
+    ];
     const selectionFindQuery = JSON.parse(selection.selectionFindQuery);
     queryReplace(selectionFindQuery);
     if (selectionFindQuery) selectionFindQuery.isPublished = true;
 
     const sort = JSON.parse(selection.selectionOptionQuery).sort || {};
     const trackSort = {};
-    Object.keys(sort).forEach((key) => { trackSort[`track.${key}`] = sort[key]; });
+    Object.keys(sort).forEach((key) => {
+      trackSort[`track.${key}`] = sort[key];
+    });
 
-    const audioPromise = selection.selectionFindQuery ? client.db(process.env.DB_NAME)
-      .collection('audio')
-      .find(
-        selectionFindQuery,
-        JSON.parse(selection.selectionOptionQuery),
-      ).toArray() : [];
-    const videoPromise = selection.selectionFindQuery ? client.db(process.env.DB_NAME)
-      .collection('video')
-      .find(
-        selectionFindQuery,
-        JSON.parse(selection.selectionOptionQuery),
-      ).toArray() : [];
+    const audioPromise = selection.selectionFindQuery
+      ? client
+        .db(process.env.DB_NAME)
+        .collection('audio')
+        .find(selectionFindQuery, JSON.parse(selection.selectionOptionQuery))
+        .toArray()
+      : [];
+    const videoPromise = selection.selectionFindQuery
+      ? client
+        .db(process.env.DB_NAME)
+        .collection('video')
+        .find(selectionFindQuery, JSON.parse(selection.selectionOptionQuery))
+        .toArray()
+      : [];
 
-    const mediaChannelPromise = !selection.selectionFindQuery ? client.db(process.env.DB_NAME)
-      .collection('mediumSelectionLinks')
-      .aggregate([
-        { $match: { selectionId } },
-        {
-          $lookup: {
-            from: 'audio',
-            localField: 'mediumId',
-            foreignField: '_id',
-            as: 'audio',
+    const mediaChannelPromise = !selection.selectionFindQuery
+      ? client
+        .db(process.env.DB_NAME)
+        .collection('mediumSelectionLinks')
+        .aggregate([
+          { $match: { selectionId } },
+          {
+            $lookup: {
+              from: 'audio',
+              localField: 'mediumId',
+              foreignField: '_id',
+              as: 'audio',
+            },
           },
-        },
-        {
-          $lookup: {
-            from: 'video',
-            localField: 'mediumId',
-            foreignField: '_id',
-            as: 'video',
+          {
+            $lookup: {
+              from: 'video',
+              localField: 'mediumId',
+              foreignField: '_id',
+              as: 'video',
+            },
           },
-        },
-        {
-          $unwind: {
-            path: '$audio',
-            preserveNullAndEmptyArrays: true,
+          {
+            $unwind: {
+              path: '$audio',
+              preserveNullAndEmptyArrays: true,
+            },
           },
-        },
-        {
-          $unwind: {
-            path: '$video',
-            preserveNullAndEmptyArrays: true,
+          {
+            $unwind: {
+              path: '$video',
+              preserveNullAndEmptyArrays: true,
+            },
           },
-        },
-        {
-          $project: {
-            medium: { $ifNull: ['$audio', '$video'] },
+          {
+            $project: {
+              medium: { $ifNull: ['$audio', '$video'] },
+            },
           },
-        },
-        {
-          $unwind: {
-            path: '$medium',
-            preserveNullAndEmptyArrays: true,
+          {
+            $unwind: {
+              path: '$medium',
+              preserveNullAndEmptyArrays: true,
+            },
           },
-        },
-        { $replaceRoot: { newRoot: '$medium' } },
-      ]).toArray() : [];
+          { $replaceRoot: { newRoot: '$medium' } },
+        ])
+        .toArray()
+      : [];
 
     const [audioTracks, videoTracks, mediaChannelTracks] = await Promise.all([
-      audioPromise, videoPromise, mediaChannelPromise,
+      audioPromise,
+      videoPromise,
+      mediaChannelPromise,
     ]);
     const rawTracks = audioTracks.concat(videoTracks, mediaChannelTracks);
     const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
@@ -222,10 +253,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
           $project: {
             iconeThumbFileUrl: true,
             track: {
-              $concatArrays: [
-                isAudioSelection ? '$audio' : [],
-                isVideoSelection ? '$video' : [],
-              ],
+              $concatArrays: [isAudioSelection ? '$audio' : [], isVideoSelection ? '$video' : []],
             },
             trackHighlight: {
               $concatArrays: [
@@ -275,25 +303,33 @@ const doGetSelection = async (selectionId, userId, clients) => {
           $limit: selection.limit || parseInt(process.env.DEFAULT_LIMIT, 10),
         },
       ]);
-      const projectTracks = await client.db(process.env.DB_NAME).collection('Project')
-        .aggregate(aggregationPipeline).toArray();
+      const projectTracks = await client
+        .db(process.env.DB_NAME)
+        .collection('Project')
+        .aggregate(aggregationPipeline)
+        .toArray();
       selection.tracks = projectTracks.map(projectTrack => ({
         ...projectTrack.track,
         projectThumbFileUrl: projectTrack.projectThumbFileUrl,
       }));
     } else {
-      projects = await client.db(process.env.DB_NAME).collection('Project').find(
-        { _id: { $in: projectIds } },
-        { projection: { iconeThumbFileUrl: true } },
-      ).toArray();
+      projects = await client
+        .db(process.env.DB_NAME)
+        .collection('Project')
+        .find({ _id: { $in: projectIds } }, { projection: { iconeThumbFileUrl: true } })
+        .toArray();
       selection.tracks = rawTracks;
     }
     selection.tracks.forEach((track) => {
+      if (track.collection && track.filename && track.fileObj_ID && track.url) {
+        track.url = generateSignedURL(`${track.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${track.fileObj_ID}-${track.filename}`);
+      }
       if (projects) {
         const trackProject = projects.find(project => project._id === track.project_ID) || {};
         track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
       }
-      track.isLocked = !!track.subscriptionIds &&
+      track.isLocked =
+        !!track.subscriptionIds &&
         !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
       if (track.isLocked) delete track.url;
     });
@@ -321,7 +357,8 @@ const doGetSelections = async (type, web, mobile, root) => {
     if (mobile !== 'false') {
       selector.isMobilePublished = { $ne: false };
     }
-    const selections = await client.db(process.env.DB_NAME)
+    const selections = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find(selector)
       .sort({ selectionRank: 1 })
@@ -336,7 +373,8 @@ const doGetSelections = async (type, web, mobile, root) => {
 const doGetUserSelections = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const selections = await client.db(process.env.DB_NAME)
+    const selections = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find({ userId })
       .toArray();
@@ -350,13 +388,15 @@ const doGetUserSelections = async (userId) => {
 const doGetUserRootSelections = async (userId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    let selections = await client.db(process.env.DB_NAME)
+    let selections = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find({ userId, selectionIds: { $exists: true } })
       .toArray();
     selections = selections.map(selection => selection.selectionIds);
     selections = [].concat(...selections);
-    selections = await client.db(process.env.DB_NAME)
+    selections = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .find({ userId, _id: { $nin: selections } })
       .toArray();
@@ -366,7 +406,13 @@ const doGetUserRootSelections = async (userId) => {
   }
 };
 
-const generatePatchUserSelection = async (selectionId, userId, contentIds, selectionIds, action = 'replace') => {
+const generatePatchUserSelection = async (
+  selectionId,
+  userId,
+  contentIds,
+  selectionIds,
+  action = 'replace',
+) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     if (selectionIds && selectionIds.length > 0) {
@@ -387,12 +433,15 @@ const generatePatchUserSelection = async (selectionId, userId, contentIds, selec
     }
 
     let modifier = {};
-    const selection = (action !== 'replace') ?
-      await client.db(process.env.DB_NAME)
-        .collection(process.env.COLL_NAME)
-        .findOne({ _id: selectionId, userId }) : null;
-    const selectionFindQuery = (selection && selection.selectionFindQuery &&
-      JSON.parse(selection.selectionFindQuery)) ||
+    const selection =
+      action !== 'replace'
+        ? await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_NAME)
+          .findOne({ _id: selectionId, userId })
+        : null;
+    const selectionFindQuery =
+      (selection && selection.selectionFindQuery && JSON.parse(selection.selectionFindQuery)) ||
       (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
     queryReplace(selectionFindQuery);
     if (!selectionFindQuery._id) selectionFindQuery._id = { $in: [] };
@@ -452,7 +501,7 @@ const doPatchUserSelection = async (selectionId, userId, patch, noCheck) => {
   if (!noCheck) {
     const allowedOperations = ['$set'];
     const allowedFields = ['selectionName', 'isWebPublished', 'isMobilePublished'];
-    Object.keys(patch).forEach(((key) => {
+    Object.keys(patch).forEach((key) => {
       if (!allowedOperations.includes(key)) {
         throw new Error('operation not allowed');
       }
@@ -461,7 +510,7 @@ const doPatchUserSelection = async (selectionId, userId, patch, noCheck) => {
           throw new Error('operation not allowed');
         }
       });
-    }));
+    });
   }
 
   // modify selectionDisplayName with selectionName
@@ -469,9 +518,13 @@ const doPatchUserSelection = async (selectionId, userId, patch, noCheck) => {
 
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
       .updateOne({ _id: selectionId, userId }, patch);
-    return await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    return await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_NAME)
       .findOne({ _id: selectionId, userId });
   } finally {
     client.close();
@@ -481,16 +534,20 @@ const doPatchUserSelection = async (selectionId, userId, patch, noCheck) => {
 const doCreateUserSelection = async (name, userId, parent) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const subscriptions = parent ? await doGetSelectionSubscriptions(parent, userId) : [{
-      _id: ObjectId().toString(),
-      userId,
-      createAt: new Date(),
-      price: null,
-      name: null,
-      duration: null,
-      desc: null,
-      banners: null,
-    }];
+    const subscriptions = parent
+      ? await doGetSelectionSubscriptions(parent, userId)
+      : [
+        {
+          _id: ObjectId().toString(),
+          userId,
+          createAt: new Date(),
+          price: null,
+          name: null,
+          duration: null,
+          desc: null,
+          banners: null,
+        },
+      ];
     const selection = {
       _id: ObjectId().toString(),
       createAt: new Date(),
@@ -499,10 +556,7 @@ const doCreateUserSelection = async (name, userId, parent) => {
       isWebPublished: false,
       isMobilePublished: false,
       limit: 10,
-      selectionCollection: [
-        'audio',
-        'video',
-      ],
+      selectionCollection: ['audio', 'video'],
       selectionDisplayName: name,
       selectionName: name,
       selectionOptionQuery: '{}',
@@ -510,21 +564,32 @@ const doCreateUserSelection = async (name, userId, parent) => {
       subscriptionIds: subscriptions.map(item => item._id),
     };
     if (parent) {
-      const parentSelection = await client.db(process.env.DB_NAME)
+      const parentSelection = await client
+        .db(process.env.DB_NAME)
         .collection(process.env.COLL_NAME)
         .findOne({ _id: parent }, { rootSelection: 1, subscriptionIds: 1, userId: 1 });
       if (!parentSelection) throw new Error('parent selection not exists');
-      if (parentSelection.userId !== userId) throw new Error('parent selection is owned by an other user');
+      if (parentSelection.userId !== userId) {
+        throw new Error('parent selection is owned by an other user');
+      }
       selection.rootSelectionId = parentSelection.rootSelectionId || parent;
     }
 
     const [patch] = await Promise.all([
-      parent ?
-        generatePatchUserSelection(parent, userId, undefined, [selection._id], 'add')
-        : client.db(process.env.DB_NAME).collection('subscriptions').insertMany(subscriptions),
-      client.db(process.env.DB_NAME).collection(process.env.COLL_NAME).insertOne(selection),
+      parent
+        ? generatePatchUserSelection(parent, userId, undefined, [selection._id], 'add')
+        : client
+          .db(process.env.DB_NAME)
+          .collection('subscriptions')
+          .insertMany(subscriptions),
+      client
+        .db(process.env.DB_NAME)
+        .collection(process.env.COLL_NAME)
+        .insertOne(selection),
     ]);
-    if (parent) { await doPatchUserSelection(parent, userId, patch, true); }
+    if (parent) {
+      await doPatchUserSelection(parent, userId, patch, true);
+    }
     return selection;
   } finally {
     client.close();
@@ -721,20 +786,16 @@ export const handlePatchUserSelection = async (event, context, callback) => {
   }
   try {
     const { selectionId } = event.pathParameters;
-    const { contentIds,
-      selectionIds,
-      action,
-      patch } = JSON.parse(event.body);
-    if ((!contentIds && !selectionIds && !patch) || ![undefined, 'replace', 'remove', 'add', 'patch'].includes(action)) {
+    const { contentIds, selectionIds, action, patch } = JSON.parse(event.body);
+    if (
+      (!contentIds && !selectionIds && !patch) ||
+      ![undefined, 'replace', 'remove', 'add', 'patch'].includes(action)
+    ) {
       throw new Error('malformed request');
     }
     let results;
     if (action === 'patch') {
-      results = await doPatchUserSelection(
-        selectionId,
-        userId,
-        patch,
-      );
+      results = await doPatchUserSelection(selectionId, userId, patch);
     } else {
       const modifier = await generatePatchUserSelection(
         selectionId,
@@ -743,12 +804,7 @@ export const handlePatchUserSelection = async (event, context, callback) => {
         selectionIds,
         action,
       );
-      results = await doPatchUserSelection(
-        selectionId,
-        userId,
-        modifier,
-        true,
-      );
+      results = await doPatchUserSelection(selectionId, userId, modifier, true);
     }
     const response = {
       statusCode: 200,

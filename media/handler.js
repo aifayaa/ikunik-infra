@@ -1,5 +1,8 @@
-import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
+import { MongoClient } from 'mongodb';
+import { URL } from 'url';
+
+import generateSignedURL from '../libs/aws/generateSignedURL';
 import isMediaLocked from './lib/isMediaLocked';
 
 const lambda = new Lambda({
@@ -25,15 +28,17 @@ function makeResponse(statusCode, error, result) {
 const doCheckUserMedia = async (userId, mediaIds) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const audios = await client.db(process.env.DB_NAME)
+    const audios = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_AUDIOS)
       .find({ _id: { $in: mediaIds }, fromUserId: { $ne: userId } })
       .count();
-    const videos = await client.db(process.env.DB_NAME)
+    const videos = await client
+      .db(process.env.DB_NAME)
       .collection(process.env.COLL_VIDEOS)
       .find({ _id: { $in: mediaIds }, fromUserId: { $ne: userId } })
       .count();
-    return (audios === 0 && videos === 0);
+    return audios === 0 && videos === 0;
   } finally {
     client.close();
   }
@@ -45,18 +50,26 @@ const doGetMedium = async (userId, mediumType, mediumId) => {
     let medium;
     switch (mediumType) {
       case 'audio':
-        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+        medium = await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_AUDIOS)
           .findOne({ _id: mediumId });
         break;
       case 'video':
-        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+        medium = await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_VIDEOS)
           .findOne({ _id: mediumId });
         break;
       case 'all':
-        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
+        medium = await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_AUDIOS)
           .findOne({ _id: mediumId });
         if (!medium) {
-          medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
+          medium = await client
+            .db(process.env.DB_NAME)
+            .collection(process.env.COLL_VIDEOS)
             .findOne({ _id: mediumId });
         }
         break;
@@ -64,6 +77,14 @@ const doGetMedium = async (userId, mediumType, mediumId) => {
         throw new Error('wrong type');
     }
     if (!medium) throw new Error('medium not found');
+    if (medium.collection && medium.filename && medium.fileObj_ID && medium.url) {
+      medium.url = generateSignedURL(
+        `${medium.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${medium.fileObj_ID}-${
+          medium.filename
+        }`,
+        new URL(medium.url).host,
+      );
+    }
     const params = {
       FunctionName: `subscriptions-${process.env.STAGE}-isUserSubscribed`,
       Payload: JSON.stringify({ userId, subIds: medium.subscriptionIds }),
@@ -89,34 +110,54 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
     switch (mediumType) {
       case 'audio':
         mediaCol = 'audio';
-        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
-          .findOneAndUpdate({ _id: mediumId }, {
-            $inc: { views: 1 },
-            $set: { lastView: new Date() },
-          });
+        medium = await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_AUDIOS)
+          .findOneAndUpdate(
+            { _id: mediumId },
+            {
+              $inc: { views: 1 },
+              $set: { lastView: new Date() },
+            },
+          );
         break;
       case 'video':
         mediaCol = 'video';
-        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
-          .findOneAndUpdate({ _id: mediumId }, {
-            $inc: { views: 1 },
-            $set: { lastView: new Date() },
-          });
+        medium = await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_VIDEOS)
+          .findOneAndUpdate(
+            { _id: mediumId },
+            {
+              $inc: { views: 1 },
+              $set: { lastView: new Date() },
+            },
+          );
         break;
       case 'all':
         mediaCol = 'audio';
-        medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_AUDIOS)
-          .findOneAndUpdate({ _id: mediumId }, {
-            $inc: { views: 1 },
-            $set: { lastView: new Date() },
-          });
-        if (!medium) {
-          mediaCol = 'video';
-          medium = await client.db(process.env.DB_NAME).collection(process.env.COLL_VIDEOS)
-            .findOneAndUpdate({ _id: mediumId }, {
+        medium = await client
+          .db(process.env.DB_NAME)
+          .collection(process.env.COLL_AUDIOS)
+          .findOneAndUpdate(
+            { _id: mediumId },
+            {
               $inc: { views: 1 },
               $set: { lastView: new Date() },
-            });
+            },
+          );
+        if (!medium) {
+          mediaCol = 'video';
+          medium = await client
+            .db(process.env.DB_NAME)
+            .collection(process.env.COLL_VIDEOS)
+            .findOneAndUpdate(
+              { _id: mediumId },
+              {
+                $inc: { views: 1 },
+                $set: { lastView: new Date() },
+              },
+            );
         }
         break;
       default:
@@ -129,14 +170,16 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
 
     // Deadline should be update only if it's freePerDay distros
     if (distribution && distribution.includes('PerDay')) {
-      const deadlines = await client.db(process.env.DB_NAME).collection('deadlines')
+      const deadlines = await client
+        .db(process.env.DB_NAME)
+        .collection('deadlines')
         .findOne({
           userId,
           content_ID: mediumId,
         });
       const { deadlineDate } = deadlines || {};
 
-      if ((deadlines && (new Date() > deadlineDate)) || !deadlines) {
+      if ((deadlines && new Date() > deadlineDate) || !deadlines) {
         // Deadline expired or no deadline, new one
         console.log(
           'create a new deadline because',
@@ -160,56 +203,90 @@ const doPostMediumView = async (userId, mediumType, mediumId) => {
             throw new Error('wrong distribution');
         }
         const newLastView = maxViews - 1;
-        await client.db(process.env.DB_NAME).collection('deadlines')
-          .updateOne({
-            userId,
-            content_ID: mediumId,
-          }, {
-            $set: {
-              deadlineDate: newDate,
-              lastView: newLastView,
+        await client
+          .db(process.env.DB_NAME)
+          .collection('deadlines')
+          .updateOne(
+            {
+              userId,
+              content_ID: mediumId,
             },
-          }, {
-            upsert: true,
-          });
+            {
+              $set: {
+                deadlineDate: newDate,
+                lastView: newLastView,
+              },
+            },
+            {
+              upsert: true,
+            },
+          );
       } else {
         console.log('update an existing deadline');
         // Simple update the deadline to decrement
-        await client.db(process.env.DB_NAME).collection('deadlines')
-          .updateOne({
-            userId,
-            content_ID: mediumId,
-          }, {
-            $inc: {
-              lastView: -1,
+        await client
+          .db(process.env.DB_NAME)
+          .collection('deadlines')
+          .updateOne(
+            {
+              userId,
+              content_ID: mediumId,
             },
-          }, {
-            upsert: true,
-          });
+            {
+              $inc: {
+                lastView: -1,
+              },
+            },
+            {
+              upsert: true,
+            },
+          );
       }
     }
 
-    await client.db(process.env.DB_NAME).collection('Project')
-      .updateOne({ _id: medium.project_ID }, {
-        $inc: { views: 1 },
-        $set: { lastView: new Date() },
-      });
-    await client.db(process.env.DB_NAME).collection('contentByUserMetric')
-      .updateOne({ user_ID: userId, content_ID: mediumId }, {
-        $inc: { views: 1 },
-        $set: { date: new Date(), collection: mediaCol },
-      }, { upsert: true });
+    await client
+      .db(process.env.DB_NAME)
+      .collection('Project')
+      .updateOne(
+        { _id: medium.project_ID },
+        {
+          $inc: { views: 1 },
+          $set: { lastView: new Date() },
+        },
+      );
+    await client
+      .db(process.env.DB_NAME)
+      .collection('contentByUserMetric')
+      .updateOne(
+        { user_ID: userId, content_ID: mediumId },
+        {
+          $inc: { views: 1 },
+          $set: { date: new Date(), collection: mediaCol },
+        },
+        { upsert: true },
+      );
 
     // update the total number for Crowdaa
     // Historic code
-    await client.db(process.env.DB_NAME).collection('metrics')
-      .updateOne({ _id: '3FD4vNCuXXxtjN3fD' }, {
-        $inc: { views: 1 },
-      });
-    await client.db(process.env.DB_NAME).collection('views')
-      .updateOne({ userID: userId, content_ID: mediumId }, {
-        $inc: { numviews: 1 },
-      }, { upsert: true });
+    await client
+      .db(process.env.DB_NAME)
+      .collection('metrics')
+      .updateOne(
+        { _id: '3FD4vNCuXXxtjN3fD' },
+        {
+          $inc: { views: 1 },
+        },
+      );
+    await client
+      .db(process.env.DB_NAME)
+      .collection('views')
+      .updateOne(
+        { userID: userId, content_ID: mediumId },
+        {
+          $inc: { numviews: 1 },
+        },
+        { upsert: true },
+      );
     return true;
   } finally {
     client.close();

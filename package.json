@@ -10,6 +10,7 @@
     "deploy:awax": "./deploy.sh awax eu-west-3"
   },
   "dependencies": {
+    "aws-sdk": "^2.382.0",
     "babel-runtime": "^6.26.0",
     "eslint": "^4.17.0"
   },
