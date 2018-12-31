@@ -9,7 +9,7 @@ export default async ({ headers, methodArn }, context, callback) => {
   try {
     winston.info(authorizationToken, methodArn);
     if (!authorizationToken) {
-      winston.info('deny', authorizationToken);
+      winston.info('allow public');
       return callback(null, generatePolicy('allow', methodArn, null));
     }
     const loginToken = authorizationToken.split(' ')[1];
@@ -23,6 +23,7 @@ export default async ({ headers, methodArn }, context, callback) => {
     winston.info('deny', authorizationToken);
     return callback(null, generatePolicy('deny', methodArn, null));
   } catch (e) {
+    winston.info('forbidden', e);
     const response = {
       statusCode: 401,
       body: JSON.stringify({ message: e.message }),

@@ -145,7 +145,7 @@ resources:
     ApiGatewayAuthorizerPublic: 
       Type: AWS::ApiGateway::Authorizer
       Properties: 
-        AuthorizerResultTtlInSeconds: 300
+        AuthorizerResultTtlInSeconds: 0
         AuthorizerUri : {
           "Fn::Join": [
             "",
@@ -158,7 +158,7 @@ resources:
             ]
           ]
         }
-        IdentitySource: method.request.header.Authorization
+        IdentitySource: method.request.header.X-Amz-Cf-Id
         Name: authorizePublicAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
