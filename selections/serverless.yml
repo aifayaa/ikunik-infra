@@ -8,18 +8,11 @@ provider:
   memorySize: 128
   timeout: 30
   iamRoleStatements:
-   - Effect: Allow
-     Action:
-       - lambda:InvokeFunction
-     Resource: "*"
-  environment:
-    REGION: ${self:provider.region}
-    STAGE: ${self:provider.stage}
-    COLL_NAME: selection
-    DB_NAME: crowdaaDev
-    DEFAULT_LIMIT: 15
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    USER_SUBS_COLL_NAME: userSubscriptions
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -37,7 +30,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           cors:
-            origin: '*'
+            origin: "*"
             headers:
               - Cache-Control
               - Content-Type
@@ -77,7 +70,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors:
-            origin: '*'
+            origin: "*"
             headers:
               - Cache-Control
               - Content-Type
@@ -105,7 +98,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors:
-            origin: '*'
+            origin: "*"
             headers:
               - Cache-Control
               - Content-Type
@@ -166,7 +159,7 @@ functions:
               paths:
                 id: true
                 selectionId: true
-  
+
   linkMediaToSelection:
     handler: handler.handleLinkMediaToSelection
     events:
@@ -202,9 +195,6 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpackIncludeModules: true
 
 resources:
   Resources:

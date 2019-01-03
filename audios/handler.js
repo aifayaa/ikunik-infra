@@ -1,10 +1,21 @@
 import { MongoClient } from 'mongodb';
+import { URL } from 'url';
+
+import generateSignedURL from '../libs/aws/generateSignedURL';
 
 const doGetAudio = async (audioId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const audio = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    const audio = await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_AUDIOS)
       .findOne({ _id: audioId });
+    if (audio.filename && audio.fileObj_ID && audio.url) {
+      audio.url = generateSignedURL(
+        `MusicStorage/${audio.fileObj_ID}-${audio.filename}`,
+        new URL(audio.url).host,
+      );
+    }
     return audio;
   } finally {
     client.close();
