@@ -1,18 +1,56 @@
 {
-  "credit10": {
-    "price": 0.99,
-    "credits": 10
+  "dev": {
+    "credit10": {
+      "price": 0.99,
+      "credits": 10
+    },
+    "credit50": {
+      "price": 4.99,
+      "credits": 50
+    },
+    "credit100": {
+      "price": 9.99,
+      "credits": 100
+    },
+    "credit160": {
+      "price": 14.99,
+      "credits": 160
+    }
   },
-  "credit50": {
-    "price": 4.99,
-    "credits": 50
+  "prod": {
+    "credit10": {
+      "price": 0.99,
+      "credits": 10
+    },
+    "credit50": {
+      "price": 4.99,
+      "credits": 50
+    },
+    "credit100": {
+      "price": 9.99,
+      "credits": 100
+    },
+    "credit160": {
+      "price": 14.99,
+      "credits": 160
+    }
   },
-  "credit100": {
-    "price": 9.99,
-    "credits": 100
-  },
-  "credit160": {
-    "price": 14.99,
-    "credits": 160
+  "awax": {
+    "runhitcredit10": {
+      "price": 0.99,
+      "credits": 10
+    },
+    "runhitcredit50": {
+      "price": 4.99,
+      "credits": 50
+    },
+    "runhitcredit100": {
+      "price": 9.99,
+      "credits": 100
+    },
+    "runhitcredit160": {
+      "price": 14.99,
+      "credits": 160
+    }
   }
 }

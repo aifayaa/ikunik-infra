@@ -10,7 +10,8 @@ const computeiOSFees = amount => amount * process.env.IOS_FEES;
 
 // Assume this is called only by iOS for the moment
 const doOpenOrder = async (creditPackId, userId) => {
-  const pack = creditsPacks[creditPackId];
+  const packs = creditsPacks[process.env.STAGE];
+  const pack = packs[creditPackId];
   if (!pack) {
     throw new Error('Unknown credit pack asked');
   }
