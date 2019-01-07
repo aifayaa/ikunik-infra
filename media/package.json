@@ -5,8 +5,8 @@
   "description": "Crowdaa media API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.232.1",
-    "mongodb": "^3.0.2",
+    "aws-sdk": "^2.384.0",
+    "mongodb": "^3.1.10",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {
