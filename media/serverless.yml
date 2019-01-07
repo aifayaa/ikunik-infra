@@ -80,6 +80,3 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpackIncludeModules: true
