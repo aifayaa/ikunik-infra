@@ -16,6 +16,8 @@ functions:
     handler: handler.handleAuthorizeAdmin
   authorizeArtist:
     handler: handlers/authorizeArtist.default
+  authorizePublic:
+    handler: handlers/authorizePublic.default
 
 plugins:
   - serverless-webpack
@@ -140,6 +142,44 @@ resources:
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] }
 
+    ApiGatewayAuthorizerPublic: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 0
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.X-Amz-Cf-Id
+        Name: authorizePublicAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: REQUEST
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] }
+
+    AuthorizePublicLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizePublicLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
   Outputs:
     ApiGatewayAuthorizerId:
       Description: User authorizer ID
@@ -159,3 +199,9 @@ resources:
         Ref: ApiGatewayAuthorizerArtist
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerArtistId
+    ApiGatewayAuthorizerPublicId:
+      Description: public authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerPublic
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerPublicId
