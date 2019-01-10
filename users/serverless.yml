@@ -19,6 +19,9 @@ provider:
     CROWDAA_FEES: 0.2
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    SNS_REGION: us-west-2
+    SNS_KEY_ID: AKIAI3H2I7ZIK4ARL2NA
+    SNS_SECRET: 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
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -182,6 +185,21 @@ functions:
     events:
       - http:
           path: users/{id}/payouts
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  sendPinCode:
+    handler: handlers/sendPinCode.default
+    events:
+      - http:
+          path: users/{id}/phone
           method: post
           authorizer:
             type: CUSTOM
