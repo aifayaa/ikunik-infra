@@ -17,7 +17,6 @@ provider:
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
     STAGE: ${self:provider.stage}
-    AWS_REGION: ${self:provider.region}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
