@@ -23,10 +23,10 @@ export default async (event, context, callback) => {
       throw new Error('mal formed request');
     }
     const { phoneNumber, pinCode, deviceUuid } = JSON.parse(event.body);
-    if (!phoneNumber || !pinCode || !deviceUuid) {
+    if (!phoneNumber || !pinCode) {
       throw new Error('mal formed request');
     }
-    await checkPinCode(phoneNumber, pinCode, deviceUuid, userId);
+    await checkPinCode(phoneNumber, pinCode, (deviceUuid || null), userId);
     response.statusCode = 200;
     response.body = JSON.stringify(true);
   } catch (e) {
