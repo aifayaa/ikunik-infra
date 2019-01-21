@@ -1,4 +1,4 @@
-service: pressCategories
+service: pressArticles
 
 provider:
   name: aws
@@ -7,7 +7,7 @@ provider:
   memorySize: 128
   timeout: 30
   environment:
-    COLL_NAME: pressCategories
+    COLL_NAME: pressArticles
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
     STAGE: ${self:provider.stage}
@@ -18,18 +18,18 @@ provider:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
 
 functions:
-  getCategories:
-    handler: handlers/getCategories.default
+  getArticles:
+    handler: handlers/getArticles.default
     events:
       - http:
-          path: press/categories
+          path: press/articles/
           method: get
           cors: true
-  getCategory:
-    handler: handlers/getCategory.default
+  getArticle:
+    handler: handlers/getArticle.default
     events:
       - http:
-          path: press/categories/{id}
+          path: press/articles/{id}
           method: get
           cors: true
           request:
