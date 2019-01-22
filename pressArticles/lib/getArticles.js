@@ -12,23 +12,23 @@ export default async (catPath, start, limit) => {
             from: 'pressCategories',
             localField: 'categoryId',
             foreignField: '_id',
-            as: 'pressCategories',
+            as: 'category',
           },
         },
         {
           $unwind: {
-            path: '$pressCategories',
+            path: '$category',
             preserveNullAndEmptyArrays: true,
           },
         },
         {
-          $match: { 'pressCategories.pathName': catPath },
+          $match: (catPath ? { 'category.pathName': catPath } : { _id: { $exists: true } }),
         },
         {
           $sort: { createdAt: -1 },
         },
-        { $limit: (limit || 10) },
-        { $skip: (start || 0) },
+        { $limit: (parseInt(limit, 10) || 10) },
+        { $skip: (parseInt(start, 10) || 0) },
       ])
       .toArray();
     return { articles };
