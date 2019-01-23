@@ -13,12 +13,12 @@ export default async (id) => {
             from: 'pressCategories',
             localField: 'categoryId',
             foreignField: '_id',
-            as: 'pressCategories',
+            as: 'category',
           },
         },
         {
           $unwind: {
-            path: '$pressCategories',
+            path: '$category',
             preserveNullAndEmptyArrays: true,
           },
         },

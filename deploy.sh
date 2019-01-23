@@ -15,6 +15,9 @@ sls deploy --stage $1 --region $2
 cd ../ssr
 npm i
 sls deploy --stage $1 --region $2
+cd ../press
+npm i
+sls deploy --stage $1 --region $2
 
 # + authorizer
 cd ../audios
@@ -115,5 +118,14 @@ npm i
 sls deploy --stage $1 --region $2
 
 cd ../scanners
+npm i
+sls deploy --stage $1 --region $2
+
+# + press api id
+cd ../pressCategories
+npm i
+sls deploy --stage $1 --region $
+
+cd ../pressArticles
 npm i
 sls deploy --stage $1 --region $2
