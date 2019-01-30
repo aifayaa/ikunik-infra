@@ -7,7 +7,7 @@
   "scripts": {
     "deploy:dev": "./deploy.sh dev us-east-1",
     "deploy:prod": "./deploy.sh prod us-east-1",
-    "deploy:awax": "./deploy.sh awax eu-west-3"
+    "deploy:awax": "./deploy.sh awax eu-west-1"
   },
   "dependencies": {
     "aws-sdk": "^2.382.0",

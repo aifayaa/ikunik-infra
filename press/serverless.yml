@@ -1,0 +1,38 @@
+service: press
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+
+functions:
+  getPress:
+    handler: handler.handleGetPress
+    events:
+      - http:
+          path: press
+          method: get
+          cors: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  webpackIncludeModules: true
+
+resources:
+  Outputs:
+    RestApiRootResourceId:
+      Description: Api Gateway press ID
+      Value:
+        Ref: ApiGatewayResourcePress
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId
