@@ -77,6 +77,16 @@ const doGetMedium = async (userId, mediumType, mediumId) => {
         throw new Error('wrong type');
     }
     if (!medium) throw new Error('medium not found');
+    if (medium.pictureId) {
+      // get picture
+      const picture = await client
+        .db(process.env.DB_NAME)
+        .collection('pictures')
+        .findOne({ _id: medium.pictureId });
+      if (picture) {
+        medium.picture = picture;
+      }
+    }
     if (medium.collection && medium.filename && medium.fileObj_ID && medium.url) {
       medium.url = generateSignedURL(
         `${medium.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${medium.fileObj_ID}-${
