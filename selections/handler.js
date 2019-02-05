@@ -136,8 +136,22 @@ const doGetSelection = async (selectionId, userId, clients) => {
       ? client
         .db(process.env.DB_NAME)
         .collection('audio')
-        .find(selectionFindQuery, JSON.parse(selection.selectionOptionQuery))
-        .toArray()
+        .aggregate([
+          { $match: selectionFindQuery },
+          {
+            $lookup: {
+              from: 'pictures',
+              localField: 'pictureId',
+              foreignField: '_id',
+              as: 'picture',
+            },
+          },
+          {
+            $addFields: {
+              picture: { $arrayElemAt: ['$picture', 0] },
+            },
+          },
+        ]).toArray()
       : [];
     const videoPromise = selection.selectionFindQuery
       ? client
@@ -280,6 +294,19 @@ const doGetSelection = async (selectionId, userId, clients) => {
         {
           $unwind: {
             path: '$track',
+          },
+        },
+        {
+          $lookup: {
+            from: 'pictures',
+            localField: 'pictureId',
+            foreignField: '_id',
+            as: 'picture',
+          },
+        },
+        {
+          $addFields: {
+            picture: { $arrayElemAt: ['$picture', 0] },
           },
         },
         {
