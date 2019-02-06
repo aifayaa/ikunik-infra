@@ -1,0 +1,130 @@
+{
+  "_id": "d229a519-5506-4c7a-af0b-6dc8e11abdc7",
+  "banners": null,
+  "content_IDs": null,
+  "createAt": {
+    "$date": {
+      "$numberLong": "1544509357728"
+    }
+  },
+  "date": "Anytime",
+  "enableShop": null,
+  "iconeThumbFileUrl": "",
+  "isPublished": true,
+  "isRoot": true,
+  "isWebPublished": true,
+  "limit": null,
+  "onlyHighlighted": null,
+  "overrideIcon": "https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink.png",
+  "selectionCollection": [
+    "audio",
+    "video"
+  ],
+  "selectionDisplayName": "Genres",
+  "selectionFindQuery": "{\"_id\": {\"$exists\": false}}",
+  "selectionName": "Genres",
+  "selectionOptionQuery": "{}",
+  "selectionRank": {
+    "$numberDouble": "9"
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1544509357728"
+    }
+  },
+  "selectionIds": [
+    "6a6251a2-bfe4-434d-81c3-5958121e9db2",
+    "6ed9caa1-6a88-4962-9ef2-cb02e93f7a4f",
+    "7a107ffb-58f1-4364-bb41-a2856b65ac0b",
+    "4f0f8061-9016-489e-9fde-b704e8016aca",
+    "57e23198-540e-48bf-9699-f78cabf1ccbc"
+  ],
+  "selections": [
+    {
+      "_id": "6a6251a2-bfe4-434d-81c3-5958121e9db2",
+      "createAt": "2018-12-11T06:22:37.728Z",
+      "selectionCollection": "audio",
+      "selectionFindQuery": "{\"selectedGenres.text\": \"Afro\"}",
+      "selectionOptionQuery": "{\"sort\":{\"views\":-1}}",
+      "date": "Anytime",
+      "selectionName": "afro",
+      "selectionDisplayName": "Afro",
+      "updatedAt": "2018-12-11T06:22:37.728Z",
+      "isPublished": true,
+      "content_IDs": [],
+      "clients": [
+        "awax"
+      ],
+      "overrideIcon": "https://d1m3cwh7hj7lba.cloudfront.net/icon_selection_awax_afro.jpg"
+    },
+    {
+      "_id": "6ed9caa1-6a88-4962-9ef2-cb02e93f7a4f",
+      "createAt": "2018-12-11T06:22:37.728Z",
+      "selectionCollection": "audio",
+      "selectionFindQuery": "{\"selectedGenres.text\": \"Ragga/Dancehall\"}",
+      "selectionOptionQuery": "{\"sort\":{\"views\":-1}}",
+      "date": "Anytime",
+      "selectionName": "ragga/dancehall",
+      "selectionDisplayName": "Ragga/Dancehall",
+      "updatedAt": "2018-12-11T06:22:37.728Z",
+      "isPublished": true,
+      "content_IDs": [],
+      "clients": [
+        "awax"
+      ],
+      "overrideIcon": "https://d1m3cwh7hj7lba.cloudfront.net/icon_selection_awax_ragga.jpg"
+    },
+    {
+      "_id": "7a107ffb-58f1-4364-bb41-a2856b65ac0b",
+      "createAt": "2018-12-11T06:22:37.728Z",
+      "selectionCollection": "audio",
+      "selectionFindQuery": "{\"selectedGenres.text\": \"Urbain\"}",
+      "selectionOptionQuery": "{\"sort\":{\"views\":-1}}",
+      "date": "Anytime",
+      "selectionName": "urbain",
+      "selectionDisplayName": "Urbain",
+      "updatedAt": "2018-12-11T06:22:37.728Z",
+      "isPublished": true,
+      "content_IDs": [],
+      "clients": [
+        "awax"
+      ],
+      "overrideIcon": "https://d1m3cwh7hj7lba.cloudfront.net/icon_selection_awax_urbain.jpg"
+    },
+    {
+      "_id": "4f0f8061-9016-489e-9fde-b704e8016aca",
+      "createAt": "2018-12-11T06:22:37.728Z",
+      "selectionCollection": "audio",
+      "selectionFindQuery": "{\"selectedGenres.text\": \"World Music\"}",
+      "selectionOptionQuery": "{\"sort\":{\"views\":-1}}",
+      "date": "Anytime",
+      "selectionName": "world music",
+      "selectionDisplayName": "World Music",
+      "updatedAt": "2018-12-11T06:22:37.728Z",
+      "isPublished": true,
+      "content_IDs": [],
+      "clients": [
+        "awax"
+      ],
+      "overrideIcon": "https://d1m3cwh7hj7lba.cloudfront.net/icon_selection_awax_world.jpg"
+    },
+    {
+      "_id": "57e23198-540e-48bf-9699-f78cabf1ccbc",
+      "createAt": "2018-12-11T06:22:37.728Z",
+      "selectionCollection": "audio",
+      "selectionFindQuery": "{\"selectedGenres.text\": \"Zouk/Kompas\"}",
+      "selectionOptionQuery": "{\"sort\":{\"views\":-1}}",
+      "date": "Anytime",
+      "selectionName": "zouk/kompas",
+      "selectionDisplayName": "Zouk/Kompas",
+      "updatedAt": "2018-12-11T06:22:37.728Z",
+      "isPublished": true,
+      "content_IDs": [],
+      "clients": [
+        "awax"
+      ],
+      "overrideIcon": "https://d1m3cwh7hj7lba.cloudfront.net/icon_selection_awax_zouk.jpg"
+    }
+  ],
+  "tracks": []
+}
