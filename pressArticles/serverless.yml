@@ -36,6 +36,16 @@ functions:
             parameters:
               paths:
                 id: true
+  postArticle:
+    handler: handlers/postArticle.default
+    events:
+      - http:
+          path: press/articles
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 plugins:
   - serverless-webpack
 
