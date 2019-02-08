@@ -9,4 +9,4 @@ phases:
 
   build:
     commands:
-      - npm run deploy:dev
+      - ./deployDiff.sh dev us-east-1
