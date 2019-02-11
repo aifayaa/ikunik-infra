@@ -36,6 +36,20 @@ functions:
             parameters:
               paths:
                 id: true
+  getArticleDraft:
+    handler: handlers/getArticleDraft.default
+    events:
+      - http:
+          path: press/articles/{id}/draft
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                id: true
   postArticle:
     handler: handlers/postArticle.default
     events:
@@ -46,6 +60,26 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+  putArticle:
+      handler: handlers/putArticle.default
+      events:
+        - http:
+            path: press/articles
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+  pusblishArticle:
+      handler: handlers/pusblishArticle.default
+      events:
+        - http:
+            path: press/articles/{id}/publish
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 plugins:
   - serverless-webpack
 
