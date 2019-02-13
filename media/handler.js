@@ -95,6 +95,7 @@ const doGetMedium = async (userId, mediumType, mediumId) => {
         new URL(medium.url).host,
       );
     }
+
     const params = {
       FunctionName: `subscriptions-${process.env.STAGE}-isUserSubscribed`,
       Payload: JSON.stringify({ userId, subIds: medium.subscriptionIds }),
@@ -106,6 +107,9 @@ const doGetMedium = async (userId, mediumType, mediumId) => {
       delete medium.video480Url;
       medium.isLocked = true;
     }
+    const { state } = await isMediaLocked(userId, medium);
+    // medium.isLocked = isLocked; TO NOT imply mobile diff
+    medium.lockState = state;
     return medium;
   } finally {
     client.close();
