@@ -13,13 +13,15 @@ export default async (userId, articleId, draftId) => {
     const { title, summary, text, md, _id } = draft;
     await client.db(process.env.DB_NAME).collection('pressDrafts')
       .updateOne({ _id: articleId }, {
-        title,
-        summary,
-        text,
-        md,
-        draftId: _id,
-        isPublished: true,
-        publishedBy: userId,
+        $set: {
+          title,
+          summary,
+          text,
+          md,
+          draftId: _id,
+          isPublished: true,
+          publishedBy: userId,
+        },
       });
 
     return { articleId, draftId };
