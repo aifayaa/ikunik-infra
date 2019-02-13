@@ -49,7 +49,7 @@ export default async (userId, categoryId, title, summary, html, md) => {
     }
     throw error;
   } finally {
-    client.close();
     if (session) session.endSession();
+    client.close();
   }
 };

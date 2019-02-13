@@ -70,8 +70,8 @@ functions:
             authorizer:
               type: CUSTOM
               authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
-  pusblishArticle:
-      handler: handlers/pusblishArticle.default
+  publishArticle:
+      handler: handlers/publishArticle.default
       events:
         - http:
             path: press/articles/{id}/publish
@@ -87,4 +87,6 @@ package:
   individually: true
 
 custom:
-  webpackIncludeModules: true
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules: true

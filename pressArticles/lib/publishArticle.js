@@ -1,31 +1,77 @@
 import { MongoClient } from 'mongodb';
 
 export default async (userId, articleId, draftId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+  });
+  let session;
 
   try {
-    const draft = await client.db(process.env.DB_NAME).collection('pressDrafts')
-      .findOne({ articleId, _id: draftId });
+    session = client.startSession();
+    session.startTransaction();
+    const opts = { session };
+
+    const draft = await client
+      .db(process.env.DB_NAME)
+      .collection('pressDrafts')
+      .findOne({ articleId, _id: draftId }, opts);
     if (!draft) {
       throw new Error('Not found');
     }
 
     const { title, summary, text, md, _id } = draft;
-    await client.db(process.env.DB_NAME).collection('pressDrafts')
-      .updateOne({ _id: articleId }, {
-        title,
-        summary,
-        text,
-        md,
-        draftId: _id,
-        isPublished: true,
-        publishedBy: userId,
-      });
+    await client
+      .db(process.env.DB_NAME)
+      .collection('pressArticles')
+      .updateOne(
+        { _id: articleId },
+        {
+          $set: {
+            title,
+            summary,
+            text,
+            md,
+            draftId: _id,
+            isPublished: true,
+            publishedBy: userId,
+          },
+        },
+        opts,
+      );
+
+    await client
+      .db(process.env.DB_NAME)
+      .collection('pressDrafts')
+      .updateMany(
+        { articleId },
+        {
+          $set: {
+            isPublished: false,
+          },
+        },
+        opts,
+      );
+
+    await client
+      .db(process.env.DB_NAME)
+      .collection('pressDrafts')
+      .updateOne(
+        { _id: draftId },
+        {
+          $set: {
+            isPublished: true,
+          },
+        },
+        opts,
+      );
+
+    await session.commitTransaction();
 
     return { articleId, draftId };
   } catch (error) {
     throw error;
   } finally {
+    if (session) session.endSession();
     client.close();
   }
 };
