@@ -10,6 +10,8 @@ provider:
     COLL_NAME: artists
     DB_NAME: crowdaaDev
     MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   ticket:

@@ -60,6 +60,7 @@ provider:
       /festivals/{id}: ${cf:festivals-${self:provider.stage}.RestApiRootResourceId}
       /stages/{id}: ${cf:stages-${self:provider.stage}.RestApiRootResourceId}
       /users/{id}: ${cf:users-${self:provider.stage}.RestApiRootResourceId}
+  deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   notifyLineup:
