@@ -25,6 +25,16 @@ functions:
           path: press/articles/
           method: get
           cors: true
+  getAllArticles:
+    handler: handlers/getAllArticles.default
+    events:
+      - http:
+          path: press/articlesAll/
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
   getArticle:
     handler: handlers/getArticle.default
     events:

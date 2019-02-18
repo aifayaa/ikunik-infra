@@ -1,12 +1,23 @@
 import { MongoClient } from 'mongodb';
 
-export default async (catPath, start, limit) => {
+export default async (catPath, start, limit, { onlyPublished = true }) => {
   let client;
   try {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+    const $match = (catPath ? {
+      'category.pathName': catPath,
+    } : {
+      _id: {
+        $exists: true,
+      },
+    });
+    if (onlyPublished) { $match.isPublished = true; }
+
     const articles = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .aggregate([
+        // TODO: optimise by using Category as start poitn
+        // get Catgory Id with path and then get articles
         {
           $lookup: {
             from: 'pressCategories',
@@ -21,9 +32,7 @@ export default async (catPath, start, limit) => {
             preserveNullAndEmptyArrays: true,
           },
         },
-        {
-          $match: (catPath ? { 'category.pathName': catPath } : { _id: { $exists: true } }),
-        },
+        { $match },
         {
           $sort: { createdAt: -1 },
         },
