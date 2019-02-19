@@ -1,4 +1,4 @@
-service: scanners
+service: pictures
 
 provider:
   name: aws
