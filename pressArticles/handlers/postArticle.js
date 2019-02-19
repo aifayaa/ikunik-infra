@@ -5,12 +5,12 @@ export default async (event, context, callback) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const { categoryId, title, summary, html, md } = JSON.parse(event.body);
-    if (!categoryId || !title || !summary || !html || !md) {
+    const { categoryId, title, summary, html, md, pictures } = JSON.parse(event.body);
+    if (!categoryId || !title || !summary || !html || !md || !pictures) {
       throw new Error('mal_formed_request');
     }
     const userId = event.requestContext.authorizer.principalId;
-    const results = await postArticle(userId, categoryId, title, summary, html, md);
+    const results = await postArticle(userId, categoryId, title, summary, html, md, pictures);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

@@ -1,7 +1,7 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
 
-export default async (userId, articleId, categoryId, title, summary, html, md) => {
+export default async (userId, articleId, categoryId, title, summary, html, md, pictures) => {
   if (
     typeof title !== 'string'
     || typeof articleId !== 'string'
@@ -9,6 +9,7 @@ export default async (userId, articleId, categoryId, title, summary, html, md) =
     || typeof summary !== 'string'
     || typeof html !== 'string'
     || typeof md !== 'string'
+    || !Array.isArray(pictures)
   ) {
     throw new Error('bad arguments');
   }
@@ -20,16 +21,17 @@ export default async (userId, articleId, categoryId, title, summary, html, md) =
       .findOne({ articleId }, { sort: { createdAt: -1 } });
     const draft = {
       _id: draftId,
+      ancestor: _id,
+      articleId,
       categoryId,
-      title,
-      summary,
-      text: html,
-      md,
-      userId,
       createdAt: new Date(),
       isPublished: false,
-      articleId,
-      ancestor: _id,
+      md,
+      pictures,
+      summary,
+      text: html,
+      title,
+      userId,
     };
 
     await client.db(process.env.DB_NAME).collection('pressDrafts')
