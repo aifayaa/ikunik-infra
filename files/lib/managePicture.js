@@ -11,19 +11,19 @@ const S3 = new AWS.S3({
 });
 const outBucket = process.env.S3_PICTURES_BUCKET;
 
-const resizeParams = [{
+const resizeParams = ({ keepRatio = false }) => [{
   resize: {
-    width: 150,
+    width: keepRatio ? null : 150,
     height: 150,
-    fit: 'contain',
+    fit: keepRatio ? 'inside' : 'contain',
   },
   prefix: 'thumb',
   docField: 'thumb',
 }, {
   resize: {
-    width: 500,
+    width: keepRatio ? null : 500,
     height: 500,
-    fit: 'contain',
+    fit: keepRatio ? 'inside' : 'contain',
   },
   prefix: 'medium',
   docField: 'medium',
@@ -63,6 +63,7 @@ export default async (bucket, object, file) => {
     userid,
     id = uuidv4(),
     title,
+    opts = '{}',
   } = Metadata;
 
   if (!userid) throw new Error('missing_user_id');
@@ -94,8 +95,9 @@ export default async (bucket, object, file) => {
     useNewUrlParser: true,
   });
   try {
-    for (let i = 0; i < resizeParams.length; i += 1) {
-      const params = resizeParams[i];
+    const resParams = resizeParams(JSON.parse(opts));
+    for (let i = 0; i < resParams.length; i += 1) {
+      const params = resParams[i];
       const {
         key,
         url,
