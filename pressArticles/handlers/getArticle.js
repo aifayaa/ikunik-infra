@@ -3,7 +3,7 @@ import getArticle from '../lib/getArticle';
 export default async (event, context, callback) => {
   try {
     const articleId = event.pathParameters.id;
-    const results = await getArticle(articleId);
+    const results = await getArticle(articleId, { getPictures: true });
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
