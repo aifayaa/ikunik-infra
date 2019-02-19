@@ -2,7 +2,7 @@ service: pressArticles
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -25,6 +25,16 @@ functions:
           path: press/articles/
           method: get
           cors: true
+  getAllArticles:
+    handler: handlers/getAllArticles.default
+    events:
+      - http:
+          path: press/articlesAll/
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
   getArticle:
     handler: handlers/getArticle.default
     events:
@@ -85,8 +95,3 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpack:
-    webpackConfig: 'webpack.config.js'
-    includeModules: true

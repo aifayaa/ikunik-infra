@@ -1,0 +1,11 @@
+{
+  "public": {
+    "_id": true,
+    "categoryId": true,
+    "createdAt": true,
+    "summary": true,
+    "text": true,
+    "title": true,
+    "publishedBy": true
+  }
+}

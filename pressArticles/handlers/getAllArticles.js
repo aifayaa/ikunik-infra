@@ -3,7 +3,7 @@ import getArticles from '../lib/getArticles';
 export default async (event, context, callback) => {
   try {
     const { category, start, limit } = event.queryStringParameters || {};
-    const results = await getArticles(category, start, limit, { getPictures: true });
+    const results = await getArticles(category, start, limit, { onlyPublished: false });
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),
