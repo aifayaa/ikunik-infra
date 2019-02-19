@@ -4,7 +4,6 @@ provider:
   name: aws
   runtime: nodejs6.10
   stage: ${opt:stage, "dev"}
-  region: ${opt:region, "us-east-1"}
   memorySize: 2048
   timeout: 300
   iamRoleStatements:
@@ -26,6 +25,8 @@ provider:
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   blastEmail:

@@ -1,9 +1,25 @@
-import getArticle from '../lib/getArticle';
+import putArticle from '../lib/putArticle';
 
 export default async (event, context, callback) => {
   try {
-    const articleId = event.pathParameters.id;
-    const results = await getArticle(articleId, { getPictures: true });
+    if (!event.body) {
+      throw new Error('mal_formed_request');
+    }
+    const { articleId, categoryId, title, summary, html, md, pictures } = JSON.parse(event.body);
+    if (!articleId || !categoryId || !title || !summary || !html || !md || !pictures) {
+      throw new Error('mal_formed_request');
+    }
+    const userId = event.requestContext.authorizer.principalId;
+    const results = await putArticle(
+      userId,
+      articleId,
+      categoryId,
+      title,
+      summary,
+      html,
+      md,
+      pictures,
+    );
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

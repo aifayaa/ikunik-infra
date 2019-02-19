@@ -12,8 +12,10 @@ export default async (event, context, callback) => {
     const {
       name,
       type,
+      length,
+      metadata = {},
     } = JSON.parse(event.body);
-    const info = getUploadUrl(userId, name, type);
+    const info = getUploadUrl(userId, name, type, length, metadata);
     response.statusCode = 200;
     response.body = JSON.stringify(info);
   } catch (e) {

@@ -1,9 +1,9 @@
-import getArticle from '../lib/getArticle';
+import getArticleDraft from '../lib/getArticleDraft';
 
 export default async (event, context, callback) => {
   try {
     const articleId = event.pathParameters.id;
-    const results = await getArticle(articleId, { getPictures: true });
+    const results = await getArticleDraft(articleId);
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

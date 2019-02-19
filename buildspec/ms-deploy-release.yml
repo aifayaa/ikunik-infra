@@ -9,5 +9,4 @@ phases:
 
   build:
     commands:
-      - npm run deploy:prod
-      - npm run deploy:awax
+      - ./deployDiff.sh prod us-east-1

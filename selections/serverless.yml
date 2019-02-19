@@ -18,6 +18,7 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       users/{id}: ${cf:users-${self:provider.stage}.RestApiRootResourceId}
+  deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   getSelection:

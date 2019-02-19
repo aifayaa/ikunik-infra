@@ -2,7 +2,7 @@ service: pressArticles
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -16,6 +16,8 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   getArticles:
@@ -25,6 +27,16 @@ functions:
           path: press/articles/
           method: get
           cors: true
+  getAllArticles:
+    handler: handlers/getAllArticles.default
+    events:
+      - http:
+          path: press/articlesAll/
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
   getArticle:
     handler: handlers/getArticle.default
     events:
@@ -36,11 +48,52 @@ functions:
             parameters:
               paths:
                 id: true
+  getArticleDraft:
+    handler: handlers/getArticleDraft.default
+    events:
+      - http:
+          path: press/articles/{id}/draft
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                id: true
+  postArticle:
+    handler: handlers/postArticle.default
+    events:
+      - http:
+          path: press/articles
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+  putArticle:
+      handler: handlers/putArticle.default
+      events:
+        - http:
+            path: press/articles
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+  publishArticle:
+      handler: handlers/publishArticle.default
+      events:
+        - http:
+            path: press/articles/{id}/publish
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 plugins:
   - serverless-webpack
 
 package:
   individually: true
-
-custom:
-  webpackIncludeModules: true

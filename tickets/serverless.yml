@@ -20,6 +20,8 @@ provider:
     restApiResources:
       lineup/{id}: ${cf:lineup-${self:provider.stage}.RestApiRootResourceId}
       users/{id}: ${cf:users-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   getTickets:

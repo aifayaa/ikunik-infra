@@ -5,7 +5,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-export default (userId, filename, type, length) => {
+export default (userId, filename, type, length, metadata) => {
   const key = `${uuidv4()}-${filename}`;
   const id = uuidv4();
   const s3Params = {
@@ -13,8 +13,9 @@ export default (userId, filename, type, length) => {
     Key: key,
     ContentType: type,
     ACL: 'public-read',
-    ContentLength: length,
+    // ContentLength: length,
     Metadata: {
+      ...metadata,
       userId,
       id,
     },
