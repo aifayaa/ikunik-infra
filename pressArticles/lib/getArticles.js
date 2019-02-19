@@ -14,7 +14,7 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
     });
     if (onlyPublished) { $match.isPublished = true; }
 
-    const pipeline = [
+    let pipeline = [
       // TODO: optimise by using Category as start poitn
       // get Catgory Id with path and then get articles
       {
@@ -35,26 +35,35 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
     ];
 
     if (getPictures) {
+      // Lookup on pictures
       const pictureGroup = {
         ...Object.keys(articleFields.public).reduce((res, key) => {
           res[key] = { $first: `$${key}` };
           return res;
         }, {}),
-        pictures: { $push: '$picture' },
+        category: { $first: '$category' },
+        pictures: { $push: '$pictures' },
+        _id: '$_id',
       };
-      pipeline.concat([
+      pipeline = pipeline.concat([
         {
           $unwind: {
-            path: 'pictures',
-            preserveNullAndEmptyArrays: false,
+            path: '$pictures',
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
           $lookup: {
             from: 'pictures',
             localField: 'pictures',
-            foreingField: '_id',
+            foreignField: '_id',
             as: 'pictures',
+          },
+        },
+        {
+          $unwind: {
+            path: '$pictures',
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -63,7 +72,7 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
       ]);
     }
 
-    pipeline.concat([
+    pipeline = pipeline.concat([
       {
         $sort: { createdAt: -1 },
       },
