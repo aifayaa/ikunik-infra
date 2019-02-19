@@ -2,7 +2,7 @@ service: pressArticles
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -95,8 +95,3 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpack:
-    webpackConfig: 'webpack.config.js'
-    includeModules: true
