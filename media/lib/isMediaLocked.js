@@ -1,6 +1,12 @@
 import { MongoClient } from 'mongodb';
 
 export default async (userId, medium) => {
+  if (!userId) {
+    return {
+      isLocked: true,
+      state: 'locked',
+    };
+  }
   const client = await MongoClient.connect(process.env.MONGO_URL);
   const { DB_NAME } = process.env;
   const db = client.db(DB_NAME);
