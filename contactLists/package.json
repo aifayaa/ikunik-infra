@@ -10,8 +10,8 @@
     "phone": "^2.0.0-rc.1"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.2.0",
-    "webpack-node-externals": "^1.6.0"
+    "serverless-webpack": "^4.4.0",
+    "webpack-node-externals": "^1.7.2"
   },
   "author": "Paul SEBASTIEN",
   "license": "UNLICENSED"
