@@ -12,8 +12,8 @@
     "validator": "^9.4.0"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.2.0",
-    "webpack-node-externals": "^1.6.0"
+    "serverless-webpack": "^4.4.0",
+    "webpack-node-externals": "^1.7.2"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"
