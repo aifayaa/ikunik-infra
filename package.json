@@ -23,7 +23,7 @@
     "babel-preset-stage-3": "^6.24.1",
     "eslint": "^4.17.0",
     "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-import": "^2.16.0",
     "webpack": "^3.10.0"
   },
   "author": "Paul SEBASTIEN",

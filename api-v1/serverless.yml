@@ -9,7 +9,7 @@ service: api-v1
 provider:
   name: aws
   stage: ${opt:stage, "dev"}
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   memorySize: 128
   timeout: 30
   region: ${opt:region, "us-east-1"}

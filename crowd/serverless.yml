@@ -2,7 +2,7 @@ service: crowd
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: ${opt:stage, "dev"}
   memorySize: 1024
   timeout: 30
