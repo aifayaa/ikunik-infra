@@ -20,7 +20,7 @@ eslint:
 
 pushDevToAWS:
   variables:
-    S3_BUCKET_NAME: "crowdaa-ms-in-dev"
+    S3_BUCKET_NAME: "crowdaa-ci/ms/dev/in"
 
   image: python:latest
   stage: pushDev
@@ -38,7 +38,7 @@ pushDevToAWS:
 
 pushProdToAWS:
   variables:
-    S3_BUCKET_NAME: "crowdaa-ms-in-prod"
+    S3_BUCKET_NAME: "crowdaa-ci/ms/prod/in"
 
   image: python:latest
   stage: pushProd
