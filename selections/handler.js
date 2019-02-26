@@ -132,7 +132,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
       trackSort[`track.${key}`] = sort[key];
     });
 
-    const audioPromise = selection.selectionFindQuery
+    const audioPromise = (selection.selectionFindQuery && isAudioSelection)
       ? client
         .db(process.env.DB_NAME)
         .collection('audio')
@@ -153,7 +153,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
           },
         ]).toArray()
       : [];
-    const videoPromise = selection.selectionFindQuery
+    const videoPromise = (selection.selectionFindQuery && isVideoSelection)
       ? client
         .db(process.env.DB_NAME)
         .collection('video')
@@ -345,7 +345,10 @@ const doGetSelection = async (selectionId, userId, clients) => {
         .collection('Project')
         .find({ _id: { $in: projectIds } }, { projection: { iconeThumbFileUrl: true } })
         .toArray();
-      selection.tracks = rawTracks;
+      selection.tracks = rawTracks.slice(
+        0,
+        selection.limit || parseInt(process.env.DEFAULT_LIMIT, 10),
+      );
     }
     selection.tracks.forEach((track) => {
       if (track.collection && track.filename && track.fileObj_ID && track.url) {
