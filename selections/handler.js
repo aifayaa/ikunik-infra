@@ -112,7 +112,8 @@ const doGetSelection = async (selectionId, userId, clients) => {
     const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
     const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
-    const onlyHighlighted = selection.onlyHighlighted === undefined || selection.onlyHighlighted;
+    const onlyHighlighted = (selection.onlyHighlighted === undefined) ||
+      (selection.onlyHighlighted === null) || selection.onlyHighlighted;
     const selectionCollection =
       typeof selection.selectionCollection === 'string'
         ? [selection.selectionCollection]
@@ -150,6 +151,9 @@ const doGetSelection = async (selectionId, userId, clients) => {
             $addFields: {
               picture: { $arrayElemAt: ['$picture', 0] },
             },
+          },
+          {
+            $sort: Object.keys(sort).length ? sort : { createdAt: -1 },
           },
         ]).toArray()
       : [];
