@@ -4,7 +4,7 @@ export const doDeleteUserSelection = async (selectionIds) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     Promise.all([
-      client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+      client.db(process.env.DB_NAME).collection(process.env.COLL_SELECTIONS)
         .remove({ _id: { $in: selectionIds } }),
       client.db(process.env.DB_NAME).collection('mediumSelectionLinks')
         .remove({ selectionId: { $in: selectionIds } }),
@@ -17,7 +17,7 @@ export const doDeleteUserSelection = async (selectionIds) => {
 export const doDeleteUserSelectionTree = async (userId, selectionId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const selection = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    const selection = await client.db(process.env.DB_NAME).collection(process.env.COLL_SELECTIONS)
       .findOne(
         { _id: selectionId },
         { userId: true, rootSelectionId: true, subscriptionIds: true },
@@ -54,7 +54,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId) => {
       },
     ];
     const [selectionIdsObj] = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .aggregate(getChildSelectionIdsPipeline).toArray();
     const { selectionIds } = selectionIdsObj || { selectionIds: [] };
     selectionIds.push(selectionId);

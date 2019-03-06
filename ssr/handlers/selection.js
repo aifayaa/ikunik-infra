@@ -1,20 +1,26 @@
-import getArtist from '../../artists/lib/getArtist';
+import {
+  doGetSelection,
+} from '../../selections/handler';
 import meta from '../lib/meta';
 import redirect from '../lib/redirect';
 
-export const handleArtist = async (event, context, callback) => {
+export default async (event, context, callback) => {
+  const redirectUrl = (event.queryStringParameters || {}).redirect_url;
   try {
     const userAgent = event.headers['User-Agent'];
-    const redirectUrl = (event.queryStringParameters || {}).redirect_url;
     const redirectResponse = redirect(userAgent, redirectUrl);
     if (redirectResponse) {
       callback(null, redirectResponse);
       return;
     }
 
-    const artistId = event.pathParameters.id;
-    const artist = await getArtist(artistId);
-    const body = meta(artist.artistName, artist.biography, artist.avatar);
+    const projectId = event.pathParameters.id;
+    const selection = await doGetSelection(projectId, null, ['crowdaa']);
+    const body = meta(
+      selection.selectionDisplayName,
+      selection.overrideIcon || selection.tracks[0].title,
+      selection.tracks[0].projectMediumFileUrl,
+    );
     const response = {
       statusCode: 200,
       body,

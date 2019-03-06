@@ -41,7 +41,7 @@ const doCheckSelectionsOwner = async (selectionIds, userId) => {
   try {
     const selections = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .find({ _id: { $in: selectionIds }, userId: { $ne: userId } })
       .count();
     return selections === 0;
@@ -50,13 +50,13 @@ const doCheckSelectionsOwner = async (selectionIds, userId) => {
   }
 };
 
-const doGetSelection = async (selectionId, userId, clients) => {
+export const doGetSelection = async (selectionId, userId, clients) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
     const [selections, userSubscriptions] = await Promise.all([
       client
         .db(process.env.DB_NAME)
-        .collection(process.env.COLL_NAME)
+        .collection(process.env.COLL_SELECTIONS)
         .aggregate([
           {
             $match: {
@@ -72,7 +72,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
           },
           {
             $lookup: {
-              from: process.env.COLL_NAME,
+              from: process.env.COLL_SELECTIONS,
               localField: 'selectionIds',
               foreignField: '_id',
               as: 'selections',
@@ -97,17 +97,19 @@ const doGetSelection = async (selectionId, userId, clients) => {
           },
         ])
         .toArray(),
-      client
-        .db(process.env.DB_NAME)
-        .collection(process.env.USER_SUBS_COLL_NAME)
-        .find(
-          {
-            userId,
-            expireAt: { $gt: new Date() },
-          },
-          { projection: { subscriptionId: 1 } },
-        )
-        .toArray(),
+      userId ?
+        client
+          .db(process.env.DB_NAME)
+          .collection(process.env.USER_SUBS_COLL_NAME)
+          .find(
+            {
+              userId,
+              expireAt: { $gt: new Date() },
+            },
+            { projection: { subscriptionId: 1 } },
+          )
+          .toArray() :
+        [],
     ]);
     const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
@@ -270,6 +272,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
         {
           $project: {
             iconeThumbFileUrl: true,
+            iconeMediumFileUrl: true,
             track: {
               $concatArrays: [isAudioSelection ? '$audio' : [], isVideoSelection ? '$video' : []],
             },
@@ -290,6 +293,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
         {
           $project: {
             iconeThumbFileUrl: true,
+            iconeMediumFileUrl: true,
             track: {
               $ifNull: ['$trackHighlight', '$track'],
             },
@@ -322,6 +326,9 @@ const doGetSelection = async (selectionId, userId, clients) => {
             projectThumbFileUrl: {
               $first: '$iconeThumbFileUrl',
             },
+            projectMediumFileUrl: {
+              $first: '$iconeMediumFileUrl',
+            },
             track: {
               $first: '$track',
             },
@@ -342,12 +349,18 @@ const doGetSelection = async (selectionId, userId, clients) => {
       selection.tracks = projectTracks.map(projectTrack => ({
         ...projectTrack.track,
         projectThumbFileUrl: projectTrack.projectThumbFileUrl,
+        projectMediumFileUrl: projectTrack.projectMediumFileUrl,
       }));
     } else {
       projects = await client
         .db(process.env.DB_NAME)
         .collection('Project')
-        .find({ _id: { $in: projectIds } }, { projection: { iconeThumbFileUrl: true } })
+        .find({ _id: { $in: projectIds } }, {
+          projection: {
+            iconeThumbFileUrl: true,
+            iconeMediumFileUrl: true,
+          },
+        })
         .toArray();
       selection.tracks = rawTracks.slice(
         0,
@@ -361,6 +374,7 @@ const doGetSelection = async (selectionId, userId, clients) => {
       if (projects) {
         const trackProject = projects.find(project => project._id === track.project_ID) || {};
         track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
+        track.projectMediumFileUrl = trackProject.iconeMediumFileUrl || null;
       }
       track.isLocked =
         !!track.subscriptionIds &&
@@ -393,7 +407,7 @@ const doGetSelections = async (type, web, mobile, root) => {
     }
     const selections = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .find(selector)
       .sort({ selectionRank: 1 })
       .toArray();
@@ -409,7 +423,7 @@ const doGetUserSelections = async (userId) => {
   try {
     const selections = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .find({ userId })
       .toArray();
 
@@ -424,14 +438,14 @@ const doGetUserRootSelections = async (userId) => {
   try {
     let selections = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .find({ userId, selectionIds: { $exists: true } })
       .toArray();
     selections = selections.map(selection => selection.selectionIds);
     selections = [].concat(...selections);
     selections = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .find({ userId, _id: { $nin: selections } })
       .toArray();
     return { selections };
@@ -471,7 +485,7 @@ const generatePatchUserSelection = async (
       action !== 'replace'
         ? await client
           .db(process.env.DB_NAME)
-          .collection(process.env.COLL_NAME)
+          .collection(process.env.COLL_SELECTIONS)
           .findOne({ _id: selectionId, userId })
         : null;
     const selectionFindQuery =
@@ -554,11 +568,11 @@ const doPatchUserSelection = async (selectionId, userId, patch, noCheck) => {
   try {
     await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .updateOne({ _id: selectionId, userId }, patch);
     return await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_SELECTIONS)
       .findOne({ _id: selectionId, userId });
   } finally {
     client.close();
@@ -600,7 +614,7 @@ const doCreateUserSelection = async (name, userId, parent) => {
     if (parent) {
       const parentSelection = await client
         .db(process.env.DB_NAME)
-        .collection(process.env.COLL_NAME)
+        .collection(process.env.COLL_SELECTIONS)
         .findOne({ _id: parent }, { rootSelection: 1, subscriptionIds: 1, userId: 1 });
       if (!parentSelection) throw new Error('parent selection not exists');
       if (parentSelection.userId !== userId) {
@@ -618,7 +632,7 @@ const doCreateUserSelection = async (name, userId, parent) => {
           .insertMany(subscriptions),
       client
         .db(process.env.DB_NAME)
-        .collection(process.env.COLL_NAME)
+        .collection(process.env.COLL_SELECTIONS)
         .insertOne(selection),
     ]);
     if (parent) {

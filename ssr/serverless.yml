@@ -6,10 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    COLL_NAME: artists
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
@@ -20,6 +17,21 @@ functions:
       - http:
           path: /ticket/artists/{id}
           method: get
+          request:
+            parameters:
+              querystrings:
+                redirect_url: false
+  
+  selection:
+    handler: handlers/selection.default
+    events:
+      - http:
+          path: /selections/{id}
+          method: get
+          request:
+            parameters:
+              querystrings:
+                redirect_url: false
 
 plugins:
   - serverless-domain-manager
