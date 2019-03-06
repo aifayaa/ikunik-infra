@@ -29,7 +29,8 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds) => {
     checkDocuments(userId, mediaIds);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
     const selection = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME).findOne({ _id: selectionId, userId }, selectionFields);
+      .collection(process.env.COLL_SELECTIONS)
+      .findOne({ _id: selectionId, userId }, selectionFields);
     if (!selection) throw new Error('selection not exists or not owned');
     const { rootSelectionId } = selection;
     const rootSelection = !rootSelectionId ? selection : await client.db(process.env.DB_NAME)
@@ -63,7 +64,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds) 
     checkDocuments(userId, mediaIds);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
     const selection = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME).findOne(
+      .collection(process.env.COLL_SELECTIONS).findOne(
         { _id: selectionId, userId },
         selectionFields,
       );
