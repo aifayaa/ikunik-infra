@@ -7,6 +7,6 @@ do
    echo "___________Deploy de $ligne ___________"
    cd $ligne
    npm i
-   sls deploy --stage $1 --region $2
+   node --max-old-space-size=2000 node_modules/serverless/bin/serverless deploy --stage $1 --region $2
    cd ..
 done
