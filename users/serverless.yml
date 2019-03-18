@@ -167,6 +167,21 @@ functions:
               paths:
                 id: true
 
+  optIn:
+    handler: handlers/optIn.default
+    events:
+      - http:
+          path: users/{id}/optin
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   isBlastable:
     handler: handler.handleIsBlastable
     events:
