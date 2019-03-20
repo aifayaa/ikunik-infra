@@ -1,0 +1,15 @@
+{
+  "name": "libs",
+  "version": "0.0.1",
+  "description": "a lib shared with other ms",
+  "main": "hashLoginToken.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Crowdaa",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.424.0",
+    "crypto": "^1.0.1"
+  }
+}

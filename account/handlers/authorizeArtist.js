@@ -4,6 +4,7 @@ import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
 
 export default async ({ authorizationToken, methodArn }, context, callback) => {
+  console.log("====ARTIST AUHTORIZER====", authorizationToken);
   try {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
