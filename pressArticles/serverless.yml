@@ -27,6 +27,7 @@ functions:
           path: press/articles/
           method: get
           cors: true
+
   getAllArticles:
     handler: handlers/getAllArticles.default
     events:
@@ -37,6 +38,7 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+
   getArticle:
     handler: handlers/getArticle.default
     events:
@@ -48,6 +50,7 @@ functions:
             parameters:
               paths:
                 id: true
+
   getArticleDraft:
     handler: handlers/getArticleDraft.default
     events:
@@ -62,6 +65,7 @@ functions:
             parameters:
               paths:
                 id: true
+
   postArticle:
     handler: handlers/postArticle.default
     events:
@@ -72,6 +76,12 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              querystrings:
+                  forceCategoryId: false
+                  xmlTagMapper: false
+
   putArticle:
       handler: handlers/putArticle.default
       events:
@@ -82,6 +92,7 @@ functions:
             authorizer:
               type: CUSTOM
               authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
   publishArticle:
       handler: handlers/publishArticle.default
       events:
