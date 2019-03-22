@@ -1,4 +1,5 @@
 import postArticle from '../lib/postArticle';
+import publishArticle from '../lib/publishArticle';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import getInfos from '../lib/xmlParsing/getInfos';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
@@ -8,7 +9,11 @@ export default async (event, context, callback) => {
     if (!event.body) {
       throw new Error('missing_payload');
     }
-    const { forceCategoryId, autoPublish } = event.queryStringParameters || {};
+    const {
+      forceCategoryId,
+      forcePictures,
+      autoPublish,
+    } = event.queryStringParameters || {};
 
     let categoryId;
     let title;
@@ -29,7 +34,14 @@ export default async (event, context, callback) => {
         const infos = getInfos(xml, defaultSettings);
         title = infos.title || infos.name;
         summary = ' ';
-        pictures = [];
+        if (forcePictures) {
+          try {
+            pictures = JSON.parse(forcePictures);
+          } catch (e) {
+            console.log(e, forcePictures);
+            pictures = [forcePictures];
+          }
+        }
         break;
       }
       default:
@@ -41,7 +53,7 @@ export default async (event, context, callback) => {
       throw new Error('mal_formed_request');
     }
     const userId = event.requestContext.authorizer.principalId;
-    const results = await postArticle({
+    let results = await postArticle({
       userId,
       categoryId,
       title,
@@ -51,7 +63,14 @@ export default async (event, context, callback) => {
       xml,
       pictures,
     });
-
+    if (autoPublish === 'true') {
+      results = await publishArticle(
+        userId,
+        results.articleId,
+        results.draftId,
+      );
+      results.published = true;
+    }
     const response = {
       statusCode: 200,
       body: JSON.stringify(results),

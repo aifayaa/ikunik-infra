@@ -7,15 +7,19 @@
     "subCategoryName": "Objet.Proprietes.SousRubrique"
   },
   "tagsMap": {
-    "TI": "h1",
     "TX": "div",
     "P": "p",
     "T4": "h4",
-    "i": "quote",
+    "i": "blockquote",
     "ST": "h5",
     "ST2": "h6",
     "CH": "blockquote",
     "LG": "figcaption",
     "SG": "div"
+  },
+  "removeTags": {
+    "TI": true,
+    "ST": true,
+    "ST2": true
   }
 }

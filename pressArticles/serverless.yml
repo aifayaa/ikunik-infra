@@ -79,7 +79,9 @@ functions:
           request:
             parameters:
               querystrings:
+                  autoPublish: false
                   forceCategoryId: false
+                  forcePictures: false
                   xmlTagMapper: false
 
   putArticle:
