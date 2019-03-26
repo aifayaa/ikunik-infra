@@ -1,0 +1,25 @@
+{
+  "contentTag": "Contenu",
+  "infoPaths": {
+    "name": "Objet.Proprietes.Nom",
+    "title": "Objet.Contenu.TI",
+    "categoryName": "Objet.Proprietes.Rubrique",
+    "subCategoryName": "Objet.Proprietes.SousRubrique"
+  },
+  "tagsMap": {
+    "TX": "div",
+    "P": "p",
+    "T4": "h4",
+    "i": "blockquote",
+    "ST": "h5",
+    "ST2": "h6",
+    "CH": "blockquote",
+    "LG": "figcaption",
+    "SG": "div"
+  },
+  "removeTags": {
+    "TI": true,
+    "ST": true,
+    "ST2": true
+  }
+}

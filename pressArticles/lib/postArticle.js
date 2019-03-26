@@ -1,13 +1,14 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
 
-export default async (userId, categoryId, title, summary, html, md, pictures) => {
+export default async ({ userId, categoryId, title, summary, html, md, xml, pictures }) => {
   if (
     typeof title !== 'string'
     || typeof categoryId !== 'string'
     || typeof summary !== 'string'
     || typeof html !== 'string'
-    || typeof md !== 'string'
+    || !(['string', 'undefined'].indexOf(typeof md) + 1)
+    || !(['string', 'undefined'].indexOf(typeof xml) + 1)
     || !Array.isArray(pictures)
   ) {
     throw new Error('bad arguments');
@@ -23,13 +24,17 @@ export default async (userId, categoryId, title, summary, html, md, pictures) =>
       createdAt: new Date(),
       draftId,
       isPublished: false,
-      md,
       pictures,
       summary,
       text: html,
       title,
       userId,
     };
+    if (xml) {
+      article.xml = xml;
+    } else {
+      article.md = md;
+    }
     session = client.startSession();
     session.startTransaction();
     const opts = { session, returnOriginal: false };

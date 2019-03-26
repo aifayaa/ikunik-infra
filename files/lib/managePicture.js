@@ -67,7 +67,7 @@ export default async (bucket, object, file) => {
   } = Metadata;
 
   if (!userid) throw new Error('missing_user_id');
-  if (!id) throw new Error('missing_user_id');
+  if (!id) throw new Error('missing_id');
 
   const pictureDoc = {
     _id: id,
