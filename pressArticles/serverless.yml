@@ -105,6 +105,17 @@ functions:
             authorizer:
               type: CUSTOM
               authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  unpublishArticle:
+      handler: handlers/unpublishArticle.default
+      events:
+        - http:
+            path: press/articles/{id}/unpublish
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 plugins:
   - serverless-webpack
 
