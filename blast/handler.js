@@ -449,37 +449,42 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
     const sendTexts = queue(doBlastText, 50);
     const results = [];
     let successfulBlast = 0;
-    sendTexts.drain = () => {
-      const body = JSON.stringify(results);
-      const response = {
-        body,
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+    const sendTextsDone = new Promise((resolve) => {
+      sendTexts.drain = () => {
+        const body = JSON.stringify(results);
+        const response = {
+          body,
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+        };
+        doLogBlast('text-message', message, `${successfulBlast}`, opts)
+          .then((res) => {
+            if (userId) {
+              const { profileId } = res;
+              return doRemoveBlastToken('text', profileId, `${successfulBlast}`);
+            }
+            return null;
+          })
+          .then(() => {
+            resolve();
+            callback(null, response);
+          })
+          .catch((err) => {
+            resolve();
+            callback(null, { body: err.message, statusCode: 500 });
+          });
       };
-      doLogBlast('text-message', message, `${successfulBlast}`, opts)
-        .then((res) => {
-          if (userId) {
-            const { profileId } = res;
-            return doRemoveBlastToken('text', profileId, `${successfulBlast}`);
-          }
-          return null;
-        })
-        .then(() => {
-          callback(null, response);
-        })
-        .catch((err) => {
-          callback(null, { body: err.message, statusCode: 500 });
-        });
-    };
+    });
     phones.forEach((phoneNumber) => {
       sendTexts.push({ message, phoneNumber }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
+    await sendTextsDone;
   } catch (e) {
     const response = {
       body: JSON.stringify({ message: e.message }),
