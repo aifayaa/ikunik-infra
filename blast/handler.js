@@ -321,37 +321,50 @@ export const handleBlastEmail = async ({
     const sendEmails = queue(doBlastEmail, 20);
     const results = [];
     let successfulBlast = 0;
-    sendEmails.drain = () => {
-      const body = JSON.stringify(results);
-      const response = {
-        body,
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+    const sendEmailDone = new Promise((resolve) => {
+      sendEmails.drain = () => {
+        const body = JSON.stringify(results);
+        const response = {
+          body,
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+        };
+        doLogBlast('email', subject, `${successfulBlast}`, opts)
+          .then((res) => {
+            if (userId) {
+              const { profileId } = res;
+              return doRemoveBlastToken('email', profileId, `${successfulBlast}`);
+            }
+            return null;
+          })
+          .then(() => {
+            resolve();
+            callback(null, response);
+          })
+          .catch((err) => {
+            resolve();
+            callback(null, {
+              body: err.message,
+              statusCode: 500,
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+              },
+            });
+          });
       };
-      doLogBlast('email', subject, `${successfulBlast}`, opts)
-        .then((res) => {
-          if (userId) {
-            const { profileId } = res;
-            return doRemoveBlastToken('email', profileId, `${successfulBlast}`);
-          }
-          return null;
-        })
-        .then(() => {
-          callback(null, response);
-        })
-        .catch((err) => {
-          callback(null, { body: err.message, statusCode: 500 });
-        });
-    };
+    });
+
     contacts.forEach((contact) => {
       sendEmails.push({ contact, template, subject }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
+    await sendEmailDone; // FIX: avoid End of lambda before queue drained
   } catch (e) {
     const response = {
       body: JSON.stringify({ message: e.message }),
