@@ -11,12 +11,13 @@ eslint:
       - node_modules/
 
   before_script:
-    - npm install -g recursive-install
-    - npm-recursive-install
+    - git diff --dirstat=files,0 HEAD^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - npm i
+    - for i in $(<folderList); do echo "install dep in $i";cd $i; npm i; cd ..; done
 
   stage: lint
   script:
-    - ./node_modules/.bin/eslint . --ext .js --ignore-path .gitignore
+    - for i in $(<folderList); do echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd ..; done
 
 pushDevToAWS:
   variables:
