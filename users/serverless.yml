@@ -12,17 +12,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    STAGE: ${self:provider.stage}
-    REGION: ${self:provider.region}
-    MINIMUM_PAYOUT: 600
-    CROWDAA_FEES: 0.2
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    SNS_REGION: us-west-2
-    SNS_KEY_ID: AKIAI3H2I7ZIK4ARL2NA
-    SNS_SECRET: 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
-    SNS_TOPIC: arn:aws:sns:us-west-2:630176884077:crowdaa-test
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -167,6 +157,21 @@ functions:
               paths:
                 id: true
 
+  optIn:
+    handler: handlers/optIn.default
+    events:
+      - http:
+          path: users/{id}/optin
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   isBlastable:
     handler: handler.handleIsBlastable
     events:
@@ -220,6 +225,21 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  generateApiToken:
+    handler: handlers/generateApiToken.default
+    events:
+      - http:
+          path: users/{id}/apiToken
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:

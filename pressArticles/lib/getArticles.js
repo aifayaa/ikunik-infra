@@ -36,6 +36,7 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
 
     if (getPictures) {
       // Lookup on pictures
+      // TODO optimise, fetch pictures only for skip/limit range
       const pictureGroup = {
         ...Object.keys(articleFields.public).reduce((res, key) => {
           res[key] = { $first: `$${key}` };
@@ -76,14 +77,35 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
       {
         $sort: { createdAt: -1 },
       },
-      { $limit: (parseInt(limit, 10) || 10) },
-      { $skip: (parseInt(start, 10) || 0) },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          articles: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          total: 1,
+          articles: {
+            $slice: [
+              '$articles',
+              (parseInt(start, 10) || 0),
+              (parseInt(limit, 10) || 10),
+            ],
+          },
+        },
+      },
     ]);
-    const articles = await client.db(process.env.DB_NAME)
+
+    const [result = {}] = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_NAME)
       .aggregate(pipeline)
       .toArray();
-    return { articles };
+
+    const { articles = [], total = 0 } = result;
+    return { articles, total };
   } finally {
     client.close();
   }

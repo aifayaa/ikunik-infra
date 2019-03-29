@@ -868,4 +868,3 @@ export const handleGetHistory = async (event, context, callback) => {
     callback(null, response);
   }
 };
-
