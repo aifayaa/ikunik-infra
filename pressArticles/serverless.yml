@@ -116,6 +116,17 @@ functions:
             authorizer:
               type: CUSTOM
               authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  removeArticle:
+      handler: handlers/removeArticle.default
+      events:
+        - http:
+            path: press/articles/{id}/remove
+            method: delete
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 plugins:
   - serverless-webpack
 
