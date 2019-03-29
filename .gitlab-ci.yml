@@ -17,7 +17,7 @@ eslint:
 
   stage: lint
   script:
-    - for i in $(<folderList); do echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd ..; done
+    - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
 
 pushDevToAWS:
   variables:

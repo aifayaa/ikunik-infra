@@ -4,8 +4,10 @@ phases:
   pre_build: 
     commands:
       - rm -rf package-lock.json
-      - npm i -g serverless
       - npm i
+      - cd libs
+      - npm i
+      - cd .. 
 
   build:
     commands:
