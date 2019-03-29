@@ -321,37 +321,50 @@ export const handleBlastEmail = async ({
     const sendEmails = queue(doBlastEmail, 20);
     const results = [];
     let successfulBlast = 0;
-    sendEmails.drain = () => {
-      const body = JSON.stringify(results);
-      const response = {
-        body,
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+    const sendEmailDone = new Promise((resolve) => {
+      sendEmails.drain = () => {
+        const body = JSON.stringify(results);
+        const response = {
+          body,
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+        };
+        doLogBlast('email', subject, `${successfulBlast}`, opts)
+          .then((res) => {
+            if (userId) {
+              const { profileId } = res;
+              return doRemoveBlastToken('email', profileId, `${successfulBlast}`);
+            }
+            return null;
+          })
+          .then(() => {
+            resolve();
+            callback(null, response);
+          })
+          .catch((err) => {
+            resolve();
+            callback(null, {
+              body: err.message,
+              statusCode: 500,
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+              },
+            });
+          });
       };
-      doLogBlast('email', subject, `${successfulBlast}`, opts)
-        .then((res) => {
-          if (userId) {
-            const { profileId } = res;
-            return doRemoveBlastToken('email', profileId, `${successfulBlast}`);
-          }
-          return null;
-        })
-        .then(() => {
-          callback(null, response);
-        })
-        .catch((err) => {
-          callback(null, { body: err.message, statusCode: 500 });
-        });
-    };
+    });
+
     contacts.forEach((contact) => {
       sendEmails.push({ contact, template, subject }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
+    await sendEmailDone; // FIX: avoid End of lambda before queue drained
   } catch (e) {
     const response = {
       body: JSON.stringify({ message: e.message }),
@@ -379,37 +392,43 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
     const sendNotifications = queue(doBlastNotification, 50);
     const results = [];
     let successfulBlast = 0;
-    sendNotifications.drain = () => {
-      const body = JSON.stringify(results);
-      const response = {
-        body,
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+    const sendNotificationsDone = new Promise((resolve) => {
+      sendNotifications.drain = () => {
+        const body = JSON.stringify(results);
+        const response = {
+          body,
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+        };
+        doLogBlast('notification', message, `${successfulBlast}`, opts)
+          .then((res) => {
+            if (userId) {
+              const { profileId } = res;
+              return doRemoveBlastToken('notification', profileId, `${successfulBlast}`);
+            }
+            return null;
+          })
+          .then(() => {
+            resolve();
+            callback(null, response);
+          })
+          .catch((err) => {
+            resolve();
+            callback(null, { body: err.message, statusCode: 500 });
+          });
       };
-      doLogBlast('notification', message, `${successfulBlast}`, opts)
-        .then((res) => {
-          if (userId) {
-            const { profileId } = res;
-            return doRemoveBlastToken('notification', profileId, `${successfulBlast}`);
-          }
-          return null;
-        })
-        .then(() => {
-          callback(null, response);
-        })
-        .catch((err) => {
-          callback(null, { body: err.message, statusCode: 500 });
-        });
-    };
+    });
+
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ artistName, endpoint, message }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
+    await sendNotificationsDone;
   } catch (e) {
     const response = {
       body: JSON.stringify({ message: e.message }),
@@ -436,37 +455,42 @@ export const handleBlastText = async ({ phones, message, opts = {} }, context, c
     const sendTexts = queue(doBlastText, 50);
     const results = [];
     let successfulBlast = 0;
-    sendTexts.drain = () => {
-      const body = JSON.stringify(results);
-      const response = {
-        body,
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+    const sendTextsDone = new Promise((resolve) => {
+      sendTexts.drain = () => {
+        const body = JSON.stringify(results);
+        const response = {
+          body,
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+        };
+        doLogBlast('text-message', message, `${successfulBlast}`, opts)
+          .then((res) => {
+            if (userId) {
+              const { profileId } = res;
+              return doRemoveBlastToken('text', profileId, `${successfulBlast}`);
+            }
+            return null;
+          })
+          .then(() => {
+            resolve();
+            callback(null, response);
+          })
+          .catch((err) => {
+            resolve();
+            callback(null, { body: err.message, statusCode: 500 });
+          });
       };
-      doLogBlast('text-message', message, `${successfulBlast}`, opts)
-        .then((res) => {
-          if (userId) {
-            const { profileId } = res;
-            return doRemoveBlastToken('text', profileId, `${successfulBlast}`);
-          }
-          return null;
-        })
-        .then(() => {
-          callback(null, response);
-        })
-        .catch((err) => {
-          callback(null, { body: err.message, statusCode: 500 });
-        });
-    };
+    });
     phones.forEach((phoneNumber) => {
       sendTexts.push({ message, phoneNumber }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
+    await sendTextsDone;
   } catch (e) {
     const response = {
       body: JSON.stringify({ message: e.message }),
