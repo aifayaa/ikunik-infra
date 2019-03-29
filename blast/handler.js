@@ -392,37 +392,43 @@ export const handleBlastNotification = async ({ artistName, endpoints, message, 
     const sendNotifications = queue(doBlastNotification, 50);
     const results = [];
     let successfulBlast = 0;
-    sendNotifications.drain = () => {
-      const body = JSON.stringify(results);
-      const response = {
-        body,
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+    const sendNotificationsDone = new Promise((resolve) => {
+      sendNotifications.drain = () => {
+        const body = JSON.stringify(results);
+        const response = {
+          body,
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+        };
+        doLogBlast('notification', message, `${successfulBlast}`, opts)
+          .then((res) => {
+            if (userId) {
+              const { profileId } = res;
+              return doRemoveBlastToken('notification', profileId, `${successfulBlast}`);
+            }
+            return null;
+          })
+          .then(() => {
+            resolve();
+            callback(null, response);
+          })
+          .catch((err) => {
+            resolve();
+            callback(null, { body: err.message, statusCode: 500 });
+          });
       };
-      doLogBlast('notification', message, `${successfulBlast}`, opts)
-        .then((res) => {
-          if (userId) {
-            const { profileId } = res;
-            return doRemoveBlastToken('notification', profileId, `${successfulBlast}`);
-          }
-          return null;
-        })
-        .then(() => {
-          callback(null, response);
-        })
-        .catch((err) => {
-          callback(null, { body: err.message, statusCode: 500 });
-        });
-    };
+    });
+
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ artistName, endpoint, message }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
+    await sendNotificationsDone;
   } catch (e) {
     const response = {
       body: JSON.stringify({ message: e.message }),
