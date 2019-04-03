@@ -1,18 +1,13 @@
 {
-  "name": "articles",
+  "name": "press-search",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa articles API.",
+  "description": "Crowdaa search API.",
   "main": "handler.js",
   "dependencies": {
-    "fast-xml-parser": "^3.12.14",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.10",
     "mongodb": "3.1.10",
-    "remove-markdown": "^0.3.0",
-    "sax": "^1.2.4",
-    "showdown": "^1.9.0",
-    "source-map-support": "^0.5.8",
-    "uuid": "^3.3.2"
+    "source-map-support": "^0.5.8"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

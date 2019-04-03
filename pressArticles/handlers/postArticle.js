@@ -1,6 +1,9 @@
+import removeMd from 'remove-markdown';
+import mdToHtml from '../lib/mdParsing/mdToHtml';
 import postArticle from '../lib/postArticle';
 import publishArticle from '../lib/publishArticle';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
+import xmlToText from '../lib/xmlParsing/xmlToText';
 import getInfos from '../lib/xmlParsing/getInfos';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 
@@ -22,10 +25,13 @@ export default async (event, context, callback) => {
     let md;
     let xml;
     let pictures;
+    let plainText;
 
     switch (event.headers['content-type']) {
       case 'application/json': {
-        ({ categoryId, title, summary, html, md, pictures } = JSON.parse(event.body));
+        ({ categoryId, title, summary, md, pictures } = JSON.parse(event.body));
+        plainText = removeMd(md);
+        html = mdToHtml(md);
         break;
       }
       case 'application/xml': {
@@ -34,11 +40,11 @@ export default async (event, context, callback) => {
         const infos = getInfos(xml, defaultSettings);
         title = infos.title || infos.name;
         summary = ' ';
+        plainText = xmlToText(xml, defaultSettings);
         if (forcePictures) {
           try {
             pictures = JSON.parse(forcePictures);
           } catch (e) {
-            console.log(e, forcePictures);
             pictures = [forcePictures];
           }
         }
@@ -62,6 +68,7 @@ export default async (event, context, callback) => {
       md,
       xml,
       pictures,
+      plainText,
     });
     if (autoPublish === 'true') {
       results = await publishArticle(

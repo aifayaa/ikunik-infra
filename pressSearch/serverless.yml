@@ -1,0 +1,55 @@
+service: pressSearch
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  createIndex:
+    handler: handlers/createIndex.handleCreateIndex
+  search:
+    handler: handlers/search.handleSearch
+    events:
+      - http:
+          path: press/search
+          method: get
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings: ${self:custom.querystrings}
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  IntegrationRequestParameters:
+    integration.request.querystring.text: method.request.querystring.text
+  querystrings:
+    text: false
+
+resources:
+  Resources:
+    ApiGatewayMethodPressSearchGet:
+      Properties:
+        Integration:
+          RequestParameters: ${self:custom.IntegrationRequestParameters}
+          CacheNamespace: ApiGatewayMethodPressSearchCacheNS
+          CacheKeyParameters:
+            - method.request.header.Authorization
+            - method.request.querystring.text
