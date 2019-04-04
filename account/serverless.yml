@@ -18,6 +18,8 @@ functions:
     handler: handler.handleAuthorizeAdmin
   authorizeArtist:
     handler: handlers/authorizeArtist.default
+  authorizeTest:
+    handler: handlers/authorizeTest.default
   authorizePublic:
     handler: handlers/authorizePublic.default
 
@@ -76,6 +78,21 @@ resources:
         FunctionName: 
           Fn::GetAtt: 
             - AuthorizeArtistLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
+    AuthorizeTestLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizeTestLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
         Principal: 
@@ -144,6 +161,29 @@ resources:
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] }
 
+    ApiGatewayAuthorizerTest: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 300
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizeTestLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization
+        Name: authorizeTestAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: TOKEN
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizeTestLambdaFunction", "Arn" ] }
+
     ApiGatewayAuthorizerPublic: 
       Type: AWS::ApiGateway::Authorizer
       Properties: 
@@ -201,6 +241,12 @@ resources:
         Ref: ApiGatewayAuthorizerArtist
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerArtistId
+    ApiGatewayAuthorizerTestId:
+      Description: Test authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerTest
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerTestId
     ApiGatewayAuthorizerPublicId:
       Description: public authorizer ID
       Value:
