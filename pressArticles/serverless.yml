@@ -37,7 +37,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   getArticle:
     handler: handlers/getArticle.default
@@ -60,7 +60,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
           request:
             parameters:
               paths:
@@ -75,7 +75,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
           request:
             parameters:
               querystrings:
@@ -93,7 +93,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   publishArticle:
       handler: handlers/publishArticle.default
@@ -104,7 +104,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   unpublishArticle:
       handler: handlers/unpublishArticle.default
@@ -115,7 +115,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   removeArticle:
       handler: handlers/removeArticle.default
@@ -126,7 +126,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 plugins:
   - serverless-webpack
 

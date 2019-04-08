@@ -10,11 +10,14 @@ export default async (hashedToken) => {
           { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
           { 'services.apiTokens': { $elemMatch: { hashedToken } } },
         ],
-        profil_ID: { $exists: true },
+        roles: { $exists: true, $ne: [] },
       },
-      { projection: { _id: 1 } },
+      { projection: { _id: 1, roles: 1 } },
     );
-    return user && user._id;
+    return {
+      id: user && user._id,
+      roles: user && user.roles,
+    };
   } finally {
     client.close();
   }
