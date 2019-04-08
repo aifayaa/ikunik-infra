@@ -121,7 +121,7 @@ functions:
       handler: handlers/removeArticle.default
       events:
         - http:
-            path: press/articles/{id}/remove
+            path: press/articles/{id}
             method: delete
             cors: true
             authorizer:
