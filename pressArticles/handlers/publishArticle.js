@@ -1,7 +1,13 @@
+import buildResponse from '../../libs/httpResponses/response';
 import publishArticle from '../lib/publishArticle';
 
 export default async (event, context, callback) => {
   try {
+    const roles = JSON.parse(event.requestContext.authorizer.roles);
+    if (!roles.includes('reporter')) {
+      callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
+      return;
+    }
     if (!event.body) {
       throw new Error('mal_formed_request');
     }

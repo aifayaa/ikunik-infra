@@ -1,14 +1,20 @@
 import removeMd from 'remove-markdown';
+import buildResponse from '../../libs/httpResponses/response';
+import defaultSettings from '../lib/xmlParsing/settings/default.json';
+import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import postArticle from '../lib/postArticle';
 import publishArticle from '../lib/publishArticle';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
-import getInfos from '../lib/xmlParsing/getInfos';
-import defaultSettings from '../lib/xmlParsing/settings/default.json';
 
 export default async (event, context, callback) => {
   try {
+    const roles = JSON.parse(event.requestContext.authorizer.roles);
+    if (!roles.includes('reporter')) {
+      callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
+      return;
+    }
     if (!event.body) {
       throw new Error('missing_payload');
     }

@@ -2,8 +2,7 @@
 import { MongoClient } from 'mongodb';
 
 export default async (hashedToken) => {
-  console.log(hashedToken);
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
     const user = await client.db('crowdaaDev').collection('users').findOne(
       {

@@ -1,6 +1,6 @@
 import winston from 'winston';
-import authorizeTest from '../lib/authorizeTest';
-import generatePolicy from '../lib/generatePolicyTest';
+import authorizeRole from '../lib/authorizeRole';
+import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
 
 export default async ({ authorizationToken, methodArn }, context, callback) => {
@@ -8,7 +8,7 @@ export default async ({ authorizationToken, methodArn }, context, callback) => {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const user = await authorizeTest(hashedLoginToken);
+    const user = await authorizeRole(hashedLoginToken);
     if (user.id) {
       winston.info('allow', authorizationToken, user.id, user.roles);
       return callback(null, generatePolicy('allow', methodArn, user.id, user.roles));

@@ -1,30 +1,17 @@
+import buildResponse from '../../libs/httpResponses/response';
 import getArticles from '../lib/getArticles';
 
 export default async (event, context, callback) => {
   try {
-    const rolesTab = JSON.parse(event.requestContext.authorizer.rolesTab);
+    const roles = JSON.parse(event.requestContext.authorizer.roles);
     const { category, start, limit } = event.queryStringParameters || {};
-    if (rolesTab.includes('reporter')) {
-      const results = await getArticles(category, start, limit, { onlyPublished: false });
-      const response = {
-        statusCode: 200,
-        body: JSON.stringify(results),
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
-      };
-      callback(null, response);
+    if (!roles.includes('reporter')) {
+      callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
+      return;
     }
+    const results = await getArticles(category, start, limit, { onlyPublished: false });
+    callback(null, buildResponse({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, buildResponse({ code: 500, message: e.message }));
   }
 };
