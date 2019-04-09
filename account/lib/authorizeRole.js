@@ -6,14 +6,25 @@ export default async (hashedToken) => {
   try {
     const user = await client.db('crowdaaDev').collection('users').findOne(
       {
-        $or: [
-          { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-          { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+        $and: [
+          {
+            $or: [
+              { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
+              { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+            ],
+          },
+          {
+            $or: [
+              { roles: { $exists: true, $ne: [] } },
+              { profil_ID: { $exists: true } },
+            ],
+          },
         ],
-        roles: { $exists: true, $ne: [] },
       },
-      { projection: { _id: 1, roles: 1 } },
+      { projection: { _id: 1, roles: 1, profil_ID: 1 } },
     );
+    user.roles = user.roles || [];
+    if (user && user.profil_ID) user.roles.push('artist');
     return {
       id: user && user._id,
       roles: user && user.roles,
