@@ -1,15 +1,20 @@
 import removeMd from 'remove-markdown';
 import buildResponse from '../../libs/httpResponses/response';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
+import doSendNotifications from '../lib/sendNotifications';
+import getArticle from '../lib/getArticle';
+import getClient from '../../api-keys/getClient';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import postArticle from '../lib/postArticle';
 import publishArticle from '../lib/publishArticle';
+import prepareNotif from '../lib/prepareNotifString';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
 
 export default async (event, context, callback) => {
   try {
+    const client = getClient(event.requestContext.identity.apiKey);
     const roles = JSON.parse(event.requestContext.authorizer.roles);
     if (!roles.includes('reporter')) {
       callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
@@ -22,6 +27,7 @@ export default async (event, context, callback) => {
       forceCategoryId,
       forcePictures,
       autoPublish,
+      sendNotifications = false,
     } = event.queryStringParameters || {};
 
     let categoryId;
@@ -83,6 +89,16 @@ export default async (event, context, callback) => {
         results.draftId,
       );
       results.published = true;
+      if (sendNotifications === 'true') {
+        const article = await getArticle(results.articleId, {});
+        await doSendNotifications(
+          article.title,
+          prepareNotif(article.plainText),
+          client,
+          { articleId: results.articleId },
+        );
+        results.notificationSent = true;
+      }
     }
     const response = {
       statusCode: 200,

@@ -23,7 +23,7 @@ const platformApplicationArn = {
   },
 };
 
-export default async ({ userId, Token, deviceUUID, platform }) => {
+export default async ({ userId, Token, deviceUUID, platform, clients = [] }) => {
   if (
     check.not.string(Token) ||
     check.not.string(deviceUUID) ||
@@ -38,12 +38,12 @@ export default async ({ userId, Token, deviceUUID, platform }) => {
 
     const PlatformApplicationArn = platformApplicationArn[platform].arn;
     const found = await collection.findOne(
-      { Token, PlatformApplicationArn },
+      { Token, PlatformApplicationArn, clients },
       { projection: { _id: 1 } },
     );
     if (found) throw new Error('already_registered_token');
 
-    const Platform = platformApplicationArn[platform].arn;
+    const Platform = platformApplicationArn[platform].plateform;
     const params = {
       PlatformApplicationArn,
       Token,
@@ -61,6 +61,7 @@ export default async ({ userId, Token, deviceUUID, platform }) => {
         SNSUserData: params.CustomUserData,
         userId: userId || null,
         modifiedAt: new Date(),
+        clients,
       },
     };
     return await collection.updateOne(

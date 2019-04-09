@@ -1,4 +1,6 @@
+import buildResponse from '../../libs/httpResponses/response';
 import doRegisterDevice from '../lib/registerDevice';
+import getClient from '../../api-keys/getClient';
 
 export default async (event, context, callback) => {
   try {
@@ -6,29 +8,28 @@ export default async (event, context, callback) => {
       throw new Error('missing_payload');
     }
 
+    const client = getClient(event.requestContext.identity.apiKey);
     const userId = event.requestContext.authorizer.principalId;
     const { Token, deviceUUID, platform } = JSON.parse(event.body);
 
-    const results = await doRegisterDevice({ userId, Token, deviceUUID, platform });
+    await doRegisterDevice({
+      userId,
+      Token,
+      deviceUUID,
+      platform,
+      clients: [client],
+    });
 
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, buildResponse({ code: 200, body: { registerd: true } }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
+    let response;
+    switch (e.message) {
+      case 'already_registered_token':
+        response = buildResponse({ code: 200, message: e.message });
+        break;
+      default:
+        response = buildResponse({ code: 500, message: e.message });
+    }
     callback(null, response);
   }
 };
