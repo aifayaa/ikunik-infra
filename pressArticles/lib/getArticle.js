@@ -63,7 +63,7 @@ export default async (id, { getPictures = false }) => {
     }
 
     const articles = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
     return articles[0] || null;
