@@ -8,7 +8,7 @@ export default async (event, context, callback) => {
       throw new Error('missing_payload');
     }
 
-    const client = getClient(event.requestContext.identity.apiKey);
+    const customer = getClient(event.requestContext.identity.apiKey);
     const userId = event.requestContext.authorizer.principalId;
     const { Token, deviceUUID, platform } = JSON.parse(event.body);
 
@@ -17,7 +17,7 @@ export default async (event, context, callback) => {
       Token,
       deviceUUID,
       platform,
-      clients: [client],
+      customer,
     });
 
     callback(null, buildResponse({ code: 200, body: { registerd: true } }));
