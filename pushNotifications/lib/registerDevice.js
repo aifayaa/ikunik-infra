@@ -12,18 +12,23 @@ const sns = new SNS({
   },
 });
 
+const generateArn = (arn, customer) => {
+  const upperCustomer = customer.charAt(0).toUpperCase() + customer.slice(1);
+  return arn.replace(/crowdaa/i, upperCustomer);
+};
+
 const platformApplicationArn = {
   Android: {
-    arn: process.env.SNS_PLATFORM_ANDROID_ARN,
+    arn: generateArn.bind(null, process.env.SNS_PLATFORM_ANDROID_ARN),
     plateform: 'GCM',
   },
   iOs: {
-    arn: process.env.SNS_PLATFORM_IOS_ARN,
+    arn: generateArn.bind(null, process.env.SNS_PLATFORM_IOS_ARN, 'Crowdaa'),
     plateform: 'APNS',
   },
 };
 
-export default async ({ userId, Token, deviceUUID, platform, clients = [] }) => {
+export default async ({ userId, Token, deviceUUID, platform, customer }) => {
   if (
     check.not.string(Token) ||
     check.not.string(deviceUUID) ||
@@ -36,9 +41,9 @@ export default async ({ userId, Token, deviceUUID, platform, clients = [] }) => 
     const collection = client.db(process.env.DB_NAME)
       .collection(process.env.COLL_PUSH_NOTIFICATIONS);
 
-    const PlatformApplicationArn = platformApplicationArn[platform].arn;
+    const PlatformApplicationArn = platformApplicationArn[platform].arn(customer);
     const found = await collection.findOne(
-      { Token, PlatformApplicationArn, clients },
+      { Token, PlatformApplicationArn, clients: { $elemMatch: { $eq: customer } } },
       { projection: { _id: 1 } },
     );
     if (found) throw new Error('already_registered_token');
@@ -61,7 +66,9 @@ export default async ({ userId, Token, deviceUUID, platform, clients = [] }) => 
         SNSUserData: params.CustomUserData,
         userId: userId || null,
         modifiedAt: new Date(),
-        clients,
+      },
+      $addToSet: {
+        clients: customer,
       },
     };
     return await collection.updateOne(
