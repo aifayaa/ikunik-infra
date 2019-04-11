@@ -6,11 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    COLL_NAME: pressArticles
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -37,7 +33,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   getArticle:
     handler: handlers/getArticle.default
@@ -60,7 +56,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
           request:
             parameters:
               paths:
@@ -75,7 +71,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
           request:
             parameters:
               querystrings:
@@ -93,7 +89,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   publishArticle:
       handler: handlers/publishArticle.default
@@ -104,7 +100,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   unpublishArticle:
       handler: handlers/unpublishArticle.default
@@ -115,18 +111,18 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 
   removeArticle:
       handler: handlers/removeArticle.default
       events:
         - http:
-            path: press/articles/{id}/remove
+            path: press/articles/{id}
             method: delete
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
 plugins:
   - serverless-webpack
 

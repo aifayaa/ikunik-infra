@@ -100,7 +100,7 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
     ]);
 
     const [result = {}] = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
 

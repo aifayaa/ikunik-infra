@@ -5,9 +5,14 @@
   "description": "Crowdaa articles API.",
   "main": "handler.js",
   "dependencies": {
+    "async": "^2.6.2",
+    "aws-sdk": "^2.437.0",
     "fast-xml-parser": "^3.12.14",
     "lodash": "^4.17.11",
     "mongodb": "3.1.10",
+    "remove-markdown": "^0.3.0",
+    "sax": "^1.2.4",
+    "showdown": "^1.9.0",
     "source-map-support": "^0.5.8",
     "uuid": "^3.3.2"
   },

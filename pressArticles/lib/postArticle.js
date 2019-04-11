@@ -1,7 +1,17 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
 
-export default async ({ userId, categoryId, title, summary, html, md, xml, pictures }) => {
+export default async ({
+  userId,
+  categoryId,
+  title,
+  summary,
+  html,
+  md,
+  xml,
+  pictures,
+  plainText = '',
+}) => {
   if (
     typeof title !== 'string'
     || typeof categoryId !== 'string'
@@ -29,6 +39,7 @@ export default async ({ userId, categoryId, title, summary, html, md, xml, pictu
       text: html,
       title,
       userId,
+      plainText,
     };
     if (xml) {
       article.xml = xml;

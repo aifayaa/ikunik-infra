@@ -19,7 +19,16 @@ export default async (userId, articleId, draftId) => {
       throw new Error('Not found');
     }
 
-    const { title, summary, text, md, _id, pictures } = draft;
+    const {
+      title,
+      summary,
+      text,
+      md,
+      _id,
+      pictures,
+      plainText,
+    } = draft;
+
     await client
       .db(process.env.DB_NAME)
       .collection('pressArticles')
@@ -31,6 +40,7 @@ export default async (userId, articleId, draftId) => {
             summary,
             text,
             md,
+            plainText,
             draftId: _id,
             isPublished: true,
             publishedBy: userId,
