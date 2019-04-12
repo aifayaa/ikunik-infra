@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import articleFields from './articleFields.json';
 
-export default async (id, { getPictures = false }) => {
+export default async (id, { getPictures = false, isServer = false }) => {
   let client;
   try {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
@@ -27,10 +27,11 @@ export default async (id, { getPictures = false }) => {
     if (getPictures) {
       // Lookup on pictures
       const pictureGroup = {
-        ...Object.keys(articleFields.public).reduce((res, key) => {
-          res[key] = { $first: `$${key}` };
-          return res;
-        }, {}),
+        ...Object.keys(isServer ? articleFields.server : articleFields.public)
+          .reduce((res, key) => {
+            res[key] = { $first: `$${key}` };
+            return res;
+          }, {}),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
         _id: '$_id',
