@@ -1,5 +1,11 @@
 import url from 'url';
 
+const allowedCustomProtocols = [
+  'crowdaapress:',
+  'lequotidien:',
+  'crowdaa:',
+];
+
 export default (userAgent, redirectUrl) => {
   if (!(userAgent.indexOf('facebookexternalhit/1.1') + 1) && redirectUrl) {
     const decodedUrl = decodeURIComponent(redirectUrl);
@@ -8,7 +14,8 @@ export default (userAgent, redirectUrl) => {
       protocol,
     } = url.parse(decodedUrl);
     const isValid =
-      (hostname.endsWith('crowdaa.com') && protocol === 'https:');
+      (hostname.endsWith('crowdaa.com') && protocol === 'https:') ||
+      allowedCustomProtocols.includes(protocol);
     if (isValid) {
       return {
         statusCode: 301,

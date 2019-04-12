@@ -21,12 +21,23 @@ functions:
             parameters:
               querystrings:
                 redirect_url: false
-  
+
   selection:
     handler: handlers/selection.default
     events:
       - http:
           path: /selections/{id}
+          method: get
+          request:
+            parameters:
+              querystrings:
+                redirect_url: false
+
+  article:
+    handler: handlers/article.default
+    events:
+      - http:
+          path: /articles/{id}
           method: get
           request:
             parameters:
