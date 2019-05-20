@@ -1,17 +1,20 @@
 import { MongoClient } from 'mongodb';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
-export default async (userId, lineupId) => {
-  const lineup = await getUserLineups(userId, lineupId);
+export default async (userId, profileId, lineupId, appId) => {
+  const lineup = await getUserLineups(userId, profileId, lineupId);
   if (!lineup) {
     throw new Error('lineup_not_found');
   }
-  let client;
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
     const scanners = await client.db(process.env.DB_NAME)
-      .collection('scanners')
-      .find({ lineupId }, { sort: { createdAt: -1 } }).toArray();
+      .collection(process.env.COLL_SCANNERS)
+      .find({
+        lineupId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }, { sort: { createdAt: -1 } })
+      .toArray();
     return { scanners };
   } finally {
     client.close();

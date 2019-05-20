@@ -1,0 +1,19 @@
+import { MongoClient } from 'mongodb';
+
+export default async (subId, appId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL);
+  try {
+    const sub = await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_SUBSCRIPTIONS)
+      .findOne({
+        _id: subId,
+        appIds: { $elemMatch: { $eq: appId } },
+      });
+    return sub;
+  } catch (e) {
+    throw e;
+  } finally {
+    client.close();
+  }
+};

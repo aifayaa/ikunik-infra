@@ -1,14 +1,22 @@
-import { MongoClient } from 'mongodb';
-import { PromisePoolExecutor } from 'promise-pool-executor';
 import Stripe from 'stripe';
 import uuidv4 from 'uuid/v4';
+import winston from 'winston';
+import { MongoClient } from 'mongodb';
+import { PromisePoolExecutor } from 'promise-pool-executor';
 
 import addCredits from '../../credits/lib/addCredits';
 import buyTickets from '../../tickets/lib/buyTickets';
 import sendTicket from '../../tickets/lib/sendTicket';
 import updateCart from '../../carts/lib/updateCart';
 
-const stripe = Stripe(process.env.STRIPE_API_KEY);
+const {
+  STRIPE_API_KEY,
+  MONGO_URL,
+  DB_NAME,
+  COLL_BILLING,
+} = process.env;
+
+const stripe = Stripe(STRIPE_API_KEY);
 
 const setupProduct = async (id, type, userId, meta, options) => {
   try {
@@ -53,7 +61,7 @@ export default async (token, cartId, userId) => {
   });
 
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
     session = client.startSession();
     session.startTransaction();
     opts = { session };
@@ -75,10 +83,11 @@ export default async (token, cartId, userId) => {
       token,
       userId,
     };
-    await client.db(process.env.DB_NAME).collection('billing')
+    await client.db(DB_NAME).collection(COLL_BILLING)
       .insertOne(billing, opts);
 
-    await addCredits(userId, `${totalCredits}`, opts);
+    // TODO: use appId
+    await addCredits(userId, null, `${totalCredits}`, opts);
 
 
     // for each item of the cart apply its function
@@ -98,7 +107,7 @@ export default async (token, cartId, userId) => {
         userId,
       },
     });
-    console.log(`Charged user ${userId}: ${totalPrice} for ${totalCredits} and status ${status}`);
+    winston.info(`Charged user ${userId}: ${totalPrice} for ${totalCredits} and status ${status}`);
     await session.commitTransaction();
 
     // now handle non mandatory ops on each item of the cart
@@ -109,7 +118,7 @@ export default async (token, cartId, userId) => {
         generator: ({ type, val }) => exeProduct(type, val),
       }).promise();
     } catch (error) {
-      console.warn('Failed to finalise products', error);
+      winston.warn('Failed to finalise products', error);
     }
     return true;
   } catch (err) {

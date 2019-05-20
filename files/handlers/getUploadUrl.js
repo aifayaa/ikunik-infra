@@ -1,20 +1,17 @@
-import buildResponse from '../../libs/httpResponses/response';
 import getUploadUrl from '../lib/getUploadUrl';
+import response from '../../libs/httpResponses/response';
+
+const permKey = 'files_upload';
 
 export default async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const roles = JSON.parse(event.requestContext.authorizer.roles);
-  if (!['reporter', 'artist'].some(r => roles.includes(r))) {
-    callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
+  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const { appId } = event.requestContext.authorizer;
+  if (!perms[permKey]) {
+    callback(null, response({ code: 403, message: 'access forbidden' }));
     return;
   }
 
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
   try {
     const {
       name,
@@ -22,15 +19,9 @@ export default async (event, context, callback) => {
       length,
       metadata = {},
     } = JSON.parse(event.body);
-    const info = getUploadUrl(userId, name, type, length, metadata);
-    response.statusCode = 200;
-    response.body = JSON.stringify(info);
+    const info = getUploadUrl(userId, appId, name, type, length, metadata);
+    callback(null, response({ code: 200, body: info }));
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({
-      message: e.message,
-    });
-  } finally {
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

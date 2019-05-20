@@ -38,9 +38,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   buyTickets:
-    handler: handlers/buyTickets.handleBuyTickets
+    handler: handlers/buyTickets.default
     events:
       - http:
           path: tickets
@@ -49,14 +51,21 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getTicketCategoriesByLineup:
-    handler: handlers/getTicketCategoriesByLineup.handleGetTicketCategoriesByLineup
+    handler: handlers/getTicketCategoriesByLineup.default
     events:
       - http:
           path: lineup/{id}/ticketCategories
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
               paths:
@@ -74,6 +83,8 @@ functions:
               paths:
                 lineupId: true
                 id: true
+              headers:
+                Authorization: true
 
   postTicketCategoriesByLineup:
     handler: handlers/postTicketCategories.default
@@ -89,9 +100,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   scanTicket:
-    handler: handlers/scanTicket.handleScanTicket
+    handler: handlers/scanTicket.default
     events:
       - http:
           path: tickets/{id}
@@ -101,9 +114,12 @@ functions:
             parameters:
               paths:
                 id: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
   resendTicket:
-    handler: handlers/resendTicket.handleResendTicket
+    handler: handlers/resendTicket.default
     events:
       - http:
           path: tickets/{id}/resend
@@ -116,6 +132,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   getTicketCategory:
     handler: handlers/getTicketCategory.default
@@ -128,6 +146,9 @@ functions:
             parameters:
               paths:
                 id: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
   - serverless-webpack

@@ -7,10 +7,10 @@ import getTicket from './getTicket';
 import getTicketInfos from './getTicketInfos';
 import sendTicket from './sendTicket';
 
-export default async (ticketId) => {
+export default async (ticketId, appId) => {
   try {
-    const ticket = await getTicket(ticketId, true);
-    const [ticketInfo] = await getTicketInfos(ticket.categoryId);
+    const ticket = await getTicket(ticketId, appId, true);
+    const [ticketInfo] = await getTicketInfos(ticket.categoryId, appId);
     const { organisation } = ticketInfo.lineup || {};
     const data = {
       eventName: (ticketInfo.lineup.name || ''),

@@ -1,16 +1,30 @@
 import { MongoClient } from 'mongodb';
 
-export default async () => {
-  let client;
+const {
+  COLL_ARTISTS,
+  COLL_FESTIVALS,
+  COLL_LINEUPS,
+  COLL_PICTURES,
+  COLL_STAGES,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
+export default async (appId) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-    const lineups = await client.db(process.env.DB_NAME)
-      .collection('lineup')
+    const lineups = await client.db(DB_NAME)
+      .collection(COLL_LINEUPS)
       .aggregate([
-        { $match: { startDate: { $gte: new Date() } } },
+        {
+          $match: {
+            startDate: { $gte: new Date() },
+            appIds: { $elemMatch: { $eq: appId } },
+          },
+        },
         {
           $lookup: {
-            from: 'festivals',
+            from: COLL_FESTIVALS,
             localField: 'festivalId',
             foreignField: '_id',
             as: 'festival',
@@ -24,7 +38,7 @@ export default async () => {
         },
         {
           $lookup: {
-            from: 'artists',
+            from: COLL_ARTISTS,
             localField: 'artistId',
             foreignField: '_id',
             as: 'artist',
@@ -38,7 +52,7 @@ export default async () => {
         },
         {
           $lookup: {
-            from: 'stages',
+            from: COLL_STAGES,
             localField: 'stageId',
             foreignField: '_id',
             as: 'stage',
@@ -52,7 +66,7 @@ export default async () => {
         },
         {
           $lookup: {
-            from: 'pictures',
+            from: COLL_PICTURES,
             localField: 'pictureId',
             foreignField: '_id',
             as: 'pictures',

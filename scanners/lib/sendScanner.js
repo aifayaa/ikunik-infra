@@ -10,7 +10,7 @@ export default async ({ subject, body, to }) => {
     const mail = new MailComposer({
       subject,
       html: body,
-      from: `${process.env.FROM}@${process.env.MAILGUN_DOMAIN}`,
+      from: `${process.env.MAILGUN_FROM}@${process.env.MAILGUN_DOMAIN}`,
       to,
     });
     mail.compile().build((error, message) => {

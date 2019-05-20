@@ -6,14 +6,12 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    AWS_KEY: AKIAJGROD5HF6C67HFHA
-    AWS_SECRET: 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
-    COLL_NAME: ${self:service}
-    DB_NAME: crowdaaDev
-    LIMIT_DEFAULT: '10'
-    LIMIT_MAX: '100'
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
+  <<<: 
+    - environment:
+      LIMIT_DEFAULT: '10'
+      LIMIT_MAX: '100'
+
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -22,14 +20,14 @@ provider:
 
 functions:
   deleteContact:
-    handler: handler.handleDeleteContact
+    handler: handlers/deleteContact.default
     events:
       - http:
           path: contacts/{id}
           method: delete
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
@@ -39,14 +37,14 @@ functions:
                 id: true
 
   getContacts:
-    handler: handler.handleGetContacts
+    handler: handlers/getContacts.default
     events:
       - http:
           path: contacts/
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
@@ -62,7 +60,7 @@ functions:
                 sortOrder: false
                 type: false
   # import:
-  #   handler: handler.handleImport
+  #   handler: handlers/import.default
   #   events:
   #     - http: POST contacts/import
 
@@ -73,7 +71,9 @@ package:
   individually: true
 
 custom:
-  webpackIncludeModules: true
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
 
 resources:
   Resources:

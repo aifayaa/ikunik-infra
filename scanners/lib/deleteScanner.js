@@ -2,24 +2,28 @@ import { MongoClient } from 'mongodb';
 
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
-export default async (userId, scannerId) => {
+export default async (userId, profileId, scannerId, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   let session;
   try {
     session = client.startSession();
     session.startTransaction();
     const opts = { session };
-    const scanner = await client.db(process.env.DB_NAME).collection('scanners')
+    const scanner = await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_SCANNERS)
       .findOneAndDelete({
         _id: scannerId,
-      }, opts).then(res => res.value);
+        appIds: { $elemMatch: { $eq: appId } },
+      }, opts)
+      .then(res => res.value);
     if (!scanner) {
       throw new Error('scanner_not_found');
     }
 
     const { lineupId } = scanner;
     // Check ownership
-    const lineup = await getUserLineups(userId, lineupId);
+    const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {
       throw new Error('lineup_not_found');
     }

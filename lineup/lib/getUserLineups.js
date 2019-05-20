@@ -1,27 +1,25 @@
 import { MongoClient } from 'mongodb';
 
+const {
+  COLL_ARTISTS,
+  COLL_LINEUPS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
 // TODO optimize by using another function properly for lineupId
-export default async (userId, lineupId) => {
+export default async (userId, profileId, appId, lineupId) => {
   const aggregat = [
-    { $match: { UserId: userId } },
+    {
+      $match: {
+        profil_ID: profileId,
+        appIds: { $elemMatch: { $eq: appId } },
+      },
+    },
     {
       $lookup: {
-        from: 'artists',
+        from: COLL_LINEUPS,
         localField: '_id',
-        foreignField: 'profil_ID',
-        as: 'artists',
-      },
-    },
-    {
-      $unwind: {
-        path: '$artists',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $lookup: {
-        from: 'lineup',
-        localField: 'artists._id',
         foreignField: 'artistId',
         as: 'lineups',
       },
@@ -52,10 +50,13 @@ export default async (userId, lineupId) => {
     });
     aggregat.push({ $match: { 'lineups._id': lineupId } });
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    let lineups = await client.db(process.env.DB_NAME).collection('profil')
-      .aggregate(aggregat).toArray();
+    let lineups = await client
+      .db(DB_NAME)
+      .collection(COLL_ARTISTS)
+      .aggregate(aggregat)
+      .toArray();
     const [res] = lineups;
     ({ lineups } = res);
     if (lineupId) {

@@ -1,8 +1,15 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
 
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_PRESS_DRAFTS,
+} = process.env;
+
 export default async ({
   userId,
+  appId,
   articleId,
   categoryId,
   title,
@@ -25,27 +32,29 @@ export default async ({
   }
 
   const draftId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
-    const { _id } = await client.db(process.env.DB_NAME).collection('pressDrafts')
+    const { _id } = await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
       .findOne({ articleId }, { sort: { createdAt: -1 } });
     const draft = {
       _id: draftId,
       ancestor: _id,
+      appIds: [appId],
       articleId,
       categoryId,
       createdAt: new Date(),
       isPublished: false,
       md,
-      text: html,
-      plainText,
       pictures,
+      plainText,
       summary,
+      text: html,
       title,
       userId,
     };
 
-    await client.db(process.env.DB_NAME).collection('pressDrafts')
+    await client.db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .insertOne(draft);
 
     return { articleId, draftId };

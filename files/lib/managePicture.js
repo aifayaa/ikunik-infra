@@ -9,7 +9,15 @@ import {
 const S3 = new AWS.S3({
   signatureVersion: 'v4',
 });
-const outBucket = process.env.S3_PICTURES_BUCKET;
+
+const {
+  DB_NAME,
+  MONGO_URL,
+  PICTURES_COLL,
+  S3_PICTURES_BUCKET,
+} = process.env;
+
+const outBucket = S3_PICTURES_BUCKET;
 
 const resizeParams = ({ keepRatio = false }) => [{
   resize: {
@@ -59,10 +67,13 @@ export default async (bucket, object, file) => {
   const {
     Metadata,
   } = file;
+
+  // all key names are lowercaser in metadata
   const {
     userid,
     id = uuidv4(),
     title,
+    appid,
     opts = '{}',
   } = Metadata;
 
@@ -89,9 +100,10 @@ export default async (bucket, object, file) => {
     title: title || '',
     views: 0,
     selectedGenres: [],
+    appIds: [appid],
     isPublished: true,
   };
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
+  const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
   try {
@@ -105,7 +117,9 @@ export default async (bucket, object, file) => {
       pictureDoc[`${params.docField}Filename`] = key;
       pictureDoc[`${params.docField}Url`] = url;
     }
-    await client.db(process.env.DB_NAME).collection(process.env.PICTURES_COLL)
+    await client
+      .db(DB_NAME)
+      .collection(PICTURES_COLL)
       .insertOne(pictureDoc);
   } catch (e) {
     throw e;

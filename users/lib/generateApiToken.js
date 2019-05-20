@@ -7,7 +7,9 @@ export default async (userId) => {
   try {
     const token = generateToken();
     const hash = hashToken(token);
-    await client.db(process.env.DB_NAME).collection('users')
+    await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_USERS)
       .updateOne({
         _id: userId,
       }, {

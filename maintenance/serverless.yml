@@ -6,10 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    COLL_NAME: ${self:service}
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -18,12 +15,15 @@ provider:
 
 functions:
   getMaintenance:
-    handler: handler.handleGetMaintenance
+    handler: handlers/getMaintenance.default
     events:
       - http:
           path: maintenance/
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
   - serverless-webpack

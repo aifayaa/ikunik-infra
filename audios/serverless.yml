@@ -15,7 +15,7 @@ provider:
 
 functions:
   getAudio:
-    handler: handler.handleGetAudio
+    handler: handlers/getAudio.default
     events:
       - http:
           path: audios/{id}
@@ -28,7 +28,8 @@ functions:
             parameters:
               paths:
                 id: true
-
+              headers:
+                Authorization: true
 plugins:
   - serverless-webpack
 

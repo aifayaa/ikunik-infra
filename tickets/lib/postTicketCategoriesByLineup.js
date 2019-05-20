@@ -14,6 +14,8 @@ export default async (
   endSale,
   name,
   userId,
+  profileId,
+  appId,
   opts,
 ) => {
   if (!validator.isInt(qty, { min: 1, allow_leading_zeroes: false })) {
@@ -26,7 +28,7 @@ export default async (
   const catId = uuidv4();
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
-    const lineup = await getUserLineups(userId, lineupId);
+    const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {
       throw new Error('lineup_not_found');
     }
@@ -41,8 +43,11 @@ export default async (
       startSale: new Date(startSale),
       endSale: new Date(endSale),
       createdAt: new Date(),
+      appIds: [appId],
     };
-    await client.db(process.env.DB_NAME).collection('ticketCategories')
+    await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_TICKET_CATEGORIES)
       .insertOne(cat, opts);
     return catId;
   } finally {

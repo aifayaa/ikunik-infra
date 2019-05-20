@@ -1,6 +1,4 @@
-import {
-  doGetSelection,
-} from '../../selections/handler';
+import getSelection from '../../selections/libs/getSelection';
 import meta from '../lib/meta';
 import redirect from '../lib/redirect';
 
@@ -15,7 +13,7 @@ export default async (event, context, callback) => {
     }
 
     const projectId = event.pathParameters.id;
-    const selection = await doGetSelection(projectId, null, ['crowdaa']);
+    const selection = await getSelection(projectId, null, 'crowdaa_app_id');
     const body = meta(
       selection.selectionDisplayName,
       selection.overrideIcon || selection.tracks[0].title,

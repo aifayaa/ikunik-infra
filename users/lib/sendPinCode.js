@@ -1,15 +1,23 @@
 import { MongoClient } from 'mongodb';
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
-
 import generatePinCode from './generatePinCode';
+
+const {
+  COLL_PHONES,
+  DB_NAME,
+  MONGO_URL,
+  SNS_KEY_ID,
+  SNS_REGION,
+  SNS_SECRET,
+} = process.env;
 
 export default async (phone) => {
   const sns = new SNS({
-    region: process.env.SNS_REGION,
+    region: SNS_REGION,
     credentials: {
-      accessKeyId: process.env.SNS_KEY_ID,
-      secretAccessKey: process.env.SNS_SECRET,
+      accessKeyId: SNS_KEY_ID,
+      secretAccessKey: SNS_SECRET,
     },
   });
   const pinCode = generatePinCode();
@@ -19,9 +27,11 @@ export default async (phone) => {
     createAt: new Date(),
     validated: false,
   };
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    await client.db(process.env.DB_NAME).collection('phonesCollection')
+    await client
+      .db(DB_NAME)
+      .collection(COLL_PHONES)
       .insertOne(phoneObj);
     const cleanded = phoneCleaner(phone, '');
     if (cleanded.length === 0) {
@@ -35,7 +45,7 @@ export default async (phone) => {
       PhoneNumber: cleandedNumber,
     };
     await sns.publish(params).promise();
-    await client.db(process.env.DB_NAME).collection('phonesCollection')
+    await client.db(DB_NAME).collection(COLL_PHONES)
       .update({
         phone,
         pinCode,

@@ -1,7 +1,14 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId, articleId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_PRESS_DRAFTS,
+  COLL_PRESS_ARTICLES,
+} = process.env;
+
+export default async (_userId, appId, articleId) => {
+  const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
   let session;
@@ -12,18 +19,24 @@ export default async (userId, articleId) => {
     const opts = { session };
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressArticles')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
       .deleteOne(
-        { _id: articleId },
+        {
+          _id: articleId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         opts,
       );
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressDrafts')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .deleteMany(
-        { articleId },
+        {
+          articleId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         opts,
       );
 

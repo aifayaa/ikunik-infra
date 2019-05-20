@@ -9,7 +9,8 @@
     "lodash": "^4.17.10",
     "mongodb": "^3.0.2",
     "phone": "^2.3.5",
-    "validator": "^9.4.0"
+    "validator": "^9.4.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "serverless-webpack": "^4.4.0",

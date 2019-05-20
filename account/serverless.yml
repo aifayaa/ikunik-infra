@@ -6,20 +6,19 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
   authorize:
-    handler: handler.handleAuthorize
-  authorizeAdmin:
-    handler: handler.handleAuthorizeAdmin
+    handler: handlers/authorize.default
   authorizeArtist:
     handler: handlers/authorizeArtist.default
   authorizeRole:
     handler: handlers/authorizeRole.default
+  authorizeWithPerms:
+    handler: handlers/authorizeWithPerms.default
   authorizePublic:
     handler: handlers/authorizePublic.default
 
@@ -50,10 +49,10 @@ resources:
             ]
           ]
         }
-        IdentitySource: method.request.header.Authorization
+        IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
-        Type: TOKEN
+        Type: REQUEST
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] }
     
@@ -101,6 +100,21 @@ resources:
             - 
               - apigateway.
               - Ref: 'AWS::URLSuffix'
+
+    AuthorizeWithPermsLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizeWithPermsLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
     
     ApiGatewayResponseDenied:
       Type: AWS::ApiGateway::GatewayResponse
@@ -115,33 +129,10 @@ resources:
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         StatusCode: "403"
 
-    ApiGatewayAuthorizerAdmin: 
-      Type: AWS::ApiGateway::Authorizer
-      Properties: 
-        AuthorizerResultTtlInSeconds: 300
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizeAdminLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
-        IdentitySource: method.request.header.Authorization
-        Name: authorizeAdminAuthorizer
-        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
-        Type: TOKEN
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizeAdminLambdaFunction", "Arn" ] }
-
     ApiGatewayAuthorizerArtist: 
       Type: AWS::ApiGateway::Authorizer
       Properties: 
-        AuthorizerResultTtlInSeconds: 300
+        AuthorizerResultTtlInSeconds: 0
         AuthorizerUri : {
           "Fn::Join": [
             "",
@@ -154,17 +145,17 @@ resources:
             ]
           ]
         }
-        IdentitySource: method.request.header.Authorization
+        IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeArtistAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
-        Type: TOKEN
+        Type: REQUEST
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] }
 
     ApiGatewayAuthorizerRole: 
       Type: AWS::ApiGateway::Authorizer
       Properties: 
-        AuthorizerResultTtlInSeconds: 300
+        AuthorizerResultTtlInSeconds: 0
         AuthorizerUri : {
           "Fn::Join": [
             "",
@@ -177,12 +168,35 @@ resources:
             ]
           ]
         }
-        IdentitySource: method.request.header.Authorization
+        IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeRoleAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
-        Type: TOKEN
+        Type: REQUEST
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeRoleLambdaFunction", "Arn" ] }
+
+    ApiGatewayAuthorizerWithPerms: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 0
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizeWithPermsLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
+        Name: authorizeWithPermsAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: REQUEST
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizeWithPermsLambdaFunction", "Arn" ] }
 
     ApiGatewayAuthorizerPublic: 
       Type: AWS::ApiGateway::Authorizer
@@ -229,12 +243,6 @@ resources:
         Ref: ApiGatewayAuthorizer
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerId
-    ApiGatewayAuthorizerAdminId:
-      Description: Admin authorizer ID
-      Value:
-        Ref: ApiGatewayAuthorizerAdmin
-      Export:
-        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerAdminId
     ApiGatewayAuthorizerArtistId:
       Description: Artist authorizer ID
       Value:
@@ -247,6 +255,12 @@ resources:
         Ref: ApiGatewayAuthorizerRole
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerRoleId
+    ApiGatewayAuthorizerWithPermsId:
+      Description: Perms authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerWithPerms
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerWithPermsId
     ApiGatewayAuthorizerPublicId:
       Description: public authorizer ID
       Value:

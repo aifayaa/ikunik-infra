@@ -6,10 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    COLL_NAME: credits
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -50,7 +47,7 @@ functions:
                 id: true
 
   getCredits:
-    handler: handler.handleGetCredits
+    handler: handlers/getCredits.default
     events:
       - http:
           path: credits/
@@ -65,10 +62,10 @@ functions:
                 Authorization: true
 
   addCredits:
-    handler: handler.handleAddCredits
+    handler: handlers/addCredits.default
 
   removeCredits:
-    handler: handler.handleRemoveCredits
+    handler: handlers/removeCredits.default
 
 plugins:
   - serverless-webpack

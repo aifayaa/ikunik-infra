@@ -1,6 +1,5 @@
-import buildResponse from '../../libs/httpResponses/response';
-import doRegisterDevice from '../lib/registerDevice';
-import getClient from '../../api-keys/getClient';
+import registerDevice from '../lib/registerDevice';
+import response from '../../libs/httpResponses/response';
 
 export default async (event, context, callback) => {
   try {
@@ -8,28 +7,21 @@ export default async (event, context, callback) => {
       throw new Error('missing_payload');
     }
 
-    const customer = getClient(event.requestContext.identity.apiKey);
+    const { appId } = event.requestContext.authorizer;
     const userId = event.requestContext.authorizer.principalId;
     const { Token, deviceUUID, platform } = JSON.parse(event.body);
 
-    await doRegisterDevice({
+    await registerDevice({
       userId,
       Token,
       deviceUUID,
       platform,
-      customer,
+      appId,
     });
 
-    callback(null, buildResponse({ code: 200, body: { registerd: true } }));
+    callback(null, response({ code: 200, body: { registerd: true } }));
   } catch (e) {
-    let response;
-    switch (e.message) {
-      case 'already_registered_token':
-        response = buildResponse({ code: 200, message: e.message });
-        break;
-      default:
-        response = buildResponse({ code: 500, message: e.message });
-    }
-    callback(null, response);
+    const code = (e.message === 'already_registered_token') ? 200 : 500;
+    callback(null, response({ code, message: e.message }));
   }
 };

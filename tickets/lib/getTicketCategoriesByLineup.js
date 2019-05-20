@@ -1,5 +1,15 @@
 import { MongoClient } from 'mongodb';
 
+const {
+  COLL_ARTISTS,
+  COLL_LINEUPS,
+  COLL_TICKETS,
+  COLL_TICKET_CATEGORIES,
+  COLL_USERS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
 const ticketCategoriesFields = {
   _id: 1,
   lineupId: 1,
@@ -12,8 +22,8 @@ const ticketCategoriesFields = {
   sold: 1,
 };
 
-export default async (lineupId, userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+export default async (lineupId, userId, appId) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     let ticketCategories;
     if (userId) {
@@ -21,12 +31,13 @@ export default async (lineupId, userId) => {
         {
           $match: {
             lineupId,
+            appIds: { $elemMatch: { $eq: appId } },
             removed: { $ne: true },
           },
         },
         {
           $lookup: {
-            from: 'lineup',
+            from: COLL_LINEUPS,
             localField: 'lineupId',
             foreignField: '_id',
             as: 'lineup',
@@ -40,7 +51,7 @@ export default async (lineupId, userId) => {
         },
         {
           $lookup: {
-            from: 'artists',
+            from: COLL_ARTISTS,
             localField: 'lineup.artistId',
             foreignField: '_id',
             as: 'artist',
@@ -54,7 +65,7 @@ export default async (lineupId, userId) => {
         },
         {
           $lookup: {
-            from: 'users',
+            from: COLL_USERS,
             localField: 'artist.profil_ID',
             foreignField: 'profil_ID',
             as: 'user',
@@ -73,7 +84,7 @@ export default async (lineupId, userId) => {
         },
         {
           $lookup: {
-            from: 'tickets',
+            from: COLL_TICKETS,
             localField: '_id',
             foreignField: 'categoryId',
             as: 'scanned',
@@ -96,15 +107,16 @@ export default async (lineupId, userId) => {
           },
         },
       ];
-      ticketCategories = await client.db(process.env.DB_NAME)
-        .collection('ticketCategories')
+      ticketCategories = await client.db(DB_NAME)
+        .collection(COLL_TICKET_CATEGORIES)
         .aggregate(aggregate)
         .toArray();
     } else {
-      ticketCategories = await client.db(process.env.DB_NAME)
-        .collection('ticketCategories')
+      ticketCategories = await client.db(DB_NAME)
+        .collection(COLL_TICKET_CATEGORIES)
         .find({
           lineupId,
+          appIds: { $elemMatch: { $eq: appId } },
           removed: { $ne: true },
         })
         .toArray();

@@ -1,25 +1,46 @@
 import { MongoClient } from 'mongodb';
 
-export const doDeleteUserSelection = async (selectionIds) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+const {
+  COLL_MEDIUM_SELECTION_LINKS,
+  COLL_SELECTIONS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+export const doDeleteUserSelection = async (selectionIds, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
     Promise.all([
-      client.db(process.env.DB_NAME).collection(process.env.COLL_SELECTIONS)
-        .remove({ _id: { $in: selectionIds } }),
-      client.db(process.env.DB_NAME).collection('mediumSelectionLinks')
-        .remove({ selectionId: { $in: selectionIds } }),
+      client
+        .db(DB_NAME)
+        .collection(COLL_SELECTIONS)
+        .remove({
+          _id: { $in: selectionIds },
+          appIds: { $elemMatch: { $eq: appId } },
+        }),
+      client
+        .db(DB_NAME)
+        .collection(COLL_MEDIUM_SELECTION_LINKS)
+        .remove({
+          selectionId: { $in: selectionIds },
+          appIds: { $elemMatch: { $eq: appId } },
+        }),
     ]);
   } finally {
     client.close();
   }
 };
 
-export const doDeleteUserSelectionTree = async (userId, selectionId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    const selection = await client.db(process.env.DB_NAME).collection(process.env.COLL_SELECTIONS)
+    const selection = await client
+      .db(DB_NAME)
+      .collection(COLL_SELECTIONS)
       .findOne(
-        { _id: selectionId },
+        {
+          _id: selectionId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         { userId: true, rootSelectionId: true, subscriptionIds: true },
       );
     const { rootSelectionId, subscriptionIds } = selection;
@@ -28,10 +49,16 @@ export const doDeleteUserSelectionTree = async (userId, selectionId) => {
 
     // get ids of all child selections
     const getChildSelectionIdsPipeline = [
-      { $match: { _id: selectionId, userId } },
+      {
+        $match: {
+          _id: selectionId,
+          userId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
+      },
       {
         $graphLookup: {
-          from: 'selection',
+          from: COLL_SELECTIONS,
           startWith: '$selectionIds',
           connectFromField: 'selectionIds',
           connectToField: '_id',
@@ -53,25 +80,37 @@ export const doDeleteUserSelectionTree = async (userId, selectionId) => {
         },
       },
     ];
-    const [selectionIdsObj] = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_SELECTIONS)
-      .aggregate(getChildSelectionIdsPipeline).toArray();
+    const [selectionIdsObj] = await client
+      .db(DB_NAME)
+      .collection(COLL_SELECTIONS)
+      .aggregate(getChildSelectionIdsPipeline)
+      .toArray();
     const { selectionIds } = selectionIdsObj || { selectionIds: [] };
     selectionIds.push(selectionId);
 
     // remove selection with all child selection
     await doDeleteUserSelection(selectionIds);
-    const [remainingMedia] = await client.db(process.env.DB_NAME).collection('mediumSelectionLinks').aggregate([
-      { $match: { rootSelectionId } },
-      {
-        $group: {
-          _id: null,
-          mediaIds: { $addToSet: '$mediumId' },
+    const [remainingMedia] = await client
+      .db(DB_NAME)
+      .collection(COLL_MEDIUM_SELECTION_LINKS)
+      .aggregate([
+        {
+          $match: {
+            rootSelectionId,
+            appIds: { $elemMatch: { $eq: appId } },
+          },
         },
-      },
-    ]).toArray();
+        {
+          $group: {
+            _id: null,
+            mediaIds: { $addToSet: '$mediumId' },
+          },
+        },
+      ]).toArray();
     const { mediaIds } = remainingMedia || { mediaIds: [] };
-    await client.db(process.env.DB_NAME).collection('mediumSelectionLinks')
+    await client
+      .db(DB_NAME)
+      .collection(COLL_MEDIUM_SELECTION_LINKS)
       .updateMany({
         _id: {
           $nin: mediaIds,
@@ -81,6 +120,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId) => {
             $in: subscriptionIds,
           },
         },
+        appIds: { $elemMatch: { $eq: appId } },
       }, {
         $pull: {
           subscriptionIds: {

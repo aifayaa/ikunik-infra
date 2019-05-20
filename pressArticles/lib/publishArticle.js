@@ -1,7 +1,14 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId, articleId, draftId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_PRESS_DRAFTS,
+  COLL_PRESS_ARTICLES,
+} = process.env;
+
+export default async (userId, appId, articleId, draftId) => {
+  const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
   let session;
@@ -12,9 +19,13 @@ export default async (userId, articleId, draftId) => {
     const opts = { session };
 
     const draft = await client
-      .db(process.env.DB_NAME)
-      .collection('pressDrafts')
-      .findOne({ articleId, _id: draftId }, opts);
+      .db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
+      .findOne({
+        articleId,
+        _id: draftId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }, opts);
     if (!draft) {
       throw new Error('Not found');
     }
@@ -30,10 +41,13 @@ export default async (userId, articleId, draftId) => {
     } = draft;
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressArticles')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
       .updateOne(
-        { _id: articleId },
+        {
+          _id: articleId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         {
           $set: {
             title,
@@ -51,10 +65,13 @@ export default async (userId, articleId, draftId) => {
       );
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressDrafts')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .updateMany(
-        { articleId },
+        {
+          articleId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         {
           $set: {
             isPublished: false,
@@ -64,10 +81,13 @@ export default async (userId, articleId, draftId) => {
       );
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressDrafts')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .updateOne(
-        { _id: draftId },
+        {
+          _id: draftId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         {
           $set: {
             isPublished: true,

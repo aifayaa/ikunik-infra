@@ -20,10 +20,10 @@ provider:
 
 functions:
   checkUserMedia:
-    handler: handler.handleCheckUserMedia
+    handler: handlers/checkUserMedia.default
 
   getMedium:
-    handler: handler.handleGetMedium
+    handler: handlers/getMedium.default
     events:
       - http:
           path: media/{type}/{id}
@@ -41,7 +41,7 @@ functions:
                 id: true
 
   postMediumView:
-    handler: handler.handlePostMediumView
+    handler: handlers/postMediumView.default
     events:
       - http:
           path: media/{type}/{id}/views
@@ -59,7 +59,7 @@ functions:
                 id: true
 
   getMediumLockState:
-    handler: handler.handleGetMediumLockState
+    handler: handlers/getMediumLockState.default
     events:
       - http:
           path: media/{type}/{id}/lock

@@ -12,12 +12,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    COLL_NAME: shopOrders
-    REGION: ${self:provider.region}
-    STAGE: ${self:provider.stage}
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -25,7 +20,7 @@ provider:
 
 functions:
   getShopItems:
-    handler: handler.handleGetShopItems
+    handler: handlers/getShopItems.default
     events:
       - http:
           path: shop/items
@@ -34,8 +29,13 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getShopItem:
-    handler: handler.handleGetShopItem
+    handler: handlers/getShopItem.default
     events:
       - http:
           path: shop/items/{id}
@@ -48,8 +48,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
+
   postShopOrder:
-    handler: handler.handlePostShopOrder
+    handler: handlers/postShopOrder.default
     events:
       - http:
           path: /shop/items/{id}/orders
@@ -58,6 +61,10 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

@@ -5,7 +5,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-export default async (event, context, callback) => {
+export default async (event, _context, callback) => {
   const {
     bucket,
     object,

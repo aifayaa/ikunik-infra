@@ -1,16 +1,29 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId) => {
+const {
+  COLL_LINEUPS,
+  COLL_TICKETS,
+  COLL_TICKET_CATEGORIES,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
+export default async (userId, appId) => {
   let client;
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-    return await client.db(process.env.DB_NAME)
-      .collection('tickets')
+    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    return await client.db(DB_NAME)
+      .collection(COLL_TICKETS)
       .aggregate([
-        { $match: { userId } },
+        {
+          $match: {
+            userId,
+            appIds: { $elemMatch: { $eq: appId } },
+          },
+        },
         {
           $lookup: {
-            from: 'ticketCategories',
+            from: COLL_TICKET_CATEGORIES,
             localField: 'categoryId',
             foreignField: '_id',
             as: 'ticketCategory',
@@ -24,7 +37,7 @@ export default async (userId) => {
         },
         {
           $lookup: {
-            from: 'lineup',
+            from: COLL_LINEUPS,
             localField: 'ticketCategory.lineupId',
             foreignField: '_id',
             as: 'lineup',
