@@ -2,11 +2,20 @@ import { MongoClient } from 'mongodb';
 import queue from 'async/queue';
 import SNS from 'aws-sdk/clients/sns';
 
+const {
+  COLL_PUSH_NOTIFICATIONS,
+  DB_NAME,
+  MONGO_URL,
+  SNS_KEY_ID,
+  SNS_REGION,
+  SNS_SECRET,
+} = process.env;
+
 const sns = new SNS({
-  region: process.env.SNS_REGION,
+  region: SNS_REGION,
   credentials: {
-    accessKeyId: process.env.SNS_KEY_ID,
-    secretAccessKey: process.env.SNS_SECRET,
+    accessKeyId: SNS_KEY_ID,
+    secretAccessKey: SNS_SECRET,
   },
 });
 
@@ -37,14 +46,14 @@ const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) =
   return sns.publish(params, cb);
 };
 
-export default async (title, message, customer, extraData) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+export default async (title, message, appId, extraData) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     const endpoints = await client
-      .db(process.env.DB_NAME)
-      .collection('pushNotifications')
+      .db(DB_NAME)
+      .collection(COLL_PUSH_NOTIFICATIONS)
       .find(
-        { clients: { $elemMatch: { $eq: customer } } },
+        { appIds: { $elemMatch: { $eq: appId } } },
         { projection: { _id: 1, Platform: 1, EndpointArn: 1 } },
       ).toArray();
     const sendNotifications = queue(doBlastNotification, 50);

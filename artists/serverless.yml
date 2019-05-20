@@ -6,10 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    COLL_NAME: artists
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -20,7 +17,7 @@ provider:
 
 functions:
   getArtist:
-    handler: handler.handleGetArtist
+    handler: handlers/getArtist.default
     events:
       - http:
           path: artists/{id}
@@ -35,7 +32,7 @@ functions:
                 id: true
 
   getArtistPicture:
-    handler: handler.handleGetArtistPicture
+    handler: handlers/getArtistPicture.default
     events:
       - http:
           path: artists/{id}/picture
@@ -50,14 +47,14 @@ functions:
                 id: true
   
   getUserArtists:
-    handler: handler.handleGetUserArtists
+    handler: handlers/getUserArtists.default
     events:
       - http:
           path: users/{id}/artists
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:

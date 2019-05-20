@@ -6,7 +6,8 @@
   "main": "handler.js",
   "dependencies": {
     "mongodb": "^3.1.0",
-    "validator": "^9.4.0"
+    "validator": "^9.4.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "serverless-webpack": "^4.4.0",

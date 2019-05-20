@@ -1,7 +1,14 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId, articleId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
+const {
+  COLL_PRESS_ARTICLES,
+  DB_NAME,
+  MONGO_URL,
+  COLL_PRESS_DRAFTS,
+} = process.env;
+
+export default async (userId, appId, articleId) => {
+  const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
   let session;
@@ -12,10 +19,13 @@ export default async (userId, articleId) => {
     const opts = { session };
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressArticles')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
       .updateOne(
-        { _id: articleId },
+        {
+          _id: articleId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         {
           $set: {
             isPublished: false,
@@ -25,10 +35,13 @@ export default async (userId, articleId) => {
       );
 
     await client
-      .db(process.env.DB_NAME)
-      .collection('pressDrafts')
+      .db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .updateMany(
-        { articleId },
+        {
+          articleId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         {
           $set: {
             isPublished: false,

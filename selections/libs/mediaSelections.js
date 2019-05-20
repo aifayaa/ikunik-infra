@@ -2,16 +2,27 @@ import { MongoClient } from 'mongodb';
 import difference from 'lodash/difference';
 import Lambda from 'aws-sdk/clients/lambda';
 
+const {
+  REGION,
+  STAGE,
+  COLL_AUDIOS,
+  COLL_SELECTIONS,
+  COLL_MEDIUM_SELECTION_LINKS,
+  COLL_VIDEOS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
 const lambda = new Lambda({
-  region: process.env.REGION,
+  region: REGION,
 });
 
-const checkDocuments = async (userId, mediaIds) => {
+const checkDocuments = async (userId, mediaIds, appId) => {
   // check args
   if (mediaIds && mediaIds.length > 0) {
     const params = {
-      FunctionName: `media-${process.env.STAGE}-checkUserMedia`,
-      Payload: JSON.stringify({ userId, mediaIds }),
+      FunctionName: `media-${STAGE}-checkUserMedia`,
+      Payload: JSON.stringify({ userId, appId, mediaIds }),
     };
     const { Payload } = await lambda.invoke(params).promise();
     const res = JSON.parse(Payload);
@@ -23,78 +34,128 @@ const checkDocuments = async (userId, mediaIds) => {
   return null;
 };
 
-export const doLinkMediaToSelection = async (userId, selectionId, mediaIds) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
     checkDocuments(userId, mediaIds);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
-    const selection = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_SELECTIONS)
-      .findOne({ _id: selectionId, userId }, selectionFields);
+    const selection = await client.db(DB_NAME)
+      .collection(COLL_SELECTIONS)
+      .findOne({
+        _id: selectionId,
+        userId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }, selectionFields);
     if (!selection) throw new Error('selection not exists or not owned');
     const { rootSelectionId } = selection;
-    const rootSelection = !rootSelectionId ? selection : await client.db(process.env.DB_NAME)
-      .collection('selection')
-      .findOne({ _id: rootSelectionId }, selectionFields);
+    const rootSelection = !rootSelectionId ? selection : await client.db(DB_NAME)
+      .collection(COLL_SELECTIONS)
+      .findOne({
+        _id: rootSelectionId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }, selectionFields);
     if (!rootSelection) throw new Error('rootSelection not found');
     const { subscriptionIds } = rootSelection;
     await Promise.all(mediaIds.map(mediumId =>
-      client.db(process.env.DB_NAME)
-        .collection('mediumSelectionLinks')
+      client.db(DB_NAME)
+        .collection(COLL_MEDIUM_SELECTION_LINKS)
         .updateOne(
-          { selectionId, mediumId },
+          {
+            selectionId,
+            mediumId,
+            appIds: { $elemMatch: { $eq: appId } },
+          },
           { $set: { selectionId, mediumId, rootSelectionId: rootSelection._id } },
           { upsert: true },
         )));
     const mediaModifier = { $addToSet: { subscriptionIds: { $each: subscriptionIds } } };
     await Promise.all([
-      client.db(process.env.DB_NAME)
-        .collection('audio').updateOne({ _id: { $in: mediaIds } }, mediaModifier),
-      client.db(process.env.DB_NAME)
-        .collection('video').updateOne({ _id: { $in: mediaIds } }, mediaModifier),
+      client
+        .db(DB_NAME)
+        .collection(COLL_AUDIOS)
+        .updateOne({
+          _id: { $in: mediaIds },
+          appIds: { $elemMatch: { $eq: appId } },
+        }, mediaModifier),
+      client
+        .db(DB_NAME)
+        .collection(COLL_VIDEOS)
+        .updateOne({
+          _id: { $in: mediaIds },
+          appIds: { $elemMatch: { $eq: appId } },
+        }, mediaModifier),
     ]);
   } finally {
     client.close();
   }
 };
 
-export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    checkDocuments(userId, mediaIds);
+    checkDocuments(userId, mediaIds, appId);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
-    const selection = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_SELECTIONS).findOne(
-        { _id: selectionId, userId },
+    const selection = await client.db(DB_NAME)
+      .collection(COLL_SELECTIONS).findOne(
+        {
+          _id: selectionId,
+          userId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         selectionFields,
       );
     if (!selection) throw new Error('selection not exists or not owned');
     const { rootSelectionId } = selection;
-    const rootSelection = !rootSelectionId ? selection : await client.db(process.env.DB_NAME)
-      .collection('selection')
-      .findOne({ _id: rootSelectionId }, selectionFields);
+    const rootSelection = !rootSelectionId ? selection : await client.db(DB_NAME)
+      .collection(COLL_SELECTIONS)
+      .findOne({
+        _id: rootSelectionId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }, selectionFields);
     if (!rootSelection) throw new Error('rootSelection not exists');
     const { subscriptionIds } = rootSelection;
 
     // Remove link between media and selection
     await Promise.all(mediaIds.map(mediumId =>
-      client.db(process.env.DB_NAME)
-        .collection('mediumSelectionLinks')
-        .remove({ selectionId, mediumId }, true)));
+      client.db(DB_NAME)
+        .collection(COLL_MEDIUM_SELECTION_LINKS)
+        .remove({
+          selectionId,
+          mediumId,
+          appIds: { $elemMatch: { $eq: appId } },
+        }, true)));
 
     // Remove root selection subscription from media
-    const remainingLinks = await client.db(process.env.DB_NAME).collection('mediumSelectionLinks').aggregate([
-      { $match: { mediumId: { $in: mediaIds }, rootSelectionId } },
-      { $group: { _id: '$mediumId' } },
-    ]).toArray();
+    const remainingLinks = await client
+      .db(DB_NAME)
+      .collection(COLL_MEDIUM_SELECTION_LINKS).aggregate([
+        {
+          $match: {
+            mediumId: { $in: mediaIds },
+            rootSelectionId,
+            appIds: { $elemMatch: { $eq: appId } },
+          },
+        },
+        { $group: { _id: '$mediumId' } },
+      ]).toArray();
     const remainingIds = remainingLinks.map(item => item._id);
     const mediaIdsToRemove = difference(mediaIds, remainingIds);
     const mediaModifier = { $pull: { subscriptionIds: { $in: subscriptionIds } } };
     await Promise.all([
-      client.db(process.env.DB_NAME)
-        .collection('audio').update({ _id: { $in: mediaIdsToRemove } }, mediaModifier, { multi: true }),
-      client.db(process.env.DB_NAME)
-        .collection('video').update({ _id: { $in: mediaIdsToRemove } }, mediaModifier, { multi: true }),
+      client
+        .db(DB_NAME)
+        .collection(COLL_AUDIOS)
+        .update({
+          _id: { $in: mediaIdsToRemove },
+          appIds: { $elemMatch: { $eq: appId } },
+        }, mediaModifier, { multi: true }),
+      client
+        .db(DB_NAME)
+        .collection(COLL_VIDEOS)
+        .update({
+          _id: { $in: mediaIdsToRemove },
+          appIds: { $elemMatch: { $eq: appId } },
+        }, mediaModifier, { multi: true }),
     ]);
   } finally {
     client.close();

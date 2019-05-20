@@ -1,6 +1,8 @@
 import postStage from '../lib/postStage';
+import response from '../../libs/httpResponses/response';
 
 export default async (event, context, callback) => {
+  const { appId } = event.requestContext.authorizer;
   try {
     if (!event.body) {
       throw new Error('mal_formed_request');
@@ -10,25 +12,9 @@ export default async (event, context, callback) => {
       throw new Error('mal_formed_request');
     }
 
-    const results = await postStage(name, addr);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const results = await postStage(name, addr, appId);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

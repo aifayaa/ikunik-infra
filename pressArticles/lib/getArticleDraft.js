@@ -1,18 +1,28 @@
 import { MongoClient } from 'mongodb';
 
-export default async (articleId) => {
-  let client;
+const {
+  COLL_PRESS_CATEGORIES,
+  COLL_PRESS_DRAFTS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+export default async (articleId, appId) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-    const articles = await client.db(process.env.DB_NAME)
-      .collection('pressDrafts')
+    const articles = await client.db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .aggregate([
-        { $match: { articleId } },
+        {
+          $match: {
+            articleId,
+            appIds: { $elemMatch: { $eq: appId } },
+          },
+        },
         { $sort: { createdAt: -1 } },
         { $limit: 1 },
         {
           $lookup: {
-            from: 'pressCategories',
+            from: COLL_PRESS_CATEGORIES,
             localField: 'categoryId',
             foreignField: '_id',
             as: 'category',

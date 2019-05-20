@@ -1,34 +1,19 @@
-import buildResponse from '../../libs/httpResponses/response';
 import removeArticle from '../lib/removeArticle';
+import response from '../../libs/httpResponses/response';
 
 export default async (event, context, callback) => {
   try {
     const roles = JSON.parse(event.requestContext.authorizer.roles);
+    const { appId } = event.requestContext.authorizer;
     if (!roles.includes('reporter')) {
-      callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
+      callback(null, response({ code: 403, message: 'access forbidden' }));
       return;
     }
     const userId = event.requestContext.authorizer.principalId;
     const articleId = event.pathParameters.id;
-    const results = await removeArticle(userId, articleId);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const results = await removeArticle(userId, appId, articleId);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

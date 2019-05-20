@@ -11,11 +11,18 @@
     "mongodb": "^3.0.2",
     "nodemailer": "^4.6.4",
     "phone": "^2.0.0-rc.1",
-    "validator": "^9.4.0"
+    "validator": "^9.4.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.2.0",
-    "webpack-node-externals": "^1.6.0"
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "babel-preset-env": "^1.7.0",
+    "serverless": "^1.38.0",
+    "serverless-webpack": "^5.2.0",
+    "webpack": "^4.29.5",
+    "webpack-node-externals": "^1.7.2"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"

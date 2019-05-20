@@ -12,17 +12,12 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
-    MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
-    FROM: postmaster
-    REGION: ${self:provider.region}
-    IOS_FEES: 0.3
-    COLL_NAME: billing
-    STAGE: ${self:provider.stage}
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STRIPE_API_KEY: ${self:custom.STRIPE_API_KEY.${self:provider.stage}}
+  environment: ${file(../env.yml)}
+  <<<:
+    - environment:
+      STRIPE_API_KEY: ${self:custom.STRIPE_API_KEY.${self:provider.stage}}
+      MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
+      MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -30,7 +25,7 @@ provider:
 
 functions:
   openOrder:
-    handler: handler.handleOpenOrder
+    handler: handlers/openOrder.default
     events:
       - http:
           path: orders/
@@ -39,6 +34,10 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   payByStripe:
     handler: handlers/payByStripe.default
@@ -50,6 +49,10 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

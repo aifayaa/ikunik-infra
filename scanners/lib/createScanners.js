@@ -6,10 +6,10 @@ import generateMail from './generateMail';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 import sendScanner from './sendScanner';
 
-export default async (userId, lineupId, email) => {
+export default async (userId, profileId, lineupId, email, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
-    const lineup = await getUserLineups(userId, lineupId);
+    const lineup = await getUserLineups(userId, profileId, lineupId);
     if (!lineup) {
       throw new Error('lineup_not_found');
     }
@@ -23,8 +23,11 @@ export default async (userId, lineupId, email) => {
       lineupId,
       createdAt: curDate,
       lastEmail: curDate,
+      appIds: [appId],
     };
-    await client.db(process.env.DB_NAME).collection('scanners')
+    await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_SCANNERS)
       .insertOne(scanner);
     const data = {
       name: lineup.name || '',

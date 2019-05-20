@@ -1,10 +1,21 @@
 import { MongoClient } from 'mongodb';
 
-export default async (festivalId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_FESTIVALS,
+} = process.env;
+
+export default async (festivalId, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    const festival = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
-      .findOne({ _id: festivalId });
+    const festival = await client
+      .db(DB_NAME)
+      .collection(COLL_FESTIVALS)
+      .findOne({
+        _id: festivalId,
+        appIds: { $elemMatch: { $eq: appId } },
+      });
     return festival;
   } finally {
     client.close();

@@ -1,11 +1,19 @@
 import { MongoClient } from 'mongodb';
+import response from '../libs/httpResponses/response';
 
-const doGetBanners = async () => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+const { MONGO_URL, DB_NAME, COLL_BANNERS } = process.env;
+const doGetBanners = async (appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    const selector = {};
+    const selector = {
+      appIds: {
+        $elemMatch: {
+          $eq: appId,
+        },
+      },
+    };
 
-    const banners = await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    const banners = await client.db(DB_NAME).collection(COLL_BANNERS)
       .find(selector, { sort: [['date', -1]] }).toArray();
     return { banners };
   } finally {
@@ -15,25 +23,10 @@ const doGetBanners = async () => {
 
 export const handleGetBanners = async (event, context, callback) => {
   try {
-    const results = await doGetBanners();
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const { appId } = event.requestContext.authorizer;
+    const results = await doGetBanners(appId);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

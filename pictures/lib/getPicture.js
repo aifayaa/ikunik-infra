@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 
 const INTERVAL = 1000;
 
-export default async (id, { waitCreation }) => {
+export default async (id, appId, { waitCreation }) => {
   let client;
   try {
     client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
@@ -11,8 +11,12 @@ export default async (id, { waitCreation }) => {
     let loop = false;
     do {
       picture = await client.db(process.env.DB_NAME)
-        .collection(process.env.COLL_NAME)
-        .findOne({ _id: id, isPublished: true });
+        .collection(process.env.COLL_PICTURES)
+        .findOne({
+          _id: id,
+          appIds: { $elemMatch: { $eq: appId } },
+          isPublished: true,
+        });
       if (waitCreation === 'true') {
         loop = !picture;
         await new Promise((resolve) => {

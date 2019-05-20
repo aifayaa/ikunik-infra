@@ -5,11 +5,17 @@ import uuidv4 from 'uuid/v4';
 import getPackage from '../../credits/lib/getPackage';
 import getTicketCategory from '../../tickets/lib/getTicketCategory';
 
-const getPricing = async (id, type, opts) => {
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_CARTS,
+} = process.env;
+
+const getPricing = async (id, appId, type, opts) => {
   try {
     switch (type) {
       case 'package': {
-        const pack = await getPackage(id);
+        const pack = await getPackage(id, appId);
         if (!pack) {
           throw new Error('package_not_found');
         }
@@ -17,7 +23,7 @@ const getPricing = async (id, type, opts) => {
         return { qty, price };
       }
       case 'ticket': {
-        const ticket = await getTicketCategory(id);
+        const ticket = await getTicketCategory(id, appId);
         if (!ticket) {
           throw new Error('ticket_not_found');
         }
@@ -36,19 +42,18 @@ const getPricing = async (id, type, opts) => {
 
 export default async (
   userId,
+  appId,
   items,
   opts,
 ) => {
   let totalPrice = 0;
   let totalCredits = 0;
-
   const pool = new PromisePoolExecutor({
     concurrencyLimit: 2,
   });
-
   const res = await pool.addEachTask({
     data: items,
-    generator: ({ id, type, meta }) => getPricing(id, type, meta),
+    generator: ({ id, type, meta }) => getPricing(id, appId, type, meta),
   }).promise();
 
   res.forEach((item) => {
@@ -58,7 +63,7 @@ export default async (
   });
 
   const cartId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     const cart = {
       _id: cartId,
@@ -68,8 +73,9 @@ export default async (
       totalCredits,
       totalPrice,
       userId,
+      appIds: [appId],
     };
-    await client.db(process.env.DB_NAME).collection('carts')
+    await client.db(DB_NAME).collection(COLL_CARTS)
       .insertOne(cart, opts);
     return cartId;
   } finally {

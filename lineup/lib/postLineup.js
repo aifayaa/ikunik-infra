@@ -8,14 +8,22 @@ import {
   getStatementId,
 } from './tools';
 
+const {
+  REGION,
+  STAGE,
+  MONGO_URL,
+  DB_NAME,
+  COLL_LINEUPS,
+} = process.env;
+
 const lambda = new Lambda({
-  region: process.env.REGION,
+  region: REGION,
 });
 
 const THRESHOLD = 15; // minutes
 
 const cloudwatchevents = new CloudWatchEvents({
-  region: process.env.REGION,
+  region: REGION,
 });
 
 export default async (
@@ -29,6 +37,7 @@ export default async (
   name = null,
   blastEnabled = false,
   pictureId,
+  appId,
 ) => {
   const lineupId = uuidv4();
   if (blastEnabled) {
@@ -38,7 +47,7 @@ export default async (
     const day = wDate.getDate();
     const month = wDate.getMonth() + 1;
     const jobId = getRuleName(lineupId);
-    const notifyFuncName = `lineup-${process.env.STAGE}-notifyLineup`;
+    const notifyFuncName = `lineup-${STAGE}-notifyLineup`;
     const paramsRule = {
       Name: jobId,
       Description: `Cron job for ${lineupId}/${startDate} to trigger on ${wDate}`,
@@ -48,7 +57,7 @@ export default async (
       Rule: jobId,
       Targets: [
         {
-          Arn: `arn:aws:lambda:${process.env.REGION}:630176884077:function:${notifyFuncName}`,
+          Arn: `arn:aws:lambda:${REGION}:630176884077:function:${notifyFuncName}`,
           Id: getTargetId(lineupId),
           Input: JSON.stringify({ lineupId }),
         },
@@ -67,7 +76,7 @@ export default async (
     await lambda.addPermission(paramsLambda).promise();
   }
 
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL);
   const lineup = {
     _id: lineupId,
     festivalId,
@@ -79,9 +88,12 @@ export default async (
     organisation,
     name,
     pictureId,
+    appIds: [appId],
   };
   try {
-    await client.db(process.env.DB_NAME).collection(process.env.COLL_NAME)
+    await client
+      .db(DB_NAME)
+      .collection(COLL_LINEUPS)
       .insertOne(lineup);
     return lineup;
   } finally {

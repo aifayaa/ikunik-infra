@@ -1,54 +1,55 @@
+import SNS from 'aws-sdk/clients/sns';
 import check from 'check-types';
+import get from 'lodash/get';
+import pick from 'lodash/pick';
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
-import SNS from 'aws-sdk/clients/sns';
-import pick from 'lodash/pick';
+
+const {
+  SNS_REGION,
+  SNS_KEY_ID,
+  SNS_SECRET,
+  MONGO_URL,
+  DB_NAME,
+  COLL_APPS,
+  COLL_PUSH_NOTIFICATIONS,
+} = process.env;
 
 const sns = new SNS({
-  region: process.env.SNS_REGION,
+  region: SNS_REGION,
   credentials: {
-    accessKeyId: process.env.SNS_KEY_ID,
-    secretAccessKey: process.env.SNS_SECRET,
+    accessKeyId: SNS_KEY_ID,
+    secretAccessKey: SNS_SECRET,
   },
 });
 
-const generateArn = (arn, customer) => {
-  const upperCustomer = customer.charAt(0).toUpperCase() + customer.slice(1);
-  return arn.replace(/crowdaa/i, upperCustomer);
-};
-
-const platformApplicationArn = {
-  Android: {
-    arn: generateArn.bind(null, process.env.SNS_PLATFORM_ANDROID_ARN),
-    plateform: 'GCM',
-  },
-  iOs: {
-    arn: generateArn.bind(null, process.env.SNS_PLATFORM_IOS_ARN, 'Crowdaa'),
-    plateform: 'APNS',
-  },
-};
-
-export default async ({ userId, Token, deviceUUID, platform, customer }) => {
+export default async ({ userId, Token, deviceUUID, platform, appId }) => {
   if (
     check.not.string(Token) ||
     check.not.string(deviceUUID) ||
-    check.not.string(platform) ||
-    !(Object.keys(platformApplicationArn).indexOf(platform) + 1)
+    check.not.string(platform)
   ) throw new Error('wrong_args_type');
 
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
-    const collection = client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_PUSH_NOTIFICATIONS);
+    const app = await client.db(DB_NAME)
+      .collection(COLL_APPS).findOne({ _id: appId });
+    if (!app) throw new Error('app_not_found');
 
-    const PlatformApplicationArn = platformApplicationArn[platform].arn(customer);
+    const platformApplicationArns = get(app, 'settings.platformApplicationArns');
+    if (!platformApplicationArns) throw new Error('missing_platform_arn_in_app_config');
+
+    const PlatformApplicationArn = platformApplicationArns[platform].arn;
+    const collection = client.db(DB_NAME)
+      .collection(COLL_PUSH_NOTIFICATIONS);
+
     const found = await collection.findOne(
-      { Token, PlatformApplicationArn, clients: { $elemMatch: { $eq: customer } } },
+      { Token, PlatformApplicationArn, appIds: { $elemMatch: { $eq: appId } } },
       { projection: { _id: 1 } },
     );
     if (found) throw new Error('already_registered_token');
 
-    const Platform = platformApplicationArn[platform].plateform;
+    const Platform = platformApplicationArns[platform].plateform;
     const params = {
       PlatformApplicationArn,
       Token,
@@ -68,7 +69,7 @@ export default async ({ userId, Token, deviceUUID, platform, customer }) => {
         modifiedAt: new Date(),
       },
       $addToSet: {
-        clients: customer,
+        appIds: appId,
       },
     };
     return await collection.updateOne(

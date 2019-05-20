@@ -1,8 +1,16 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
 
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_PRESS_DRAFTS,
+  COLL_PRESS_ARTICLES,
+} = process.env;
+
 export default async ({
   userId,
+  appId,
   categoryId,
   title,
   summary,
@@ -26,7 +34,7 @@ export default async ({
   const articleId = uuidv4();
   const draftId = uuidv4();
   let session;
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     const article = {
       _id: articleId,
@@ -40,6 +48,7 @@ export default async ({
       title,
       userId,
       plainText,
+      appIds: [appId],
     };
     if (xml) {
       article.xml = xml;
@@ -49,14 +58,14 @@ export default async ({
     session = client.startSession();
     session.startTransaction();
     const opts = { session, returnOriginal: false };
-    await client.db(process.env.DB_NAME).collection('pressArticles')
+    await client.db(DB_NAME).collection(COLL_PRESS_ARTICLES)
       .insertOne(article, opts);
 
     delete article.draftId;
     article.articleId = articleId;
     article._id = draftId;
     article.ancestor = null;
-    await client.db(process.env.DB_NAME).collection('pressDrafts')
+    await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
       .insertOne(article, opts);
 
     await session.commitTransaction();

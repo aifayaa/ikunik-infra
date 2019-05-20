@@ -11,12 +11,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    COLL_NAME: artistsFav
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
-    REGION: ${self:provider.region}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiResources:
@@ -26,7 +21,7 @@ provider:
 
 functions:
   manageFavorite:
-    handler: handler.handleFavorite
+    handler: handlers/favorite.default
     events:
       - http:
           path: artists/{id}/favorites
@@ -53,7 +48,7 @@ functions:
               headers:
                 Authorization: true
               paths:
-                id: true          
+                id: true
       - http:
           path: artists/{id}/favorites
           method: get

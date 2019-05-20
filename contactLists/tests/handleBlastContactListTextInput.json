@@ -1,0 +1,61 @@
+{
+  "resource": "/contactLists/{id}/blast/text",
+  "path": "/v1/contactLists/5ZvM7WrJshaAvMHLu/blast/text",
+  "httpMethod": "POST",
+  "headers": {
+    "Accept": "*/*",
+    "Authorization": "Bearer dCtCsSAMiOjAo80rVUTLHIVQGERchwVeBteaI5Q0uhS",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "RE",
+    "content-type": "application/x-www-form-urlencoded",
+    "Host": "dev-api.aws.crowdaa.com",
+    "User-Agent": "curl/7.54.0",
+    "Via": "2.0 2dc7d966aa0f28671fe597877025acdd.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "DF7diGE4UOPRtKguPPE-aFHjBs7dR7yuzIC7HqjbQJDRLfNR36i5UQ==",
+    "X-Amzn-Trace-Id": "Root=1-5ad72a99-7009b400157c650031e58700",
+    "X-Forwarded-For": "41.213.201.186, 54.239.166.67",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "queryStringParameters": null,
+  "pathParameters": {
+    "id": "5ZvM7WrJshaAvMHLu"
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "7xwapc",
+    "authorizer": {
+      "principalId": "dXZifsqv7i8Edt8nb"
+    },
+    "resourcePath": "/contactLists/{id}/blast/text",
+    "httpMethod": "POST",
+    "extendedRequestId": "FiOX8EwAoAMFmxQ=",
+    "requestTime": "18/Apr/2018:11:23:05 +0000",
+    "path": "/v1/contactLists/5ZvM7WrJshaAvMHLu/blast/text",
+    "accountId": "630176884077",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "requestTimeEpoch": 1524050585297,
+    "requestId": "dd118491-42fa-11e8-8688-85e127ae71b2",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "41.213.201.186",
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "curl/7.54.0",
+      "user": null
+    },
+    "apiId": "diqdv4fvol"
+  },
+  "body": "{\"message\":\"BTNHResurrection is out! ;-)\"}",
+  "isBase64Encoded": false
+}

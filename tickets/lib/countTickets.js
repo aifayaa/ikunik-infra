@@ -1,10 +1,15 @@
 import { MongoClient } from 'mongodb';
 
-export default async (categoryId) => {
+export default async (categoryId, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
-    const tickets = await client.db(process.env.DB_NAME).collection('tickets')
-      .countDocuments({ categoryId });
+    const tickets = await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_TICKETS)
+      .countDocuments({
+        categoryId,
+        appIds: { $elemMatch: { $eq: appId } },
+      });
     return tickets;
   } finally {
     client.close();

@@ -8,6 +8,7 @@ export default async (event, context, callback) => {
     },
   };
   try {
+    const { appId } = event.requestContext.authorizer;
     const userId = event.requestContext.authorizer.principalId;
     if (!event.body) {
       throw new Error('mal_formed_request');
@@ -16,7 +17,7 @@ export default async (event, context, callback) => {
     if (!items) {
       throw new Error('mal_formed_request');
     }
-    const result = await createCart(userId, items);
+    const result = await createCart(userId, appId, items);
     response.statusCode = 200;
     response.body = JSON.stringify(result);
   } catch (e) {

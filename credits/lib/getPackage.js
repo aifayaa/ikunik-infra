@@ -1,10 +1,21 @@
 import { MongoClient } from 'mongodb';
 
-export default async (id) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_CREDIT_PACKAGES,
+} = process.env;
+
+export default async (id, appId) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
-    const creditPackage = await client.db(process.env.DB_NAME).collection('creditPackages')
-      .findOne({ _id: id });
+    const creditPackage = await client
+      .db(DB_NAME)
+      .collection(COLL_CREDIT_PACKAGES)
+      .findOne({
+        _id: id,
+        appIds: { $elemMatch: { $eq: appId } },
+      });
     return creditPackage;
   } finally {
     client.close();

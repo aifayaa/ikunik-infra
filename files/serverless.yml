@@ -37,8 +37,12 @@ functions:
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   onFileCreated:
     handler: handlers/onFileCreated.default
