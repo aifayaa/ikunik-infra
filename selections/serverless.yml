@@ -22,7 +22,7 @@ provider:
 
 functions:
   getSelection:
-    handler: handler.handleGetSelection
+    handler: handlers/getSelection.default
     events:
       - http:
           path: selections/{id}
@@ -47,7 +47,7 @@ functions:
                 id: true
 
   getSelectionSubscriptions:
-    handler: handler.handleGetSelectionSubscriptions
+    handler: handlers/getSelectionSubscriptions.default
     events:
       - http:
           path: selections/{id}/subscriptions
@@ -60,9 +60,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   getSelections:
-    handler: handler.handleGetSelections
+    handler: handlers/getSelections.default
     events:
       - http:
           path: selections
@@ -90,7 +92,7 @@ functions:
                 web: false
 
   getUserSelections:
-    handler: handler.handleGetUserSelections
+    handler: handlers/getUserSelections.default
     events:
       - http:
           path: users/{id}/selections
@@ -113,9 +115,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   postUserSelection:
-    handler: handler.handlePostUserSelection
+    handler: handlers/postUserSelection.default
     events:
       - http:
           path: users/{id}/selections
@@ -128,9 +132,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   deleteUserSelection:
-    handler: handler.handleDeleteUserSelection
+    handler: handlers/deleteUserSelection.default
     events:
       - http:
           path: users/{id}/selections/{selectionId}
@@ -144,9 +150,11 @@ functions:
               paths:
                 id: true
                 selectionId: true
+              headers:
+                Authorization: true
 
   patchUserSelection:
-    handler: handler.handlePatchUserSelection
+    handler: handlers/patchUserSelection.default
     events:
       - http:
           path: users/{id}/selections/{selectionId}
@@ -160,9 +168,11 @@ functions:
               paths:
                 id: true
                 selectionId: true
+              headers:
+                Authorization: true
 
   linkMediaToSelection:
-    handler: handler.handleLinkMediaToSelection
+    handler: handlers/linkMediaToSelection.default
     events:
       - http:
           path: /selections/{id}/media
@@ -175,9 +185,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   unlinkMediaFromSelection:
-    handler: handler.handleUnlinkMediaFromSelection
+    handler: handlers/unlinkMediaFromSelection.default
     events:
       - http:
           path: /selections/{id}/media
@@ -190,6 +202,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

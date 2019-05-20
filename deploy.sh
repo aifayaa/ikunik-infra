@@ -101,6 +101,9 @@ sls deploy --stage $1 --region $2
 cd ../subscriptions
 npm i
 sls deploy --stage $1 --region $2
+cd ../perms
+npm i
+sls deploy --stage $1 --region $2
 
 # + artists api id
 cd ../favorites
@@ -124,8 +127,12 @@ sls deploy --stage $1 --region $2
 # + press api id
 cd ../pressCategories
 npm i
-sls deploy --stage $1 --region $
+sls deploy --stage $1 --region $2
 
 cd ../pressArticles
+npm i
+sls deploy --stage $1 --region $2
+
+cd ../pressSearch
 npm i
 sls deploy --stage $1 --region $2

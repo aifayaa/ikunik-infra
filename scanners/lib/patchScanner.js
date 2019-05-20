@@ -5,7 +5,7 @@ import generateMail from './generateMail';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 import sendScanner from './sendScanner';
 
-export default async (userId, scannerId) => {
+export default async (userId, profileId, scannerId, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   const curDate = new Date();
   let session;
@@ -13,9 +13,12 @@ export default async (userId, scannerId) => {
     session = client.startSession();
     session.startTransaction();
     const opts = { session };
-    const scanner = await client.db(process.env.DB_NAME).collection('scanners')
+    const scanner = await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_SCANNERS)
       .findOneAndUpdate({
         _id: scannerId,
+        appIds: { $elemMatch: { $eq: appId } },
       }, {
         $set: { lastEmail: curDate },
       }, opts).then(res => res.value);
@@ -33,7 +36,7 @@ export default async (userId, scannerId) => {
     }
 
     // Check ownership
-    const lineup = await getUserLineups(userId, lineupId);
+    const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {
       throw new Error('lineup_not_found');
     }

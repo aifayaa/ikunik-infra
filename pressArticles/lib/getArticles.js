@@ -1,25 +1,49 @@
 import { MongoClient } from 'mongodb';
 import articleFields from './articleFields.json';
 
-export default async (catPath, start, limit, { onlyPublished = true, getPictures = false }) => {
+
+const {
+  COLL_PICTURES,
+  COLL_PRESS_ARTICLES,
+  COLL_PRESS_CATEGORIES,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
+export default async (
+  catPath,
+  start,
+  limit,
+  appId,
+  { onlyPublished = true, getPictures = false },
+) => {
   let client;
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-    const $match = (catPath ? {
-      'category.pathName': catPath,
-    } : {
-      _id: {
-        $exists: true,
-      },
+    client = await MongoClient.connect(MONGO_URL, {
+      useNewUrlParser: true,
     });
-    if (onlyPublished) { $match.isPublished = true; }
-
+    const $match = catPath
+      ? {
+        'category.pathName': catPath,
+      }
+      : {
+        _id: { $exists: true },
+      };
+    if (onlyPublished) {
+      $match.isPublished = true;
+    }
+    console.log('appId =>', appId);
     let pipeline = [
       // TODO: optimise by using Category as start poitn
       // get Catgory Id with path and then get articles
       {
+        $match: {
+          appIds: { $elemMatch: { $eq: appId } },
+        },
+      },
+      {
         $lookup: {
-          from: 'pressCategories',
+          from: COLL_PRESS_CATEGORIES,
           localField: 'categoryId',
           foreignField: '_id',
           as: 'category',
@@ -55,7 +79,7 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
         },
         {
           $lookup: {
-            from: 'pictures',
+            from: COLL_PICTURES,
             localField: 'pictures',
             foreignField: '_id',
             as: 'pictures',
@@ -91,16 +115,17 @@ export default async (catPath, start, limit, { onlyPublished = true, getPictures
           articles: {
             $slice: [
               '$articles',
-              (parseInt(start, 10) || 0),
-              (parseInt(limit, 10) || 10),
+              parseInt(start, 10) || 0,
+              parseInt(limit, 10) || 10,
             ],
           },
         },
       },
     ]);
 
-    const [result = {}] = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_PRESS_ARTICLES)
+    const [result = {}] = await client
+      .db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
 

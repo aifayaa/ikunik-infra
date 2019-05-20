@@ -1,16 +1,26 @@
 import { MongoClient } from 'mongodb';
 import articleFields from './articleFields.json';
 
-export default async (id, { getPictures = false, isServer = false }) => {
-  let client;
-  try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+const {
+  COLL_PICTURES,
+  COLL_PRESS_ARTICLES,
+  COLL_PRESS_CATEGORIES,
+  DB_NAME,
+} = process.env;
 
+export default async (id, appId, { getPictures = false, isServer = false }) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  try {
     let pipeline = [
-      { $match: { _id: id } },
+      {
+        $match: {
+          _id: id,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
+      },
       {
         $lookup: {
-          from: 'pressCategories',
+          from: COLL_PRESS_CATEGORIES,
           localField: 'categoryId',
           foreignField: '_id',
           as: 'category',
@@ -45,7 +55,7 @@ export default async (id, { getPictures = false, isServer = false }) => {
         },
         {
           $lookup: {
-            from: 'pictures',
+            from: COLL_PICTURES,
             localField: 'pictures',
             foreignField: '_id',
             as: 'pictures',
@@ -63,8 +73,8 @@ export default async (id, { getPictures = false, isServer = false }) => {
       ]);
     }
 
-    const articles = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_PRESS_ARTICLES)
+    const articles = await client.db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
     return articles[0] || null;

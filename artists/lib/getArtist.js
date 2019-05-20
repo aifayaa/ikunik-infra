@@ -1,5 +1,12 @@
 import { MongoClient } from 'mongodb';
 
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_ARTISTS,
+  COLL_PROJECTS,
+} = process.env;
+
 const artistFields = [
   'artistName',
   'avatar',
@@ -15,16 +22,17 @@ const artistFields = [
   'website',
 ];
 
-export default async (artistId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export default async (artistId, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
     const artist = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .db(DB_NAME)
+      .collection(COLL_ARTISTS)
       .aggregate([
         {
           $match: {
             _id: artistId,
+            appIds: { $elemMatch: { $eq: appId } },
           },
         },
         {
@@ -35,7 +43,7 @@ export default async (artistId) => {
         },
         {
           $lookup: {
-            from: 'Project',
+            from: COLL_PROJECTS,
             localField: 'project_IDs',
             foreignField: '_id',
             as: 'project',
@@ -65,7 +73,7 @@ export default async (artistId) => {
         },
       ])
       .toArray();
-    if (!artist) throw new Error('Not Found');
+    if (!artist) throw new Error('not_found');
     return artist[0];
   } finally {
     client.close();

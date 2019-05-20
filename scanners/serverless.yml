@@ -6,15 +6,12 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
-    MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
-    FROM: postmaster
-    COLL_NAME: scanners
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
-    FLOOD_THRESOLD: 10
+  environment: ${file(../env.yml)}
+  <<<:
+    - environement:
+      MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
+      MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
+      FLOOD_THRESOLD: 10
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -38,6 +35,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
   getScannersForLineup:
     handler: handlers/getScannersForLineup.default
     events:
@@ -52,12 +51,17 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
   getScanner:
     handler: handlers/getScanner.default
     events:
       - http:
           path: scanners/{id}
           method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           cors: true
           request:
             parameters:
@@ -77,6 +81,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
   deleteScanners:
     handler: handlers/deleteScanner.default
     events:
@@ -91,6 +97,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

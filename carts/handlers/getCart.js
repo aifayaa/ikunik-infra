@@ -8,9 +8,10 @@ export default async (event, context, callback) => {
     },
   };
   try {
+    const { appId } = event.requestContext.authorizer;
     const cartId = event.pathParameters.id;
     const userId = event.requestContext.authorizer.principalId;
-    const result = await getCart(cartId, userId, { status: 'pending' });
+    const result = await getCart(cartId, userId, appId, { status: 'pending' });
     if (!result) throw new Error('cart_not_found');
     response.statusCode = 200;
     response.body = JSON.stringify(result);

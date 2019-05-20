@@ -1,27 +1,13 @@
 import resendTicket from '../lib/resendTicket';
+import response from '../../libs/httpResponses/response';
 
-export const handleResendTicket = async (event, context, callback) => {
+export default async (event, context, callback) => {
+  const ticketId = event.pathParameters.id;
+  const { appId } = event.requestContext.authorizer;
   try {
-    const ticketId = event.pathParameters.id;
-    const results = await resendTicket(ticketId);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const results = await resendTicket(ticketId, appId);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify({ message: e.message }),
-    };
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

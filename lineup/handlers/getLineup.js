@@ -1,6 +1,7 @@
 import getLineup from '../lib/getLineup';
 
-export default async (event, context, callback) => {
+export default async (event, _context, callback) => {
+  const { appId } = event.requestContext.authorizer;
   const response = {
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -9,7 +10,7 @@ export default async (event, context, callback) => {
   };
   try {
     const categoryId = event.pathParameters.id;
-    const results = await getLineup(categoryId);
+    const results = await getLineup(categoryId, appId);
     if (results) {
       response.statusCode = 200;
       response.body = JSON.stringify(results);

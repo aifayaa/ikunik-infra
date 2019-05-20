@@ -5,7 +5,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-export default (userId, filename, type, length, metadata) => {
+export default (userId, appId, filename, type, length, metadata) => {
   const key = `${uuidv4()}-${filename}`;
   const id = uuidv4();
   const s3Params = {
@@ -18,6 +18,7 @@ export default (userId, filename, type, length, metadata) => {
       ...metadata,
       userId,
       id,
+      appId,
     },
     Expires: 900, // URL will expire in 15 minutes
   };

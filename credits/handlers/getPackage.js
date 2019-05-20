@@ -2,6 +2,7 @@ import getPackage from '../lib/getPackage';
 
 export default async (event, context, callback) => {
   const { id } = event.pathParameters;
+  const { appId } = event.requestContext.authorizer;
   const response = {
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -9,7 +10,7 @@ export default async (event, context, callback) => {
     },
   };
   try {
-    const results = await getPackage(id);
+    const results = await getPackage(id, appId);
     if (results) {
       response.statusCode = 200;
       response.body = JSON.stringify(results);

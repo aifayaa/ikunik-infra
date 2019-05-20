@@ -11,11 +11,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    COLL_NAME: Project
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -24,7 +20,7 @@ provider:
 
 functions:
   blastSearchEmail:
-    handler: handler.handleBlastSearchEmail
+    handler: handlers/blastSearchEmail.default
     events:
       - http:
           path: crowd/blast/email
@@ -40,7 +36,7 @@ functions:
               querystrings: ${self:custom.querystrings}
 
   blastSearchNotification:
-    handler: handler.handleBlastSearchNotification
+    handler: handlers/blastSearchNotif.default
     events:
       - http:
           path: crowd/blast/notification
@@ -56,7 +52,7 @@ functions:
               querystrings: ${self:custom.querystrings}
   
   blastSearchText:
-    handler: handler.handleBlastSearchText
+    handler: handlers/blastSearchText.default
     events:
       - http:
           path: crowd/blast/text
@@ -72,7 +68,7 @@ functions:
               querystrings: ${self:custom.querystrings}
 
   search:
-    handler: handler.handleSearch
+    handler: handlers/search.default
     events:
       - http:
           path: crowd/

@@ -12,11 +12,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    REGION: ${self:provider.region}
-    STAGE: ${self:provider.stage}
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -26,7 +22,7 @@ provider:
 
 functions:
   getSubscription:
-    handler: handler.handleGetSubscription
+    handler: handlers/getSubscription.default
     events:
       - http:
           path: subscriptions/{id}
@@ -39,8 +35,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
+
   getUserSubscriptions:
-    handler: handler.handleGetUserSubscriptions
+    handler: handlers/getUserSubscriptions.default
     events:
       - http:
           path: users/{id}/subscriptions
@@ -53,11 +52,14 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
+
   isUserSubscribed:
-    handler: handler.handleIsUserSubscribed
+    handler: handlers/isUserSubscribed.default
 
   postSubscription:
-    handler: handler.handlePostSubscription
+    handler: handlers/postSubscription.default
     events:
       - http:
           path: subscriptions/{id}
@@ -70,9 +72,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   patchSubscription:
-    handler: handler.handlePatchSubscription
+    handler: handlers/patchSubscription.default
     events:
       - http:
           path: subscriptions/{id}
@@ -85,6 +89,9 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
+
 
 plugins:
   - serverless-webpack

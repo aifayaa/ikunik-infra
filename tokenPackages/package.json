@@ -6,7 +6,8 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.232.1",
-    "mongodb": "^3.0.2"
+    "mongodb": "^3.0.2",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "serverless-webpack": "^4.2.0",

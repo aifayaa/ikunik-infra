@@ -1,23 +1,15 @@
 import checkPinCode from '../lib/checkPinCode';
+import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event, _context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
   const urlId = event.pathParameters.id;
   if (userId !== urlId) {
-    const response = {
-      statusCode: 403,
-      body: JSON.stringify({ message: 'Forbidden' }),
-    };
-    callback(null, response);
+    callback(null, response({ code: 403, message: 'Forbidden' }));
     return;
   }
 
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
   try {
     if (!event.body) {
       throw new Error('mal formed request');
@@ -26,13 +18,9 @@ export default async (event, context, callback) => {
     if (!phoneNumber || !pinCode) {
       throw new Error('mal formed request');
     }
-    await checkPinCode(phoneNumber, pinCode, (deviceUuid || null), userId);
-    response.statusCode = 200;
-    response.body = JSON.stringify(true);
+    await checkPinCode(phoneNumber, pinCode, (deviceUuid || null), userId, appId);
+    callback(null, response({ code: 200, body: true }));
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({ message: e.message });
-  } finally {
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

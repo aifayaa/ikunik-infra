@@ -20,7 +20,7 @@ provider:
 
 functions:
   blastEmail:
-    handler: handler.handleBlastEmail
+    handler: handlers/blastEmail.default
     events:
       - http:
           path: users/{id}/blast/email
@@ -33,9 +33,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   blastNotification:
-    handler: handler.handleBlastNotification
+    handler: handlers/blastNotification.default
     events:
       - http:
           path: users/{id}/blast/notification
@@ -48,9 +50,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   blastText:
-    handler: handler.handleBlastText
+    handler: handlers/blastText.default
     events:
       - http:
           path: users/{id}/blast/text
@@ -63,9 +67,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   getProfile:
-    handler: handler.handleGetProfile
+    handler: handlers/getProfile.default
     events:
       - http:
           path: users/{id}/profile
@@ -78,9 +84,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   getBalances:
-    handler: handler.handleGetBalances
+    handler: handlers/getBalances.default
     events:
       - http:
           path: users/{id}/balances
@@ -93,34 +101,38 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   getPayouts:
-    handler: handler.handleGetPayouts
+    handler: handlers/getPayouts.default
     events:
       - http:
           path: users/{id}/payouts
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   getUser:
-    handler: handler.handleGetUser
+    handler: handlers/getUser.default
 
   getUserPublic:
-    handler: handler.handleGetUserPublic
+    handler: handlers/getUserPublic.default
     events:
       - http:
           path: users/{id}
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           cors: true
           request:
             parameters:
@@ -128,7 +140,7 @@ functions:
                 id: true
 
   getHistory:
-    handler: handler.handleGetHistory
+    handler: handlers/getHistory.default
     events:
       - http:
           path: users/{id}/history/
@@ -143,7 +155,7 @@ functions:
                 id: true
 
   addHistory:
-    handler: handler.handleAddHistory
+    handler: handlers/addHistory.default
     events:
       - http:
           path: users/{id}/history/
@@ -173,7 +185,7 @@ functions:
                 id: true
 
   isBlastable:
-    handler: handler.handleIsBlastable
+    handler: handlers/isBlastable.default
     events:
       - http:
           path: users/{id}/isBlastable
@@ -188,14 +200,14 @@ functions:
                 id: true
 
   addPayout:
-    handler: handler.handleAddPayout
+    handler: handlers/addPayout.default
     events:
       - http:
           path: users/{id}/payouts
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:

@@ -11,27 +11,25 @@ const splitParagraphes = (biography = '') => {
   return paragraphes;
 };
 
-export default async (userId, info) => {
+export default async (userId, profileId, appId, info) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const profil = await client.db(process.env.DB_NAME).collection('profil')
-      .findOne({ UserId: userId }, { projection: { _id: true } });
-    if (!profil) {
-      throw new Error('profil_not_found');
-    }
     const artist = {
       _id: new ObjectID().toString(),
       artistName: info.name,
-      profil_ID: profil._id,
+      profil_ID: profileId,
       biography: info.biography,
       paragraphes: splitParagraphes(info.biography),
       facebook: info.facebook,
       instagram: info.instagram,
       snapshat: info.snapchat,
       twitter: info.twitter,
+      appIds: [appId],
     };
 
-    const _id = await client.db(process.env.DB_NAME).collection('artists')
+    const _id = await client
+      .db(process.env.DB_NAME)
+      .collection(process.env.COLL_ARTISTS)
       .insertOne(artist);
     return { _id, ...artist };
   } finally {

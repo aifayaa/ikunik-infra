@@ -12,13 +12,10 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    REGION: ${self:provider.region}
-    COLL_NAME: payouts
-    TX_CREDITS: 0.1
-    STAGE: ${self:provider.stage}
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
+  <<<:
+    - environment:
+      TX_CREDITS: 0.1
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -26,17 +23,22 @@ provider:
 
 functions:
   getPayouts:
-    handler: handler.handleGetPayouts
+    handler: handlers/getPayouts.default
     events:
       - http:
           path: payouts/
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   putPayout:
-    handler: handler.handlePutPayout
+    handler: handlers/putPayout.default
     events:
       - http:
           path: payouts/
@@ -45,6 +47,10 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

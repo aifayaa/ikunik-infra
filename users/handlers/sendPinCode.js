@@ -1,38 +1,25 @@
 import sendPinCode from '../lib/sendPinCode';
+import response from '../../libs/httpResponses/response';
 
 export default async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
   const urlId = event.pathParameters.id;
   if (userId !== urlId) {
-    const response = {
-      statusCode: 403,
-      body: JSON.stringify({ message: 'Forbidden' }),
-    };
-    callback(null, response);
+    callback(null, response({ code: 403, message: 'Forbidden' }));
     return;
   }
-
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
+  if (!event.body) {
+    throw new Error('mal formed request');
+  }
   try {
-    if (!event.body) {
-      throw new Error('mal formed request');
-    }
     const { phoneNumber } = JSON.parse(event.body);
     if (!phoneNumber) {
       throw new Error('mal formed request');
     }
-    await sendPinCode(phoneNumber);
-    response.statusCode = 200;
-    response.body = JSON.stringify(true);
+    await sendPinCode(phoneNumber, appId);
+    callback(null, response({ code: 200, body: true }));
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({ message: e.message });
-  } finally {
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

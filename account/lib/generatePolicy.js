@@ -1,6 +1,6 @@
-export default (Effect, Resource, principalId, roles) => {
+export default (Effect, _Resource, { userId, profileId, roles, perms, appId } = {}) => {
   const policy = {
-    principalId,
+    principalId: userId,
     policyDocument: {
       Version: '2012-10-17',
       Statement: [
@@ -12,10 +12,18 @@ export default (Effect, Resource, principalId, roles) => {
       ],
     },
   };
+  policy.context = {};
   if (roles) {
-    policy.context = {
-      roles: JSON.stringify(roles),
-    };
+    policy.context.roles = JSON.stringify(roles);
+  }
+  if (perms) {
+    policy.context.perms = JSON.stringify(perms);
+  }
+  if (appId) {
+    policy.context.appId = appId;
+  }
+  if (profileId) {
+    policy.context.profileId = profileId;
   }
   return policy;
 };

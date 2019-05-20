@@ -12,12 +12,7 @@ provider:
      Action:
        - lambda:InvokeFunction
      Resource: "*"
-  environment:
-    REGION: ${self:provider.region}
-    STAGE: ${self:provider.stage}
-    COLL_NAME: tokenPackages
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -25,7 +20,7 @@ provider:
 
 functions:
   getPackages:
-    handler: handler.handleGetPackages
+    handler: handlers/getPackages.default
     events:
       - http:
           path: tokens/packages
@@ -42,7 +37,7 @@ functions:
                 type: false
   
   buyPackages:
-    handler: handler.handleBuyPackages
+    handler: handlers/buyPackages.default
     events:
       - http:
           path: tokens/packages/{id}
@@ -55,6 +50,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

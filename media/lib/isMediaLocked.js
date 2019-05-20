@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId, medium) => {
+export default async (userId, appId, medium) => {
   if (!userId) {
     return {
       isLocked: true,
@@ -20,10 +20,27 @@ export default async (userId, medium) => {
     const lastday = new Date();
     lastday.setDate(new Date().getDate() - 1);
     const [deadline, views, unlocks, purchases] = await Promise.all([
-      db.collection('deadlines').findOne({ content_ID: mediumId, userId }),
-      db.collection('views').findOne({ userID: userId, content_ID: mediumId }),
-      db.collection('unlocks').count({ userId, content_ID: mediumId, date: { $gte: lastday } }),
-      db.collection('purchases').count({ 'purchase.userId': userId, 'purchase.audios._id': mediumId }),
+      db.collection('deadlines').findOne({
+        content_ID: mediumId,
+        userId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }),
+      db.collection('views').findOne({
+        userID: userId,
+        content_ID: mediumId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }),
+      db.collection('unlocks').count({
+        userId,
+        content_ID: mediumId,
+        date: { $gte: lastday },
+        appIds: { $elemMatch: { $eq: appId } },
+      }),
+      db.collection('purchases').count({
+        'purchase.userId': userId,
+        'purchase.audios._id': mediumId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }),
     ]);
 
     if (unlocks > 0) {

@@ -11,11 +11,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment:
-    COLL_NAME: artistContactList
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -24,14 +20,14 @@ provider:
 
 functions:
   blastContactListEmail:
-    handler: handler.handleBlastContactListEmail
+    handler: handlers/blastContactListEmail.default
     events:
       - http:
           path: contactLists/{id}/blast/email
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
@@ -40,14 +36,14 @@ functions:
               paths:
                 id: true
   blastContactListText:
-    handler: handler.handleBlastContactListText
+    handler: handlers/blastContactListText.default
     events:
       - http:
           path: contactLists/{id}/blast/text
           method: post
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
@@ -56,14 +52,14 @@ functions:
               paths:
                 id: true
   getContactList:
-    handler: handler.handleGetContactList
+    handler: handlers/getContactList.default
     events:
       - http:
           path: contactLists/{id}
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:

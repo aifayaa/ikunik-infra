@@ -1,9 +1,8 @@
 import removeMd from 'remove-markdown';
-import buildResponse from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import doSendNotifications from '../lib/sendNotifications';
 import getArticle from '../lib/getArticle';
-import getClient from '../../api-keys/getClient';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import postArticle from '../lib/postArticle';
@@ -14,10 +13,10 @@ import xmlToText from '../lib/xmlParsing/xmlToText';
 
 export default async (event, context, callback) => {
   try {
-    const client = getClient(event.requestContext.identity.apiKey);
     const roles = JSON.parse(event.requestContext.authorizer.roles);
+    const { appId } = event.requestContext.authorizer;
     if (!roles.includes('reporter')) {
-      callback(null, buildResponse({ code: 403, message: 'access forbidden' }));
+      callback(null, response({ code: 403, message: 'access forbidden' }));
       return;
     }
     if (!event.body) {
@@ -73,6 +72,7 @@ export default async (event, context, callback) => {
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
       userId,
+      appId,
       categoryId,
       title,
       summary,
@@ -87,6 +87,7 @@ export default async (event, context, callback) => {
         userId,
         results.articleId,
         results.draftId,
+        appId,
       );
       results.published = true;
       if (sendNotifications === 'true') {
@@ -94,30 +95,14 @@ export default async (event, context, callback) => {
         await doSendNotifications(
           article.title,
           prepareNotif(article.plainText),
-          client,
+          appId,
           { articleId: results.articleId },
         );
         results.notificationSent = true;
       }
     }
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

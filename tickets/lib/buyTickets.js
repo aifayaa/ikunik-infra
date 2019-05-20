@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 import moment from 'moment';
 import QRCode from 'qrcode';
+import winston from 'winston';
 
 import generateIntId from './generateIntId';
 import generateTicket from './generateTicket';
@@ -9,8 +10,14 @@ import getTicketInfos from './getTicketInfos';
 import insertTicket from './insertTicket';
 import removeCredits from '../../credits/lib/removeCredits';
 
-export default async (userId, categoryId, lastName, firstName, email, options = {}) => {
-  let ticketInfo = await getTicketInfos(categoryId);
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_TICKET_CATEGORIES,
+} = process.env;
+
+export default async (userId, appId, categoryId, lastName, firstName, email, options = {}) => {
+  let ticketInfo = await getTicketInfos(categoryId, appId);
   if (ticketInfo.length === 0) {
     throw new Error('ticket not found');
   }
@@ -34,16 +41,19 @@ export default async (userId, categoryId, lastName, firstName, email, options = 
   const { price, lineup } = ticketInfo;
   const hasUpperSession = !!options.session;
 
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   let opts;
   let session;
   try {
     session = options.session || client.startSession();
     if (!hasUpperSession) session.startTransaction();
     opts = { session, returnOriginal: false };
-    const ticketCat = await client.db(process.env.DB_NAME).collection('ticketCategories')
+    const ticketCat = await client
+      .db(DB_NAME)
+      .collection(COLL_TICKET_CATEGORIES)
       .findOneAndUpdate({
         _id: categoryId,
+        appIds: { $elemMatch: { $eq: appId } },
       }, {
         $inc: { sold: 1 },
       }, opts).then(res => res.value);
@@ -63,7 +73,7 @@ export default async (userId, categoryId, lastName, firstName, email, options = 
       opts,
     );
 
-    await removeCredits(userId, `${price}`, opts);
+    await removeCredits(userId, appId, `${price}`, opts);
     if (!hasUpperSession) await session.commitTransaction();
   } catch (error) {
     if (session && !hasUpperSession) {
@@ -89,6 +99,7 @@ export default async (userId, categoryId, lastName, firstName, email, options = 
     organisationMail: organisation.email,
     orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
     img: lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
+    appIds: [appId],
   };
   try {
     const qrcode = await QRCode.toDataURL(serial, { width: 256 });
@@ -103,7 +114,7 @@ export default async (userId, categoryId, lastName, firstName, email, options = 
     };
     return ticketMail;
   } catch (e) {
-    console.warn('Failed to format ticket', e);
+    winston.warn('Failed to format ticket', e);
     throw new Error('ticket_formatting_failed');
   }
 };

@@ -4,6 +4,7 @@ export default async (event, context, callback) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
     const pathUserId = event.pathParameters.id;
+    const { appId, profileId } = event.requestContext.authorizer;
     if (pathUserId !== userId) {
       throw new Error('Unauthorized');
     }
@@ -32,7 +33,7 @@ export default async (event, context, callback) => {
       }
     });
 
-    const results = await createArtist(userId, {
+    const results = await createArtist(userId, profileId, appId, {
       name,
       biography,
       facebook,

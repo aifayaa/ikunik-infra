@@ -1,27 +1,13 @@
 import getCategory from '../lib/getCategory';
+import response from '../../libs/httpResponses/response';
 
 export default async (event, context, callback) => {
+  const catId = event.pathParameters.id;
+  const { appId } = event.requestContext.authorizer;
   try {
-    const catId = event.pathParameters.id;
-    const results = await getCategory(catId);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const results = await getCategory(appId, catId);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

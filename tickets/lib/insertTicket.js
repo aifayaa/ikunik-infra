@@ -1,6 +1,12 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
 
+const {
+  COLL_TICKETS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
 export default async (
   categoryId,
   serial,
@@ -10,10 +16,11 @@ export default async (
   firstname,
   lastname,
   userId,
+  appId,
   opts,
 ) => {
   const ticketId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     const ticket = {
       _id: ticketId,
@@ -27,8 +34,11 @@ export default async (
         firstname,
         lastname,
       },
+      appIds: [appId],
     };
-    await client.db(process.env.DB_NAME).collection('tickets')
+    await client
+      .db(DB_NAME)
+      .collection(COLL_TICKETS)
       .insertOne(ticket, opts);
     return ticketId;
   } finally {

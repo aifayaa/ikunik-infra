@@ -3,18 +3,35 @@ import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
 
+const {
+  SNS_REGION,
+  SNS_KEY_ID,
+  SNS_SECRET,
+  MONGO_URL,
+  DB_NAME,
+  COLL_PHONES,
+  SNS_TOPIC,
+  COLL_USERS,
+  COLL_CONTACTS,
+} = process.env;
 export default async (phone, pinCode, deviceUuid, userId) => {
   const sns = new SNS({
-    region: process.env.SNS_REGION,
+    region: SNS_REGION,
     credentials: {
-      accessKeyId: process.env.SNS_KEY_ID,
-      secretAccessKey: process.env.SNS_SECRET,
+      accessKeyId: SNS_KEY_ID,
+      secretAccessKey: SNS_SECRET,
     },
   });
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL);
   try {
-    const { value } = await client.db(process.env.DB_NAME).collection('phonesCollection')
-      .findOneAndUpdate({ phone, pinCode, validated: false }, { $set: { validated: true } });
+    const { value } = await client
+      .db(DB_NAME)
+      .collection(COLL_PHONES)
+      .findOneAndUpdate({
+        phone,
+        pinCode,
+        validated: false,
+      }, { $set: { validated: true } });
 
     if (!value) {
       throw new Error('phone, pin code not found or pin already validated');
@@ -22,7 +39,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
 
     let params = {
       Protocol: 'sms',
-      TopicArn: process.env.SNS_TOPIC,
+      TopicArn: SNS_TOPIC,
       Endpoint: phone,
     };
     await sns.subscribe(params).promise();
@@ -43,7 +60,9 @@ export default async (phone, pinCode, deviceUuid, userId) => {
       await sns.publish(params).promise();
     }
 
-    const res = await client.db(process.env.DB_NAME).collection('users')
+    const res = await client
+      .db(DB_NAME)
+      .collection(COLL_USERS)
       .findOneAndUpdate({ _id: userId }, { $set: { 'profile.phone': cleandedPhoneNumber } });
     const user = res.value || {};
     if (!user) {
@@ -63,7 +82,9 @@ export default async (phone, pinCode, deviceUuid, userId) => {
       invitedByUserID: null,
     };
 
-    await client.db(process.env.DB_NAME).collection('contacts')
+    await client
+      .db(DB_NAME)
+      .collection(COLL_CONTACTS)
       .update({ phoneNumber: phone }, { $set: contact }, { upsert: true });
   } finally {
     client.close();

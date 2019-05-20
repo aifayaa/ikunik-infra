@@ -1,32 +1,22 @@
 import getTickets from '../lib/getTickets';
+import response from '../../libs/httpResponses/response';
 
 export default async (event, context, callback) => {
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
+  const urlId = event.pathParameters.id;
+  const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
   try {
-    const userId = event.requestContext.authorizer.principalId;
-    const urlId = event.pathParameters.id;
     if (userId !== urlId) {
-      response.statusCode = 403;
-      response.body = JSON.stringify({ message: 'forbidden' });
+      callback(null, response({ code: 403, message: 'forbidden' }));
       return;
     }
-    const results = await getTickets(userId);
+    const results = await getTickets(userId, appId);
     if (results) {
-      response.statusCode = 200;
-      response.body = JSON.stringify({ tickets: results });
+      callback(null, response({ code: 200, body: results }));
     } else {
-      response.statusCode = 404;
-      response.body = JSON.stringify({ message: 'ticket_not_found' });
+      callback(null, response({ code: 404, message: 'ticket_not_found' }));
     }
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({ message: e.message });
-  } finally {
-    callback(null, response);
+    callback(null, response({ code: 500, message: e.message }));
   }
 };

@@ -1,18 +1,30 @@
 import { MongoClient } from 'mongodb';
 
-export default async (ticketSerial, scannerId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+const {
+  COLL_TICKETS,
+  COLL_TICKET_CATEGORIES,
+  COLL_SCANNERS,
+  DB_NAME,
+  MONGO_URL,
+} = process.env;
+
+export default async (ticketSerial, scannerId, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
   try {
     const [[ticket], scanner] = await Promise.all([
-      client.db(process.env.DB_NAME)
-        .collection('tickets')
+      client
+        .db(DB_NAME)
+        .collection(COLL_TICKETS)
         .aggregate([
           {
-            $match: { serial: ticketSerial },
+            $match: {
+              serial: ticketSerial,
+              appIds: { $elemMatch: { $eq: appId } },
+            },
           },
           {
             $lookup: {
-              from: 'ticketCategories',
+              from: COLL_TICKET_CATEGORIES,
               localField: 'categoryId',
               foreignField: '_id',
               as: 'category',
@@ -20,8 +32,9 @@ export default async (ticketSerial, scannerId) => {
           },
           { $unwind: '$category' },
         ]).toArray(),
-      client.db(process.env.DB_NAME)
-        .collection('scanners')
+      client
+        .db(DB_NAME)
+        .collection(COLL_SCANNERS)
         .findOne({
           _id: scannerId,
           active: true,
@@ -34,10 +47,12 @@ export default async (ticketSerial, scannerId) => {
     if (!ticket.category) throw new Error('ticket_category_not_exists');
     if (scanner.lineupId !== ticket.category.lineupId) throw new Error('scanner_unauthorized');
 
-    const updatedTicket = await client.db(process.env.DB_NAME)
-      .collection('tickets')
+    const updatedTicket = await client
+      .db(DB_NAME)
+      .collection(COLL_TICKETS)
       .findOneAndUpdate({
         _id: ticket._id,
+        appIds: { $elemMatch: { $eq: appId } },
       }, {
         $set: {
           scanStatus: 1,

@@ -1,7 +1,9 @@
 import getTicketCategoriesByLineup from '../lib/getTicketCategoriesByLineup';
+import response from '../../libs/httpResponses/response';
 
-export const handleGetTicketCategoriesByLineup = async (event, context, callback) => {
+export default async (event, context, callback) => {
   let { lineupId } = event.pathParameters;
+  const { appId } = event.requestContext.authorizer;
   const { id } = event.pathParameters;
   let userId = id;
   if (event.resource.split('/')[1] === 'users') {
@@ -12,34 +14,19 @@ export const handleGetTicketCategoriesByLineup = async (event, context, callback
   }
   try {
     if (userId && userId !== id) throw new Error('forbidden');
-    const results = await getTicketCategoriesByLineup(lineupId, userId);
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const results = await getTicketCategoriesByLineup(lineupId, userId, appId);
+    callback(null, response({ code: 200, body: results }));
   } catch (e) {
-    const response = {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify({ message: e.message }),
-    };
-
+    let code;
     switch (e.message) {
       case 'forbidden':
       case 'ressource_not_owned':
-        response.statusCode = 403;
+        code = 403;
         break;
       default:
-        response.statusCode = 500;
+        code = 500;
     }
 
-    callback(null, response);
+    callback(null, response({ code, message: e.message }));
   }
 };

@@ -3,8 +3,19 @@ import omitBy from 'lodash/omitBy';
 import zipObject from 'lodash/zipObject';
 import { MongoClient } from 'mongodb';
 
-const searchArtists = async (collection, text) => collection.aggregate([
-  { $match: { $text: { $search: text } } },
+const {
+  PROJECTS,
+  MONGO_URL,
+  DB_NAME,
+} = process.env;
+
+const searchArtists = async (collection, text, appId) => collection.aggregate([
+  {
+    $match: {
+      $text: { $search: text },
+      appIds: { $elemMatch: { $eq: appId } },
+    },
+  },
   { $limit: 10 },
 
   {
@@ -14,7 +25,7 @@ const searchArtists = async (collection, text) => collection.aggregate([
   },
   {
     $lookup: {
-      from: 'Project',
+      from: PROJECTS,
       localField: 'projectId',
       foreignField: '_id',
       as: 'project',
@@ -34,12 +45,17 @@ const searchArtists = async (collection, text) => collection.aggregate([
   },
 ]).toArray();
 
-const searchMedia = async (collection, text) => collection.aggregate([
-  { $match: { $text: { $search: text } } },
+const searchMedia = async (collection, text, appId) => collection.aggregate([
+  {
+    $match: {
+      $text: { $search: text },
+      appIds: { $elemMatch: { $eq: appId } },
+    },
+  },
   { $limit: 10 },
   {
     $lookup: {
-      from: 'Project',
+      from: PROJECTS,
       localField: 'project_ID',
       foreignField: '_id',
       as: 'project',
@@ -60,16 +76,19 @@ const searchMedia = async (collection, text) => collection.aggregate([
   },
 ]).toArray();
 
-export default async (text) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
-  const { DB_NAME } = process.env;
+export default async (text, appId) => {
+  const client = await MongoClient.connect(MONGO_URL);
+  const query = {
+    $text: { $search: text },
+    appIds: { $elemMatch: { $eq: appId } },
+  };
   try {
     const results = await Promise.all([
-      searchMedia(client.db(DB_NAME).collection('audio'), text),
-      searchMedia(client.db(DB_NAME).collection('video'), text),
-      searchArtists(client.db(DB_NAME).collection('artists'), text),
-      client.db(DB_NAME).collection('Project').find({ $text: { $search: text } }).toArray(),
-      client.db(DB_NAME).collection('selection').find({ $text: { $search: text } }).toArray(),
+      searchMedia(client.db(DB_NAME).collection('audio'), text, appId),
+      searchMedia(client.db(DB_NAME).collection('video'), text, appId),
+      searchArtists(client.db(DB_NAME).collection('artists'), text, appId),
+      client.db(DB_NAME).collection('Project').find(query).toArray(),
+      client.db(DB_NAME).collection('selection').find(query).toArray(),
     ]);
     return omitBy(zipObject(['audios', 'videos', 'artists', 'projects', 'selections'], results), isEmpty);
   } finally {

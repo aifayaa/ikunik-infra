@@ -43,15 +43,12 @@ provider:
       Action:
         - lambda:RemovePermission
       Resource: "*"
-  environment:
-    STAGE: ${self:provider.stage}
-    REGION:  ${self:provider.region}
-    COLL_NAME: lineup
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    BLAST_TEXT: ${self:custom.blast.text.${self:provider.stage}}
-    BLAST_NOTIF: ${self:custom.blast.notif.${self:provider.stage}}
-    USE_BLAST_TEXT: false
+  environment: ${file(../env.yml)}
+  <<<:
+    - environment:
+      BLAST_TEXT: ${self:custom.blast.text.${self:provider.stage}}
+      BLAST_NOTIF: ${self:custom.blast.notif.${self:provider.stage}}
+      USE_BLAST_TEXT: false
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -64,7 +61,7 @@ provider:
 
 functions:
   notifyLineup:
-    handler: handler.handlerNotifyLineup
+    handler: handlers/notifyLineup.default
 
   postLineup:
     handler: handlers/postLineup.default
@@ -76,9 +73,13 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   createNotifyLineup:
-    handler: handler.handlerCreateNotifyLineup
+    handler: handlers/createNotifyLineup.default
     events:
       - http:
           path: lineup/{id}/notifications
@@ -91,9 +92,11 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
   createNotifyAllLineup:
-    handler: handler.handlerCreateNotifyAllLineup
+    handler: handlers/createNotifyAllLineup.default
     events:
       - http:
           path: lineup/notifications
@@ -102,6 +105,10 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getPublicLineups:
     handler: handlers/getLineups.default
@@ -110,14 +117,24 @@ functions:
           path: lineups/
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getLineups:
-    handler: handler.handleGetLineup
+    handler: handlers/getLineupType.default
     events:
       - http:
           path: artists/{id}/lineup
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
               paths:
@@ -126,6 +143,9 @@ functions:
           path: festivals/{id}/lineup
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
               paths:
@@ -134,6 +154,9 @@ functions:
           path: stages/{id}/lineup
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
               paths:
@@ -146,6 +169,9 @@ functions:
           path: lineups/{id}
           method: get
           cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
               paths:
@@ -165,6 +191,8 @@ functions:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack

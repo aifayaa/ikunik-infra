@@ -1,6 +1,7 @@
 import getUserLineups from '../lib/getUserLineups';
 
 export default async (event, context, callback) => {
+  const { appId, profileId } = event.requestContext.authorizer;
   const response = {
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -16,7 +17,7 @@ export default async (event, context, callback) => {
       return;
     }
 
-    const results = await getUserLineups(userId);
+    const results = await getUserLineups(userId, profileId, appId);
     if (results) {
       response.statusCode = 200;
       response.body = JSON.stringify(results);

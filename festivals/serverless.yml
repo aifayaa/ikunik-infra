@@ -6,10 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    COLL_NAME: festivals
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -27,6 +24,10 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getFestival:
     handler: handlers/getFestival.handleGetFestival
@@ -34,11 +35,16 @@ functions:
       - http:
           path: festivals/{id}
           method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           cors: true
           request:
             parameters:
               paths:
                 id: true
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-webpack
