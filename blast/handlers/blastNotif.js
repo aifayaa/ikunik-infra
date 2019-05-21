@@ -6,8 +6,7 @@ import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
 
-export default async ({ artistName, endpoints, message, opts = {} }, _context
-  , callback) => {
+export default async ({ artistName, endpoints, message, opts = {} }) => {
   const { userId, appId } = opts;
   try {
     if (userId) {
@@ -20,7 +19,7 @@ export default async ({ artistName, endpoints, message, opts = {} }, _context
     const sendNotifications = queue(blastNotif, 50);
     const results = [];
     let successfulBlast = 0;
-    const sendNotificationsDone = new Promise((resolve) => {
+    const sendNotificationsDone = new Promise((resolve, reject) => {
       sendNotifications.drain = () => {
         logBlast('notification', message, `${successfulBlast}`, opts)
           .then((res) => {
@@ -31,12 +30,10 @@ export default async ({ artistName, endpoints, message, opts = {} }, _context
             return null;
           })
           .then(() => {
-            resolve();
-            callback(null, response({ code: 200, body: results }));
+            resolve(response({ code: 200, body: results }));
           })
           .catch((e) => {
-            resolve();
-            callback(null, response({ code: 500, message: e.message }));
+            reject(e);
           });
       };
     });
@@ -47,8 +44,8 @@ export default async ({ artistName, endpoints, message, opts = {} }, _context
         results.push(error || res);
       });
     });
-    await sendNotificationsDone;
+    return await sendNotificationsDone;
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

@@ -13,13 +13,13 @@ const {
 const lambda = new Lambda({
   region: REGION,
 });
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
     const { appId } = event.requestContext.authorizer;
     const { message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasText: true });
-    const pipeline = buildPipeline(userId, event.queryStringParameters || {});
+    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
     const results = await search(pipeline, event.queryStringParameters || {});
     const phones = results.crowd.map(fan => phone(fan.user.profile.phone)[0])
       .filter(phoneNumber => phoneNumber);
@@ -33,9 +33,9 @@ export default async (event, context, callback) => {
       }),
     };
     const res = await lambda.invoke(params).promise();
-    callback(null, response({ code: 200, body: res }));
+    return response({ code: 200, body: res });
   } catch (e) {
     winston.error(e);
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
