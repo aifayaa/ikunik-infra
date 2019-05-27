@@ -1,4 +1,5 @@
 import url from 'url';
+import isCrawler from './isCrawler';
 
 const allowedCustomProtocols = [
   'crowdaapress:',
@@ -7,7 +8,7 @@ const allowedCustomProtocols = [
 ];
 
 export default (userAgent, redirectUrl) => {
-  if (!(userAgent.indexOf('facebookexternalhit/1.1') + 1) && redirectUrl) {
+  if (!isCrawler(userAgent) && redirectUrl) {
     const decodedUrl = decodeURIComponent(redirectUrl);
     const {
       hostname,
