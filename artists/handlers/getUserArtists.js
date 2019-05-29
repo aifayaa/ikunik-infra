@@ -9,7 +9,7 @@ export default async (event, _context, callback) => {
       callback(null, response({ code: 403, message: 'Forbidden' }));
       return;
     }
-    const artists = await getUserArtists(userId, profileId, appId);
+    const artists = await getUserArtists(profileId, appId);
     const results = { artists };
     callback(null, response({ code: 200, body: results }));
   } catch (e) {

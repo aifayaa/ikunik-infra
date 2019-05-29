@@ -21,6 +21,7 @@ functions:
             parameters:
               querystrings:
                 redirect_url: false
+                appName: false
 
   selection:
     handler: handlers/selection.default
@@ -32,6 +33,7 @@ functions:
             parameters:
               querystrings:
                 redirect_url: false
+                appName: false
 
   article:
     handler: handlers/article.default
@@ -43,6 +45,7 @@ functions:
             parameters:
               querystrings:
                 redirect_url: false
+                appName: false
 
 plugins:
   - serverless-domain-manager

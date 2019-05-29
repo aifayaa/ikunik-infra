@@ -6,7 +6,7 @@ import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
 
-export default async ({ phones, message, opts = {} }, _context, callback) => {
+export default async ({ phones, message, opts = {} }) => {
   const { userId, appId } = opts;
   try {
     if (userId) {
@@ -30,12 +30,10 @@ export default async ({ phones, message, opts = {} }, _context, callback) => {
             return null;
           })
           .then(() => {
-            resolve();
-            callback(null, response({ code: 200, body: results }));
+            resolve(response({ code: 200, body: results }));
           })
           .catch((e) => {
-            resolve();
-            callback(null, response({ code: 500, message: e.message }));
+            resolve(response({ code: 500, message: e.message }));
           });
       };
     });
@@ -45,8 +43,8 @@ export default async ({ phones, message, opts = {} }, _context, callback) => {
         results.push(error || res);
       });
     });
-    await sendTextsDone;
+    return await sendTextsDone;
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

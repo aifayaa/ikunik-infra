@@ -1,9 +1,12 @@
+import getAppId from '../lib/getAppId';
 import getSelection from '../../selections/libs/getSelection';
 import meta from '../lib/meta';
 import redirect from '../lib/redirect';
 
 export default async (event, context, callback) => {
   const redirectUrl = (event.queryStringParameters || {}).redirect_url;
+  const { appName } = (event.queryStringParameters || {});
+
   try {
     const userAgent = event.headers['User-Agent'];
     const redirectResponse = redirect(userAgent, redirectUrl);
@@ -11,9 +14,9 @@ export default async (event, context, callback) => {
       callback(null, redirectResponse);
       return;
     }
-
+    const appId = await getAppId(appName);
     const projectId = event.pathParameters.id;
-    const selection = await getSelection(projectId, null, 'crowdaa_app_id');
+    const selection = await getSelection(projectId, null, appId);
     const body = meta(
       selection.selectionDisplayName,
       selection.overrideIcon || selection.tracks[0].title,

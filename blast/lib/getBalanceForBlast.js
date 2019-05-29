@@ -4,7 +4,7 @@ const {
   COLL_BALANCE_EMAILS,
   COLL_BALANCE_MESSAGES,
   COLL_BALANCE_NOTIFS,
-  COLL_USERS,
+  COLL_PROFILES,
   DB_NAME,
   MONGO_URL,
 } = process.env;
@@ -35,11 +35,11 @@ export default async (userId, type, appId) => {
     client = await MongoClient.connect(MONGO_URL);
     const record = await client
       .db(DB_NAME)
-      .collection(COLL_USERS)
+      .collection(COLL_PROFILES)
       .aggregate([
         {
           $match: {
-            _id: userId,
+            UserId: userId,
             appIds: {
               $elemMatch: {
                 $eq: appId,
@@ -50,7 +50,7 @@ export default async (userId, type, appId) => {
         {
           $lookup: {
             from: collName,
-            localField: 'profil_ID',
+            localField: '_id',
             foreignField: 'profil_ID',
             as: type,
           },
