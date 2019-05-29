@@ -23,13 +23,14 @@ export default async (hashedToken, appId) => {
     );
 
     const permGroupIds = (user && user.permGroupIds) || [];
-    const permsAll = permGroupIds.length && await client
+    const permsAll = permGroupIds.length ? await client
       .db(DB_NAME)
       .collection(COLL_PERM_GROUPS)
       .find({
         _id: { $in: permGroupIds },
         appId,
-      }).toArray();
+      }).toArray()
+      : [];
 
     const perms = permsAll.reduce((acc, curr) => {
       Object.keys(curr.perms).forEach((key) => {
