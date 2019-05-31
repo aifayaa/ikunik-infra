@@ -1,17 +1,17 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export default async (profileId, appId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
     const record = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_USERS)
+      .collection(process.env.COLL_PROFILES)
       .aggregate([
-        { $match: { _id: userId } },
+        { $match: { _id: profileId } },
         {
           $lookup: {
             from: process.env.COLL_BALANCE_EMAILS,
-            localField: 'profil_ID',
+            localField: '_id',
             foreignField: 'profil_ID',
             as: 'emailsBalance',
           },
@@ -30,7 +30,7 @@ export default async (userId, appId) => {
         {
           $lookup: {
             from: process.env.COLL_BALANCE_MESSAGES,
-            localField: 'profil_ID',
+            localField: '_id',
             foreignField: 'profil_ID',
             as: 'textMessagesBalance',
           },
@@ -49,7 +49,7 @@ export default async (userId, appId) => {
         {
           $lookup: {
             from: process.env.COLL_BALANCE_NOTIFS,
-            localField: 'profil_ID',
+            localField: '_id',
             foreignField: 'profil_ID',
             as: 'notificationsBalance',
           },
