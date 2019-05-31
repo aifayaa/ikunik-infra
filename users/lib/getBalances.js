@@ -17,9 +17,14 @@ export default async (userId, appId) => {
           },
         },
         {
-          $unwind: {
-            path: '$emailsBalance',
-            preserveNullAndEmptyArrays: true,
+          $addFields: {
+            emailsBalance: {
+              $filter: {
+                input: '$emailsBalance',
+                as: 'balance',
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
           },
         },
         {
@@ -31,9 +36,14 @@ export default async (userId, appId) => {
           },
         },
         {
-          $unwind: {
-            path: '$textMessagesBalance',
-            preserveNullAndEmptyArrays: true,
+          $addFields: {
+            textMessagesBalance: {
+              $filter: {
+                input: '$textMessagesBalance',
+                as: 'balance',
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
           },
         },
         {
@@ -45,16 +55,32 @@ export default async (userId, appId) => {
           },
         },
         {
+          $addFields: {
+            notificationsBalance: {
+              $filter: {
+                input: '$notificationsBalance',
+                as: 'balance',
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
+          },
+        },
+        {
           $unwind: {
-            path: '$notificationsBalance',
+            path: '$emailsBalance',
             preserveNullAndEmptyArrays: true,
           },
         },
         {
-          $match: {
-            'emailsBalance.appIds': { $elemMatch: { $eq: appId } },
-            'textMessagesBalance.appIds': { $elemMatch: { $eq: appId } },
-            'notificationsBalance.appIds': { $elemMatch: { $eq: appId } },
+          $unwind: {
+            path: '$textMessagesBalance',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$notificationsBalance',
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
