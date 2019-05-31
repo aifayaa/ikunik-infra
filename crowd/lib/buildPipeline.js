@@ -231,6 +231,16 @@ export default (userId, appId, {
       foreignField: 'userId',
       as: 'endpoints',
     },
+  }, {
+    $addFields: {
+      endpoints: {
+        $filter: {
+          input: '$endpoints',
+          as: 'endpoint',
+          cond: { $in: [appId, '$$endpoint.appIds'] },
+        },
+      },
+    },
   });
   pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
 
