@@ -36,7 +36,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
@@ -68,7 +68,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
@@ -85,7 +85,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
@@ -105,7 +105,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
@@ -120,7 +120,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
@@ -135,7 +135,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
@@ -150,7 +150,7 @@ functions:
             cors: true
             authorizer:
               type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerRoleId}
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           request:
             parameters:
               headers:
