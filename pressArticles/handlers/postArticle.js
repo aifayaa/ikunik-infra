@@ -1,22 +1,25 @@
 import removeMd from 'remove-markdown';
-import response from '../../libs/httpResponses/response';
+import checkPerms from '../../libs/perms/checkPerms';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import doSendNotifications from '../lib/sendNotifications';
 import getArticle from '../lib/getArticle';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import postArticle from '../lib/postArticle';
-import publishArticle from '../lib/publishArticle';
 import prepareNotif from '../lib/prepareNotifString';
+import publishArticle from '../lib/publishArticle';
+import response from '../../libs/httpResponses/response';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
 
+const permKey = 'pressArticles_all';
+
 export default async (event, context, callback) => {
   try {
-    const roles = JSON.parse(event.requestContext.authorizer.roles);
+    const perms = JSON.parse(event.requestContext.authorizer.perms);
     const { appId } = event.requestContext.authorizer;
-    if (!roles.includes('reporter')) {
-      callback(null, response({ code: 403, message: 'access forbidden' }));
+    if (!checkPerms(permKey, perms)) {
+      callback(null, response({ code: 403, message: 'access_forbidden' }));
       return;
     }
     if (!event.body) {

@@ -32,7 +32,6 @@ export default async (
     if (onlyPublished) {
       $match.isPublished = true;
     }
-    console.log('appId =>', appId);
     let pipeline = [
       // TODO: optimise by using Category as start poitn
       // get Catgory Id with path and then get articles

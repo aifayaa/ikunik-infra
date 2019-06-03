@@ -1,15 +1,18 @@
-import response from '../../libs/httpResponses/response';
+import checkPerms from '../../libs/perms/checkPerms';
 import doSendNotifications from '../lib/sendNotifications';
 import getArticle from '../lib/getArticle';
 import prepareNotif from '../lib/prepareNotifString';
 import publishArticle from '../lib/publishArticle';
+import response from '../../libs/httpResponses/response';
+
+const permKey = 'pressArticles_all';
 
 export default async (event, _context, callback) => {
   try {
-    const roles = JSON.parse(event.requestContext.authorizer.roles);
+    const perms = JSON.parse(event.requestContext.authorizer.perms);
     const { appId } = event.requestContext.authorizer;
-    if (!roles.includes('reporter')) {
-      callback(null, response({ code: 403, message: 'access forbidden' }));
+    if (!checkPerms(permKey, perms)) {
+      callback(null, response({ code: 403, message: 'access_forbidden' }));
       return;
     }
     if (!event.body) {
