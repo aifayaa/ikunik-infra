@@ -31,6 +31,7 @@ pushDevToAWS:
   script:
     - pip install awscli
     - git diff --dirstat=files,0 HEAD^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - awk 'NR==FNR{a[$0]=$0;next}a[$0]' folderList totalMs > folderList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
 
@@ -49,6 +50,7 @@ pushProdToAWS:
   script:
     - pip install awscli
     - git diff --dirstat=files,0 HEAD^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - awk 'NR==FNR{a[$0]=$0;next}a[$0]' folderList totalMs > folderList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
 
