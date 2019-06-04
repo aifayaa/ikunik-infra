@@ -41,6 +41,41 @@ functions:
             parameters:
               paths:
                 id: true
+  
+  postCategory:
+    handler: handlers/postCategory.default
+    events:
+      - http:
+          path: press/postCategory/{id}
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+  
+  putCategory:
+    handler: handlers/putCategory.default
+    events:
+      - http:
+          path: press/putCategory/{id}
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+  
 plugins:
   - serverless-webpack
 
