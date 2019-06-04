@@ -46,7 +46,7 @@ functions:
     handler: handlers/postCategory.default
     events:
       - http:
-          path: press/postCategory/{id}
+          path: press/categories
           method: post
           cors: true
           authorizer:
@@ -63,8 +63,8 @@ functions:
     handler: handlers/putCategory.default
     events:
       - http:
-          path: press/putCategory/{id}
-          method: post
+          path: press/categories/{id}
+          method: put
           cors: true
           authorizer:
             type: CUSTOM
