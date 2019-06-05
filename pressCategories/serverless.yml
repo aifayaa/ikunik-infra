@@ -41,7 +41,7 @@ functions:
             parameters:
               paths:
                 id: true
-  
+
   postCategory:
     handler: handlers/postCategory.default
     events:
@@ -56,9 +56,7 @@ functions:
             parameters:
               headers:
                 Authorization: true
-              paths:
-                id: true
-  
+
   putCategory:
     handler: handlers/putCategory.default
     events:
@@ -75,7 +73,7 @@ functions:
                 Authorization: true
               paths:
                 id: true
-  
+
 plugins:
   - serverless-webpack
 

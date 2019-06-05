@@ -6,7 +6,7 @@ const {
   COLL_PRESS_CATEGORIES,
 } = process.env;
 
-export default async (userId, appId, name, pathName, color) => {
+export default async (appId, name, pathName, color) => {
   /* Check for parameters */
   if (
     typeof name !== 'string'
