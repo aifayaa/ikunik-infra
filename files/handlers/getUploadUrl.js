@@ -12,10 +12,6 @@ export default async (event, context, callback) => {
     callback(null, response({ code: 403, message: 'access_forbidden' }));
     return;
   }
-  if (checkPerms(permKey, perms)) {
-    callback(null, response({ code: 403, message: 'access_forbidden' }));
-    return;
-  }
 
   try {
     const {
