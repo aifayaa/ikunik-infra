@@ -21,23 +21,16 @@ export default async (appId, name, pathName, color) => {
 
   try {
     /* Request for categories having the same appId */
-    const categories = await client.db(DB_NAME)
+    const categoryFound = await client.db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
-      .find({
+      .findOne({
+        pathName: { $elemMatch: { $eq: pathName } },
         appIds: { $elemMatch: { $eq: appId } },
-      }, { sort: { name: -1 } })
-      .toArray();
+      });
 
-    /* Check if those categories already have the same pathName and throw an error if so */
-    const errors = [];
-
-    categories.forEach((category) => {
-      if (category.pathName === pathName) {
-        errors.push(`Pathname ${pathName} already exists for appId ${appId}`);
-      }
-    });
-
-    if (errors.length) throw new Error(`Errors: ${errors.join('\n')}`);
+    if (categoryFound) {
+      return `Pathname ${pathName} already exists for appId ${appId}`;
+    }
 
     /* Otherwise, insert the category to the database and return it */
     const category = {

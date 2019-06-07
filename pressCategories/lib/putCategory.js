@@ -21,29 +21,25 @@ export default async (appId, categoryId, name, pathName, color) => {
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 
   try {
-    const existingCategory = await client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES)
-      .findOne({ _id: categoryId }, { sort: { createdAt: -1 } });
-
-    if (!existingCategory) {
-      return false;
-    }
-
     const category = {
       name,
       pathName,
       color,
-      appIds: [appId],
     };
 
-    await client
+    const matchedCount = await client
       .db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
       .updateOne(
-        { _id: existingCategory._id },
+        {
+          _id: categoryId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         { $set: category },
       );
 
-    return true;
+
+    return !!matchedCount;
   } finally {
     client.close();
   }
