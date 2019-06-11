@@ -27,7 +27,7 @@ export default async (appId, categoryId, name, pathName, color) => {
       color,
     };
 
-    const matchedCount = await client
+    const { matchedCount } = await client
       .db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
       .updateOne(
