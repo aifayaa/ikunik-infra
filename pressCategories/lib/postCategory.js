@@ -7,14 +7,6 @@ const {
 } = process.env;
 
 export default async (appId, name, pathName, color) => {
-  /* Check for parameters */
-  if (
-    typeof name !== 'string'
-    || typeof pathName !== 'string'
-    || typeof color !== 'string'
-  ) {
-    throw new Error('bad arguments');
-  }
 
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });

@@ -21,9 +21,10 @@ export default async (event, context, callback) => {
       color,
     } = JSON.parse(event.body);
 
-    if (!name || !pathName || !color) {
+    if (!name || !pathName) {
       throw new Error('Missing arguments');
     }
+
     [
       name,
       pathName,
@@ -33,6 +34,10 @@ export default async (event, context, callback) => {
         throw new Error('Wrong argument type');
       }
     });
+
+    if (color && !/^#(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$/.test(color)) {
+      throw new Error('Wrong color syntax, must be #xxxxxx');
+    }
 
     const results = await postCategory(appId, name, pathName, color);
     callback(null, response({ code: 200, body: results }));
