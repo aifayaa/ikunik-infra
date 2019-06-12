@@ -7,7 +7,6 @@ const {
 } = process.env;
 
 export default async (appId, name, pathName, color) => {
-
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 
