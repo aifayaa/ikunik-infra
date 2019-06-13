@@ -11,7 +11,7 @@ const {
 } = process.env;
 
 export default async (
-  catPath,
+  categoryId,
   start,
   limit,
   appId,
@@ -22,9 +22,9 @@ export default async (
     client = await MongoClient.connect(MONGO_URL, {
       useNewUrlParser: true,
     });
-    const $match = catPath
+    const $match = categoryId
       ? {
-        'category.pathName': catPath,
+        'category._id': categoryId,
       }
       : {
         _id: { $exists: true },
