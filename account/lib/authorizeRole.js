@@ -8,19 +8,9 @@ export default async (hashedToken) => {
       .collection(process.env.COLL_USERS)
       .findOne(
         {
-          $and: [
-            {
-              $or: [
-                { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-                { 'services.apiTokens': { $elemMatch: { hashedToken } } },
-              ],
-            },
-            {
-              $or: [
-                { roles: { $exists: true, $ne: [] } },
-                { profil_ID: { $exists: true } },
-              ],
-            },
+          $or: [
+            { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
+            { 'services.apiTokens': { $elemMatch: { hashedToken } } },
           ],
         },
         { projection: { _id: 1, roles: 1, profil_ID: 1 } },

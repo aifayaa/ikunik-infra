@@ -56,6 +56,17 @@ export default async (userId, type, appId) => {
           },
         },
         {
+          $addFields: {
+            [type]: {
+              $filter: {
+                input: `$${type}`,
+                as: type,
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
+          },
+        },
+        {
           $unwind: {
             path: `$${type}`,
             preserveNullAndEmptyArrays: true,

@@ -10,6 +10,7 @@
 */
 
 export default (required, perms) => {
+  if (!Object.keys(perms).length) return false;
   if (!Array.isArray(required)) required = [required];
   return required.reduce((acc, curr) => {
     if (!acc) return acc;

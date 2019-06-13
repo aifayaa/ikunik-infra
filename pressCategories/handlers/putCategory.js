@@ -1,0 +1,40 @@
+import checkPerms from '../../libs/perms/checkPerms';
+import putCategory from '../lib/putCategory';
+import response from '../../libs/httpResponses/response';
+
+const permKey = 'pressCategories_all';
+
+export default async (event, context, callback) => {
+  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const categoryId = event.pathParameters.id;
+  const { appId } = event.requestContext.authorizer;
+  if (!checkPerms(permKey, perms)) {
+    callback(null, response({ code: 403, message: 'access_forbidden' }));
+    return;
+  }
+  if (!event.body) {
+    throw new Error('malformed_request');
+  }
+  try {
+    const {
+      name,
+      pathName,
+      color,
+    } = JSON.parse(event.body);
+
+    if (!categoryId || !name || !pathName || !color) {
+      throw new Error('Missing arguments');
+    }
+
+    const results = await putCategory(appId, categoryId, name, pathName, color);
+
+    if (results === false) {
+      callback(null, response({ code: 404, message: 'category_not_found' }));
+    } else {
+      callback(null, response({ code: 200, body: results }));
+    }
+  } catch (e) {
+    callback(null, response({ code: 500, message: e.message }));
+  }
+};
+

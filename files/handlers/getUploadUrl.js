@@ -1,14 +1,15 @@
 import getUploadUrl from '../lib/getUploadUrl';
 import response from '../../libs/httpResponses/response';
+import checkPerms from '../../libs/perms/checkPerms';
 
 const permKey = 'files_upload';
 
 export default async (event, context, callback) => {
   const userId = event.requestContext.authorizer.principalId;
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
   const { appId } = event.requestContext.authorizer;
-  if (!perms[permKey]) {
-    callback(null, response({ code: 403, message: 'access forbidden' }));
+  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  if (!checkPerms(permKey, perms)) {
+    callback(null, response({ code: 403, message: 'access_forbidden' }));
     return;
   }
 

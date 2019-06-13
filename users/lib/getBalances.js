@@ -1,19 +1,68 @@
 import { MongoClient } from 'mongodb';
 
-export default async (userId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+export default async (profileId, appId) => {
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
     const record = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_USERS)
+      .collection(process.env.COLL_PROFILES)
       .aggregate([
-        { $match: { _id: userId } },
+        { $match: { _id: profileId } },
         {
           $lookup: {
             from: process.env.COLL_BALANCE_EMAILS,
-            localField: 'profil_ID',
+            localField: '_id',
             foreignField: 'profil_ID',
             as: 'emailsBalance',
+          },
+        },
+        {
+          $addFields: {
+            emailsBalance: {
+              $filter: {
+                input: '$emailsBalance',
+                as: 'balance',
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: process.env.COLL_BALANCE_MESSAGES,
+            localField: '_id',
+            foreignField: 'profil_ID',
+            as: 'textMessagesBalance',
+          },
+        },
+        {
+          $addFields: {
+            textMessagesBalance: {
+              $filter: {
+                input: '$textMessagesBalance',
+                as: 'balance',
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: process.env.COLL_BALANCE_NOTIFS,
+            localField: '_id',
+            foreignField: 'profil_ID',
+            as: 'notificationsBalance',
+          },
+        },
+        {
+          $addFields: {
+            notificationsBalance: {
+              $filter: {
+                input: '$notificationsBalance',
+                as: 'balance',
+                cond: { $in: [appId, '$$balance.appIds'] },
+              },
+            },
           },
         },
         {
@@ -23,38 +72,15 @@ export default async (userId, appId) => {
           },
         },
         {
-          $lookup: {
-            from: process.env.COLL_BALANCE_MESSAGES,
-            localField: 'profil_ID',
-            foreignField: 'profil_ID',
-            as: 'textMessagesBalance',
-          },
-        },
-        {
           $unwind: {
             path: '$textMessagesBalance',
             preserveNullAndEmptyArrays: true,
           },
         },
         {
-          $lookup: {
-            from: process.env.COLL_BALANCE_NOTIFS,
-            localField: 'profil_ID',
-            foreignField: 'profil_ID',
-            as: 'notificationsBalance',
-          },
-        },
-        {
           $unwind: {
             path: '$notificationsBalance',
             preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $match: {
-            'emailsBalance.appIds': { $elemMatch: { $eq: appId } },
-            'textMessagesBalance.appIds': { $elemMatch: { $eq: appId } },
-            'notificationsBalance.appIds': { $elemMatch: { $eq: appId } },
           },
         },
         {
