@@ -101,6 +101,7 @@ package:
 
 custom:
   IntegrationRequestParameters:
+    integration.request.header.x-api-key: method.request.header.x-api-key
     integration.request.querystring.artist: method.request.querystring.artist
     integration.request.querystring.city: method.request.querystring.city
     integration.request.querystring.coordinates: method.request.querystring.coordinates
@@ -146,6 +147,7 @@ custom:
 
   RequestParameters: 
     method.request.header.Authorization: true
+    method.request.header.x-api-key: true
     method.request.querystring.artist: true
     method.request.querystring.city: true
     method.request.querystring.coordinates: true
@@ -179,6 +181,7 @@ resources:
           CacheNamespace: ApiGatewayMethodCrowdCacheNS
           CacheKeyParameters:
             - method.request.header.Authorization
+            - method.request.header.x-api-key
             - method.request.querystring.artist
             - method.request.querystring.city
             - method.request.querystring.coordinates
