@@ -82,7 +82,9 @@ resources:
       Properties:
         RequestParameters:
           method.request.header.Authorization: true
+          method.request.header.x-api-key: true
         Integration:
           CacheNamespace: ApiGatewayMethodCreditsGetCacheNS
           CacheKeyParameters:
             - method.request.header.Authorization
+            - method.request.header.x-api-key

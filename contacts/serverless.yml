@@ -81,6 +81,7 @@ resources:
       Properties:
         RequestParameters:
           method.request.header.Authorization: true
+          method.request.header.x-api-key: true
           method.request.querystring.filter: false
           method.request.querystring.idsOnly: false
           method.request.querystring.limit: false
@@ -91,6 +92,7 @@ resources:
           method.request.querystring.type: false
         Integration:
           RequestParameters:
+            integration.request.header.x-api-key: method.request.header.x-api-key
             integration.request.querystring.filter: method.request.querystring.filter
             integration.request.querystring.idsOnly: method.request.querystring.idsOnly
             integration.request.querystring.limit: method.request.querystring.limit
@@ -102,6 +104,7 @@ resources:
           CacheNamespace: ApiGatewayMethodContactsGetCacheNS
           CacheKeyParameters:
             - method.request.header.Authorization
+            - method.request.header.x-api-key
             - method.request.querystring.filter
             - method.request.querystring.idsOnly
             - method.request.querystring.limit
