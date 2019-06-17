@@ -216,18 +216,21 @@ resources:
     ApiGatewayMethodSelectionsGet:
       Properties:
         RequestParameters:
+          method.request.header.x-api-key: true
           method.request.querystring.mobile: true
           method.request.querystring.root: true
           method.request.querystring.type: true
           method.request.querystring.web: true
         Integration:
           RequestParameters:
+            integration.request.header.x-api-key: method.request.header.x-api-key
             integration.request.querystring.mobile: method.request.querystring.mobile
             integration.request.querystring.root: method.request.querystring.root
             integration.request.querystring.type: method.request.querystring.type
             integration.request.querystring.web: method.request.querystring.web
           CacheNamespace: ApiGatewayMethodSelectionsGetCacheNS
           CacheKeyParameters:
+            - method.request.header.x-api-key
             - method.request.querystring.mobile
             - method.request.querystring.root
             - method.request.querystring.type

@@ -42,6 +42,7 @@ package:
 
 custom:
   IntegrationRequestParameters:
+    integration.request.header.x-api-key: method.request.header.x-api-key
     integration.request.querystring.text: method.request.querystring.text
   querystrings:
     text: false
@@ -54,5 +55,5 @@ resources:
           RequestParameters: ${self:custom.IntegrationRequestParameters}
           CacheNamespace: ApiGatewayMethodPressSearchCacheNS
           CacheKeyParameters:
-            - method.request.header.Authorization
+            - method.request.header.x-api-key
             - method.request.querystring.text
