@@ -6,7 +6,7 @@ const {
   COLL_PRESS_CATEGORIES,
 } = process.env;
 
-export default async (appId, name, pathName, color) => {
+export default async (appId, name, pathName, color, picture) => {
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 
@@ -29,6 +29,7 @@ export default async (appId, name, pathName, color) => {
       name,
       pathName,
       color,
+      picture: picture.pop(),
       appIds: [appId],
     };
 
