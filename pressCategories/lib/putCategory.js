@@ -6,17 +6,7 @@ const {
   COLL_PRESS_CATEGORIES,
 } = process.env;
 
-export default async (appId, categoryId, name, pathName, color) => {
-  /* Check for parameters */
-  if (
-    typeof categoryId !== 'string'
-    || typeof name !== 'string'
-    || typeof pathName !== 'string'
-    || typeof color !== 'string'
-  ) {
-    throw new Error('bad arguments');
-  }
-
+export default async (appId, categoryId, name, pathName, color, picture) => {
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 
@@ -24,8 +14,15 @@ export default async (appId, categoryId, name, pathName, color) => {
     const category = {
       name,
       pathName,
-      color,
     };
+
+    if (color) {
+      category.color = color;
+    }
+
+    if (picture && picture.length) {
+      category.picture = picture.pop();
+    }
 
     const { matchedCount } = await client
       .db(DB_NAME)

@@ -20,13 +20,39 @@ export default async (event, context, callback) => {
       name,
       pathName,
       color,
+      picture,
     } = JSON.parse(event.body);
 
-    if (!categoryId || !name || !pathName || !color) {
+    if (!categoryId || !name || !pathName) {
       throw new Error('Missing arguments');
     }
 
-    const results = await putCategory(appId, categoryId, name, pathName, color);
+    [
+      categoryId,
+      name,
+      pathName,
+      color,
+    ].forEach((item) => {
+      if (item && typeof item !== 'string') {
+        throw new Error('Wrong argument type');
+      }
+    });
+
+    if (picture) {
+      if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
+        throw new Error('Wrong argument type');
+      }
+
+      if (picture.length > 1) {
+        throw new Error('Cannot upload more than one picture');
+      }
+    }
+
+    if (color && !/^#(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$/.test(color)) {
+      throw new Error('Wrong color syntax, must be #xxxxxx');
+    }
+
+    const results = await putCategory(appId, categoryId, name, pathName, color, picture);
 
     if (results === false) {
       callback(null, response({ code: 404, message: 'category_not_found' }));
