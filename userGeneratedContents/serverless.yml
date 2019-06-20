@@ -1,0 +1,90 @@
+service: userGeneratedContents
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  getUserGeneratedContents:
+    handler: handlers/getUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  postUserGeneratedContents:
+    handler: handlers/postUserGeneratedContents.default
+    events:
+      - http:
+          path: pressArticles/userGeneratedContents
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  patchUserGeneratedContents:
+    handler: handlers/patchUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  removeUserGeneratedContents:
+    handler: handlers/removeUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  webpackIncludeModules: true
