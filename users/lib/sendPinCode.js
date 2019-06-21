@@ -42,6 +42,12 @@ export default async (phone) => {
     const params = {
       Message: text,
       MessageStructure: 'string',
+      MessageAttributes: {
+        'AWS.SNS.SMS.SMSType': {
+          DataType: 'String',
+          StringValue: 'Transactional',
+        },
+      },
       PhoneNumber: cleandedNumber,
     };
     await sns.publish(params).promise();

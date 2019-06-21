@@ -19,6 +19,7 @@ export default async (event, context, callback) => {
       name,
       pathName,
       color,
+      picture,
     } = JSON.parse(event.body);
 
     if (!name || !pathName) {
@@ -35,11 +36,21 @@ export default async (event, context, callback) => {
       }
     });
 
+    if (picture) {
+      if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
+        throw new Error('Wrong argument type');
+      }
+
+      if (picture.length > 1) {
+        throw new Error('Cannot upload more than one picture');
+      }
+    }
+
     if (color && !/^#(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$/.test(color)) {
       throw new Error('Wrong color syntax, must be #xxxxxx');
     }
 
-    const results = await postCategory(appId, name, pathName, color);
+    const results = await postCategory(appId, name, pathName, color, picture);
     callback(null, response({ code: 200, body: results }));
   } catch (e) {
     callback(null, response({ code: 500, message: e.message }));
