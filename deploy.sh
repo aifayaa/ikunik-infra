@@ -4,6 +4,9 @@
 cd api-v1
 npm i
 sls deploy --stage $1 --region $2
+cd apps
+npm i
+sls deploy --stage $1 --region $2
 
 # requires root api only
 cd ../account
