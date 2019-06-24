@@ -13,6 +13,8 @@ export default async (
   rootParentId,
   rootParentCollection,
   userId,
+  type,
+  data,
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
@@ -27,6 +29,8 @@ export default async (
       rootParentCollection,
       userId,
       appIds: [appId],
+      type,
+      data,
     };
 
     const _id = await client

@@ -1,20 +1,20 @@
-import checkPerms from '../../libs/perms/checkPerms';
+// import checkPerms from '../../libs/perms/checkPerms';
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 
-const permKey = 'userGeneratedContents_all';
+// const permKey = 'userGeneratedContents_all';
 
 export default async (event, context, callback) => {
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  // const perms = JSON.parse(event.requestContext.authorizer.perms);
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   const pathSplitted = event.resource.split('/');
 
-  /* Check for permissions */
-  if (!checkPerms(permKey, perms)) {
-    callback(null, response({ code: 403, message: 'access_forbidden' }));
-    return;
-  }
+  // /* Check for permissions */
+  // if (!checkPerms(permKey, perms)) {
+  //   callback(null, response({ code: 403, message: 'access_forbidden' }));
+  //   return;
+  // }
   if (!event.body) {
     throw new Error('missing_payload');
   }
@@ -23,6 +23,7 @@ export default async (event, context, callback) => {
     const {
       parentId,
       type,
+      data,
     } = bodyParsed;
 
     /* Get collection from path */
@@ -43,6 +44,8 @@ export default async (event, context, callback) => {
       rootParentId,
       rootParentCollection,
       userId,
+      type,
+      data,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('Wrong argument type');
@@ -57,6 +60,7 @@ export default async (event, context, callback) => {
       rootParentCollection || parentCollection,
       userId,
       type,
+      data,
     );
     callback(null, response({ code: 200, body: results }));
   } catch (e) {
