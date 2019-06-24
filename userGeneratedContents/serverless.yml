@@ -47,6 +47,17 @@ functions:
               headers:
                 Authorization: true
 
+  getMultipleUserGeneratedContents:
+    handler: handlers/getMultipleUserGeneratedContents.default
+    events:
+      - http:
+          path: pressArticles/{id}/userGeneratedContents
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   patchUserGeneratedContents:
     handler: handlers/patchUserGeneratedContents.default
     events:
