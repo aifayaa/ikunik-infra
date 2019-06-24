@@ -1,20 +1,11 @@
-// import checkPerms from '../../libs/perms/checkPerms';
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 
-// const permKey = 'userGeneratedContents_all';
-
 export default async (event, context, callback) => {
-  // const perms = JSON.parse(event.requestContext.authorizer.perms);
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   const pathSplitted = event.resource.split('/');
 
-  // /* Check for permissions */
-  // if (!checkPerms(permKey, perms)) {
-  //   callback(null, response({ code: 403, message: 'access_forbidden' }));
-  //   return;
-  // }
   if (!event.body) {
     throw new Error('missing_payload');
   }
