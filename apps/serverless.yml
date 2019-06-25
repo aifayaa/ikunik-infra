@@ -33,3 +33,16 @@ package:
 
 custom:
   webpackIncludeModules: true
+
+resources:
+  Resources:
+    ApiGatewayMethodAppsSettingsGet:
+      Properties:
+        RequestParameters:
+          method.request.header.x-api-key: true
+        Integration:
+          RequestParameters:
+            integration.request.header.x-api-key: method.request.header.x-api-key
+          CacheNamespace: ApiGatewayMethodAppsSettingsGetCacheNS
+          CacheKeyParameters:
+            - method.request.header.x-api-key
