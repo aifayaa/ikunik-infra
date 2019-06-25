@@ -35,7 +35,7 @@ functions:
     handler: handlers/postUserGeneratedContents.default
     events:
       - http:
-          path: pressArticles/userGeneratedContents
+          path: press/articles/userGeneratedContents
           method: post
           cors: true
           authorizer:

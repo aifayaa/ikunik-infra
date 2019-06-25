@@ -1,10 +1,12 @@
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
+import pathToCollection from '../../libs/collections/pathToCollection';
 
 export default async (event, context, callback) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
-  const pathSplitted = event.resource.split('/');
+  /* Get collection from resource path */
+  const parentCollection = pathToCollection(event.requestContext.resourcePath);
 
   if (!event.body) {
     throw new Error('missing_payload');
@@ -16,9 +18,6 @@ export default async (event, context, callback) => {
       type,
       data,
     } = bodyParsed;
-
-    /* Get collection from path */
-    const parentCollection = pathSplitted[1];
 
     /* If unspecified, use the same as parent for the rootParent */
     const rootParentId = bodyParsed.rootParentId || parentId;
