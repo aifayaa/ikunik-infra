@@ -162,3 +162,12 @@ plugins:
 
 package:
   individually: true
+
+resources:
+  Outputs:
+    RestApiRootResourceId:
+      Description: Api Gateway pressArticles ID
+      Value:
+        Ref: ApiGatewayResourcePressArticles
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId
