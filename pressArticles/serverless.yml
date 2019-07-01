@@ -165,9 +165,15 @@ package:
 
 resources:
   Outputs:
-    RestApiRootResourceId:
+    RestApiRootResourcePressId:
       Description: Api Gateway pressArticles ID
       Value:
         Ref: ApiGatewayResourcePressArticles
       Export:
-        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourcePressId
+    RestApiRootResourcePressArticlesId:
+      Description: Api Gateway pressArticlesIdVar ID
+      Value:
+        Ref: ApiGatewayResourcePressArticlesIdVar
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourcePressArticlesId

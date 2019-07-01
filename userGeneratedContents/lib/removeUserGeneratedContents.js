@@ -13,20 +13,15 @@ export default async (
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
-
   try {
-    try {
-      const result = await client
-        .db(DB_NAME)
-        .collection(COLL_USER_GENERATED_CONTENTS)
-        .deleteOne({
-          _id: userGeneratedContentsId,
-          appIds: { $elemMatch: { $eq: appId } },
-        });
-      return { result };
-    } finally {
-      client.close();
-    }
+    const result = await client
+      .db(DB_NAME)
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .deleteOne({
+        _id: userGeneratedContentsId,
+        appIds: { $elemMatch: { $eq: appId } },
+      });
+    return { result };
   } finally {
     client.close();
   }

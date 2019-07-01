@@ -1,11 +1,14 @@
 import getMultipleUserGeneratedContents from '../lib/getMultipleUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
+import pathToCollection from '../../libs/collections/pathToCollection';
 
 export default async (event, context, callback) => {
   const parentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
-  const pathSplitted = event.resource.split('/');
-  const parentCollection = pathSplitted[1];
+
+  /* Get collection from resource path */
+  const parentCollection = pathToCollection(event.requestContext.resourcePath);
+
   try {
     if (!parentId || !parentCollection) {
       throw new Error('Missing arguments');

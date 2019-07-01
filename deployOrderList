@@ -27,7 +27,6 @@ shop
 stages
 tokenPackages
 users
-userGeneratedContents
 
 artists
 projects
@@ -41,3 +40,5 @@ pressCategories
 pressArticles
 pressSearch
 pushNotifications
+
+userGeneratedContents

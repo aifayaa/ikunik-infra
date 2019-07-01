@@ -11,17 +11,32 @@ provider:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
-      /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
-      /press/articles: ${cf:pressArticles-${self:provider.stage}.RestApiRootResourceId}
+      /press/articles: ${cf:pressArticles-${self:provider.stage}.RestApiRootResourcePressId}
+      /press/articles/{id}: ${cf:pressArticles-${self:provider.stage}.RestApiRootResourcePressArticlesId}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  getUserGeneratedContents:
-    handler: handlers/getUserGeneratedContents.default
+  postUserGeneratedContents:
+    handler: handlers/postUserGeneratedContents.default
     events:
       - http:
-          path: userGeneratedContents/{id}
+          path: press/articles/userGeneratedContents
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getMultipleUserGeneratedContents:
+    handler: handlers/getMultipleUserGeneratedContents.default
+    events:
+      - http:
+          path: press/articles/{id}/userGeneratedContents
           method: get
           cors: true
           authorizer:
@@ -32,38 +47,12 @@ functions:
               paths:
                 id: true
 
-  postUserGeneratedContents:
-    handler: handlers/postUserGeneratedContents.default
-    events:
-      - http:
-          path: press/articles/userGeneratedContents
-          method: post
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
-
-  getMultipleUserGeneratedContents:
-    handler: handlers/getMultipleUserGeneratedContents.default
-    events:
-      - http:
-          path: pressArticles/{id}/userGeneratedContents
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-
   patchUserGeneratedContents:
     handler: handlers/patchUserGeneratedContents.default
     events:
       - http:
           path: userGeneratedContents/{id}
-          method: put
+          method: patch
           cors: true
           authorizer:
             type: CUSTOM
@@ -89,6 +78,21 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
+
+  getUserGeneratedContents:
+    handler: handlers/getUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
               paths:
                 id: true
 
