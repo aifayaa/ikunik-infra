@@ -2,6 +2,10 @@ import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 
+const AVAILABLE_TYPES = {
+  comment: 'comment',
+};
+
 export default async (event, context, callback) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
@@ -23,7 +27,7 @@ export default async (event, context, callback) => {
     const rootParentId = bodyParsed.rootParentId || parentId;
     const rootParentCollection = bodyParsed.rootParentCollection || parentCollection;
 
-    if (!parentId || !parentCollection) {
+    if (!parentId || !parentCollection || !type || !data) {
       throw new Error('Missing arguments');
     }
 
@@ -41,6 +45,11 @@ export default async (event, context, callback) => {
         throw new Error('Wrong argument type');
       }
     });
+
+
+    if (typeof AVAILABLE_TYPES[type] === 'undefined') {
+      throw new Error('Wrong type value');
+    }
 
     const results = await postUserGeneratedContents(
       appId,
