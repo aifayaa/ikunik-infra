@@ -24,8 +24,8 @@ export default async (event, context, callback) => {
     });
 
     const results = await patchUserGeneratedContents(
-      userId,
       appId,
+      userId,
       userGeneratedContentsId,
       data,
     );
