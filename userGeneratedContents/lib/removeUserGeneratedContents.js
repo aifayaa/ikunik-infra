@@ -14,6 +14,22 @@ export default async (
   /* Mongo client */
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
+    const existingUserGeneratedContents = await client
+      .db(DB_NAME)
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .findOne({
+        _id: userGeneratedContentsId,
+        appIds: { $elemMatch: { $eq: appId } },
+      });
+
+    if (!existingUserGeneratedContents) {
+      throw new Error('content_not_found');
+    }
+
+    if (existingUserGeneratedContents.userId !== userId) {
+      throw new Error('forbidden_user');
+    }
+
     const result = await client
       .db(DB_NAME)
       .collection(COLL_USER_GENERATED_CONTENTS)
