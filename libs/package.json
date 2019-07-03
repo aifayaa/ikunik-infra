@@ -9,6 +9,7 @@
   "author": "Crowdaa",
   "license": "ISC",
   "dependencies": {
+    "sinon": "^7.3.2",
     "aws-sdk": "^2.424.0",
     "crypto": "^1.0.1"
   }

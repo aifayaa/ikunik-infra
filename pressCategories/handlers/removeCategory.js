@@ -1,5 +1,5 @@
 import checkPerms from '../../libs/perms/checkPerms';
-import removeArticle from '../lib/removeCategory';
+import { removeArticle } from '../lib/removeCategory';
 import response from '../../libs/httpResponses/response';
 
 const permKey = 'pressCategories_all';

@@ -8,7 +8,7 @@ const {
   COLL_PRESS_ARTICLES,
 } = process.env;
 
-export default async ({
+export const postArticle = async ({
   userId,
   appId,
   categoryId,

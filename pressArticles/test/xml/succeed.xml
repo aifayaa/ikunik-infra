@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Objet creationDate="2019-02-21T00:00:00" id="255544">
+
+  <Proprietes>
+    <DossierCarton>10</DossierCarton>
+    <FichierCarton>86.xml</FichierCarton>
+    <ObjetsRedactionnels/>
+    
+    <Media>Archive</Media>
+    <Publication>Le Quotidien</Publication>
+    <Parution>21/02/2019</Parution>
+    <Edition>N</Edition>
+    <Nom>Basket: les Français veulent terminer leurs devoirs en beauté</Nom>
+    <Rubrique>sports</Rubrique>
+    <SousRubrique>sports afp</SousRubrique>
+    <Home>0</Home>
+    <Metadonnees/>
+    <Motcles/>
+    <ObjetsLies/>
+    <GroupePages id=""/>
+    <NbSignes>2461</NbSignes>
+    <Folio>33</Folio>
+    <POSITION_X>7,422</POSITION_X>
+    <POSITION_Y>272,79</POSITION_Y>
+    <LARGEUR>176</LARGEUR>
+    <HAUTEUR>134,71</HAUTEUR>
+    <Images>
+      <Image extension=".jpg" id="117396" typeObjet="PHO">117396</Image>
+    </Images>
+    <Videos/>
+    <Audios/>
+    <Infographies/>
+    <Diaporama>
+      <Metadonnees/>
+    </Diaporama>
+  </Proprietes>
+
+  <Versions versionActuelle="1">
+    <Version idVersion="1">
+      <DateVersion>21/02/2019</DateVersion>
+      <Auteur>jfrouxfouillet</Auteur>
+      <Commentaire/>
+      <Etat>En Page</Etat>
+    </Version>
+  </Versions>
+
+  <Contenu>
+    <ST>
+      <P>BASKET-BALL</P>
+      <P/>
+    </ST>
+    <ST2>
+      <P>MONDIAL : fin des QUALIFICATIONS</P>
+      <P/>
+    </ST2>
+    <TI>
+      <P>Terminer en beauté</P>
+      <P/>
+    </TI>
+    <CH>
+      <P>Leur qualification en poche, les Français vont s’appliquer s’imposer face à la Finlande ce soir</P>
+      <P>et contre la République tchèque dimanche pour terminer premiers de leur groupe.</P>
+      <P/>
+    </CH>
+    <TX>
+      <P>Le billet pour la Chine déjà assuré, les basketteurs français terminent les qualifications pour le Mondial par deux matchs en Finlande aujourd’hui (21h00) et contre la République tchèque dimanche à Nantes (20h00) avec pour objectif la « pole position » de leur groupe.</P>
+      <P>Cette première place offrirait aux Bleus le statut de tête de série au tirage au sort du Mondial (31 août-15 septembre) qui aura lieu le 16 mars à Shenzhen, l’une des villes organisatrices.</P>
+    </TX>
+    <T4>
+      <P>« Le même état d’esprit »</P>
+    </T4>
+    <TX>
+      <P>Comme la plupart des précédentes, ces deux rencontres seront disputées sans les joueurs de NBA ni ceux d’Euroligue, retenus par leurs clubs. Vincent Collet a rassemblé une sélection de joueurs qui s’illustrent dans le Championnat de France, comme Axel Bouteille (Limoges), Amine Noua (Villeurbanne) et Lahaou Konaté (Nanterre), et quelques expatriés comme Andrew Albicy (Andorre) et Mathias Lessort (Malaga). L’attraction sera le jeune meneur de l’ASVEL Théo Maledon, qui fera ses débuts en bleu à 17 ans.</P>
+      <P>Ces douze hommes, dont la participation au Mondial lui-même est hautement hypothétique puisque Rudy Gobert, Evan Fournier, Nando De Colo et les autres stars ont toutes les chances de récupérer leur place, vont finir un travail ingrat mais exécuté jusqu’à maintenant avec un sérieux sans faille (9 victoires en 10 matches). « On va essayer de garder le même état d’esprit », a espéré Collet.</P>
+      <P>Il le faudra pour s’imposer en Finlande, où la France n’a jamais gagné sous l’ère Collet (on se souvient de la défaite dans le match d’ouverture de l’Euro-2017). Toujours en course, les Nordiques doivent l’emporter pour tenter de coiffer au poteau les Russes pour le troisième billet derrière les Français et les Tchèques.</P>
+      <P>« Ils se connaissent très bien et passent beaucoup de temps ensemble en sélection. Ils sont difficiles à jouer, particulièrement chez eux », a prévenu Collet. Les Finlandais seront privés eux aussi de leurs meilleurs éléments, le shooteur de Barcelone Petteri Koponen et l’intérieur de Chicago Lauri Markkanen, pour les mêmes raisons que les Français.</P>
+    </TX>
+    <LG>
+      <P>Vincent Collet et ses joueurs visent la première place de leur groupe, ce qui leur permettrait d’être tête de série lors du tirage au sort du prochain Mondial.</P>
+    </LG>
+  </Contenu>
+
+
+
+
+</Objet>

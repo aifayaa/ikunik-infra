@@ -7,7 +7,7 @@ const {
   COLL_PRESS_DRAFTS,
 } = process.env;
 
-export default async ({
+export const putArticle = async ({
   userId,
   appId,
   articleId,

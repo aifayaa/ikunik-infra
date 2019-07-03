@@ -6,10 +6,11 @@ const {
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   DB_NAME,
+  MONGO_URL,
 } = process.env;
 
-export default async (id, appId, { getPictures = false, isServer = false }) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+export const getArticle = async (id, appId, { getPictures = false, isServer = false }) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     let pipeline = [
       {

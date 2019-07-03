@@ -7,7 +7,7 @@ const {
   COLL_PRESS_ARTICLES,
 } = process.env;
 
-export default async (userId, appId, articleId, draftId) => {
+export const publishArticle = async (userId, appId, articleId, draftId) => {
   const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
