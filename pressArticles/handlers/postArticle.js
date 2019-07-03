@@ -1,26 +1,26 @@
 import removeMd from 'remove-markdown';
-import checkPerms from '../../libs/perms/checkPerms';
+
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
-import doSendNotifications from '../lib/sendNotifications';
-import getArticle from '../lib/getArticle';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import postArticle from '../lib/postArticle';
 import prepareNotif from '../lib/prepareNotifString';
-import publishArticle from '../lib/publishArticle';
 import response from '../../libs/httpResponses/response';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
+import { checkPerms } from '../../libs/perms/checkPerms';
+import { doSendNotifications } from '../lib/sendNotifications';
+import { getArticle } from '../lib/getArticle';
+import { postArticle } from '../lib/postArticle';
+import { publishArticle } from '../lib/publishArticle';
 
 const permKey = 'pressArticles_all';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const perms = JSON.parse(event.requestContext.authorizer.perms);
     const { appId } = event.requestContext.authorizer;
     if (!checkPerms(permKey, perms)) {
-      callback(null, response({ code: 403, message: 'access_forbidden' }));
-      return;
+      return response({ code: 403, message: 'access_forbidden' });
     }
     if (!event.body) {
       throw new Error('missing_payload');
@@ -72,6 +72,7 @@ export default async (event, context, callback) => {
     if (!categoryId || !title || !summary || !html || !(md || xml) || !pictures) {
       throw new Error('mal_formed_request');
     }
+
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
       userId,
@@ -104,8 +105,8 @@ export default async (event, context, callback) => {
         results.notificationSent = true;
       }
     }
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

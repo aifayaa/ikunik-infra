@@ -1,6 +1,6 @@
 import buildResponse from '../../libs/httpResponses/response';
 import getAppId from '../lib/getAppId';
-import getArticle from '../../pressArticles/lib/getArticle';
+import { getArticle } from '../../pressArticles/lib/getArticle';
 import meta from '../lib/meta';
 import prepareNotifString from '../../pressArticles/lib/prepareNotifString';
 import redirect from '../lib/redirect';

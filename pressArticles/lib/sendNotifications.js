@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import queue from 'async/queue';
-import SNS from 'aws-sdk/clients/sns';
+import AWS from 'aws-sdk';
 
 const {
   COLL_PUSH_NOTIFICATIONS,
@@ -11,15 +11,14 @@ const {
   SNS_SECRET,
 } = process.env;
 
-const sns = new SNS({
-  region: SNS_REGION,
-  credentials: {
-    accessKeyId: SNS_KEY_ID,
-    secretAccessKey: SNS_SECRET,
-  },
-});
-
 const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) => {
+  const sns = new AWS.SNS({
+    region: SNS_REGION,
+    credentials: {
+      accessKeyId: SNS_KEY_ID,
+      secretAccessKey: SNS_SECRET,
+    },
+  });
   const msg = {};
   msg.default = '';
   if (endpoint.Platform === 'APNS') {
@@ -46,7 +45,7 @@ const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) =
   return sns.publish(params, cb);
 };
 
-export default async (title, message, appId, extraData) => {
+export const doSendNotifications = async (title, message, appId, extraData) => {
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     const endpoints = await client

@@ -1,7 +1,6 @@
 import { MongoClient } from 'mongodb';
 import articleFields from './articleFields.json';
 
-
 const {
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
@@ -10,7 +9,7 @@ const {
   MONGO_URL,
 } = process.env;
 
-export default async (
+export const getArticles = async (
   categoryId,
   start,
   limit,
