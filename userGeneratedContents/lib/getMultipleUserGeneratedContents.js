@@ -17,6 +17,7 @@ export default async (appId, parentId, parentCollection) => {
         $match: {
           parentId,
           parentCollection,
+          trashed: false,
           appIds: { $elemMatch: { $eq: appId } },
         },
       },

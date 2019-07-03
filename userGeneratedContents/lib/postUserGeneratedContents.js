@@ -31,6 +31,7 @@ export default async (
       appIds: [appId],
       type,
       data,
+      trashed: false,
     };
 
     const _id = await client
