@@ -27,6 +27,7 @@ describe('handlers - publishArticle', () => {
     },
     body: JSON.stringify({
       draftId: 'draftId',
+      date: '2019-07-08T05:29:56.032Z',
       sendNotifications: false,
     }),
   };
@@ -74,6 +75,7 @@ describe('handlers - publishArticle', () => {
         appId,
         id,
         eventParsed.draftId,
+        new Date(eventParsed.date),
       );
     });
 
@@ -109,6 +111,7 @@ describe('handlers - publishArticle', () => {
     it('event.body.field not defined', async () => {
       event.body = JSON.stringify({
         draftId: undefined,
+        date: undefined,
         sendNotifications: false,
       });
       const response = await handler(event);
@@ -123,6 +126,7 @@ describe('handlers - publishArticle', () => {
     before(() => {
       event.body = JSON.stringify({
         draftId: 'draftId',
+        date: '2019-07-08T05:29:56.032Z',
         sendNotifications: true,
       });
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
