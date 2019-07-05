@@ -30,6 +30,18 @@ export const getArticles = async (
       };
     if (onlyPublished) {
       $match.isPublished = true;
+      $match.$or = [
+        {
+          publicationDate: {
+            $exists: false,
+          },
+        },
+        {
+          publicationDate: {
+            $lte: new Date(),
+          },
+        },
+      ];
     }
     let pipeline = [
       // TODO: optimise by using Category as start poitn

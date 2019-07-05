@@ -7,7 +7,7 @@ const {
   COLL_PRESS_ARTICLES,
 } = process.env;
 
-export const publishArticle = async (userId, appId, articleId, draftId) => {
+export const publishArticle = async (userId, appId, articleId, draftId, publicationDate) => {
   const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
@@ -59,6 +59,7 @@ export const publishArticle = async (userId, appId, articleId, draftId) => {
             isPublished: true,
             publishedBy: userId,
             pictures,
+            publicationDate,
           },
         },
         opts,
@@ -91,6 +92,7 @@ export const publishArticle = async (userId, appId, articleId, draftId) => {
         {
           $set: {
             isPublished: true,
+            publicationDate,
           },
         },
         opts,

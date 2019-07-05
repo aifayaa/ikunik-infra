@@ -17,13 +17,14 @@ export default async (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const { draftId, sendNotifications = false } = JSON.parse(event.body);
-    if (!draftId) {
+    const { draftId, date, sendNotifications = false } = JSON.parse(event.body);
+    if (!draftId || !date) {
       throw new Error('mal_formed_request');
     }
+    const publicationDate = new Date(date);
     const userId = event.requestContext.authorizer.principalId;
     const articleId = event.pathParameters.id;
-    const results = await publishArticle(userId, appId, articleId, draftId);
+    const results = await publishArticle(userId, appId, articleId, draftId, publicationDate);
     if (sendNotifications) {
       const article = await getArticle(articleId, appId, {});
       await doSendNotifications(
