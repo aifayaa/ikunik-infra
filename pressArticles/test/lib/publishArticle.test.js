@@ -34,6 +34,7 @@ describe('lib - publishArticle', () => {
       'appId',
       'articleId',
       'draftId',
+      'publicationDate',
     );
     expect(res).to.deep.eq(response);
     expect(res).to.be.a('object');
