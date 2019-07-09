@@ -30,19 +30,17 @@ export default async (event, context, callback) => {
 
     const checkResults = await checkOwner(appId, userGeneratedContentsId, COLL_USER_GENERATED_CONTENTS, 'userId', userId);
 
-    if (checkResults !== true) {
+    if (checkResults === true) {
+      const results = await patchUserGeneratedContents(
+        appId,
+        userId,
+        userGeneratedContentsId,
+        data,
+      );
+      callback(null, response({ code: 200, body: results }));
+    } else {
       callback(null, checkResults);
-      return;
     }
-
-    const results = await patchUserGeneratedContents(
-      appId,
-      userId,
-      userGeneratedContentsId,
-      data,
-    );
-
-    callback(null, response({ code: 200, body: results }));
   } catch (e) {
     callback(null, response({ code: 500, message: e.message }));
   }
