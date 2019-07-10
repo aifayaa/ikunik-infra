@@ -101,8 +101,6 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     await session.commitTransaction();
 
     return { articleId, draftId };
-  } catch (error) {
-    throw error;
   } finally {
     if (session) session.endSession();
     client.close();

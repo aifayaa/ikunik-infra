@@ -27,8 +27,6 @@ export default async (appId) => {
       generator: ({ _id }) => createNotify(_id, appId),
     }).promise();
     return true;
-  } catch (e) {
-    throw e;
   } finally {
     client.close();
   }

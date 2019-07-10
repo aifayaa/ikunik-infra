@@ -58,8 +58,6 @@ export const putArticle = async ({
       .insertOne(draft);
 
     return { articleId, draftId };
-  } catch (error) {
-    throw error;
   } finally {
     client.close();
   }
