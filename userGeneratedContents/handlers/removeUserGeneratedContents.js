@@ -15,7 +15,7 @@ export default async (event) => {
     const checkResults = await checkOwner(appId, userGeneratedContentsId, COLL_USER_GENERATED_CONTENTS, 'userId', userId);
 
     if (checkResults !== true) {
-      return response({ code: 403, message: checkResults });
+      return response(checkResults);
     }
 
     const results = await removeUserGeneratedContents(appId, userId, userGeneratedContentsId);
