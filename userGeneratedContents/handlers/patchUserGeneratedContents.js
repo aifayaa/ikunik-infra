@@ -6,7 +6,7 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const { appId } = event.requestContext.authorizer;
     const userId = event.requestContext.authorizer.principalId;
@@ -29,19 +29,18 @@ export default async (event, context, callback) => {
     });
 
     const checkResults = await checkOwner(appId, userGeneratedContentsId, COLL_USER_GENERATED_CONTENTS, 'userId', userId);
-
-    if (checkResults === true) {
-      const results = await patchUserGeneratedContents(
-        appId,
-        userId,
-        userGeneratedContentsId,
-        data,
-      );
-      callback(null, response({ code: 200, body: results }));
-    } else {
-      callback(null, checkResults);
+    if (checkResults !== true) {
+      return response({ code: 403, message: checkResults });
     }
+
+    const results = await patchUserGeneratedContents(
+      appId,
+      userId,
+      userGeneratedContentsId,
+      data,
+    );
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
