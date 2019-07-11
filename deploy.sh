@@ -139,3 +139,8 @@ sls deploy --stage $1 --region $2
 cd ../pressSearch
 npm i
 sls deploy --stage $1 --region $2
+
+
+cd ../userGeneratedContents
+npm i
+sls deploy --stage $1 --region $2
