@@ -1,4 +1,4 @@
-import checkPerms from '../../libs/perms/checkPerms';
+import { checkPerms } from '../../libs/perms/checkPerms';
 import putCategory from '../lib/putCategory';
 import response from '../../libs/httpResponses/response';
 
