@@ -14,7 +14,7 @@ export const getArticles = async (
   start,
   limit,
   appId,
-  { onlyPublished = true, getPictures = false },
+  { onlyPublished = true, getPictures = false, noCategory = false },
 ) => {
   let client;
   try {
@@ -62,7 +62,7 @@ export const getArticles = async (
       {
         $unwind: {
           path: '$category',
-          preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: noCategory,
         },
       },
       { $match },

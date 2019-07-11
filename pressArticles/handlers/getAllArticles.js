@@ -12,7 +12,10 @@ export default async (event) => {
     if (!checkPerms(permKey, perms)) {
       return response({ code: 403, message: 'access_forbidden' });
     }
-    const results = await getArticles(category, start, limit, appId, { onlyPublished: false });
+    const results = await getArticles(category, start, limit, appId, {
+      onlyPublished: false,
+      noCategory: true,
+    });
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
