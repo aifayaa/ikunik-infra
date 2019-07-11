@@ -3,19 +3,21 @@
     "_id": true,
     "categoryId": true,
     "createdAt": true,
+    "publicationDate": true,
+    "publishedBy": true,
     "summary": true,
     "text": true,
-    "title": true,
-    "publishedBy": true
+    "title": true
   },
   "server": {
     "_id": true,
     "categoryId": true,
     "createdAt": true,
+    "plainText": true,
+    "publicationDate": true,
+    "publishedBy": true,
     "summary": true,
     "text": true,
-    "title": true,
-    "publishedBy": true,
-    "plainText": true
+    "title": true
   }
 }
