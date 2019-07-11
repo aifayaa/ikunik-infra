@@ -49,14 +49,22 @@ describe('handlers - getAllArticles', () => {
       ],
       total: 2,
     };
-
-    before(() => {
+    let response;
+    before(async () => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
       stubLib = sandbox.stub(lib, 'getArticles').returns(getArticlesResult);
+      response = await handler(event);
+    });
+
+    it('should call lib with right args', async () => {
+      const { args } = stubLib.getCall(0);
+      expect(args).to.deep.equal(['A_crowdaa_cat', 0, 10, 'crowdaa_app_id', {
+        noCategory: true,
+        onlyPublished: false,
+      }]);
     });
 
     it('should return 200', async () => {
-      const response = await handler(event);
       expect(response.statusCode).to.eq(200);
       expect(JSON.parse(response.body)).to.deep.eq(getArticlesResult);
     });
