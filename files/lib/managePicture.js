@@ -121,8 +121,6 @@ export default async (bucket, object, file) => {
       .db(DB_NAME)
       .collection(PICTURES_COLL)
       .insertOne(pictureDoc);
-  } catch (e) {
-    throw e;
   } finally {
     client.close();
   }

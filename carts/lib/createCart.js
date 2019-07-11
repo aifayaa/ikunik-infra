@@ -12,31 +12,27 @@ const {
 } = process.env;
 
 const getPricing = async (id, appId, type, opts) => {
-  try {
-    switch (type) {
-      case 'package': {
-        const pack = await getPackage(id, appId);
-        if (!pack) {
-          throw new Error('package_not_found');
-        }
-        const { qty, price } = pack;
-        return { qty, price };
+  switch (type) {
+    case 'package': {
+      const pack = await getPackage(id, appId);
+      if (!pack) {
+        throw new Error('package_not_found');
       }
-      case 'ticket': {
-        const ticket = await getTicketCategory(id, appId);
-        if (!ticket) {
-          throw new Error('ticket_not_found');
-        }
-        const { price } = ticket;
-        if (!opts.email) throw new Error('mal_formed_tickets_meta');
-        // Ticket price is in credits
-        return { qty: price, price: (price / 10) };
-      }
-      default:
-        throw new Error('unknown_product_found');
+      const { qty, price } = pack;
+      return { qty, price };
     }
-  } catch (e) {
-    throw e;
+    case 'ticket': {
+      const ticket = await getTicketCategory(id, appId);
+      if (!ticket) {
+        throw new Error('ticket_not_found');
+      }
+      const { price } = ticket;
+      if (!opts.email) throw new Error('mal_formed_tickets_meta');
+      // Ticket price is in credits
+      return { qty: price, price: (price / 10) };
+    }
+    default:
+      throw new Error('unknown_product_found');
   }
 };
 

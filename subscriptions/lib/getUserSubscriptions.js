@@ -35,8 +35,6 @@ export default async (userId, appId) => {
         },
       ]).toArray();
     return { subscriptions: res };
-  } catch (e) {
-    throw e;
   } finally {
     client.close();
   }

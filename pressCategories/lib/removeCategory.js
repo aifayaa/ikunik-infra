@@ -20,8 +20,6 @@ export default async (appId, categoryId) => {
         appIds: { $elemMatch: { $eq: appId } },
       });
     return { result };
-  } catch (error) {
-    throw error;
   } finally {
     client.close();
   }

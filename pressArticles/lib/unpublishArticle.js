@@ -53,8 +53,6 @@ export const unpublishArticle = async (userId, appId, articleId) => {
     await session.commitTransaction();
 
     return { articleId };
-  } catch (error) {
-    throw error;
   } finally {
     if (session) session.endSession();
     client.close();

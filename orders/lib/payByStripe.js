@@ -19,35 +19,27 @@ const {
 const stripe = Stripe(STRIPE_API_KEY);
 
 const setupProduct = async (id, type, userId, meta, options) => {
-  try {
-    switch (type) {
-      case 'package':
-        return { type, val: null };
-      case 'ticket': {
-        const { lastName, firstName, email } = meta;
-        const mail = await buyTickets(userId, id, lastName, firstName, email, options);
-        return { type, val: mail };
-      }
-      default:
-        throw new Error('unknown_product_found');
+  switch (type) {
+    case 'package':
+      return { type, val: null };
+    case 'ticket': {
+      const { lastName, firstName, email } = meta;
+      const mail = await buyTickets(userId, id, lastName, firstName, email, options);
+      return { type, val: mail };
     }
-  } catch (error) {
-    throw error;
+    default:
+      throw new Error('unknown_product_found');
   }
 };
 
 const exeProduct = async (type, val) => {
-  try {
-    switch (type) {
-      case 'package':
-        return true;
-      case 'ticket':
-        return await sendTicket(val);
-      default:
-        throw new Error('unknown_product_found');
-    }
-  } catch (error) {
-    throw error;
+  switch (type) {
+    case 'package':
+      return true;
+    case 'ticket':
+      return sendTicket(val);
+    default:
+      throw new Error('unknown_product_found');
   }
 };
 

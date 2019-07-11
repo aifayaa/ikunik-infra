@@ -43,8 +43,6 @@ export const removeArticle = async (_userId, appId, articleId) => {
     await session.commitTransaction();
 
     return { articleId };
-  } catch (error) {
-    throw error;
   } finally {
     if (session) session.endSession();
     client.close();
