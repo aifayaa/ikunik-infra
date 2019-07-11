@@ -47,14 +47,12 @@ export default async (appId, parentId, parentCollection, start, limit) => {
         foreignField: '_id',
         as: 'user',
       },
-    });
-    pipeline.push({
+    }, {
       $unwind: {
         path: '$user',
         preserveNullAndEmptyArrays: true,
       },
-    });
-    pipeline.push({
+    }, {
       $project: {
         data: 1,
         parentCollection: 1,
