@@ -18,6 +18,7 @@ export default async (
   try {
     const userGeneratedContents = {
       data,
+      modifiedAt: new Date(),
     };
 
     const { matchedCount } = await client

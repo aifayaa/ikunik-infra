@@ -32,6 +32,8 @@ export default async (
       type,
       data,
       trashed: false,
+      createdAt: new Date(),
+      modifiedAt: false,
     };
 
     const _id = await client

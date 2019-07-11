@@ -23,7 +23,7 @@ export default async (appId, parentId, parentCollection, start, limit) => {
       },
       {
         $sort: {
-          _id: -1,
+          createdAt: -1,
         },
       },
     ];
