@@ -81,21 +81,6 @@ functions:
               paths:
                 id: true
 
-  getUserGeneratedContents:
-    handler: handlers/getUserGeneratedContents.default
-    events:
-      - http:
-          path: userGeneratedContents/{id}
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              paths:
-                id: true
-
 plugins:
   - serverless-webpack
 
