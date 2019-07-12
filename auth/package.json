@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa articles API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+  },
   "dependencies": {
     "async": "^2.6.2",
     "aws-sdk": "^2.437.0",
@@ -19,8 +22,14 @@
     "babel-loader": "^8.0.4",
     "babel-plugin-source-map-support": "^2.0.1",
     "babel-preset-env": "^1.7.0",
+    "chai": "^4.2.0",
+    "esm": "^3.2.25",
+    "mocha": "^6.1.4",
+    "query-string": "^6.8.1",
     "serverless": "^1.38.0",
+    "serverless-export-env": "^1.2.0",
     "serverless-webpack": "^5.2.0",
+    "sinon": "^7.3.2",
     "webpack": "^4.29.5",
     "webpack-node-externals": "^1.7.2"
   },

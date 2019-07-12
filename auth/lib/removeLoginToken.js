@@ -3,7 +3,7 @@ import hashToken from '../../libs/tokens/hashToken';
 
 const { DB_NAME, COLL_USERS } = process.env;
 
-export default async (userId, token) => {
+export const removeLoginToken = async (userId, token) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   });
