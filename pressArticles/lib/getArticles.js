@@ -28,6 +28,8 @@ export const getArticles = async (
       : {
         _id: { $exists: true },
       };
+
+    /* If option is set, returns only published articles */
     if (onlyPublished) {
       $match.isPublished = true;
       $match.$or = [
@@ -43,12 +45,24 @@ export const getArticles = async (
         },
       ];
     }
+
     let pipeline = [
       // TODO: optimise by using Category as start poitn
       // get Catgory Id with path and then get articles
       {
         $match: {
           appIds: { $elemMatch: { $eq: appId } },
+          /* Find only articles not trashed or trashed undefined */
+          $or: [
+            {
+              trashed: {
+                $exists: false,
+              },
+            },
+            {
+              trashed: false,
+            },
+          ],
         },
       },
       {
