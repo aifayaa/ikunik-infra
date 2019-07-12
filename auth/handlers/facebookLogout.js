@@ -1,8 +1,9 @@
 import response from '../../libs/httpResponses/response';
-import removeLoginToken from '../lib/removeLoginToken';
+import { removeLoginToken } from '../lib/removeLoginToken';
 
 export default async (event) => {
   try {
+    if (!event.headers) throw new Error('missing_argument');
     const token = event.headers['x-auth-token'];
     const userId = event.headers['x-user-id'];
 

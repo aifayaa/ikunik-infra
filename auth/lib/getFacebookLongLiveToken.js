@@ -3,10 +3,9 @@ import request from 'request-promise-native';
 
 const { FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET } = process.env;
 
-export default async (userToken, appToken) => {
+export const getFacebookLongLiveToken = async (userToken, appToken) => {
   // get a long live token
-  const longLifeTokenResp = await request({
-    method: 'GET',
+  const longLifeTokenResp = await request.get({
     url:
       'https://graph.facebook.com/oauth/access_token?' +
       'grant_type=fb_exchange_token&' +
@@ -19,8 +18,7 @@ export default async (userToken, appToken) => {
   const { access_token } = longLifeToken;
 
   // get info about this LLToken
-  const debugToken = await request({
-    method: 'GET',
+  const debugToken = await request.get({
     url: `https://graph.facebook.com/debug_token?input_token=${access_token}&access_token=${appToken}`,
   });
   const debugTokenData = JSON.parse(debugToken).data;

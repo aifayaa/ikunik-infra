@@ -1,7 +1,7 @@
 import request from 'request-promise-native';
 
 /* get userInfo from facebookGraphAPI */
-export default async (fbUserId, token) => {
+export const getFacebookUserProfile = async (fbUserId, token) => {
   const fields = [
     'id',
     'name',
@@ -13,8 +13,7 @@ export default async (fbUserId, token) => {
   ];
   const fieldsString = fields.reduce((acc, curr) => `${acc},${curr}`); // works only if more than one field
 
-  const userInfo = await request({
-    method: 'GET',
+  const userInfo = await request.get({
     url:
       `https://graph.facebook.com/v3.3/${fbUserId}?` +
       `access_token=${token}` +

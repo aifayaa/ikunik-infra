@@ -36,6 +36,7 @@ functions:
 
 plugins:
   - '@cruglobal/serverless-merge-config'
+  - serverless-export-env
   - serverless-webpack
 
 package:
