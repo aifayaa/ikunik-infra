@@ -7,7 +7,7 @@ const {
   COLL_PRESS_ARTICLES,
 } = process.env;
 
-export default async (_userId, appId, articleId) => {
+export const removeArticle = async (_userId, appId, articleId) => {
   const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
@@ -43,8 +43,6 @@ export default async (_userId, appId, articleId) => {
     await session.commitTransaction();
 
     return { articleId };
-  } catch (error) {
-    throw error;
   } finally {
     if (session) session.endSession();
     client.close();

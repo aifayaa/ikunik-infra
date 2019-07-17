@@ -1,6 +1,6 @@
 import getUploadUrl from '../lib/getUploadUrl';
 import response from '../../libs/httpResponses/response';
-import checkPerms from '../../libs/perms/checkPerms';
+import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKey = 'files_upload';
 

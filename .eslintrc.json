@@ -3,6 +3,7 @@
   "rules": {
     "import/prefer-default-export": "allow",
     "no-param-reassign": "off",
+    "require-await": "error",
     "no-bitwise": [
       "error",
       {
@@ -22,5 +23,13 @@
         "consistent": true
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+        "files": ["*.test.js"],
+        "rules": {
+            "no-unused-expressions": "off"
+        }
+    }
+  ]
 }

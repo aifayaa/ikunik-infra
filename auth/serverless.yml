@@ -1,0 +1,43 @@
+service: auth
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    $<<: 
+      - ${file(../env.yml)}
+      - ${file(./env.${self:provider.stage}.yml)}
+
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  facebookLogin:
+    handler: handlers/facebookLogin.default
+    events:
+      - http:
+          path: auth/facebook
+          method: post
+          cors: true
+
+  facebookLogout:
+    handler: handlers/facebookLogout.default
+    events:
+      - http:
+          path: auth/facebook/logout
+          method: post
+          cors: true
+
+plugins:
+  - '@cruglobal/serverless-merge-config'
+  - serverless-export-env
+  - serverless-webpack
+
+package:
+  individually: true

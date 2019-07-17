@@ -1,13 +1,13 @@
-import getArticles from '../lib/getArticles';
 import response from '../../libs/httpResponses/response';
+import { getArticles } from '../lib/getArticles';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const { appId } = event.requestContext.authorizer;
     const { category, start, limit } = event.queryStringParameters || {};
     const results = await getArticles(category, start, limit, appId, { getPictures: true });
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

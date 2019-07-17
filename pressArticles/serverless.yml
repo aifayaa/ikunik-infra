@@ -158,6 +158,22 @@ functions:
 
 plugins:
   - serverless-webpack
+  - serverless-export-env
 
 package:
   individually: true
+
+resources:
+  Outputs:
+    RestApiRootResourcePressId:
+      Description: Api Gateway pressArticles ID
+      Value:
+        Ref: ApiGatewayResourcePressArticles
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourcePressId
+    RestApiRootResourcePressArticlesId:
+      Description: Api Gateway pressArticlesIdVar ID
+      Value:
+        Ref: ApiGatewayResourcePressArticlesIdVar
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourcePressArticlesId

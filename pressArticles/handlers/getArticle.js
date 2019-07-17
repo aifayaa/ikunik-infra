@@ -1,13 +1,20 @@
-import getArticle from '../lib/getArticle';
+import { checkPerms } from '../../libs/perms/checkPerms';
+import { getArticle } from '../lib/getArticle';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+const permKey = 'pressArticles_all';
+
+export default async (event) => {
   try {
     const articleId = event.pathParameters.id;
     const { appId } = event.requestContext.authorizer;
+    const perms = JSON.parse(event.requestContext.authorizer.perms);
+    if (!checkPerms(permKey, perms)) {
+      return response({ code: 403, message: 'access_forbidden' });
+    }
     const results = await getArticle(articleId, appId, { getPictures: true });
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

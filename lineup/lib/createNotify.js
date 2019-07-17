@@ -76,8 +76,6 @@ export default async (lineupId, appId) => {
     await cloudwatchevents.putTargets(paramsTarget).promise();
     await lambda.addPermission(paramsLambda).promise();
     return true;
-  } catch (e) {
-    throw e;
   } finally {
     client.close();
   }

@@ -43,8 +43,6 @@ export default async (userId, profileId, lineupId, email, appId) => {
     };
     await sendScanner(scannerMail);
     return true;
-  } catch (error) {
-    throw error;
   } finally {
     client.close();
   }

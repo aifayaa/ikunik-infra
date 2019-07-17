@@ -11,8 +11,6 @@ export default async (subId, appId) => {
         appIds: { $elemMatch: { $eq: appId } },
       });
     return sub;
-  } catch (e) {
-    throw e;
   } finally {
     client.close();
   }

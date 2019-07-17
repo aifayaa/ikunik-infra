@@ -1,4 +1,4 @@
-import checkPerms from '../../libs/perms/checkPerms';
+import { checkPerms } from '../../libs/perms/checkPerms';
 import postCategory from '../lib/postCategory';
 import response from '../../libs/httpResponses/response';
 

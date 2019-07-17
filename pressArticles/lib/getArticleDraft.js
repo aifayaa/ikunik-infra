@@ -6,7 +6,8 @@ const {
   DB_NAME,
   MONGO_URL,
 } = process.env;
-export default async (articleId, appId) => {
+
+export const getArticleDraft = async (articleId, appId) => {
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
     const articles = await client.db(DB_NAME)

@@ -7,7 +7,7 @@ const {
   COLL_PRESS_DRAFTS,
 } = process.env;
 
-export default async ({
+export const putArticle = async ({
   userId,
   appId,
   articleId,
@@ -58,8 +58,6 @@ export default async ({
       .insertOne(draft);
 
     return { articleId, draftId };
-  } catch (error) {
-    throw error;
   } finally {
     client.close();
   }

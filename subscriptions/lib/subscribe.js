@@ -66,8 +66,6 @@ export default async (userId, subId, appId) => {
       throw new Error(`removeCredits handler failed: ${res.body}`);
     }
     return { _id: insertedId, expireAt };
-  } catch (e) {
-    throw e;
   } finally {
     client.close();
   }

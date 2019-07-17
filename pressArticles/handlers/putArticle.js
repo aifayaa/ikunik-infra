@@ -1,23 +1,21 @@
 import removeMd from 'remove-markdown';
-import checkPerms from '../../libs/perms/checkPerms';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import putArticle from '../lib/putArticle';
 import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
+import { putArticle } from '../lib/putArticle';
 
 const permKey = 'pressArticles_all';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const perms = JSON.parse(event.requestContext.authorizer.perms);
     const { appId } = event.requestContext.authorizer;
     if (!checkPerms(permKey, perms)) {
-      callback(null, response({ code: 403, message: 'access_forbidden' }));
-      return;
+      return response({ code: 403, message: 'access_forbidden' });
     }
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-
     const { articleId, categoryId, title, summary, md, pictures } = JSON.parse(event.body);
     if (!articleId || !categoryId || !title || !summary || !md || !pictures) {
       throw new Error('mal_formed_request');
@@ -35,8 +33,8 @@ export default async (event, context, callback) => {
       pictures,
       plainText: removeMd(md),
     });
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

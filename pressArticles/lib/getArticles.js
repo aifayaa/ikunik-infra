@@ -1,7 +1,6 @@
 import { MongoClient } from 'mongodb';
 import articleFields from './articleFields.json';
 
-
 const {
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
@@ -10,12 +9,12 @@ const {
   MONGO_URL,
 } = process.env;
 
-export default async (
+export const getArticles = async (
   categoryId,
   start,
   limit,
   appId,
-  { onlyPublished = true, getPictures = false },
+  { onlyPublished = true, getPictures = false, noCategory = false },
 ) => {
   let client;
   try {
@@ -29,15 +28,41 @@ export default async (
       : {
         _id: { $exists: true },
       };
+
+    /* If option is set, returns only published articles */
     if (onlyPublished) {
       $match.isPublished = true;
+      $match.$or = [
+        {
+          publicationDate: {
+            $exists: false,
+          },
+        },
+        {
+          publicationDate: {
+            $lte: new Date(),
+          },
+        },
+      ];
     }
+
     let pipeline = [
       // TODO: optimise by using Category as start poitn
       // get Catgory Id with path and then get articles
       {
         $match: {
           appIds: { $elemMatch: { $eq: appId } },
+          /* Find only articles not trashed or trashed undefined */
+          $or: [
+            {
+              trashed: {
+                $exists: false,
+              },
+            },
+            {
+              trashed: false,
+            },
+          ],
         },
       },
       {
@@ -51,7 +76,7 @@ export default async (
       {
         $unwind: {
           path: '$category',
-          preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: noCategory,
         },
       },
       { $match },
