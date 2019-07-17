@@ -16,15 +16,32 @@ const searchArticle = async (
   text,
   appId,
   { skip = 0, limit = 10 },
-) =>
-  collection
+  { keepEmptyCategory = false, noTrashed = true },
+) => {
+  const $match = {
+    title: { $regex: new RegExp(text, 'gi') },
+    appIds: { $elemMatch: { $eq: appId } },
+    isPublished: true,
+  };
+
+  /* Find only articles not trashed or trashed undefined */
+  if (noTrashed) {
+    $match.$or = [
+      {
+        trashed: {
+          $exists: false,
+        },
+      },
+      {
+        trashed: false,
+      },
+    ];
+  }
+
+  const results = await collection
     .aggregate([
       {
-        $match: {
-          title: { $regex: new RegExp(text, 'gi') },
-          appIds: { $elemMatch: { $eq: appId } },
-          isPublished: true,
-        },
+        $match,
       },
       {
         $sort: {
@@ -42,7 +59,7 @@ const searchArticle = async (
       {
         $unwind: {
           path: '$category',
-          preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: keepEmptyCategory,
         },
       },
       {
@@ -87,15 +104,18 @@ const searchArticle = async (
     ])
     .toArray();
 
+  return results;
+};
+
 export default async (text, appId, { skip, limit }) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   const {
     DB_NAME,
     COLL_PRESS_ARTICLES,
   } = process.env;
   const collection = client.db(DB_NAME).collection(COLL_PRESS_ARTICLES);
   try {
-    const [result = {}] = await searchArticle(collection, text, appId, { skip, limit });
+    const [result = {}] = await searchArticle(collection, text, appId, { skip, limit }, {});
     return { articles: result.articles || [], total: result.total || 0 };
   } finally {
     client.close();
