@@ -51,6 +51,8 @@ resources:
   Resources:
     ApiGatewayMethodPressSearchGet:
       Properties:
+        RequestParameters:
+          method.request.header.x-api-key: true
         Integration:
           RequestParameters: ${self:custom.IntegrationRequestParameters}
           CacheNamespace: ApiGatewayMethodPressSearchCacheNS
