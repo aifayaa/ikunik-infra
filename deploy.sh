@@ -1,10 +1,15 @@
 #!/bin/bash
 
+# libs
+cd libs
+npm i
+
 # no deps
-cd api-v1
+cd ../api-v1
 npm i
 sls deploy --stage $1 --region $2
-cd apps
+
+cd ../apps
 npm i
 sls deploy --stage $1 --region $2
 
