@@ -1,11 +1,13 @@
 /* Collections from environment */
 const {
   COLL_PRESS_ARTICLES,
+  COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
 /* Translate path to collections */
 const translationArray = {
   'press/articles': COLL_PRESS_ARTICLES,
+  '': COLL_USER_GENERATED_CONTENTS,
 };
 
 export default (resourcePath) => {

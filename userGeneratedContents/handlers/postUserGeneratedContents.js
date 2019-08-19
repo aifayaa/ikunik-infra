@@ -1,16 +1,13 @@
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
-
-const AVAILABLE_TYPES = {
-  comment: 'comment',
-};
+import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 
 export default async (event, context, callback) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   /* Get collection from resource path */
-  const parentCollection = pathToCollection(event.requestContext.resourcePath);
+  let parentCollection = pathToCollection(event.requestContext.resourcePath);
 
   if (!event.body) {
     throw new Error('missing_payload');
@@ -23,11 +20,15 @@ export default async (event, context, callback) => {
       data,
     } = bodyParsed;
 
+    if (!parentId) {
+      parentCollection = '';
+    }
+
     /* If unspecified, use the same as parent for the rootParent */
     const rootParentId = bodyParsed.rootParentId || parentId;
     const rootParentCollection = bodyParsed.rootParentCollection || parentCollection;
 
-    if (!parentId || !parentCollection || !type || !data) {
+    if (!type || !data) {
       throw new Error('Missing arguments');
     }
 
@@ -39,13 +40,11 @@ export default async (event, context, callback) => {
       rootParentCollection,
       userId,
       type,
-      data,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('Wrong argument type');
       }
     });
-
 
     if (typeof AVAILABLE_TYPES[type] === 'undefined') {
       throw new Error('Wrong type value');

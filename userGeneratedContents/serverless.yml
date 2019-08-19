@@ -21,6 +21,21 @@ functions:
     handler: handlers/postUserGeneratedContents.default
     events:
       - http:
+          path: userGeneratedContents
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  postPressArticlesUserGeneratedContents:
+    handler: handlers/postUserGeneratedContents.default
+    events:
+      - http:
           path: press/articles/userGeneratedContents
           method: post
           cors: true
@@ -32,8 +47,23 @@ functions:
               headers:
                 Authorization: true
 
-  getMultipleUserGeneratedContents:
-    handler: handlers/getMultipleUserGeneratedContents.default
+  getUserGeneratedContents:
+    handler: handlers/getUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getChildrenUserGeneratedContents:
+    handler: handlers/getChildrenUserGeneratedContents.default
     events:
       - http:
           path: press/articles/{id}/userGeneratedContents
