@@ -56,7 +56,7 @@ describe('handlers - getAllArticles', () => {
       response = await handler(event);
     });
 
-    it('should call lib with right args', async () => {
+    it('should call lib with right args', () => {
       const { args } = stubLib.getCall(0);
       expect(args).to.deep.equal(['A_crowdaa_cat', 0, 10, 'crowdaa_app_id', {
         noCategory: true,
@@ -64,7 +64,7 @@ describe('handlers - getAllArticles', () => {
       }]);
     });
 
-    it('should return 200', async () => {
+    it('should return 200', () => {
       expect(response.statusCode).to.eq(200);
       expect(JSON.parse(response.body)).to.deep.eq(getArticlesResult);
     });
