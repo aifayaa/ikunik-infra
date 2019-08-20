@@ -18,10 +18,11 @@ export default async (event) => {
     const articleId = event.pathParameters.id;
     const article = await getArticle(articleId, appId, { getPictures: true, isServer: true });
     if (!article) throw new Error('article_not_found');
+    const pictureUrl = (article.pictures[0] && article.pictures[0].mediumUrl) || '';
     const body = meta(
       article.title,
       prepareNotifString(article.plainText, 120),
-      article.pictures[0].mediumUrl,
+      pictureUrl,
     );
     return buildResponse({ code: 200, body });
   } catch (e) {
