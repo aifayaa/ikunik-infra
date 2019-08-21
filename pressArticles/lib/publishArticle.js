@@ -40,6 +40,10 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       plainText,
     } = draft;
 
+    if (!pictures.length) {
+      throw new Error('Unable to publish article without pictures');
+    }
+
     await client
       .db(DB_NAME)
       .collection(COLL_PRESS_ARTICLES)
