@@ -7,18 +7,27 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-export default async (appId, userGeneratedContentsId) => {
+export default async (appId, start, limit, type, userId) => {
   let client;
   try {
     client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 
+    const $match = {};
+
+    if (userId) {
+      $match.userId = userId;
+    }
+
+    if (type) {
+      $match.type = type;
+    }
+
+    $match.trashed = false;
+    $match.appIds = { $elemMatch: { $eq: appId } };
+
     const pipeline = [
       {
-        $match: {
-          _id: userGeneratedContentsId,
-          appIds: { $elemMatch: { $eq: appId } },
-          trashed: false,
-        },
+        $match,
       },
       {
         $sort: {
@@ -26,6 +35,19 @@ export default async (appId, userGeneratedContentsId) => {
         },
       },
     ];
+
+    if (start) {
+      pipeline.push({
+        $skip: Number(start),
+      });
+    }
+
+    if (limit) {
+      pipeline.push({
+        $limit: Number(limit),
+      });
+    }
+
     pipeline.push({
       $lookup: {
         from: COLL_USERS,

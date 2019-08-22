@@ -17,7 +17,7 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  postUserGeneratedContents:
+  postUGC:
     handler: handlers/postUserGeneratedContents.default
     events:
       - http:
@@ -32,7 +32,7 @@ functions:
               headers:
                 Authorization: true
 
-  postPressArticlesUserGeneratedContents:
+  postPressArticlesUGC:
     handler: handlers/postUserGeneratedContents.default
     events:
       - http:
@@ -47,11 +47,22 @@ functions:
               headers:
                 Authorization: true
 
-  getUserGeneratedContents:
-    handler: handlers/getUserGeneratedContents.default
+  getAllUGC:
+    handler: handlers/getAllUserGeneratedContents.default
     events:
       - http:
           path: userGeneratedContents
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  getUGC:
+    handler: handlers/getUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}
           method: get
           cors: true
           authorizer:
@@ -62,7 +73,7 @@ functions:
               paths:
                 id: true
 
-  getChildrenUserGeneratedContents:
+  getPressArticlesChildrenUGC:
     handler: handlers/getChildrenUserGeneratedContents.default
     events:
       - http:
@@ -77,7 +88,22 @@ functions:
               paths:
                 id: true
 
-  patchUserGeneratedContents:
+  getChildrenUGC:
+    handler: handlers/getChildrenUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/children
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  patchUGC:
     handler: handlers/patchUserGeneratedContents.default
     events:
       - http:
@@ -94,7 +120,7 @@ functions:
               paths:
                 id: true
 
-  removeUserGeneratedContents:
+  removeUGC:
     handler: handlers/removeUserGeneratedContents.default
     events:
       - http:

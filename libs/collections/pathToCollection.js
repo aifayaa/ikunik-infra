@@ -7,7 +7,6 @@ const {
 /* Translate path to collections */
 const translationArray = {
   'press/articles': COLL_PRESS_ARTICLES,
-  '': COLL_USER_GENERATED_CONTENTS,
 };
 
 export default (resourcePath) => {
@@ -16,5 +15,5 @@ export default (resourcePath) => {
   const resourcePathSplitted = resourcePath.split('/');
   const pathFiltered = resourcePathSplitted.filter(item => item && item !== 'userGeneratedContents' && !item.match(/{.*}/));
   const path = pathFiltered.join('/');
-  return translationArray[path];
+  return translationArray[path] || COLL_USER_GENERATED_CONTENTS;
 };
