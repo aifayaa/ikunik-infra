@@ -1,4 +1,4 @@
-import getMultipleUserGeneratedContents from '../lib/getMultipleUserGeneratedContents';
+import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 
@@ -34,7 +34,7 @@ export default async (event, context, callback) => {
       throw new Error('Wrong argument type');
     }
 
-    const results = await getMultipleUserGeneratedContents(
+    const results = await getChildrenUserGeneratedContents(
       appId,
       parentId,
       parentCollection,
