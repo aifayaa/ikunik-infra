@@ -1,7 +1,7 @@
 export default [
   'crowdaa:',
   'crowdaapress:',
-  'erickabareigts',
+  'erickabareigts:',
   'lequotidien:',
   'mylux:',
 ];
