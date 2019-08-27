@@ -1,6 +1,7 @@
 /* Collections from environment */
 const {
   COLL_PRESS_ARTICLES,
+  COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
 /* Translate path to collections */
@@ -14,5 +15,5 @@ export default (resourcePath) => {
   const resourcePathSplitted = resourcePath.split('/');
   const pathFiltered = resourcePathSplitted.filter(item => item && item !== 'userGeneratedContents' && !item.match(/{.*}/));
   const path = pathFiltered.join('/');
-  return translationArray[path];
+  return translationArray[path] || COLL_USER_GENERATED_CONTENTS;
 };

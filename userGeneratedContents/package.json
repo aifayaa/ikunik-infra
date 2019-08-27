@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa userGeneratedContents API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "exit"
+  },
   "dependencies": {
     "mongodb": "3.1.10",
     "source-map-support": "^0.5.8"
