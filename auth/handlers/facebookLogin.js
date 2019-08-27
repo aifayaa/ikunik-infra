@@ -8,7 +8,8 @@ export default async (event) => {
     }
 
     const { accessToken } = JSON.parse(event.body);
-    const tokenInfo = await getUserByFacebook(accessToken);
+    const { appId } = event.requestContext.authorizer;
+    const tokenInfo = await getUserByFacebook(accessToken, appId);
 
     /* get User in db or create new one if not exists */
     return response({ code: 200, body: tokenInfo });
