@@ -19,6 +19,17 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  addAppId:
+    handler: handlers/addAppId.default
+    events:
+      - http:
+          path: users/addAppId
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+
   blastEmail:
     handler: handlers/blastEmail.default
     events:
