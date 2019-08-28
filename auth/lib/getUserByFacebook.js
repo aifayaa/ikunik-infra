@@ -9,7 +9,7 @@ import hashToken from '../../libs/tokens/hashToken';
 const { DB_NAME, COLL_USERS } = process.env;
 
 /* create/get user from facebook accessToken */
-export const getUserByFacebook = async (userToken) => {
+export const getUserByFacebook = async (userToken, appId) => {
   const appToken = await getFacebookAppToken();
   const {
     accessToken,
@@ -59,6 +59,7 @@ export const getUserByFacebook = async (userToken) => {
         _id: userId,
         createdAt: date,
         profile,
+        appIds: [appId],
         services: {
           facebook: {
             accessToken,
