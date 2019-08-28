@@ -3,9 +3,12 @@ import { removeLoginToken } from '../lib/removeLoginToken';
 
 export default async (event) => {
   try {
-    if (!event.headers) throw new Error('missing_argument');
-    const token = event.headers['x-auth-token'];
-    const userId = event.headers['x-user-id'];
+    const { headers } = event;
+    if (!headers) throw new Error('missing_argument');
+
+    // on android, case is not respected on headers
+    const token = headers['X-Auth-Token'] || headers['x-auth-token'];
+    const userId = headers['X-User-Id'] || headers['x-user-id'];
 
     [
       token,
