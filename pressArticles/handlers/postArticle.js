@@ -41,7 +41,8 @@ export default async (event) => {
     let pictures;
     let plainText;
 
-    switch (event.headers['content-type']) {
+    const contentType = event.headers['content-type'] || event.headers['Content-Type'];
+    switch (contentType) {
       case 'application/json': {
         ({ categoryId, title, summary, md, pictures } = JSON.parse(event.body));
         plainText = removeMd(md);
@@ -65,6 +66,8 @@ export default async (event) => {
         break;
       }
       default:
+        // eslint-disable-next-line no-console
+        console.error(`unhandled_content_type, received type ${contentType}`);
         throw new Error('unhandled_content_type');
     }
 
