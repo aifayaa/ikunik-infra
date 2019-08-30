@@ -2,7 +2,7 @@ import getAllUserGeneratedContents from '../lib/getAllUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const { start, limit, type, userId } = event.queryStringParameters || {};
 
@@ -33,8 +33,8 @@ export default async (event, context, callback) => {
       type,
       userId,
     );
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

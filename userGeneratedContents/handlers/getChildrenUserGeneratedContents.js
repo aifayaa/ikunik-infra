@@ -2,7 +2,7 @@ import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedCon
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const parentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   const { start, limit } = event.queryStringParameters || {};
@@ -41,8 +41,8 @@ export default async (event, context, callback) => {
       start,
       limit,
     );
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
