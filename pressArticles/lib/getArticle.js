@@ -9,16 +9,20 @@ const {
   MONGO_URL,
 } = process.env;
 
-export const getArticle = async (id, appId, { getPictures = false, isServer = false }) => {
+export const getArticle = async (
+  id,
+  appId,
+  { getPictures = false, isServer = false, publishedOnly = false } = {},
+) => {
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
+    const $match = {
+      _id: id,
+      appIds: { $elemMatch: { $eq: appId } },
+    };
+    if (publishedOnly) $match.isPublished = true;
     let pipeline = [
-      {
-        $match: {
-          _id: id,
-          appIds: { $elemMatch: { $eq: appId } },
-        },
-      },
+      { $match },
       {
         $lookup: {
           from: COLL_PRESS_CATEGORIES,
@@ -34,15 +38,16 @@ export const getArticle = async (id, appId, { getPictures = false, isServer = fa
         },
       },
     ];
-
     if (getPictures) {
       // Lookup on pictures
       const pictureGroup = {
-        ...Object.keys(isServer ? articleFields.server : articleFields.public)
-          .reduce((res, key) => {
+        ...Object.keys(isServer ? articleFields.server : articleFields.public).reduce(
+          (res, key) => {
             res[key] = { $first: `$${key}` };
             return res;
-          }, {}),
+          },
+          {},
+        ),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
         _id: '$_id',
@@ -74,7 +79,8 @@ export const getArticle = async (id, appId, { getPictures = false, isServer = fa
       ]);
     }
 
-    const articles = await client.db(DB_NAME)
+    const articles = await client
+      .db(DB_NAME)
       .collection(COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
