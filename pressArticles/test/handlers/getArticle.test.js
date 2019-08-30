@@ -28,10 +28,14 @@ describe('handlers - getArticle', () => {
       stubLib = sandbox.stub(lib, 'getArticle').returns({});
     });
 
-    it('should return 403', async () => {
+    it('should call lib with publishedOnly true', async () => {
       const response = await handler(event);
-      expect(response.statusCode).to.eq(403);
-      expect(JSON.parse(response.body).message).to.eq('access_forbidden');
+      sinon.assert.calledOnce(stubLib);
+      sinon.assert.calledWith(
+        stubLib, 'articleId', 'crowdaa_app_id',
+        { getPictures: true, publishedOnly: true },
+      );
+      expect(response.statusCode).to.eq(200);
     });
 
     after(() => {
@@ -41,14 +45,15 @@ describe('handlers - getArticle', () => {
 
   describe('lib success', () => {
     const libResult = 'ok';
+    let response;
 
-    before(() => {
+    before(async () => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
       stubLib = sandbox.stub(lib, 'getArticle').returns(libResult);
+      response = await handler(event);
     });
 
-    it('should return 200', async () => {
-      const response = await handler(event);
+    it('should return 200', () => {
       expect(response.statusCode).to.eq(200);
       expect(response.body).to.eq(libResult);
     });
@@ -61,6 +66,7 @@ describe('handlers - getArticle', () => {
         stubLib,
         id,
         appId,
+        { getPictures: true, publishedOnly: false },
       );
     });
 

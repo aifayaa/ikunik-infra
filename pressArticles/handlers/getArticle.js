@@ -9,10 +9,8 @@ export default async (event) => {
     const articleId = event.pathParameters.id;
     const { appId } = event.requestContext.authorizer;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
-    if (!checkPerms(permKey, perms)) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
-    const results = await getArticle(articleId, appId, { getPictures: true });
+    const publishedOnly = !checkPerms(permKey, perms);
+    const results = await getArticle(articleId, appId, { getPictures: true, publishedOnly });
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
