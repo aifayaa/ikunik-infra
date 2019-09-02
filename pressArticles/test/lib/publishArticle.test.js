@@ -8,7 +8,7 @@ import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const { MONGO_URL, DB_NAME, COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = process.env;
 
-describe.only('lib - publishArticle', () => {
+describe('lib - publishArticle', () => {
   let spyMongo;
   let stubMongo;
 

@@ -11,6 +11,9 @@ export default async (event) => {
     const perms = JSON.parse(event.requestContext.authorizer.perms);
     const publishedOnly = !checkPerms(permKey, perms);
     const results = await getArticle(articleId, appId, { getPictures: true, publishedOnly });
+    if (!results) {
+      return response({ code: 404, message: 'article_not_found' });
+    }
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
