@@ -47,6 +47,18 @@ functions:
                 redirect_url: false
                 appName: false
 
+  userArticle:
+    handler: handlers/userArticle.default
+    events:
+      - http:
+          path: /userArticles/{id}
+          method: get
+          request:
+            parameters:
+              querystrings:
+                redirect_url: false
+                appName: false
+
 plugins:
   - serverless-domain-manager
   - serverless-webpack
