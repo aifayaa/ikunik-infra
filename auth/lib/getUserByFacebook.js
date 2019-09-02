@@ -41,6 +41,7 @@ export const getUserByFacebook = async (userToken, appId) => {
             hashedToken: hash,
             when: date.toISOString(),
           },
+          appIds: appId,
         },
       };
       await collection.updateOne({ _id: userId }, patch);
