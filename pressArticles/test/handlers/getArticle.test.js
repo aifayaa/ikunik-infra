@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { describe, it, before, after } from 'mocha';
+import { describe, it, before, after, afterEach } from 'mocha';
 import { expect } from 'chai';
 
 import * as checkPerms from '../../../libs/perms/checkPerms';
@@ -89,6 +89,21 @@ describe('handlers - getArticle', () => {
     });
 
     after(() => {
+      sandbox.restore();
+    });
+  });
+
+  describe('lib return null', () => {
+    [true, false].forEach((havePerms) => {
+      it(`should return 404 if user ${!havePerms && 'don\'t'} have perms`, async () => {
+        stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(havePerms);
+        stubLib = sandbox.stub(lib, 'getArticle').returns(null);
+        const response = await handler(event);
+        expect(response.statusCode).to.eq(404);
+      });
+    });
+
+    afterEach(() => {
       sandbox.restore();
     });
   });
