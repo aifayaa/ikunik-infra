@@ -12,7 +12,9 @@ export default (Effect, _Resource, { userId, profileId, roles, perms, appId } = 
       ],
     },
   };
-  policy.context = {};
+  policy.context = {
+    perms: '{}',
+  };
   if (roles) {
     policy.context.roles = JSON.stringify(roles);
   }

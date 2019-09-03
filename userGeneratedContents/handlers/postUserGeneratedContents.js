@@ -3,7 +3,7 @@ import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   /* Get collection from resource path */
@@ -60,9 +60,9 @@ export default async (event, context, callback) => {
       type,
       data,
     );
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
 

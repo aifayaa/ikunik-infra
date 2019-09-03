@@ -6,11 +6,9 @@ export default async (userId, appId) => {
     const { value } = await client
       .db(process.env.DB_NAME)
       .collection(process.env.COLL_USERS)
-      .findAndModify(
+      .updateOne(
         { _id: userId },
-        [],
-        { $addToSet: { appIds: [appId] } },
-        { new: true, projection: { appIds: true } },
+        { $addToSet: { appIds: appId } },
       );
     return value;
   } finally {
