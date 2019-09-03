@@ -25,16 +25,17 @@ export default async (event) => {
     const userId = event.requestContext.authorizer.principalId;
     const articleId = event.pathParameters.id;
     const results = await publishArticle(userId, appId, articleId, draftId, publicationDate);
+    const requestResults = { results };
     if (sendNotifications) {
       const article = await getArticle(articleId, appId, {});
-      await doSendNotifications(
+      requestResults.notificationResults = await doSendNotifications(
         article.title,
         prepareNotif(article.plainText),
         appId,
         { articleId },
       );
     }
-    return response({ code: 200, body: results });
+    return response({ code: 200, body: requestResults });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
