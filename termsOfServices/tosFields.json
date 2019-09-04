@@ -1,0 +1,8 @@
+{
+  "public": {
+    "_id": true,
+    "html": true,
+    "link": true,
+    "outdated": true
+  }
+}
