@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 
 export default (response) => {
-  const toArray = sinon.spy(() => Promise.resolve([response]));
+  const toArray = sinon.spy(() => Promise.resolve(response));
   const aggregate = sinon.spy(() => ({
     toArray,
   }));

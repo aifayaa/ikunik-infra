@@ -18,7 +18,7 @@ describe('lib - getArticles', () => {
   const response = { articles: [], total: 0 };
 
   before(() => {
-    spyMongo = spyMongoMethods(response);
+    spyMongo = spyMongoMethods([response]);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,
