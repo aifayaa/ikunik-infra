@@ -24,9 +24,10 @@ export const getTos = async (appId, tosId) => {
     const tos = await client
       .db(DB_NAME)
       .collection(COLL_TOS)
-      .find(query, { projection })
-      .sort({ createdAt: -1 })
-      .toArray();
+      .find(query, {
+        projection,
+        sort: { createdAt: -1 },
+      }).toArray();
     return tos;
   } finally {
     client.close();
