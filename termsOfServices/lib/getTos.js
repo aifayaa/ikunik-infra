@@ -7,7 +7,7 @@ const {
   MONGO_URL,
 } = process.env;
 
-export const getTos = async (appId, tosId) => {
+export const getTos = async (appId, tosId, options = {}) => {
   const query = {
     appIds: {
       $elemMatch: {
@@ -17,6 +17,14 @@ export const getTos = async (appId, tosId) => {
   };
   if (tosId) {
     query._id = tosId;
+  }
+  if (typeof options.outdated !== 'undefined') {
+    query.outdated = {
+      $exists: options.outdated,
+    };
+  }
+  if (typeof options.required !== 'undefined') {
+    query.required = options.required;
   }
   const { public: projection } = tosFields;
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
