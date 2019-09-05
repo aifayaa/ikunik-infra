@@ -28,7 +28,7 @@ describe('handlers - patchUserGeneratedContents', () => {
   describe('no perms', () => {
     before(() => {
       stubOwner = sandbox.stub(checkOwner, 'default').returns({ code: 403, message: 'forbidden_user' });
-      stubLib = sandbox.stub(lib, 'default').returns({});
+      stubLib = sandbox.stub(lib, 'default').returns(true);
     });
 
     it('should return 403', async () => {
@@ -46,7 +46,7 @@ describe('handlers - patchUserGeneratedContents', () => {
     describe('empty data', () => {
       before(() => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
-        stubLib = sandbox.stub(lib, 'default').throws();
+        stubLib = sandbox.stub(lib, 'default').returns(true);
       });
 
       it('should return 500', async () => {
