@@ -15,8 +15,12 @@ export default async (event, context, callback) => {
 
   try {
     const {
-      optIn = false,
+      optIn = [],
     } = JSON.parse(event.body);
+
+    if (typeof optIn !== 'object' || !optIn.length) {
+      throw new Error('wrong_argument_type');
+    }
 
     const user = await doOptIn(userId, optIn, appId);
     callback(null, response({ code: 200, body: user }));
