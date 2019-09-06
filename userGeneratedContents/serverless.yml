@@ -139,6 +139,7 @@ functions:
 
 plugins:
   - serverless-webpack
+  - serverless-export-env
 
 package:
   individually: true
