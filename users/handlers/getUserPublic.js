@@ -21,6 +21,7 @@ export default async (event, context, callback) => {
       'locale',
       'profile',
       'username',
+      'optIn',
     ]);
     results.perms = perms;
 
@@ -32,7 +33,7 @@ export default async (event, context, callback) => {
       } else {
         let optInResult = true;
         termsOfServices.forEach((v) => {
-          if (typeof results.optIn[v] === 'undefined' || !results.optIn[v]) {
+          if (!(results.optIn.indexOf(v._id) + 1)) {
             optInResult = false;
           }
         });

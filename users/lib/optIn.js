@@ -9,7 +9,7 @@ export default async (userId, val) => {
       .findAndModify(
         { _id: userId },
         [],
-        { $set: { optIn: val } },
+        { $addToSet: { optIn: { $each: val } } },
         { new: true, projection: { optIn: true } },
       );
     return value;
