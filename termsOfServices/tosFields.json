@@ -1,6 +1,7 @@
 {
   "public": {
     "_id": true,
+    "title": true,
     "html": true,
     "link": true,
     "outdated": true
