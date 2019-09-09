@@ -1,0 +1,66 @@
+service: userMetrics
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  postUserMetrics:
+    handler: handlers/postUserMetrics.default
+    events:
+      - http:
+          path: userMetrics
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getAllMetrics:
+    handler: handlers/getAllUserMetrics.default
+    events:
+      - http:
+          path: userMetrics
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  getUserMetrics:
+    handler: handlers/getUserMetrics.default
+    events:
+      - http:
+          path: userMetrics/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - serverless-webpack
+  - serverless-export-env
+
+package:
+  individually: true
+
+custom:
+  webpackIncludeModules: true
