@@ -1,8 +1,8 @@
 {
-  "name": "user_generated_contents",
+  "name": "user_metrics",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa userGeneratedContents API.",
+  "description": "Crowdaa userMetrics API.",
   "main": "handler.js",
   "scripts": {
     "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
