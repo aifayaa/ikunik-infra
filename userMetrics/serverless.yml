@@ -63,4 +63,5 @@ package:
   individually: true
 
 custom:
-  webpackIncludeModules: true
+  webpack:
+    includeModules: true
