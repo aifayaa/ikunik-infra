@@ -61,9 +61,8 @@ export default async (event) => {
             throw new Error('Wrong argument type');
           }
         });
-        data.startTime = new Date(data.startTime);
-        data.endTime = new Date(data.endTime);
-        if (data.endTime < data.startTime) {
+
+        if (new Date(data.endTime) < new Date(data.startTime)) {
           throw new Error('End time must be later than start time');
         }
         break;
