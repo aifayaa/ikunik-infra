@@ -63,6 +63,9 @@ export default async (event) => {
         });
         data.startTime = new Date(data.startTime);
         data.endTime = new Date(data.endTime);
+        if (data.endTime < data.startTime) {
+          throw new Error('End time must be later than start time');
+        }
         break;
       case 'geolocation':
         if (!data.latitude || !data.longitude) {
