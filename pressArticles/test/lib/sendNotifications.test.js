@@ -22,11 +22,11 @@ describe('lib - sendNotifications', () => {
 
   describe('success', () => {
     before(() => {
-      spyMongo = spyMongoMethods({
+      spyMongo = spyMongoMethods([{
         _id: 'id',
         Platform: 'Android',
         EndpointArn: 'arn:aws:sns:us-west-2:630176884077:tes',
-      });
+      }]);
       const fakeClient = {
         db: spyMongo.db,
         close: spyMongo.close,

@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import getProfile from './getProfile';
 
 export default async (userId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
     const profile = await getProfile(userId, appId);
     const user = await client

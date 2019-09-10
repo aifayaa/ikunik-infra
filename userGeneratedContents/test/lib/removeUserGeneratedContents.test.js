@@ -3,22 +3,22 @@ import { MongoClient } from 'mongodb';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 
-import { getArticleDraft } from '../../lib/getArticleDraft';
+import removeUserGeneratedContents from '../../lib/removeUserGeneratedContents';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
   MONGO_URL,
   DB_NAME,
-  COLL_PRESS_DRAFTS,
+  COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-describe('lib - getArticleDraft', () => {
+describe('lib - removeUserGeneratedContents', () => {
   let spyMongo;
   let stubMongo;
-  const response = { title: 'articleTitle' };
+  const response = false;
 
   before(() => {
-    spyMongo = spyMongoMethods([response]);
+    spyMongo = spyMongoMethods(response);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,
@@ -26,13 +26,14 @@ describe('lib - getArticleDraft', () => {
     stubMongo = sinon.stub(MongoClient, 'connect').returns(fakeClient);
   });
 
-  it('should return an article', async () => {
-    const res = await getArticleDraft(
-      'articleId',
+  it('should return a boolean', async () => {
+    const res = await removeUserGeneratedContents(
       'crowdaa_app_id',
+      'userId',
+      'userGeneratedContentsId',
     );
     expect(res).to.deep.eq(response);
-    expect(res).to.be.a('object');
+    expect(res).to.be.a('boolean');
   });
 
   it('mongo connection done', () => {
@@ -42,9 +43,8 @@ describe('lib - getArticleDraft', () => {
   });
 
   it('should be called with the good args', () => {
-    sinon.assert.calledWith(spyMongo.collection, COLL_PRESS_DRAFTS);
-    sinon.assert.calledWith(spyMongo.aggregate, spyMongo.aggregate.getCall(0).args[0]);
-    sinon.assert.called(spyMongo.toArray);
+    sinon.assert.calledWith(spyMongo.collection, COLL_USER_GENERATED_CONTENTS);
+    sinon.assert.calledWith(spyMongo.updateOne, spyMongo.updateOne.getCall(0).args[0]);
   });
 
   after(() => {

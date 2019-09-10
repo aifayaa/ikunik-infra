@@ -49,7 +49,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     );
     if (found) throw new Error('already_registered_token');
 
-    const Platform = platformApplicationArns[platform].plateform;
+    const Platform = platformApplicationArns[platform].platform;
     const params = {
       PlatformApplicationArn,
       Token,
