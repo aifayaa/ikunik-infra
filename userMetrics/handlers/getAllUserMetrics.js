@@ -15,6 +15,7 @@ export default async (event) => {
     endTime = null,
     latitude = null,
     longitude = null,
+    range = null,
   } = event.queryStringParameters || {};
 
   try {
@@ -29,6 +30,7 @@ export default async (event) => {
       endTime,
       latitude,
       longitude,
+      range,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('Wrong argument type');
@@ -74,6 +76,7 @@ export default async (event) => {
       endTime,
       latitude,
       longitude,
+      range,
     );
     return response({ code: 200, body: results });
   } catch (e) {

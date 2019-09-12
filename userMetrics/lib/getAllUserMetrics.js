@@ -19,12 +19,14 @@ export default async (
   endTime,
   latitude,
   longitude,
+  range,
 ) => {
   let client;
   try {
     client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 
     const $match = {};
+    let $geoNear = false;
 
     if (userId) {
       $match.userId = userId;
@@ -50,12 +52,17 @@ export default async (
       $match.type = endTime;
     }
 
-    if (latitude) {
-      $match.type = latitude;
-    }
-
-    if (longitude) {
-      $match.type = longitude;
+    if (latitude && longitude && range) {
+      $geoNear = {
+        near: {
+          type: 'Point',
+          coordinates: [latitude, longitude],
+        },
+        distanceField: 'result',
+        includeLocs: 'location.loc',
+        spherical: true,
+        maxDistance: range | 0,
+      };
     }
 
     $match.trashed = false;
@@ -94,12 +101,19 @@ export default async (
       {
         $match,
       },
-      {
-        $sort: {
-          createdAt: -1,
-        },
-      },
     ];
+
+    if ($geoNear) {
+      pipeline.push({
+        $geoNear,
+      });
+    }
+
+    pipeline.push({
+      $sort: {
+        createdAt: -1,
+      },
+    });
 
     if (start) {
       pipeline.push({
