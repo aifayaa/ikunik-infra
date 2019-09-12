@@ -97,17 +97,17 @@ export default async (
       },
     };
 
-    const pipeline = [
-      {
-        $match,
-      },
-    ];
+    const pipeline = [];
 
     if ($geoNear) {
       pipeline.push({
         $geoNear,
       });
     }
+
+    pipeline.push({
+      $match,
+    });
 
     pipeline.push({
       $sort: {
