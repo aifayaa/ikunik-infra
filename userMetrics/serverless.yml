@@ -29,7 +29,7 @@ functions:
               headers:
                 Authorization: true
 
-  getAllMetrics:
+  getAllUserMetrics:
     handler: handlers/getAllUserMetrics.default
     events:
       - http:
