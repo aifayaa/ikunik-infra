@@ -20,25 +20,6 @@ describe('handlers - getUserMetrics', () => {
   const sandbox = sinon.createSandbox();
 
   describe('lib error', () => {
-    describe('missing argument', () => {
-      before(() => {
-        stubLib = sandbox.stub(lib, 'default').throws();
-      });
-
-      it('wrong type for userMetricsId', async () => {
-        const testEvent = JSON.parse(JSON.stringify(event));
-        delete testEvent.pathParameters.id;
-        const response = await handler(testEvent);
-        const { message } = JSON.parse(response.body);
-        expect(response.statusCode).to.equal(500);
-        expect(message).to.equal('Wrong argument type');
-      });
-
-      after(() => {
-        sandbox.restore();
-      });
-    });
-
     describe('wrong argument type', () => {
       before(() => {
         stubLib = sandbox.stub(lib, 'default').throws();

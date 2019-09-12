@@ -6,7 +6,7 @@ export default async (event) => {
   const { appId } = event.requestContext.authorizer;
 
   try {
-    if (userMetricsId && typeof userMetricsId !== 'string') {
+    if (typeof userMetricsId !== 'string') {
       throw new Error('Wrong argument type');
     }
 
