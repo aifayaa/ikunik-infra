@@ -104,29 +104,3 @@ export default async (
     client.close();
   }
 };
-
-// {
-//   "crowd": [
-//     {
-//       "_id": "B5npyCHsZdEyan6ZM",
-//       "user_ID": "B5npyCHsZdEyan6ZM",
-//       "elapsedTime": 1,
-//       "user": {
-//         "profile": {
-//           "username": "Djothi"
-//         }
-//       },
-//     },
-//     {
-//       "_id": "YwawYyTbNQFgmxqHB",
-//       "user_ID": "YwawYyTbNQFgmxqHB",
-//       "elapsedTime": 1,
-//       "user": {
-//         "profile": {
-//           "username": "Ludovic Maillot"
-//         }
-//       },
-//     }
-//   ],
-//   "count": 2
-// }
