@@ -8,7 +8,17 @@ const {
   COLL_USER_METRICS,
 } = process.env;
 
-export default async (appId, userId, { page = 1, limit = 20, articleId = '' }) => {
+export default async (
+  appId,
+  userId,
+  {
+    page = 1,
+    limit = 20,
+    articleId = '',
+    sortBy = 'views',
+    sortOrder = 'asc',
+  },
+) => {
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);
   }
@@ -61,6 +71,11 @@ export default async (appId, userId, { page = 1, limit = 20, articleId = '' }) =
           user_ID: 1,
           elapsedTime: 1,
           'user.profile.username': 1,
+        },
+      },
+      {
+        $sort: {
+          [sortBy]: (sortOrder === 'asc' ? 1 : -1),
         },
       },
       {
