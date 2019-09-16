@@ -17,6 +17,7 @@ export default async (
     articleId = '',
     sortBy = 'views',
     sortOrder = 'asc',
+    search = '',
   },
 ) => {
   if (page && typeof page !== 'number') {
@@ -65,33 +66,44 @@ export default async (
           preserveNullAndEmptyArrays: true,
         },
       },
-      {
-        $project: {
-          _id: 1,
-          user_ID: 1,
-          elapsedTime: 1,
-          'user.profile.username': 1,
-        },
-      },
-      {
-        $sort: {
-          [sortBy]: (sortOrder === 'asc' ? 1 : -1),
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-          crowd: { $push: '$$ROOT' },
-        },
-      },
-      {
-        $project: {
-          count: 1,
-          crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
-        },
-      },
     ];
+
+    if (search) {
+      pipeline.push({
+        $match: {
+          'user.profile.username': {
+            $regex: new RegExp(search),
+          },
+        },
+      });
+    }
+
+    pipeline.push({
+      $project: {
+        _id: 1,
+        user_ID: 1,
+        elapsedTime: 1,
+        'user.profile.username': 1,
+      },
+    });
+    pipeline.push({
+      $sort: {
+        [sortBy]: (sortOrder === 'asc' ? 1 : -1),
+      },
+    });
+    pipeline.push({
+      $group: {
+        _id: null,
+        count: { $sum: 1 },
+        crowd: { $push: '$$ROOT' },
+      },
+    });
+    pipeline.push({
+      $project: {
+        count: 1,
+        crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
+      },
+    });
 
     const [result] = await client.db(DB_NAME)
       .collection(COLL_USER_METRICS)
