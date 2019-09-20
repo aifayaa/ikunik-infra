@@ -64,9 +64,5 @@ plugins:
   - serverless-export-env
   - serverless-webpack
 
-webpack:
-  webpackConfig: ./webpack.config.js
-  includeModules: true
-
 package:
   individually: true

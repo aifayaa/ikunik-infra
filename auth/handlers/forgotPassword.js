@@ -1,3 +1,4 @@
+import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { forgotPassword } from '../lib/forgotPassword';
 
@@ -9,9 +10,12 @@ export default async (event) => {
 
     const { email } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
+
+    if (typeCheck('String', email)) throw new Error('wrong_argument_type');
+
     await forgotPassword(email, appId);
 
-    return response({ code: 200, body: 'ok' });
+    return response({ code: 200, body: { email, message: 'ok' } });
   } catch (e) {
     let code;
     switch (e.message) {
@@ -19,6 +23,7 @@ export default async (event) => {
       case 'email_not_found':
         code = 404;
         break;
+      case 'wrong_argument_type':
       case 'missing_payload':
         code = 400;
         break;

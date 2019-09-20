@@ -4,6 +4,8 @@ import crypto from 'crypto';
 import { MongoClient } from 'mongodb';
 import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
 
+const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
+
 const {
   MAILGUN_API_KEY,
   MAILGUN_DOMAIN,
@@ -29,7 +31,7 @@ export const forgotPassword = async (email, appId) => {
       usersCollection.findOne(
         { emails: { $elemMatch: { address: email } } },
         {
-          projection: { _id: true, emails: true, 'services.reset': true, 'profile.username': true },
+          projection: { _id: true, emails: true, 'profile.username': true },
         },
       ),
       appsCollection.findOne({ _id: appId }, { projection: { _id: true, builds: true } }),
@@ -45,7 +47,7 @@ export const forgotPassword = async (email, appId) => {
       .toUpperCase();
 
     const when = new Date();
-    const expiresAt = new Date(when.getTime() + 3600000); // valid for one hour
+    const expiresAt = new Date(when.getTime() + TOKEN_TIMEOUT);
     const $set = {
       'services.password.reset': {
         token,
