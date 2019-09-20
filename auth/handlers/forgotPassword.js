@@ -11,7 +11,7 @@ export default async (event) => {
     const { email } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
 
-    if (typeCheck('String', email)) throw new Error('wrong_argument_type');
+    if (!typeCheck('String', email)) throw new Error('wrong_argument_type');
 
     await forgotPassword(email, appId);
 

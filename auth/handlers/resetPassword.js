@@ -12,7 +12,7 @@ export default async (event) => {
 
     const { email, token, password } = JSON.parse(event.body);
 
-    if (typeCheck('[String]', [email, token, password])) throw new Error('wrong_argument_type');
+    if (!typeCheck('[String]', [email, token, password])) throw new Error('wrong_argument_type');
     if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
 
     const { appId } = event.requestContext.authorizer;
