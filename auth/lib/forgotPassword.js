@@ -1,9 +1,11 @@
 import crypto from 'crypto';
+import get from 'lodash/get';
 import { MongoClient } from 'mongodb';
 import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
 import { sendEmail } from './sendEmail';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
+const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
 
 const {
   DB_NAME,
@@ -22,7 +24,7 @@ export const forgotPassword = async (email, urlScheme, appId) => {
       usersCollection.findOne(
         { emails: { $elemMatch: { address: email } } },
         {
-          projection: { _id: true, emails: true, 'profile.username': true },
+          projection: { _id: true, emails: true, 'profile.username': true, 'services.password.reset': true },
         },
       ),
       appsCollection.findOne({ _id: appId }, { projection: { _id: true, builds: true } }),
@@ -30,6 +32,9 @@ export const forgotPassword = async (email, urlScheme, appId) => {
 
     if (!user) throw new Error('email_not_found');
     if (!app) throw new Error('app_not_found');
+    if ((new Date() - get(user, 'services.password.reset.when', 0)) < RETRY_TIMEOUT) {
+      throw new Error('token_already_sent');
+    }
 
     /* Generate reset token */
     const token = crypto

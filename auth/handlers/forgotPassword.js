@@ -25,6 +25,9 @@ export default async (event) => {
       case 'email_not_found':
         code = 404;
         break;
+      case 'token_already_sent':
+        code = 403;
+        break;
       case 'wrong_argument_type':
       case 'missing_payload':
         code = 400;
