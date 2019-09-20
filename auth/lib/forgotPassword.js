@@ -1,24 +1,15 @@
-import MailComposer from 'nodemailer/lib/mail-composer';
-import Mailgun from 'mailgun-js';
 import crypto from 'crypto';
 import { MongoClient } from 'mongodb';
 import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
+import { sendEmail } from './sendEmail';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
 
 const {
-  MAILGUN_API_KEY,
-  MAILGUN_DOMAIN,
-  MAILGUN_FROM,
   DB_NAME,
   COLL_USERS,
   COLL_APPS,
 } = process.env;
-
-const mailgun = Mailgun({
-  apiKey: MAILGUN_API_KEY,
-  domain: MAILGUN_DOMAIN,
-});
 
 export const forgotPassword = async (email, urlScheme, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, {
@@ -66,26 +57,9 @@ export const forgotPassword = async (email, urlScheme, appId) => {
     const subject = 'Forgot Password'; // TODO: intl
     const protocol = urlScheme || app.builds[0].name.toLowerCase().replace(/ /g, '');
     const url = `${protocol}://resetPassword`;
+    const html = forgotPasswordEmailHTML(user.profile.username, url, token, email);
 
-    const mail = new MailComposer({
-      subject,
-      html: forgotPasswordEmailHTML(user.profile.username, url, token, email),
-      from: `${MAILGUN_FROM}@${MAILGUN_DOMAIN}`,
-      to: email,
-    });
-
-    const mailBuild = new Promise((resolve, reject) => {
-      mail.compile().build((error, message) => {
-        if (error) return reject(error);
-        return resolve(message);
-      });
-    });
-    const message = await mailBuild;
-    const dataToSend = {
-      message: message.toString('ascii'),
-      to: email,
-    };
-    await mailgun.messages().sendMime(dataToSend);
+    await sendEmail(subject, html, email);
   } finally {
     client.close();
   }

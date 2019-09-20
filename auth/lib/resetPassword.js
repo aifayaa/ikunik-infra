@@ -1,6 +1,8 @@
 import get from 'lodash/get';
 import { MongoClient } from 'mongodb';
 import { hashPassword } from './password';
+import { sendEmail } from './sendEmail';
+import { passwordResetEmailHTML } from './passwordResetEmailHTML';
 
 const {
   DB_NAME,
@@ -59,6 +61,12 @@ export const resetPassword = async (email, appId, token, password) => {
         'services.password.srp': 1,
       },
     });
+
+    /* send confirmation by email to user */
+    const subject = 'Password has been reset'; // TODO: intl
+    const html = passwordResetEmailHTML(user.profile.username, email);
+
+    await sendEmail(subject, html, email);
   } finally {
     client.close();
   }
