@@ -8,12 +8,14 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { email } = JSON.parse(event.body);
+    const { email, urlScheme } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
 
-    if (!typeCheck('String', email)) throw new Error('wrong_argument_type');
+    if (!typeCheck('{ email: String, urlScheme: Maybe String}', { email, urlScheme })) {
+      throw new Error('wrong_argument_type');
+    }
 
-    await forgotPassword(email, appId);
+    await forgotPassword(email, urlScheme, appId);
 
     return response({ code: 200, body: { email, message: 'ok' } });
   } catch (e) {

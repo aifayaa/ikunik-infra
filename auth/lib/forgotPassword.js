@@ -20,7 +20,7 @@ const mailgun = Mailgun({
   domain: MAILGUN_DOMAIN,
 });
 
-export const forgotPassword = async (email, appId) => {
+export const forgotPassword = async (email, urlScheme, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   });
@@ -63,13 +63,13 @@ export const forgotPassword = async (email, appId) => {
     await usersCollection.updateOne({ _id: user._id }, { $set });
 
     /* send token by email to user */
-    const subject = 'Reset Password'; // TODO: intl
-    const protocol = app.builds[0].name.toLowerCase().replace(/ /g, '');
-    const url = `${protocol}://resetPassword?token=${token}`;
+    const subject = 'Forgot Password'; // TODO: intl
+    const protocol = urlScheme || app.builds[0].name.toLowerCase().replace(/ /g, '');
+    const url = `${protocol}://resetPassword`;
 
     const mail = new MailComposer({
       subject,
-      html: forgotPasswordEmailHTML(user.profile.username, token, url),
+      html: forgotPasswordEmailHTML(user.profile.username, url, token, email),
       from: `${MAILGUN_FROM}@${MAILGUN_DOMAIN}`,
       to: email,
     });
