@@ -1,6 +1,8 @@
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
-import { forgotPassword } from '../lib/forgotPassword';
+import { resetPassword } from '../lib/resetPassword';
+
+const PASSWORD_MIN_LENGTH = 6;
 
 export default async (event) => {
   try {
@@ -8,12 +10,13 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { email } = JSON.parse(event.body);
+    const { email, token, password } = JSON.parse(event.body);
+
+    if (typeCheck('[String]', [email, token, password])) throw new Error('wrong_argument_type');
+    if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
+
     const { appId } = event.requestContext.authorizer;
-
-    if (typeCheck('String', email)) throw new Error('wrong_argument_type');
-
-    await forgotPassword(email, appId);
+    await resetPassword(email, appId, token, password);
 
     return response({ code: 200, body: { email, message: 'ok' } });
   } catch (e) {
@@ -23,8 +26,11 @@ export default async (event) => {
       case 'email_not_found':
         code = 404;
         break;
-      case 'wrong_argument_type':
+      case 'token_expired':
+        code = 403;
+        break;
       case 'missing_payload':
+      case 'invalid_password_length':
         code = 400;
         break;
       default:
