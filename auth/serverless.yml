@@ -36,6 +36,28 @@ functions:
           path: auth/facebook/logout
           method: post
           cors: true
+  
+  forgotPassword:
+    handler: handlers/forgotPassword.default
+    events:
+      - http:
+          path: auth/forgotPassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  resetPassword:
+    handler: handlers/resetPassword.default
+    events:
+      - http:
+          path: auth/resetPassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
   - '@cruglobal/serverless-merge-config'
