@@ -55,7 +55,7 @@ export default async (pipeline, {
               else: false,
             },
           },
-          // hasEndpoint: { $ne: ['$endpoints', []] },
+          hasEndpoint: { $ne: ['$endpoints', []] },
         },
       },
       {

@@ -1,5 +1,6 @@
 const {
   COLL_PRESS_ARTICLES,
+  COLL_PUSH_NOTIFICATIONS,
   COLL_USERS,
   COLL_USER_METRICS,
 } = process.env;
@@ -109,6 +110,28 @@ export default (userId, appId, {
   const pipeline = coordinates ?
     useLocationPipeline(userId, appId, coordinates, range, articleId) :
     useClassicPipeline(userId, appId, articleId);
+
+  pipeline.push(
+    {
+      $lookup: {
+        from: COLL_PUSH_NOTIFICATIONS,
+        localField: 'user_ID',
+        foreignField: 'userId',
+        as: 'endpoints',
+      },
+    },
+    {
+      $addFields: {
+        endpoints: {
+          $filter: {
+            input: '$endpoints',
+            as: 'endpoint',
+            cond: { $in: [appId, '$$endpoint.appIds'] },
+          },
+        },
+      },
+    },
+  );
 
   if (search) {
     pipeline.push({
