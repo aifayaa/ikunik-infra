@@ -13,6 +13,8 @@ provider:
 functions:
   authorize:
     handler: handlers/authorize.default
+  authorizeNoApp:
+    handler: handlers/authorizeNoApp.default
   authorizeArtist:
     handler: handlers/authorizeArtist.default
   authorizeRole:
@@ -55,13 +57,51 @@ resources:
         Type: REQUEST
         ProviderARNs: 
           - { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] }
-    
+
+    ApiGatewayAuthorizerNoApp: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 0
+        AuthorizerUri : {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {"Ref":"AWS::Region"},
+              ":lambda:path/2015-03-31/functions/",
+              { "Fn::GetAtt": ["AuthorizeNoAppLambdaFunction", "Arn" ] },
+              "/invocations"
+            ]
+          ]
+        }
+        IdentitySource: method.request.header.Authorization
+        Name: authorizeNoApp
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: REQUEST
+        ProviderARNs: 
+          - { "Fn::GetAtt": ["AuthorizeNoAppLambdaFunction", "Arn" ] }
+
     AuthorizeLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
         FunctionName: 
           Fn::GetAtt: 
             - AuthorizeLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal: 
+          Fn::Join:
+            - ''
+            - 
+              - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
+    AuthorizeNoAppLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName: 
+          Fn::GetAtt: 
+            - AuthorizeNoAppLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
         Principal: 
@@ -243,6 +283,12 @@ resources:
         Ref: ApiGatewayAuthorizer
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerId
+    ApiGatewayAuthorizerNoAppId:
+      Description: User NoApp authorizer ID
+      Value: 
+        Ref: ApiGatewayAuthorizerNoApp
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerNoAppId
     ApiGatewayAuthorizerArtistId:
       Description: Artist authorizer ID
       Value:
