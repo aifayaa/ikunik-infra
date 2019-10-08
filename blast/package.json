@@ -5,6 +5,7 @@
   "description": "Crowdaa blast API.",
   "main": "handler.js",
   "dependencies": {
+    "@cruglobal/serverless-merge-config": "^1.1.0",
     "async": "^2.6.0",
     "aws-sdk": "^2.222.1",
     "mailgun-js": "^0.22.0",
