@@ -74,7 +74,7 @@ export default async (event) => {
           data.latitude,
           data.longitude,
         ].forEach((item) => {
-          if (item && typeof item !== 'string') {
+          if (item && typeof item !== 'number') {
             throw new Error('Wrong argument type');
           }
         });
