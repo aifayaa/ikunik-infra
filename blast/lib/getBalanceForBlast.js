@@ -30,52 +30,54 @@ export default async (userId, type, appId) => {
   };
   const defaultValue = {};
   defaultValue[type] = 0;
+  const pipeline = [
+    {
+      $match: {
+        UserId: userId,
+        appIds: {
+          $elemMatch: {
+            $eq: appId,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: collName,
+        localField: '_id',
+        foreignField: 'profil_ID',
+        as: type,
+      },
+    },
+    {
+      $addFields: {
+        [type]: {
+          $filter: {
+            input: `$${type}`,
+            as: type,
+            cond: { $in: [appId, `$$${type}.appIds`] },
+          },
+        },
+      },
+    },
+    {
+      $unwind: {
+        path: `$${type}`,
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: projection,
+    },
+  ];
 
   try {
-    client = await MongoClient.connect(MONGO_URL);
+    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
     const record = await client
       .db(DB_NAME)
       .collection(COLL_PROFILES)
-      .aggregate([
-        {
-          $match: {
-            UserId: userId,
-            appIds: {
-              $elemMatch: {
-                $eq: appId,
-              },
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: collName,
-            localField: '_id',
-            foreignField: 'profil_ID',
-            as: type,
-          },
-        },
-        {
-          $addFields: {
-            [type]: {
-              $filter: {
-                input: `$${type}`,
-                as: type,
-                cond: { $in: [appId, '$$balance.appIds'] },
-              },
-            },
-          },
-        },
-        {
-          $unwind: {
-            path: `$${type}`,
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: projection,
-        },
-      ]).toArray();
+      .aggregate(pipeline)
+      .toArray();
     return record[0] || defaultValue;
   } finally {
     client.close();

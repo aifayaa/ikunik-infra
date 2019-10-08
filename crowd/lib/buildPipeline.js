@@ -224,6 +224,7 @@ export default (userId, appId, {
   const pipeline = coordinates ?
     pipelineLocationStart(userId, appId, coordinates, range) :
     pipelineStart(userId, appId);
+  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
   pipeline.push({
     $lookup: {
       from: COLL_PUSH_NOTIFICATIONS,
@@ -242,7 +243,6 @@ export default (userId, appId, {
       },
     },
   });
-  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
 
   if (coordinates) {
     if (project || artist || track) {

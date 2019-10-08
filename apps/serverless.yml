@@ -25,6 +25,23 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  getAppInfos:
+    handler: handlers/getAppInfos.default
+    events:
+      - http:
+          path: apps/{id}/infos
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerNoAppId}
+          request:
+            parameters:
+              paths:
+                id: true
+              headers:
+                Authorization: true
+
 plugins:
   - serverless-webpack
 
