@@ -1,11 +1,4 @@
-export const handleGetAuthorize = async (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({ message: 'ok' }),
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
-  callback(null, response);
-};
+import response from '../libs/httpResponses/response';
+
+export const handleGetAuthorize = () =>
+  new Promise(resolve => resolve(response({ code: 200, message: 'ok' })));
