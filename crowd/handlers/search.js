@@ -1,5 +1,6 @@
 import winston from 'winston';
-import buildPipeline from '../lib/buildPipeline';
+import buildCrowdPipeline from '../lib/pipelines/crowdPipeline';
+import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
 import searchPress from '../lib/searchPress';
 import response from '../../libs/httpResponses/response';
@@ -18,11 +19,12 @@ export default async (event) => {
         return response({ code: 403, message: 'access_forbidden' });
       }
 
-      const results = await searchPress(appId, userId, event.queryStringParameters);
+      const pipeline = buildPressPipeline(userId, appId, event.queryStringParameters);
+      const results = await searchPress(pipeline, event.queryStringParameters);
       return response({ code: 200, body: results });
     }
 
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters);
+    const pipeline = buildCrowdPipeline(userId, appId, event.queryStringParameters);
     Object.assign(event.queryStringParameters, { filterUserInfo: true });
     const results = await search(pipeline, event.queryStringParameters);
     return response({ code: 200, body: results });

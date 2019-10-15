@@ -1,112 +1,60 @@
 import { MongoClient } from 'mongodb';
 
 const {
-  MONGO_URL,
-  DB_NAME,
-  COLL_PRESS_ARTICLES,
   COLL_USERS,
   COLL_USER_METRICS,
+  DB_NAME,
+  MONGO_URL,
 } = process.env;
 
-export default async (
-  appId,
-  userId,
-  {
-    page = 1,
-    limit = 20,
-    articleId = '',
-    sortBy = 'views',
-    sortOrder = 'asc',
-    search = '',
-  },
-) => {
+export default async (pipeline, {
+  coordinates,
+  limit = 20,
+  page = 1,
+  sortBy = 'views',
+  sortOrder = 'asc',
+}) => {
+  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);
   }
   if (limit && typeof limit !== 'number') {
     limit = parseInt(limit, 10);
   }
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+
   try {
-    const $match = {
-      appIds: {
-        $elemMatch: { $eq: appId },
-      },
-      contentCollection: COLL_PRESS_ARTICLES,
-      type: 'time',
-      trashed: false,
-    };
-
-    if (articleId) {
-      $match.contentId = articleId;
-    }
-
-    const pipeline = [
+    pipeline.push(
       {
-        $match,
+        $project: {
+          _id: 1,
+          user_ID: 1,
+          elapsedTime: 1,
+          'user.profile.username': 1,
+        },
+      },
+      {
+        $sort: {
+          [sortBy]: (sortOrder === 'asc' ? 1 : -1),
+        },
       },
       {
         $group: {
-          _id: '$userId',
-          user_ID: { $first: '$userId' },
-          elapsedTime: { $sum: '$time' },
+          _id: null,
+          count: { $sum: 1 },
+          crowd: { $push: '$$ROOT' },
         },
       },
       {
-        $lookup: {
-          from: COLL_USERS,
-          localField: 'user_ID',
-          foreignField: '_id',
-          as: 'user',
+        $project: {
+          count: 1,
+          crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
         },
       },
-      {
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-    ];
-
-    if (search) {
-      pipeline.push({
-        $match: {
-          'user.profile.username': {
-            $regex: new RegExp(search),
-          },
-        },
-      });
-    }
-
-    pipeline.push({
-      $project: {
-        _id: 1,
-        user_ID: 1,
-        elapsedTime: 1,
-        'user.profile.username': 1,
-      },
-    });
-    pipeline.push({
-      $sort: {
-        [sortBy]: (sortOrder === 'asc' ? 1 : -1),
-      },
-    });
-    pipeline.push({
-      $group: {
-        _id: null,
-        count: { $sum: 1 },
-        crowd: { $push: '$$ROOT' },
-      },
-    });
-    pipeline.push({
-      $project: {
-        count: 1,
-        crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
-      },
-    });
+    );
 
     const [result] = await client.db(DB_NAME)
-      .collection(COLL_USER_METRICS)
+      .collection(coordinates ? COLL_USERS : COLL_USER_METRICS)
       .aggregate(pipeline)
       .toArray();
 
