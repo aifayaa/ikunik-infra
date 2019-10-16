@@ -143,7 +143,7 @@ functions:
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerNoAppId}
           cors: true
           request:
             parameters:
