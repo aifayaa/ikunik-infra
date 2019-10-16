@@ -36,7 +36,18 @@ functions:
           path: auth/facebook/logout
           method: post
           cors: true
-  
+
+  register:
+    handler: handlers/register.default
+    events:
+      - http:
+          path: auth/register
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   forgotPassword:
     handler: handlers/forgotPassword.default
     events:
