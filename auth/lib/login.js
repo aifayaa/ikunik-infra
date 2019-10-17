@@ -61,7 +61,7 @@ export const login = async (email, username, password, appId) => {
 
     return {
       userId: user._id,
-      tokenAuth: token,
+      authToken: token,
     };
   } finally {
     client.close();
