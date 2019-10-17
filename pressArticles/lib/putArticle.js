@@ -1,16 +1,11 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
-import { URL } from 'url';
 
 const {
   MONGO_URL,
   DB_NAME,
   COLL_PRESS_DRAFTS,
 } = process.env;
-
-const stringIsAValidUrl = (s) => {
-  try { return new URL(s); } catch (err) { return false; }
-};
 
 export const putArticle = async ({
   actions,
@@ -39,10 +34,6 @@ export const putArticle = async ({
 
   if (typeof actions !== 'object') {
     throw new Error('bad arguments');
-  }
-
-  if (actions.url && actions.url.length && !stringIsAValidUrl(actions.url)) {
-    throw new Error('URL error');
   }
 
   const draftId = uuidv4();
