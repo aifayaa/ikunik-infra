@@ -19,6 +19,7 @@ export const postArticle = async ({
   xml,
   pictures,
   plainText = '',
+  actions,
 }) => {
   if (
     typeof title !== 'string'
@@ -31,6 +32,7 @@ export const postArticle = async ({
   ) {
     throw new Error('bad arguments');
   }
+
   const articleId = uuidv4();
   const draftId = uuidv4();
   let session;
@@ -49,6 +51,7 @@ export const postArticle = async ({
       userId,
       plainText,
       appIds: [appId],
+      actions,
     };
     if (xml) {
       article.xml = xml;

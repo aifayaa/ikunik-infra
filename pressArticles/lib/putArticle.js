@@ -8,16 +8,17 @@ const {
 } = process.env;
 
 export const putArticle = async ({
-  userId,
+  actions,
   appId,
   articleId,
   categoryId,
-  title,
-  summary,
   html,
   md,
   pictures,
   plainText = '',
+  summary,
+  title,
+  userId,
 }) => {
   if (
     typeof title !== 'string'
@@ -28,6 +29,10 @@ export const putArticle = async ({
     || typeof md !== 'string'
     || !Array.isArray(pictures)
   ) {
+    throw new Error('bad arguments');
+  }
+
+  if (typeof actions !== 'object') {
     throw new Error('bad arguments');
   }
 
@@ -51,6 +56,7 @@ export const putArticle = async ({
       text: html,
       title,
       userId,
+      actions,
     };
 
     await client.db(DB_NAME)
