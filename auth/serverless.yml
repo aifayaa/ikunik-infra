@@ -29,11 +29,15 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
-  facebookLogout:
-    handler: handlers/facebookLogout.default
+  logout:
+    handler: handlers/logout.default
     events:
       - http:
           path: auth/facebook/logout
+          method: post
+          cors: true
+      - http:
+          path: auth/logout
           method: post
           cors: true
 
