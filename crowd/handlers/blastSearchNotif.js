@@ -2,7 +2,7 @@ import queue from 'async/queue';
 import flatten from 'lodash/flatten';
 import Lambda from 'aws-sdk/clients/lambda';
 import winston from 'winston';
-import buildPipeline from '../lib/buildPipeline';
+import buildPipeline from '../lib/pipelines/crowdPipeline';
 import search from '../lib/search';
 import response from '../../libs/httpResponses/response';
 
