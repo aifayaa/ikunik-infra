@@ -1,5 +1,4 @@
 import removeMd from 'remove-markdown';
-import { URL } from 'url';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
@@ -12,10 +11,7 @@ import { doSendNotifications } from '../lib/sendNotifications';
 import { getArticle } from '../lib/getArticle';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
-
-const stringIsAValidUrl = (s) => {
-  try { return new URL(s); } catch (err) { return false; }
-};
+import checkActions from '../lib/checks/checkActions';
 
 const permKey = 'pressArticles_all';
 
@@ -88,19 +84,11 @@ export default async (event) => {
       || !html
       || !(md || xml)
       || !pictures
-      || !Array.isArray(actions)
     ) {
       throw new Error('mal_formed_request');
     }
 
-    actions.forEach((action) => {
-      if (!action.title || !action.url) {
-        throw new Error('mal_formed_request');
-      }
-      if (!stringIsAValidUrl(action.url)) {
-        throw new Error('URL error');
-      }
-    });
+    checkActions(actions);
 
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
