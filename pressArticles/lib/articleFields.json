@@ -1,6 +1,7 @@
 {
   "public": {
     "_id": true,
+    "actions": true,
     "categoryId": true,
     "createdAt": true,
     "publicationDate": true,
@@ -11,6 +12,7 @@
   },
   "server": {
     "_id": true,
+    "actions": true,
     "categoryId": true,
     "createdAt": true,
     "plainText": true,
