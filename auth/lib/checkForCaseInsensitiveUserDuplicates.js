@@ -64,7 +64,7 @@ export default async (
   { ownUserId, mongoClient } = {},
 ) => {
   if (fieldValue) {
-    const openClient = !!mongoClient;
+    const openClient = !mongoClient;
 
     if (openClient) {
       // initiate mongodb connection if no client given in options

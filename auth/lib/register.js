@@ -2,9 +2,9 @@
 // createUser method from
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
-import uuid from 'uuid';
 import { MongoClient } from 'mongodb';
 import { hashPassword } from './password';
+import Random from './random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
 
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
@@ -22,7 +22,7 @@ export const register = async (email, username, password, appId) => {
 
     const hashed = await hashPassword(password);
     const newUser = {
-      _id: uuid.v4(),
+      _id: Random.id(),
       createdAt: new Date(),
       username,
       emails: [{ address: email, verified: false }],
