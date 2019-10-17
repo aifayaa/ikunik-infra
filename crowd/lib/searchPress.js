@@ -31,6 +31,31 @@ export default async (pipeline, {
           user_ID: 1,
           elapsedTime: 1,
           'user.profile.username': 1,
+          hasEmail: {
+            $cond: {
+              if: {
+                $or: [
+                  { $ifNull: ['$user.email', false] },
+                  { $ifNull: ['$user.profile.email', false] },
+                  { $ifNull: ['$user.emails.0.address', false] },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          hasPhone: {
+            $cond: {
+              if: {
+                $or: [
+                  { $ifNull: ['$user.profile.phone', false] },
+                ],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          hasEndpoint: { $ne: ['$endpoints', []] },
         },
       },
       {
