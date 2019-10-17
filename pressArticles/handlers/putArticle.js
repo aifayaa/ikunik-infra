@@ -16,12 +16,13 @@ export default async (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const { articleId, categoryId, title, summary, md, pictures } = JSON.parse(event.body);
-    if (!articleId || !categoryId || !title || !summary || !md || !pictures) {
+    const { actions, articleId, categoryId, title, summary, md, pictures } = JSON.parse(event.body);
+    if (!articleId || !categoryId || !title || !summary || !md || !pictures || !actions) {
       throw new Error('mal_formed_request');
     }
     const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
+      actions,
       userId,
       appId,
       articleId,

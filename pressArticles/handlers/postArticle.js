@@ -32,6 +32,7 @@ export default async (event) => {
       sendNotifications = false,
     } = event.queryStringParameters || {};
 
+    let actions;
     let categoryId;
     let title;
     let summary;
@@ -44,7 +45,7 @@ export default async (event) => {
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
       case 'application/json': {
-        ({ categoryId, title, summary, md, pictures } = JSON.parse(event.body));
+        ({ actions, categoryId, title, summary, md, pictures } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
         break;
@@ -71,8 +72,12 @@ export default async (event) => {
         throw new Error('unhandled_content_type');
     }
 
+    if (!actions) {
+      actions = { title: '', url: '' };
+    }
+
     categoryId = forceCategoryId || categoryId;
-    if (!categoryId || !title || !summary || !html || !(md || xml) || !pictures) {
+    if (!categoryId || !title || !summary || !html || !(md || xml) || !pictures || !actions) {
       throw new Error('mal_formed_request');
     }
 
@@ -88,6 +93,7 @@ export default async (event) => {
       xml,
       pictures,
       plainText,
+      actions,
     });
     if (autoPublish === 'true') {
       results = await publishArticle(

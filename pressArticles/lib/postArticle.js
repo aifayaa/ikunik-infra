@@ -1,5 +1,6 @@
 import uuidv4 from 'uuid/v4';
 import { MongoClient } from 'mongodb';
+import { URL } from 'url';
 
 const {
   MONGO_URL,
@@ -7,6 +8,10 @@ const {
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
 } = process.env;
+
+const stringIsAValidUrl = (s) => {
+  try { return new URL(s); } catch (err) { return false; }
+};
 
 export const postArticle = async ({
   userId,
@@ -19,6 +24,7 @@ export const postArticle = async ({
   xml,
   pictures,
   plainText = '',
+  actions,
 }) => {
   if (
     typeof title !== 'string'
@@ -31,6 +37,11 @@ export const postArticle = async ({
   ) {
     throw new Error('bad arguments');
   }
+
+  if (actions.url && actions.url.length && !stringIsAValidUrl(actions.url)) {
+    throw new Error('URL error');
+  }
+
   const articleId = uuidv4();
   const draftId = uuidv4();
   let session;
@@ -49,6 +60,7 @@ export const postArticle = async ({
       userId,
       plainText,
       appIds: [appId],
+      actions,
     };
     if (xml) {
       article.xml = xml;
