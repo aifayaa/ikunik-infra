@@ -60,8 +60,8 @@ export const login = async (email, username, password, appId) => {
     });
 
     return {
-      id: user._id,
-      token,
+      userId: user._id,
+      tokenAuth: token,
     };
   } finally {
     client.close();
