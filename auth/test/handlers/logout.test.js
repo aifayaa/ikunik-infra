@@ -3,9 +3,9 @@ import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
 
 import * as lib from '../../lib/removeLoginToken';
-import handler from '../../handlers/facebookLogout';
+import handler from '../../handlers/logout';
 
-describe('handlers - facebookLogout', () => {
+describe('handlers - logout', () => {
   let stubLib;
   const event = {
     headers: {
