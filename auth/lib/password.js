@@ -1,9 +1,16 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { MongoClient } from 'mongodb';
+
+const { MONGO_URL, DB_NAME, COLL_USERS } = process.env;
 
 const bcryptRounds = 10;
 
-const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
+const sha256 = value =>
+  crypto
+    .createHash('sha256')
+    .update(value)
+    .digest('hex');
 
 // extracted from meteor accounts-password module
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
@@ -19,7 +26,7 @@ export const getPasswordString = (password) => {
   } else {
     // 'password' is an object
     if (password.algorithm !== 'sha-256') {
-      throw new Error('Invalid password hash algorithm. Only \'sha-256\' is allowed.');
+      throw new Error("Invalid password hash algorithm. Only 'sha-256' is allowed.");
     }
     password = password.digest;
   }
@@ -46,4 +53,42 @@ export const getRoundsFromBcryptHash = (hash) => {
     }
   }
   return rounds;
+};
+
+export const checkPassword = async (user, password, { mongoClient } = {}) => {
+  const formattedPassword = getPasswordString(password);
+  const hash = user.services.password.bcrypt;
+  const hashRounds = getRoundsFromBcryptHash(hash);
+
+  if (!(await bcrypt.compare(formattedPassword, hash))) {
+    throw new Error('incorrect_password');
+  } else if (hash && bcryptRounds !== hashRounds) {
+    // The password checks out, but the user's bcrypt hash needs to be updated.
+
+    const openClient = !mongoClient;
+
+    if (openClient) {
+      // initiate mongodb connection if no client given in options
+      mongoClient = await MongoClient.connect(MONGO_URL, {
+        useNewUrlParser: true,
+      });
+    }
+    try {
+      await mongoClient
+        .db(DB_NAME)
+        .collection(COLL_USERS)
+        .updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              'services.password.bcrypt': await bcrypt.hash(formattedPassword, bcryptRounds),
+            },
+          },
+        );
+    } finally {
+      if (openClient) {
+        mongoClient.close();
+      }
+    }
+  }
 };
