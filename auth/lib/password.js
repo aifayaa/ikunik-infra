@@ -65,7 +65,7 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
   } else if (hash && bcryptRounds !== hashRounds) {
     // The password checks out, but the user's bcrypt hash needs to be updated.
 
-    const openClient = !mongoClient;
+    const openClient = !!mongoClient;
 
     if (openClient) {
       // initiate mongodb connection if no client given in options
