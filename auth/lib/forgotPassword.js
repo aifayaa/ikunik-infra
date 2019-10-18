@@ -22,7 +22,10 @@ export const forgotPassword = async (email, urlScheme, appId) => {
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
     const [user, app] = await Promise.all([
       usersCollection.findOne(
-        { emails: { $elemMatch: { address: email } } },
+        {
+          'emails.address': email,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
         {
           projection: { _id: true, emails: true, 'profile.username': true, 'services.password.reset': true },
         },
@@ -30,8 +33,8 @@ export const forgotPassword = async (email, urlScheme, appId) => {
       appsCollection.findOne({ _id: appId }, { projection: { _id: true, builds: true } }),
     ]);
 
-    if (!user) throw new Error('email_not_found');
     if (!app) throw new Error('app_not_found');
+    if (!user) throw new Error('email_not_found');
     if ((new Date() - get(user, 'services.password.reset.when', 0)) < RETRY_TIMEOUT) {
       throw new Error('token_already_sent');
     }
