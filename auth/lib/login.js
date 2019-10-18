@@ -20,12 +20,13 @@ export const login = async (email, username, password, appId) => {
     const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
     if (!app) throw new Error('app_not_found');
 
-    let user;
+    const selector = { appIds: { $elemMatch: { $eq: appId } } };
     if (email) {
-      user = await usersCollection.findOne({ 'emails.address': email });
+      selector['emails.address'] = email;
     } else {
-      user = await usersCollection.findOne({ username });
+      selector.username = username;
     }
+    const user = await usersCollection.findOne(selector);
     if (!user) {
       throw new Error('user_not_found');
     }
@@ -33,31 +34,30 @@ export const login = async (email, username, password, appId) => {
     if (
       !user.services ||
       !user.services.password ||
-      !(user.services.password.bcrypt || user.services.password.srp)
+      !user.services.password.bcrypt
     ) {
       throw new Error('User has no password set"');
     }
 
     // throw error if check fail
-    await checkPassword(
-      user,
-      password,
-      { mongoClient: client },
-    );
+    await checkPassword(user, password, { mongoClient: client });
 
     const token = Random.secret();
 
-    usersCollection.updateOne({
-      _id: user._id,
-      appIds: { $elemMatch: { $eq: appId } },
-    }, {
-      $addToSet: {
-        'services.resume.loginTokens': {
-          hashedToken: hashLoginToken(token),
-          when: new Date(),
+    usersCollection.updateOne(
+      {
+        _id: user._id,
+        appIds: { $elemMatch: { $eq: appId } },
+      },
+      {
+        $addToSet: {
+          'services.resume.loginTokens': {
+            hashedToken: hashLoginToken(token),
+            when: new Date(),
+          },
         },
       },
-    });
+    );
 
     return {
       userId: user._id,
