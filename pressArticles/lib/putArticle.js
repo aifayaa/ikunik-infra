@@ -32,10 +32,6 @@ export const putArticle = async ({
     throw new Error('bad arguments');
   }
 
-  if (typeof actions !== 'object') {
-    throw new Error('bad arguments');
-  }
-
   const draftId = uuidv4();
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
   try {
