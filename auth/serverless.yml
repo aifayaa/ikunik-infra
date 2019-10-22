@@ -29,14 +29,40 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
-  facebookLogout:
-    handler: handlers/facebookLogout.default
+  logout:
+    handler: handlers/logout.default
     events:
       - http:
           path: auth/facebook/logout
           method: post
           cors: true
-  
+      - http:
+          path: auth/logout
+          method: post
+          cors: true
+
+  login:
+    handler: handlers/login.default
+    events:
+      - http:
+          path: auth/login
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  register:
+    handler: handlers/register.default
+    events:
+      - http:
+          path: auth/register
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   forgotPassword:
     handler: handlers/forgotPassword.default
     events:

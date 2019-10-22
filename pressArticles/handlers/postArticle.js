@@ -1,5 +1,4 @@
 import removeMd from 'remove-markdown';
-
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
@@ -12,6 +11,7 @@ import { doSendNotifications } from '../lib/sendNotifications';
 import { getArticle } from '../lib/getArticle';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
+import checkActions from '../lib/checks/checkActions';
 
 const permKey = 'pressArticles_all';
 
@@ -32,6 +32,7 @@ export default async (event) => {
       sendNotifications = false,
     } = event.queryStringParameters || {};
 
+    let actions;
     let categoryId;
     let title;
     let summary;
@@ -44,7 +45,7 @@ export default async (event) => {
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
       case 'application/json': {
-        ({ categoryId, title, summary, md, pictures } = JSON.parse(event.body));
+        ({ actions, categoryId, title, summary, md, pictures } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
         break;
@@ -71,10 +72,23 @@ export default async (event) => {
         throw new Error('unhandled_content_type');
     }
 
+    if (!actions) {
+      actions = [];
+    }
+
     categoryId = forceCategoryId || categoryId;
-    if (!categoryId || !title || !summary || !html || !(md || xml) || !pictures) {
+    if (
+      !categoryId
+      || !title
+      || !summary
+      || !html
+      || !(md || xml)
+      || !pictures
+    ) {
       throw new Error('mal_formed_request');
     }
+
+    checkActions(actions);
 
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
@@ -88,6 +102,7 @@ export default async (event) => {
       xml,
       pictures,
       plainText,
+      actions,
     });
     if (autoPublish === 'true') {
       results = await publishArticle(

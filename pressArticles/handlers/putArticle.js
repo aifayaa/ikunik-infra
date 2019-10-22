@@ -3,6 +3,7 @@ import mdToHtml from '../lib/mdParsing/mdToHtml';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { putArticle } from '../lib/putArticle';
+import checkActions from '../lib/checks/checkActions';
 
 const permKey = 'pressArticles_all';
 
@@ -16,12 +17,30 @@ export default async (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const { articleId, categoryId, title, summary, md, pictures } = JSON.parse(event.body);
-    if (!articleId || !categoryId || !title || !summary || !md || !pictures) {
+    const bodyParsed = JSON.parse(event.body);
+    const { articleId, categoryId, title, summary, md, pictures } = bodyParsed;
+    let { actions } = bodyParsed;
+
+    if (!actions) {
+      actions = [];
+    }
+
+    if (
+      !articleId
+      || !categoryId
+      || !title
+      || !summary
+      || !md
+      || !pictures
+    ) {
       throw new Error('mal_formed_request');
     }
+
+    checkActions(actions);
+
     const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
+      actions,
       userId,
       appId,
       articleId,

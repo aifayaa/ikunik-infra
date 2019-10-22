@@ -10,10 +10,7 @@ export default async (event) => {
     const token = headers['X-Auth-Token'] || headers['x-auth-token'];
     const userId = headers['X-User-Id'] || headers['x-user-id'];
 
-    [
-      token,
-      userId,
-    ].forEach((item) => {
+    [token, userId].forEach((item) => {
       if (!item) throw new Error('missing_argument');
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
@@ -23,10 +20,16 @@ export default async (event) => {
     await removeLoginToken(userId, token);
 
     /* get User in db or create new one if not exists */
-    return response({ code: 200, body: { message: 'logout_success' } });
+    return response({
+      code: 200,
+      body: { status: 'success', data: { message: "You've been logged out!" } },
+    });
   } catch (e) {
     let code;
     switch (e.message) {
+      case 'token_user_not_found':
+        code = 404;
+        break;
       case 'missing_argument':
       case 'wrong_argument_type':
         code = 400;

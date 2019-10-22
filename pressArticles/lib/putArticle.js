@@ -8,16 +8,17 @@ const {
 } = process.env;
 
 export const putArticle = async ({
-  userId,
+  actions,
   appId,
   articleId,
   categoryId,
-  title,
-  summary,
   html,
   md,
   pictures,
   plainText = '',
+  summary,
+  title,
+  userId,
 }) => {
   if (
     typeof title !== 'string'
@@ -51,6 +52,7 @@ export const putArticle = async ({
       text: html,
       title,
       userId,
+      actions,
     };
 
     await client.db(DB_NAME)

@@ -31,6 +31,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     }
 
     const {
+      actions,
       title,
       summary,
       text,
@@ -64,6 +65,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
             publishedBy: userId,
             pictures,
             publicationDate,
+            actions,
           },
         },
         opts,
