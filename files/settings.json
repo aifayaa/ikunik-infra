@@ -1,0 +1,28 @@
+{
+  "prod": {
+    "aws": {
+      "region": "us-east-1",
+      "credentials": {
+        "accessKeyId": "AKIAI3RKLM74AYIJIAZQ",
+        "secretAccessKey": "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"
+      }
+    },
+    "MONGO_URL": "mongodb://ludovic:10c29288104a9644d2af3e8948ecfb1b@crowdaa-shard-00-00-vtd2k.mongodb.net:27017,crowdaa-shard-00-01-vtd2k.mongodb.net:27017,crowdaa-shard-00-02-vtd2k.mongodb.net:27017/crowdaaDev?ssl=true&replicaSet=crowdaa-shard-0&authSource=admin",
+    "REACT_APP_API_URL": "https://api.aws.crowdaa.com/v1",
+    "REACT_APP_AUTH_URL": "https://auth.crowdaa.com",
+    "S3_APPS_RESSOURCES": "crowdaa-apps-resources"
+  },
+  "dev": {
+    "aws": {
+      "region": "us-east-1",
+      "credentials": {
+        "accessKeyId": "AKIAI3RKLM74AYIJIAZQ",
+        "secretAccessKey": "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"
+      }
+    },
+    "MONGO_URL": "mongodb://scripts:755622a0aa2211e9bf8993ca4e4276f0@mongodev.aws.crowdaa.com:27017/crowdaaDev",
+    "REACT_APP_API_URL": "https://dev-api.aws.crowdaa.com/v1",
+    "REACT_APP_AUTH_URL": "https://auth-dev.crowdaa.com",
+    "S3_APPS_RESSOURCES": "crowdaa-apps-resources-dev"
+  }
+}

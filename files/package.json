@@ -11,11 +11,13 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@cruglobal/serverless-merge-config": "^1.1.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-plugin-source-map-support": "^2.0.1",
     "babel-preset-env": "^1.7.0",
     "serverless": "^1.38.0",
+    "serverless-export-env": "^1.2.0",
     "serverless-webpack": "^5.2.0",
     "webpack": "^4.29.5",
     "webpack-node-externals": "^1.7.2"

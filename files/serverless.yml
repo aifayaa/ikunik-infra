@@ -16,12 +16,11 @@ provider:
         - 's3:*'
       Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
   environment:
-    DB_NAME: crowdaaDev
+    $<<:
+      - ${file(../env.yml)}
+      - ${file(./env.${self:provider.stage}.yml)}
     S3_BUCKET: slsupload-${self:provider.stage}
     S3_PICTURES_BUCKET: crowdaa-pictures-${self:provider.stage}
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
-    PICTURES_COLL: pictures
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -48,6 +47,8 @@ functions:
     handler: handlers/onFileCreated.default
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
+  - serverless-export-env
   - serverless-webpack
 
 resources:
