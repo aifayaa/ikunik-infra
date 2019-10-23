@@ -26,7 +26,7 @@ export default async (event) => {
     } = JSON.parse(event.body);
     const collection = getCollectionFromContentType(type);
     const info = await getUploadUrl(userId, appId, name, type, length, metadata, collection);
-    return new Promise(resolve => resolve(response({ code: 200, message: info })));
+    return new Promise(resolve => resolve(response({ code: 200, body: info })));
   } catch (e) {
     return new Promise(resolve => resolve(response({ code: 500, message: e.message })));
   }

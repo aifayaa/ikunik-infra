@@ -10,7 +10,7 @@ provider:
     - Effect: 'Allow'
       Action:
         - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*'
+      Resource: 'arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}/*'
     - Effect: 'Allow'
       Action:
         - 's3:*'
@@ -19,7 +19,7 @@ provider:
     $<<:
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.yml)}
-    S3_BUCKET: slsupload-${self:provider.stage}
+    S3_UPLOAD_BUCKET: slsupload-${self:provider.stage}
     S3_PICTURES_BUCKET: crowdaa-pictures-${self:provider.stage}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
@@ -58,7 +58,7 @@ resources:
       DependsOn: OnFileCreatedLambdaPermissionSlsUploadS3
       Properties:
         AccessControl: PublicRead
-        BucketName: ${self:provider.environment.S3_BUCKET}
+        BucketName: ${self:provider.environment.S3_UPLOAD_BUCKET}
         CorsConfiguration:
           CorsRules:
             - AllowedOrigins:
@@ -87,7 +87,7 @@ resources:
         Action: lambda:InvokeFunction
         SourceAccount:
           Ref: AWS::AccountId
-        SourceArn: arn:aws:s3:::${self:provider.environment.S3_BUCKET}
+        SourceArn: arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}
 
 custom:
   webpack:

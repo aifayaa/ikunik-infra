@@ -7,7 +7,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const { DB_NAME, COLL_VIDEOS, MONGO_URL, S3_BUCKET } = process.env;
+const { DB_NAME, COLL_VIDEOS, MONGO_URL, S3_UPLOAD_BUCKET } = process.env;
 
 export default async (userId, appId, filename, type, length, metadata, collection) => {
   /* Preparing s3 parameters to get an upload link */
@@ -15,7 +15,7 @@ export default async (userId, appId, filename, type, length, metadata, collectio
   const key = `${dirPrefix}${uuidv4()}-${filename}`;
   const id = uuidv4();
   const s3Params = {
-    Bucket: S3_BUCKET,
+    Bucket: S3_UPLOAD_BUCKET,
     Key: key,
     ContentType: type,
     ACL: 'public-read',
