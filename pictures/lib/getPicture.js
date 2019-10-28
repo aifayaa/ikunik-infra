@@ -1,30 +1,28 @@
 /* eslint-disable no-await-in-loop */
 import { MongoClient } from 'mongodb';
 
-const INTERVAL = 1000;
+const {
+  MONGO_URL,
+  DB_NAME,
+  COLL_PICTURES,
+} = process.env;
 
-export default async (id, appId, { waitCreation }) => {
+export default async (id, appId, { isPublished }) => {
   let client;
   try {
-    client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-    let picture = null;
-    let loop = false;
-    do {
-      picture = await client.db(process.env.DB_NAME)
-        .collection(process.env.COLL_PICTURES)
-        .findOne({
-          _id: id,
-          appIds: { $elemMatch: { $eq: appId } },
-          isPublished: true,
-        });
-      if (waitCreation === 'true') {
-        loop = !picture;
-        await new Promise((resolve) => {
-          setTimeout(resolve, INTERVAL);
-        });
-      }
-    } while (loop);
-    return picture;
+    const $find = {
+      _id: id,
+      appIds: { $elemMatch: { $eq: appId } },
+    };
+
+    if (typeof isPublished !== 'undefined') {
+      $find.isPublished = isPublished;
+    }
+
+    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    return await client.db(DB_NAME)
+      .collection(COLL_PICTURES)
+      .findOne($find);
   } finally {
     client.close();
   }

@@ -118,8 +118,15 @@ export default async (bucket, object, file) => {
       views: 0,
       selectedGenres: [],
       isPublished: true,
-      status: uploadStatus.READY,
+      status: uploadStatus.ENCODING,
     });
+
+    await client.db(DB_NAME)
+      .collection(collection)
+      .updateOne(
+        { _id: document._id },
+        { $set: pictureDoc },
+      );
 
     const resParams = resizeParams(JSON.parse(opts));
     for (let i = 0; i < resParams.length; i += 1) {
@@ -134,6 +141,8 @@ export default async (bucket, object, file) => {
       pictureDoc[`${params.docField}Filename`] = key;
       pictureDoc[`${params.docField}Url`] = url;
     }
+
+    pictureDoc.status = uploadStatus.READY;
 
     await client.db(DB_NAME)
       .collection(collection)

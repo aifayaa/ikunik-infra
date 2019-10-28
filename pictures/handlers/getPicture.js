@@ -4,8 +4,7 @@ export default async (event, _context, callback) => {
   try {
     const { id } = event.pathParameters;
     const { appId } = event.requestContext.authorizer;
-    const { waitCreation } = event.queryStringParameters || {};
-    const results = await getPicture(id, appId, { waitCreation });
+    const results = await getPicture(id, appId, event.queryStringParameters || {});
     if (!results) throw new Error('picture_not_found');
     const response = {
       statusCode: 200,

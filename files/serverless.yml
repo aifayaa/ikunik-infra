@@ -45,6 +45,7 @@ functions:
 
   onFileCreated:
     handler: handlers/onFileCreated.default
+    timeout: 600 # timeout set to 10 minutes for image/video encoding
 
 plugins:
   - '@cruglobal/serverless-merge-config'
