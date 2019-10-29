@@ -33,37 +33,36 @@ export default async (userId, appId, mediumType, mediumId) => {
     switch (mediumType) {
       case 'audio':
         mediaCol = COLL_AUDIOS;
-        medium = await client
+        ({ value: medium } = await client
           .db(DB_NAME)
           .collection(mediaCol)
-          .findOneAndUpdate(query, modifier);
+          .findOneAndUpdate(query, modifier));
         break;
       case 'video':
         mediaCol = COLL_VIDEOS;
-        medium = await client
+        ({ value: medium } = await client
           .db(DB_NAME)
           .collection(mediaCol)
-          .findOneAndUpdate(query, modifier);
+          .findOneAndUpdate(query, modifier));
         break;
       case 'all':
         mediaCol = COLL_AUDIOS;
-        medium = await client
+        ({ value: medium } = await client
           .db(DB_NAME)
           .collection(mediaCol)
-          .findOneAndUpdate(query, modifier);
+          .findOneAndUpdate(query, modifier));
         if (!medium) {
           mediaCol = COLL_VIDEOS;
-          medium = await client
+          ({ value: medium } = await client
             .db(DB_NAME)
             .collection(mediaCol)
-            .findOneAndUpdate(query, modifier);
+            .findOneAndUpdate(query, modifier));
         }
         break;
       default:
         throw new Error('wrong type');
     }
 
-    medium = medium.value;
     if (!medium) throw new Error('medium not found');
     const { distribution } = medium;
 
