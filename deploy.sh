@@ -17,6 +17,9 @@ sls deploy --stage $1 --region $2
 cd ../account
 npm i
 sls deploy --stage $1 --region $2
+cd ../auth
+npm i
+sls deploy --stage $1 --region $2
 cd ../maintenance
 npm i
 sls deploy --stage $1 --region $2
@@ -93,6 +96,9 @@ cd ../tokenPackages
 npm i
 sls deploy --stage $1 --region $2
 cd ../users
+npm i
+sls deploy --stage $1 --region $2
+cd ../userMetrics
 npm i
 sls deploy --stage $1 --region $2
 
