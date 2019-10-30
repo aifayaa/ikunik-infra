@@ -11,6 +11,7 @@ const {
   MONGO_URL,
 } = process.env;
 
+/* Encoding parameters */
 const HLSVideos = [
   { vPath: 'hls-2M', presetId: '1351620000001-200010' },
   { vPath: 'hls-1.5M', presetId: '1351620000001-200020' },
@@ -20,29 +21,6 @@ const HLSVideos = [
 ];
 
 export default async (bucket, object, file) => {
-  console.log(bucket, object, file);
-  // { name: 'slsupload-dev',
-  // ownerIdentity: { principalId: 'A3QQWPM5AC1W26' },
-  // arn: 'arn:aws:s3:::slsupload-dev' }
-
-  // { key: 'eb3bfd48-2d07-4b1c-8227-e6dc0994d39c-SampleVideo_1280x720_1mb.mp4',
-  // size: 1055736,
-  // eTag: 'd55bddf8d62910879ed9f605522149a8',
-  // sequencer: '005DA955FFC7917EC2' }
-
-  // { AcceptRanges: 'bytes',
-  // LastModified: 2019-10-18T06:04:48.000Z,
-  // ContentLength: 1055736,
-  // ETag: '"d55bddf8d62910879ed9f605522149a8"',
-  // CacheControl: 'no-cache',
-  // ContentType: 'video/mp4',
-  // Metadata:
-  //  { opts: '{"keepRatio":true}',
-  //    appid: 'crowdaa_app_id',
-  //    userid: 'dXZifsqv7i8Edt8nb',
-  //    id: '7c51314b-397f-4856-a7ca-76c68eacf156' },
-  // Body: <Buffer 00 00 00 20 66 74 79 70 69 73 6f 6d ... > }
-
   const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
@@ -59,6 +37,7 @@ export default async (bucket, object, file) => {
   }
 
   try {
+    /* Get existing document and check it exists */
     const collection = getCollectionFromContentType(type);
     const document = await client.db(DB_NAME)
       .collection(collection)
@@ -70,6 +49,7 @@ export default async (bucket, object, file) => {
       throw new Error('document_not_found');
     }
 
+    /* Check content type match */
     if (type !== file.ContentType) {
       await client.db(DB_NAME)
         .collection(collection)
@@ -80,60 +60,40 @@ export default async (bucket, object, file) => {
       throw new Error('content_type_mismatch');
     }
 
+    /* Update video document with more info and status */
     const videoDoc = Object.assign(document, {
       _id: id,
-      // "singer" : "dfbk",
-      // "url" : "http://music-2068.kxcdn.com/VideoStorage/c7j4ic7FJm6xdEMLL-La_bande_de_Kev_Adams___C_a__vous___23_03_2017.mp4",
-      // "filename" : "La_bande_de_Kev_Adams___C_a__vous___23_03_2017.mp4",
-      // "videoCompressionStatus" : true,
-      // "collection" : "video",
-      // "isLinked" : true,
       title: title || '',
       profil_ID: null,
       views: 0,
       likes: 0,
-      // "recorded" : "wdfkj",
       project_ID: null,
-      // "distribution" : "3freePerDay",
-      // "isLinkedToAudioID" : "knm65ar2WkGirF24R",
-      // "video480Uploaded" : true,
-      // "fileObj_ID" : "c7j4ic7FJm6xdEMLL",
-      // "video480Url" : "http://music-2068.kxcdn.com/Video480Storage/87ybJMsaCK9N9NAfp-La_bande_de_Kev_Adams___C_a__vous___23_03_2017.mp4",
-      // "price" : 4,
-      // author: null,
+      distribution: 'freeStream',
       feat: null,
-      // clients: [],
       releaseDate: null,
-
-      // PICTURE UPLOADED
-      // description: '',
-      // mediumFilename: null,
-      // mediumFileObj_ID: null,
-      // mediumUrl: null,
-      // pictureFilename: object.key,
-      // pictureFileObj_ID: null,
-      // pictureUrl: null,
-      // thumbFilename: null,
-      // thumbFileObj_ID: null,
-      // thumbUrl: null,
-      // selectedGenres: [],
-      // isPublished: true,
-
       status: uploadStatus.ENCODING,
     });
 
+    await client.db(DB_NAME)
+      .collection(collection)
+      .updateOne(
+        { _id: document._id },
+        { $set: videoDoc },
+      );
+
+    /* Proceed to encoding */
     const elasticTranscoder = new ElasticTranscoder(settings);
     const videoPath = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
-    const { dir, name } = path.parse(videoPath);
-    const outputPath = `${dir && `${dir}/`}${name}`;
+    const { name } = path.parse(videoPath);
     const params = {
       PipelineId: EL_PIPELINE,
-      Input: { Key: `VideoStorage/${videoPath}` },
-      OutputKeyPrefix: `videos/${outputPath}/`,
+      Input: { Key: videoPath },
+      OutputKeyPrefix: `videos/${name}/`,
       Outputs: HLSVideos.map(({ vPath, presetId }) => ({
         Key: `${vPath}/`,
         PresetId: presetId,
         SegmentDuration: '10',
+        ThumbnailPattern: '{count}',
       })),
       Playlists: [
         {
@@ -142,17 +102,11 @@ export default async (bucket, object, file) => {
           OutputKeys: HLSVideos.map(({ vPath }) => `${vPath}/`),
         },
       ],
+      UserMetadata: {
+        id,
+      },
     };
-    await elasticTranscoder.createJob(params).promise();
-
-    // pictureDoc[`${params.docField}Filename`] = key;
-    // pictureDoc[`${params.docField}Url`] = url;
-    await client.db(DB_NAME)
-      .collection(collection)
-      .updateOne(
-        { _id: document._id },
-        { $set: videoDoc },
-      );
+    elasticTranscoder.createJob(params).promise();
   } finally {
     client.close();
   }
