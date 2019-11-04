@@ -7,7 +7,12 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const { DB_NAME, COLL_VIDEOS, MONGO_URL, S3_UPLOAD_BUCKET } = process.env;
+const {
+  COLL_VIDEOS,
+  DB_NAME,
+  MONGO_URL,
+  S3_UPLOAD_BUCKET,
+} = process.env;
 
 export default async (userId, appId, filename, type, length, metadata, collection) => {
   /* Preparing s3 parameters to get an upload link */
@@ -19,8 +24,6 @@ export default async (userId, appId, filename, type, length, metadata, collectio
     Key: key,
     ContentType: type,
     ACL: 'public-read',
-    // Following line was commented.. should we remove it ?
-    // ContentLength: length,
     Metadata: {
       ...metadata,
       id,
@@ -42,6 +45,11 @@ export default async (userId, appId, filename, type, length, metadata, collectio
     isPublished: false,
     status: uploadStatus.UPLOADING,
   };
+
+  if (collection === COLL_VIDEOS) {
+    fileDoc.distribution = 'freeStream';
+  }
+
   try {
     await client.db(DB_NAME).collection(collection).insertOne(fileDoc);
   } finally {
@@ -51,6 +59,8 @@ export default async (userId, appId, filename, type, length, metadata, collectio
   /* Return the document ID and the upload url */
   return {
     id,
+    // @TODO: use createPresignedPost instead of getSignedUrl
+    //  -> so we can use Content-Length header
     url: s3.getSignedUrl('putObject', s3Params),
   };
 };

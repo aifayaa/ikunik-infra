@@ -5,9 +5,10 @@ const {
   COLL_VIDEOS,
   DB_NAME,
   MONGO_URL,
+  STAGE,
 } = process.env;
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const {
     Message: message,
   } = event.Records[0].Sns;
@@ -24,12 +25,13 @@ export default async (event, _context, callback) => {
   };
 
   try {
-    const { state, userMetadata } = JSON.parse(message);
+    const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);
+    const { id, name } = userMetadata;
 
     const document = await client.db(DB_NAME)
       .collection(COLL_VIDEOS)
       .findOne({
-        _id: userMetadata.id,
+        _id: id,
       });
 
     if (!document) {
@@ -40,15 +42,24 @@ export default async (event, _context, callback) => {
       await client.db(DB_NAME)
         .collection(COLL_VIDEOS)
         .updateOne(
-          { _id: userMetadata.id },
+          { _id: id },
           { $set: { status: uploadStatus.ENCODING_ERROR } },
         );
       throw new Error('encoding_error');
     }
 
+    // this should be done in a better way ..
+    const thumbFilename = '00001.png';
+    const thumbUrl = `https://crowdaa-pictures-${STAGE}.s3.amazonaws.com/${outputKeyPrefix}${thumbFilename}`;
+    const url = `https://s3.amazonaws.com/video-stream-${STAGE}.crowdaa.com/${outputKeyPrefix}master.m3u8`;
     const videoDoc = {
+      filename: name,
       isPublished: true,
       status: uploadStatus.READY,
+      thumbFileObj_ID: null,
+      thumbFilename,
+      thumbUrl,
+      url,
     };
 
     await client.db(DB_NAME)
@@ -67,6 +78,6 @@ export default async (event, _context, callback) => {
     });
   } finally {
     client.close();
-    callback(null, response);
   }
+  return response;
 };

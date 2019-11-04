@@ -68,7 +68,6 @@ export default async (bucket, object, file) => {
       views: 0,
       likes: 0,
       project_ID: null,
-      distribution: 'freeStream',
       feat: null,
       releaseDate: null,
       status: uploadStatus.ENCODING,
@@ -104,6 +103,7 @@ export default async (bucket, object, file) => {
       ],
       UserMetadata: {
         id,
+        name,
       },
     };
     elasticTranscoder.createJob(params).promise();

@@ -15,7 +15,7 @@ export default async (event) => {
   /* Check upload permissions */
   const perms = JSON.parse(event.requestContext.authorizer.perms);
   if (!checkPerms(permKey, perms)) {
-    return new Promise(resolve => resolve(response({ code: 403, message: 'access_forbidden' })));
+    return response({ code: 403, message: 'access_forbidden' });
   }
   try {
     const {
@@ -26,8 +26,8 @@ export default async (event) => {
     } = JSON.parse(event.body);
     const collection = getCollectionFromContentType(type);
     const info = await getUploadUrl(userId, appId, name, type, length, metadata, collection);
-    return new Promise(resolve => resolve(response({ code: 200, body: info })));
+    return response({ code: 200, body: info });
   } catch (e) {
-    return new Promise(resolve => resolve(response({ code: 500, message: e.message })));
+    return response({ code: 500, message: e.message });
   }
 };
