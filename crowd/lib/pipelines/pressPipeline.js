@@ -111,27 +111,25 @@ export default (userId, appId, {
     useLocationPipeline(userId, appId, coordinates, range, articleId) :
     useClassicPipeline(userId, appId, articleId);
 
-  pipeline.push(
-    {
-      $lookup: {
-        from: COLL_PUSH_NOTIFICATIONS,
-        localField: 'user_ID',
-        foreignField: 'userId',
-        as: 'endpoints',
+  pipeline.push({
+    $lookup: {
+      from: COLL_PUSH_NOTIFICATIONS,
+      let: {
+        userId: '$user_ID',
       },
-    },
-    {
-      $addFields: {
-        endpoints: {
-          $filter: {
-            input: '$endpoints',
-            as: 'endpoint',
-            cond: { $in: [appId, '$$endpoint.appIds'] },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ['$_id', '$$userId'],
+            },
+            appId,
           },
         },
-      },
+      ],
+      as: 'endpoints',
     },
-  );
+  });
 
   if (search) {
     pipeline.push({
