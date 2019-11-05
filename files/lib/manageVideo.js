@@ -3,7 +3,6 @@ import path from 'path';
 import { MongoClient } from 'mongodb';
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
-import settings from '../settings.json';
 
 const {
   DB_NAME,
@@ -81,7 +80,7 @@ export default async (bucket, object, file) => {
       );
 
     /* Proceed to encoding */
-    const elasticTranscoder = new ElasticTranscoder(settings);
+    const elasticTranscoder = new ElasticTranscoder();
     const videoPath = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
     const { name } = path.parse(videoPath);
     const params = {

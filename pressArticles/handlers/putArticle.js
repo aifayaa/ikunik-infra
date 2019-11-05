@@ -18,7 +18,7 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
     const bodyParsed = JSON.parse(event.body);
-    const { articleId, categoryId, title, summary, md, pictures, medias } = bodyParsed;
+    const { articleId, categoryId, title, summary, md, pictures, media } = bodyParsed;
     let { actions } = bodyParsed;
 
     if (!actions) {
@@ -31,7 +31,7 @@ export default async (event) => {
       || !title
       || !summary
       || !md
-      || (!pictures && !medias)
+      || (!pictures && !media)
     ) {
       throw new Error('mal_formed_request');
     }
@@ -50,7 +50,7 @@ export default async (event) => {
       html: mdToHtml(md),
       md,
       pictures,
-      medias,
+      media,
       plainText: removeMd(md),
     });
     return response({ code: 200, body: results });

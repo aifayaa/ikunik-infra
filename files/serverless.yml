@@ -55,9 +55,6 @@ functions:
       - s3:
           bucket: ${self:provider.environment.S3_UPLOAD_BUCKET}
           event: s3:ObjectCreated:*
-          # rules:
-          #   - prefix: uploads/
-          #   - suffix: .jpg
           existing: true
 
   onVideoEncoded:

@@ -38,7 +38,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       md,
       _id,
       pictures,
-      medias,
+      media,
       plainText,
     } = draft;
 
@@ -55,8 +55,8 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       actions,
     };
 
-    if (typeof medias.length !== 'undefined' && medias.length) {
-      $set.medias = medias;
+    if (typeof media.length !== 'undefined' && media.length) {
+      $set.media = media;
     } else if (typeof pictures.length !== 'undefined' && pictures.length) {
       $set.pictures = pictures;
     } else {
