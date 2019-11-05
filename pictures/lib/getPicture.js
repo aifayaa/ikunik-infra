@@ -7,6 +7,7 @@ const {
   COLL_PICTURES,
 } = process.env;
 
+// TODO: add a check to user permission to access pictures not published
 export default async (id, appId, { isPublished }) => {
   let client;
   try {

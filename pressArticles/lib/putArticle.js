@@ -15,6 +15,7 @@ export const putArticle = async ({
   html,
   md,
   pictures,
+  medias,
   plainText = '',
   summary,
   title,
@@ -27,7 +28,7 @@ export const putArticle = async ({
     || typeof summary !== 'string'
     || typeof html !== 'string'
     || typeof md !== 'string'
-    || !Array.isArray(pictures)
+    || (!Array.isArray(pictures) && !Array.isArray(medias))
   ) {
     throw new Error('bad arguments');
   }
@@ -46,7 +47,6 @@ export const putArticle = async ({
       createdAt: new Date(),
       isPublished: false,
       md,
-      pictures,
       plainText,
       summary,
       text: html,
@@ -54,6 +54,12 @@ export const putArticle = async ({
       userId,
       actions,
     };
+    if (medias) {
+      draft.medias = medias;
+    }
+    if (pictures) {
+      draft.pictures = pictures;
+    }
 
     await client.db(DB_NAME)
       .collection(COLL_PRESS_DRAFTS)
