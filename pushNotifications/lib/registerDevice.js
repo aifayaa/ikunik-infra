@@ -67,13 +67,11 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
         SNSUserData: params.CustomUserData,
         userId: userId || null,
         modifiedAt: new Date(),
-      },
-      $addToSet: {
-        appIds: appId,
+        appId,
       },
     };
     return await collection.updateOne(
-      pick(modifier.$set, 'deviceUUID', 'platform', 'userId'),
+      pick(modifier.$set, 'deviceUUID', 'platform', 'appId'),
       modifier,
       { upsert: true },
     );
