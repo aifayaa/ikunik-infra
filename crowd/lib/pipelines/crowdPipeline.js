@@ -228,19 +228,20 @@ export default (userId, appId, {
   pipeline.push({
     $lookup: {
       from: COLL_PUSH_NOTIFICATIONS,
-      localField: 'user_ID',
-      foreignField: 'userId',
-      as: 'endpoints',
-    },
-  }, {
-    $addFields: {
-      endpoints: {
-        $filter: {
-          input: '$endpoints',
-          as: 'endpoint',
-          cond: { $in: [appId, '$$endpoint.appIds'] },
-        },
+      let: {
+        userId: '$user_ID',
       },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ['$_id', '$$userId'],
+            },
+            appId,
+          },
+        },
+      ],
+      as: 'endpoints',
     },
   });
 

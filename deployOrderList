@@ -1,10 +1,12 @@
 api-v1
 apps
 account
+auth
 maintenance
 ssr
 press
 
+userMetrics
 audios
 authorize
 banners

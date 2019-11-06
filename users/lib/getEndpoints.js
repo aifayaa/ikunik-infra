@@ -8,7 +8,7 @@ export default async (userId, appId) => {
       .collection(process.env.COLL_PUSH_NOTIFICATIONS)
       .find({
         userId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appId,
       })
       .toArray();
     return endpoints;

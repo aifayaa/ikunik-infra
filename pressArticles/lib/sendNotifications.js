@@ -52,7 +52,7 @@ export const doSendNotifications = async (title, message, appId, extraData) => {
       .db(DB_NAME)
       .collection(COLL_PUSH_NOTIFICATIONS)
       .find(
-        { appIds: { $elemMatch: { $eq: appId } } },
+        { appId },
         { projection: { _id: 1, Platform: 1, EndpointArn: 1 } },
       ).toArray();
     const sendNotifications = queue(doBlastNotification, 50);
