@@ -15,7 +15,7 @@ export const putArticle = async ({
   html,
   md,
   pictures,
-  media,
+  videos,
   plainText = '',
   summary,
   title,
@@ -28,7 +28,7 @@ export const putArticle = async ({
     || typeof summary !== 'string'
     || typeof html !== 'string'
     || typeof md !== 'string'
-    || (!Array.isArray(pictures) && !Array.isArray(media))
+    || (!Array.isArray(pictures) && !Array.isArray(videos))
   ) {
     throw new Error('bad arguments');
   }
@@ -54,8 +54,8 @@ export const putArticle = async ({
       userId,
       actions,
     };
-    if (media) {
-      draft.media = media;
+    if (videos) {
+      draft.videos = videos;
     }
     if (pictures) {
       draft.pictures = pictures;

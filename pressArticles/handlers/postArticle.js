@@ -28,6 +28,7 @@ export default async (event) => {
     const {
       forceCategoryId,
       forcePictures,
+      forceVideos,
       autoPublish,
       sendNotifications = false,
     } = event.queryStringParameters || {};
@@ -40,13 +41,13 @@ export default async (event) => {
     let md;
     let xml;
     let pictures;
-    let media;
+    let videos;
     let plainText;
 
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
       case 'application/json': {
-        ({ actions, categoryId, title, summary, md, pictures, media } = JSON.parse(event.body));
+        ({ actions, categoryId, title, summary, md, pictures, videos } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
         break;
@@ -64,7 +65,13 @@ export default async (event) => {
           } catch (e) {
             pictures = [forcePictures];
           }
-          media = pictures;
+        }
+        if (forceVideos) {
+          try {
+            videos = JSON.parse(forceVideos);
+          } catch (e) {
+            videos = [forceVideos];
+          }
         }
         break;
       }
@@ -85,7 +92,7 @@ export default async (event) => {
       || !summary
       || !html
       || !(md || xml)
-      || (!pictures && !media)
+      || (!pictures && !videos)
     ) {
       throw new Error('mal_formed_request');
     }
@@ -103,7 +110,7 @@ export default async (event) => {
       md,
       xml,
       pictures,
-      media,
+      videos,
       plainText,
       actions,
     });

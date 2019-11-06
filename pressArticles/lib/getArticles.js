@@ -5,6 +5,7 @@ const {
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
+  COLL_VIDEOS,
   DB_NAME,
   MONGO_URL,
 } = process.env;
@@ -21,6 +22,7 @@ export const getArticles = async (
     client = await MongoClient.connect(MONGO_URL, {
       useNewUrlParser: true,
     });
+
     const $match = categoryId
       ? {
         'category._id': categoryId,
@@ -117,6 +119,43 @@ export const getArticles = async (
         },
         {
           $group: pictureGroup,
+        },
+      ]);
+
+      // Lookup on videos
+      // TODO optimise, fetch videos only for skip/limit range
+      const videoGroup = {
+        ...Object.keys(articleFields.public).reduce((res, key) => {
+          res[key] = { $first: `$${key}` };
+          return res;
+        }, {}),
+        category: { $first: '$category' },
+        videos: { $push: '$videos' },
+        _id: '$_id',
+      };
+      pipeline = pipeline.concat([
+        {
+          $unwind: {
+            path: '$videos',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_VIDEOS,
+            localField: 'videos',
+            foreignField: '_id',
+            as: 'videos',
+          },
+        },
+        {
+          $unwind: {
+            path: '$videos',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: videoGroup,
         },
       ]);
     }

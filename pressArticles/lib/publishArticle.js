@@ -38,7 +38,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       md,
       _id,
       pictures,
-      media,
+      videos,
       plainText,
     } = draft;
 
@@ -55,8 +55,8 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       actions,
     };
 
-    if (typeof media.length !== 'undefined' && media.length) {
-      $set.media = media;
+    if (typeof videos.length !== 'undefined' && videos.length) {
+      $set.videos = videos;
     } else if (typeof pictures.length !== 'undefined' && pictures.length) {
       $set.pictures = pictures;
     } else {
