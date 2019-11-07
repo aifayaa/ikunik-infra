@@ -10,18 +10,22 @@ provider:
     - Effect: 'Allow'
       Action:
         - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*'
+      Resource: 'arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}/*'
     - Effect: 'Allow'
       Action:
         - 's3:*'
       Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
+    - Effect: 'Allow'
+      Action:
+        - elastictranscoder:CreateJob
+      Resource: '*'
   environment:
-    DB_NAME: crowdaaDev
-    S3_BUCKET: slsupload-${self:provider.stage}
+    $<<:
+      - ${file(../env.yml)}
+      - ${file(./env.${self:provider.stage}.yml)}
+    S3_UPLOAD_BUCKET: slsupload-${self:provider.stage}
     S3_PICTURES_BUCKET: crowdaa-pictures-${self:provider.stage}
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
-    PICTURES_COLL: pictures
+    S3_VIDEOS_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_VIDEOS_BUCKET}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -46,47 +50,22 @@ functions:
 
   onFileCreated:
     handler: handlers/onFileCreated.default
+    timeout: 600 # timeout set to 10 minutes for image/video encoding
+    events:
+      - s3:
+          bucket: ${self:provider.environment.S3_UPLOAD_BUCKET}
+          event: s3:ObjectCreated:*
+          existing: true
+
+  onVideoEncoded:
+    handler: handlers/onVideoEncoded.default
+    events:
+      - sns: video-stream
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
+  - serverless-export-env
   - serverless-webpack
-
-resources:
-  Resources:
-    UploadBucket:
-      Type: AWS::S3::Bucket
-      DependsOn: OnFileCreatedLambdaPermissionSlsUploadS3
-      Properties:
-        AccessControl: PublicRead
-        BucketName: ${self:provider.environment.S3_BUCKET}
-        CorsConfiguration:
-          CorsRules:
-            - AllowedOrigins:
-                - '*'
-              AllowedHeaders:
-                - '*'
-              AllowedMethods:
-                - GET
-                - PUT
-        NotificationConfiguration:
-          LambdaConfigurations:
-            - Event: s3:ObjectCreated:*
-              Function:
-                Fn::GetAtt:
-                  - OnFileCreatedLambdaFunction
-                  - Arn
-    OnFileCreatedLambdaPermissionSlsUploadS3:
-      Type: AWS::Lambda::Permission
-      DependsOn: OnFileCreatedLambdaFunction
-      Properties:
-        FunctionName:
-          Fn::GetAtt:
-            - OnFileCreatedLambdaFunction
-            - Arn
-        Principal: s3.amazonaws.com
-        Action: lambda:InvokeFunction
-        SourceAccount:
-          Ref: AWS::AccountId
-        SourceArn: arn:aws:s3:::${self:provider.environment.S3_BUCKET}
 
 custom:
   webpack:

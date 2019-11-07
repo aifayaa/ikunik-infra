@@ -1,0 +1,7 @@
+{
+  "UPLOADING": 0,
+  "UPLOAD_ERROR": 5,
+  "ENCODING": 10,
+  "ENCODING_ERROR": 15,
+  "READY": 20
+}

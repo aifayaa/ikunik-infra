@@ -77,6 +77,45 @@ export const getArticle = async (
           $group: pictureGroup,
         },
       ]);
+
+      // Lookup on pictures
+      const videoGroup = {
+        ...Object.keys(isServer ? articleFields.server : articleFields.public).reduce(
+          (res, key) => {
+            res[key] = { $first: `$${key}` };
+            return res;
+          },
+          {},
+        ),
+        category: { $first: '$category' },
+        videos: { $push: '$videos' },
+        _id: '$_id',
+      };
+      pipeline = pipeline.concat([
+        {
+          $unwind: {
+            path: '$videos',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_PICTURES,
+            localField: 'videos',
+            foreignField: '_id',
+            as: 'videos',
+          },
+        },
+        {
+          $unwind: {
+            path: '$videos',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: videoGroup,
+        },
+      ]);
     }
 
     const articles = await client

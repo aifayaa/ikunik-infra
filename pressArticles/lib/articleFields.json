@@ -8,6 +8,7 @@
     "publishedBy": true,
     "summary": true,
     "text": true,
+    "videos": true,
     "title": true
   },
   "server": {
@@ -20,6 +21,7 @@
     "publishedBy": true,
     "summary": true,
     "text": true,
+    "videos": true,
     "title": true
   }
 }

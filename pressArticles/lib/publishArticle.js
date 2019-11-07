@@ -38,11 +38,29 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       md,
       _id,
       pictures,
+      videos,
       plainText,
     } = draft;
 
-    if (!pictures.length) {
-      throw new Error('Unable to publish article without pictures');
+    const $set = {
+      title,
+      summary,
+      text,
+      md,
+      plainText,
+      draftId: _id,
+      isPublished: true,
+      publishedBy: userId,
+      publicationDate,
+      actions,
+    };
+
+    if (typeof videos.length !== 'undefined' && videos.length) {
+      $set.videos = videos;
+    } else if (typeof pictures.length !== 'undefined' && pictures.length) {
+      $set.pictures = pictures;
+    } else {
+      throw new Error('Unable to publish article without pictures or videos');
     }
 
     await client
@@ -54,19 +72,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
           appIds: { $elemMatch: { $eq: appId } },
         },
         {
-          $set: {
-            title,
-            summary,
-            text,
-            md,
-            plainText,
-            draftId: _id,
-            isPublished: true,
-            publishedBy: userId,
-            pictures,
-            publicationDate,
-            actions,
-          },
+          $set,
         },
         opts,
       );
