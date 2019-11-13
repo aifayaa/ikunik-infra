@@ -1,7 +1,7 @@
 import registerDevice from '../lib/registerDevice';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     if (!event.body) {
       throw new Error('missing_payload');
@@ -19,9 +19,9 @@ export default async (event, context, callback) => {
       appId,
     });
 
-    callback(null, response({ code: 200, body: { registerd: true } }));
+    return response({ code: 200, body: { registerd: true } });
   } catch (e) {
     const code = (e.message === 'already_registered_token') ? 200 : 500;
-    callback(null, response({ code, message: e.message }));
+    return response({ code, message: e.message });
   }
 };
