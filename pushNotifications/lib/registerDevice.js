@@ -44,7 +44,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
       .collection(COLL_PUSH_NOTIFICATIONS);
 
     const found = await collection.findOne(
-      { Token, PlatformApplicationArn, appIds: { $elemMatch: { $eq: appId } } },
+      { Token, PlatformApplicationArn, appId },
       { projection: { _id: 1 } },
     );
     if (found) throw new Error('already_registered_token');
