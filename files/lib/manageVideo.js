@@ -12,7 +12,9 @@ const {
 
 /* Encoding parameters */
 const HLSVideos = [
-  { vPath: 'hls-2M', presetId: '1351620000001-200010' },
+  /* hls-2M is copied from default one, using HQ thumbnails */
+  { vPath: 'hls-2M', presetId: '1573190421735-3iyjy4' },
+  /* All other presets are the defaults ones */
   { vPath: 'hls-1.5M', presetId: '1351620000001-200020' },
   { vPath: 'hls-1M', presetId: '1351620000001-200030' },
   { vPath: 'hls-600k', presetId: '1351620000001-200040' },

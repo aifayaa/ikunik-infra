@@ -94,6 +94,7 @@ export const getArticles = async (
         }, {}),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
+        videos: { $first: '$videos' },
         _id: '$_id',
       };
       pipeline = pipeline.concat([
@@ -130,6 +131,7 @@ export const getArticles = async (
           return res;
         }, {}),
         category: { $first: '$category' },
+        pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
         _id: '$_id',
       };
