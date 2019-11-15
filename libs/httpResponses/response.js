@@ -1,14 +1,21 @@
-export default ({ code, body, message }) => {
+export default ({ code, body, message, raw }) => {
   if (!body && !message) throw new Error('missing_arguments');
   let respBody;
+
   if (body) {
-    respBody = typeof body === 'string' ? { message: body } : body;
+    if (raw) {
+      respBody = body;
+    } else {
+      respBody = (typeof body === 'string') ? { message: body } : body;
+      respBody = JSON.stringify(respBody);
+    }
   } else {
-    respBody = { message };
+    respBody = JSON.stringify({ message });
   }
+
   return {
     statusCode: code || 500,
-    body: JSON.stringify(respBody),
+    body: respBody,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': true,
