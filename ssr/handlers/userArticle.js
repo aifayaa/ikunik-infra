@@ -25,7 +25,7 @@ export default async (event) => {
       prepareNotifString(article.data.content, 120),
       pictureUrl,
     );
-    return buildResponse({ code: 200, body });
+    return buildResponse({ code: 200, body, raw: true });
   } catch (e) {
     let code;
     switch (e.message) {
