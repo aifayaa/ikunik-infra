@@ -43,6 +43,8 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     } = draft;
 
     const $set = {
+      videos: undefined,
+      pictures: undefined,
       title,
       summary,
       text,
@@ -70,8 +72,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
         {
           _id: articleId,
           appIds: { $elemMatch: { $eq: appId } },
-        },
-        {
+        }, {
           $set,
         },
         opts,
