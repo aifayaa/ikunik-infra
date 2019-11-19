@@ -8,7 +8,8 @@
     "publishedBy": true,
     "summary": true,
     "text": true,
-    "title": true
+    "title": true,
+    "user": true
   },
   "server": {
     "_id": true,
@@ -20,6 +21,7 @@
     "publishedBy": true,
     "summary": true,
     "text": true,
-    "title": true
+    "title": true,
+    "user": true
   }
 }
