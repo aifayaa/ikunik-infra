@@ -22,6 +22,7 @@ export const resetPassword = async (email, appId, token, password) => {
       usersCollection.findOne(
         {
           emails: { $elemMatch: { address: email } },
+          appIds: { $elemMatch: { $eq: appId } },
         },
         {
           projection: { _id: true, emails: true, 'services.password.reset': true, 'profile.username': true },
@@ -30,8 +31,8 @@ export const resetPassword = async (email, appId, token, password) => {
       appsCollection.findOne({ _id: appId }, { projection: { _id: true } }),
     ]);
 
-    if (!user) throw new Error('email_not_found');
     if (!app) throw new Error('app_not_found');
+    if (!user) throw new Error('email_not_found');
 
     const resetToken = get(user, 'services.password.reset.token');
     const expiresAt = get(user, 'services.password.reset.expiresAt');
