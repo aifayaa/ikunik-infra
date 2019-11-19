@@ -5,6 +5,7 @@ const {
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
+  COLL_USERS,
   COLL_VIDEOS,
   DB_NAME,
   MONGO_URL,
@@ -79,6 +80,28 @@ export const getArticles = async (
         $unwind: {
           path: '$category',
           preserveNullAndEmptyArrays: noCategory,
+        },
+      },
+      {
+        $lookup: {
+          from: COLL_USERS,
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userTemp',
+        },
+      },
+      {
+        $unwind: {
+          path: '$userTemp',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          user: {
+            profile: '$userTemp.profile',
+            username: '$userTemp.username',
+          },
         },
       },
       { $match },
