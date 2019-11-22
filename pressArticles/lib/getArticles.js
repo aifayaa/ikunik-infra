@@ -24,16 +24,30 @@ export const getArticles = async (
       useNewUrlParser: true,
     });
 
-    const $match = categoryId
-      ? {
-        'category._id': categoryId,
-      }
-      : {
-        _id: { $exists: true },
-      };
+    const $match = {
+      appIds: { $elemMatch: { $eq: appId } },
+      categoryId: categoryId || { $exists: true },
+      /* Find only articles not trashed or trashed undefined */
+      $or: [
+        {
+          trashed: {
+            $exists: false,
+          },
+        },
+        {
+          trashed: false,
+        },
+      ],
+    };
+
+    let $sort = { createdAt: -1 };
 
     /* If option is set, returns only published articles */
     if (onlyPublished) {
+      $sort = {
+        publicationDate: -1,
+        createdAt: -1,
+      };
       $match.isPublished = true;
       $match.$or = [
         {
@@ -50,24 +64,12 @@ export const getArticles = async (
     }
 
     let pipeline = [
-      // TODO: optimise by using Category as start poitn
+      // TODO: optimise by using Category as start point
       // get Catgory Id with path and then get articles
-      {
-        $match: {
-          appIds: { $elemMatch: { $eq: appId } },
-          /* Find only articles not trashed or trashed undefined */
-          $or: [
-            {
-              trashed: {
-                $exists: false,
-              },
-            },
-            {
-              trashed: false,
-            },
-          ],
-        },
-      },
+      { $match },
+      { $sort },
+      { $skip: parseInt(start, 10) || 0 },
+      { $limit: parseInt(limit, 10) || 10 },
       {
         $lookup: {
           from: COLL_PRESS_CATEGORIES,
@@ -104,7 +106,15 @@ export const getArticles = async (
           },
         },
       },
-      { $match },
+      { /*
+          some users have base 64 pictures in profile,
+          we remove those fields to avoid big trafic load
+        */
+        $project: {
+          'user.profile.avatar': 0,
+          'user.profile.userPictureData': 0,
+        },
+      },
     ];
 
     if (getPictures) {
@@ -201,39 +211,22 @@ export const getArticles = async (
       ]);
     }
 
-    pipeline = pipeline.concat([
-      {
-        $sort: { createdAt: -1 },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          articles: { $push: '$$ROOT' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          total: 1,
-          articles: {
-            $slice: [
-              '$articles',
-              parseInt(start, 10) || 0,
-              parseInt(limit, 10) || 10,
-            ],
-          },
-        },
-      },
+    /* Group stage could break sorting, ensure all is well sorted */
+    pipeline = pipeline.push({ $sort });
+
+    const [articles = [], total = 0] = await Promise.all([
+      client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_ARTICLES)
+        .aggregate(pipeline)
+        .toArray(),
+      client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_ARTICLES)
+        .find($match)
+        .count(),
     ]);
 
-    const [result = {}] = await client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_ARTICLES)
-      .aggregate(pipeline)
-      .toArray();
-
-    const { articles = [], total = 0 } = result;
     return { articles, total };
   } finally {
     client.close();
