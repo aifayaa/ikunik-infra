@@ -39,12 +39,14 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       _id,
       pictures,
       videos,
+      feedPicture,
       plainText,
     } = draft;
 
     const $set = {
       videos: (typeof videos.length !== 'undefined' && videos.length) ? videos : undefined,
       pictures: (typeof pictures.length !== 'undefined' && pictures.length) ? pictures : undefined,
+      feedPicture: feedPicture || undefined,
       title,
       summary,
       text,
