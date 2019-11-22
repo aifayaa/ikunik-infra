@@ -43,11 +43,21 @@ export default async (event) => {
     let pictures;
     let videos;
     let plainText;
+    let feedPicture;
 
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
       case 'application/json': {
-        ({ actions, categoryId, title, summary, md, pictures, videos } = JSON.parse(event.body));
+        ({
+          actions,
+          categoryId,
+          title,
+          summary,
+          md,
+          pictures,
+          videos,
+          feedPicture,
+        } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
         break;
@@ -111,6 +121,7 @@ export default async (event) => {
       xml,
       pictures,
       videos,
+      feedPicture,
       plainText,
       actions,
     });

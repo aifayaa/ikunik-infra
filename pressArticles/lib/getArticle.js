@@ -73,6 +73,7 @@ export const getArticle = async (
         ),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
+        videos: { $push: '$videos' },
         feedPicture: { $first: '$feedPicture' },
         _id: '$_id',
       };
@@ -80,7 +81,7 @@ export const getArticle = async (
         {
           $lookup: {
             from: COLL_PICTURES,
-            localField: 'feedPictures',
+            localField: 'feedPicture',
             foreignField: '_id',
             as: 'feedPicture',
           },
