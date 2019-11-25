@@ -43,8 +43,8 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     } = draft;
 
     const $set = {
-      videos: undefined,
-      pictures: undefined,
+      videos: (typeof videos.length !== 'undefined' && videos.length) ? videos : undefined,
+      pictures: (typeof pictures.length !== 'undefined' && pictures.length) ? pictures : undefined,
       title,
       summary,
       text,
@@ -57,11 +57,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       actions,
     };
 
-    if (typeof videos.length !== 'undefined' && videos.length) {
-      $set.videos = videos;
-    } else if (typeof pictures.length !== 'undefined' && pictures.length) {
-      $set.pictures = pictures;
-    } else {
+    if (!$set.videos && !$set.pictures) {
       throw new Error('Unable to publish article without pictures or videos');
     }
 
