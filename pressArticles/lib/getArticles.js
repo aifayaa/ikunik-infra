@@ -26,7 +26,6 @@ export const getArticles = async (
 
     const $match = {
       appIds: { $elemMatch: { $eq: appId } },
-      categoryId: categoryId || { $exists: true },
       /* Find only articles not trashed or trashed undefined */
       $or: [
         {
@@ -39,6 +38,10 @@ export const getArticles = async (
         },
       ],
     };
+
+    if (categoryId) {
+      $match.categoryId = categoryId;
+    }
 
     let $sort = { createdAt: -1 };
 
@@ -65,7 +68,7 @@ export const getArticles = async (
 
     let pipeline = [
       // TODO: optimise by using Category as start point
-      // get Catgory Id with path and then get articles
+      // get Category Id with path and then get articles
       { $match },
       { $sort },
       { $skip: parseInt(start, 10) || 0 },
@@ -212,7 +215,7 @@ export const getArticles = async (
     }
 
     /* Group stage could break sorting, ensure all is well sorted */
-    pipeline = pipeline.push({ $sort });
+    pipeline.push({ $sort });
 
     const [articles = [], total = 0] = await Promise.all([
       client
