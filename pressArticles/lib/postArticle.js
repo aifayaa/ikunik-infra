@@ -19,6 +19,7 @@ export const postArticle = async ({
   xml,
   pictures,
   videos,
+  feedPicture,
   plainText = '',
   actions,
 }) => {
@@ -30,6 +31,7 @@ export const postArticle = async ({
     || !(['string', 'undefined'].indexOf(typeof md) + 1)
     || !(['string', 'undefined'].indexOf(typeof xml) + 1)
     || (!Array.isArray(pictures) && !Array.isArray(videos))
+    || (feedPicture && typeof feedPicture !== 'string')
   ) {
     throw new Error('bad arguments');
   }
@@ -58,6 +60,9 @@ export const postArticle = async ({
     }
     if (pictures) {
       article.pictures = pictures;
+    }
+    if (feedPicture) {
+      article.feedPicture = feedPicture;
     }
     if (xml) {
       article.xml = xml;

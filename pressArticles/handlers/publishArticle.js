@@ -29,7 +29,7 @@ export default async (event) => {
     if (sendNotifications) {
       const article = await getArticle(articleId, appId, {});
       requestResults.notificationResults = await doSendNotifications(
-        article.title,
+        prepareNotif(article.title, 60, false),
         prepareNotif(article.plainText),
         appId,
         { articleId },

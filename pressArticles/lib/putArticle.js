@@ -16,6 +16,7 @@ export const putArticle = async ({
   md,
   pictures,
   videos,
+  feedPicture,
   plainText = '',
   summary,
   title,
@@ -29,6 +30,7 @@ export const putArticle = async ({
     || typeof html !== 'string'
     || typeof md !== 'string'
     || (!Array.isArray(pictures) && !Array.isArray(videos))
+    || (feedPicture && typeof feedPicture !== 'string')
   ) {
     throw new Error('bad arguments');
   }
@@ -59,6 +61,9 @@ export const putArticle = async ({
     }
     if (pictures) {
       draft.pictures = pictures;
+    }
+    if (feedPicture) {
+      draft.feedPicture = feedPicture;
     }
 
     await client.db(DB_NAME)

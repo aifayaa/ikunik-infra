@@ -73,9 +73,25 @@ export const getArticle = async (
         ),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
+        videos: { $push: '$videos' },
+        feedPicture: { $first: '$feedPicture' },
         _id: '$_id',
       };
       pipeline = pipeline.concat([
+        {
+          $lookup: {
+            from: COLL_PICTURES,
+            localField: 'feedPicture',
+            foreignField: '_id',
+            as: 'feedPicture',
+          },
+        },
+        {
+          $unwind: {
+            path: '$feedPicture',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $unwind: {
             path: '$pictures',
@@ -111,6 +127,7 @@ export const getArticle = async (
           {},
         ),
         category: { $first: '$category' },
+        pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
         _id: '$_id',
       };
