@@ -18,6 +18,8 @@ export const postArticle = async ({
   md,
   xml,
   pictures,
+  videos,
+  feedPicture,
   plainText = '',
   actions,
 }) => {
@@ -28,7 +30,8 @@ export const postArticle = async ({
     || typeof html !== 'string'
     || !(['string', 'undefined'].indexOf(typeof md) + 1)
     || !(['string', 'undefined'].indexOf(typeof xml) + 1)
-    || !Array.isArray(pictures)
+    || (!Array.isArray(pictures) && !Array.isArray(videos))
+    || (feedPicture && typeof feedPicture !== 'string')
   ) {
     throw new Error('bad arguments');
   }
@@ -44,7 +47,6 @@ export const postArticle = async ({
       createdAt: new Date(),
       draftId,
       isPublished: false,
-      pictures,
       summary,
       text: html,
       title,
@@ -53,6 +55,15 @@ export const postArticle = async ({
       appIds: [appId],
       actions,
     };
+    if (videos) {
+      article.videos = videos;
+    }
+    if (pictures) {
+      article.pictures = pictures;
+    }
+    if (feedPicture) {
+      article.feedPicture = feedPicture;
+    }
     if (xml) {
       article.xml = xml;
     } else {

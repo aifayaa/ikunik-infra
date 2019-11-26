@@ -3,5 +3,6 @@ export default [
   'crowdaapress:',
   'erickabareigts:',
   'lequotidien:',
+  'magic-shop:',
   'mylux:',
 ];

@@ -44,7 +44,7 @@ export const login = async (email, username, password, appId) => {
 
     const token = Random.secret();
 
-    usersCollection.updateOne(
+    await usersCollection.updateOne(
       {
         _id: user._id,
         appIds: { $elemMatch: { $eq: appId } },
