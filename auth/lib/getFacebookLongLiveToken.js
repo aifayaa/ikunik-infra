@@ -1,16 +1,25 @@
 /* eslint-disable camelcase */
 import request from 'request-promise-native';
 
-const { FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET } = process.env;
+const {
+  FACEBOOK_CLIENT_ID,
+  FACEBOOK_CLIENT_SECRET,
+} = process.env;
 
-export const getFacebookLongLiveToken = async (userToken, appToken) => {
+export const getFacebookLongLiveToken = async (
+  userToken,
+  appToken,
+  {
+    appId = FACEBOOK_CLIENT_ID,
+    appSecret = FACEBOOK_CLIENT_SECRET,
+  } = {}) => {
   // get a long live token
   const longLifeTokenResp = await request.get({
     url:
       'https://graph.facebook.com/oauth/access_token?' +
       'grant_type=fb_exchange_token&' +
-      `client_id=${FACEBOOK_CLIENT_ID}&` +
-      `client_secret=${FACEBOOK_CLIENT_SECRET}&` +
+      `client_id=${appId}&` +
+      `client_secret=${appSecret}&` +
       `fb_exchange_token=${userToken}`,
   });
   const longLifeToken = JSON.parse(longLifeTokenResp);
