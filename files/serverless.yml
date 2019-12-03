@@ -60,7 +60,7 @@ functions:
   onVideoEncoded:
     handler: handlers/onVideoEncoded.default
     events:
-      - sns: video-stream
+      - sns: video-stream-${self:provider.stage}
 
 plugins:
   - '@cruglobal/serverless-merge-config'

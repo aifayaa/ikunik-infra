@@ -3,6 +3,7 @@ import uuidv4 from 'uuid/v4';
 import { getFacebookAppToken } from '../lib/getFacebookAppToken';
 import { getFacebookLongLiveToken } from './getFacebookLongLiveToken';
 import { getFacebookUserProfile } from '../lib/getFacebookUserProfile';
+import { getFacebookSettings } from '../lib/getFacebookSettings';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
@@ -10,12 +11,14 @@ const { DB_NAME, COLL_USERS } = process.env;
 
 /* create/get user from facebook accessToken */
 export const getUserByFacebook = async (userToken, appId) => {
-  const appToken = await getFacebookAppToken();
+  // get facebook app settings
+  const settings = await getFacebookSettings(appId);
+  const appToken = await getFacebookAppToken(settings);
   const {
     accessToken,
     expiresAt,
     fbUserId,
-  } = await getFacebookLongLiveToken(userToken, appToken);
+  } = await getFacebookLongLiveToken(userToken, appToken, settings);
   const client = await MongoClient.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   });
