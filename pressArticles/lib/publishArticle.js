@@ -31,32 +31,34 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     }
 
     const {
+      _id,
       actions,
-      title,
+      categoryId,
+      feedPicture,
+      md,
+      pictures,
+      plainText,
       summary,
       text,
-      md,
-      _id,
-      pictures,
+      title,
       videos,
-      feedPicture,
-      plainText,
     } = draft;
 
     const $set = {
-      videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
-      pictures: (typeof pictures !== 'undefined' && pictures.length) ? pictures : undefined,
+      actions,
+      categoryId,
+      draftId: _id,
       feedPicture: feedPicture || undefined,
-      title,
+      isPublished: true,
+      md,
+      pictures: (typeof pictures !== 'undefined' && pictures.length) ? pictures : undefined,
+      plainText,
+      publicationDate,
+      publishedBy: userId,
       summary,
       text,
-      md,
-      plainText,
-      draftId: _id,
-      isPublished: true,
-      publishedBy: userId,
-      publicationDate,
-      actions,
+      title,
+      videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
     };
 
     if (!$set.videos && !$set.pictures) {
