@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa balance API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+  },
   "dependencies": {
     "aws-sdk": "^2.188.0",
     "lodash": "^4.17.10",
@@ -13,7 +16,22 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.4.0",
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "aws-sdk-mock": "^4.4.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "babel-preset-env": "^1.7.0",
+    "chai": "^4.2.0",
+    "env-cmd": "^9.0.3",
+    "esm": "^3.2.25",
+    "mocha": "^6.1.4",
+    "serverless": "^1.38.0",
+    "serverless-export-env": "github:arabold/serverless-export-env",
+    "serverless-webpack": "^5.2.0",
+    "sinon": "^7.3.2",
+    "webpack": "^4.29.5",
     "webpack-node-externals": "^1.7.2"
   },
   "author": "Crowdaa",
