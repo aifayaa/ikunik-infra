@@ -18,8 +18,7 @@ describe('handlers - editProfile', () => {
       id: 'userId',
     },
     body: JSON.stringify({
-      firstname: 'firstname',
-      lastname: 'lastname',
+      username: 'username',
     }),
   };
   const sandbox = sinon.createSandbox();
@@ -94,49 +93,25 @@ describe('handlers - editProfile', () => {
       expect(response.statusCode).to.eq(500);
     });
 
-    it('event.body.firstname not defined', async () => {
+    it('event.body.username not defined', async () => {
       event.body = JSON.stringify({
-        firstname: undefined,
+        username: undefined,
       });
       const response = await handler(event);
       expect(response.statusCode).to.eq(500);
     });
 
-    it('event.body.lastname not defined', async () => {
+    it('event.body.username not a string', async () => {
       event.body = JSON.stringify({
-        lastname: undefined,
+        username: 2,
       });
       const response = await handler(event);
       expect(response.statusCode).to.eq(500);
     });
 
-    it('event.body.firstname not a string', async () => {
+    it('event.body.username is too short', async () => {
       event.body = JSON.stringify({
-        firstname: 2,
-      });
-      const response = await handler(event);
-      expect(response.statusCode).to.eq(500);
-    });
-
-    it('event.body.lastname not a string', async () => {
-      event.body = JSON.stringify({
-        lastname: 5,
-      });
-      const response = await handler(event);
-      expect(response.statusCode).to.eq(500);
-    });
-
-    it('event.body.firstname is too short', async () => {
-      event.body = JSON.stringify({
-        firstname: 'a',
-      });
-      const response = await handler(event);
-      expect(response.statusCode).to.eq(500);
-    });
-
-    it('event.body.lastname is too short', async () => {
-      event.body = JSON.stringify({
-        lastname: 'a',
+        username: 'a',
       });
       const response = await handler(event);
       expect(response.statusCode).to.eq(500);

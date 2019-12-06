@@ -7,11 +7,10 @@ const {
 } = process.env;
 
 export default async (userId, appId, {
-  firstname,
-  lastname,
+  username,
 }) => {
   const $set = {
-    'profile.username': `${firstname} ${lastname}`,
+    'profile.username': `${username}`,
   };
   const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
 

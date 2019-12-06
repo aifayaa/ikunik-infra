@@ -29,7 +29,7 @@ describe('lib - editProfile', () => {
     const res = await editProfile(
       'userId',
       'appId',
-      { firstname: 'a', lastname: 'b' },
+      { username: 'a' },
     );
     expect(res).to.be.a('boolean');
   });

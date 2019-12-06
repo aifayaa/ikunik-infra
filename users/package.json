@@ -28,7 +28,7 @@
     "esm": "^3.2.25",
     "mocha": "^6.1.4",
     "serverless": "^1.38.0",
-    "serverless-export-env": "github:arabold/serverless-export-env",
+    "serverless-export-env": "^1.2.0",
     "serverless-webpack": "^5.2.0",
     "sinon": "^7.3.2",
     "webpack": "^4.29.5",

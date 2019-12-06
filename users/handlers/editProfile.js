@@ -18,30 +18,19 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
     const {
-      firstname,
-      lastname,
+      username,
     } = bodyParsed;
 
-    if (
-      !firstname ||
-      !lastname
-    ) {
+    if (!username) {
       throw new Error('mal_formed_request');
     }
 
-    if (
-      typeof firstname !== 'string' ||
-      typeof lastname !== 'string'
-    ) {
+    if (typeof username !== 'string') {
       throw new Error('wrong_argument_type');
     }
 
-    if (firstname.length < 2) {
+    if (username.length < 2) {
       throw new Error('firstname too short');
-    }
-
-    if (lastname.length < 2) {
-      throw new Error('lastname too short');
     }
 
     const results = await editProfile(userId, appId, bodyParsed);
