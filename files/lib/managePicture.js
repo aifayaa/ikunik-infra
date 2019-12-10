@@ -35,6 +35,14 @@ const resizeParams = ({ keepRatio = false }) => [{
   docField: 'medium',
 }, {
   resize: {
+    width: keepRatio ? null : 1024,
+    height: 1024,
+    fit: keepRatio ? 'inside' : 'contain',
+  },
+  prefix: 'large',
+  docField: 'large',
+}, {
+  resize: {
     width: null,
     height: null,
   },
@@ -103,6 +111,9 @@ export default async (bucket, object, file) => {
     const pictureDoc = Object.assign(document, {
       description: '',
       likes: 0,
+      largeFilename: null,
+      largeFileObj_ID: null,
+      largeUrl: null,
       mediumFilename: null,
       mediumFileObj_ID: null,
       mediumUrl: null,
