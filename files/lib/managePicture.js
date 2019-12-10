@@ -13,6 +13,7 @@ const {
   DB_NAME,
   MONGO_URL,
   S3_PICTURES_BUCKET,
+  CDN_DOMAIN_NAME,
 } = process.env;
 
 const outBucket = S3_PICTURES_BUCKET;
@@ -57,7 +58,7 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   }).promise();
   return {
     key: oKey,
-    url: `https://s3.amazonaws.com/${oBucket}/${oKey}`,
+    url: `https://${CDN_DOMAIN_NAME}/${oKey}`,
   };
 };
 
