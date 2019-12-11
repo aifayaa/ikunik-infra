@@ -13,6 +13,7 @@ const {
   DB_NAME,
   MONGO_URL,
   S3_PICTURES_BUCKET,
+  CDN_DOMAIN_NAME,
 } = process.env;
 
 const outBucket = S3_PICTURES_BUCKET;
@@ -33,6 +34,14 @@ const resizeParams = ({ keepRatio = false }) => [{
   },
   prefix: 'medium',
   docField: 'medium',
+}, {
+  resize: {
+    width: keepRatio ? null : 1024,
+    height: 1024,
+    fit: keepRatio ? 'inside' : 'contain',
+  },
+  prefix: 'large',
+  docField: 'large',
 }, {
   resize: {
     width: null,
@@ -57,7 +66,7 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   }).promise();
   return {
     key: oKey,
-    url: `https://s3.amazonaws.com/${oBucket}/${oKey}`,
+    url: `https://${CDN_DOMAIN_NAME}/${oKey}`,
   };
 };
 
@@ -103,6 +112,9 @@ export default async (bucket, object, file) => {
     const pictureDoc = Object.assign(document, {
       description: '',
       likes: 0,
+      largeFilename: null,
+      largeFileObj_ID: null,
+      largeUrl: null,
       mediumFilename: null,
       mediumFileObj_ID: null,
       mediumUrl: null,
