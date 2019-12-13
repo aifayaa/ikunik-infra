@@ -5,4 +5,5 @@ export default [
   'lequotidien:',
   'magic-shop:',
   'mylux:',
+  'vanillaislandgolf:',
 ];
