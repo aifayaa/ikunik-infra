@@ -10,7 +10,7 @@
   "dependencies": {
     "aws-sdk": "^2.188.0",
     "lodash": "^4.17.10",
-    "mongodb": "^3.0.2",
+    "mongodb": "^3.4.0",
     "phone": "^2.3.5",
     "validator": "^9.4.0",
     "winston": "^3.2.1"
