@@ -3,15 +3,14 @@ import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const urlId = event.pathParameters.id;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
 
     if (userId !== urlId) {
-      callback(null, response({ code: 403, message: 'Forbidden' }));
-      return;
+      return response({ code: 403, message: 'Forbidden' });
     }
     const results = pick(await doGetUser(userId, appId), [
       'country',
@@ -40,9 +39,8 @@ export default async (event, context, callback) => {
         results.optIn = optInResult;
       }
     }
-
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
