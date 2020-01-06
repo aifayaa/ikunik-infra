@@ -9,7 +9,7 @@ service: api-v1
 provider:
   name: aws
   stage: ${opt:stage, "dev"}
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   memorySize: 128
   timeout: 30
   region: ${opt:region, "us-east-1"}
@@ -51,7 +51,8 @@ custom:
     stage: "${self:provider.stage}"
     createRoute53Record: true
 
-  webpackIncludeModules: true
+  webpack:
+    includeModules: true
 
 resources:
   Resources:
