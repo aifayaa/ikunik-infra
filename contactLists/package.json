@@ -5,13 +5,14 @@
   "description": "Crowdaa contactLists API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.223.1",
-    "mongodb": "^3.0.2",
-    "phone": "^2.0.0-rc.1"
+    "aws-sdk": "^2.598.0",
+    "mongodb": "^3.4.1",
+    "phone": "^2.4.3"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.4.0",
-    "webpack-node-externals": "^1.7.2"
+    "serverless": "^1.60.5",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Paul SEBASTIEN",
   "license": "UNLICENSED"
