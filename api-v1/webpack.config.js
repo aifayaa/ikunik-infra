@@ -9,7 +9,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(jsx?)$/,
+        test: /\.(js?)$/,
         include: __dirname,
         exclude: /node_modules/,
       },
