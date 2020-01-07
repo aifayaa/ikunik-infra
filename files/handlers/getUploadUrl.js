@@ -1,16 +1,11 @@
 import getUploadUrl from '../lib/getUploadUrl';
 import response from '../../libs/httpResponses/response';
 // import { checkPerms } from '../../libs/perms/checkPerms';
-import getCollectionFromContentType from '../lib/getCollectionFromContentType';
-
 // const permKey = 'files_upload';
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
-  if (!userId) {
-    throw new Error('missing_user_id');
-  }
 
   /* Check upload permissions */
   // TODO: better rights management, Upload File is allowed for all logged users
@@ -19,14 +14,42 @@ export default async (event) => {
   //   return response({ code: 403, message: 'access_forbidden' });
   // }
   try {
+    if (!userId) {
+      throw new Error('missing_user_id');
+    }
+
     const {
-      name,
-      type,
-      length,
+      files,
       metadata = {},
     } = JSON.parse(event.body);
-    const collection = getCollectionFromContentType(type);
-    const info = await getUploadUrl(userId, appId, name, type, length, metadata, collection);
+
+    if (typeof files !== 'object' || !files.length) {
+      throw new Error('wrong_argument');
+    }
+
+    if (typeof metadata !== 'object') {
+      throw new Error('wrong_argument_type');
+    }
+
+    if (!metadata) {
+      throw new Error('wrong_argument');
+    }
+
+    files.forEach((v) => {
+      const { name, type, size } = v;
+      if (
+        typeof name !== 'string' ||
+        typeof type !== 'string' ||
+        typeof size !== 'number'
+      ) {
+        throw new Error('wrong_argument_type');
+      }
+      if (!name || !type || !size) {
+        throw new Error('wrong_argument');
+      }
+    });
+
+    const info = await getUploadUrl(userId, appId, files, metadata);
     return response({ code: 200, body: info });
   } catch (e) {
     return response({ code: 500, message: e.message });
