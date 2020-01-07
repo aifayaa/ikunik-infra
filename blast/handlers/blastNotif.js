@@ -15,28 +15,11 @@ export default async ({ artistName, endpoints, message, opts = {} }) => {
         throw new Error('insufficient tokens');
       }
     }
+
     winston.info(artistName, endpoints, message);
     const sendNotifications = queue(blastNotif, 50);
     const results = [];
     let successfulBlast = 0;
-    const sendNotificationsDone = new Promise((resolve, reject) => {
-      sendNotifications.drain = () => {
-        logBlast('notification', message, `${successfulBlast}`, opts)
-          .then((res) => {
-            if (userId) {
-              const { profileId } = res;
-              return removeBlastToken('notification', profileId, `${successfulBlast}`, appId);
-            }
-            return null;
-          })
-          .then(() => {
-            resolve(response({ code: 200, body: results }));
-          })
-          .catch((e) => {
-            reject(e);
-          });
-      };
-    });
 
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ artistName, endpoint, message }, (error, res) => {
@@ -44,7 +27,15 @@ export default async ({ artistName, endpoints, message, opts = {} }) => {
         results.push(error || res);
       });
     });
-    return await sendNotificationsDone;
+
+    await sendNotifications.drain();
+    const res = await logBlast('notification', message, `${successfulBlast}`, opts)
+    if (userId) {
+      const { profileId } = res;
+      await removeBlastToken('notification', profileId, `${successfulBlast}`, appId);
+    }
+
+    return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }

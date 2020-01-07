@@ -19,31 +19,22 @@ export default async ({ phones, message, opts = {} }) => {
     const sendTexts = queue(blastText, 50);
     const results = [];
     let successfulBlast = 0;
-    const sendTextsDone = new Promise((resolve) => {
-      sendTexts.drain = () => {
-        logBlast('text-message', message, `${successfulBlast}`, opts)
-          .then((res) => {
-            if (userId) {
-              const { profileId } = res;
-              return removeBlastToken('text', profileId, `${successfulBlast}`, appId);
-            }
-            return null;
-          })
-          .then(() => {
-            resolve(response({ code: 200, body: results }));
-          })
-          .catch((e) => {
-            resolve(response({ code: 500, message: e.message }));
-          });
-      };
-    });
+
     phones.forEach((phoneNumber) => {
       sendTexts.push({ message, phoneNumber }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
     });
-    return await sendTextsDone;
+
+    await sendTexts.drain();
+    const res = await logBlast('text-message', message, `${successfulBlast}`, opts)
+
+    if (userId) {
+      const { profileId } = res;
+      await removeBlastToken('text', profileId, `${successfulBlast}`, appId);
+    }
+    return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
