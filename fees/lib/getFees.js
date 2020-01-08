@@ -6,7 +6,7 @@ export default async () => {
   try {
     const res = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_BILLING)
       .aggregate([
         { $match: { status: 'paid' } },
         {
