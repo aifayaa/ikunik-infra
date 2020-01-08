@@ -2,7 +2,7 @@ service: crowd
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 1024
   timeout: 30
@@ -100,6 +100,9 @@ package:
   individually: true
 
 custom:
+  webpack:
+    includeModules: true
+
   IntegrationRequestParameters:
     integration.request.header.x-api-key: method.request.header.x-api-key
     integration.request.querystring.articleId: method.request.querystring.articleId
@@ -174,8 +177,6 @@ custom:
     method.request.querystring.sortOrder: true
     method.request.querystring.track: true
     method.request.querystring.type: true
-
-  webpackIncludeModules: true
 
 resources:
   Resources:
