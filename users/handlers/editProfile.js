@@ -30,7 +30,7 @@ export default async (event) => {
     }
 
     if (username.length < 2) {
-      throw new Error('firstname too short');
+      throw new Error('username too short');
     }
 
     const results = await editProfile(userId, appId, bodyParsed);
