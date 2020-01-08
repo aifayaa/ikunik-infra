@@ -26,7 +26,7 @@ const MSG = {
   },
 };
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const { id } = event.pathParameters;
@@ -68,8 +68,8 @@ export default async (event, context, callback) => {
         Payload: JSON.stringify(notifyEvent),
       }).promise();
     }
-    callback(null, response({ code: 200, body: result }));
+    return response({ code: 200, body: result });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
