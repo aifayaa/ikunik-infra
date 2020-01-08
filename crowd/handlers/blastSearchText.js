@@ -17,7 +17,7 @@ const lambda = new Lambda({
 
 const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     /* Some base variables */
     const userId = event.requestContext.authorizer.principalId;
@@ -35,22 +35,6 @@ export default async (event, context, callback) => {
       doneCallback();
     };
     const searchAndBlast = queue(paginatorCallback, 20);
-    const searchAndBlastDone = new Promise((resolve) => {
-      searchAndBlast.drain(async () => {
-        const { project } = event.queryStringParameters;
-        const params = {
-          FunctionName: `blast-${STAGE}-blastText`,
-          Payload: JSON.stringify({
-            phones,
-            message,
-            opts: { userId, projectId: project, appId },
-          }),
-        };
-        const res = await lambda.invoke(params).promise();
-        resolve();
-        callback(null, response({ code: 200, body: res }));
-      });
-    });
 
     /* Loop to iterate data in order to avoid size error from mongo */
     const { limit } = event.queryStringParameters;
@@ -65,9 +49,20 @@ export default async (event, context, callback) => {
       })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
     }
 
-    await searchAndBlastDone;
+    await searchAndBlast.drain();
+    const { project } = event.queryStringParameters;
+    const params = {
+      FunctionName: `blast-${STAGE}-blastText`,
+      Payload: JSON.stringify({
+        phones,
+        message,
+        opts: { userId, projectId: project, appId },
+      }),
+    };
+    const res = await lambda.invoke(params).promise();
+    return response({ code: 200, body: res });
   } catch (e) {
     winston.error(e);
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
