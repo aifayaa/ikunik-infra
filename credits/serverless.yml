@@ -2,7 +2,7 @@ service: credits
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -74,7 +74,8 @@ package:
   individually: true
 
 custom:
-  webpackIncludeModules: true
+  webpack:
+    includeModules: true
 
 resources:
   Resources:
