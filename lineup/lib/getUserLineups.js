@@ -58,6 +58,7 @@ export default async (userId, profileId, appId, lineupId) => {
       .aggregate(aggregat)
       .toArray();
     const [res] = lineups;
+    if (!res) return null;
     ({ lineups } = res);
     if (lineupId) {
       return lineups;
