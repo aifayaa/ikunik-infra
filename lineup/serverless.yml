@@ -2,7 +2,7 @@ service: lineup
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   region: ${opt:region, "us-east-1"}
   memorySize: 128
@@ -210,7 +210,8 @@ custom:
       dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
       awax: blast-prod-blastNotification
-  webpackIncludeModules: true
+  webpack:
+    includeModules: true
 
 resources:
   Outputs:

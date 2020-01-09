@@ -5,17 +5,17 @@
   "description": "Crowdaa lineup API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.226.1",
+    "aws-sdk": "^2.598.0",
     "i18n": "^0.8.3",
-    "mongodb": "^3.0.2",
+    "mongodb": "^3.4.1",
     "promise-pool-executor": "^1.1.1",
-    "uuid": "^3.2.1",
+    "uuid": "^3.3.3",
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "file-loader": "^1.1.11",
-    "serverless-webpack": "^4.2.0",
-    "webpack-node-externals": "^1.6.0"
+    "serverless": "^1.60.5",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"
