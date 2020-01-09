@@ -5,7 +5,7 @@ export default async (appId) => {
   try {
     return await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_MAINTENANCE)
       .findOne({
         active: true,
         appIds: { $elemMatch: { $eq: appId } },
