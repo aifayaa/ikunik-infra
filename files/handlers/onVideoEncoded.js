@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import uploadStatus from '../uploadStatus.json';
+import response from '../../libs/httpResponses/response';
 
 const {
   COLL_VIDEOS,
@@ -16,13 +17,6 @@ export default async (event) => {
   const client = await MongoClient.connect(MONGO_URL, {
     useNewUrlParser: true,
   });
-
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
 
   try {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);
@@ -69,15 +63,8 @@ export default async (event) => {
         { $set: videoDoc },
       );
 
-    response.statusCode = 200;
-    response.body = 'ok';
+    return response({ code: 200, body: 'ok' });
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({
-      message: e.message,
-    });
-  } finally {
-    client.close();
+    return response({ code: 500, message: e.message });
   }
-  return response;
 };
