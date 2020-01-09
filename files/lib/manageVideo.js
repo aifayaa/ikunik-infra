@@ -80,7 +80,7 @@ export default async (bucket, object, file) => {
         { _id: document._id },
         { $set: videoDoc },
       );
-
+    
     /* Proceed to encoding */
     const elasticTranscoder = new ElasticTranscoder();
     const videoPath = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
@@ -107,7 +107,7 @@ export default async (bucket, object, file) => {
         name,
       },
     };
-    elasticTranscoder.createJob(params).promise();
+   await elasticTranscoder.createJob(params).promise();
   } finally {
     client.close();
   }
