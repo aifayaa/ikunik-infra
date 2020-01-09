@@ -5,14 +5,12 @@
   "description": "Crowdaa genre API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.188.0",
-    "mongodb": "^3.0.2",
-    "shortid": "^2.2.8"
+    "mongodb": "^3.4.1"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.4.0",
-    "webpack": "^3.12.0",
-    "webpack-node-externals": "^1.7.2"
+    "serverless": "^1.60.5",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"
