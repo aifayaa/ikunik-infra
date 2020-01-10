@@ -41,7 +41,7 @@ describe('handlers - removeArticle', () => {
   });
 
   describe('lib success', () => {
-    const libResult = 'ok';
+    const libResult = { message: 'ok' };;
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
@@ -51,7 +51,7 @@ describe('handlers - removeArticle', () => {
     it('should return 200', async () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(200);
-      expect(response.body).to.eq(libResult);
+      expect(JSON.parse(response.body)).to.eql(libResult);
     });
 
     it('should called with the good args', () => {

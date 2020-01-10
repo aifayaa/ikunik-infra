@@ -104,11 +104,14 @@ describe('handlers - postArticle', () => {
       } = JSON.parse(event.body);
       const { principalId, appId } = event.requestContext.authorizer;
       const opt = {
+        actions: [],
+        feedPicture: undefined,
         appId,
         categoryId,
         html: '<p>md</p>',
         md,
         pictures,
+        videos: undefined,
         plainText: 'md',
         summary,
         title,
@@ -160,6 +163,8 @@ describe('handlers - postArticle', () => {
       const plainText = xmlToText(xml, defaultSettings);
 
       const opt = {
+        actions: [],
+        feedPicture: undefined,
         userId: principalId,
         appId,
         categoryId: forceCategoryId,
@@ -168,6 +173,7 @@ describe('handlers - postArticle', () => {
         html,
         md: undefined,
         xml,
+        videos: undefined,
         pictures: JSON.parse(forcePictures),
         plainText,
       };
