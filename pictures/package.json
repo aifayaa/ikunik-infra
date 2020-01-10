@@ -5,18 +5,12 @@
   "description": "Crowdaa pictures API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.1.0",
-    "source-map-support": "^0.5.8"
+    "mongodb": "^3.4.1"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-source-map-support": "^2.0.1",
-    "babel-preset-env": "^1.7.0",
-    "serverless": "^1.38.0",
-    "serverless-webpack": "^5.2.0",
-    "webpack": "^4.29.5",
-    "webpack-node-externals": "^1.7.2"
+    "serverless": "^1.60.5",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"
