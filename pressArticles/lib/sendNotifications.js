@@ -58,19 +58,13 @@ export const doSendNotifications = async (title, message, appId, extraData) => {
     const sendNotifications = queue(doBlastNotification, 50);
     const results = [];
     let successful = 0;
-    const sendNotificationsDone = new Promise((resolve) => {
-      sendNotifications.drain = () => {
-        resolve();
-      };
-    });
-
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ title, message, endpoint, extraData }, (error, res) => {
         if (!error) successful += 1;
         results.push(error || res);
       });
     });
-    await sendNotificationsDone;
+    await sendNotifications.drain()
     return { successful };
   } finally {
     client.close();
