@@ -1,9 +1,9 @@
 import response from '../libs/httpResponses/response';
 
-export const handleGetPress = async (event, context, callback) => {
+export const handleGetPress = async (event) => {
   try {
-    callback(null, response({ code: 200, body: 'API PRESS OK' }));
+    return response({ code: 200, body: 'API PRESS OK' });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
