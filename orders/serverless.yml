@@ -2,7 +2,7 @@ service: orders
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   region: ${opt:region, "us-east-1"}
   memorySize: 192
@@ -73,4 +73,5 @@ custom:
     dev: mg.crowdaa.com
     prod: mg.crowdaa.com
     awax: mg.crowdaa.com
-  webpackIncludeModules: true
+  webpack:
+    includeModules: true
