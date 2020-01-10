@@ -19,7 +19,7 @@ export default async (event) => {
       appId,
     });
 
-    return response({ code: 200, body: { registerd: true } });
+    return response({ code: 200, body: { registered: true } });
   } catch (e) {
     const code = (e.message === 'already_registered_token') ? 200 : 500;
     return response({ code, message: e.message });
