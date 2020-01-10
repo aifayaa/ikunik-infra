@@ -4,13 +4,12 @@ import response from '../../libs/httpResponses/response';
 
 const permKey = 'pressCategories_all';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const perms = JSON.parse(event.requestContext.authorizer.perms);
   const categoryId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   if (!checkPerms(permKey, perms)) {
-    callback(null, response({ code: 403, message: 'access_forbidden' }));
-    return;
+    return response({ code: 403, message: 'access_forbidden' });
   }
   if (!event.body) {
     throw new Error('malformed_request');
@@ -55,12 +54,12 @@ export default async (event, context, callback) => {
     const results = await putCategory(appId, categoryId, name, pathName, color, picture);
 
     if (results === false) {
-      callback(null, response({ code: 404, message: 'category_not_found' }));
+      return response({ code: 404, message: 'category_not_found' });
     } else {
-      callback(null, response({ code: 200, body: results }));
+      return response({ code: 200, body: results });
     }
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
 
