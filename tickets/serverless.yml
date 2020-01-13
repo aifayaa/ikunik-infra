@@ -2,18 +2,11 @@ service: tickets
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment:
-    MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
-    MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
-    FROM: postmaster
-    COLL_NAME: tickets
-    DB_NAME: crowdaaDev
-    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
-    STAGE: ${self:provider.stage}
+  environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -165,4 +158,3 @@ custom:
     dev: mg.crowdaa.com
     prod: mg.crowdaa.com
     awax: mg.crowdaa.com
-  webpackIncludeModules: true
