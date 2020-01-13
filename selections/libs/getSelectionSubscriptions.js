@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 export default async (selectionId, userId, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL);
   try {
-    const [{ subscriptions }] = await client.db(process.env.DB_NAME)
+    const [{ subscriptions } = {}] = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_SELECTIONS)
       .aggregate([
         {
@@ -42,7 +42,7 @@ export default async (selectionId, userId, appId) => {
           },
         },
       ]).toArray();
-    return subscriptions;
+    return subscriptions || [];
   } finally {
     client.close();
   }
