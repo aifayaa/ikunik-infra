@@ -6,12 +6,10 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment: ${file(../env.yml)}
-  <<<:
-    - environement:
-      MAILGUN_API_KEY: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
-      MAILGUN_DOMAIN: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
-      FLOOD_THRESOLD: 10
+  environment:
+    $<<:
+      - ${file(../env.yml)}
+      - ${file(./env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -45,7 +43,7 @@ functions:
           method: get
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}
           cors: true
           request:
             parameters:
@@ -101,6 +99,7 @@ functions:
                 Authorization: true
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
   - serverless-webpack
 
 package:

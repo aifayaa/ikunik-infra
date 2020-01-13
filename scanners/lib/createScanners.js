@@ -9,7 +9,7 @@ import sendScanner from './sendScanner';
 export default async (userId, profileId, lineupId, email, appId) => {
   const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
   try {
-    const lineup = await getUserLineups(userId, profileId, lineupId);
+    const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {
       throw new Error('lineup_not_found');
     }

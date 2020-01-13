@@ -5,6 +5,7 @@
   "description": "Crowdaa scanners API.",
   "main": "handler.js",
   "dependencies": {
+    "@cruglobal/serverless-merge-config": "^1.1.0",
     "mailgun-js": "^0.22.0",
     "moment": "^2.24.0",
     "mongodb": "^3.4.1",

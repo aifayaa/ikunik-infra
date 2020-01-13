@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
 export default async (userId, profileId, lineupId, appId) => {
-  const lineup = await getUserLineups(userId, profileId, lineupId);
+  const lineup = await getUserLineups(userId, profileId, lineupId, appId);
   if (!lineup) {
     throw new Error('lineup_not_found');
   }
