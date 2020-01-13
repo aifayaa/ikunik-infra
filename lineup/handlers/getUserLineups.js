@@ -10,7 +10,7 @@ export default async (event) => {
       return response({ code: 403, message: 'forbidden' });
     }
 
-    const results = await getUserLineups(userId, profileId, appId);
+    const results = await getUserLineups(userId, profileId, null, appId);
     if (results && Object.keys(results).length) {
       return response({ code: 200, body: results });
     } else {

@@ -8,7 +8,7 @@ const {
 } = process.env;
 
 // TODO optimize by using another function properly for lineupId
-export default async (userId, profileId, appId, lineupId) => {
+export default async (userId, profileId, lineupId, appId) => {
   const aggregat = [
     {
       $match: {
