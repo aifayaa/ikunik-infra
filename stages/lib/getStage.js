@@ -5,7 +5,7 @@ export default async (stageId, appId) => {
   try {
     const stage = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_STAGES)
       .findOne({
         _id: stageId,
         appIds: { $elemMatch: { $eq: appId } },

@@ -5,18 +5,13 @@
   "description": "Crowdaa stages API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.0.2",
-    "source-map-support": "^0.5.8",
-    "uuid": "^3.3.2"
+    "mongodb": "^3.4.1",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-source-map-support": "^2.0.1",
-    "babel-preset-env": "^1.7.0",
-    "serverless": "^1.38.0",
-    "serverless-webpack": "^5.2.0",
-    "webpack": "^4.29.5",
+    "serverless": "^1.61.0",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5",
     "webpack-node-externals": "^1.7.2"
   },
   "author": "Crowdaa",
