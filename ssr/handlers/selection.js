@@ -2,8 +2,9 @@ import getAppId from '../lib/getAppId';
 import getSelection from '../../selections/libs/getSelection';
 import meta from '../lib/meta';
 import redirect from '../lib/redirect';
+import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const redirectUrl = (event.queryStringParameters || {}).redirect_url;
   const { appName } = (event.queryStringParameters || {});
 
@@ -11,8 +12,7 @@ export default async (event, context, callback) => {
     const userAgent = event.headers['User-Agent'];
     const redirectResponse = redirect(userAgent, redirectUrl);
     if (redirectResponse) {
-      callback(null, redirectResponse);
-      return;
+      return redirectResponse;
     }
     const appId = await getAppId(appName);
     const projectId = event.pathParameters.id;
@@ -22,24 +22,8 @@ export default async (event, context, callback) => {
       selection.overrideIcon || selection.tracks[0].title,
       selection.tracks[0].projectMediumFileUrl,
     );
-    const response = {
-      statusCode: 200,
-      body,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    return response({ code: 200, body, raw: true });
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify(e.message),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    return response({ code: 500, message: e.message });
   }
 };

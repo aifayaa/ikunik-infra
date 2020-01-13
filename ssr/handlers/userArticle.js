@@ -1,4 +1,4 @@
-import buildResponse from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import getAppId from '../lib/getAppId';
 import getUserGeneratedContents from '../../userGeneratedContents/lib/getUserGeneratedContents';
 import meta from '../lib/meta';
@@ -25,7 +25,7 @@ export default async (event) => {
       prepareNotifString(article.data.content, 120),
       pictureUrl,
     );
-    return buildResponse({ code: 200, body, raw: true });
+    return response({ code: 200, body, raw: true });
   } catch (e) {
     let code;
     switch (e.message) {
@@ -35,6 +35,6 @@ export default async (event) => {
       default:
         code = 500;
     }
-    return buildResponse({ code, message: e.message });
+    return response({ code, message: e.message });
   }
 };
