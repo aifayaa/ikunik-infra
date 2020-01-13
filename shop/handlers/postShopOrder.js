@@ -1,7 +1,7 @@
 import postShopOrder from '../lib/postShopOrder';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   const productId = event.pathParameters.id;
@@ -18,8 +18,8 @@ export default async (event, context, callback) => {
       throw new Error('Mal formed request');
     }
     const results = await postShopOrder(userId, productId, qty, address, variantId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
