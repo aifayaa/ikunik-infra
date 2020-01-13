@@ -3,7 +3,7 @@ import buyTickets from '../lib/buyTickets';
 import sendTicket from '../lib/sendTicket';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   try {
@@ -21,12 +21,12 @@ export default async (event, context, callback) => {
     } catch (error) {
       winston.warn('Failed to send ticket', error);
     }
-    callback(null, response({ code: 200, body: true }));
+    return response({ code: 200, body: true });
   } catch (e) {
     if (e.message === 'ticket_formatting_failed') {
-      callback(null, response({ code: 200, body: true }));
+      return response({ code: 200, body: true });
     } else {
-      callback(null, response({ code: 500, message: e.message }));
+      return response({ code: 500, message: e.message });
     }
   }
 };

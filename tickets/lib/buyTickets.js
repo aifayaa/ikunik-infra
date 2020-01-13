@@ -60,7 +60,6 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
     if (ticketCat.sold >= ticketCat.quota) {
       throw new Error('no more tickets available');
     }
-
     ticketId = await insertTicket(
       categoryId,
       serial,
@@ -70,9 +69,10 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
       firstName,
       lastName,
       userId,
+      appId,
       opts,
     );
-
+    
     await removeCredits(userId, appId, `${price}`, opts);
     if (!hasUpperSession) await session.commitTransaction();
   } catch (error) {
