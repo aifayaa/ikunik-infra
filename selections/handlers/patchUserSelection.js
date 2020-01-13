@@ -2,13 +2,12 @@ import response from '../../libs/httpResponses/response';
 import patchUserSelection from '../libs/patchUserSelection';
 import generatePatchUserSelection from '../libs/generatePatchUserSelection';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const urlId = event.pathParameters.id;
   if (userId !== urlId) {
-    callback(null, response({ code: 403, message: 'Forbiden' }));
-    return;
+    return response({ code: 403, message: 'Forbiden' });
   }
   try {
     const { selectionId } = event.pathParameters;
@@ -32,8 +31,8 @@ export default async (event, _context, callback) => {
       );
       results = await patchUserSelection(selectionId, userId, appId, modifier, true);
     }
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
