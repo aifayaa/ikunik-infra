@@ -4,9 +4,13 @@ import zipObject from 'lodash/zipObject';
 import { MongoClient } from 'mongodb';
 
 const {
-  PROJECTS,
   MONGO_URL,
   DB_NAME,
+  COLL_ARTISTS,
+  COLL_AUDIOS,
+  COLL_PROJECTS,
+  COLL_SELECTIONS,
+  COLL_VIDEOS,
 } = process.env;
 
 const searchArtists = async (collection, text, appId) => collection.aggregate([
@@ -25,7 +29,7 @@ const searchArtists = async (collection, text, appId) => collection.aggregate([
   },
   {
     $lookup: {
-      from: PROJECTS,
+      from: COLL_PROJECTS,
       localField: 'projectId',
       foreignField: '_id',
       as: 'project',
@@ -55,7 +59,7 @@ const searchMedia = async (collection, text, appId) => collection.aggregate([
   { $limit: 10 },
   {
     $lookup: {
-      from: PROJECTS,
+      from: COLL_PROJECTS,
       localField: 'project_ID',
       foreignField: '_id',
       as: 'project',
@@ -84,11 +88,11 @@ export default async (text, appId) => {
   };
   try {
     const results = await Promise.all([
-      searchMedia(client.db(DB_NAME).collection('audio'), text, appId),
-      searchMedia(client.db(DB_NAME).collection('video'), text, appId),
-      searchArtists(client.db(DB_NAME).collection('artists'), text, appId),
-      client.db(DB_NAME).collection('Project').find(query).toArray(),
-      client.db(DB_NAME).collection('selection').find(query).toArray(),
+      searchMedia(client.db(DB_NAME).collection(COLL_AUDIOS), text, appId),
+      searchMedia(client.db(DB_NAME).collection(COLL_VIDEOS), text, appId),
+      searchArtists(client.db(DB_NAME).collection(COLL_ARTISTS), text, appId),
+      client.db(DB_NAME).collection(COLL_PROJECTS).find(query).toArray(),
+      client.db(DB_NAME).collection(COLL_SELECTIONS).find(query).toArray(),
     ]);
     return omitBy(zipObject(['audios', 'videos', 'artists', 'projects', 'selections'], results), isEmpty);
   } finally {
