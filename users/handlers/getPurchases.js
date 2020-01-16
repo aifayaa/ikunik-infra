@@ -6,13 +6,12 @@ export default async (event, _context, callback) => {
   const urlId = event.pathParameters.id;
   const { appId, profileId } = event.requestContext.authorizer;
   if (userId !== urlId) {
-    callback(null, response({ code: 403, message: 'Forbidden' }));
-    return;
+    return response({ code: 403, message: 'Forbidden' });
   }
   try {
     const results = await getPurchases(userId, profileId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

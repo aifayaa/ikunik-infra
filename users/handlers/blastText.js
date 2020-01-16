@@ -8,7 +8,7 @@ const lambda = new Lambda({
 });
 
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     // TODO: check if user is a fan of artist when DB repaired
     const { appId } = event.requestContext.authorizer;
@@ -25,8 +25,8 @@ export default async (event, _context, callback) => {
       Payload: JSON.stringify({ phones, message, opts }),
     };
     const res = await lambda.invoke(params).promise();
-    callback(null, response({ code: 200, body: res }));
+    return response({ code: 200, body: res });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };
