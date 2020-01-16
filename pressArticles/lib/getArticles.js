@@ -41,6 +41,8 @@ export const getArticles = async (
 
     if (categoryId) {
       $match.categoryId = categoryId;
+    } else if (!noCategory) {
+      $match.categoryId = { $ne: null };
     }
 
     let $sort = { createdAt: -1 };
@@ -216,7 +218,6 @@ export const getArticles = async (
 
     /* Group stage could break sorting, ensure all is well sorted */
     pipeline.push({ $sort });
-
     const [articles = [], total = 0] = await Promise.all([
       client
         .db(DB_NAME)
