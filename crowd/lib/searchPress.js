@@ -1,14 +1,12 @@
 import { MongoClient } from 'mongodb';
 
 const {
-  COLL_USERS,
   COLL_USER_METRICS,
   DB_NAME,
   MONGO_URL,
 } = process.env;
 
 export default async (pipeline, {
-  coordinates,
   limit = 20,
   page = 1,
   sortBy = 'views',
@@ -79,7 +77,7 @@ export default async (pipeline, {
     );
 
     const [result] = await client.db(DB_NAME)
-      .collection(coordinates ? COLL_USERS : COLL_USER_METRICS)
+      .collection(COLL_USER_METRICS)
       .aggregate(pipeline)
       .toArray();
 
