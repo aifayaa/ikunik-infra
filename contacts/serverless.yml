@@ -66,11 +66,6 @@ plugins:
 package:
   individually: true
 
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
-
 resources:
   Resources:
     ApiGatewayMethodContactsGet:

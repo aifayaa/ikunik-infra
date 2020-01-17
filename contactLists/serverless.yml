@@ -75,10 +75,6 @@ plugins:
 package:
   individually: true
 
-custom:
-  webpack:
-    includeModules: true
-
 resources:
   Resources:
     ApiGatewayMethodContactlistsIdVarGet:

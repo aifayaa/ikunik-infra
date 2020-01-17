@@ -73,5 +73,3 @@ custom:
     dev: mg.crowdaa.com
     prod: mg.crowdaa.com
     awax: mg.crowdaa.com
-  webpack:
-    includeModules: true

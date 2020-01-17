@@ -210,8 +210,6 @@ custom:
       dev: blast-dev-blastNotification
       prod: blast-prod-blastNotification
       awax: blast-prod-blastNotification
-  webpack:
-    includeModules: true
 
 resources:
   Outputs:

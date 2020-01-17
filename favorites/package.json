@@ -5,13 +5,13 @@
   "description": "Crowdaa favorites API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.598.0",
+    "aws-sdk": "^2.605.0",
     "lodash": "^4.17.15",
-    "mongodb": "^3.4.1",
+    "mongodb": "^3.5.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "serverless": "^1.60.5",
+    "serverless": "^1.61.2",
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.5"
   },

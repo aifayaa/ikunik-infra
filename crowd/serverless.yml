@@ -100,9 +100,6 @@ package:
   individually: true
 
 custom:
-  webpack:
-    includeModules: true
-
   IntegrationRequestParameters:
     integration.request.header.x-api-key: method.request.header.x-api-key
     integration.request.querystring.articleId: method.request.querystring.articleId

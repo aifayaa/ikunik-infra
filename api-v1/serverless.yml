@@ -60,9 +60,6 @@ custom:
     prod: mg.crowdaa.com
     awax: mg.crowdaa.com
 
-  webpack:
-    includeModules: true
-
 resources:
   Resources:
     ApiGatewayStage:

@@ -7,19 +7,18 @@
   "dependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
     "async": "^3.1.0",
-    "aws-sdk": "^2.598.0",
+    "aws-sdk": "^2.605.0",
     "mailgun-js": "^0.22.0",
-    "mongodb": "^3.4.1",
+    "mongodb": "^3.5.0",
     "nodemailer": "^6.4.2",
     "phone": "^2.4.3",
     "validator": "^12.1.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "serverless": "^1.60.5",
+    "serverless": "^1.61.2",
     "serverless-webpack": "^5.3.1",
-    "webpack": "^4.41.5",
-    "webpack-node-externals": "^1.7.2"
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"

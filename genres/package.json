@@ -5,10 +5,10 @@
   "description": "Crowdaa genre API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.4.1"
+    "mongodb": "^3.5.0"
   },
   "devDependencies": {
-    "serverless": "^1.60.5",
+    "serverless": "^1.61.2",
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.5"
   },

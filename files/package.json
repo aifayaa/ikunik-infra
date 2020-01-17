@@ -5,14 +5,14 @@
   "description": "Crowdaa files API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.598.0",
-    "mongodb": "^3.4.1",
-    "sharp": "^0.23.4",
-    "uuid": "^3.3.3"
+    "aws-sdk": "^2.605.0",
+    "mongodb": "^3.5.0",
+    "sharp": "^0.24.0",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
-    "serverless": "^1.60.5",
+    "serverless": "^1.61.2",
     "serverless-export-env": "^1.2.0",
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.5"
