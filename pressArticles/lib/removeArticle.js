@@ -8,9 +8,7 @@ const {
 } = process.env;
 
 export const removeArticle = async (_userId, appId, articleId) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
   let session;
 
   try {

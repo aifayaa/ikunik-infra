@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 export default async (appName) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
 
   try {
     const app = await client

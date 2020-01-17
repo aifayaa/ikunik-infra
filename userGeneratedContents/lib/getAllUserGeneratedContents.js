@@ -10,7 +10,7 @@ const {
 export default async (appId, start, limit, type, userId) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
     const $match = {};
 

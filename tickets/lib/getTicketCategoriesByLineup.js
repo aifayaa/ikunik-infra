@@ -23,7 +23,7 @@ const ticketCategoriesFields = {
 };
 
 export default async (lineupId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     let ticketCategories;
     if (userId) {

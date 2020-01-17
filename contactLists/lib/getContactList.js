@@ -8,7 +8,7 @@ export default async (_userId, profileId, contactListId, appId, {
     MONGO_URL,
     DB_NAME,
   } = process.env;
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const opts = {};
     opts.limit = limit | 0;

@@ -69,9 +69,7 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
 
     if (openClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = await MongoClient.connect(MONGO_URL, {
-        useNewUrlParser: true,
-      });
+      mongoClient = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
     }
     try {
       await mongoClient

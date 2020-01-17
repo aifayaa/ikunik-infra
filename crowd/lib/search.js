@@ -9,7 +9,7 @@ const {
 export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
   if (page && typeof page !== 'number') page = parseInt(page, 10);
   if (limit && typeof limit !== 'number') limit = parseInt(limit, 10);
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     if (filterUserInfo) {
       pipeline.push({

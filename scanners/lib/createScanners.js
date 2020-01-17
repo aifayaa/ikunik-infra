@@ -7,7 +7,7 @@ import getUserLineups from '../../lineup/lib/getUserLineups';
 import sendScanner from './sendScanner';
 
 export default async (userId, profileId, lineupId, email, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {

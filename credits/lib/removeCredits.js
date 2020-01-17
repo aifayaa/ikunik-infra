@@ -13,7 +13,7 @@ export default async (userID, appId, amount, opts = {}) => {
     throw new Error('Wrong amount');
   }
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const res = await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({

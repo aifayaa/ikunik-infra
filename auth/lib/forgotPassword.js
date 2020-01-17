@@ -14,9 +14,7 @@ const {
 } = process.env;
 
 export const forgotPassword = async (email, urlScheme, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);

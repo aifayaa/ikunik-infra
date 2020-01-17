@@ -3,7 +3,7 @@ import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
 export default async (userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const token = generateToken();
     const hash = hashToken(token);

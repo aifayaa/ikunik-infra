@@ -15,7 +15,7 @@ export default async (type, profileId, qty, appId) => {
       break;
     default:
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const res = await client
       .db(process.env.DB_NAME)

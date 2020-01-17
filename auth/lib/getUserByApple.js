@@ -17,9 +17,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
 } = {}) => {
   // TODO:verify identityToken => https://developer.apple.com/documentation/signinwithapplerestapi/verifying_a_user
 
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const db = client.db(DB_NAME);
     const app = await db.collection(COLL_APPS).findOne({

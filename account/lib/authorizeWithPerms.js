@@ -9,7 +9,7 @@ export default async (hashedToken, appId) => {
     MONGO_URL,
   } = process.env;
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   try {
     const user = await client.db(DB_NAME).collection(COLL_USERS).findOne(

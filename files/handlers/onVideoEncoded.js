@@ -14,9 +14,7 @@ export default async (event) => {
     Message: message,
   } = event.Records[0].Sns;
 
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
 
   try {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);

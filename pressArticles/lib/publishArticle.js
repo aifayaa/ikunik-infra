@@ -8,9 +8,7 @@ const {
 } = process.env;
 
 export const publishArticle = async (userId, appId, articleId, draftId, publicationDate) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
   let session;
 
   try {

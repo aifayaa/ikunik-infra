@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 const { MONGO_URL, DB_NAME, COLL_APPS } = process.env;
 
 export default async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const app = await client
       .db(DB_NAME)

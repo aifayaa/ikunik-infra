@@ -7,7 +7,7 @@ const {
   MONGO_URL,
 } = process.env;
 export const doDeleteUserSelection = async (selectionIds, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     Promise.all([
       client
@@ -31,7 +31,7 @@ export const doDeleteUserSelection = async (selectionIds, appId) => {
 };
 
 export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const selection = await client
       .db(DB_NAME)

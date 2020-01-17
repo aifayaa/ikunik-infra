@@ -18,9 +18,7 @@ const {
 export default async (userId, appId, files, metadata) => {
   const insertions = {};
   const returns = [];
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
 
   files.forEach((file) => {
     const {

@@ -50,7 +50,7 @@ export default async (userId, profileId, lineupId, appId) => {
     });
     aggregat.push({ $match: { 'lineups._id': lineupId } });
   }
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     let lineups = await client
       .db(DB_NAME)

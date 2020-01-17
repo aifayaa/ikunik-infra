@@ -15,7 +15,7 @@ const lambda = new Lambda({
 });
 
 export default async (id, resp, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const payout = await getPayout(id, appId);
     if (!payout) throw new Error('payout not found');

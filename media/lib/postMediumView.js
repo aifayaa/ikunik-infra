@@ -14,7 +14,7 @@ const {
 } = process.env;
 
 export default async (userId, appId, mediumType, mediumId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     let medium;
     let mediaCol;

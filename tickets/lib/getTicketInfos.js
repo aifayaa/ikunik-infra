@@ -9,7 +9,7 @@ const {
 } = process.env;
 
 export default async (categoryId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     return await client.db(DB_NAME)
       .collection(COLL_TICKET_CATEGORIES)

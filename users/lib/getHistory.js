@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 export default async (userId, appId, { limit } = {}) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
 
   try {
     limit = parseInt(limit, 10) || 20;

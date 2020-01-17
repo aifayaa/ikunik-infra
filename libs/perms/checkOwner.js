@@ -14,7 +14,7 @@ export default async (
   options = { useTrashedField: true },
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   try {
     const findObj = {

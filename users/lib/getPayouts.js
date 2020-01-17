@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 
 // TODO substract rejected payout from others
 export default async (userId, profileId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const record = await client
       .db(process.env.DB_NAME)

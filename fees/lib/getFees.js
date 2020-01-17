@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import round from 'mongo-round';
 
 export default async () => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const res = await client
       .db(process.env.DB_NAME)

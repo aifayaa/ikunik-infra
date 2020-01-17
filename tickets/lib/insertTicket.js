@@ -20,7 +20,7 @@ export default async (
   opts,
 ) => {
   const ticketId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const ticket = {
       _id: ticketId,

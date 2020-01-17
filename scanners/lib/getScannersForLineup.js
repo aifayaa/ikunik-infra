@@ -6,7 +6,7 @@ export default async (userId, profileId, lineupId, appId) => {
   if (!lineup) {
     throw new Error('lineup_not_found');
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const scanners = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_SCANNERS)

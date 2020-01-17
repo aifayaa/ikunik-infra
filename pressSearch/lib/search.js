@@ -108,7 +108,7 @@ const searchArticle = async (
 };
 
 export default async (text, appId, { skip, limit }) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   const {
     DB_NAME,
     COLL_PRESS_ARTICLES,

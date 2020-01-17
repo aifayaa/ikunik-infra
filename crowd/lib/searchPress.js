@@ -12,7 +12,7 @@ export default async (pipeline, {
   sortBy = 'views',
   sortOrder = 'asc',
 }) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);

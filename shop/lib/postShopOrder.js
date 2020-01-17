@@ -18,7 +18,7 @@ const lambda = new Lambda({
 });
 
 export default async (userId, productId, qty, address, variantId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   try {
     /* check if 1 <= qty <=10 */

@@ -7,7 +7,7 @@ export default async (userId, appId, medium) => {
       state: 'locked',
     };
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   const { DB_NAME } = process.env;
   const db = client.db(DB_NAME);
   const mediumId = medium._id;

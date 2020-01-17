@@ -22,9 +22,7 @@ const HLSVideos = [
 ];
 
 export default async (bucket, object, file) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
 
   /* all key names are lowercaser in metadata */
   const {

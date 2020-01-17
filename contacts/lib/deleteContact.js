@@ -7,7 +7,7 @@ const {
   COLL_ARTIST_CONTACT_LIST,
 } = process.env;
 export default async (_userId, profileId, contactId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     await client.db(DB_NAME)
       .collection(COLL_CONTACTS)

@@ -27,7 +27,7 @@ export default async (phone) => {
     createAt: new Date(),
     validated: false,
   };
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     await client
       .db(DB_NAME)

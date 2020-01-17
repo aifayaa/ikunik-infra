@@ -34,7 +34,7 @@ i18n.configure({
 });
 
 export default async (lineupId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const lineup = await client
       .db(DB_NAME)

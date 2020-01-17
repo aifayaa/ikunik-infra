@@ -23,7 +23,7 @@ export default async (type, profileId, qte, appId) => {
       break;
     default:
   }
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const res = await client.db(DB_NAME).collection(collName)
       .updateOne({

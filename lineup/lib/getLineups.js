@@ -11,7 +11,7 @@ const {
 } = process.env;
 
 export default async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const lineups = await client.db(DB_NAME)
       .collection(COLL_LINEUPS)

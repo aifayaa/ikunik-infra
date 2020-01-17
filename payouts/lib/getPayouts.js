@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 export default async (appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const selector = {
       state: { $in: ['processing', 'pending'] },

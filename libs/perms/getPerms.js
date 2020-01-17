@@ -28,7 +28,7 @@ export default async (userId, appId) => {
       },
     },
   ];
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const [{ permGroups } = {}] = await client
       .db(DB_NAME)

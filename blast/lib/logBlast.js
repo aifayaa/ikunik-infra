@@ -32,7 +32,7 @@ export default async (type, message, qte, { userId, listId, projectId, appId }) 
       profileId = JSON.parse(body)._id;
     }
 
-    client = await MongoClient.connect(MONGO_URL);
+    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
     await client
       .db(DB_NAME)
       .collection(COLL_BLASTS)

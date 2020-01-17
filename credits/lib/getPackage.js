@@ -7,7 +7,7 @@ const {
 } = process.env;
 
 export default async (id, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const creditPackage = await client
       .db(DB_NAME)

@@ -6,7 +6,7 @@ export default async (name, addr, appId) => {
     throw new Error('bad arguments');
   }
   const stageId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const stage = {
       _id: stageId,

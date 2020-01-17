@@ -49,7 +49,7 @@ export default async (userId, profileId, amount, method, appId) => {
     profileId: profile._id,
   };
 
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_PAYOUTS)

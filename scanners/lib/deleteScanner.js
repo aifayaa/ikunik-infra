@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
 export default async (userId, profileId, scannerId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   let session;
   try {
     session = client.startSession();

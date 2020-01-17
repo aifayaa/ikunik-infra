@@ -59,7 +59,7 @@ export default async (
   });
 
   const cartId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const cart = {
       _id: cartId,

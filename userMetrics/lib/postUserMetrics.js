@@ -15,7 +15,7 @@ export default async (
   data = {},
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   try {
     /* Prepare the object to insert in the database */

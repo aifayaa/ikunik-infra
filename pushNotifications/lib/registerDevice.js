@@ -30,7 +30,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     check.not.string(platform)
   ) throw new Error('wrong_args_type');
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const app = await client.db(DB_NAME)
       .collection(COLL_APPS).findOne({ _id: appId });

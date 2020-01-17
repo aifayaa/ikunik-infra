@@ -35,7 +35,7 @@ const checkDocuments = async (userId, mediaIds, appId) => {
 };
 
 export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     checkDocuments(userId, mediaIds);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
@@ -91,7 +91,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
 };
 
 export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     checkDocuments(userId, mediaIds, appId);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };

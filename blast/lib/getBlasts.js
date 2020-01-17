@@ -9,7 +9,7 @@ const {
 export default async (userId, appId, {
   limit, skip, sortBy, sortOrder, type,
 } = {}) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const selector = {
       fromUser_ID: userId,

@@ -23,7 +23,7 @@ export default async (
   selectionIds,
   action = 'replace',
 ) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     if (selectionIds && selectionIds.length > 0) {
       const checked = await checkSelectionsOwner(selectionIds, userId);

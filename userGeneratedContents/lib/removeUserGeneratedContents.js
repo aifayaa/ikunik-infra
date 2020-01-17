@@ -12,7 +12,7 @@ export default async (
   userGeneratedContentsId,
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const { matchedCount } = await client
       .db(DB_NAME)

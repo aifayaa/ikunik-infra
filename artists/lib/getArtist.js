@@ -23,7 +23,7 @@ const artistFields = [
 ];
 
 export default async (artistId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const artist = await client
       .db(DB_NAME)

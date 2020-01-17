@@ -8,7 +8,7 @@ const {
 } = process.env;
 
 export const getArticleDraft = async (articleId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const articles = await client.db(DB_NAME)
       .collection(COLL_PRESS_DRAFTS)

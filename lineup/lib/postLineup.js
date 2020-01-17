@@ -76,7 +76,7 @@ export default async (
     await lambda.addPermission(paramsLambda).promise();
   }
 
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   const lineup = {
     _id: lineupId,
     festivalId,

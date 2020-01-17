@@ -27,7 +27,7 @@ export const getTos = async (appId, tosId, options = {}) => {
     query.required = options.required;
   }
   const { public: projection } = tosFields;
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const tos = await client
       .db(DB_NAME)

@@ -7,7 +7,7 @@ const {
 } = process.env;
 
 export default async (userId, artistId, appId, isFavorite) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   const favoriteData = {
     userId,
     artistId,

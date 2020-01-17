@@ -4,7 +4,7 @@ export default async (userId, subIds, appId) => {
   if (!subIds) return true;
   subIds = Array.isArray(subIds) ? subIds : [subIds];
   if (!subIds.length) return true;
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const res = await client
       .db(process.env.DB_NAME)

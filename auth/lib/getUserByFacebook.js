@@ -19,9 +19,7 @@ export const getUserByFacebook = async (userToken, appId) => {
     expiresAt,
     fbUserId,
   } = await getFacebookLongLiveToken(userToken, appToken, settings);
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   let userId; // will be retrieved from db or set on user created
   try {
     const collection = await client.db(DB_NAME).collection(COLL_USERS);

@@ -22,7 +22,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
       secretAccessKey: SNS_SECRET,
     },
   });
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const { value } = await client
       .db(DB_NAME)

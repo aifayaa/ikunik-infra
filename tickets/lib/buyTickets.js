@@ -41,7 +41,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
   const { price, lineup } = ticketInfo;
   const hasUpperSession = !!options.session;
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   let opts;
   let session;
   try {

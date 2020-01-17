@@ -81,7 +81,7 @@ const searchMedia = async (collection, text, appId) => collection.aggregate([
 ]).toArray();
 
 export default async (text, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   const query = {
     $text: { $search: text },
     appIds: { $elemMatch: { $eq: appId } },

@@ -7,7 +7,7 @@ const {
   COLL_VIDEOS,
 } = process.env;
 export default async (userId, appId, mediaIds) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const audios = await client
       .db(DB_NAME)

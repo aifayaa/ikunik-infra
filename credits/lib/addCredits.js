@@ -15,7 +15,7 @@ export default async (userID, appId, amount, opts = {}) => {
 
   opts.upsert = true;
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({

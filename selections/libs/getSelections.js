@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 
 export default async ({ type, web, mobile, root, appId }) => {
   const { MONGO_URL, DB_NAME, COLL_SELECTIONS } = process.env;
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const selector = {
       appIds: { $elemMatch: { $eq: appId } },

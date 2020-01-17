@@ -36,7 +36,7 @@ export const putArticle = async ({
   }
 
   const draftId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const { _id } = await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
       .findOne({ articleId }, { sort: { createdAt: -1 } });

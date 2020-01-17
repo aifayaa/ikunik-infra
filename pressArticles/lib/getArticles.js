@@ -20,9 +20,7 @@ export const getArticles = async (
 ) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, {
-      useNewUrlParser: true,
-    });
+    client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
 
     const $match = {
       appIds: { $elemMatch: { $eq: appId } },

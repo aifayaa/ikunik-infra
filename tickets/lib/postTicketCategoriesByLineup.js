@@ -26,7 +26,7 @@ export default async (
   }
 
   const catId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {

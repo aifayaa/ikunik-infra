@@ -53,7 +53,7 @@ export default async (token, cartId, userId) => {
   });
 
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
     session = client.startSession();
     session.startTransaction();
     opts = { session };

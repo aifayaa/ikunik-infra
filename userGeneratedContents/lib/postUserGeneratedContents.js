@@ -17,7 +17,7 @@ export default async (
   data,
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   try {
     /* Otherwise, insert the category to the database and return it */

@@ -39,7 +39,7 @@ export const postArticle = async ({
   const articleId = uuidv4();
   const draftId = uuidv4();
   let session;
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const article = {
       _id: articleId,

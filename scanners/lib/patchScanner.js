@@ -6,7 +6,7 @@ import getUserLineups from '../../lineup/lib/getUserLineups';
 import sendScanner from './sendScanner';
 
 export default async (userId, profileId, scannerId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   const curDate = new Date();
   let session;
   try {

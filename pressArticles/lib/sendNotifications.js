@@ -46,7 +46,7 @@ const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) =
 };
 
 export const doSendNotifications = async (title, message, appId, extraData) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const endpoints = await client
       .db(DB_NAME)

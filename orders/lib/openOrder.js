@@ -24,7 +24,7 @@ export default async (creditPackId, userId) => {
   if (!pack) {
     throw new Error('Unknown credit pack asked');
   }
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const { price, credits } = pack;
     const billing = {

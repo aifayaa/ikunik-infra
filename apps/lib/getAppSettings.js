@@ -9,7 +9,7 @@ const {
 export default async (appId) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
     const application = await client.db(DB_NAME)
       .collection(COLL_APPS)

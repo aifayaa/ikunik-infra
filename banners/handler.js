@@ -3,7 +3,7 @@ import response from '../libs/httpResponses/response';
 
 const { MONGO_URL, DB_NAME, COLL_BANNERS } = process.env;
 const doGetBanners = async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const selector = {
       appIds: {

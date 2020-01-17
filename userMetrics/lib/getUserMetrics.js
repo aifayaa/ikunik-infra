@@ -10,7 +10,7 @@ const {
 export default async (appId, userMetricsId) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
     const $project = {
       _id: 1,

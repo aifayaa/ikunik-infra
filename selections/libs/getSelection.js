@@ -38,7 +38,7 @@ const selectionFields = [
 ];
 
 export default async (selectionId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const [selections, userSubscriptions] = await Promise.all([
       client

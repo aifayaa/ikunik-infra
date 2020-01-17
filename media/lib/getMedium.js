@@ -21,7 +21,7 @@ const lambda = new Lambda({
 
 
 export default async (userId, appId, mediumType, mediumId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const query = {
       _id: mediumId,

@@ -9,7 +9,7 @@ const {
 } = process.env;
 
 export default async (ticketSerial, scannerId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const [[ticket], scanner] = await Promise.all([
       client

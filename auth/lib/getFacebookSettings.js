@@ -10,9 +10,7 @@ const {
 } = process.env;
 
 export const getFacebookSettings = async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
   try {
     const db = await client.db(DB_NAME);
     const {

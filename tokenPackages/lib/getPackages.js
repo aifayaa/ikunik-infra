@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 export default async (appId, opts) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
   try {
     const selector = { appIds: { $elemMatch: { $eq: appId } } };
     if (opts.type) selector.type = opts.type;

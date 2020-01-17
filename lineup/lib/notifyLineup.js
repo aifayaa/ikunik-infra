@@ -38,7 +38,7 @@ const {
 } = process.env;
 
 export default async (lineupId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const toNotify = await client
       .db(DB_NAME)

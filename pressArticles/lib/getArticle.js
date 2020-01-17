@@ -15,7 +15,7 @@ export const getArticle = async (
   appId,
   { getPictures = false, isServer = false, publishedOnly = false } = {},
 ) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const $match = {
       _id: id,

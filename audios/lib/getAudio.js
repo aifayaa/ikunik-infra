@@ -10,7 +10,7 @@ export default async (audioId, appId) => {
     COLL_AUDIOS,
   } = process.env;
 
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
   try {
     const audio = await client
       .db(DB_NAME)

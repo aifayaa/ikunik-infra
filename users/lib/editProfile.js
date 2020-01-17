@@ -12,7 +12,7 @@ export default async (userId, appId, {
   const $set = {
     'profile.username': `${username}`,
   };
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
 
   try {
     const { matchedCount } = await client

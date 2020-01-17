@@ -10,9 +10,7 @@ import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUser
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
 
 export const register = async (email, username, password, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
 
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
