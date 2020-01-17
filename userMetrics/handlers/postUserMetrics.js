@@ -78,6 +78,9 @@ export default async (event) => {
             throw new Error('Wrong argument type');
           }
         });
+        data.location = [data.longitude, data.latitude];
+        delete data.longitude;
+        delete data.latitude;
         break;
       default: throw new Error('Unsupported type');
     }
