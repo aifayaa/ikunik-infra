@@ -1,7 +1,7 @@
 import doGetFestival from '../lib/getFestival';
 import response from '../../libs/httpResponses/response';
 
-export const handleGetFestival = async (event, _context, callback) => {
+export const handleGetFestival = async (event) => {
   const festivalId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   try {

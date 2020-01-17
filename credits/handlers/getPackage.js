@@ -1,7 +1,7 @@
 import getPackage from '../lib/getPackage';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { id } = event.pathParameters;
   const { appId } = event.requestContext.authorizer;
   try {

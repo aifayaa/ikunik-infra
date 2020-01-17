@@ -1,7 +1,7 @@
 import getContactList from '../lib/getContactList';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
     const { appId, profileId } = event.requestContext.authorizer;
