@@ -5,11 +5,11 @@
   "description": "Crowdaa stages API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.4.1",
-    "uuid": "^3.3.3"
+    "mongodb": "^3.5.0",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "serverless": "^1.61.0",
+    "serverless": "^1.61.2",
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.5"
   },

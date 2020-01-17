@@ -5,15 +5,15 @@
   "description": "Crowdaa server-side rendering",
   "main": "handler.js",
   "dependencies": {
-    "lodash": "^4.17.10",
-    "mongodb": "^3.0.2",
-    "source-map-support": "^0.5.8"
+    "lodash": "^4.17.15",
+    "mongodb": "^3.5.0",
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
-    "serverless": "^1.38.0",
-    "serverless-domain-manager": "^2.6.13",
-    "serverless-webpack": "^5.2.0",
-    "webpack": "^4.29.5"
+    "serverless": "^1.61.2",
+    "serverless-domain-manager": "^3.3.1",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"

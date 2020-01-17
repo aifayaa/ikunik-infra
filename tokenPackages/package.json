@@ -5,12 +5,12 @@
   "description": "Crowdaa token packages API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.604.0",
+    "aws-sdk": "^2.605.0",
     "mongodb": "^3.5.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "serverless": "^1.61.1",
+    "serverless": "^1.61.2",
     "serverless-webpack": "^5.3.1",
     "webpack": "^4.41.5"
   },

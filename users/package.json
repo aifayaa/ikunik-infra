@@ -8,7 +8,7 @@
     "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
-    "aws-sdk": "^2.604.0",
+    "aws-sdk": "^2.605.0",
     "lodash": "^4.17.15",
     "mongodb": "^3.5.0",
     "phone": "^2.4.3",
