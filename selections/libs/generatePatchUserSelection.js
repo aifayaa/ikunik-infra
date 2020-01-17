@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
 import checkSelectionsOwner from './checkSelectionsOwner';
 import queryReplace from './queryReplace';
@@ -23,7 +23,7 @@ export default async (
   selectionIds,
   action = 'replace',
 ) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     if (selectionIds && selectionIds.length > 0) {
       const checked = await checkSelectionsOwner(selectionIds, userId);

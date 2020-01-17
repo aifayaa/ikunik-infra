@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_BALANCE_EMAILS,
@@ -72,7 +72,7 @@ export default async (userId, type, appId) => {
   ];
 
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
     const record = await client
       .db(DB_NAME)
       .collection(COLL_PROFILES)

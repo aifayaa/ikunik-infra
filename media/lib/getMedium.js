@@ -1,5 +1,5 @@
 import Lambda from 'aws-sdk/clients/lambda';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import { URL } from 'url';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
@@ -21,7 +21,7 @@ const lambda = new Lambda({
 
 
 export default async (userId, appId, mediumType, mediumId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const query = {
       _id: mediumId,

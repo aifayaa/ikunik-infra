@@ -2,7 +2,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
 import winston from 'winston';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import '../locales/fr.json';
 import '../locales/en.json';
 
@@ -38,7 +38,7 @@ const {
 } = process.env;
 
 export default async (lineupId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const toNotify = await client
       .db(DB_NAME)

@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_USERS,
@@ -12,7 +12,7 @@ export default async (userId, appId, {
   const $set = {
     'profile.username': `${username}`,
   };
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
 
   try {
     const { matchedCount } = await client

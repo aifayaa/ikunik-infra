@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
 import zipObject from 'lodash/zipObject';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   MONGO_URL,
@@ -81,7 +81,7 @@ const searchMedia = async (collection, text, appId) => collection.aggregate([
 ]).toArray();
 
 export default async (text, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   const query = {
     $text: { $search: text },
     appIds: { $elemMatch: { $eq: appId } },

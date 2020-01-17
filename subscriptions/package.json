@@ -6,8 +6,7 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.605.0",
-    "moment": "^2.24.0",
-    "mongodb": "^3.5.0"
+    "moment": "^2.24.0"
   },
   "devDependencies": {
     "serverless": "^1.61.2",

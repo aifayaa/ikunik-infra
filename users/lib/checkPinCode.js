@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
@@ -22,7 +22,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
       secretAccessKey: SNS_SECRET,
     },
   });
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const { value } = await client
       .db(DB_NAME)

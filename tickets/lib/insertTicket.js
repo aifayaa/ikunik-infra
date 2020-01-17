@@ -1,5 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_TICKETS,
@@ -20,7 +20,7 @@ export default async (
   opts,
 ) => {
   const ticketId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const ticket = {
       _id: ticketId,

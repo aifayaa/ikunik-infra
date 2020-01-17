@@ -1,9 +1,9 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 import indexes from './indexes.json';
 
 export default async () => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const tasks = Object.keys(indexes).map((collection =>
       client.db(process.env.DB_NAME).collection(collection).createIndex(indexes[collection])

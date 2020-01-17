@@ -19,6 +19,6 @@ export const handleArtist = async (event) => {
     const body = meta(artist.artistName, artist.biography, artist.avatar);
     return response({ code: 200, body, raw: true });
   } catch (e) {
-    return response({ code: 500, message: e.message });;
+    return response({ code: 500, message: e.message });
   }
 };

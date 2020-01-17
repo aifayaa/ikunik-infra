@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_CONTACTS,
@@ -11,7 +11,7 @@ const {
 export default async (_userId, profileId, appId, {
   idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
 }) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const selector = {
       invitedByProfil_ID: profileId,

@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import articleFields from '../../pressArticles/lib/articleFields.json';
 
 const pictureGroup = {
@@ -108,7 +108,7 @@ const searchArticle = async (
 };
 
 export default async (text, appId, { skip, limit }) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   const {
     DB_NAME,
     COLL_PRESS_ARTICLES,

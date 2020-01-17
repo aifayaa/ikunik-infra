@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
 import creditsPacks from './creditsPacks.json';
 
@@ -24,7 +24,7 @@ export default async (creditPackId, userId) => {
   if (!pack) {
     throw new Error('Unknown credit pack asked');
   }
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const { price, credits } = pack;
     const billing = {

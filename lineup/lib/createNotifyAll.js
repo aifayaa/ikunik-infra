@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import createNotify from './createNotify';
 
@@ -9,7 +9,7 @@ const {
 } = process.env;
 
 export default async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const lineup = await client
       .db(DB_NAME)

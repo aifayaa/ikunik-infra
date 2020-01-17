@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import moment from 'moment';
 import QRCode from 'qrcode';
 import winston from 'winston';
@@ -41,7 +41,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
   const { price, lineup } = ticketInfo;
   const hasUpperSession = !!options.session;
 
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   let opts;
   let session;
   try {

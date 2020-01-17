@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
 export default async (userId, profileId, lineupId, appId) => {
@@ -6,7 +6,7 @@ export default async (userId, profileId, lineupId, appId) => {
   if (!lineup) {
     throw new Error('lineup_not_found');
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const scanners = await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_SCANNERS)

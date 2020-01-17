@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import uploadStatus from '../uploadStatus.json';
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 

@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
@@ -17,7 +17,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
 } = {}) => {
   // TODO:verify identityToken => https://developer.apple.com/documentation/signinwithapplerestapi/verifying_a_user
 
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const db = client.db(DB_NAME);
     const app = await db.collection(COLL_APPS).findOne({

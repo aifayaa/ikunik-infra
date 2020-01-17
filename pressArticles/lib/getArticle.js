@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import articleFields from './articleFields.json';
 
 const {
@@ -15,7 +15,7 @@ export const getArticle = async (
   appId,
   { getPictures = false, isServer = false, publishedOnly = false } = {},
 ) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const $match = {
       _id: id,

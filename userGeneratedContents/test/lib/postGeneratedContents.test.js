@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../../libs/mongoClient'
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 
@@ -51,11 +51,10 @@ describe('lib - postUserGeneratedContents', () => {
       'type',
       'data',
     );
-    expect(res).to.be.a('object');
+    expect(res).to.be.an('object');
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(stubMongo, MONGO_URL);
     sinon.assert.calledWith(spyMongo.db, DB_NAME);
     sinon.assert.called(spyMongo.close);
   });

@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 export default async (cartId, userId, appId, selector) => {
   let client;
@@ -11,7 +11,7 @@ export default async (cartId, userId, appId, selector) => {
   selector.userId = userId;
   selector.appIds = { $elemMatch: { $eq: appId } };
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
     return await client.db(DB_NAME)
       .collection(COLL_CARTS)
       .findOne(selector);

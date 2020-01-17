@@ -1,7 +1,7 @@
 import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import {
   getRuleName,
   getTargetId,
@@ -76,7 +76,7 @@ export default async (
     await lambda.addPermission(paramsLambda).promise();
   }
 
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   const lineup = {
     _id: lineupId,
     festivalId,

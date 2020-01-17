@@ -1,6 +1,6 @@
 import validator from 'validator';
 import winston from 'winston';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   MONGO_URL,
@@ -15,7 +15,7 @@ export default async (userID, appId, amount, opts = {}) => {
 
   opts.upsert = true;
 
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({

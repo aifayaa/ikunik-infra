@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import uuidv4 from 'uuid/v4';
 import { getFacebookAppToken } from '../lib/getFacebookAppToken';
 import { getFacebookLongLiveToken } from './getFacebookLongLiveToken';
@@ -19,7 +19,7 @@ export const getUserByFacebook = async (userToken, appId) => {
     expiresAt,
     fbUserId,
   } = await getFacebookLongLiveToken(userToken, appToken, settings);
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   let userId; // will be retrieved from db or set on user created
   try {
     const collection = await client.db(DB_NAME).collection(COLL_USERS);

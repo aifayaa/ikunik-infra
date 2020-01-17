@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 import uuidv4 from 'uuid/v4';
 import validator from 'validator';
@@ -26,7 +26,7 @@ export default async (
   }
 
   const catId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {

@@ -5,7 +5,7 @@
   "description": "Crowdaa articles API.",
   "main": "handler.js",
   "scripts": {
-    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
     "async": "^3.1.0",
@@ -14,7 +14,6 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "mailgun-js": "^0.22.0",
-    "mongodb": "^3.5.0",
     "nodemailer": "^6.4.2",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",

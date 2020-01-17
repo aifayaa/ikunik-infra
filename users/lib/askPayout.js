@@ -1,6 +1,6 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 import getProfile from './getProfile';
 import getPayouts from './getPayouts';
@@ -49,7 +49,7 @@ export default async (userId, profileId, amount, method, appId) => {
     profileId: profile._id,
   };
 
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     await client.db(process.env.DB_NAME)
       .collection(process.env.COLL_PAYOUTS)

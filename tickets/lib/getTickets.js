@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_LINEUPS,
@@ -11,7 +11,7 @@ const {
 export default async (userId, appId) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
     return await client.db(DB_NAME)
       .collection(COLL_TICKETS)
       .aggregate([

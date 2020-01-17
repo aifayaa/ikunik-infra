@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_ARTISTS,
@@ -11,7 +11,7 @@ const {
 } = process.env;
 
 export default async (someId, type, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const selector = {
       appIds: { $elemMatch: { $eq: appId } },

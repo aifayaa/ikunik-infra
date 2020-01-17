@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import winston from 'winston';
 
 export default async (type, profileId, qty, appId) => {
@@ -15,7 +15,7 @@ export default async (type, profileId, qty, appId) => {
       break;
     default:
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const res = await client
       .db(process.env.DB_NAME)

@@ -12,7 +12,7 @@ const splitParagraphes = (biography = '') => {
 };
 
 export default async (userId, profileId, appId, info) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const artist = {
       _id: new ObjectID().toString(),

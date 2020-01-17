@@ -49,7 +49,7 @@ describe('handlers - putArticle', () => {
   });
 
   describe('lib success', () => {
-    const result = { message: 'ok' };;
+    const result = { message: 'ok' };
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);

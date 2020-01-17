@@ -1,7 +1,7 @@
 import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import {
   getRuleName,
   getTargetId,
@@ -34,7 +34,7 @@ i18n.configure({
 });
 
 export default async (lineupId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const lineup = await client
       .db(DB_NAME)

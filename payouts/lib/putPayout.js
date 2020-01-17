@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
 import getPayout from './getPayout';
@@ -15,7 +15,7 @@ const lambda = new Lambda({
 });
 
 export default async (id, resp, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const payout = await getPayout(id, appId);
     if (!payout) throw new Error('payout not found');

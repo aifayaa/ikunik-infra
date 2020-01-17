@@ -8,7 +8,7 @@ const {
 
 export default async (appId, name, pathName, color, picture) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
 
   try {
     /* Request for categories having the same appId */

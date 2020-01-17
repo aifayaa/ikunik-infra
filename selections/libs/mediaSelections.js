@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import difference from 'lodash/difference';
 import Lambda from 'aws-sdk/clients/lambda';
 
@@ -35,7 +35,7 @@ const checkDocuments = async (userId, mediaIds, appId) => {
 };
 
 export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     checkDocuments(userId, mediaIds);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
@@ -91,7 +91,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
 };
 
 export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     checkDocuments(userId, mediaIds, appId);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };

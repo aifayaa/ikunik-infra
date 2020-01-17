@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import queue from 'async/queue';
 import AWS from 'aws-sdk';
 
@@ -46,7 +46,7 @@ const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) =
 };
 
 export const doSendNotifications = async (title, message, appId, extraData) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const endpoints = await client
       .db(DB_NAME)

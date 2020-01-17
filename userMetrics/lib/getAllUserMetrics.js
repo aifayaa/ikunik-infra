@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   MONGO_URL,
@@ -23,7 +23,7 @@ export default async (
 ) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
 
     const $match = {};
     let $geoNear = false;

@@ -67,7 +67,7 @@ describe('handlers - removeUserGeneratedContents', () => {
     it('should return 200', async () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(200);
-      expect(response.body).to.eq(libResult);
+      expect(JSON.parse(response.body)).to.eql({ message: 'ok'});
     });
 
     it('should called with the good args', () => {

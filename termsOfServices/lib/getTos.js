@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import tosFields from '../tosFields.json';
 
 const {
@@ -27,7 +27,7 @@ export const getTos = async (appId, tosId, options = {}) => {
     query.required = options.required;
   }
   const { public: projection } = tosFields;
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const tos = await client
       .db(DB_NAME)

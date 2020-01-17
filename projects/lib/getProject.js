@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_AUDIOS,
@@ -10,7 +10,7 @@ const {
 } = process.env;
 
 export default async (projectId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const db = client.db(DB_NAME);
     const [project, userSubscriptions] = await Promise.all([

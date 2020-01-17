@@ -1,6 +1,6 @@
 import ElasticTranscoder from 'aws-sdk/clients/elastictranscoder';
 import path from 'path';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 

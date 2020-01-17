@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
 import { sendEmail } from './sendEmail';
 
@@ -14,7 +14,7 @@ const {
 } = process.env;
 
 export const forgotPassword = async (email, urlScheme, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);

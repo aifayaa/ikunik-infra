@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   MONGO_URL,
@@ -7,7 +7,7 @@ const {
   COLL_ARTIST_CONTACT_LIST,
 } = process.env;
 export default async (_userId, profileId, contactId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     await client.db(DB_NAME)
       .collection(COLL_CONTACTS)

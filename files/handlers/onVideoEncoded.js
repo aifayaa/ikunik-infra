@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
 

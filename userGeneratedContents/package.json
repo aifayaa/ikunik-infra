@@ -5,11 +5,12 @@
   "description": "Crowdaa userGeneratedContents API.",
   "main": "handler.js",
   "scripts": {
-    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
     "mongodb": "3.5.0",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.16",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "aws-sdk-mock": "^5.0.0",

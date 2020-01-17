@@ -5,11 +5,9 @@
   "description": "Crowdaa Terms Of Services API.",
   "main": "handler.js",
   "scripts": {
-    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
-  "dependencies": {
-    "mongodb": "^3.5.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "aws-sdk-mock": "^5.0.0",
     "chai": "^4.2.0",

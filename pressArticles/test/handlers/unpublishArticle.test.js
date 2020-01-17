@@ -41,7 +41,7 @@ describe('handlers - unpublishArticle', () => {
   });
 
   describe('lib success', () => {
-    const libResult = { message: 'ok' };;
+    const libResult = { message: 'ok' };
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);

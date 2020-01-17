@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import generatePinCode from './generatePinCode';
@@ -27,7 +27,7 @@ export default async (phone) => {
     createAt: new Date(),
     validated: false,
   };
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     await client
       .db(DB_NAME)

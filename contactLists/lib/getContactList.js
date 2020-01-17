@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 export default async (_userId, profileId, contactListId, appId, {
   limit, skip, sortBy, sortOrder,
@@ -8,7 +8,7 @@ export default async (_userId, profileId, contactListId, appId, {
     MONGO_URL,
     DB_NAME,
   } = process.env;
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const opts = {};
     opts.limit = limit | 0;

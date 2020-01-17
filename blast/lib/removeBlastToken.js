@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import winston from 'winston';
 
 const {
@@ -23,7 +23,7 @@ export default async (type, profileId, qte, appId) => {
       break;
     default:
   }
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const res = await client.db(DB_NAME).collection(collName)
       .updateOne({

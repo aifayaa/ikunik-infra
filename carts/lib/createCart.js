@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import uuidv4 from 'uuid/v4';
 
@@ -59,7 +59,7 @@ export default async (
   });
 
   const cartId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const cart = {
       _id: cartId,

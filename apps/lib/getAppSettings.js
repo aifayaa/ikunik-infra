@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   MONGO_URL,
@@ -9,7 +9,7 @@ const {
 export default async (appId) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
 
     const application = await client.db(DB_NAME)
       .collection(COLL_APPS)

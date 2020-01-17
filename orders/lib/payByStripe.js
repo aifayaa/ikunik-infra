@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import uuidv4 from 'uuid/v4';
 import winston from 'winston';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import { PromisePoolExecutor } from 'promise-pool-executor';
 
 import addCredits from '../../credits/lib/addCredits';
@@ -53,7 +53,7 @@ export default async (token, cartId, userId) => {
   });
 
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
     session = client.startSession();
     session.startTransaction();
     opts = { session };

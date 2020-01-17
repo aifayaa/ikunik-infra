@@ -1,5 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   MONGO_URL,
@@ -36,7 +36,7 @@ export const putArticle = async ({
   }
 
   const draftId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const { _id } = await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
       .findOne({ articleId }, { sort: { createdAt: -1 } });

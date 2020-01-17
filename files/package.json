@@ -6,7 +6,6 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.605.0",
-    "mongodb": "^3.5.0",
     "sharp": "^0.24.0",
     "uuid": "^3.4.0"
   },

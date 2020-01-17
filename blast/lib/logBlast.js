@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
 
 const {
@@ -32,7 +32,7 @@ export default async (type, message, qte, { userId, listId, projectId, appId }) 
       profileId = JSON.parse(body)._id;
     }
 
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
     await client
       .db(DB_NAME)
       .collection(COLL_BLASTS)

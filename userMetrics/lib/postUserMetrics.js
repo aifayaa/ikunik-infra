@@ -1,4 +1,5 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
+import uuid from 'uuid';
 
 const {
   MONGO_URL,
@@ -15,12 +16,12 @@ export default async (
   data = {},
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
 
   try {
     /* Prepare the object to insert in the database */
     const userMetrics = {
-      _id: new ObjectID().toString(),
+      _id: uuid.v4(),
       appIds: [appId],
       userId,
       type,

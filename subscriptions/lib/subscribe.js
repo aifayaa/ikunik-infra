@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
 import moment from 'moment';
 import getSubscription from './getSubscription';
@@ -21,7 +21,7 @@ export default async (userId, subId, appId) => {
   const { price, duration } = sub;
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+    client = await MongoClient.connect();
     const userSub = await client
       .db(DB_NAME)
       .collection(COLL_USER_SUBSCRIPTIONS)

@@ -5,7 +5,7 @@
   "description": "Crowdaa articles API.",
   "main": "handler.js",
   "scripts": {
-    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
     "async": "^3.1.0",

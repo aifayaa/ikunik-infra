@@ -5,7 +5,6 @@
   "description": "Crowdaa stages API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.5.0",
     "uuid": "^3.4.0"
   },
   "devDependencies": {

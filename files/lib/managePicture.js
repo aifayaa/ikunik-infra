@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 

@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_PRESS_CATEGORIES,
@@ -8,7 +8,7 @@ const {
 } = process.env;
 
 export const getArticleDraft = async (articleId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const articles = await client.db(DB_NAME)
       .collection(COLL_PRESS_DRAFTS)

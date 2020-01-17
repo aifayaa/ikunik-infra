@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import { URL } from 'url';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
@@ -10,7 +10,7 @@ export default async (audioId, appId) => {
     COLL_AUDIOS,
   } = process.env;
 
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const audio = await client
       .db(DB_NAME)

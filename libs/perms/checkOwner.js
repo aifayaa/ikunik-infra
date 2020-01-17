@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   MONGO_URL,
@@ -14,7 +14,7 @@ export default async (
   options = { useTrashedField: true },
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
 
   try {
     const findObj = {

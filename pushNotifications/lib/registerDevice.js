@@ -3,7 +3,7 @@ import check from 'check-types';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   SNS_REGION,
@@ -30,7 +30,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     check.not.string(platform)
   ) throw new Error('wrong_args_type');
 
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const app = await client.db(DB_NAME)
       .collection(COLL_APPS).findOne({ _id: appId });

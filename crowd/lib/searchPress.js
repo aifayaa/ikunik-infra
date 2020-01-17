@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 
 const {
   COLL_USER_METRICS,
@@ -12,7 +12,7 @@ export default async (pipeline, {
   sortBy = 'views',
   sortOrder = 'asc',
 }) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
 
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);

@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import moment from 'moment';
 import uuidv4 from 'uuid/v4';
 
@@ -7,7 +7,7 @@ import getUserLineups from '../../lineup/lib/getUserLineups';
 import sendScanner from './sendScanner';
 
 export default async (userId, profileId, lineupId, email, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useUnifiedTopology: true });
+  const client = await MongoClient.connect();
   try {
     const lineup = await getUserLineups(userId, profileId, lineupId, appId);
     if (!lineup) {

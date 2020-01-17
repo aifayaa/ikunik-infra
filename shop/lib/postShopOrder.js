@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import findIndex from 'lodash/findIndex';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid';
@@ -18,7 +18,7 @@ const lambda = new Lambda({
 });
 
 export default async (userId, productId, qty, address, variantId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
 
   try {
     /* check if 1 <= qty <=10 */

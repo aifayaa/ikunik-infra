@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient'
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 import queryReplace from './queryReplace';
 
@@ -38,7 +38,7 @@ const selectionFields = [
 ];
 
 export default async (selectionId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });;
+  const client = await MongoClient.connect();
   try {
     const [selections, userSubscriptions] = await Promise.all([
       client
