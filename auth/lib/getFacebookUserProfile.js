@@ -15,9 +15,9 @@ export const getFacebookUserProfile = async (fbUserId, token) => {
 
   const userInfo = await request.get({
     url:
-      `https://graph.facebook.com/v3.3/${fbUserId}?` +
-      `access_token=${token}` +
-      `&fields=${fieldsString}`,
+      `https://graph.facebook.com/v3.3/${fbUserId}?`
+      + `access_token=${token}`
+      + `&fields=${fieldsString}`,
   });
 
   const parsedUserInfo = JSON.parse(userInfo);

@@ -1,5 +1,5 @@
-import MongoClient from '../../libs/mongoClient'
 import winston from 'winston';
+import MongoClient from '../../libs/mongoClient';
 
 export default async (type, profileId, qty, appId) => {
   let collName;

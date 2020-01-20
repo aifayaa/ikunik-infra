@@ -1,9 +1,8 @@
 import validator from 'validator';
 import winston from 'winston';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_CREDITS,
 } = process.env;
@@ -27,7 +26,7 @@ export default async (userID, appId, amount, opts = {}) => {
           updatedAt: new Date(),
           appIds: [appId],
         },
-      }, opts).then(r => r.value);
+      }, opts).then((r) => r.value);
     if (res) {
       if (res.credits < 0) {
         throw new Error('insufficient funds');

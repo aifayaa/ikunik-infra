@@ -30,7 +30,7 @@ export default async (event) => {
     let endpoints = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
       const localResults = await search([...pipeline], queryStringParameters || {});
-      endpoints = endpoints.concat(flatten(localResults.crowd.map(fan => fan.endpoints)));
+      endpoints = endpoints.concat(flatten(localResults.crowd.map((fan) => fan.endpoints)));
       doneCallback();
     };
     const searchAndBlast = queue(paginatorCallback, 20);
@@ -39,11 +39,12 @@ export default async (event) => {
     const { limit } = event.queryStringParameters;
     for (let i = 0; i * MAXIMUM_DATA_FETCHED_PER_PAGE < limit; i += 1) {
       ((page, batchProcessed) => {
-        const localQS = Object.assign(
-          {},
-          event.queryStringParameters,
-          { page, limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed) },
-        );
+        const localQS = {
+
+          ...event.queryStringParameters,
+          page,
+          limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
+        };
         searchAndBlast.push({ queryStringParameters: localQS });
       })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
     }
@@ -61,7 +62,6 @@ export default async (event) => {
     };
     const res = await lambda.invoke(params).promise();
     return response({ code: 200, body: res });
-
   } catch (e) {
     winston.error(e);
     return response({ code: 500, message: e.message });

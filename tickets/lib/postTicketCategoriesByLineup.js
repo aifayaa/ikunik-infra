@@ -1,7 +1,7 @@
-import MongoClient from '../../libs/mongoClient'
 
 import uuidv4 from 'uuid/v4';
 import validator from 'validator';
+import MongoClient from '../../libs/mongoClient';
 
 import getUserLineups from '../../lineup/lib/getUserLineups';
 

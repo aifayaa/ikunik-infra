@@ -7,7 +7,6 @@ export default async (event) => {
     const { appId, profileId } = event.requestContext.authorizer;
     if (userId !== event.requestContext.authorizer.principalId) {
       return response({ code: 403, message: 'Forbidden' });
-      return;
     }
     const artists = await getUserArtists(profileId, appId);
     const results = { artists };

@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_PRESS_CATEGORIES,
   COLL_PRESS_DRAFTS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getArticleDraft = async (articleId, appId) => {

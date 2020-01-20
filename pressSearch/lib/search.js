@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import articleFields from '../../pressArticles/lib/articleFields.json';
 
 const pictureGroup = {

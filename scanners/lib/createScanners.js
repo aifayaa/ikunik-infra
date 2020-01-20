@@ -1,6 +1,6 @@
-import MongoClient from '../../libs/mongoClient'
 import moment from 'moment';
 import uuidv4 from 'uuid/v4';
+import MongoClient from '../../libs/mongoClient';
 
 import generateMail from './generateMail';
 import getUserLineups from '../../lineup/lib/getUserLineups';

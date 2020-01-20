@@ -1,6 +1,6 @@
 import Lambda from 'aws-sdk/clients/lambda';
-import MongoClient from '../../libs/mongoClient'
 import { URL } from 'url';
+import MongoClient from '../../libs/mongoClient';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 import isMediaLocked from './isMediaLocked';
@@ -10,7 +10,6 @@ const {
   COLL_PICTURES,
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
   STAGE,
   REGION,
 } = process.env;

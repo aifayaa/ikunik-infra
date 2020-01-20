@@ -1,12 +1,12 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
-const { MONGO_URL, DB_NAME, COLL_USERS } = process.env;
+const { DB_NAME, COLL_USERS } = process.env;
 
 /*
   from meteor string_utils
    https://github.com/meteor/meteor/blob/devel/packages/meteor/string_utils.js
 */
-const escapeRegExp = string => String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegExp = (string) => String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /*
   based on meteor accounts-password module
@@ -68,7 +68,7 @@ export default async (
 
     if (openClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
+      mongoClient = MongoClient.connect();
     }
     try {
       const matchedUsers = await mongoClient
@@ -78,12 +78,12 @@ export default async (
         .toArray();
 
       if (
-        matchedUsers.length > 0 &&
+        matchedUsers.length > 0
         // If we don't have a userId yet, any match we find is a duplicate
-        (!ownUserId ||
+        && (!ownUserId
           // Otherwise, check to see if there are multiple matches or a match
           // that is not us
-          (matchedUsers.length > 1 || matchedUsers[0]._id !== ownUserId))
+          || (matchedUsers.length > 1 || matchedUsers[0]._id !== ownUserId))
       ) {
         throw new Error(`${displayName} already exists.`);
       }

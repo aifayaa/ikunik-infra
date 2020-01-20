@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_MEDIUM_SELECTION_LINKS,
   COLL_SELECTIONS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 export const doDeleteUserSelection = async (selectionIds, appId) => {
   const client = await MongoClient.connect();

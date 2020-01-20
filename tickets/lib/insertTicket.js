@@ -1,10 +1,9 @@
 import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_TICKETS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (

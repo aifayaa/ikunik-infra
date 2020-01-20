@@ -2,7 +2,7 @@
 // createUser method from
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import { checkPassword } from './password';
 import hashLoginToken from './hashLoginToken';
 import Random from './random';
@@ -30,9 +30,9 @@ export const login = async (email, username, password, appId) => {
     }
 
     if (
-      !user.services ||
-      !user.services.password ||
-      !user.services.password.bcrypt
+      !user.services
+      || !user.services.password
+      || !user.services.password.bcrypt
     ) {
       throw new Error('User has no password set"');
     }

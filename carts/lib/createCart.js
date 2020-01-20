@@ -1,12 +1,11 @@
-import MongoClient from '../../libs/mongoClient'
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import uuidv4 from 'uuid/v4';
+import MongoClient from '../../libs/mongoClient';
 
 import getPackage from '../../credits/lib/getPackage';
 import getTicketCategory from '../../tickets/lib/getTicketCategory';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_CARTS,
 } = process.env;

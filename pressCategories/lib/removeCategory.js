@@ -1,14 +1,13 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
 } = process.env;
 
 export default async (appId, categoryId) => {
-  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
+  const client = MongoClient.connect();
 
   try {
     const resultDelete = await client

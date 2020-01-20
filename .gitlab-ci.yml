@@ -63,7 +63,7 @@ pushProdToAWS:
 
   script:
     - pip install awscli
-    - git diff --dirstat=files,0 dev -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
+    - git diff --dirstat=files,0 master -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +

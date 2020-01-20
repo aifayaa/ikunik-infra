@@ -1,6 +1,6 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../mongoClient';
 
-const { DB_NAME, COLL_USERS, COLL_PERM_GROUPS, MONGO_URL } = process.env;
+const { DB_NAME, COLL_USERS, COLL_PERM_GROUPS } = process.env;
 
 export default async (userId, appId) => {
   const pipeline = [

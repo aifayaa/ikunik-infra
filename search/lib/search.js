@@ -1,10 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
 import zipObject from 'lodash/zipObject';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_ARTISTS,
   COLL_AUDIOS,
@@ -13,7 +12,7 @@ const {
   COLL_VIDEOS,
 } = process.env;
 
-const searchArtists = async (collection, text, appId) => collection.aggregate([
+const searchArtists = (collection, text, appId) => collection.aggregate([
   {
     $match: {
       $text: { $search: text },
@@ -49,7 +48,7 @@ const searchArtists = async (collection, text, appId) => collection.aggregate([
   },
 ]).toArray();
 
-const searchMedia = async (collection, text, appId) => collection.aggregate([
+const searchMedia = (collection, text, appId) => collection.aggregate([
   {
     $match: {
       $text: { $search: text },

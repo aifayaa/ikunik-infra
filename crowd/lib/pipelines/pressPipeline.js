@@ -138,9 +138,9 @@ export default (userId, appId, {
   range,
   search = '',
 }) => {
-  const pipeline = coordinates ?
-    useLocationPipeline(userId, appId, coordinates, range, articleId) :
-    useClassicPipeline(userId, appId, articleId);
+  const pipeline = coordinates
+    ? useLocationPipeline(userId, appId, coordinates, range, articleId)
+    : useClassicPipeline(userId, appId, articleId);
 
   pipeline.push({
     $lookup: {

@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 export default async (selectionIds, userId) => {
   const client = await MongoClient.connect();

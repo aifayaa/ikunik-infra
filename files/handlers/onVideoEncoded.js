@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
 
 const {
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
   STAGE,
 } = process.env;
 
@@ -14,7 +13,7 @@ export default async (event) => {
     Message: message,
   } = event.Records[0].Sns;
 
-  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
+  const client = MongoClient.connect();
 
   try {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);

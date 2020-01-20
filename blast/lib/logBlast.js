@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BLASTS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;

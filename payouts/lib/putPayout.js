@@ -1,12 +1,11 @@
-import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
+import MongoClient from '../../libs/mongoClient';
 import getPayout from './getPayout';
 
 const {
   COLL_PAYOUTS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;

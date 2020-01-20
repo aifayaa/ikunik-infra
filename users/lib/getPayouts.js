@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 // TODO substract rejected payout from others
 export default async (userId, profileId, appId) => {

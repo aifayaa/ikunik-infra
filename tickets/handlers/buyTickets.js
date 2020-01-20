@@ -25,8 +25,7 @@ export default async (event) => {
   } catch (e) {
     if (e.message === 'ticket_formatting_failed') {
       return response({ code: 200, body: true });
-    } else {
-      return response({ code: 500, message: e.message });
     }
+    return response({ code: 500, message: e.message });
   }
 };

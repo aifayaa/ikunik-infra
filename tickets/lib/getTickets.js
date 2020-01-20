@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_LINEUPS,
   COLL_TICKETS,
   COLL_TICKET_CATEGORIES,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, appId) => {

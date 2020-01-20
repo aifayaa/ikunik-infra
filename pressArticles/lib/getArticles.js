@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import articleFields from './articleFields.json';
 
 const {
@@ -8,7 +8,6 @@ const {
   COLL_USERS,
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getArticles = async (
@@ -20,7 +19,7 @@ export const getArticles = async (
 ) => {
   let client;
   try {
-    client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
+    client = MongoClient.connect();
 
     const $match = {
       appIds: { $elemMatch: { $eq: appId } },

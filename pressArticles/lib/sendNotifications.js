@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
 import queue from 'async/queue';
 import AWS from 'aws-sdk';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_PUSH_NOTIFICATIONS,
   DB_NAME,
-  MONGO_URL,
   SNS_KEY_ID,
   SNS_REGION,
   SNS_SECRET,
@@ -64,7 +63,7 @@ export const doSendNotifications = async (title, message, appId, extraData) => {
         results.push(error || res);
       });
     });
-    await sendNotifications.drain()
+    await sendNotifications.drain();
     return { successful };
   } finally {
     client.close();

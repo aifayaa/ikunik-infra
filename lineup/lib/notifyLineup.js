@@ -2,7 +2,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
 import winston from 'winston';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import '../locales/fr.json';
 import '../locales/en.json';
 
@@ -32,7 +32,6 @@ const {
   COLL_STAGES,
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
   STAGE,
   USE_BLAST_TEXT,
 } = process.env;

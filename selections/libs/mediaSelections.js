@@ -1,6 +1,6 @@
-import MongoClient from '../../libs/mongoClient'
 import difference from 'lodash/difference';
 import Lambda from 'aws-sdk/clients/lambda';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   REGION,
@@ -10,7 +10,6 @@ const {
   COLL_MEDIUM_SELECTION_LINKS,
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 const lambda = new Lambda({
@@ -56,18 +55,17 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
       }, selectionFields);
     if (!rootSelection) throw new Error('rootSelection not found');
     const { subscriptionIds } = rootSelection;
-    await Promise.all(mediaIds.map(mediumId =>
-      client.db(DB_NAME)
-        .collection(COLL_MEDIUM_SELECTION_LINKS)
-        .updateOne(
-          {
-            selectionId,
-            mediumId,
-            appIds: { $elemMatch: { $eq: appId } },
-          },
-          { $set: { selectionId, mediumId, rootSelectionId: rootSelection._id } },
-          { upsert: true },
-        )));
+    await Promise.all(mediaIds.map((mediumId) => client.db(DB_NAME)
+      .collection(COLL_MEDIUM_SELECTION_LINKS)
+      .updateOne(
+        {
+          selectionId,
+          mediumId,
+          appIds: { $elemMatch: { $eq: appId } },
+        },
+        { $set: { selectionId, mediumId, rootSelectionId: rootSelection._id } },
+        { upsert: true },
+      )));
     const mediaModifier = { $addToSet: { subscriptionIds: { $each: subscriptionIds } } };
     await Promise.all([
       client
@@ -116,14 +114,13 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
     const { subscriptionIds } = rootSelection;
 
     // Remove link between media and selection
-    await Promise.all(mediaIds.map(mediumId =>
-      client.db(DB_NAME)
-        .collection(COLL_MEDIUM_SELECTION_LINKS)
-        .remove({
-          selectionId,
-          mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
-        }, true)));
+    await Promise.all(mediaIds.map((mediumId) => client.db(DB_NAME)
+      .collection(COLL_MEDIUM_SELECTION_LINKS)
+      .remove({
+        selectionId,
+        mediumId,
+        appIds: { $elemMatch: { $eq: appId } },
+      }, true)));
 
     // Remove root selection subscription from media
     const remainingLinks = await client
@@ -138,7 +135,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
         },
         { $group: { _id: '$mediumId' } },
       ]).toArray();
-    const remainingIds = remainingLinks.map(item => item._id);
+    const remainingIds = remainingLinks.map((item) => item._id);
     const mediaIdsToRemove = difference(mediaIds, remainingIds);
     const mediaModifier = { $pull: { subscriptionIds: { $in: subscriptionIds } } };
     await Promise.all([

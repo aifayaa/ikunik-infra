@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import tosFields from '../tosFields.json';
 
 const {
   COLL_TOS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getTos = async (appId, tosId, options = {}) => {

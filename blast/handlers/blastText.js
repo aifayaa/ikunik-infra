@@ -28,7 +28,7 @@ export default async ({ phones, message, opts = {} }) => {
     });
 
     await sendTexts.drain();
-    const res = await logBlast('text-message', message, `${successfulBlast}`, opts)
+    const res = await logBlast('text-message', message, `${successfulBlast}`, opts);
 
     if (userId) {
       const { profileId } = res;

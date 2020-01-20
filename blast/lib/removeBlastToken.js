@@ -1,12 +1,11 @@
-import MongoClient from '../../libs/mongoClient'
 import winston from 'winston';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BALANCE_EMAILS,
   COLL_BALANCE_MESSAGES,
   COLL_BALANCE_NOTIFS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (type, profileId, qte, appId) => {

@@ -1,5 +1,5 @@
-import MongoClient from '../../libs/mongoClient'
-import uuid from "uuid";
+import uuid from 'uuid';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   DB_NAME,

@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import articleFields from './articleFields.json';
 
 const {
@@ -7,7 +7,6 @@ const {
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getArticle = async (

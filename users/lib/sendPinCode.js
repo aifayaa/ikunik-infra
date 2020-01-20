@@ -1,12 +1,11 @@
-import MongoClient from '../../libs/mongoClient'
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
+import MongoClient from '../../libs/mongoClient';
 import generatePinCode from './generatePinCode';
 
 const {
   COLL_PHONES,
   DB_NAME,
-  MONGO_URL,
   SNS_KEY_ID,
   SNS_REGION,
   SNS_SECRET,

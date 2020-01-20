@@ -1,6 +1,6 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 import getProfile from './getProfile';
 import getPayouts from './getPayouts';

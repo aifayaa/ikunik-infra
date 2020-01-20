@@ -14,8 +14,8 @@ describe('handlers - facebookLogin', () => {
     requestContext: {
       authorizer: {
         appId: 'myAppId',
-      }
-    }
+      },
+    },
   };
   const sandbox = sinon.createSandbox();
 

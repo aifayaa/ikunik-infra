@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_SUBSCRIPTIONS,
   COLL_USER_SUBSCRIPTIONS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, appId) => {

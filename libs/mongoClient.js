@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectID } from 'mongodb';
 
 const {
   MONGO_URL,
@@ -8,3 +8,4 @@ const {
 MongoClient.connect = MongoClient.connect.bind(null, MONGO_URL, { useUnifiedTopology: true });
 
 export default MongoClient;
+export { ObjectID };

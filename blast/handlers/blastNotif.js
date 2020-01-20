@@ -29,7 +29,7 @@ export default async ({ artistName, endpoints, message, opts = {} }) => {
     });
 
     await sendNotifications.drain();
-    const res = await logBlast('notification', message, `${successfulBlast}`, opts)
+    const res = await logBlast('notification', message, `${successfulBlast}`, opts);
     if (userId) {
       const { profileId } = res;
       await removeBlastToken('notification', profileId, `${successfulBlast}`, appId);

@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import hashToken from '../../libs/tokens/hashToken';
 
 const { DB_NAME, COLL_USERS } = process.env;

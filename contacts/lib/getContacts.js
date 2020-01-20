@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_CONTACTS,
   DB_NAME,
   DEFAULT_LIMIT,
   LIMIT_MAX,
-  MONGO_URL,
 } = process.env;
 
 export default async (_userId, profileId, appId, {

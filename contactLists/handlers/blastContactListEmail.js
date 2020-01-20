@@ -18,8 +18,8 @@ export default async (event) => {
     const { appId, profileId } = event.requestContext.authorizer;
     const { subject, template } = JSON.parse(event.body);
     let { contacts } = await getContactList(userId, profileId, contactListId, undefined, appId);
-    contacts = contacts.map(contact => ({ email: contact.email, name: contact.name }))
-      .filter(contact => contact.email);
+    contacts = contacts.map((contact) => ({ email: contact.email, name: contact.name }))
+      .filter((contact) => contact.email);
     const params = {
       FunctionName: `blast-${STAGE}-blastEmail`,
       Payload: JSON.stringify({

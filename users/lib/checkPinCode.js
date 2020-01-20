@@ -1,13 +1,12 @@
-import MongoClient from '../../libs/mongoClient'
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   SNS_REGION,
   SNS_KEY_ID,
   SNS_SECRET,
-  MONGO_URL,
   DB_NAME,
   COLL_PHONES,
   SNS_TOPIC,

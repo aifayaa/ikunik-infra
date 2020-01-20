@@ -1,5 +1,5 @@
 import get from 'lodash/get';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import { sendEmail } from './sendEmail';
 import { passwordResetEmailHTML } from './passwordResetEmailHTML';

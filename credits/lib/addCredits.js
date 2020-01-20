@@ -1,9 +1,8 @@
 import validator from 'validator';
 import winston from 'winston';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_CREDITS,
 } = process.env;

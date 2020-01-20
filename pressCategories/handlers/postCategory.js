@@ -55,4 +55,3 @@ export default async (event) => {
     return response({ code: 500, message: e.message });
   }
 };
-

@@ -1,13 +1,12 @@
 import sinon from 'sinon';
-import MongoClient from '../../../libs/mongoClient'
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 
 import postUserGeneratedContents from '../../lib/postUserGeneratedContents';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;

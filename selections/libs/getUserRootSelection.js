@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 export default async (userId, appId) => {
   const client = await MongoClient.connect();
@@ -12,7 +12,7 @@ export default async (userId, appId) => {
         appIds: { $elemMatch: { $eq: appId } },
       })
       .toArray();
-    selections = selections.map(selection => selection.selectionIds);
+    selections = selections.map((selection) => selection.selectionIds);
     selections = [].concat(...selections);
     selections = await client
       .db(process.env.DB_NAME)

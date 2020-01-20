@@ -1,14 +1,13 @@
 import sinon from 'sinon';
-import MongoClient from '../../../libs/mongoClient'
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 import editProfile from '../../lib/editProfile';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 describe('lib - editProfile', () => {

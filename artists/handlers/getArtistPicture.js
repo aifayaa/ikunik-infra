@@ -7,9 +7,9 @@ export default async (event) => {
     const artistId = event.pathParameters.id;
     const { appId } = event.requestContext.authorizer;
     const artist = await getArtist(artistId, appId);
-    const results = artist.avatar ?
-      { src: artist.avatar, title: artist.artistName } :
-      await getArtistPicture(artistId, appId);
+    const results = artist.avatar
+      ? { src: artist.avatar, title: artist.artistName }
+      : await getArtistPicture(artistId, appId);
     return response({ code: 200, body: results });
   } catch (e) {
     const code = (e.message === 'not_found') ? 404 : 500;

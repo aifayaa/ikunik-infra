@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 export default async (_userId, profileId, contactListId, appId, {
   limit, skip, sortBy, sortOrder,
 } = {}) => {
   const {
     COLL_ARTIST_CONTACT_LIST,
-    MONGO_URL,
     DB_NAME,
   } = process.env;
   const client = await MongoClient.connect();

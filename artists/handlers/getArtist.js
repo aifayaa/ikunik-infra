@@ -12,6 +12,7 @@ export default async (event) => {
         const pic = await getArtistPicture(artistId, appId);
         artist.avatar = pic.src;
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error('error while getting picture', e);
       }
     }

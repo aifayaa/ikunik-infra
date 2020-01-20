@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import getProfile from './getProfile';
 
 export default async (userId, appId) => {
   const client = await MongoClient.connect();
   try {
-    console.log(userId, appId);
     const profile = await getProfile(userId, appId);
     const user = await client
       .db(process.env.DB_NAME)

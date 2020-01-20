@@ -1,7 +1,7 @@
 import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import {
   getRuleName,
   getTargetId,
@@ -15,7 +15,6 @@ const THRESHOLD = 15; // minutes
 
 const {
   REGION,
-  MONGO_URL,
   DB_NAME,
   COLL_LINEUPS,
   STAGE,

@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
 import { PromisePoolExecutor } from 'promise-pool-executor';
+import MongoClient from '../../libs/mongoClient';
 import createNotify from './createNotify';
 
 const {
   COLL_LINEUPS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (appId) => {

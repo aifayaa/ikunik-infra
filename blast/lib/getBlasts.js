@@ -1,8 +1,7 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BLASTS,
-  MONGO_URL,
   DB_NAME,
 } = process.env;
 

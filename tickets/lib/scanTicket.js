@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_TICKETS,
   COLL_TICKET_CATEGORIES,
   COLL_SCANNERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (ticketSerial, scannerId, appId) => {
@@ -59,7 +58,7 @@ export default async (ticketSerial, scannerId, appId) => {
           scannedDate: new Date(),
           scannedBy: scannerId,
         },
-      }).then(res => res.value);
+      }).then((res) => res.value);
     if (updatedTicket) updatedTicket.category = ticket.category;
     return updatedTicket;
   } finally {

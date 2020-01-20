@@ -33,8 +33,8 @@ export default async ({
       });
     });
 
-    await sendEmails.drain()
-    const res = await logBlast('email', subject, `${successfulBlast}`, opts)
+    await sendEmails.drain();
+    const res = await logBlast('email', subject, `${successfulBlast}`, opts);
 
     if (userId) {
       const { profileId } = res;

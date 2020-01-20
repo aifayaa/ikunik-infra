@@ -1,7 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_APPS,
 } = process.env;

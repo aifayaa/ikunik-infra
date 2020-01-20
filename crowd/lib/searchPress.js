@@ -1,9 +1,8 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_USER_METRICS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (pipeline, {

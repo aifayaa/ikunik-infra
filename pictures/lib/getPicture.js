@@ -1,8 +1,7 @@
 /* eslint-disable no-await-in-loop */
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PICTURES,
 } = process.env;

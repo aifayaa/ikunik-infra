@@ -1,7 +1,7 @@
 import getProfile from '../lib/getProfile';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const urlId = event.pathParameters.id;

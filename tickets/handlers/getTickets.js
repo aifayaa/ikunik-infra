@@ -11,11 +11,10 @@ export default async (event) => {
     }
     const results = await getTickets(userId, appId);
     if (results) {
-     return response({ code: 200, body: results });
-    } else {
-     return response({ code: 404, message: 'ticket_not_found' });
+      return response({ code: 200, body: results });
     }
+    return response({ code: 404, message: 'ticket_not_found' });
   } catch (e) {
-   return response({ code: 500, message: e.message });
+    return response({ code: 500, message: e.message });
   }
 };

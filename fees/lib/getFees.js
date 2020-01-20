@@ -1,5 +1,5 @@
-import MongoClient from '../../libs/mongoClient'
 import round from 'mongo-round';
+import MongoClient from '../../libs/mongoClient';
 
 export default async () => {
   const client = await MongoClient.connect();

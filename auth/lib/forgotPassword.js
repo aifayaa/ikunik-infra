@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
 import { sendEmail } from './sendEmail';
 

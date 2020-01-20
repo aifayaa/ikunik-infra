@@ -1,4 +1,4 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const splitParagraphes = (biography = '') => {
   const tmp = biography.split(/(?:\r\n|\r|\n)/g);

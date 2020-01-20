@@ -1,11 +1,10 @@
-import MongoClient from '../../libs/mongoClient'
 import { URL } from 'url';
+import MongoClient from '../../libs/mongoClient';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 
 export default async (audioId, appId) => {
   const {
-    MONGO_URL,
     DB_NAME,
     COLL_AUDIOS,
   } = process.env;

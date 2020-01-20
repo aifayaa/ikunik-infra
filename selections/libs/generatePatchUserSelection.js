@@ -1,12 +1,11 @@
-import MongoClient from '../../libs/mongoClient'
 import Lambda from 'aws-sdk/clients/lambda';
+import MongoClient from '../../libs/mongoClient';
 import checkSelectionsOwner from './checkSelectionsOwner';
 import queryReplace from './queryReplace';
 
 const {
   COLL_SELECTIONS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;
@@ -43,20 +42,20 @@ export default async (
     }
 
     let modifier = {};
-    const selection =
-      action !== 'replace'
-        ? await client
-          .db(DB_NAME)
-          .collection(COLL_SELECTIONS)
-          .findOne({
-            _id: selectionId,
-            userId,
-            appIds: { $elemMatch: { $eq: appId } },
-          })
-        : null;
-    const selectionFindQuery =
-      (selection && selection.selectionFindQuery && JSON.parse(selection.selectionFindQuery)) ||
-      (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
+    const selection = action !== 'replace'
+      ? await client
+        .db(DB_NAME)
+        .collection(COLL_SELECTIONS)
+        .findOne({
+          _id: selectionId,
+          userId,
+          appIds: { $elemMatch: { $eq: appId } },
+        })
+      : null;
+    const selectionFindQuery = (selection
+      && selection.selectionFindQuery
+      && JSON.parse(selection.selectionFindQuery))
+      || (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
 
     selectionFindQuery.appIds = { $elemMatch: { $eq: appId } };
     queryReplace(selectionFindQuery);
@@ -66,8 +65,8 @@ export default async (
     switch (action) {
       case 'remove': {
         if (contentIds) {
-          selectionFindQuery._id.$in =
-            selectionFindQuery._id.$in.filter(item => !contentIds.includes(item));
+          selectionFindQuery._id.$in = selectionFindQuery
+            ._id.$in.filter((item) => !contentIds.includes(item));
           modifier.selectionFindQuery = JSON.stringify(selectionFindQuery);
           modifier = { $set: modifier };
         }

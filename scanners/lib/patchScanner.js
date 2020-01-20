@@ -1,5 +1,5 @@
-import MongoClient from '../../libs/mongoClient'
 import moment from 'moment';
+import MongoClient from '../../libs/mongoClient';
 
 import generateMail from './generateMail';
 import getUserLineups from '../../lineup/lib/getUserLineups';
@@ -21,7 +21,7 @@ export default async (userId, profileId, scannerId, appId) => {
         appIds: { $elemMatch: { $eq: appId } },
       }, {
         $set: { lastEmail: curDate },
-      }, opts).then(res => res.value);
+      }, opts).then((res) => res.value);
     if (!scanner) {
       throw new Error('scanner_not_found');
     }

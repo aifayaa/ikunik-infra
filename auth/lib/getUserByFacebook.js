@@ -1,9 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
 import uuidv4 from 'uuid/v4';
-import { getFacebookAppToken } from '../lib/getFacebookAppToken';
+import MongoClient from '../../libs/mongoClient';
+import { getFacebookAppToken } from './getFacebookAppToken';
 import { getFacebookLongLiveToken } from './getFacebookLongLiveToken';
-import { getFacebookUserProfile } from '../lib/getFacebookUserProfile';
-import { getFacebookSettings } from '../lib/getFacebookSettings';
+import { getFacebookUserProfile } from './getFacebookUserProfile';
+import { getFacebookSettings } from './getFacebookSettings';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 

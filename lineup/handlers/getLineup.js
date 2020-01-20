@@ -8,9 +8,8 @@ export default async (event) => {
     const results = await getLineup(categoryId, appId);
     if (results) {
       return response({ code: 200, body: results });
-    } else {
-      return response({ code: 404, message: 'lineup_not_found' });
     }
+    return response({ code: 404, message: 'lineup_not_found' });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }

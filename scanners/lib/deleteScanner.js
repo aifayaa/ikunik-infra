@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
@@ -16,7 +16,7 @@ export default async (userId, profileId, scannerId, appId) => {
         _id: scannerId,
         appIds: { $elemMatch: { $eq: appId } },
       }, opts)
-      .then(res => res.value);
+      .then((res) => res.value);
     if (!scanner) {
       throw new Error('scanner_not_found');
     }

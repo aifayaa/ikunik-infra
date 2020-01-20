@@ -1,14 +1,13 @@
-import MongoClient from '../../libs/mongoClient'
 import findIndex from 'lodash/findIndex';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid';
 import validator from 'validator';
+import MongoClient from '../../libs/mongoClient';
 import getShopItem from './getShopItem';
 
 const {
   COLL_SHOP_ORDERS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;

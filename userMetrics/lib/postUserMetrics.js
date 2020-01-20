@@ -1,8 +1,7 @@
-import MongoClient from '../../libs/mongoClient';
 import uuid from 'uuid';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_USER_METRICS,
 } = process.env;

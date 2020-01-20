@@ -1,7 +1,6 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_ARTISTS,
   COLL_PROJECTS,
@@ -64,7 +63,7 @@ export default async (artistId, appId) => {
         {
           $group: Object.assign(
             {},
-            ...artistFields.map(field => ({ [field]: { $first: `$${field}` } })),
+            ...artistFields.map((field) => ({ [field]: { $first: `$${field}` } })),
             {
               _id: '$_id',
               genres: { $addToSet: '$project.selectedGenres.text' },

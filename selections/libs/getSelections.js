@@ -1,7 +1,7 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 export default async ({ type, web, mobile, root, appId }) => {
-  const { MONGO_URL, DB_NAME, COLL_SELECTIONS } = process.env;
+  const { DB_NAME, COLL_SELECTIONS } = process.env;
   const client = await MongoClient.connect();
   try {
     const selector = {

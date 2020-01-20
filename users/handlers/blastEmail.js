@@ -7,7 +7,7 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-export default async (event,) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.pathParameters.id;
   try {

@@ -19,8 +19,8 @@ export default async (event) => {
     const contactListId = event.pathParameters.id;
     const { message } = JSON.parse(event.body);
     const { contacts } = await getContactList(userId, profileId, contactListId, undefined, appId);
-    const phones = contacts.map(contact => phone(contact.phone || contact.cleandedPhoneNumber)[0])
-      .filter(phoneNumber => phoneNumber);
+    const phones = contacts.map((contact) => phone(contact.phone || contact.cleandedPhoneNumber)[0])
+      .filter((phoneNumber) => phoneNumber);
     const params = {
       FunctionName: `blast-${STAGE}-blastText`,
       Payload: JSON.stringify({

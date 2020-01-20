@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
 export default async (userId, profileId, lineupId, appId) => {

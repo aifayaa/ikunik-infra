@@ -55,11 +55,9 @@ export default async (event) => {
 
     if (results === false) {
       return response({ code: 404, message: 'category_not_found' });
-    } else {
-      return response({ code: 200, body: results });
     }
+    return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
 };
-

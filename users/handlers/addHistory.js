@@ -7,7 +7,6 @@ export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   if (userId !== urlId) {
     return response({ code: 403, message: 'Forbidden' });
-    return;
   }
   try {
     const { id } = JSON.parse(event.body);

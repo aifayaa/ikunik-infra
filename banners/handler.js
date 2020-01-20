@@ -1,7 +1,7 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../libs/mongoClient';
 import response from '../libs/httpResponses/response';
 
-const { MONGO_URL, DB_NAME, COLL_BANNERS } = process.env;
+const { DB_NAME, COLL_BANNERS } = process.env;
 const doGetBanners = async (appId) => {
   const client = await MongoClient.connect();
   try {

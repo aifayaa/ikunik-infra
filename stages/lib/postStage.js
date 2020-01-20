@@ -1,5 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 export default async (name, addr, appId) => {
   if (typeof name !== 'string') {

@@ -13,9 +13,8 @@ export default async (event) => {
     const results = await getUserLineups(userId, profileId, null, appId);
     if (results && Object.keys(results).length) {
       return response({ code: 200, body: results });
-    } else {
-      return response({ code: 404, message: 'lineups_not_found' });
     }
+    return response({ code: 404, message: 'lineups_not_found' });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }

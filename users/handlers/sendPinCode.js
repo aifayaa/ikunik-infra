@@ -1,7 +1,7 @@
 import sendPinCode from '../lib/sendPinCode';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const urlId = event.pathParameters.id;

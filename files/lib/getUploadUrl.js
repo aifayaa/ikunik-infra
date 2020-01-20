@@ -1,8 +1,8 @@
 import AWS from 'aws-sdk';
 import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 import uploadStatus from '../uploadStatus.json';
-import getCollectionFromContentType from '../lib/getCollectionFromContentType';
+import getCollectionFromContentType from './getCollectionFromContentType';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -11,14 +11,13 @@ const s3 = new AWS.S3({
 const {
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
   S3_UPLOAD_BUCKET,
 } = process.env;
 
 export default async (userId, appId, files, metadata) => {
   const insertions = {};
   const returns = [];
-  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
+  const client = MongoClient.connect();
 
   files.forEach((file) => {
     const {

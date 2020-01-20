@@ -1,14 +1,13 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
 } = process.env;
 
 export const publishArticle = async (userId, appId, articleId, draftId, publicationDate) => {
-  const client = MongoClient.connect(MONGO_URL, { useUnifiedTopology: true });
+  const client = MongoClient.connect();
   let session;
 
   try {

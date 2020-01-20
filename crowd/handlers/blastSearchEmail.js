@@ -29,9 +29,9 @@ export default async (event) => {
     let contacts = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
       const localResults = await search([...pipeline], queryStringParameters || {});
-      contacts = contacts.concat(localResults.crowd.map(fan => ({
-        email: fan.user.email || fan.user.profile.email ||
-         (fan.user.emails && fan.user.emails[0].address),
+      contacts = contacts.concat(localResults.crowd.map((fan) => ({
+        email: fan.user.email || fan.user.profile.email
+         || (fan.user.emails && fan.user.emails[0].address),
         name: fan.user.profile.username,
       })));
       doneCallback();
@@ -42,16 +42,17 @@ export default async (event) => {
     const { limit } = event.queryStringParameters;
     for (let i = 0; i * MAXIMUM_DATA_FETCHED_PER_PAGE < limit; i += 1) {
       ((page, batchProcessed) => {
-        const localQS = Object.assign(
-          {},
-          event.queryStringParameters,
-          { page, limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed) },
-        );
+        const localQS = {
+
+          ...event.queryStringParameters,
+          page,
+          limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
+        };
         searchAndBlast.push({ queryStringParameters: localQS });
       })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
     }
 
-    await searchAndBlast.drain()
+    await searchAndBlast.drain();
     const { project } = event.queryStringParameters;
     const params = {
       FunctionName: `blast-${STAGE}-blastEmail`,

@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BALANCE_EMAILS,
@@ -6,7 +6,6 @@ const {
   COLL_BALANCE_NOTIFS,
   COLL_PROFILES,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, type, appId) => {

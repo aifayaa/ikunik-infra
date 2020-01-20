@@ -1,10 +1,9 @@
-import MongoClient from '../../libs/mongoClient'
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_ARTISTS,
   COLL_LINEUPS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 // TODO optimize by using another function properly for lineupId
