@@ -1,7 +1,7 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    "import/prefer-default-export": "allow",
+    "import/prefer-default-export": "warn",
     "no-param-reassign": "off",
     "require-await": "error",
     "no-bitwise": [
@@ -26,10 +26,10 @@
   },
   "overrides": [
     {
-        "files": ["*.test.js"],
-        "rules": {
-            "no-unused-expressions": "off"
-        }
+      "files": ["*.test.js"],
+      "rules": {
+        "no-unused-expressions": "off"
+      }
     }
   ]
 }
