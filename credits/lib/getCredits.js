@@ -1,13 +1,12 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_CREDITS,
 } = process.env;
 
 export default async (userID, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const credits = await client
       .db(DB_NAME)

@@ -1,8 +1,7 @@
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
@@ -39,7 +38,7 @@ export const postArticle = async ({
   const articleId = uuidv4();
   const draftId = uuidv4();
   let session;
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const article = {
       _id: articleId,

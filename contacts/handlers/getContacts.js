@@ -2,7 +2,7 @@ import winston from 'winston';
 import getContacts from '../lib/getContacts';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     const userId = event.requestContext.authorizer.principalId;
     const { appId, profileId } = event.requestContext.authorizer;
@@ -13,9 +13,9 @@ export default async (event, _context, callback) => {
     const results = await getContacts(userId, profileId, appId, {
       idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
     });
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
     winston.error(e);
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

@@ -1,7 +1,7 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 export default async (userId, contentId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
   const db = client.db(process.env.DB_NAME);
   try {
     const pipeline = [
@@ -51,7 +51,7 @@ export default async (userId, contentId, appId) => {
     if (!history) {
       throw new Error('data not found');
     }
-    history._id = ObjectId().toString();
+    history._id = ObjectID().toString();
     history.userId = userId;
     history.appIds = [appId];
     await db.collection(process.env.COLL_USER_HISTORY).insert(history);

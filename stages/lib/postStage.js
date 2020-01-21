@@ -1,12 +1,12 @@
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 export default async (name, addr, appId) => {
   if (typeof name !== 'string') {
     throw new Error('bad arguments');
   }
   const stageId = uuidv4();
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const stage = {
       _id: stageId,

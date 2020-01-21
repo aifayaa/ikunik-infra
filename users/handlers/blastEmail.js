@@ -7,7 +7,7 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const userId = event.pathParameters.id;
   try {
@@ -27,8 +27,8 @@ export default async (event, _context, callback) => {
       Payload: JSON.stringify({ contacts, subject, template, opts }),
     };
     const res = await lambda.invoke(params).promise();
-    callback(null, response({ code: 200, body: res }));
+    return response({ code: 200, body: res });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

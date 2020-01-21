@@ -2,7 +2,7 @@ service: contactLists
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -74,9 +74,6 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpackIncludeModules: true
 
 resources:
   Resources:

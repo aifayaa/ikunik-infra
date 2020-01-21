@@ -2,7 +2,7 @@ service: contacts
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -59,21 +59,12 @@ functions:
                 sortBy: false
                 sortOrder: false
                 type: false
-  # import:
-  #   handler: handlers/import.default
-  #   events:
-  #     - http: POST contacts/import
 
 plugins:
   - serverless-webpack
 
 package:
   individually: true
-
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
 
 resources:
   Resources:

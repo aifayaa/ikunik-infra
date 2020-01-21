@@ -1,17 +1,16 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_CONTACTS,
   DB_NAME,
   DEFAULT_LIMIT,
   LIMIT_MAX,
-  MONGO_URL,
 } = process.env;
 
 export default async (_userId, profileId, appId, {
   idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
 }) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const selector = {
       invitedByProfil_ID: profileId,

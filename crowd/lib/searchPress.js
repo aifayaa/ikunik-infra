@@ -1,9 +1,8 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_USER_METRICS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (pipeline, {
@@ -12,7 +11,7 @@ export default async (pipeline, {
   sortBy = 'views',
   sortOrder = 'asc',
 }) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
 
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);

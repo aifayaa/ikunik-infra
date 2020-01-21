@@ -1,16 +1,15 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 
 import AWSMock from 'aws-sdk-mock';
 import AWS from 'aws-sdk';
+import MongoClient from '../../../libs/mongoClient';
 
 import { doSendNotifications } from '../../lib/sendNotifications';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PUSH_NOTIFICATIONS,
 } = process.env;
@@ -47,7 +46,6 @@ describe('lib - sendNotifications', () => {
     });
 
     it('mongo connection done', () => {
-      sinon.assert.calledWith(stubMongo, MONGO_URL);
       sinon.assert.calledWith(spyMongo.db, DB_NAME);
       sinon.assert.called(spyMongo.close);
     });

@@ -50,7 +50,7 @@ describe('handlers - patchUserGeneratedContents', () => {
       });
 
       it('should return 500', async () => {
-        const finalEvent = Object.assign({}, event);
+        const finalEvent = { ...event };
         finalEvent.body = JSON.stringify({ data: {} });
         const response = await handler(finalEvent);
         expect(response.statusCode).to.equal(500);

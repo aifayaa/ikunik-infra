@@ -1,10 +1,10 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import uploadStatus from '../uploadStatus.json';
+import response from '../../libs/httpResponses/response';
 
 const {
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
   STAGE,
 } = process.env;
 
@@ -13,16 +13,7 @@ export default async (event) => {
     Message: message,
   } = event.Records[0].Sns;
 
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
-
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
+  const client = await MongoClient.connect();
 
   try {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);
@@ -69,15 +60,8 @@ export default async (event) => {
         { $set: videoDoc },
       );
 
-    response.statusCode = 200;
-    response.body = 'ok';
+    return response({ code: 200, body: 'ok' });
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({
-      message: e.message,
-    });
-  } finally {
-    client.close();
+    return response({ code: 500, message: e.message });
   }
-  return response;
 };

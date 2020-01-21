@@ -1,16 +1,13 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
 } = process.env;
 
 export const removeArticle = async (_userId, appId, articleId) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
   let session;
 
   try {

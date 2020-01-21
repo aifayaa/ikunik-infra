@@ -1,14 +1,13 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_ARTISTS,
   COLL_LINEUPS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 // TODO optimize by using another function properly for lineupId
-export default async (userId, profileId, appId, lineupId) => {
+export default async (userId, profileId, lineupId, appId) => {
   const aggregat = [
     {
       $match: {
@@ -50,7 +49,7 @@ export default async (userId, profileId, appId, lineupId) => {
     });
     aggregat.push({ $match: { 'lineups._id': lineupId } });
   }
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     let lineups = await client
       .db(DB_NAME)
@@ -58,6 +57,7 @@ export default async (userId, profileId, appId, lineupId) => {
       .aggregate(aggregat)
       .toArray();
     const [res] = lineups;
+    if (!res) return null;
     ({ lineups } = res);
     if (lineupId) {
       return lineups;

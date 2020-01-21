@@ -1,7 +1,7 @@
-import { MongoClient } from 'mongodb';
 import moment from 'moment';
 import QRCode from 'qrcode';
 import winston from 'winston';
+import MongoClient from '../../libs/mongoClient';
 
 import generateIntId from './generateIntId';
 import generateTicket from './generateTicket';
@@ -11,7 +11,6 @@ import insertTicket from './insertTicket';
 import removeCredits from '../../credits/lib/removeCredits';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_TICKET_CATEGORIES,
 } = process.env;
@@ -41,7 +40,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
   const { price, lineup } = ticketInfo;
   const hasUpperSession = !!options.session;
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   let opts;
   let session;
   try {
@@ -56,11 +55,10 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
         appIds: { $elemMatch: { $eq: appId } },
       }, {
         $inc: { sold: 1 },
-      }, opts).then(res => res.value);
+      }, opts).then((res) => res.value);
     if (ticketCat.sold >= ticketCat.quota) {
       throw new Error('no more tickets available');
     }
-
     ticketId = await insertTicket(
       categoryId,
       serial,
@@ -70,6 +68,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
       firstName,
       lastName,
       userId,
+      appId,
       opts,
     );
 

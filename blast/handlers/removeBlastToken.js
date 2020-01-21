@@ -10,7 +10,7 @@ const {
 
 const lambda = new Lambda({ region: REGION });
 
-export default async ({ type, userId, qte, appId }, _context, callback) => {
+export default async ({ type, userId, qte, appId }) => {
   try {
     if (!userId) throw new Error('missing user');
     if (!validator.isInt(qte, { min: 0, allow_leading_zeroes: false })) {
@@ -34,8 +34,8 @@ export default async ({ type, userId, qte, appId }, _context, callback) => {
     const { _id } = JSON.parse(body);
     if (!_id) throw new Error('cannot get profile data from profile service');
     const results = await removeBlastToken(type, _id, qte, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

@@ -1,9 +1,8 @@
 import validator from 'validator';
 import winston from 'winston';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_CREDITS,
 } = process.env;
@@ -13,7 +12,7 @@ export default async (userID, appId, amount, opts = {}) => {
     throw new Error('Wrong amount');
   }
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const res = await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({
@@ -27,7 +26,7 @@ export default async (userID, appId, amount, opts = {}) => {
           updatedAt: new Date(),
           appIds: [appId],
         },
-      }, opts).then(r => r.value);
+      }, opts).then((r) => r.value);
     if (res) {
       if (res.credits < 0) {
         throw new Error('insufficient funds');

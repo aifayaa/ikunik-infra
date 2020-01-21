@@ -4,20 +4,12 @@ const ChmodWebpackPlugin = require('chmod-webpack-plugin');
 
 module.exports = {
   entry: slsw.lib.entries,
+  stats: 'errors-only',
   target: 'node',
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   devtool: 'nosources-source-map',
   module: {
     rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-          },
-        ],
-      },
       {
         test: /\.dms$/,
         use: [

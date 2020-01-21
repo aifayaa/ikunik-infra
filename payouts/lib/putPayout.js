@@ -1,12 +1,11 @@
-import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
+import MongoClient from '../../libs/mongoClient';
 import getPayout from './getPayout';
 
 const {
   COLL_PAYOUTS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;
@@ -15,7 +14,7 @@ const lambda = new Lambda({
 });
 
 export default async (id, resp, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const payout = await getPayout(id, appId);
     if (!payout) throw new Error('payout not found');

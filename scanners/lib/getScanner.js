@@ -1,7 +1,7 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 export default async (scannerId, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     return await client
       .db(process.env.DB_NAME)

@@ -1,14 +1,13 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PRESS_CATEGORIES,
 } = process.env;
 
 export default async (appId, name, pathName, color, picture) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
 
   try {
     /* Request for categories having the same appId */

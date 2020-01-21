@@ -38,9 +38,9 @@ export default async (event) => {
     files.forEach((v) => {
       const { name, type, size } = v;
       if (
-        typeof name !== 'string' ||
-        typeof type !== 'string' ||
-        typeof size !== 'number'
+        typeof name !== 'string'
+        || typeof type !== 'string'
+        || typeof size !== 'number'
       ) {
         throw new Error('wrong_argument_type');
       }

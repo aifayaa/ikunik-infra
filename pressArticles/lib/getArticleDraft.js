@@ -1,14 +1,13 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_PRESS_CATEGORIES,
   COLL_PRESS_DRAFTS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getArticleDraft = async (articleId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const articles = await client.db(DB_NAME)
       .collection(COLL_PRESS_DRAFTS)

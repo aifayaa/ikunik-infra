@@ -1,7 +1,7 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import uuid from 'uuid';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
@@ -17,12 +17,12 @@ export default async (
   data,
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
 
   try {
     /* Otherwise, insert the category to the database and return it */
     const userGeneratedContents = {
-      _id: new ObjectID().toString(),
+      _id: uuid.v4(),
       parentId,
       parentCollection,
       rootParentId,

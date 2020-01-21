@@ -2,7 +2,7 @@ service: blast
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 2048
   timeout: 300
@@ -52,8 +52,3 @@ plugins:
 
 package:
   individually: true
-
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true

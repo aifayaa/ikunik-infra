@@ -1,7 +1,7 @@
 import createScanners from '../lib/createScanners';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     const { appId, profileId } = event.requestContext.authorizer;
     const userId = event.requestContext.authorizer.principalId;
@@ -14,8 +14,8 @@ export default async (event, _context, callback) => {
       throw new Error('mal formed request');
     }
     const results = await createScanners(userId, profileId, lineupId, email, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

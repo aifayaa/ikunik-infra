@@ -1,13 +1,12 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 
 import getAllUserGeneratedContents from '../../lib/getAllUserGeneratedContents';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
@@ -35,11 +34,10 @@ describe('lib - getAllUserGeneratedContents', () => {
       'userId',
     );
     expect(res).to.deep.eq(response);
-    expect(res).to.be.a('array');
+    expect(res).to.be.an('array');
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(stubMongo, MONGO_URL);
     sinon.assert.calledWith(spyMongo.db, DB_NAME);
     sinon.assert.called(spyMongo.close);
   });

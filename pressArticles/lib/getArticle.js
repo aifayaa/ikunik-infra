@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import articleFields from './articleFields.json';
 
 const {
@@ -7,7 +7,6 @@ const {
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getArticle = async (
@@ -15,7 +14,7 @@ export const getArticle = async (
   appId,
   { getPictures = false, isServer = false, publishedOnly = false } = {},
 ) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const $match = {
       _id: id,

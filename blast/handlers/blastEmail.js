@@ -11,7 +11,7 @@ export default async ({
   subject,
   template,
   opts = {},
-}, _context, callback) => {
+}) => {
   const { userId, appId } = opts;
   try {
     if (userId) {
@@ -25,26 +25,6 @@ export default async ({
     const sendEmails = queue(blastEmail, 20);
     const results = [];
     let successfulBlast = 0;
-    const sendEmailDone = new Promise((resolve) => {
-      sendEmails.drain = () => {
-        logBlast('email', subject, `${successfulBlast}`, opts)
-          .then((res) => {
-            if (userId) {
-              const { profileId } = res;
-              return removeBlastToken('email', profileId, `${successfulBlast}`, appId);
-            }
-            return null;
-          })
-          .then(() => {
-            resolve();
-            callback(null, response({ code: 200, body: results }));
-          })
-          .catch((e) => {
-            resolve();
-            callback(null, response({ code: 500, message: e.message }));
-          });
-      };
-    });
 
     contacts.forEach((contact) => {
       sendEmails.push({ contact, template, subject }, (error, res) => {
@@ -52,8 +32,16 @@ export default async ({
         results.push(error || res);
       });
     });
-    await sendEmailDone; // FIX: avoid End of lambda before queue drained
+
+    await sendEmails.drain();
+    const res = await logBlast('email', subject, `${successfulBlast}`, opts);
+
+    if (userId) {
+      const { profileId } = res;
+      await removeBlastToken('email', profileId, `${successfulBlast}`, appId);
+    }
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

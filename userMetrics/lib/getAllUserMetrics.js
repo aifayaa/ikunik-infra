@@ -1,7 +1,6 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_USERS,
   COLL_USER_METRICS,
@@ -23,7 +22,7 @@ export default async (
 ) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect();
 
     const $match = {};
     let $geoNear = false;

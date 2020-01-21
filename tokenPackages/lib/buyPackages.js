@@ -13,8 +13,8 @@ const lambda = new Lambda({
 });
 
 export default async (userId, packageId, appId) => {
-  const pack = await getPackage(packageId);
-  if (!pack) throw new Error('unknow package');
+  const pack = await getPackage(packageId, appId);
+  if (!pack) throw new Error('unknown package');
   const { qty, price, type } = pack;
 
   let res = await lambda.invoke({

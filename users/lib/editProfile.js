@@ -1,9 +1,8 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, appId, {
@@ -12,7 +11,7 @@ export default async (userId, appId, {
   const $set = {
     'profile.username': `${username}`,
   };
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
 
   try {
     const { matchedCount } = await client

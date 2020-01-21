@@ -1,14 +1,13 @@
-import { MongoClient } from 'mongodb';
 import findIndex from 'lodash/findIndex';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid';
 import validator from 'validator';
+import MongoClient from '../../libs/mongoClient';
 import getShopItem from './getShopItem';
 
 const {
   COLL_SHOP_ORDERS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;
@@ -18,7 +17,7 @@ const lambda = new Lambda({
 });
 
 export default async (userId, productId, qty, address, variantId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
 
   try {
     /* check if 1 <= qty <=10 */

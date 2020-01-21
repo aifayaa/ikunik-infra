@@ -1,16 +1,15 @@
-import { MongoClient } from 'mongodb';
 import { URL } from 'url';
+import MongoClient from '../../libs/mongoClient';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 
 export default async (audioId, appId) => {
   const {
-    MONGO_URL,
     DB_NAME,
     COLL_AUDIOS,
   } = process.env;
 
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const audio = await client
       .db(DB_NAME)

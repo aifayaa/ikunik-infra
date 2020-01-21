@@ -1,12 +1,12 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 
 import { publishArticle } from '../../lib/publishArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const { MONGO_URL, DB_NAME, COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = process.env;
+const { DB_NAME, COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = process.env;
 
 describe('lib - publishArticle', () => {
   let spyMongo;
@@ -37,7 +37,6 @@ describe('lib - publishArticle', () => {
     });
 
     it('mongo connection done', () => {
-      sinon.assert.calledWith(stubMongo, MONGO_URL);
       sinon.assert.calledWith(spyMongo.db, DB_NAME);
       sinon.assert.called(spyMongo.startSession);
       sinon.assert.called(spyMongo.startTransaction);

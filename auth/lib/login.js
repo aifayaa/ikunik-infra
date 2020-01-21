@@ -2,7 +2,7 @@
 // createUser method from
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import { checkPassword } from './password';
 import hashLoginToken from './hashLoginToken';
 import Random from './random';
@@ -10,9 +10,7 @@ import Random from './random';
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
 
 export const login = async (email, username, password, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
 
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
@@ -32,9 +30,9 @@ export const login = async (email, username, password, appId) => {
     }
 
     if (
-      !user.services ||
-      !user.services.password ||
-      !user.services.password.bcrypt
+      !user.services
+      || !user.services.password
+      || !user.services.password.bcrypt
     ) {
       throw new Error('User has no password set"');
     }

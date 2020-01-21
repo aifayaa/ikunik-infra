@@ -1,18 +1,15 @@
-import { MongoClient } from 'mongodb';
 import get from 'lodash/get';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   DB_NAME,
   COLL_APPS,
-  MONGO_URL,
   FACEBOOK_CLIENT_ID,
   FACEBOOK_CLIENT_SECRET,
 } = process.env;
 
 export const getFacebookSettings = async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
   try {
     const db = await client.db(DB_NAME);
     const {

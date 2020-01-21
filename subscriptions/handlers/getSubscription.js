@@ -1,13 +1,14 @@
 import getSubscription from '../lib/getSubscription';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const subId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   try {
     const results = await getSubscription(subId, appId);
-    callback(null, response({ code: 200, body: results }));
+    if (results) return response({ code: 200, body: results });
+    return response({ code: 404, message: 'subscription_not_found' });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

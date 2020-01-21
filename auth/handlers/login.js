@@ -15,8 +15,8 @@ export default async (event) => {
     }
 
     if (
-      !typeCheck('[Maybe String]', [email, username]) ||
-      !typeCheck('String', password)
+      !typeCheck('[Maybe String]', [email, username])
+      || !typeCheck('String', password)
     ) throw new Error('wrong_argument_type');
 
     const { appId } = event.requestContext.authorizer;

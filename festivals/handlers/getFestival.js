@@ -1,13 +1,13 @@
 import doGetFestival from '../lib/getFestival';
 import response from '../../libs/httpResponses/response';
 
-export const handleGetFestival = async (event, _context, callback) => {
+export const handleGetFestival = async (event) => {
   const festivalId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   try {
     const results = await doGetFestival(festivalId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

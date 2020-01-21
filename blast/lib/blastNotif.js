@@ -37,7 +37,7 @@ export default ({ artistName, endpoint, message }, cb) => {
     MessageStructure: 'json',
     TargetArn: endpoint.EndpointArn,
   };
-  if (process.env.STAGE === 'prod') return sns.publish(params, cb);
+  if (process.env.STAGE !== 'dev') return sns.publish(params, cb);
   return cb(null, {
     ResponseMetadata: {
       RequestId: AWSId(),

@@ -1,15 +1,14 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_TICKETS,
   COLL_TICKET_CATEGORIES,
   COLL_SCANNERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (ticketSerial, scannerId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const [[ticket], scanner] = await Promise.all([
       client
@@ -59,7 +58,7 @@ export default async (ticketSerial, scannerId, appId) => {
           scannedDate: new Date(),
           scannedBy: scannerId,
         },
-      }).then(res => res.value);
+      }).then((res) => res.value);
     if (updatedTicket) updatedTicket.category = ticket.category;
     return updatedTicket;
   } finally {

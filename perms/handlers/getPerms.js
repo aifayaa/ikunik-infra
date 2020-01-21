@@ -1,6 +1,8 @@
-import buildResponse from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default (event) => {
   const perms = JSON.parse(event.requestContext.authorizer.perms);
-  callback(null, buildResponse({ code: 200, body: perms }));
+  return new Promise((resolve) => {
+    resolve(response({ code: 200, body: perms }));
+  });
 };

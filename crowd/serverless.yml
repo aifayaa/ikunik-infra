@@ -2,7 +2,7 @@ service: crowd
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 1024
   timeout: 30
@@ -174,8 +174,6 @@ custom:
     method.request.querystring.sortOrder: true
     method.request.querystring.track: true
     method.request.querystring.type: true
-
-  webpackIncludeModules: true
 
 resources:
   Resources:

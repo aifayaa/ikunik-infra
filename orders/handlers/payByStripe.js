@@ -1,7 +1,7 @@
 import payByStripe from '../lib/payByStripe';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
 
   if (!event.body) {
@@ -14,8 +14,8 @@ export default async (event, _context, callback) => {
       throw new Error('mal_formed_request');
     }
     const res = await payByStripe(token, cartId, userId);
-    callback(null, response({ code: 200, body: res }));
+    return response({ code: 200, body: res });
   } catch (e) {
-    callback(null, response({ code: 200, message: e.message }));
+    return response({ code: 200, message: e.message });
   }
 };

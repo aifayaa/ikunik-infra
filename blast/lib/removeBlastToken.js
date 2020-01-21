@@ -1,12 +1,11 @@
-import { MongoClient } from 'mongodb';
 import winston from 'winston';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BALANCE_EMAILS,
   COLL_BALANCE_MESSAGES,
   COLL_BALANCE_NOTIFS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (type, profileId, qte, appId) => {
@@ -23,7 +22,7 @@ export default async (type, profileId, qte, appId) => {
       break;
     default:
   }
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const res = await client.db(DB_NAME).collection(collName)
       .updateOne({

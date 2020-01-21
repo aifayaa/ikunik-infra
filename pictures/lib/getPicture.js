@@ -1,8 +1,7 @@
 /* eslint-disable no-await-in-loop */
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PICTURES,
 } = process.env;
@@ -20,7 +19,7 @@ export default async (id, appId, { isPublished }) => {
       $find.isPublished = isPublished;
     }
 
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect();
     return await client.db(DB_NAME)
       .collection(COLL_PICTURES)
       .findOne($find);

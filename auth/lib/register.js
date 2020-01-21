@@ -2,7 +2,7 @@
 // createUser method from
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import Random from './random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
@@ -10,9 +10,7 @@ import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUser
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
 
 export const register = async (email, username, password, appId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
 
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);

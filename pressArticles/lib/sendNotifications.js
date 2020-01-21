@@ -1,11 +1,10 @@
-import { MongoClient } from 'mongodb';
 import queue from 'async/queue';
 import AWS from 'aws-sdk';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_PUSH_NOTIFICATIONS,
   DB_NAME,
-  MONGO_URL,
   SNS_KEY_ID,
   SNS_REGION,
   SNS_SECRET,
@@ -46,7 +45,7 @@ const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) =
 };
 
 export const doSendNotifications = async (title, message, appId, extraData) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const endpoints = await client
       .db(DB_NAME)
@@ -58,19 +57,13 @@ export const doSendNotifications = async (title, message, appId, extraData) => {
     const sendNotifications = queue(doBlastNotification, 50);
     const results = [];
     let successful = 0;
-    const sendNotificationsDone = new Promise((resolve) => {
-      sendNotifications.drain = () => {
-        resolve();
-      };
-    });
-
     endpoints.forEach((endpoint) => {
       sendNotifications.push({ title, message, endpoint, extraData }, (error, res) => {
         if (!error) successful += 1;
         results.push(error || res);
       });
     });
-    await sendNotificationsDone;
+    await sendNotifications.drain();
     return { successful };
   } finally {
     client.close();

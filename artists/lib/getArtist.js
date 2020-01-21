@@ -1,7 +1,6 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_ARTISTS,
   COLL_PROJECTS,
@@ -23,7 +22,7 @@ const artistFields = [
 ];
 
 export default async (artistId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const artist = await client
       .db(DB_NAME)
@@ -64,7 +63,7 @@ export default async (artistId, appId) => {
         {
           $group: Object.assign(
             {},
-            ...artistFields.map(field => ({ [field]: { $first: `$${field}` } })),
+            ...artistFields.map((field) => ({ [field]: { $first: `$${field}` } })),
             {
               _id: '$_id',
               genres: { $addToSet: '$project.selectedGenres.text' },

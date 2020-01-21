@@ -1,12 +1,12 @@
-import { MongoClient } from 'mongodb';
 import round from 'mongo-round';
+import MongoClient from '../../libs/mongoClient';
 
 export default async () => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const res = await client
       .db(process.env.DB_NAME)
-      .collection(process.env.COLL_NAME)
+      .collection(process.env.COLL_BILLING)
       .aggregate([
         { $match: { status: 'paid' } },
         {

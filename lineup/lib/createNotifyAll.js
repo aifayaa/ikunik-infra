@@ -1,15 +1,14 @@
-import { MongoClient } from 'mongodb';
 import { PromisePoolExecutor } from 'promise-pool-executor';
+import MongoClient from '../../libs/mongoClient';
 import createNotify from './createNotify';
 
 const {
   COLL_LINEUPS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const lineup = await client
       .db(DB_NAME)

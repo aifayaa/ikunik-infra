@@ -1,34 +1,21 @@
 import getUserLineups from '../lib/getUserLineups';
+import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { appId, profileId } = event.requestContext.authorizer;
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
   try {
     const userId = event.requestContext.authorizer.principalId;
     const urlId = event.pathParameters.id;
     if (userId !== urlId) {
-      response.statusCode = 403;
-      response.body = JSON.stringify({ message: 'forbidden' });
-      return;
+      return response({ code: 403, message: 'forbidden' });
     }
 
-    const results = await getUserLineups(userId, profileId, appId);
-    if (results) {
-      response.statusCode = 200;
-      response.body = JSON.stringify(results);
-    } else {
-      response.statusCode = 404;
-      response.body = JSON.stringify({ message: 'lineup_not_found' });
+    const results = await getUserLineups(userId, profileId, null, appId);
+    if (results && Object.keys(results).length) {
+      return response({ code: 200, body: results });
     }
+    return response({ code: 404, message: 'lineups_not_found' });
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({ message: e.message });
-  } finally {
-    callback(null, response);
+    return response({ code: 500, message: e.message });
   }
 };

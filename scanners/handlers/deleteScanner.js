@@ -1,15 +1,15 @@
 import deleteScanner from '../lib/deleteScanner';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     const { appId, profileId } = event.requestContext.authorizer;
     const userId = event.requestContext.authorizer.principalId;
     const scannerId = event.pathParameters.id;
 
     const results = await deleteScanner(userId, profileId, scannerId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

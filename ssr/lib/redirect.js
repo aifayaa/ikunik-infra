@@ -12,10 +12,9 @@ export default (userAgent, redirectUrl) => {
       path,
       protocol,
     } = url.parse(decodedUrl);
-    const isValid =
-      (hostname.endsWith('crowdaa.com') && protocol === 'https:') ||
-      allowedUrls.includes(`${protocol}//${host}${path}`) ||
-      allowedProtocols.includes(protocol);
+    const isValid = (hostname.endsWith('crowdaa.com') && protocol === 'https:')
+      || allowedUrls.includes(`${protocol}//${host}${path}`)
+      || allowedProtocols.includes(protocol);
     if (isValid) {
       return {
         statusCode: 301,

@@ -1,6 +1,6 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../mongoClient';
 
-const { DB_NAME, COLL_USERS, COLL_PERM_GROUPS, MONGO_URL } = process.env;
+const { DB_NAME, COLL_USERS, COLL_PERM_GROUPS } = process.env;
 
 export default async (userId, appId) => {
   const pipeline = [
@@ -28,7 +28,7 @@ export default async (userId, appId) => {
       },
     },
   ];
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const [{ permGroups } = {}] = await client
       .db(DB_NAME)

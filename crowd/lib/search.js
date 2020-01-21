@@ -1,7 +1,6 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PROJECTS,
 } = process.env;
@@ -9,7 +8,7 @@ const {
 export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
   if (page && typeof page !== 'number') page = parseInt(page, 10);
   if (limit && typeof limit !== 'number') limit = parseInt(limit, 10);
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     if (filterUserInfo) {
       pipeline.push({

@@ -1,8 +1,8 @@
 /* eslint-disable no-await-in-loop */
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
-import { MongoClient } from 'mongodb';
-import getCollectionFromContentType from '../lib/getCollectionFromContentType';
+import MongoClient from '../../libs/mongoClient';
+import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 
 const S3 = new AWS.S3({
@@ -11,7 +11,6 @@ const S3 = new AWS.S3({
 
 const {
   DB_NAME,
-  MONGO_URL,
   S3_PICTURES_BUCKET,
   CDN_DOMAIN_NAME,
 } = process.env;
@@ -71,9 +70,7 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
 };
 
 export default async (bucket, object, file) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
 
   /* all key names are lowercaser in metadata */
   const {

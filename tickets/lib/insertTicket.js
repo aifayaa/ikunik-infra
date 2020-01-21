@@ -1,10 +1,9 @@
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_TICKETS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (
@@ -20,7 +19,7 @@ export default async (
   opts,
 ) => {
   const ticketId = uuidv4();
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const ticket = {
       _id: ticketId,

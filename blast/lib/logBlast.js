@@ -1,10 +1,9 @@
-import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BLASTS,
   DB_NAME,
-  MONGO_URL,
   REGION,
   STAGE,
 } = process.env;
@@ -32,7 +31,7 @@ export default async (type, message, qte, { userId, listId, projectId, appId }) 
       profileId = JSON.parse(body)._id;
     }
 
-    client = await MongoClient.connect(MONGO_URL);
+    client = await MongoClient.connect();
     await client
       .db(DB_NAME)
       .collection(COLL_BLASTS)

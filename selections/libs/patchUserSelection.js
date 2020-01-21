@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 export default async (selectionId, userId, appId, patch, noCheck) => {
   if (!noCheck) {
@@ -19,7 +19,7 @@ export default async (selectionId, userId, appId, patch, noCheck) => {
   // modify selectionDisplayName with selectionName
   if (patch.$set.selectionName) patch.$set.selectionDisplayName = patch.$set.selectionName;
 
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     return await client
       .db(process.env.DB_NAME)
