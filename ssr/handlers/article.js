@@ -10,14 +10,16 @@ export default async (event) => {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
     const { appName } = (event.queryStringParameters || {});
     const userAgent = event.headers['User-Agent'];
-    const redirectResponse = redirect(userAgent, redirectUrl);
+    const redirectResponse = await redirect(userAgent, redirectUrl);
     if (redirectResponse) {
       return redirectResponse;
     }
     const appId = await getAppId(appName);
     const articleId = event.pathParameters.id;
     const article = await getArticle(articleId, appId, { getPictures: true, isServer: true });
-    if (!article) throw new Error('article_not_found');
+    if (!article) {
+      throw new Error('article_not_found');
+    }
     const pictureUrl = (article.pictures[0] && article.pictures[0].mediumUrl) || '';
     const body = meta(
       article.title,

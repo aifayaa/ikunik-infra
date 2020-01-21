@@ -10,7 +10,7 @@ export default async (event) => {
 
   try {
     const userAgent = event.headers['User-Agent'];
-    const redirectResponse = redirect(userAgent, redirectUrl);
+    const redirectResponse = await redirect(userAgent, redirectUrl);
     if (redirectResponse) {
       return redirectResponse;
     }
