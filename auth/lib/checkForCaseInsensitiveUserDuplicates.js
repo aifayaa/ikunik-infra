@@ -68,7 +68,7 @@ export default async (
 
     if (openClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = MongoClient.connect();
+      mongoClient = await MongoClient.connect();
     }
     try {
       const matchedUsers = await mongoClient

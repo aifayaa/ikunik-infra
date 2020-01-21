@@ -8,8 +8,7 @@
     "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
-    "mongodb": "3.5.0",
-    "uuid": "^3.4.0"
+    "mongodb": "^3.5.0"
   },
   "devDependencies": {
     "aws-sdk-mock": "^5.0.0",

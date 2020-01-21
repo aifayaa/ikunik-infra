@@ -21,7 +21,7 @@ const HLSVideos = [
 ];
 
 export default async (bucket, object, file) => {
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
 
   /* all key names are lowercaser in metadata */
   const {

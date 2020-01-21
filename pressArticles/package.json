@@ -12,7 +12,7 @@
     "aws-sdk": "^2.605.0",
     "fast-xml-parser": "^3.16.0",
     "lodash": "^4.17.15",
-    "mongodb": "3.5.0",
+    "mongodb": "^3.5.0",
     "remove-markdown": "^0.3.0",
     "sax": "^1.2.4",
     "showdown": "^1.9.1",

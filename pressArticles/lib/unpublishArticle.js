@@ -7,7 +7,7 @@ const {
 } = process.env;
 
 export const unpublishArticle = async (userId, appId, articleId) => {
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
   let session;
 
   try {

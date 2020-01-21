@@ -1,5 +1,4 @@
-import uuid from 'uuid';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const {
   DB_NAME,
@@ -20,7 +19,7 @@ export default async (
   try {
     /* Prepare the object to insert in the database */
     const userMetrics = {
-      _id: uuid.v4(),
+      _id: ObjectID.toString(),
       appIds: [appId],
       userId,
       type,

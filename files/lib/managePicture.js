@@ -70,7 +70,7 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
 };
 
 export default async (bucket, object, file) => {
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
 
   /* all key names are lowercaser in metadata */
   const {

@@ -68,7 +68,7 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
 
     if (openClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = MongoClient.connect();
+      mongoClient = await MongoClient.connect();
     }
     try {
       await mongoClient

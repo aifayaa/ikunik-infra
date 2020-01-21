@@ -9,7 +9,7 @@ const {
 } = process.env;
 
 export const getFacebookSettings = async (appId) => {
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
   try {
     const db = await client.db(DB_NAME);
     const {

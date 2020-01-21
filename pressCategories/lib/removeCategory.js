@@ -7,7 +7,7 @@ const {
 } = process.env;
 
 export default async (appId, categoryId) => {
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
 
   try {
     const resultDelete = await client

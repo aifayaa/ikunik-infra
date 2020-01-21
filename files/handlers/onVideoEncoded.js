@@ -13,7 +13,7 @@ export default async (event) => {
     Message: message,
   } = event.Records[0].Sns;
 
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
 
   try {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);

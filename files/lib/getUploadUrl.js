@@ -17,7 +17,7 @@ const {
 export default async (userId, appId, files, metadata) => {
   const insertions = {};
   const returns = [];
-  const client = MongoClient.connect();
+  const client = await MongoClient.connect();
 
   files.forEach((file) => {
     const {

@@ -19,7 +19,7 @@ export const getArticles = async (
 ) => {
   let client;
   try {
-    client = MongoClient.connect();
+    client = await MongoClient.connect();
 
     const $match = {
       appIds: { $elemMatch: { $eq: appId } },
