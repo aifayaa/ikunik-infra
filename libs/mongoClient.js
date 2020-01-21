@@ -8,10 +8,11 @@ const DEFAULT_OPTS = {
   useUnifiedTopology: true,
 };
 
+const { connect } = MongoClient;
 // set parameters for MongoDb connect
-MongoClient.connect = (mongoURL, opts, cb) => MongoClient.connect(
+MongoClient.connect = (mongoURL, opts, cb) => connect(
   mongoURL || MONGO_URL,
-  { DEFAULT_OPTS, ...opts },
+  { ...DEFAULT_OPTS, ...opts },
   cb,
 );
 
