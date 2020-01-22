@@ -6,6 +6,7 @@ import allowedUrls from './urlWhiteList';
 export default async (userAgent, redirectUrl) => {
   if (!isCrawler(userAgent) && redirectUrl) {
     const decodedUrl = decodeURIComponent(redirectUrl);
+    /* /!\ url.parse adds ":" at the end of the protocol */
     const {
       host,
       hostname,
@@ -13,11 +14,12 @@ export default async (userAgent, redirectUrl) => {
       protocol,
     } = url.parse(decodedUrl);
 
-    /* Retrieve list of allowed protocols from database */
+    /* Retrieve list of allowed protocols from database
+     * and add ":" after protocol to match with url.parse */
     const appsInfos = await getAppsInfos();
-    const allowedProtocols = appsInfos.map((v) => v.protocol);
+    const allowedProtocols = appsInfos.map((v) => `${v.protocol}:`);
 
-    /* Check if redirect was valid */
+    /* Check if redirect is valid */
     const isValid = (hostname.endsWith('crowdaa.com') && protocol === 'https:')
       || allowedUrls.includes(`${protocol}//${host}${path}`)
       || allowedProtocols.includes(protocol);
