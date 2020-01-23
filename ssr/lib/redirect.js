@@ -16,7 +16,7 @@ export default async (userAgent, redirectUrl) => {
 
     /* Retrieve list of allowed protocols from database
      * and add ":" after protocol to match with url.parse */
-    const appsInfos = await getAppsInfos();
+    const appsInfos = await getAppsInfos(true);
     const allowedProtocols = appsInfos.map((v) => `${v.protocol}:`);
 
     /* Check if redirect is valid */

@@ -23,7 +23,7 @@ export default async (event) => {
     const article = articleResults[0];
     const picture = article.data.pictures[0] || {};
     const pictureUrl = (picture && picture.mediumUrl) || '';
-    const size = { height: picture.height, width: picture.width };
+    const size = { height: picture.mediumHeight, width: picture.mediumWidth };
     const body = meta(
       article.data.title,
       prepareNotifString(article.data.content, 120),

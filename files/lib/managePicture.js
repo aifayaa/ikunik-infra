@@ -53,14 +53,14 @@ const resizeParams = ({ keepRatio = false }) => [{
 const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   const { data: resizeBuffer, info } = await Sharp(picture.Body)
     .resize(resizeOpts)
-    .toFormat('png')
+    .toFormat('jpeg')
     .toBuffer({ resolveWithObject: true });
 
   await S3.putObject({
     ACL: 'public-read',
     Body: resizeBuffer,
     Bucket: oBucket,
-    ContentType: 'image/png',
+    ContentType: 'image/jpeg',
     Key: oKey,
     Metadata: picture.Metadata,
   }).promise();
@@ -111,15 +111,18 @@ export default async (bucket, object, file) => {
 
     const pictureDoc = Object.assign(document, {
       description: '',
-      height: 0,
       isPublished: true,
       largeFileObj_ID: null,
       largeFilename: null,
+      largeHeight: 0,
       largeUrl: null,
+      largeWidth: 0,
       likes: 0,
       mediumFileObj_ID: null,
       mediumFilename: null,
+      mediumHeight: 0,
       mediumUrl: null,
+      mediumWidth: 0,
       pictureFileObj_ID: null,
       pictureFilename: object.key,
       pictureUrl: null,
@@ -129,10 +132,11 @@ export default async (bucket, object, file) => {
       status: uploadStatus.ENCODING,
       thumbFileObj_ID: null,
       thumbFilename: null,
+      thumbHeight: 0,
       thumbUrl: null,
+      thumbWidth: 0,
       title: title || '',
       views: 0,
-      width: 0,
     });
 
     await client.db(DB_NAME)
@@ -158,8 +162,8 @@ export default async (bucket, object, file) => {
       } = results;
       pictureDoc[`${params.docField}Filename`] = key;
       pictureDoc[`${params.docField}Url`] = url;
-      pictureDoc.height = info.height;
-      pictureDoc.width = info.width;
+      pictureDoc[`${params.docField}Height`] = info.height;
+      pictureDoc[`${params.docField}Width`] = info.width;
     }
 
     pictureDoc.status = uploadStatus.READY;
