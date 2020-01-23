@@ -20,11 +20,14 @@ export default async (event) => {
     if (!article) {
       throw new Error('article_not_found');
     }
-    const pictureUrl = (article.pictures[0] && article.pictures[0].mediumUrl) || '';
+    const picture = article.pictures[0] || {};
+    const pictureUrl = (picture && picture.mediumUrl) || '';
+    const size = { height: picture.height, width: picture.width };
     const body = meta(
       article.title,
       prepareNotifString(article.plainText, 120),
       pictureUrl,
+      size,
     );
     return response({ code: 200, body, raw: true });
   } catch (e) {
