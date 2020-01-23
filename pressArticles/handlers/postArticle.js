@@ -106,7 +106,6 @@ export default async (event) => {
     ) {
       throw new Error('mal_formed_request');
     }
-
     checkActions(actions);
 
     const userId = event.requestContext.authorizer.principalId;
@@ -128,9 +127,9 @@ export default async (event) => {
     if (autoPublish === 'true') {
       results = await publishArticle(
         userId,
+        appId,
         results.articleId,
         results.draftId,
-        appId,
       );
       results.published = true;
       if (sendNotifications === 'true') {
