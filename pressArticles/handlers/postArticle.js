@@ -130,6 +130,7 @@ export default async (event) => {
         appId,
         results.articleId,
         results.draftId,
+        new Date(),
       );
       results.published = true;
       if (sendNotifications === 'true') {
