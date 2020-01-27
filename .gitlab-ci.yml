@@ -10,7 +10,7 @@ eslint:
     paths:
       - node_modules/
   before_script:
-    - git diff --dirstat=files,0 origin/dev -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
     - for i in $(<folderList); do echo "install dep in $i";cd $i; npm i; cd ..; done
   stage: lint
@@ -23,14 +23,12 @@ test:
     paths:
       - node_modules/
   before_script:
-    - git diff --dirstat=files,0 origin/dev -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
     - cd libs; npm i; cd ..
   stage: test
   script:
     - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test; fi; cd ..; done
-
-
 
 pushDevToAWS:
   variables:
@@ -43,7 +41,7 @@ pushDevToAWS:
 
   script:
     - pip install awscli
-    - git diff --dirstat=files,0 origin/dev -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
+    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
@@ -63,7 +61,7 @@ pushProdToAWS:
 
   script:
     - pip install awscli
-    - git diff --dirstat=files,0 origin/master -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
+    - git diff --dirstat=files,0 origin/master^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
