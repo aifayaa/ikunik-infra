@@ -10,10 +10,13 @@ const {
 } = process.env;
 
 export default async (
-  getProtocol = 0,
+  getProtocol = false,
 ) => {
   const client = await MongoClient.connect();
-  const projection = { name: 1, key: 1, protocol: getProtocol };
+  const projection = { name: 1, key: 1 };
+  if (getProtocol) {
+    projection.protocol = 1;
+  }
 
   try {
     return await client
