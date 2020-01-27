@@ -51,21 +51,24 @@ const resizeParams = ({ keepRatio = false }) => [{
 }];
 
 const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
-  const resizeBuffer = await Sharp(picture.Body)
+  const { data: resizeBuffer, info } = await Sharp(picture.Body)
     .resize(resizeOpts)
-    .toFormat('png')
-    .toBuffer();
+    .toFormat('jpeg')
+    .toBuffer({ resolveWithObject: true });
+
   await S3.putObject({
     ACL: 'public-read',
     Body: resizeBuffer,
     Bucket: oBucket,
-    ContentType: 'image/png',
+    ContentType: 'image/jpeg',
     Key: oKey,
     Metadata: picture.Metadata,
   }).promise();
+
   return {
     key: oKey,
     url: `https://${CDN_DOMAIN_NAME}/${oKey}`,
+    info,
   };
 };
 
@@ -108,26 +111,32 @@ export default async (bucket, object, file) => {
 
     const pictureDoc = Object.assign(document, {
       description: '',
-      likes: 0,
-      largeFilename: null,
+      isPublished: true,
       largeFileObj_ID: null,
+      largeFilename: null,
+      largeHeight: 0,
       largeUrl: null,
-      mediumFilename: null,
+      largeWidth: 0,
+      likes: 0,
       mediumFileObj_ID: null,
+      mediumFilename: null,
+      mediumHeight: 0,
       mediumUrl: null,
-      pictureFilename: object.key,
+      mediumWidth: 0,
       pictureFileObj_ID: null,
+      pictureFilename: object.key,
       pictureUrl: null,
       profil_ID: null,
       project_ID: null,
-      thumbFilename: null,
+      selectedGenres: [],
+      status: uploadStatus.ENCODING,
       thumbFileObj_ID: null,
+      thumbFilename: null,
+      thumbHeight: 0,
       thumbUrl: null,
+      thumbWidth: 0,
       title: title || '',
       views: 0,
-      selectedGenres: [],
-      isPublished: true,
-      status: uploadStatus.ENCODING,
     });
 
     await client.db(DB_NAME)
@@ -146,9 +155,15 @@ export default async (bucket, object, file) => {
         `${params.prefix}-${decodeURI(object.key).replace(/\+/gi, ' ')}`,
         params.resize,
       );
-      const { key, url } = results;
+      const {
+        key,
+        info,
+        url,
+      } = results;
       pictureDoc[`${params.docField}Filename`] = key;
       pictureDoc[`${params.docField}Url`] = url;
+      pictureDoc[`${params.docField}Height`] = info.height;
+      pictureDoc[`${params.docField}Width`] = info.width;
     }
 
     pictureDoc.status = uploadStatus.READY;
