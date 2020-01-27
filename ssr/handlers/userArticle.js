@@ -21,11 +21,14 @@ export default async (event) => {
       throw new Error('article_not_found');
     }
     const article = articleResults[0];
-    const pictureUrl = (article.data.pictures[0] && article.data.pictures[0].mediumUrl) || '';
+    const picture = article.data.pictures[0] || {};
+    const pictureUrl = (picture && picture.mediumUrl) || '';
+    const size = { height: picture.mediumHeight, width: picture.mediumWidth };
     const body = meta(
       article.data.title,
       prepareNotifString(article.data.content, 120),
       pictureUrl,
+      size,
     );
     return response({ code: 200, body, raw: true });
   } catch (e) {
