@@ -1,5 +1,5 @@
-import { MongoClient } from 'mongodb';
 import winston from 'winston';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_AUDIOS,
@@ -10,11 +10,10 @@ const {
   COLL_VIDEOS,
   COLL_VIEWS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, appId, mediumType, mediumId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     let medium;
     let mediaCol;

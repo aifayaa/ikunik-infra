@@ -5,13 +5,13 @@
   "description": "Crowdaa subscriptions API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.232.1",
-    "moment": "^2.22.1",
-    "mongodb": "^3.0.2"
+    "aws-sdk": "^2.605.0",
+    "moment": "^2.24.0"
   },
   "devDependencies": {
-    "serverless-webpack": "^4.2.0",
-    "webpack-node-externals": "^1.6.0"
+    "serverless": "^1.61.2",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"

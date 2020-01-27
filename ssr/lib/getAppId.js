@@ -1,14 +1,23 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
+
+const {
+  APP_NAME_DEFAULT,
+  COLL_APPS,
+  DB_NAME,
+} = process.env;
 
 export default async (appName) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
+  const name = appName || APP_NAME_DEFAULT;
 
   try {
     const app = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_APPS)
-      .findOne({ name: appName || process.env.APP_NAME_DEFAULT }, { projection: { _id: 1 } });
-    if (!app) throw new Error('app_not_found');
+      .db(DB_NAME)
+      .collection(COLL_APPS)
+      .findOne({ name }, { projection: { _id: 1 } });
+    if (!app) {
+      throw new Error('app_not_found');
+    }
     return app._id;
   } finally {
     client.close();

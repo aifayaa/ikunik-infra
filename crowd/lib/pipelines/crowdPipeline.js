@@ -221,9 +221,9 @@ export default (userId, appId, {
   sortBy,
   sortOrder,
 }) => {
-  const pipeline = coordinates ?
-    pipelineLocationStart(userId, appId, coordinates, range) :
-    pipelineStart(userId, appId);
+  const pipeline = coordinates
+    ? pipelineLocationStart(userId, appId, coordinates, range)
+    : pipelineStart(userId, appId);
   pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
   pipeline.push({
     $lookup: {

@@ -6,6 +6,15 @@ const {
 } = process.env;
 
 const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
+  const $matchOnUserMetrics = {
+    appIds: {
+      $elemMatch: { $eq: appId },
+    },
+    contentCollection: COLL_USERS,
+    type: 'geolocation',
+    trashed: false,
+  };
+
   const $match = {
     appIds: {
       $elemMatch: { $eq: appId },
@@ -27,23 +36,31 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
           coordinates: Object.values(JSON.parse(coordinates)).reverse(),
         },
         distanceField: 'result',
-        includeLocs: 'location.loc',
+        includeLocs: 'location',
         spherical: true,
         maxDistance: range | 0,
       },
     },
     {
+      $match: $matchOnUserMetrics,
+    },
+    {
       $lookup: {
         from: COLL_USER_METRICS,
-        localField: '_id',
-        foreignField: 'user_ID',
-        as: 'user_metric',
+        localField: 'userId',
+        foreignField: 'userId',
+        as: 'userMetric',
       },
     },
     {
       $unwind: {
-        path: '$user_metric',
+        path: '$userMetric',
         preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: '$userMetric',
       },
     },
     {
@@ -54,6 +71,20 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
         _id: '$userId',
         user_ID: { $first: '$userId' },
         elapsedTime: { $sum: '$time' },
+      },
+    },
+    {
+      $lookup: {
+        from: COLL_USERS,
+        localField: 'user_ID',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
       },
     },
   ];
@@ -107,9 +138,9 @@ export default (userId, appId, {
   range,
   search = '',
 }) => {
-  const pipeline = coordinates ?
-    useLocationPipeline(userId, appId, coordinates, range, articleId) :
-    useClassicPipeline(userId, appId, articleId);
+  const pipeline = coordinates
+    ? useLocationPipeline(userId, appId, coordinates, range, articleId)
+    : useClassicPipeline(userId, appId, articleId);
 
   pipeline.push({
     $lookup: {

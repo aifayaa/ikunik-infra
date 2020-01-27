@@ -1,13 +1,12 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 
 import { getArticles } from '../../lib/getArticles';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_PRESS_ARTICLES,
 } = process.env;
@@ -15,10 +14,11 @@ const {
 describe('lib - getArticles', () => {
   let spyMongo;
   let stubMongo;
-  const response = { articles: [], total: 0 };
+  const dbResponse = [];
+  const expectedResponse = { articles: [], total: 0 };
 
   before(() => {
-    spyMongo = spyMongoMethods([response]);
+    spyMongo = spyMongoMethods(dbResponse);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,
@@ -34,14 +34,13 @@ describe('lib - getArticles', () => {
       'crowdaa_app_id',
       { getPictures: true },
     );
-    expect(res).to.deep.eq(response);
+    expect(res).to.deep.eq(expectedResponse);
     expect(res).to.be.a('object');
     expect(res.articles).to.be.a('array');
     expect(res.total).to.be.a('number');
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(stubMongo, MONGO_URL);
     sinon.assert.calledWith(spyMongo.db, DB_NAME);
     sinon.assert.called(spyMongo.close);
   });

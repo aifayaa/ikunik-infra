@@ -1,7 +1,7 @@
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mailgun from 'mailgun-js';
 
-export default async ({ subject, body, to }) => {
+export default ({ subject, body, to }) => {
   const mailgun = Mailgun({
     apiKey: process.env.MAILGUN_API_KEY,
     domain: process.env.MAILGUN_DOMAIN,

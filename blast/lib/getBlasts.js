@@ -1,15 +1,14 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BLASTS,
-  MONGO_URL,
   DB_NAME,
 } = process.env;
 
 export default async (userId, appId, {
   limit, skip, sortBy, sortOrder, type,
 } = {}) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const selector = {
       fromUser_ID: userId,

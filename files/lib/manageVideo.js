@@ -1,13 +1,12 @@
 import ElasticTranscoder from 'aws-sdk/clients/elastictranscoder';
 import path from 'path';
-import { MongoClient } from 'mongodb';
-import getCollectionFromContentType from '../lib/getCollectionFromContentType';
+import MongoClient from '../../libs/mongoClient';
+import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 
 const {
   DB_NAME,
   EL_PIPELINE,
-  MONGO_URL,
 } = process.env;
 
 /* Encoding parameters */
@@ -22,9 +21,7 @@ const HLSVideos = [
 ];
 
 export default async (bucket, object, file) => {
-  const client = await MongoClient.connect(MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
 
   /* all key names are lowercaser in metadata */
   const {
@@ -107,7 +104,7 @@ export default async (bucket, object, file) => {
         name,
       },
     };
-    elasticTranscoder.createJob(params).promise();
+    await elasticTranscoder.createJob(params).promise();
   } finally {
     client.close();
   }

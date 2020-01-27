@@ -49,7 +49,7 @@ describe('handlers - putArticle', () => {
   });
 
   describe('lib success', () => {
-    const result = 'ok';
+    const result = { message: 'ok' };
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
@@ -59,7 +59,7 @@ describe('handlers - putArticle', () => {
     it('should return 200', async () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(200);
-      expect(response.body).to.eq(result);
+      expect(JSON.parse(response.body)).to.eql(result);
     });
 
     it('should called with the good args', () => {
@@ -67,6 +67,9 @@ describe('handlers - putArticle', () => {
       const { principalId, appId } = event.requestContext.authorizer;
       const { id } = event.pathParameters;
       const opts = {
+        actions: [],
+        feedPicture: undefined,
+        videos: undefined,
         userId: principalId,
         appId,
         categoryId: eventParsed.categoryId,

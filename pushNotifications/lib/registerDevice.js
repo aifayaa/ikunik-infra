@@ -3,13 +3,12 @@ import check from 'check-types';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   SNS_REGION,
   SNS_KEY_ID,
   SNS_SECRET,
-  MONGO_URL,
   DB_NAME,
   COLL_APPS,
   COLL_PUSH_NOTIFICATIONS,
@@ -25,12 +24,12 @@ const sns = new SNS({
 
 export default async ({ userId, Token, deviceUUID, platform, appId }) => {
   if (
-    check.not.string(Token) ||
-    check.not.string(deviceUUID) ||
-    check.not.string(platform)
+    check.not.string(Token)
+    || check.not.string(deviceUUID)
+    || check.not.string(platform)
   ) throw new Error('wrong_args_type');
 
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const app = await client.db(DB_NAME)
       .collection(COLL_APPS).findOne({ _id: appId });

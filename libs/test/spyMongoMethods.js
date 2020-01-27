@@ -5,8 +5,10 @@ export default (response) => {
   const aggregate = sinon.spy(() => ({
     toArray,
   }));
+  const count = sinon.spy(() => Promise.resolve(response.length || 0));
   const find = sinon.spy(() => ({
     toArray,
+    count,
   }));
   const insertOne = sinon.spy(() => true);
   const findOne = sinon.spy(() => response);

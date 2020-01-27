@@ -1,7 +1,6 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const {
-  MONGO_URL,
   DB_NAME,
   COLL_USER_METRICS,
 } = process.env;
@@ -15,12 +14,12 @@ export default async (
   data = {},
 ) => {
   /* Mongo client */
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
 
   try {
     /* Prepare the object to insert in the database */
     const userMetrics = {
-      _id: new ObjectID().toString(),
+      _id: ObjectID.toString(),
       appIds: [appId],
       userId,
       type,

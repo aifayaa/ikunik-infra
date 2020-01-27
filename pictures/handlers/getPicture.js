@@ -1,29 +1,15 @@
 import getPicture from '../lib/getPicture';
+import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     const { id } = event.pathParameters;
     const { appId } = event.requestContext.authorizer;
     const results = await getPicture(id, appId, event.queryStringParameters || {});
     if (!results) throw new Error('picture_not_found');
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(results),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    return response({ code: 200, body: results });
   } catch (e) {
-    const response = {
-      statusCode: e.message === 'picture_not_found' ? 404 : 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    callback(null, response);
+    const code = e.message === 'picture_not_found' ? 404 : 500;
+    return response({ code, message: e.message });
   }
 };

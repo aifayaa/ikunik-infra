@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_AUDIOS,
@@ -6,11 +6,10 @@ const {
   COLL_USER_SUBSCRIPTIONS,
   COLL_PROJECTS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (projectId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const db = client.db(DB_NAME);
     const [project, userSubscriptions] = await Promise.all([
@@ -29,7 +28,7 @@ export default async (projectId, userId, appId) => {
       isPublished: true,
     };
     if (!project) throw new Error('Not found');
-    const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
+    const userSubsriptionIds = userSubscriptions.map((item) => item.subscriptionId);
     const audioPromise = db.collection(COLL_AUDIOS).find(query).toArray();
     const videoPromise = db.collection(COLL_VIDEOS).find(query).toArray();
     const [audioTracks, videoTracks] = await Promise.all([audioPromise, videoPromise]);
@@ -37,8 +36,8 @@ export default async (projectId, userId, appId) => {
 
     tracks.forEach((track) => {
       track.projectThumbFileUrl = project.iconeThumbFileUrl || null;
-      track.isLocked = !!track.subscriptionIds &&
-        !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
+      track.isLocked = !!track.subscriptionIds
+        && !track.subscriptionIds.find((id) => userSubsriptionIds.includes(id));
       if (track.isLocked) delete track.url;
     });
     project.tracks = tracks;

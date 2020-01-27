@@ -1,13 +1,12 @@
-import { MongoClient } from 'mongodb';
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   SNS_REGION,
   SNS_KEY_ID,
   SNS_SECRET,
-  MONGO_URL,
   DB_NAME,
   COLL_PHONES,
   SNS_TOPIC,
@@ -22,7 +21,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
       secretAccessKey: SNS_SECRET,
     },
   });
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const { value } = await client
       .db(DB_NAME)

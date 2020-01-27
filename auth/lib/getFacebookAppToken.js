@@ -10,8 +10,8 @@ export const getFacebookAppToken = async ({
   appId = FACEBOOK_CLIENT_ID,
   appSecret = FACEBOOK_CLIENT_SECRET,
 } = {}) => {
-  const appTokenUrl = `https://graph.facebook.com/oauth/access_token?client_id=${appId}` +
-    `&client_secret=${appSecret}&grant_type=client_credentials`;
+  const appTokenUrl = `https://graph.facebook.com/oauth/access_token?client_id=${appId}`
+    + `&client_secret=${appSecret}&grant_type=client_credentials`;
   const getAppToken = await request.get({
     url: appTokenUrl,
   });

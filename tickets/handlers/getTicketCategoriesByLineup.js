@@ -1,7 +1,7 @@
 import getTicketCategoriesByLineup from '../lib/getTicketCategoriesByLineup';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   let { lineupId } = event.pathParameters;
   const { appId } = event.requestContext.authorizer;
   const { id } = event.pathParameters;
@@ -15,7 +15,7 @@ export default async (event, context, callback) => {
   try {
     if (userId && userId !== id) throw new Error('forbidden');
     const results = await getTicketCategoriesByLineup(lineupId, userId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
     let code;
     switch (e.message) {
@@ -27,6 +27,6 @@ export default async (event, context, callback) => {
         code = 500;
     }
 
-    callback(null, response({ code, message: e.message }));
+    return response({ code, message: e.message });
   }
 };

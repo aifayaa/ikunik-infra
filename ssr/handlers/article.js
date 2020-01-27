@@ -1,4 +1,4 @@
-import buildResponse from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import getAppId from '../lib/getAppId';
 import { getArticle } from '../../pressArticles/lib/getArticle';
 import meta from '../lib/meta';
@@ -10,21 +10,23 @@ export default async (event) => {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
     const { appName } = (event.queryStringParameters || {});
     const userAgent = event.headers['User-Agent'];
-    const redirectResponse = redirect(userAgent, redirectUrl);
+    const redirectResponse = await redirect(userAgent, redirectUrl);
     if (redirectResponse) {
       return redirectResponse;
     }
     const appId = await getAppId(appName);
     const articleId = event.pathParameters.id;
     const article = await getArticle(articleId, appId, { getPictures: true, isServer: true });
-    if (!article) throw new Error('article_not_found');
+    if (!article) {
+      throw new Error('article_not_found');
+    }
     const pictureUrl = (article.pictures[0] && article.pictures[0].mediumUrl) || '';
     const body = meta(
       article.title,
       prepareNotifString(article.plainText, 120),
       pictureUrl,
     );
-    return buildResponse({ code: 200, body, raw: true });
+    return response({ code: 200, body, raw: true });
   } catch (e) {
     let code;
     switch (e.message) {
@@ -34,6 +36,6 @@ export default async (event) => {
       default:
         code = 500;
     }
-    return buildResponse({ code, message: e.message });
+    return response({ code, message: e.message });
   }
 };

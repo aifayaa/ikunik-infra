@@ -1,8 +1,8 @@
 import Stripe from 'stripe';
 import uuidv4 from 'uuid/v4';
 import winston from 'winston';
-import { MongoClient } from 'mongodb';
 import { PromisePoolExecutor } from 'promise-pool-executor';
+import MongoClient from '../../libs/mongoClient';
 
 import addCredits from '../../credits/lib/addCredits';
 import buyTickets from '../../tickets/lib/buyTickets';
@@ -11,7 +11,6 @@ import updateCart from '../../carts/lib/updateCart';
 
 const {
   STRIPE_API_KEY,
-  MONGO_URL,
   DB_NAME,
   COLL_BILLING,
 } = process.env;
@@ -32,7 +31,7 @@ const setupProduct = async (id, type, userId, meta, options) => {
   }
 };
 
-const exeProduct = async (type, val) => {
+const exeProduct = (type, val) => {
   switch (type) {
     case 'package':
       return true;
@@ -53,11 +52,11 @@ export default async (token, cartId, userId) => {
   });
 
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect();
     session = client.startSession();
     session.startTransaction();
     opts = { session };
-    const cart = await updateCart(cartId, userId, { status: 'pending' }, opts).then(res => res.value);
+    const cart = await updateCart(cartId, userId, { status: 'pending' }, opts).then((res) => res.value);
     if (!cart) throw new Error('cart_not_found');
     const { totalPrice, totalCredits } = cart;
     const billingId = uuidv4();

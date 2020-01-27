@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 import queryReplace from './queryReplace';
 
@@ -12,7 +12,6 @@ const {
   COLL_VIDEOS,
   DB_NAME,
   DEFAULT_LIMIT,
-  MONGO_URL,
 } = process.env;
 
 const selectionFields = [
@@ -38,7 +37,7 @@ const selectionFields = [
 ];
 
 export default async (selectionId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const [selections, userSubscriptions] = await Promise.all([
       client
@@ -74,7 +73,7 @@ export default async (selectionId, userId, appId) => {
           {
             $group: Object.assign(
               {},
-              ...selectionFields.map(field => ({ [field]: { $first: `$${field}` } })),
+              ...selectionFields.map((field) => ({ [field]: { $first: `$${field}` } })),
               {
                 _id: '$_id',
                 selectionIds: { $push: '$selectionIds' },
@@ -84,8 +83,8 @@ export default async (selectionId, userId, appId) => {
           },
         ])
         .toArray(),
-      userId ?
-        client
+      userId
+        ? client
           .db(DB_NAME)
           .collection(COLL_USER_SUBSCRIPTIONS)
           .find(
@@ -95,18 +94,17 @@ export default async (selectionId, userId, appId) => {
             },
             { projection: { subscriptionId: 1 } },
           )
-          .toArray() :
-        [],
+          .toArray()
+        : [],
     ]);
     const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
-    const userSubsriptionIds = userSubscriptions.map(item => item.subscriptionId);
-    const onlyHighlighted = (selection.onlyHighlighted === undefined) ||
-      (selection.onlyHighlighted === null) || selection.onlyHighlighted;
-    const selectionCollection =
-      typeof selection.selectionCollection === 'string'
-        ? [selection.selectionCollection]
-        : selection.selectionCollection;
+    const userSubsriptionIds = userSubscriptions.map((item) => item.subscriptionId);
+    const onlyHighlighted = (selection.onlyHighlighted === undefined)
+      || (selection.onlyHighlighted === null) || selection.onlyHighlighted;
+    const selectionCollection = typeof selection.selectionCollection === 'string'
+      ? [selection.selectionCollection]
+      : selection.selectionCollection;
 
     const [isAudioSelection, isVideoSelection] = [
       selectionCollection.includes('audio'),
@@ -216,7 +214,7 @@ export default async (selectionId, userId, appId) => {
       mediaChannelPromise,
     ]);
     const rawTracks = audioTracks.concat(videoTracks, mediaChannelTracks);
-    const projectIds = [...new Set(rawTracks.map(track => track.project_ID))];
+    const projectIds = [...new Set(rawTracks.map((track) => track.project_ID))];
     let projects;
 
     if (onlyHighlighted) {
@@ -344,7 +342,7 @@ export default async (selectionId, userId, appId) => {
         .collection(COLL_PROJECTS)
         .aggregate(aggregationPipeline)
         .toArray();
-      selection.tracks = projectTracks.map(projectTrack => ({
+      selection.tracks = projectTracks.map((projectTrack) => ({
         ...projectTrack.track,
         projectThumbFileUrl: projectTrack.projectThumbFileUrl,
         projectMediumFileUrl: projectTrack.projectMediumFileUrl,
@@ -373,13 +371,12 @@ export default async (selectionId, userId, appId) => {
         track.url = generateSignedURL(`${track.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${track.fileObj_ID}-${track.filename}`);
       }
       if (projects) {
-        const trackProject = projects.find(project => project._id === track.project_ID) || {};
+        const trackProject = projects.find((project) => project._id === track.project_ID) || {};
         track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
         track.projectMediumFileUrl = trackProject.iconeMediumFileUrl || null;
       }
-      track.isLocked =
-        !!track.subscriptionIds &&
-        !track.subscriptionIds.find(id => userSubsriptionIds.includes(id));
+      track.isLocked = !!track.subscriptionIds
+        && !track.subscriptionIds.find((id) => userSubsriptionIds.includes(id));
       if (track.isLocked) delete track.url;
     });
     return selection;

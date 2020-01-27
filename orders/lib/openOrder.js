@@ -1,11 +1,10 @@
-import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
+import MongoClient from '../../libs/mongoClient';
 import creditsPacks from './creditsPacks.json';
 
 const {
   REGION,
   IOS_FEES,
-  MONGO_URL,
   DB_NAME,
   COLL_NAME,
   STAGE,
@@ -15,7 +14,7 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-const computeiOSFees = amount => amount * IOS_FEES;
+const computeiOSFees = (amount) => amount * IOS_FEES;
 
 // Assume this is called only by iOS for the moment
 export default async (creditPackId, userId) => {
@@ -24,7 +23,7 @@ export default async (creditPackId, userId) => {
   if (!pack) {
     throw new Error('Unknown credit pack asked');
   }
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const { price, credits } = pack;
     const billing = {

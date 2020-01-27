@@ -1,23 +1,17 @@
 import AWS from 'aws-sdk/';
 import managePicture from '../lib/managePicture';
 import manageVideo from '../lib/manageVideo';
+import response from '../../libs/httpResponses/response';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   const {
     bucket,
     object,
   } = event.Records[0].s3;
-
-  const response = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-  };
 
   try {
     const params = {
@@ -47,14 +41,8 @@ export default async (event, _context, callback) => {
         throw new Error(`${ContentType} not handled`);
     }
 
-    response.statusCode = 200;
-    response.body = 'ok';
+    return response({ code: 200, body: 'ok' });
   } catch (e) {
-    response.statusCode = 500;
-    response.body = JSON.stringify({
-      message: e.message,
-    });
-  } finally {
-    callback(null, response);
+    return response({ code: 500, message: e.message });
   }
 };

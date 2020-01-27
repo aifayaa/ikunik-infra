@@ -1,9 +1,8 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 export default async (cartId, userId, appId, selector, options) => {
   let client;
   const {
-    MONGO_URL,
     DB_NAME,
     COLL_CARTS,
   } = process.env;
@@ -11,7 +10,7 @@ export default async (cartId, userId, appId, selector, options) => {
   selector.userId = userId;
   selector.appIds = { $elemMatch: { $eq: appId } };
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect();
     return await client.db(DB_NAME)
       .collection(COLL_CARTS)
       .findOneAndUpdate(

@@ -1,7 +1,7 @@
 import postStage from '../lib/postStage';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   try {
     if (!event.body) {
@@ -13,8 +13,8 @@ export default async (event, context, callback) => {
     }
 
     const results = await postStage(name, addr, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

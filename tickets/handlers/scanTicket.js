@@ -1,17 +1,17 @@
 import scanTicket from '../lib/scanTicket';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   try {
     const serial = event.pathParameters.id;
     const { appId } = event.requestContext.authorizer;
     const { scannerId } = JSON.parse(event.body);
 
     if (!serial || !scannerId) {
-      callback(null, response({ code: 400, message: 'malformed request' }));
+      return response({ code: 400, message: 'malformed request' });
     }
     const results = await scanTicket(serial, scannerId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
     let code = 500;
 
@@ -27,6 +27,6 @@ export default async (event, context, callback) => {
         break;
       default:
     }
-    callback(null, response({ code, message: e.message }));
+    return response({ code, message: e.message });
   }
 };

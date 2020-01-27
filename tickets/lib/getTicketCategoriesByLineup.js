@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_ARTISTS,
@@ -7,7 +7,6 @@ const {
   COLL_TICKET_CATEGORIES,
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 const ticketCategoriesFields = {
@@ -23,7 +22,7 @@ const ticketCategoriesFields = {
 };
 
 export default async (lineupId, userId, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     let ticketCategories;
     if (userId) {

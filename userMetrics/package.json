@@ -5,28 +5,22 @@
   "description": "Crowdaa userMetrics API.",
   "main": "handler.js",
   "scripts": {
-    "test": "sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
-    "mongodb": "3.1.10",
-    "source-map-support": "^0.5.8"
+    "mongodb": "^3.5.0"
   },
   "devDependencies": {
-    "aws-sdk-mock": "^4.4.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^8.0.4",
-    "babel-plugin-source-map-support": "^2.0.1",
-    "babel-preset-env": "^1.7.0",
+    "aws-sdk-mock": "^5.0.0",
     "chai": "^4.2.0",
-    "env-cmd": "^10.0.0",
+    "env-cmd": "^10.0.1",
     "esm": "^3.2.25",
-    "mocha": "^6.2.0",
-    "serverless": "^1.38.0",
-    "serverless-export-env": "github:arabold/serverless-export-env",
-    "serverless-webpack": "^5.2.0",
-    "sinon": "^7.4.1",
-    "webpack": "^4.29.5",
-    "webpack-node-externals": "^1.7.2"
+    "mocha": "^7.0.0",
+    "serverless": "^1.61.2",
+    "serverless-export-env": "^1.2.0",
+    "serverless-webpack": "^5.3.1",
+    "sinon": "^8.1.0",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"

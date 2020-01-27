@@ -6,24 +6,18 @@
   "main": "handler.js",
   "dependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
-    "async": "^2.6.0",
-    "aws-sdk": "^2.222.1",
+    "async": "^3.1.0",
+    "aws-sdk": "^2.605.0",
     "mailgun-js": "^0.22.0",
-    "mongodb": "^3.0.2",
-    "nodemailer": "^4.6.4",
-    "phone": "^2.0.0-rc.1",
-    "validator": "^9.4.0",
+    "nodemailer": "^6.4.2",
+    "phone": "^2.4.3",
+    "validator": "^12.1.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-source-map-support": "^2.0.1",
-    "babel-preset-env": "^1.7.0",
-    "serverless": "^1.38.0",
-    "serverless-webpack": "^5.2.0",
-    "webpack": "^4.29.5",
-    "webpack-node-externals": "^1.7.2"
+    "serverless": "^1.61.2",
+    "serverless-webpack": "^5.3.1",
+    "webpack": "^4.41.5"
   },
   "author": "Crowdaa",
   "license": "UNLICENSED"

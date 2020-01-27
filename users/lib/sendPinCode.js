@@ -1,12 +1,11 @@
-import { MongoClient } from 'mongodb';
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
+import MongoClient from '../../libs/mongoClient';
 import generatePinCode from './generatePinCode';
 
 const {
   COLL_PHONES,
   DB_NAME,
-  MONGO_URL,
   SNS_KEY_ID,
   SNS_REGION,
   SNS_SECRET,
@@ -27,7 +26,7 @@ export default async (phone) => {
     createAt: new Date(),
     validated: false,
   };
-  const client = await MongoClient.connect(MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     await client
       .db(DB_NAME)

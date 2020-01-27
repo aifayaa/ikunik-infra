@@ -8,28 +8,29 @@ import getAppFromKey from '../lib/getAppFromKey';
 
 export default async (
   { headers, methodArn, requestContext },
-  context,
-  callback,
 ) => {
   const apiKey = get(requestContext, 'identity.apiKey');
   const authorizationToken = headers.Authorization;
   try {
     winston.info(authorizationToken, methodArn);
-    const app = await getAppFromKey(apiKey);
+    const app = apiKey ? await getAppFromKey(apiKey) : null;
+    const opts = {};
+    if (app) { opts.appId = app._id; }
     if (!authorizationToken) {
       winston.info('allow public');
-      return callback(null, generatePolicy('allow', methodArn, { appId: app._id }));
+      return generatePolicy('allow', methodArn, opts);
     }
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
     const user = await authorizeUser(hashedLoginToken);
 
     if (user) {
+      opts.userId = user._id;
       winston.info('allow', authorizationToken, user._id);
-      return callback(null, generatePolicy('allow', methodArn, { userId: user._id, appId: app._id }));
+      return generatePolicy('allow', methodArn, opts);
     }
     winston.info('deny', authorizationToken);
-    return callback(null, generatePolicy('deny', methodArn));
+    return generatePolicy('deny', methodArn);
   } catch (e) {
     winston.info('forbidden', e);
     const response = {
@@ -40,6 +41,6 @@ export default async (
         'Access-Control-Allow-Credentials': true,
       },
     };
-    return callback(null, response);
+    return response;
   }
 };

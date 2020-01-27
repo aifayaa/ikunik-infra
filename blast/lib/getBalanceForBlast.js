@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_BALANCE_EMAILS,
@@ -6,7 +6,6 @@ const {
   COLL_BALANCE_NOTIFS,
   COLL_PROFILES,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, type, appId) => {
@@ -72,7 +71,7 @@ export default async (userId, type, appId) => {
   ];
 
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect();
     const record = await client
       .db(DB_NAME)
       .collection(COLL_PROFILES)

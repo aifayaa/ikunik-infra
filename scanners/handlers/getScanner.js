@@ -1,13 +1,13 @@
 import getScanner from '../lib/getScanner';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     const { appId } = event.requestContext.authorizer;
     const scannerId = event.pathParameters.id;
     const results = await getScanner(scannerId, appId);
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

@@ -1,9 +1,9 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
 export default async (userId) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const token = generateToken();
     const hash = hashToken(token);

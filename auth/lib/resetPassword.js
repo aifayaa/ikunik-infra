@@ -1,5 +1,5 @@
 import get from 'lodash/get';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import { sendEmail } from './sendEmail';
 import { passwordResetEmailHTML } from './passwordResetEmailHTML';
@@ -11,9 +11,7 @@ const {
 } = process.env;
 
 export const resetPassword = async (email, appId, token, password) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
 
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);

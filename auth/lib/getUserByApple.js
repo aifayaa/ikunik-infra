@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 import uuidv4 from 'uuid/v4';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
@@ -17,9 +17,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
 } = {}) => {
   // TODO:verify identityToken => https://developer.apple.com/documentation/signinwithapplerestapi/verifying_a_user
 
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
   try {
     const db = client.db(DB_NAME);
     const app = await db.collection(COLL_APPS).findOne({
@@ -65,7 +63,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
       throw new Error('unexpected_iss');
     }
     /* check if a build is defined with packageId specified */
-    if (app.builds.map(build => build.packageId).indexOf(aud) === -1) {
+    if (app.builds.map((build) => build.packageId).indexOf(aud) === -1) {
       throw new Error('unexpected_aud');
     }
 

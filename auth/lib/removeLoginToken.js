@@ -1,12 +1,10 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import hashToken from '../../libs/tokens/hashToken';
 
 const { DB_NAME, COLL_USERS } = process.env;
 
 export const removeLoginToken = async (userId, token) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
   try {
     const hash = hashToken(token);
     const collection = await client.db(DB_NAME).collection(COLL_USERS);

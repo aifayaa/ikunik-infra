@@ -44,7 +44,7 @@ describe('handlers - getArticle', () => {
   });
 
   describe('lib success', () => {
-    const libResult = 'ok';
+    const libResult = { message: 'ok' };
     let response;
 
     before(async () => {
@@ -55,7 +55,7 @@ describe('handlers - getArticle', () => {
 
     it('should return 200', () => {
       expect(response.statusCode).to.eq(200);
-      expect(response.body).to.eq(libResult);
+      expect(JSON.parse(response.body)).to.eql(libResult);
     });
 
     it('should be called with the good args', () => {

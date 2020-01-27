@@ -1,9 +1,9 @@
-import { MongoClient } from 'mongodb';
 import uuidv4 from 'uuid/v4';
-import { getFacebookAppToken } from '../lib/getFacebookAppToken';
+import MongoClient from '../../libs/mongoClient';
+import { getFacebookAppToken } from './getFacebookAppToken';
 import { getFacebookLongLiveToken } from './getFacebookLongLiveToken';
-import { getFacebookUserProfile } from '../lib/getFacebookUserProfile';
-import { getFacebookSettings } from '../lib/getFacebookSettings';
+import { getFacebookUserProfile } from './getFacebookUserProfile';
+import { getFacebookSettings } from './getFacebookSettings';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
@@ -19,9 +19,7 @@ export const getUserByFacebook = async (userToken, appId) => {
     expiresAt,
     fbUserId,
   } = await getFacebookLongLiveToken(userToken, appToken, settings);
-  const client = await MongoClient.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+  const client = await MongoClient.connect();
   let userId; // will be retrieved from db or set on user created
   try {
     const collection = await client.db(DB_NAME).collection(COLL_USERS);

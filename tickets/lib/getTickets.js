@@ -1,17 +1,16 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_LINEUPS,
   COLL_TICKETS,
   COLL_TICKET_CATEGORIES,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (userId, appId) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+    client = await MongoClient.connect();
     return await client.db(DB_NAME)
       .collection(COLL_TICKETS)
       .aggregate([

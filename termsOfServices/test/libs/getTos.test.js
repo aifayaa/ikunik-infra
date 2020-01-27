@@ -1,7 +1,7 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import { before, describe, it, after, afterEach, beforeEach } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 
 import { getTos } from '../../lib/getTos';
 import tosFields from '../../tosFields.json';
@@ -9,7 +9,7 @@ import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const { public: projection } = tosFields;
 
-const { MONGO_URL, DB_NAME, COLL_TOS } = process.env;
+const { DB_NAME, COLL_TOS } = process.env;
 
 describe.only('lib - getTos', () => {
   let spyMongo;
@@ -65,7 +65,6 @@ describe.only('lib - getTos', () => {
     });
 
     it('mongo connection done', () => {
-      sinon.assert.calledWith(stubMongo, MONGO_URL);
       sinon.assert.calledWith(spyMongo.db, DB_NAME);
       sinon.assert.called(spyMongo.close);
     });

@@ -1,22 +1,21 @@
-import { MongoClient, ObjectId } from 'mongodb';
-import generatePatchUserSelection from '../libs/generatePatchUserSelection';
-import getSelectionSubscriptions from '../libs/getSelectionSubscriptions';
-import patchUserSelection from '../libs/patchUserSelection';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import generatePatchUserSelection from './generatePatchUserSelection';
+import getSelectionSubscriptions from './getSelectionSubscriptions';
+import patchUserSelection from './patchUserSelection';
 
 const {
   COLL_SELECTIONS,
   COLL_SUBSCRIPTIONS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (name, userId, parent, appId) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const subscriptions = parent
       ? await getSelectionSubscriptions(parent, userId)
       : [{
-        _id: ObjectId().toString(),
+        _id: ObjectID().toString(),
         userId,
         createAt: new Date(),
         price: null,
@@ -26,7 +25,7 @@ export default async (name, userId, parent, appId) => {
         banners: null,
       }];
     const selection = {
-      _id: ObjectId().toString(),
+      _id: ObjectID().toString(),
       createAt: new Date(),
       date: 'Anytime',
       isPublished: false,
@@ -38,7 +37,7 @@ export default async (name, userId, parent, appId) => {
       selectionName: name,
       selectionOptionQuery: '{}',
       userId,
-      subscriptionIds: subscriptions.map(item => item._id),
+      subscriptionIds: subscriptions.map((item) => item._id),
       appIds: [appId],
     };
     if (parent) {

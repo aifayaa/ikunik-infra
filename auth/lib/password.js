@@ -1,16 +1,15 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
-const { MONGO_URL, DB_NAME, COLL_USERS } = process.env;
+const { DB_NAME, COLL_USERS } = process.env;
 
 const bcryptRounds = 10;
 
-const sha256 = value =>
-  crypto
-    .createHash('sha256')
-    .update(value)
-    .digest('hex');
+const sha256 = (value) => crypto
+  .createHash('sha256')
+  .update(value)
+  .digest('hex');
 
 // extracted from meteor accounts-password module
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
@@ -69,9 +68,7 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
 
     if (openClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = await MongoClient.connect(MONGO_URL, {
-        useNewUrlParser: true,
-      });
+      mongoClient = await MongoClient.connect();
     }
     try {
       await mongoClient

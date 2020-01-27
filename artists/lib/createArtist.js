@@ -1,4 +1,4 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const splitParagraphes = (biography = '') => {
   const tmp = biography.split(/(?:\r\n|\r|\n)/g);
@@ -12,7 +12,7 @@ const splitParagraphes = (biography = '') => {
 };
 
 export default async (userId, profileId, appId, info) => {
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const artist = {
       _id: new ObjectID().toString(),

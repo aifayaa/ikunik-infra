@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import articleFields from './articleFields.json';
 
 const {
@@ -8,7 +8,6 @@ const {
   COLL_USERS,
   COLL_VIDEOS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getArticles = async (
@@ -20,9 +19,7 @@ export const getArticles = async (
 ) => {
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL, {
-      useNewUrlParser: true,
-    });
+    client = await MongoClient.connect();
 
     const $match = {
       appIds: { $elemMatch: { $eq: appId } },
@@ -41,6 +38,8 @@ export const getArticles = async (
 
     if (categoryId) {
       $match.categoryId = categoryId;
+    } else if (!noCategory) {
+      $match.categoryId = { $ne: null };
     }
 
     let $sort = { createdAt: -1 };
@@ -216,7 +215,6 @@ export const getArticles = async (
 
     /* Group stage could break sorting, ensure all is well sorted */
     pipeline.push({ $sort });
-
     const [articles = [], total = 0] = await Promise.all([
       client
         .db(DB_NAME)

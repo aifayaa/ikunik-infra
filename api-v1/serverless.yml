@@ -9,7 +9,7 @@ service: api-v1
 provider:
   name: aws
   stage: ${opt:stage, "dev"}
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   memorySize: 128
   timeout: 30
   region: ${opt:region, "us-east-1"}
@@ -51,7 +51,14 @@ custom:
     stage: "${self:provider.stage}"
     createRoute53Record: true
 
-  webpackIncludeModules: true
+  MAILGUN_API_KEY:
+    dev: key-ee8f3c350f56cbe4002b9c00cce04769
+    prod: key-ee8f3c350f56cbe4002b9c00cce04769
+    awax: key-ee8f3c350f56cbe4002b9c00cce04769
+  MAILGUN_DOMAIN:
+    dev: mg.crowdaa.com
+    prod: mg.crowdaa.com
+    awax: mg.crowdaa.com
 
 resources:
   Resources:
@@ -139,6 +146,16 @@ resources:
       Value: ${self:custom.mongoDB.${self:provider.stage}}
       Export:
         Name: ${self:service}:${self:provider.stage}:MongoURL
+    MailgunApiKey:
+      Description: MAILGUN API KEY
+      Value: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:MailgunApiKey
+    MailgunDomain:
+      Description: MAILGUN DOMAIN
+      Value: ${self:custom.MAILGUN_DOMAIN.${self:provider.stage}}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:MailgunDomain
     RestApiId:
       Description: Api Gateway ID
       Value:

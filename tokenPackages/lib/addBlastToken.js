@@ -1,5 +1,5 @@
-import { MongoClient } from 'mongodb';
 import winston from 'winston';
+import MongoClient from '../../libs/mongoClient';
 
 export default async (type, profileId, qty, appId) => {
   let collName;
@@ -15,7 +15,7 @@ export default async (type, profileId, qty, appId) => {
       break;
     default:
   }
-  const client = await MongoClient.connect(process.env.MONGO_URL);
+  const client = await MongoClient.connect();
   try {
     const res = await client
       .db(process.env.DB_NAME)

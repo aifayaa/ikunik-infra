@@ -1,6 +1,6 @@
-import { MongoClient } from 'mongodb';
 import Lambda from 'aws-sdk/clients/lambda';
 import moment from 'moment';
+import MongoClient from '../../libs/mongoClient';
 import getSubscription from './getSubscription';
 
 const {
@@ -8,7 +8,6 @@ const {
   REGION,
   STAGE,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 const lambda = new Lambda({
@@ -21,7 +20,7 @@ export default async (userId, subId, appId) => {
   const { price, duration } = sub;
   let client;
   try {
-    client = await MongoClient.connect(MONGO_URL);
+    client = await MongoClient.connect();
     const userSub = await client
       .db(DB_NAME)
       .collection(COLL_USER_SUBSCRIPTIONS)

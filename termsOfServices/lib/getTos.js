@@ -1,10 +1,9 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 import tosFields from '../tosFields.json';
 
 const {
   COLL_TOS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export const getTos = async (appId, tosId, options = {}) => {
@@ -27,7 +26,7 @@ export const getTos = async (appId, tosId, options = {}) => {
     query.required = options.required;
   }
   const { public: projection } = tosFields;
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
   try {
     const tos = await client
       .db(DB_NAME)

@@ -5,4 +5,4 @@ const converter = new showdown.Converter({
   tables: true, // enable usage of tables
 });
 
-export default md => converter.makeHtml(md);
+export default (md) => converter.makeHtml(md);

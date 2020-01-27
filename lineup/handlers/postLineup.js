@@ -1,7 +1,7 @@
 import postLineup from '../lib/postLineup';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, context, callback) => {
+export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   try {
     const {
@@ -33,8 +33,8 @@ export default async (event, context, callback) => {
       pictureId,
       appId,
     );
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

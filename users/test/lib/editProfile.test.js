@@ -1,14 +1,13 @@
 import sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
+import MongoClient from '../../../libs/mongoClient';
 import editProfile from '../../lib/editProfile';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
   COLL_USERS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 describe('lib - editProfile', () => {
@@ -35,7 +34,6 @@ describe('lib - editProfile', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(stubMongo, MONGO_URL);
     sinon.assert.calledWith(spyMongo.db, DB_NAME);
     sinon.assert.called(spyMongo.close);
   });

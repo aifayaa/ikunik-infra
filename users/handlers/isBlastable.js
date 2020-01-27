@@ -2,7 +2,7 @@ import getEndpoints from '../lib/getEndpoints';
 import getUser from '../lib/getUser';
 import response from '../../libs/httpResponses/response';
 
-export default async (event, _context, callback) => {
+export default async (event) => {
   try {
     const userId = event.pathParameters.id;
     const { appId } = event.requestContext.authorizer;
@@ -12,8 +12,8 @@ export default async (event, _context, callback) => {
       notifications: !!endpoints,
       text: !!user.profile.phone,
     };
-    callback(null, response({ code: 200, body: results }));
+    return response({ code: 200, body: results });
   } catch (e) {
-    callback(null, response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

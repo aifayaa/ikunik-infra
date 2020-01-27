@@ -1,20 +1,17 @@
-import { MongoClient } from 'mongodb';
+import MongoClient from '../../libs/mongoClient';
 
 const {
-  COLL_USERS,
   COLL_USER_METRICS,
   DB_NAME,
-  MONGO_URL,
 } = process.env;
 
 export default async (pipeline, {
-  coordinates,
   limit = 20,
   page = 1,
   sortBy = 'views',
   sortOrder = 'asc',
 }) => {
-  const client = await MongoClient.connect(MONGO_URL, { useNewUrlParser: true });
+  const client = await MongoClient.connect();
 
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);
@@ -79,7 +76,7 @@ export default async (pipeline, {
     );
 
     const [result] = await client.db(DB_NAME)
-      .collection(coordinates ? COLL_USERS : COLL_USER_METRICS)
+      .collection(COLL_USER_METRICS)
       .aggregate(pipeline)
       .toArray();
 
