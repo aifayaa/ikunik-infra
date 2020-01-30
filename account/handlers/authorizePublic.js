@@ -16,6 +16,7 @@ export default async (
     const app = apiKey ? await getAppFromKey(apiKey) : null;
     const opts = {};
     if (app) { opts.appId = app._id; }
+    console.log('authorize', {app})
     if (!authorizationToken) {
       winston.info('allow public');
       return generatePolicy('allow', methodArn, opts);
