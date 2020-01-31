@@ -10,13 +10,14 @@ export default async (
   { headers, methodArn, requestContext },
 ) => {
   const apiKey = get(requestContext, 'identity.apiKey');
-  const authorizationToken = headers.Authorization;
+  const authorizationToken = headers.authorization;
+
   try {
     winston.info(authorizationToken, methodArn);
     const app = apiKey ? await getAppFromKey(apiKey) : null;
     const opts = {};
     if (app) { opts.appId = app._id; }
-    console.log('authorize', {app})
+
     if (!authorizationToken) {
       winston.info('allow public');
       return generatePolicy('allow', methodArn, opts);

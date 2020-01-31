@@ -8,7 +8,7 @@ export default async (
   context,
   callback,
 ) => {
-  const authorizationToken = headers.Authorization;
+  const authorizationToken = headers.authorization;
   try {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];

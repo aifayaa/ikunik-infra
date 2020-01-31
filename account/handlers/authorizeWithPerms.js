@@ -12,7 +12,7 @@ export default async (
   callback,
 ) => {
   const apiKey = get(requestContext, 'identity.apiKey');
-  const authorizationToken = headers.Authorization;
+  const authorizationToken = headers.authorization;
   try {
     winston.info(authorizationToken, methodArn);
     const app = await getAppFromKey(apiKey);
