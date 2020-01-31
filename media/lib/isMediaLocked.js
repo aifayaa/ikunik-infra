@@ -23,32 +23,33 @@ export default async (userId, appId, medium) => {
       db.collection('deadlines').findOne({
         content_ID: mediumId,
         userId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }),
       db.collection('views').findOne({
         userID: userId,
         content_ID: mediumId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }),
       db.collection('unlocks').count({
         userId,
         content_ID: mediumId,
         date: { $gte: lastday },
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }),
       db.collection('purchases').count({
         'purchase.userId': userId,
         'purchase.audios._id': mediumId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }),
     ]);
 
-    if (unlocks > 0) {
-      return { isLocked: false, state: 'unlocked' };
-    }
 
     if (purchases > 0) {
       return { isLocked: false, state: 'purchased' };
+    }
+
+    if (unlocks > 0) {
+      return { isLocked: false, state: 'unlocked' };
     }
 
     const { numviews } = views || { numviews: 0 };

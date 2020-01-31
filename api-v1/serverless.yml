@@ -14,8 +14,6 @@ provider:
   timeout: 30
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
-  environnement: 
-    stage: ${self:provider.stage}
 
 functions:
   getV1:
@@ -52,6 +50,7 @@ custom:
   customDomain:
     basePath: "v1"
     domainName: ${self:custom.domains.${self:provider.stage}}
+    endpointType: "regional"
     stage: "${self:provider.stage}"
     createRoute53Record: true
 
@@ -80,66 +79,66 @@ resources:
         CacheClusterEnabled: true
         CacheClusterSize: "0.5"
 # comment when fist deploy ---START
-    #     MethodSettings:
-    #       - ResourcePath: "/*"
-    #         CachingEnabled: false
-    #         HttpMethod: "*"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    #       - ResourcePath: "/apps/settings"
-    #         CacheTtlInSeconds: 3600
-    #         CachingEnabled: true
-    #         HttpMethod: "GET"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    #       - ResourcePath: "/artists/{id}"
-    #         CacheTtlInSeconds: 3600
-    #         CachingEnabled: true
-    #         HttpMethod: "GET"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    #       - ResourcePath: "/audios/{id}"
-    #         CacheTtlInSeconds: 3600
-    #         CachingEnabled: true
-    #         HttpMethod: "GET"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    #       - ResourcePath: "/crowd"
-    #         CacheDataEncrypted: true
-    #         CacheTtlInSeconds: 3600
-    #         CachingEnabled: true
-    #         HttpMethod: "GET"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    #       - ResourcePath: "/selections"
-    #         CacheTtlInSeconds: 3600
-    #         CachingEnabled: true
-    #         HttpMethod: "GET"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    #       - ResourcePath: "/selections/{id}"
-    #         CacheTtlInSeconds: 3600
-    #         CachingEnabled: true
-    #         HttpMethod: "GET"
-    #         LoggingLevel: "INFO"
-    #         MetricsEnabled: true
-    # restApiGatewayDeployment:
-    #   Type: "AWS::ApiGateway::Deployment"
-    #   DependsOn: ApiGatewayMethodGet
-    #   Properties:
-    #     Description: ${self:provider.stage} Environment
-    #     RestApiId:
-    #       Ref: ApiGatewayRestApi
-    #     StageName: ${self:provider.stage}
-    # restApiBasePathMapping:
-    #   Type: AWS::ApiGateway::BasePathMapping
-    #   DependsOn: restApiGatewayDeployment
-    #   Properties:
-    #     BasePath: "v1"
-    #     DomainName: ${self:custom.domains.${self:provider.stage}}
-    #     RestApiId:
-    #       Ref: ApiGatewayRestApi
-    #     Stage: ${self:provider.stage}
+        MethodSettings:
+          - ResourcePath: "/*"
+            CachingEnabled: false
+            HttpMethod: "*"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+          - ResourcePath: "/apps/settings"
+            CacheTtlInSeconds: 3600
+            CachingEnabled: true
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+          - ResourcePath: "/artists/{id}"
+            CacheTtlInSeconds: 3600
+            CachingEnabled: true
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+          - ResourcePath: "/audios/{id}"
+            CacheTtlInSeconds: 3600
+            CachingEnabled: true
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+          - ResourcePath: "/crowd"
+            CacheDataEncrypted: true
+            CacheTtlInSeconds: 3600
+            CachingEnabled: true
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+          - ResourcePath: "/selections"
+            CacheTtlInSeconds: 3600
+            CachingEnabled: true
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+          - ResourcePath: "/selections/{id}"
+            CacheTtlInSeconds: 3600
+            CachingEnabled: true
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: true
+    restApiGatewayDeployment:
+      Type: "AWS::ApiGateway::Deployment"
+      DependsOn: ApiGatewayMethodGet
+      Properties:
+        Description: ${self:provider.stage} Environment
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StageName: ${self:provider.stage}
+    restApiBasePathMapping:
+      Type: AWS::ApiGateway::BasePathMapping
+      DependsOn: restApiGatewayDeployment
+      Properties:
+        BasePath: "v1"
+        DomainName: ${self:custom.domains.${self:provider.stage}}
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Stage: ${self:provider.stage}
 # comment when fist deploy ---END
 
   Outputs:
