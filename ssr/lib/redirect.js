@@ -1,9 +1,12 @@
 import url from 'url';
 import getAppsInfos from '../../apps/lib/getAppsInfos';
 import isCrawler from './isCrawler';
+import isMobile from './isMobile';
 import allowedUrls from './urlWhiteList';
 
-export default async (userAgent, redirectUrl) => {
+const { APPS_WEBSITE_URL } = process.env;
+
+export default async (userAgent, redirectUrl, appId) => {
   if (!isCrawler(userAgent) && redirectUrl) {
     const decodedUrl = decodeURIComponent(redirectUrl);
     /* /!\ url.parse adds ":" at the end of the protocol */
@@ -25,10 +28,19 @@ export default async (userAgent, redirectUrl) => {
       || allowedProtocols.includes(protocol);
 
     if (isValid) {
+      if (isMobile(userAgent)) {
+        return {
+          statusCode: 301,
+          headers: {
+            Location: decodedUrl,
+          },
+        };
+      }
+
       return {
         statusCode: 301,
         headers: {
-          Location: decodedUrl,
+          Location: `https://${APPS_WEBSITE_URL}?app_id=${appId}`,
         },
       };
     }
