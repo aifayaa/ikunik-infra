@@ -1,6 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
 
-const { DB_NAME, COLL_APPS } = process.env;
+const {
+  COLL_APPS,
+  DB_NAME,
+} = process.env;
 
 export default async (appId) => {
   const client = await MongoClient.connect();
@@ -12,7 +15,13 @@ export default async (appId) => {
         {
           _id: appId,
         },
-        { projection: { name: 1, key: 1 } },
+        {
+          projection: {
+            'builds.iosAppId': 1,
+            'builds.packageId': 1,
+            'builds.platform': 1,
+          },
+        },
       );
 
     if (!app) {
