@@ -1,7 +1,6 @@
 import url from 'url';
 import getAppsInfos from '../../apps/lib/getAppsInfos';
 import isCrawler from './isCrawler';
-import isMobile from './isMobile';
 import allowedUrls from './urlWhiteList';
 
 const { APPS_WEBSITE_URL } = process.env;
@@ -28,19 +27,10 @@ export default async (userAgent, redirectUrl, appId) => {
       || allowedProtocols.includes(protocol);
 
     if (isValid) {
-      if (isMobile(userAgent)) {
-        return {
-          statusCode: 301,
-          headers: {
-            Location: decodedUrl,
-          },
-        };
-      }
-
       return {
         statusCode: 301,
         headers: {
-          Location: `https://${APPS_WEBSITE_URL}?app_id=${appId}`,
+          Location: `https://${APPS_WEBSITE_URL}?app_id=${appId}&mobile_redirect=${decodedUrl}`,
         },
       };
     }
