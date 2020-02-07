@@ -6,11 +6,11 @@ export default (
 ) => {
   const heightText = height ? `<meta property="og:image:height" content="${height}" />` : '';
   const widthText = width ? `<meta property="og:image:width" content="${width}" />` : '';
-
+  const imageUrl = encodeURI(image);
   return `\
     <meta property="og:title" content="${title}" />\
     <meta property="og:description" content="${description}" />\
-    <meta property="og:image" content="${image}" />\
+    <meta property="og:image" content="${imageUrl}" />\
     <meta property="og:image:type" content="image/jpeg" />\
     ${widthText}\
     ${heightText}\
