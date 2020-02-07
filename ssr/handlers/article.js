@@ -10,11 +10,11 @@ export default async (event) => {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
     const { appName } = (event.queryStringParameters || {});
     const userAgent = event.headers['User-Agent'];
-    const redirectResponse = await redirect(userAgent, redirectUrl);
+    const appId = await getAppId(appName);
+    const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
     }
-    const appId = await getAppId(appName);
     const articleId = event.pathParameters.id;
     const article = await getArticle(articleId, appId, { getPictures: true, isServer: true });
     if (!article) {
@@ -22,12 +22,15 @@ export default async (event) => {
     }
     const picture = article.pictures[0] || {};
     const pictureUrl = (picture && picture.mediumUrl) || '';
-    const size = { height: picture.mediumHeight, width: picture.mediumWidth };
+    const options = {
+      height: picture.mediumHeight,
+      width: picture.mediumWidth,
+    };
     const body = meta(
       article.title,
       prepareNotifString(article.plainText, 120),
       pictureUrl,
-      size,
+      options,
     );
     return response({ code: 200, body, raw: true });
   } catch (e) {

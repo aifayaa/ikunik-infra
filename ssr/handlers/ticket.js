@@ -10,7 +10,7 @@ export const handleArtist = async (event) => {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
     const { appName } = (event.queryStringParameters || {});
     const appId = await getAppId(appName);
-    const redirectResponse = await redirect(userAgent, redirectUrl);
+    const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
     }

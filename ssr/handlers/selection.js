@@ -10,11 +10,11 @@ export default async (event) => {
 
   try {
     const userAgent = event.headers['User-Agent'];
-    const redirectResponse = await redirect(userAgent, redirectUrl);
+    const appId = await getAppId(appName);
+    const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
     }
-    const appId = await getAppId(appName);
     const projectId = event.pathParameters.id;
     const selection = await getSelection(projectId, null, appId);
     const body = meta(

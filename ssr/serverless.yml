@@ -6,7 +6,10 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment: ${file(../env.yml)}
+  environment:
+    $<<:
+      - ${file(../env.yml)}
+      - ${file(./env.${self:provider.stage}.yml)}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
@@ -60,7 +63,9 @@ functions:
                 appName: false
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
   - serverless-domain-manager
+  - serverless-export-env
   - serverless-webpack
 
 package:
