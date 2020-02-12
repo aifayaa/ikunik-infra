@@ -42,6 +42,21 @@ functions:
               headers:
                 Authorization: true
 
+  getAppBuilds:
+    handler: handlers/getAppBuilds.default
+    events:
+      - http:
+          path: apps/{id}/builds
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-webpack
 
