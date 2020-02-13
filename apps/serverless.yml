@@ -49,9 +49,6 @@ functions:
           path: apps/{id}/builds
           method: get
           cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
               paths:
