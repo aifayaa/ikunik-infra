@@ -78,12 +78,12 @@ export default async (
         .toArray();
 
       if (
-        matchedUsers.length > 0
-        // If we don't have a userId yet, any match we find is a duplicate
-        && (!ownUserId
+        matchedUsers.length > 0 && (
+          // If we don't have a userId yet, any match we find is a duplicate
+          !ownUserId ||
           // Otherwise, check to see if there are multiple matches or a match
           // that is not us
-          || (matchedUsers.length > 1 || matchedUsers[0]._id !== ownUserId))
+          (matchedUsers.length > 1 || matchedUsers[0]._id !== ownUserId))
       ) {
         throw new Error(`${displayName} already exists.`);
       }

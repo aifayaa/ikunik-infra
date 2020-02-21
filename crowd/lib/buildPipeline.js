@@ -104,7 +104,7 @@ const pipelineLocationStart = (userId, _appId, coordinates, range) => [
   { $unwind: { path: '$user', preserveNullAndEmptyArrays: false } },
 ];
 
-const pipelineStart = userId => [
+const pipelineStart = (userId) => [
   {
     $match: {
       fromUserId: userId,
@@ -211,9 +211,9 @@ export default (userId, _appId, {
   sortBy,
   sortOrder,
 }) => {
-  const pipeline = coordinates ?
-    pipelineLocationStart(userId, null, coordinates, range) :
-    pipelineStart(userId, null);
+  const pipeline = coordinates
+    ? pipelineLocationStart(userId, null, coordinates, range)
+    : pipelineStart(userId, null);
   pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
   pipeline.push({
     $lookup: {

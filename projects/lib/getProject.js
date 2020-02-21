@@ -36,8 +36,8 @@ export default async (projectId, userId, appId) => {
 
     tracks.forEach((track) => {
       track.projectThumbFileUrl = project.iconeThumbFileUrl || null;
-      track.isLocked = !!track.subscriptionIds
-        && !track.subscriptionIds.find((id) => userSubsriptionIds.includes(id));
+      track.isLocked = !!track.subscriptionIds &&
+        !track.subscriptionIds.find((id) => userSubsriptionIds.includes(id));
       if (track.isLocked) delete track.url;
     });
     project.tracks = tracks;

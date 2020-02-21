@@ -97,12 +97,12 @@ export default async (event) => {
 
     categoryId = forceCategoryId || categoryId;
     if (
-      !categoryId
-      || !title
-      || !summary
-      || !html
-      || !(md || xml)
-      || (!pictures && !videos)
+      !categoryId ||
+      !title ||
+      !summary ||
+      !html ||
+      !(md || xml) ||
+      (!pictures && !videos)
     ) {
       throw new Error('mal_formed_request');
     }

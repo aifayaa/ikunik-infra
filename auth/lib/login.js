@@ -30,9 +30,9 @@ export const login = async (email, username, password, appId) => {
     }
 
     if (
-      !user.services
-      || !user.services.password
-      || !user.services.password.bcrypt
+      !user.services ||
+      !user.services.password ||
+      !user.services.password.bcrypt
     ) {
       throw new Error('User has no password set"');
     }

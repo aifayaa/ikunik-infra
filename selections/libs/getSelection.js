@@ -100,8 +100,8 @@ export default async (selectionId, userId, appId) => {
     const selection = selections[0] || null;
     if (!selection) throw new Error('Not found');
     const userSubsriptionIds = userSubscriptions.map((item) => item.subscriptionId);
-    const onlyHighlighted = (selection.onlyHighlighted === undefined)
-      || (selection.onlyHighlighted === null) || selection.onlyHighlighted;
+    const onlyHighlighted = (selection.onlyHighlighted === undefined) ||
+      (selection.onlyHighlighted === null) || selection.onlyHighlighted;
     const selectionCollection = typeof selection.selectionCollection === 'string'
       ? [selection.selectionCollection]
       : selection.selectionCollection;
@@ -375,8 +375,8 @@ export default async (selectionId, userId, appId) => {
         track.projectThumbFileUrl = trackProject.iconeThumbFileUrl || null;
         track.projectMediumFileUrl = trackProject.iconeMediumFileUrl || null;
       }
-      track.isLocked = !!track.subscriptionIds
-        && !track.subscriptionIds.find((id) => userSubsriptionIds.includes(id));
+      track.isLocked = !!track.subscriptionIds &&
+        !track.subscriptionIds.find((id) => userSubsriptionIds.includes(id));
       if (track.isLocked) delete track.url;
     });
     return selection;

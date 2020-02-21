@@ -78,7 +78,7 @@ resources:
           Ref: __deployment__
         CacheClusterEnabled: true
         CacheClusterSize: "0.5"
-# comment when fist deploy ---START
+# comment on first deploy ---START
         MethodSettings:
           - ResourcePath: "/*"
             CachingEnabled: false
@@ -139,7 +139,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
         Stage: ${self:provider.stage}
-# comment when fist deploy ---END
+# comment when first deploy ---END
 
   Outputs:
     ApiGatewayStage:
