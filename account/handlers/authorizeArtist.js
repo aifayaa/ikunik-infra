@@ -6,13 +6,9 @@ import hashLoginToken from '../lib/hashLoginToken';
 import getAppFromKey from '../lib/getAppFromKey';
 import getProfile from '../lib/getProfile';
 
-export default async (
-  { headers, methodArn, requestContext },
-  context,
-  callback,
-) => {
+export default async ({ headers, methodArn, requestContext }) => {
   const apiKey = get(requestContext, 'identity.apiKey');
-  const authorizationToken = headers.authorization;
+  const authorizationToken = headers.authorization || headers.Authorization;
   try {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
@@ -24,19 +20,11 @@ export default async (
     const profileId = userId && await getProfile(userId, app._id);
     if (userId && profileId) {
       winston.info('allow', authorizationToken, userId);
-      return callback(null, generatePolicy('allow', methodArn, { userId, appId: app._id, profileId }));
+      return generatePolicy('allow', methodArn, { userId, appId: app._id, profileId });
     }
     winston.info('deny', authorizationToken);
-    return callback(null, generatePolicy('deny', methodArn));
+    return generatePolicy('deny', methodArn);
   } catch (e) {
-    const response = {
-      statusCode: 401,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    return callback(null, response);
+    return generatePolicy('deny', methodArn);
   }
 };
