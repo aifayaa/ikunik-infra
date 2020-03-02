@@ -152,6 +152,10 @@ npm i
 npx sls deploy --stage $1 --region $2
 
 
+cd ../pushNotifications
+npm i
+npx sls deploy --stage $1 --region $2
+
 cd ../userGeneratedContents
 npm i
 npx sls deploy --stage $1 --region $2
