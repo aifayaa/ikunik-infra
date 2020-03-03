@@ -22,14 +22,14 @@ export const putArticle = async ({
   userId,
 }) => {
   if (
-    typeof title !== 'string'
-    || typeof articleId !== 'string'
-    || typeof categoryId !== 'string'
-    || typeof summary !== 'string'
-    || typeof html !== 'string'
-    || typeof md !== 'string'
-    || (!Array.isArray(pictures) && !Array.isArray(videos))
-    || (feedPicture && typeof feedPicture !== 'string')
+    typeof title !== 'string' ||
+    typeof articleId !== 'string' ||
+    typeof categoryId !== 'string' ||
+    typeof summary !== 'string' ||
+    typeof html !== 'string' ||
+    typeof md !== 'string' ||
+    (!Array.isArray(pictures) && !Array.isArray(videos)) ||
+    (feedPicture && typeof feedPicture !== 'string')
   ) {
     throw new Error('bad arguments');
   }

@@ -52,10 +52,10 @@ export default async (
           appIds: { $elemMatch: { $eq: appId } },
         })
       : null;
-    const selectionFindQuery = (selection
-      && selection.selectionFindQuery
-      && JSON.parse(selection.selectionFindQuery))
-      || (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
+    const selectionFindQuery = (selection &&
+      selection.selectionFindQuery &&
+      JSON.parse(selection.selectionFindQuery)) ||
+      (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
 
     selectionFindQuery.appIds = { $elemMatch: { $eq: appId } };
     queryReplace(selectionFindQuery);

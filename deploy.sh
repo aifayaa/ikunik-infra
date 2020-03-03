@@ -1,5 +1,17 @@
 #!/bin/bash
 
+usage() {
+  echo "usage : ./deploy.sh [STAGE] [REGION]"
+  echo ""
+  echo "    Deploy all microservices for a STAGE on a REGION"
+  echo "    STAGE can be dev, prod, awax, awaxDev"
+  echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
+}
+
+if ([ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "awax" ] && [ "$1" != "awaxDev" ]) || [ -z "$2" ] ; then 
+  usage
+fi
+
 # libs
 cd libs
 npm i
@@ -151,6 +163,10 @@ cd ../pressSearch
 npm i
 npx sls deploy --stage $1 --region $2
 
+
+cd ../pushNotifications
+npm i
+npx sls deploy --stage $1 --region $2
 
 cd ../userGeneratedContents
 npm i

@@ -13,8 +13,8 @@ export default async (event) => {
     const { selectionId } = event.pathParameters;
     const { contentIds, selectionIds, action, patch } = JSON.parse(event.body);
     if (
-      (!contentIds && !selectionIds && !patch)
-      || ![undefined, 'replace', 'remove', 'add', 'patch'].includes(action)
+      (!contentIds && !selectionIds && !patch) ||
+      ![undefined, 'replace', 'remove', 'add', 'patch'].includes(action)
     ) {
       throw new Error('malformed request');
     }
