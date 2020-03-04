@@ -4,7 +4,7 @@
 
 import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
-import Random from './random';
+import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
 
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
