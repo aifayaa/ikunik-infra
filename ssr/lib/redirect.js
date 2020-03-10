@@ -22,9 +22,9 @@ export default async (userAgent, redirectUrl, appId) => {
     const allowedProtocols = appsInfos.map((v) => `${v.protocol}:`);
 
     /* Check if redirect is valid */
-    const isValid = (hostname.endsWith('crowdaa.com') && protocol === 'https:')
-      || allowedUrls.includes(`${protocol}//${host}${path}`)
-      || allowedProtocols.includes(protocol);
+    const isValid = (hostname.endsWith('crowdaa.com') && protocol === 'https:') ||
+      allowedUrls.includes(`${protocol}//${host}${path}`) ||
+      allowedProtocols.includes(protocol);
 
     if (isValid) {
       return {

@@ -3,12 +3,8 @@ import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
 import authorizeUser from '../lib/authorizeUser';
 
-export default async (
-  { headers, methodArn },
-  context,
-  callback,
-) => {
-  const authorizationToken = headers.Authorization;
+export default async ({ headers, methodArn }) => {
+  const authorizationToken = headers.authorization || headers.Authorization;
   try {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
@@ -16,19 +12,11 @@ export default async (
     const user = await authorizeUser(hashedLoginToken);
     if (user) {
       winston.info('allow', authorizationToken, user._id);
-      return callback(null, generatePolicy('allow', methodArn, { userId: user._id }));
+      return generatePolicy('allow', methodArn, { userId: user._id });
     }
     winston.info('deny', authorizationToken);
-    return callback(null, generatePolicy('deny', methodArn));
+    return generatePolicy('deny', methodArn);
   } catch (e) {
-    const response = {
-      statusCode: 500,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    return callback(null, response);
+    return generatePolicy('deny', methodArn);
   }
 };

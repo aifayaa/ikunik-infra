@@ -26,12 +26,12 @@ export default async (event) => {
     }
 
     if (
-      !articleId
-      || !categoryId
-      || !title
-      || !summary
-      || !md
-      || (!pictures && !videos)
+      !articleId ||
+      !categoryId ||
+      !title ||
+      !summary ||
+      !md ||
+      (!pictures && !videos)
     ) {
       throw new Error('mal_formed_request');
     }

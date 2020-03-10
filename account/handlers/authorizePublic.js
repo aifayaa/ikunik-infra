@@ -6,16 +6,16 @@ import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
 import getAppFromKey from '../lib/getAppFromKey';
 
-export default async (
-  { headers, methodArn, requestContext },
-) => {
+export default async ({ headers, methodArn, requestContext }) => {
   const apiKey = get(requestContext, 'identity.apiKey');
-  const authorizationToken = headers.Authorization;
+  const authorizationToken = headers.authorization || headers.Authorization;
+
   try {
     winston.info(authorizationToken, methodArn);
     const app = apiKey ? await getAppFromKey(apiKey) : null;
     const opts = {};
     if (app) { opts.appId = app._id; }
+
     if (!authorizationToken) {
       winston.info('allow public');
       return generatePolicy('allow', methodArn, opts);
@@ -32,15 +32,6 @@ export default async (
     winston.info('deny', authorizationToken);
     return generatePolicy('deny', methodArn);
   } catch (e) {
-    winston.info('forbidden', e);
-    const response = {
-      statusCode: 401,
-      body: JSON.stringify({ message: e.message }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-    };
-    return response;
+    return generatePolicy('deny', methodArn);
   }
 };

@@ -30,8 +30,9 @@ export default async (event) => {
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
       const localResults = await search([...pipeline], queryStringParameters || {});
       contacts = contacts.concat(localResults.crowd.map((fan) => ({
-        email: fan.user.email || fan.user.profile.email
-         || (fan.user.emails && fan.user.emails[0].address),
+        email: fan.user.email ||
+          fan.user.profile.email ||
+          (fan.user.emails && fan.user.emails[0].address),
         name: fan.user.profile.username,
       })));
       doneCallback();

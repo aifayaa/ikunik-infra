@@ -24,9 +24,9 @@ const sns = new SNS({
 
 export default async ({ userId, Token, deviceUUID, platform, appId }) => {
   if (
-    check.not.string(Token)
-    || check.not.string(deviceUUID)
-    || check.not.string(platform)
+    check.not.string(Token) ||
+    check.not.string(deviceUUID) ||
+    check.not.string(platform)
   ) throw new Error('wrong_args_type');
 
   const client = await MongoClient.connect();

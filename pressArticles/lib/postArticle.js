@@ -23,14 +23,14 @@ export const postArticle = async ({
   actions,
 }) => {
   if (
-    typeof title !== 'string'
-    || typeof categoryId !== 'string'
-    || typeof summary !== 'string'
-    || typeof html !== 'string'
-    || !(['string', 'undefined'].indexOf(typeof md) + 1)
-    || !(['string', 'undefined'].indexOf(typeof xml) + 1)
-    || (!Array.isArray(pictures) && !Array.isArray(videos))
-    || (feedPicture && typeof feedPicture !== 'string')
+    typeof title !== 'string' ||
+    typeof categoryId !== 'string' ||
+    typeof summary !== 'string' ||
+    typeof html !== 'string' ||
+    !(['string', 'undefined'].indexOf(typeof md) + 1) ||
+    !(['string', 'undefined'].indexOf(typeof xml) + 1) ||
+    (!Array.isArray(pictures) && !Array.isArray(videos)) ||
+    (feedPicture && typeof feedPicture !== 'string')
   ) {
     throw new Error('bad arguments');
   }
