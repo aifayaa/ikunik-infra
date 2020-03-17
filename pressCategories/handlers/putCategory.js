@@ -22,7 +22,7 @@ export default async (event) => {
       picture,
     } = JSON.parse(event.body);
 
-    if (!categoryId || !name || !pathName) {
+    if (!categoryId || !name) {
       throw new Error('Missing arguments');
     }
 

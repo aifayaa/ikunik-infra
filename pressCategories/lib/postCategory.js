@@ -1,4 +1,5 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import isAvailable from './isAvailable';
 
 const {
   DB_NAME,
@@ -10,17 +11,8 @@ export default async (appId, name, pathName, color, picture) => {
   const client = await MongoClient.connect();
 
   try {
-    /* Request for categories having the same appId */
-    const categoryFound = await client.db(DB_NAME)
-      .collection(COLL_PRESS_CATEGORIES)
-      .findOne({
-        pathName: { $elemMatch: { $eq: pathName } },
-        appIds: { $elemMatch: { $eq: appId } },
-      });
-
-    if (categoryFound) {
-      return `Pathname ${pathName} already exists for appId ${appId}`;
-    }
+    const checkAvailability = await isAvailable(client, appId, name, pathName);
+    if (checkAvailability !== true) throw new Error(checkAvailability);
 
     /* Otherwise, insert the category to the database and return it */
     const category = {

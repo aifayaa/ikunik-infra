@@ -21,7 +21,7 @@ export default async (event) => {
       picture,
     } = JSON.parse(event.body);
 
-    if (!name || !pathName) {
+    if (!name) {
       throw new Error('Missing arguments');
     }
 
