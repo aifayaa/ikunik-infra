@@ -63,7 +63,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
       throw new Error('unexpected_iss');
     }
     /* check if a build is defined with packageId specified */
-    if (app.builds.map((build) => build.packageId).indexOf(aud) === -1) {
+    if (app.builds.ios.packageId !== aud) {
       throw new Error('unexpected_aud');
     }
 
