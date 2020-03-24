@@ -6,11 +6,12 @@ const {
   COLL_PRESS_CATEGORIES,
 } = process.env;
 
-export default async (appId, categoryId, name, pathName, color, picture) => {
+export default async (appId, categoryId, name, pathName, color, picture, order) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
   try {
+    let currentOrder = 99;
     const checkAvailability = await isAvailable(client, appId, name, pathName, categoryId);
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
@@ -27,19 +28,53 @@ export default async (appId, categoryId, name, pathName, color, picture) => {
       category.picture = picture.pop();
     }
 
-    const { matchedCount } = await client
+    if (order) {
+      category.order = order;
+      ({ order: currentOrder } = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .findOne({
+          _id: categoryId,
+          appIds: appId,
+        }, { projection: { order: true } }));
+    }
+
+    const bulk = client
       .db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
-      .updateOne(
-        {
-          _id: categoryId,
-          appIds: { $elemMatch: { $eq: appId } },
-        },
-        { $set: category },
-      );
+      .initializeOrderedBulkOp();
 
+    if (order) {
+      if (category.order > currentOrder) {
+        bulk.find({
+          appIds: appId,
+          order: {
+            $gt: currentOrder,
+            $lte: category.order,
+            $exists: true,
+          },
+        }).update({ $inc: { order: -1 } });
+      }
+      if (category.order < currentOrder) {
+        bulk.find({
+          appIds: appId,
+          order: {
+            $gte: category.order,
+            $lt: currentOrder,
+            $ne: 99,
+            $exists: true,
+          },
+        }).update({ $inc: { order: 1 } });
+      }
+    }
+    bulk.find({
+      _id: categoryId,
+      appIds: { $elemMatch: { $eq: appId } },
+    }).updateOne({ $set: category });
 
-    return !!matchedCount;
+    const { nMatched } = await bulk.execute();
+
+    return !!nMatched;
   } finally {
     client.close();
   }
