@@ -22,10 +22,10 @@ export default async (appId, name, pathName, color, picture, order) => {
       picture: picture.pop(),
       appIds: [appId],
       createdAt: new Date(),
-      order: order || (await client // get total number of categories
+      order: order || (await client // get total number of categories with order
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .count({ appIds: appId })
+        .count({ appIds: appId, order: { $ne: 999 } })
       ) + 1,
     };
 
@@ -38,8 +38,7 @@ export default async (appId, name, pathName, color, picture, order) => {
       appIds: appId,
       order: {
         $gte: category.order,
-        $lt: 99,
-        $exists: true,
+        $lt: 999,
       },
     }).update({ $inc: { order: 1 } });
     bulk.insert(category);

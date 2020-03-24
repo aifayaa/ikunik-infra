@@ -11,7 +11,7 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
   const client = await MongoClient.connect();
 
   try {
-    let currentOrder = 99;
+    let currentOrder = 999;
     const checkAvailability = await isAvailable(client, appId, name, pathName, categoryId);
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
@@ -51,7 +51,6 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           order: {
             $gt: currentOrder,
             $lte: category.order,
-            $exists: true,
           },
         }).update({ $inc: { order: -1 } });
       }
@@ -61,8 +60,7 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           order: {
             $gte: category.order,
             $lt: currentOrder,
-            $ne: 99,
-            $exists: true,
+            $ne: 999,
           },
         }).update({ $inc: { order: 1 } });
       }

@@ -29,8 +29,7 @@ export default async (appId, categoryId) => {
         appIds: appId,
         order: {
           $gt: category.order,
-          $lt: 99,
-          $exists: true,
+          $lt: 999,
         },
       }).update({ $inc: { order: -1 } });
     }
