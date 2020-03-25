@@ -29,7 +29,15 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
     }
 
     if (order) {
-      category.order = order;
+      const defaultOrder = (await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .count({
+          appIds: appId,
+          order: { $ne: 999 },
+        })) + 1;
+
+      category.order = order > defaultOrder ? defaultOrder : order;
       ({ order: currentOrder } = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
