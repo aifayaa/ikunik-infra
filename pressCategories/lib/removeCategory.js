@@ -25,6 +25,15 @@ export default async (appId, categoryId) => {
     }).removeOne();
 
     if (category.order) {
+      /* ex delete element at 2nd position
+         delete
+           ||
+           \/
+        [1, 2 , 3, 4, 5]
+
+        all values after position 2 must be decreased
+        [1, 3=>2, 4=>3, 4=>3, 5=>4]
+      */
       bulk.find({
         appIds: appId,
         order: {
@@ -33,7 +42,6 @@ export default async (appId, categoryId) => {
         },
       }).update({ $inc: { order: -1 } });
     }
-
 
     const resultDelete = await bulk.execute();
 

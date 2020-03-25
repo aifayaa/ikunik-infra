@@ -13,13 +13,21 @@ export default async (appId, name, pathName, color, picture, order) => {
     const checkAvailability = await isAvailable(client, appId, name, pathName);
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
-    const defaultOrder = (await client // get total number of categories with order
+    /*
+      defaultOrder is the last order
+      total number of ordered categories + 1
+    */
+    const defaultOrder = (await client
       .db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
       .count({
         appIds: appId,
         order: { $ne: 999 },
       })) + 1;
+
+    if (defaultOrder >= 999) {
+      throw new Error('max_category_reached');
+    }
 
     /* Otherwise, insert the category to the database and return it */
     const category = {
@@ -30,7 +38,7 @@ export default async (appId, name, pathName, color, picture, order) => {
       picture: picture.pop(),
       appIds: [appId],
       createdAt: new Date(),
-      // use last order if order not valid
+      // use default if order not valid
       order: (!order || (order > defaultOrder)) ? defaultOrder : order,
     };
 
@@ -39,6 +47,15 @@ export default async (appId, name, pathName, color, picture, order) => {
       .collection(COLL_PRESS_CATEGORIES)
       .initializeOrderedBulkOp();
 
+    /* ex inserting at 2nd position
+       new
+        ||
+        \/
+      [1, 2 , 3, 4, 5]
+
+      all values after position 2 must be increased
+      [1, n=>2, 2=>3, 3=>4, 4=>5, 5=>6]
+    */
     bulk.find({
       appIds: appId,
       order: {

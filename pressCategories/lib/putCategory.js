@@ -34,6 +34,11 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
         .collection(COLL_PRESS_CATEGORIES)
         .count({
           appIds: appId,
+          /*
+            999 is used as a safe position for unordered categories
+            mongodb sort null values on top, that's why all categories
+            should had a order field.
+          */
           order: { $ne: 999 },
         })) + 1;
 
@@ -45,6 +50,14 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           _id: categoryId,
           appIds: appId,
         }, { projection: { order: true } }));
+
+      /*
+        in case we are trying to move a 999 order category
+        and there is already 998 ordered categories
+      */
+      if (currentOrder === 999 && defaultOrder >= 999) {
+        throw new Error('max_ordered_category_reached');
+      }
     }
 
     const bulk = client
@@ -54,6 +67,15 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
 
     if (order) {
       if (category.order > currentOrder) {
+        /* ex move 4 to position 2
+             ________
+            |        |
+            \/       |
+          [1, 2 , 3, 4, 5]
+
+          all values between old position and new position must be increased
+          [1, 4=>2, 2=>3, 3=>4, 5]
+        */
         bulk.find({
           appIds: appId,
           order: {
@@ -63,6 +85,15 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
         }).update({ $inc: { order: -1 } });
       }
       if (category.order < currentOrder) {
+        /* ex move 2 to position 4
+               _______
+              |       |
+              |       \/
+          [1, 2 , 3, 4, 5]
+
+          all values between old position and new position must be decreased
+          [1, 3=>2, 4=>3, 2=>4, 5]
+        */
         bulk.find({
           appIds: appId,
           order: {
