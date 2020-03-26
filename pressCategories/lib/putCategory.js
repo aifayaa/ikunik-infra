@@ -4,6 +4,7 @@ import isAvailable from './isAvailable';
 const {
   DB_NAME,
   COLL_PRESS_CATEGORIES,
+  SAFE_ORDER_NUMBER,
 } = process.env;
 
 export default async (appId, categoryId, name, pathName, color, picture, order) => {
@@ -29,20 +30,6 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
     }
 
     if (order) {
-      const defaultOrder = (await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_CATEGORIES)
-        .count({
-          appIds: appId,
-          /*
-            999 is used as a safe position for unordered categories
-            mongodb sort null values on top, that's why all categories
-            should had a order field.
-          */
-          order: { $ne: 999 },
-        })) + 1;
-
-      category.order = order > defaultOrder ? defaultOrder : order;
       ({ order: currentOrder } = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
@@ -51,13 +38,27 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           appIds: appId,
         }, { projection: { order: true } }));
 
-      /*
-        in case we are trying to move a 999 order category
-        and there is already 998 ordered categories
-      */
-      if (currentOrder === 999 && defaultOrder >= 999) {
-        throw new Error('max_ordered_category_reached');
+      let defaultOrder = (await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .count({
+          appIds: appId,
+          order: { $ne: SAFE_ORDER_NUMBER },
+        }));
+
+      if (currentOrder === SAFE_ORDER_NUMBER) {
+        /* category was previously unordered */
+        defaultOrder += 1;
+        if (defaultOrder >= SAFE_ORDER_NUMBER) {
+          /*
+            In case we are trying to move a 999 order category
+            and there is already 998 ordered categories
+          */
+          throw new Error('max_ordered_category_reached');
+        }
       }
+
+      category.order = Math.min(order, defaultOrder + 1);
     }
 
     const bulk = client
@@ -99,7 +100,7 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           order: {
             $gte: category.order,
             $lt: currentOrder,
-            $ne: 999,
+            $ne: SAFE_ORDER_NUMBER,
           },
         }).update({ $inc: { order: 1 } });
       }

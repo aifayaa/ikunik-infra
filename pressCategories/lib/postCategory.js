@@ -4,6 +4,7 @@ import isAvailable from './isAvailable';
 const {
   DB_NAME,
   COLL_PRESS_CATEGORIES,
+  SAFE_ORDER_NUMBER,
 } = process.env;
 
 export default async (appId, name, pathName, color, picture, order) => {
@@ -22,10 +23,15 @@ export default async (appId, name, pathName, color, picture, order) => {
       .collection(COLL_PRESS_CATEGORIES)
       .count({
         appIds: appId,
-        order: { $ne: 999 },
+        /*
+            SAFE_ORDER_NUMBER = 999 is used as a safe position for unordered categories
+            mongodb sort null values on top, that's why all categories
+            should have an order field.
+          */
+        order: { $ne: SAFE_ORDER_NUMBER },
       })) + 1;
 
-    if (defaultOrder >= 999) {
+    if (defaultOrder >= SAFE_ORDER_NUMBER) {
       throw new Error('max_category_reached');
     }
 
@@ -39,7 +45,7 @@ export default async (appId, name, pathName, color, picture, order) => {
       appIds: [appId],
       createdAt: new Date(),
       // use default if order not valid
-      order: (!order || (order > defaultOrder)) ? defaultOrder : order,
+      order: Math.min(order || defaultOrder, defaultOrder),
     };
 
     const bulk = client
@@ -60,7 +66,7 @@ export default async (appId, name, pathName, color, picture, order) => {
       appIds: appId,
       order: {
         $gte: category.order,
-        $lt: 999,
+        $lt: SAFE_ORDER_NUMBER,
       },
     }).update({ $inc: { order: 1 } });
     bulk.insert(category);

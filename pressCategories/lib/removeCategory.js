@@ -4,6 +4,7 @@ const {
   DB_NAME,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
+  SAFE_ORDER_NUMBER,
 } = process.env;
 
 export default async (appId, categoryId) => {
@@ -38,7 +39,7 @@ export default async (appId, categoryId) => {
         appIds: appId,
         order: {
           $gt: category.order,
-          $lt: 999,
+          $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
         },
       }).update({ $inc: { order: -1 } });
     }
