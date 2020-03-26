@@ -19,6 +19,7 @@ export default async (event) => {
       pathName,
       color,
       picture,
+      order,
     } = JSON.parse(event.body);
 
     if (!name) {
@@ -49,7 +50,11 @@ export default async (event) => {
       throw new Error('Wrong color syntax, must be #xxxxxx');
     }
 
-    const results = await postCategory(appId, name, pathName, color, picture);
+    if (order && (!Number.isInteger(order) || order < 1)) {
+      throw new Error('Wrong order syntax, must be a positive integer');
+    }
+
+    const results = await postCategory(appId, name, pathName, color, picture, order);
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });

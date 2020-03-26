@@ -6,7 +6,10 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment: ${file(../env.yml)}
+  environment:
+    $<<: 
+    - ${file(../env.yml)}
+    - ${file(./env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -92,6 +95,7 @@ functions:
                 id: true
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
   - serverless-webpack
 
 package:
