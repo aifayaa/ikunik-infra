@@ -20,6 +20,7 @@ export default async (event) => {
       pathName,
       color,
       picture,
+      order,
     } = JSON.parse(event.body);
 
     if (!categoryId || !name) {
@@ -51,7 +52,11 @@ export default async (event) => {
       throw new Error('Wrong color syntax, must be #xxxxxx');
     }
 
-    const results = await putCategory(appId, categoryId, name, pathName, color, picture);
+    if (order && (!Number.isInteger(order) || order < 1)) {
+      throw new Error('Wrong order syntax, must be a positive integer');
+    }
+
+    const results = await putCategory(appId, categoryId, name, pathName, color, picture, order);
 
     if (results === false) {
       return response({ code: 404, message: 'category_not_found' });

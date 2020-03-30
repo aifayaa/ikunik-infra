@@ -19,7 +19,9 @@ export default async (appId) => {
       },
       {
         $sort: {
-          name: -1,
+          order: 1,
+          createdAt: -1,
+          name: 1,
         },
       },
       {
