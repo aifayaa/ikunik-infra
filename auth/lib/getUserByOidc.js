@@ -10,12 +10,10 @@ const {
 } = process.env;
 
 export const getUserByOidc = async (identityToken, appId) => {
-  console.log({ identityToken, appId });
   const client = await MongoClient.connect();
   try {
     // TODO: verify identityToken
     const decodedIdToken = await verifyJwt(identityToken, appId, { mongoClient: client });
-    console.log('decoded token', decodedIdToken);
     const {
       sub,
       given_name: givenName,
@@ -33,7 +31,6 @@ export const getUserByOidc = async (identityToken, appId) => {
       'services.openIdConnect.sub': sub,
       appIds: appId,
     }, { projection: { _id: true } });
-    console.log('user=> ', user);
     const token = generateToken();
     const hash = hashToken(token);
     const date = new Date();

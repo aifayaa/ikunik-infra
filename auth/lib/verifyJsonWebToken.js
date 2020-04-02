@@ -30,7 +30,9 @@ export default async (token, appId) => {
     // get keys for appId
     const auth = get(app, 'settings.auth', {});
     const { kid } = header;
-    const { jwksUrl = 'https://keycloak-dev.aws.crowdaa.com:8443/auth/realms/leQuotidien_sso_test/protocol/openid-connect/certs' } = auth;
+    const { jwksUrl } = auth;
+    if (!jwksUrl) throw new Error('OIDC_login_not_enabled');
+
     const jwks = jwksClient({
       jwksUri: jwksUrl,
     });

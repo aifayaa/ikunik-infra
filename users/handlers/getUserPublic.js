@@ -27,7 +27,7 @@ export default async (event) => {
     /* Check terms of services */
     const termsOfServices = await getTos(appId, false, { outdated: false, required: true });
     if (termsOfServices.length) {
-      if (!results.optIn) {
+      if (!results.optIn || !Array.isArray(results.optIn)) {
         results.optIn = false;
       } else {
         let optInResult = true;
