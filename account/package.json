@@ -6,8 +6,6 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.605.0",
-    "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.7.0",
     "lodash": "^4.17.15",
     "winston": "^3.2.1"
   },

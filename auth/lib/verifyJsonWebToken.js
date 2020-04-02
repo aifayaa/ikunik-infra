@@ -17,7 +17,6 @@ const verify = promisify(jwt.verify);
 export default async (token, appId) => {
   const { DB_NAME, COLL_APPS } = process.env;
   const mongoClient = await MongoClient.connect();
-
   try {
     const {
       header,
@@ -28,7 +27,6 @@ export default async (token, appId) => {
       .findOne({ _id: appId }, { projection: { 'settings.auth': true } });
 
     if (!app) throw new Error('app_not_found');
-
     // get keys for appId
     const auth = get(app, 'settings.auth', {});
     const { kid } = header;
@@ -38,10 +36,9 @@ export default async (token, appId) => {
     });
     const getSigningKey = promisify(jwks.getSigningKey);
     const signingKey = await getSigningKey(kid);
-
     return await verify(token, signingKey.getPublicKey());
   } catch (e) {
-    throw new Error(`token verification failed: ${e.message}`);
+    throw new Error('invalid_token');
   } finally {
     mongoClient.close();
   }

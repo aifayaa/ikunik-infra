@@ -1,6 +1,7 @@
 import winston from 'winston';
 import get from 'lodash/get';
 import generatePolicy from '../lib/generatePolicy';
+import hashLoginToken from '../lib/hashLoginToken';
 import authorizeUser from '../lib/authorizeUser';
 import getAppFromKey from '../lib/getAppFromKey';
 
@@ -11,7 +12,8 @@ export default async ({ headers, methodArn, requestContext }) => {
     winston.info(authorizationToken, methodArn);
     const app = await getAppFromKey(apiKey);
     const loginToken = authorizationToken.split(' ')[1];
-    const user = await authorizeUser(loginToken, app._id);
+    const hashedLoginToken = hashLoginToken(loginToken);
+    const user = await authorizeUser(hashedLoginToken);
     if (user) {
       winston.info('allow', authorizationToken, user._id);
       return generatePolicy('allow', methodArn, { userId: user._id, appId: app._id });
