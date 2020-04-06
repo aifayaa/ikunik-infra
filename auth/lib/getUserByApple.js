@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
-import uuidv4 from 'uuid/v4';
+import Random from '../../libs/account_utils/random';
 import MongoClient from '../../libs/mongoClient';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
@@ -108,7 +108,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
           : email.split('@')[0],
       };
 
-      userId = uuidv4();
+      userId = Random.id();
       const userDoc = {
         _id: userId,
         createdAt: date,

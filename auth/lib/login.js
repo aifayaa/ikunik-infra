@@ -5,7 +5,7 @@
 import MongoClient from '../../libs/mongoClient';
 import { checkPassword } from './password';
 import hashLoginToken from './hashLoginToken';
-import Random from './random';
+import Random from '../../libs/account_utils/random';
 
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
 

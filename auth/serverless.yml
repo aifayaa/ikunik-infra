@@ -40,6 +40,28 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  forgotPassword:
+    handler: handlers/forgotPassword.default
+    events:
+      - http:
+          path: auth/forgotPassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  login:
+    handler: handlers/login.default
+    events:
+      - http:
+          path: auth/login
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   logout:
     handler: handlers/logout.default
     events:
@@ -71,11 +93,11 @@ functions:
               - X-User-Id
               - X-Auth-Token
 
-  login:
-    handler: handlers/login.default
+  oidcLogin:
+    handler: handlers/oidcLogin.default
     events:
       - http:
-          path: auth/login
+          path: auth/oidc
           method: post
           cors: true
           authorizer:
@@ -87,17 +109,6 @@ functions:
     events:
       - http:
           path: auth/register
-          method: post
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-
-  forgotPassword:
-    handler: handlers/forgotPassword.default
-    events:
-      - http:
-          path: auth/forgotPassword
           method: post
           cors: true
           authorizer:

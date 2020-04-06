@@ -9,9 +9,8 @@
   "author": "Crowdaa",
   "license": "ISC",
   "dependencies": {
-    "sinon": "^8.1.0",
     "aws-sdk": "^2.605.0",
     "mongodb": "^3.5.0",
-    "crypto": "^1.0.1"
+    "sinon": "^8.1.0"
   }
 }
