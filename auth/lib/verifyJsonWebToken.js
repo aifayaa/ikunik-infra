@@ -14,14 +14,14 @@ const verify = promisify(jwt.verify);
  * @param {string} appId
  * @returns {Object}
  */
-export default async (token, appId) => {
+export default async (token, appId, { mongoClient }) => {
   const { DB_NAME, COLL_APPS } = process.env;
-  const mongoClient = await MongoClient.connect();
+  const client = mongoClient || await MongoClient.connect();
   try {
     const {
       header,
     } = await jwt.decode(token, { complete: true });
-    const app = await mongoClient
+    const app = await client
       .db(DB_NAME)
       .collection(COLL_APPS)
       .findOne({ _id: appId }, { projection: { 'settings.auth': true } });
@@ -42,6 +42,8 @@ export default async (token, appId) => {
   } catch (e) {
     throw new Error('invalid_token');
   } finally {
-    mongoClient.close();
+    if (!mongoClient) {
+      client.close();
+    }
   }
 };

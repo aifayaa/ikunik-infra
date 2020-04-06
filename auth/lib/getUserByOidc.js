@@ -20,11 +20,12 @@ export const getUserByOidc = async (identityToken, appId) => {
       name,
     } = decodedIdToken;
 
-    const db = client.db(DB_NAME);
-
     if (!sub) {
       throw new Error('missing_sub');
     }
+
+    const db = client.db(DB_NAME);
+
     /* get user in db */
     const collection = db.collection(COLL_USERS);
     const user = await collection.findOne({
