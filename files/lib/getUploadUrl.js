@@ -1,3 +1,4 @@
+import path from 'path';
 import AWS from 'aws-sdk';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
@@ -28,8 +29,9 @@ export default async (userId, appId, files, metadata) => {
     const collection = getCollectionFromContentType(type);
 
     /* Preparing s3 parameters to get an upload link */
+    const fileExtension = path.extname(name);
     const dirPrefix = collection === COLL_VIDEOS ? 'VideoStorage/' : '';
-    const key = `${dirPrefix}${uuidv4()}-${name}`;
+    const key = `${dirPrefix}${uuidv4()}${fileExtension}`;
     const id = uuidv4();
     const s3Params = {
       Bucket: S3_UPLOAD_BUCKET,
