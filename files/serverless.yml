@@ -1,10 +1,19 @@
 service: files
 
+package:
+  exclude:
+    - .git/**
+    - docker-compose.yml
+    - Dockerfile
+    - package.json
+    - package-lock.json
+    - README.md
+
 provider:
   name: aws
   runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
-  memorySize: 256
+  memorySize: 1536
   timeout: 30
   iamRoleStatements:
     - Effect: 'Allow'

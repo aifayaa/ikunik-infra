@@ -77,9 +77,7 @@ cd ../festivals
 npm i
 npx sls deploy --stage $1 --region $2
 cd ../files
-npm i
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild
-npx sls deploy --stage $1 --region $2
+REGION=$2 npm run deploy:$1
 cd ../genres
 npm i
 npx sls deploy --stage $1 --region $2
