@@ -76,6 +76,7 @@ plugins:
   - serverless-export-env
   - serverless-webpack
 
+# sharp package need to be include to work properly
 custom:
   webpack:
     includeModules:

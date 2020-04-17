@@ -7,7 +7,7 @@ do
    echo "___________Deploy de $ligne ___________"
    if [ $ligne != "libs" ]; then
          cd $ligne
-      if [ $ligne != "files" ]; then
+      if [ $ligne == "files" ]; then
          REGION=$2 npm run deploy:$1
       else
          npm i
