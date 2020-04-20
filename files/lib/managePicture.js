@@ -1,4 +1,5 @@
 /* eslint-disable no-await-in-loop */
+import path from 'path';
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
 import MongoClient from '../../libs/mongoClient';
@@ -149,10 +150,16 @@ export default async (bucket, object, file) => {
     const resParams = resizeParams(JSON.parse(opts));
     for (let i = 0; i < resParams.length; i += 1) {
       const params = resParams[i];
+      let decodedName = decodeURI(object.key).replace(/\+/gi, ' ');
+      const fileExtension = path.extname(decodedName);
+      if (fileExtension) {
+        decodedName = decodedName.replace(fileExtension, '.jpeg');
+      }
+      const oKey = `${params.prefix}-${decodedName}`;
       const results = await resizeAndUpload(
         file,
         outBucket,
-        `${params.prefix}-${decodeURI(object.key).replace(/\+/gi, ' ')}`,
+        oKey,
         params.resize,
       );
       const {

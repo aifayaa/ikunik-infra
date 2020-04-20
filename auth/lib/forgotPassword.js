@@ -61,7 +61,8 @@ export const forgotPassword = async (email, urlScheme, appId) => {
 
     /* send token by email to user */
     const subject = 'Forgot Password'; // TODO: intl
-    const protocol = urlScheme || app.builds[0].name.toLowerCase().replace(/ /g, '');
+    const build = app.builds.ios || app.builds.android || app.builds[0];
+    const protocol = urlScheme || (build ? app.builds[0] : app).name.toLowerCase().replace(/ /g, '');
     const url = `${protocol}://resetPassword`;
     const html = forgotPasswordEmailHTML(user.profile.username, url, token, email);
 
