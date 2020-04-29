@@ -61,7 +61,11 @@ export default async (
   fieldName,
   displayName,
   fieldValue,
-  { ownUserId, mongoClient } = {},
+  {
+    errorMessage,
+    mongoClient,
+    ownUserId,
+  } = {},
 ) => {
   if (fieldValue) {
     const openClient = !!mongoClient;
@@ -85,7 +89,7 @@ export default async (
           // that is not us
           (matchedUsers.length > 1 || matchedUsers[0]._id !== ownUserId))
       ) {
-        throw new Error(`${displayName} already exists.`);
+        throw new Error(errorMessage || `${displayName} already exists.`);
       }
     } finally {
       if (openClient) {
