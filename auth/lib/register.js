@@ -37,9 +37,11 @@ export const register = async (email, username, password, appId) => {
 
     // Perform a case insensitive check before insert
     await checkForCaseInsensitiveUserDuplicates(appId, 'username', 'Username', username, {
+      errorMessage: 'username_already_exists',
       mongoClient: client,
     });
     await checkForCaseInsensitiveUserDuplicates(appId, 'emails.address', 'Email', email, {
+      errorMessage: 'email_already_exists',
       mongoClient: client,
     });
     const { insertedId: userId } = await usersCollection.insertOne(newUser);
@@ -48,12 +50,14 @@ export const register = async (email, username, password, appId) => {
     // inserted in the meantime
     try {
       await checkForCaseInsensitiveUserDuplicates(appId, 'username', 'Username', username, {
-        ownUserId: userId,
+        errorMessage: 'username_already_exists',
         mongoClient: client,
+        ownUserId: userId,
       });
       await checkForCaseInsensitiveUserDuplicates(appId, 'emails.address', 'Email', email, {
-        ownUserId: userId,
+        errorMessage: 'email_already_exists',
         mongoClient: client,
+        ownUserId: userId,
       });
     } catch (ex) {
       // Remove inserted user if the check fails

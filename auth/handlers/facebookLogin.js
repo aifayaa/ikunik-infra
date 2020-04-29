@@ -15,6 +15,7 @@ export default async (event) => {
     return response({ code: 200, body: tokenInfo });
   } catch (e) {
     let code;
+    let { message } = e;
     switch (e.message) {
       case 'invalid_token':
         code = 401;
@@ -24,7 +25,10 @@ export default async (event) => {
         break;
       default:
         code = 500;
+        message = 'facebook_auth_fail';
+        // eslint-disable-next-line no-console
+        console.error(e.message);
     }
-    return response({ code, message: e.message });
+    return response({ code, message });
   }
 };
