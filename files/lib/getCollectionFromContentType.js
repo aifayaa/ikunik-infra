@@ -12,6 +12,7 @@ export default (contentType, throwError = true) => {
     case 'video/avi':
     case 'video/mkv':
     case 'video/mp4':
+    case 'video/quicktime':
     case 'video/webm':
       return COLL_VIDEOS;
     default:
