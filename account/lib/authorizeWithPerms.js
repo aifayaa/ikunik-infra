@@ -21,6 +21,15 @@ export default async (hashedToken, appId) => {
       { projection: { _id: 1, permGroupIds: 1 } },
     );
 
+    /* if no appId, we cant determine user perms */
+    if (!appId) {
+      return {
+        id: user && user._id,
+        perms: {},
+      };
+    }
+
+    /* get user perms */
     const permGroupIds = (user && user.permGroupIds) || [];
     const permsAll = permGroupIds.length ? await client
       .db(DB_NAME)
