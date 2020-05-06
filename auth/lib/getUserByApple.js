@@ -22,7 +22,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
     const db = client.db(DB_NAME);
     const app = await db.collection(COLL_APPS).findOne({
       _id: appId,
-    }, { projection: { 'credentials.apple': true, 'builds.packageId': true } });
+    }, { projection: { 'credentials.apple': true, 'builds.ios.packageId': true } });
 
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {
