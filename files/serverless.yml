@@ -57,6 +57,17 @@ functions:
               headers:
                 Authorization: true
 
+  getSupportedFileFormats:
+    handler: handlers/getSupportedFileFormats.default
+    events:
+      - http:
+          path: files/formats
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          cors: true
+
   onFileCreated:
     handler: handlers/onFileCreated.default
     timeout: 600 # timeout set to 10 minutes for image/video encoding
