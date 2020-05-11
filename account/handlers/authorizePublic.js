@@ -1,7 +1,7 @@
 import winston from 'winston';
 import get from 'lodash/get';
 
-import authorizeUser from '../lib/authorizeUser';
+import authorizeWithPerms from '../lib/authorizeWithPerms';
 import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
 import getAppFromKey from '../lib/getAppFromKey';
@@ -22,10 +22,10 @@ export default async ({ headers, methodArn, requestContext }) => {
     }
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const user = await authorizeUser(hashedLoginToken);
-
+    const user = await authorizeWithPerms(hashedLoginToken, (app && app._id) || null);
     if (user) {
-      opts.userId = user._id;
+      opts.userId = user.id;
+      opts.perms = user.perms;
       winston.info('allow', authorizationToken, user._id);
       return generatePolicy('allow', methodArn, opts);
     }
