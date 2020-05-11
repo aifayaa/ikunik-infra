@@ -23,9 +23,10 @@ export default async (event) => {
 
     const isOwner = await checkOwner(appId, userGeneratedContentsId, COLL_USER_GENERATED_CONTENTS, 'userId', userId);
 
-    if ((isOwner !== true) && !isModerator) {
+    if ((isOwner !== true) && (isOwner.code === 404 || !isModerator)) {
       return response(isOwner);
     }
+
     const options = { moderationInfo: isOwner ? null : 'content has been moderated' };
     const results = await removeUserGeneratedContents(
       appId,
