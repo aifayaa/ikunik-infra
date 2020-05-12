@@ -31,10 +31,6 @@ functions:
             parameters:
               headers:
                 Authorization: true
-
-  postPressArticlesUGC:
-    handler: handlers/postUserGeneratedContents.default
-    events:
       - http:
           path: press/articles/userGeneratedContents
           method: post
