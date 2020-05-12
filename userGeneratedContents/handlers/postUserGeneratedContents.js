@@ -2,6 +2,8 @@ import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
+import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import emailTemplate from '../lib/emailUgcNotifyTemplate';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
@@ -60,6 +62,8 @@ export default async (event) => {
       type,
       data,
     );
+    const { subject, body } = await emailTemplate(userId, appId, data);
+    await sendEmailToAdmin(subject, body, appId);
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });

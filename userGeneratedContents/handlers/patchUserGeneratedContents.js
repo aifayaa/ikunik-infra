@@ -1,6 +1,8 @@
 import patchUserGeneratedContents from '../lib/patchUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import checkOwner from '../../libs/perms/checkOwner';
+import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import emailTemplate from '../lib/emailUgcNotifyTemplate';
 
 const {
   COLL_USER_GENERATED_CONTENTS,
@@ -39,6 +41,10 @@ export default async (event) => {
       userGeneratedContentsId,
       data,
     );
+
+    const { subject, body } = await emailTemplate(userId, appId, data, { isEdition: true });
+    await sendEmailToAdmin(subject, body, appId);
+
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
