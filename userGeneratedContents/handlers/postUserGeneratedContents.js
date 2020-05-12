@@ -62,7 +62,7 @@ export default async (event) => {
       type,
       data,
     );
-    const { subject, body } = await emailTemplate(userId, appId, data);
+    const { subject, body } = await emailTemplate(userId, appId, { contentId: results._id, data });
     await sendEmailToAdmin(subject, body, appId);
     return response({ code: 200, body: results });
   } catch (e) {

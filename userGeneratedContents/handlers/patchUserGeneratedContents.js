@@ -42,7 +42,12 @@ export default async (event) => {
       data,
     );
 
-    const { subject, body } = await emailTemplate(userId, appId, data, { isEdition: true });
+    const { subject, body } = await emailTemplate(
+      userId,
+      appId,
+      { contentId: userGeneratedContentsId, data },
+      { isEdition: true },
+    );
     await sendEmailToAdmin(subject, body, appId);
 
     return response({ code: 200, body: results });
