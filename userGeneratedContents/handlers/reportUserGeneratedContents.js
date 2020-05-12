@@ -1,5 +1,7 @@
 import reportUserGeneratedContents from '../lib/reportUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
+import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import emailTemplate from '../lib/emailUgcReportTemplate';
 
 const AVAILABLE_REASONS = ['inappropriate'];
 
@@ -46,7 +48,14 @@ export default async (event) => {
       reason,
       details,
     );
-
+    const { subject, body } = await emailTemplate(
+      userId,
+      appId,
+      userGeneratedContentsId,
+      reason,
+      details,
+    );
+    await sendEmailToAdmin(subject, body, appId);
     return response({ code: 200, body: results });
   } catch (e) {
     /* Change code depending of the the message returned */

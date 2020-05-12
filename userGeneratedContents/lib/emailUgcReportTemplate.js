@@ -4,13 +4,14 @@ const {
   DB_NAME,
   COLL_USERS,
   COLL_APPS,
+  COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
 // TODO: intl
-export default async (userId, appId, data, { isEdition = false } = {}) => {
+export default async (userId, appId, contentId, reason, details) => {
   const client = await MongoClient.connect();
   try {
-    const [user, app] = await Promise.all([
+    const [user, app, content] = await Promise.all([
       client
         .db(DB_NAME)
         .collection(COLL_USERS)
@@ -24,22 +25,33 @@ export default async (userId, appId, data, { isEdition = false } = {}) => {
         .findOne({
           _id: appId,
         }, { projection: { name: true } }),
+      client
+        .db(DB_NAME)
+        .collection(COLL_USER_GENERATED_CONTENTS)
+        .findOne({
+          _id: contentId,
+        }, { projection: { data: true } }),
     ]);
 
     return {
       body: `
         <body>
-        <h3>A new UGC has been ${isEdition ? 'edited' : 'posted'} by <strong>${user._id}</strong>
+        <h3>A content has been reported by user <strong>${user._id}</strong>
         named <strong>${user.profile.username}</strong> on app <strong>${app.name}</strong></h3><br>
-        <h3> details: </h3>
+        <p><strong>reported content:</strong></p>
         <p>
-          <q>${JSON.stringify(data, null, 2)}</q>
+          <q>${JSON.stringify(content.data, null, 2)}</q>
+        </p>
+        <p><strong>reported reason: </strong><q> ${reason} </strong></p>
+        <p><strong>reported details: </strong></p> 
+        <p>
+          <q>${details}</q>
         </p>
         <br>
         The Crowdaa team.
         </body>
       `,
-      subject: `A new UGC has been ${isEdition ? 'edited' : 'posted'} on app ${app.name}`,
+      subject: `A User has report an UGC on app ${app.name}`,
     };
   } finally {
     client.close();
