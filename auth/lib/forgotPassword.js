@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
-import { sendEmail } from './sendEmail';
+import { sendEmail } from '../../libs/email/sendEmail';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
 const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
