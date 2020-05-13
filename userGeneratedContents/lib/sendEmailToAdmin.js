@@ -13,10 +13,8 @@ const {
 } = process.env;
 
 export default async (subject, body, appId) => {
-  console.log('----sendEmailToAdmin start---');
   const client = await MongoClient.connect();
   try {
-    console.log('----sendEmailToAdmin---');
     const [result] = await client
       .db(DB_NAME)
       .collection(COLL_PERM_GROUPS)
@@ -68,10 +66,15 @@ export default async (subject, body, appId) => {
         },
       ]).toArray();
     const { emails = [] } = result || {};
-    const promises = [];
-    for (let i = 0; i < emails.length; i += 1) {
-      promises.push(sendEmail(subject, body, emails[i]));
-    }
+    const promises = emails.map((email) => {
+      /* in case of error, ignore it, just try with best effort */
+      try {
+        return sendEmail(subject, body, email);
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    });
     await Promise.all(promises);
   } finally {
     client.close();

@@ -201,72 +201,112 @@ describe('handlers - reportUserGeneratedContents', () => {
   });
 
   describe('success', () => {
-    let response;
+    describe('email template failled', () => {
+      let response;
+      before(async () => {
+        stubLib = sandbox.stub(lib, 'default').returns(true);
+        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').throws();
+        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        response = await handler(event);
+      });
 
-    before(async () => {
-      stubLib = sandbox.stub(lib, 'default').returns(true);
-      stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-      stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
-      response = await handler(event);
+      it('should return 200', () => {
+        expect(response.statusCode).to.equal(200);
+      });
+
+      it('should not call send email function', () => {
+        expect(stubSendEmail.notCalled).to.be.true;
+      });
+
+      after(() => {
+        sandbox.restore();
+      });
     });
 
-    it('should return 200', () => {
-      expect(response.statusCode).to.equal(200);
+    describe('send Email failled', () => {
+      let response;
+      before(async () => {
+        stubLib = sandbox.stub(lib, 'default').returns(true);
+        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').throws();
+        response = await handler(event);
+      });
+
+      it('should return 200', () => {
+        expect(response.statusCode).to.equal(200);
+      });
+
+      after(() => {
+        sandbox.restore();
+      });
     });
+    describe('all ok', () => {
+      let response;
+      before(async () => {
+        stubLib = sandbox.stub(lib, 'default').returns(true);
+        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        response = await handler(event);
+      });
 
-    it('should call lib with right args', () => {
-      const { id } = event.pathParameters;
-      const {
-        principalId,
-        appId,
-      } = event.requestContext.authorizer;
-      const bodyParsed = JSON.parse(event.body);
-      const {
-        details,
-        reason,
-      } = bodyParsed;
+      it('should return 200', () => {
+        expect(response.statusCode).to.equal(200);
+      });
 
-      sinon.assert.calledWith(
-        stubLib,
-        appId,
-        principalId,
-        id,
-        reason,
-        details,
-      );
-    });
+      it('should call lib with right args', () => {
+        const { id } = event.pathParameters;
+        const {
+          principalId,
+          appId,
+        } = event.requestContext.authorizer;
+        const bodyParsed = JSON.parse(event.body);
+        const {
+          details,
+          reason,
+        } = bodyParsed;
 
-    it('should call emailTemplate with right args', () => {
-      const {
-        principalId: userId,
-        appId,
-      } = event.requestContext.authorizer;
-      expect(stubEmailTemplate.calledOnce).to.be.true;
-      sinon.assert.calledWith(
-        stubEmailTemplate,
-        userId,
-        appId,
-        'userGeneratedContentsId',
-        'inappropriate',
-        'details',
-      );
-    });
+        sinon.assert.calledWith(
+          stubLib,
+          appId,
+          principalId,
+          id,
+          reason,
+          details,
+        );
+      });
 
-    it('should call send email with right args', () => {
-      const {
-        appId,
-      } = event.requestContext.authorizer;
-      expect(stubSendEmail.calledOnce).to.be.true;
-      sinon.assert.calledWith(
-        stubSendEmail,
-        'subject',
-        'body',
-        appId,
-      );
-    });
+      it('should call emailTemplate with right args', () => {
+        const {
+          principalId: userId,
+          appId,
+        } = event.requestContext.authorizer;
+        expect(stubEmailTemplate.calledOnce).to.be.true;
+        sinon.assert.calledWith(
+          stubEmailTemplate,
+          userId,
+          appId,
+          'userGeneratedContentsId',
+          'inappropriate',
+          'details',
+        );
+      });
 
-    after(() => {
-      sandbox.restore();
+      it('should call send email with right args', () => {
+        const {
+          appId,
+        } = event.requestContext.authorizer;
+        expect(stubSendEmail.calledOnce).to.be.true;
+        sinon.assert.calledWith(
+          stubSendEmail,
+          'subject',
+          'body',
+          appId,
+        );
+      });
+
+      after(() => {
+        sandbox.restore();
+      });
     });
   });
 });
