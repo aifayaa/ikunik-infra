@@ -1,20 +1,22 @@
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
-import * as pathToCollection from '../../../libs/collections/pathToCollection';
+import * as emailUgcNotifyTemplate from '../../lib/emailUgcNotifyTemplate';
 import * as lib from '../../lib/postUserGeneratedContents';
+import * as pathToCollection from '../../../libs/collections/pathToCollection';
+import * as sendEmailToAdmin from '../../lib/sendEmailToAdmin';
 import handler from '../../handlers/postUserGeneratedContents';
 
 describe('handlers - postUserGeneratedContents', () => {
   let stubLib;
   let stubPathToCollection;
+  let stubSendEmail;
+  let stubEmailTemplate;
   const event = {
     body: JSON.stringify({
       parentId: '66494021-bcbf-4eea-bf04-a666c44bda57',
       type: 'article',
-      data: {
-
-      },
+      data: {},
     }),
     requestContext: {
       authorizer: {
@@ -29,14 +31,21 @@ describe('handlers - postUserGeneratedContents', () => {
 
   describe('lib error', () => {
     describe('any', () => {
-      before(() => {
+      let response;
+      before(async () => {
         stubLib = sandbox.stub(lib, 'default').throws();
         stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(process.env.COLL_USER_GENERATED_CONTENTS);
+        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        response = await handler(event);
       });
 
-      it('should return 500', async () => {
-        const response = await handler(event);
+      it('should return 500', () => {
         expect(response.statusCode).to.equal(500);
+      });
+
+      it('should not call send email function', () => {
+        expect(stubSendEmail.notCalled).to.be.true;
       });
 
       after(() => {
@@ -49,8 +58,10 @@ describe('handlers - postUserGeneratedContents', () => {
     let response;
 
     before(async () => {
-      stubLib = sandbox.stub(lib, 'default').returns(true);
+      stubLib = sandbox.stub(lib, 'default').returns({ _id: 'userGeneratedContentsId' });
       stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(process.env.COLL_USER_GENERATED_CONTENTS);
+      stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
+      stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
       response = await handler(event);
     });
 
@@ -84,6 +95,33 @@ describe('handlers - postUserGeneratedContents', () => {
         principalId,
         type,
         data,
+      );
+    });
+
+    it('should call emailTemplate with right args', () => {
+      const {
+        principalId: userId,
+        appId,
+      } = event.requestContext.authorizer;
+      expect(stubEmailTemplate.calledOnce).to.be.true;
+      sinon.assert.calledWith(
+        stubEmailTemplate,
+        userId,
+        appId,
+        { contentId: 'userGeneratedContentsId', data: {} },
+      );
+    });
+
+    it('should call send email with right args', () => {
+      const {
+        appId,
+      } = event.requestContext.authorizer;
+      expect(stubSendEmail.calledOnce).to.be.true;
+      sinon.assert.calledWith(
+        stubSendEmail,
+        'subject',
+        'body',
+        appId,
       );
     });
 
