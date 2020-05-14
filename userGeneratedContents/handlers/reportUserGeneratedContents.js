@@ -1,5 +1,7 @@
 import reportUserGeneratedContents from '../lib/reportUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
+import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import emailTemplate from '../lib/emailUgcReportTemplate';
 
 const AVAILABLE_REASONS = ['inappropriate'];
 
@@ -47,6 +49,29 @@ export default async (event) => {
       details,
     );
 
+    /*
+      try to send email to appAdmin
+      if it failled for any reason just ignore error
+      we don't want this request to be concidered as failed
+      since content has successfully been edited
+
+      This portion of code could be externalised in an
+      other serverless function which could be called without
+      waiting Promise to be resolved to permit a quick response
+      to the requester
+    */
+    try {
+      const { subject, body } = await emailTemplate(
+        userId,
+        appId,
+        userGeneratedContentsId,
+        reason,
+        details,
+      );
+      await sendEmailToAdmin(subject, body, appId);
+    } catch (e) {
+      console.log('Error when sending mail to admin', e);
+    }
     return response({ code: 200, body: results });
   } catch (e) {
     /* Change code depending of the the message returned */

@@ -7,7 +7,10 @@ const { APPS_WEBSITE_URL } = process.env;
 
 export default async (userAgent, redirectUrl, appId) => {
   if (!isCrawler(userAgent) && redirectUrl) {
-    const decodedUrl = decodeURIComponent(redirectUrl);
+    let decodedUrl = decodeURIComponent(redirectUrl);
+    /* remove accent in Url */
+    decodedUrl = decodedUrl.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
     /* /!\ url.parse adds ":" at the end of the protocol */
     const {
       host,

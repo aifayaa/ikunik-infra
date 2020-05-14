@@ -2,6 +2,8 @@ import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
+import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import emailTemplate from '../lib/emailUgcNotifyTemplate';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
@@ -60,6 +62,28 @@ export default async (event) => {
       type,
       data,
     );
+
+    /*
+      try to send email to appAdmin
+      if it failled for any reason just ignore error
+      we don't want this request to be concidered as failed
+      since content has successfully been edited
+
+      This portion of code could be externalised in an
+      other serverless function which could be called without
+      waiting Promise to be resolved to permit a quick response
+      to the requester
+    */
+    try {
+      const { subject, body } = await emailTemplate(
+        userId,
+        appId,
+        { contentId: results._id, data },
+      );
+      await sendEmailToAdmin(subject, body, appId);
+    } catch (e) {
+      console.log('Error when sending mail to admin', e);
+    }
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
