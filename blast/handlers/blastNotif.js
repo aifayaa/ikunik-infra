@@ -7,10 +7,10 @@ import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
 
 export default async ({ artistName, endpoints, message, opts = {} }) => {
-  const { userId, appId } = opts;
+  const { profileId, appId } = opts;
   try {
-    if (userId) {
-      const res = await getBalanceForBlast(userId, 'notification', appId);
+    if (profileId) {
+      const res = await getBalanceForBlast(profileId, 'notification', appId);
       if (res.notification < endpoints.length) {
         throw new Error('insufficient tokens');
       }
@@ -29,9 +29,8 @@ export default async ({ artistName, endpoints, message, opts = {} }) => {
     });
 
     await sendNotifications.drain();
-    const res = await logBlast('notification', message, `${successfulBlast}`, opts);
-    if (userId) {
-      const { profileId } = res;
+    await logBlast('notification', message, `${successfulBlast}`, opts);
+    if (profileId) {
       await removeBlastToken('notification', profileId, `${successfulBlast}`, appId);
     }
 

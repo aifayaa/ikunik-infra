@@ -12,10 +12,10 @@ export default async ({
   template,
   opts = {},
 }) => {
-  const { userId, appId } = opts;
+  const { profileId, appId } = opts;
   try {
-    if (userId) {
-      const res = await getBalanceForBlast(userId, 'email', appId);
+    if (profileId) {
+      const res = await getBalanceForBlast(profileId, 'email', appId);
       if (res.email < contacts.length) {
         throw new Error('insufficient tokens');
       }
@@ -34,10 +34,9 @@ export default async ({
     });
 
     await sendEmails.drain();
-    const res = await logBlast('email', subject, `${successfulBlast}`, opts);
+    await logBlast('email', subject, `${successfulBlast}`, opts);
 
-    if (userId) {
-      const { profileId } = res;
+    if (profileId) {
       await removeBlastToken('email', profileId, `${successfulBlast}`, appId);
     }
     return response({ code: 200, body: results });

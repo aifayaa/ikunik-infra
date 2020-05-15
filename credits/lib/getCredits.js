@@ -13,9 +13,9 @@ export default async (userID, appId) => {
       .collection(COLL_CREDITS)
       .findOne({
         userID,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
-    return credits;
+    return credits || { credits: 0 };
   } finally {
     client.close();
   }

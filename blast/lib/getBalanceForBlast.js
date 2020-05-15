@@ -8,7 +8,7 @@ const {
   DB_NAME,
 } = process.env;
 
-export default async (userId, type, appId) => {
+export default async (profileId, type, appId) => {
   let client;
   let collName;
   switch (type) {
@@ -32,12 +32,8 @@ export default async (userId, type, appId) => {
   const pipeline = [
     {
       $match: {
-        UserId: userId,
-        appIds: {
-          $elemMatch: {
-            $eq: appId,
-          },
-        },
+        _id: profileId,
+        appIds: appId,
       },
     },
     {
