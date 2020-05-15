@@ -19,8 +19,7 @@ const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
 export default async (event) => {
   try {
     /* Some base variables */
-    const userId = event.requestContext.authorizer.principalId;
-    const { appId } = event.requestContext.authorizer;
+    const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
     const { subject, template } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasEmail: true });
     const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
@@ -61,7 +60,7 @@ export default async (event) => {
         contacts,
         subject,
         template,
-        opts: { userId, projectId: project, appId },
+        opts: { profileId, projectId: project, appId },
       }),
     };
     const res = await lambda.invoke(params).promise();

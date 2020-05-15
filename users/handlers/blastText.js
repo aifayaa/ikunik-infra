@@ -11,7 +11,7 @@ const lambda = new Lambda({
 export default async (event) => {
   try {
     // TODO: check if user is a fan of artist when DB repaired
-    const { appId } = event.requestContext.authorizer;
+    const { appId, profileId } = event.requestContext.authorizer;
     const userId = event.pathParameters.id;
     const { message } = JSON.parse(event.body);
     const user = await getUser(userId);
@@ -19,7 +19,7 @@ export default async (event) => {
 
     // To charge the user profile if this method is called from http
     const opts = { appId };
-    if (event.httpMethod) opts.userId = event.requestContext.authorizer.principalId;
+    if (event.httpMethod) opts.profileId = profileId;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastText`,
       Payload: JSON.stringify({ phones, message, opts }),
