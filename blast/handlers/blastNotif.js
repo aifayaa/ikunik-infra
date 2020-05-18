@@ -6,7 +6,7 @@ import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
 
-export default async ({ artistName, endpoints, message, opts = {} }) => {
+export default async ({ title, endpoints, message, opts = {} }) => {
   const { profileId, appId } = opts;
   try {
     if (profileId) {
@@ -16,13 +16,13 @@ export default async ({ artistName, endpoints, message, opts = {} }) => {
       }
     }
 
-    winston.info(artistName, endpoints, message);
+    winston.info(title, endpoints, message);
     const sendNotifications = queue(blastNotif, 50);
     const results = [];
     let successfulBlast = 0;
 
     endpoints.forEach((endpoint) => {
-      sendNotifications.push({ artistName, endpoint, message }, (error, res) => {
+      sendNotifications.push({ title, endpoint, message }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });

@@ -15,20 +15,20 @@ const sns = new SNS({
   },
 });
 
-export default ({ artistName, endpoint, message }, cb) => {
+export default ({ title, endpoint, message }, cb) => {
   const msg = {};
   msg.default = '';
   if (endpoint.Platform === 'APNS') {
     msg[endpoint.Platform] = JSON.stringify({
       aps: {
-        alert: `${artistName}: ${message}`,
+        alert: `${title}: ${message}`,
       },
     });
   } else {
     msg[endpoint.Platform] = JSON.stringify({
       data: {
         message,
-        title: `Message from ${artistName}`,
+        title,
       },
     });
   }

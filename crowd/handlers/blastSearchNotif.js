@@ -21,7 +21,7 @@ export default async (event) => {
   try {
     /* Some base variables */
     const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
-    const { artistName, message } = JSON.parse(event.body);
+    const { title, message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasNotification: true });
     const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
 
@@ -53,7 +53,7 @@ export default async (event) => {
     const params = {
       FunctionName: `blast-${STAGE}-blastNotification`,
       Payload: JSON.stringify({
-        artistName,
+        title,
         endpoints,
         message,
         opts: { profileId, projectId: project, appId },
