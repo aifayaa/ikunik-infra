@@ -11,7 +11,7 @@ export default async (event) => {
     // TODO: check if user is a fan of artist when DB repaired
     const { appId, profileId } = event.requestContext.authorizer;
     const userId = event.pathParameters.id;
-    const { artistName, message } = JSON.parse(event.body);
+    const { title, message } = JSON.parse(event.body);
     const endpoints = await getEndpoints(userId, appId);
 
     // To charge the user profile if this method is called from http
@@ -19,7 +19,7 @@ export default async (event) => {
     if (event.httpMethod) opts.profileId = profileId;
     const params = {
       FunctionName: `blast-${process.env.STAGE}-blastNotification`,
-      Payload: JSON.stringify({ artistName, endpoints, message, opts }),
+      Payload: JSON.stringify({ title, endpoints, message, opts }),
     };
     const res = await lambda.invoke(params).promise();
     return response({ code: 200, body: res });
