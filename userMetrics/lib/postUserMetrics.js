@@ -7,11 +7,14 @@ const {
 
 export default async (
   appId,
-  userId,
-  type,
-  contentId,
-  contentCollection,
-  data = {},
+  {
+    contentCollection,
+    contentId,
+    data = {},
+    deviceId,
+    type,
+    userId,
+  },
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -21,13 +24,14 @@ export default async (
     const userMetrics = {
       _id: ObjectID().toString(),
       appIds: [appId],
-      userId,
-      type,
-      contentId,
       contentCollection,
-      trashed: false,
+      contentId,
       createdAt: new Date(),
+      deviceId,
       modifiedAt: false,
+      trashed: false,
+      type,
+      userId,
     };
 
     /* Append data at the document root */
