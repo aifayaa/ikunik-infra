@@ -10,6 +10,7 @@ export default async (pipeline, {
   page = 1,
   sortBy = 'views',
   sortOrder = 'asc',
+  filterUserInfo = false,
 }) => {
   const client = await MongoClient.connect();
 
@@ -21,8 +22,8 @@ export default async (pipeline, {
   }
 
   try {
-    pipeline.push(
-      {
+    if (filterUserInfo) {
+      pipeline.push({
         $project: {
           _id: 1,
           user_ID: 1,
@@ -54,7 +55,9 @@ export default async (pipeline, {
           },
           hasEndpoint: { $ne: ['$endpoints', []] },
         },
-      },
+      });
+    }
+    pipeline.push(
       {
         $sort: {
           [sortBy]: (sortOrder === 'asc' ? 1 : -1),
