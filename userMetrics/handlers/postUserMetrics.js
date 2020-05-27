@@ -13,29 +13,36 @@ export default async (event) => {
     /* Retrieve body data and parse it */
     const bodyParsed = JSON.parse(event.body);
     const {
-      type,
-      contentId,
       contentCollection,
+      contentId,
       data = {
         startTime: null,
         endTime: null,
         tag: null,
         progression: null,
       },
+      deviceId,
+      type,
     } = bodyParsed;
 
     /* Check all arguments are present */
-    if (!type || !contentId || !contentCollection) {
+    if (
+      (!userId && !deviceId) ||
+      !type ||
+      !contentId ||
+      !contentCollection
+    ) {
       throw new Error('Missing arguments');
     }
 
     /* Check arguments types are string */
     [
       appId,
-      userId,
-      type,
-      contentId,
       contentCollection,
+      contentId,
+      deviceId,
+      type,
+      userId,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('Wrong argument type');
@@ -87,11 +94,14 @@ export default async (event) => {
 
     const results = await postUserMetrics(
       appId,
-      userId,
-      type,
-      contentId,
-      contentCollection,
-      data,
+      {
+        contentCollection,
+        contentId,
+        data,
+        deviceId: deviceId || null,
+        type,
+        userId: userId || null,
+      },
     );
     return response({ code: 200, body: results });
   } catch (e) {
