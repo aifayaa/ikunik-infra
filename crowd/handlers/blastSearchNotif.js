@@ -1,10 +1,12 @@
-import queue from 'async/queue';
-import flatten from 'lodash/flatten';
 import Lambda from 'aws-sdk/clients/lambda';
+import flatten from 'lodash/flatten';
+import queue from 'async/queue';
 import winston from 'winston';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
-import search from '../lib/search';
+import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import response from '../../libs/httpResponses/response';
+import search from '../lib/search';
+import searchPress from '../lib/searchPress';
 
 const {
   REGION,
@@ -22,13 +24,18 @@ export default async (event) => {
     /* Some base variables */
     const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
     const { title, message } = JSON.parse(event.body);
+    const { type = 'label' } = event.queryStringParameters;
     Object.assign(event.queryStringParameters, { hasNotification: true });
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
+    const pipeline = (
+      type === 'press' ? buildPressPipeline : buildPipeline
+    )(userId, appId, event.queryStringParameters || {});
 
     /* whole queueing system to process batch of mongo queries */
     let endpoints = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await search([...pipeline], queryStringParameters || {});
+      const localResults = await (
+        type === 'press' ? searchPress : search
+      )([...pipeline], queryStringParameters || {});
       endpoints = endpoints.concat(flatten(localResults.crowd.map((fan) => fan.endpoints)));
       doneCallback();
     };
@@ -39,7 +46,6 @@ export default async (event) => {
     for (let i = 0; i * MAXIMUM_DATA_FETCHED_PER_PAGE < limit; i += 1) {
       ((page, batchProcessed) => {
         const localQS = {
-
           ...event.queryStringParameters,
           page,
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),

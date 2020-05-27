@@ -1,11 +1,11 @@
-import queue from 'async/queue';
 import Lambda from 'aws-sdk/clients/lambda';
+import queue from 'async/queue';
 import winston from 'winston';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
+import response from '../../libs/httpResponses/response';
 import search from '../lib/search';
 import searchPress from '../lib/searchPress';
-import response from '../../libs/httpResponses/response';
 
 const {
   REGION,
@@ -25,12 +25,15 @@ export default async (event) => {
     const { subject, template } = JSON.parse(event.body);
     const { type = 'label' } = event.queryStringParameters;
     Object.assign(event.queryStringParameters, { hasEmail: true });
-    const pipeline = (type === 'press' ? buildPressPipeline : buildPipeline)(userId, appId, event.queryStringParameters || {});
-
+    const pipeline = (
+      type === 'press' ? buildPressPipeline : buildPipeline
+    )(userId, appId, event.queryStringParameters || {});
     /* whole queueing system to process batch of mongo queries */
     let contacts = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await (type === 'press' ? searchPress : search)([...pipeline], queryStringParameters || {});
+      const localResults = await (
+        type === 'press' ? searchPress : search
+      )([...pipeline], queryStringParameters || {});
       contacts = contacts.concat(localResults.crowd.map((fan) => ({
         email: fan.user.email ||
           fan.user.profile.email ||
@@ -46,7 +49,6 @@ export default async (event) => {
     for (let i = 0; i * MAXIMUM_DATA_FETCHED_PER_PAGE < limit; i += 1) {
       ((page, batchProcessed) => {
         const localQS = {
-
           ...event.queryStringParameters,
           page,
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
