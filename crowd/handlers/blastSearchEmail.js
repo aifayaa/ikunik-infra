@@ -1,9 +1,11 @@
-import queue from 'async/queue';
 import Lambda from 'aws-sdk/clients/lambda';
+import queue from 'async/queue';
 import winston from 'winston';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
-import search from '../lib/search';
+import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import response from '../../libs/httpResponses/response';
+import search from '../lib/search';
+import searchPress from '../lib/searchPress';
 
 const {
   REGION,
@@ -19,16 +21,19 @@ const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
 export default async (event) => {
   try {
     /* Some base variables */
-    const userId = event.requestContext.authorizer.principalId;
-    const { appId } = event.requestContext.authorizer;
+    const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
     const { subject, template } = JSON.parse(event.body);
+    const { type = 'label' } = event.queryStringParameters;
     Object.assign(event.queryStringParameters, { hasEmail: true });
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
-
+    const pipeline = (
+      type === 'press' ? buildPressPipeline : buildPipeline
+    )(userId, appId, event.queryStringParameters || {});
     /* whole queueing system to process batch of mongo queries */
     let contacts = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await search([...pipeline], queryStringParameters || {});
+      const localResults = await (
+        type === 'press' ? searchPress : search
+      )([...pipeline], queryStringParameters || {});
       contacts = contacts.concat(localResults.crowd.map((fan) => ({
         email: fan.user.email ||
           fan.user.profile.email ||
@@ -44,7 +49,6 @@ export default async (event) => {
     for (let i = 0; i * MAXIMUM_DATA_FETCHED_PER_PAGE < limit; i += 1) {
       ((page, batchProcessed) => {
         const localQS = {
-
           ...event.queryStringParameters,
           page,
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
@@ -61,7 +65,7 @@ export default async (event) => {
         contacts,
         subject,
         template,
-        opts: { userId, projectId: project, appId },
+        opts: { profileId, projectId: project, appId },
       }),
     };
     const res = await lambda.invoke(params).promise();

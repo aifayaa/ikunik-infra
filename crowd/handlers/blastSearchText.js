@@ -1,10 +1,12 @@
-import queue from 'async/queue';
 import Lambda from 'aws-sdk/clients/lambda';
-import winston from 'winston';
 import phone from 'phone';
+import queue from 'async/queue';
+import winston from 'winston';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
-import search from '../lib/search';
+import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import response from '../../libs/httpResponses/response';
+import search from '../lib/search';
+import searchPress from '../lib/searchPress';
 
 const {
   REGION,
@@ -20,16 +22,20 @@ const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
 export default async (event) => {
   try {
     /* Some base variables */
-    const userId = event.requestContext.authorizer.principalId;
-    const { appId } = event.requestContext.authorizer;
+    const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
     const { message } = JSON.parse(event.body);
+    const { type = 'label' } = event.queryStringParameters;
     Object.assign(event.queryStringParameters, { hasText: true });
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
+    const pipeline = (
+      type === 'press' ? buildPressPipeline : buildPipeline
+    )(userId, appId, event.queryStringParameters || {});
 
     /* whole queueing system to process batch of mongo queries */
     let phones = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await search([...pipeline], queryStringParameters || {});
+      const localResults = await (
+        type === 'press' ? searchPress : search
+      )([...pipeline], queryStringParameters || {});
       phones = phones.concat(localResults.crowd.map((fan) => phone(fan.user.profile.phone)[0])
         .filter((phoneNumber) => phoneNumber));
       doneCallback();
@@ -41,7 +47,6 @@ export default async (event) => {
     for (let i = 0; i * MAXIMUM_DATA_FETCHED_PER_PAGE < limit; i += 1) {
       ((page, batchProcessed) => {
         const localQS = {
-
           ...event.queryStringParameters,
           page,
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
@@ -57,7 +62,7 @@ export default async (event) => {
       Payload: JSON.stringify({
         phones,
         message,
-        opts: { userId, projectId: project, appId },
+        opts: { profileId, projectId: project, appId },
       }),
     };
     const res = await lambda.invoke(params).promise();
