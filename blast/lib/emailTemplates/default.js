@@ -1,6 +1,8 @@
+import get from 'lodash/get';
+
 export default {
   name: 'default',
-  template: (data, contact) => `
+  template: (data, contact, app) => `
     <table class="body-wrap">
       <tr>
         <td></td>
@@ -11,10 +13,10 @@ export default {
               <td>
                 <h3>Salut <i>${contact.name}</i> !</h3>
                 <p>${data.message}</p>
-                <a style="margin-left: 30px;" href="">
+                <a style="margin-left: 30px;" href="https://play.google.com/store/apps/details?id=${get(app, 'builds.android.packageId')}">
                 <img style="width: 200px; " src="http://website-2068.kxcdn.com/android_btn.png">
                 </a>
-                <a style="margin-left: 30px;" href="" >
+                <a style="margin-left: 30px;" href="https://apps.apple.com/us/app/id${get(app, 'builds.ios.iosAppId')}" >
                 <img style="width: 200px;" src="http://website-2068.kxcdn.com/AppStoreButton.gif">
                 </a>
                 <br/>
