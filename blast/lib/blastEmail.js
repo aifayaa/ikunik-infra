@@ -13,10 +13,10 @@ const mailgun = Mailgun({
   domain: MAILGUN_DOMAIN,
 });
 
-export default ({ contact, template, subject }, cb) => {
+export default ({ contact, template, subject, app }, cb) => {
   const mail = new MailComposer({
     subject,
-    html: generateEmailHTML(template, contact),
+    html: generateEmailHTML(template, contact, app),
     from: `${MAILGUN_FROM}@${MAILGUN_DOMAIN}`,
     to: contact.email,
   });

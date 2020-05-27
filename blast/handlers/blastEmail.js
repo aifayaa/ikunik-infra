@@ -4,6 +4,7 @@ import blastEmail from '../lib/blastEmail';
 import getBalanceForBlast from '../lib/getBalanceForBlast';
 import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
+import getBuilds from '../../apps/lib/getAppBuilds';
 import response from '../../libs/httpResponses/response';
 
 export default async ({
@@ -26,8 +27,9 @@ export default async ({
     const results = [];
     let successfulBlast = 0;
 
+    const app = await getBuilds(appId);
     contacts.forEach((contact) => {
-      sendEmails.push({ contact, template, subject }, (error, res) => {
+      sendEmails.push({ contact, template, subject, app }, (error, res) => {
         if (!error) successfulBlast += 1;
         results.push(error || res);
       });
