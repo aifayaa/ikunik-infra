@@ -109,9 +109,17 @@ const useClassicPipeline = (userId, appId, articleId) => {
       $match,
     },
     {
+      $addFields: {
+        uuid: {
+          $ifNull: ['$userId', '$deviceId'],
+        },
+      },
+    },
+    {
       $group: {
-        _id: '$userId',
+        _id: '$uuid',
         user_ID: { $first: '$userId' },
+        deviceId: { $first: '$deviceId' },
         elapsedTime: { $sum: '$time' },
       },
     },
