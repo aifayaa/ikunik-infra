@@ -21,23 +21,23 @@ export default async (
       client
         .db(DB_NAME)
         .collection(COLL_PUSH_NOTIFICATIONS)
-        .update(
+        .updateMany(
           {
             deviceUUID: deviceId,
             userId: null,
           },
-          { userId },
+          { $set: { userId } },
         ),
       client
         .db(DB_NAME)
         .collection(COLL_USER_METRICS)
-        .update(
+        .updateMany(
           {
             appIds: { $elemMatch: { $eq: appId } },
             deviceId,
             userId: null,
           },
-          { userId },
+          { $set: { userId } },
         ),
     ]);
 

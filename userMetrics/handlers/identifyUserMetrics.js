@@ -2,9 +2,14 @@ import identifyUserMetrics from '../lib/identifyUserMetrics';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
-  const userId = event.requestContext.authorizer.principalId;
-  const deviceId = event.pathParameters.id;
+  const {
+    appId,
+    principalId: userId,
+  } = event.requestContext.authorizer;
+
+  const {
+    id: deviceId,
+  } = event.pathParameters;
 
   try {
     if (!deviceId) {
