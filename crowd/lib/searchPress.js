@@ -27,6 +27,7 @@ export default async (pipeline, {
         $project: {
           _id: 1,
           user_ID: 1,
+          deviceId: 1,
           elapsedTime: 1,
           'user.profile.username': 1,
           hasEmail: {
