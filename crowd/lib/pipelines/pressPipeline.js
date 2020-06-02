@@ -16,6 +16,30 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
   };
 
   const $match = {
+    $expr: {
+      $or: [
+        {
+          $and: [
+            {
+              $eq: ['$userId', '$$foreignUserId'],
+            },
+            {
+              $ne: ['$userId', null],
+            },
+          ],
+        },
+        {
+          $and: [
+            {
+              $eq: ['$deviceId', '$$foreignDeviceId'],
+            },
+            {
+              $ne: ['$deviceId', null],
+            },
+          ],
+        },
+      ],
+    },
     appIds: {
       $elemMatch: { $eq: appId },
     },
@@ -46,31 +70,39 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
     },
     {
       $lookup: {
+        as: 'um',
         from: COLL_USER_METRICS,
-        localField: 'userId',
-        foreignField: 'userId',
-        as: 'userMetric',
+        let: {
+          foreignDeviceId: '$deviceId',
+          foreignUserId: '$userId',
+        },
+        pipeline: [{ $match }],
       },
     },
     {
       $unwind: {
-        path: '$userMetric',
+        path: '$um',
         preserveNullAndEmptyArrays: true,
       },
     },
     {
       $replaceRoot: {
-        newRoot: '$userMetric',
+        newRoot: '$um',
       },
     },
     {
-      $match,
+      $addFields: {
+        uuid: {
+          $ifNull: ['$userId', '$deviceId'],
+        },
+      },
     },
     {
       $group: {
-        _id: '$userId',
-        user_ID: { $first: '$userId' },
+        _id: '$uuid',
+        deviceId: { $first: '$deviceId' },
         elapsedTime: { $sum: '$time' },
+        user_ID: { $first: '$userId' },
       },
     },
     {
