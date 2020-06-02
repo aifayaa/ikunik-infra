@@ -55,6 +55,21 @@ functions:
               paths:
                 id: true
 
+  identifyUserMetrics:
+    handler: handlers/identifyUserMetrics.default
+    events:
+      - http:
+          path: userMetrics/identify/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-webpack
   - serverless-export-env
