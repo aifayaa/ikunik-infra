@@ -3,25 +3,27 @@ import MongoClient from '../../libs/mongoClient';
 const {
   DB_NAME,
   COLL_PROFILES,
+  COLL_PERM_GROUPS,
   COLL_USERS,
+  COLL_APPS,
 } = process.env;
 
 export default async (userId, appId) => {
   const client = await MongoClient.connect();
   const db = client.db(DB_NAME);
   try {
-    const [profileFromProfile, [profileFromUser]] = await Promise.all([
+    const [profileFromProfile, [profileFromApp]] = await Promise.all([
       db.collection(COLL_PROFILES)
         .findOne({
           UserId: userId,
           appIds: appId,
         }, { projection: { _id: 1 } }),
+      /* getProfileFromApp */
       db.collection(COLL_USERS)
         .aggregate([
           {
             $match: {
               _id: userId,
-              appIds: appId,
             },
           },
           {
@@ -29,8 +31,37 @@ export default async (userId, appId) => {
           },
           {
             $lookup: {
+              from: COLL_PERM_GROUPS,
+              localField: 'permGroupIds',
+              foreignField: '_id',
+              as: 'permGroups',
+            },
+          },
+          {
+            $unwind: '$permGroups',
+          },
+          {
+            $match: {
+              'permGroups.appId': appId,
+              'permGroups.perms.apps_getProfile': true,
+            },
+          },
+          { $limit: 1 },
+          {
+            $lookup: {
+              from: COLL_APPS,
+              localField: 'permGroups.appId',
+              foreignField: '_id',
+              as: 'app',
+            },
+          },
+          {
+            $unwind: '$app',
+          },
+          {
+            $lookup: {
               from: COLL_PROFILES,
-              localField: 'profil_ID',
+              localField: 'app.profileId',
               foreignField: '_id',
               as: 'profile',
             },
@@ -46,7 +77,7 @@ export default async (userId, appId) => {
         ]).toArray(),
     ]);
 
-    const profile = profileFromProfile || profileFromUser;
+    const profile = profileFromProfile || profileFromApp;
     return profile && profile._id;
   } finally {
     client.close();
