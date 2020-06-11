@@ -26,24 +26,24 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
     const {
+      autoPublish,
       forceCategoryId,
       forcePictures,
       forceVideos,
-      autoPublish,
       sendNotifications = false,
     } = event.queryStringParameters || {};
 
     let actions;
     let categoryId;
-    let title;
-    let summary;
+    let feedPicture;
     let html;
     let md;
-    let xml;
     let pictures;
-    let videos;
     let plainText;
-    let feedPicture;
+    let summary;
+    let title;
+    let videos;
+    let xml;
 
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
@@ -51,12 +51,12 @@ export default async (event) => {
         ({
           actions,
           categoryId,
-          title,
-          summary,
+          feedPicture,
           md,
           pictures,
+          summary,
+          title,
           videos,
-          feedPicture,
         } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
@@ -110,19 +110,19 @@ export default async (event) => {
 
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
-      userId,
+      actions,
       appId,
       categoryId,
-      title,
-      summary,
+      feedPicture,
       html,
       md,
-      xml,
       pictures,
-      videos,
-      feedPicture,
       plainText,
-      actions,
+      summary,
+      title,
+      userId,
+      videos,
+      xml,
     });
     if (autoPublish === 'true') {
       results = await publishArticle(

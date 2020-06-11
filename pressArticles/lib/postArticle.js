@@ -8,19 +8,19 @@ const {
 } = process.env;
 
 export const postArticle = async ({
-  userId,
+  actions,
   appId,
   categoryId,
-  title,
-  summary,
+  feedPicture,
   html,
   md,
-  xml,
   pictures,
-  videos,
-  feedPicture,
   plainText = '',
-  actions,
+  summary,
+  title,
+  userId,
+  videos,
+  xml,
 }) => {
   if (
     typeof title !== 'string' ||
@@ -42,17 +42,17 @@ export const postArticle = async ({
   try {
     const article = {
       _id: articleId,
+      actions,
+      appIds: [appId],
       categoryId,
       createdAt: new Date(),
       draftId,
       isPublished: false,
+      plainText,
       summary,
       text: html,
       title,
       userId,
-      plainText,
-      appIds: [appId],
-      actions,
     };
     if (videos) {
       article.videos = videos;
@@ -71,14 +71,16 @@ export const postArticle = async ({
     session = client.startSession();
     session.startTransaction();
     const opts = { session, returnOriginal: false };
-    await client.db(DB_NAME).collection(COLL_PRESS_ARTICLES)
+    await client.db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
       .insertOne(article, opts);
 
     delete article.draftId;
     article.articleId = articleId;
     article._id = draftId;
     article.ancestor = null;
-    await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
+    await client.db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
       .insertOne(article, opts);
 
     await session.commitTransaction();

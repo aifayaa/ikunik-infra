@@ -11,15 +11,15 @@ export const putArticle = async ({
   appId,
   articleId,
   categoryId,
+  feedPicture,
   html,
   md,
   pictures,
-  videos,
-  feedPicture,
   plainText = '',
   summary,
   title,
   userId,
+  videos,
 }) => {
   if (
     typeof title !== 'string' ||
@@ -37,10 +37,15 @@ export const putArticle = async ({
   const draftId = uuidv4();
   const client = await MongoClient.connect();
   try {
-    const { _id } = await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
-      .findOne({ articleId }, { sort: { createdAt: -1 } });
+    const { _id } = await client.db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
+      .findOne(
+        { articleId },
+        { sort: { createdAt: -1 } },
+      );
     const draft = {
       _id: draftId,
+      actions,
       ancestor: _id,
       appIds: [appId],
       articleId,
@@ -53,7 +58,6 @@ export const putArticle = async ({
       text: html,
       title,
       userId,
-      actions,
     };
     if (videos) {
       draft.videos = videos;
