@@ -76,7 +76,7 @@ functions:
       handler: handlers/patchPurchasableProduct.default
       events:
         - http:
-            path: purchasableProduct/
+            path: purchasableProduct/{id}
             method: patch
             cors: true
             authorizer:

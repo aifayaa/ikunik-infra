@@ -7,12 +7,12 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const permKey = 'purchasableProduct_find';
 
 export default async (event) => {
-  try {
-    const userId = event.requestContext.authorizer.principalId;
-    const { appId } = event.requestContext.authorizer;
-    const queryParams = event.queryStringParameters || {};
-    const { contentId, contentCollection } = queryParams;
+  const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
+  const queryParams = event.queryStringParameters || {};
+  const { contentId, contentCollection } = queryParams;
 
+  try {
     const perms = await getPerms(userId, appId);
     if (!checkPerms(permKey, perms)) {
       throw new Error('access_forbidden');
