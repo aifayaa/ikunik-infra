@@ -5,7 +5,7 @@ const {
   DB_NAME,
 } = process.env;
 
-export const getPurchasableProduct = async (
+export const findPurchasableProduct = async (
   appId,
   {
     contentCollection,

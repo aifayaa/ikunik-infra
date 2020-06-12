@@ -5,7 +5,7 @@ const {
   COLL_PURCHASABLE_PRODUCT,
 } = process.env;
 
-export const poatchPurchasableProduct = async (
+export const patchPurchasableProduct = async (
   appId,
   userId,
   productId,

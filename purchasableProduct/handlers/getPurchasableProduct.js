@@ -1,19 +1,17 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import getPerms from '../../libs/perms/getPerms';
-import getPurchasableProduct from '../lib/getPurchasableProduct';
+import { getPurchasableProduct } from '../lib/getPurchasableProduct';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKey = 'purchasableProduct_get';
 
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
+  const { appId, perms } = event.requestContext.authorizer;
   const productId = event.pathParameters.id;
 
   try {
-    const perms = await getPerms(userId, appId);
-    if (!checkPerms(permKey, perms)) {
+    const permissions = JSON.parse(perms);
+    if (!checkPerms(permKey, permissions)) {
       throw new Error('access_forbidden');
     }
 

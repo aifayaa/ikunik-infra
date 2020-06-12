@@ -1,5 +1,6 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import manageArticleProduct from './manageArticleProduct';
 
 const {
   DB_NAME,
@@ -16,6 +17,7 @@ export const putArticle = async ({
   md,
   pictures,
   plainText = '',
+  price,
   summary,
   title,
   userId,
@@ -37,16 +39,19 @@ export const putArticle = async ({
   const draftId = uuidv4();
   const client = await MongoClient.connect();
   try {
-    const { _id } = await client.db(DB_NAME)
+    const currentArticle = await client.db(DB_NAME)
       .collection(COLL_PRESS_DRAFTS)
       .findOne(
         { articleId },
         { sort: { createdAt: -1 } },
       );
+
+    const productId = manageArticleProduct(appId, userId, currentArticle, price);
+
     const draft = {
       _id: draftId,
       actions,
-      ancestor: _id,
+      ancestor: currentArticle._id,
       appIds: [appId],
       articleId,
       categoryId,
@@ -54,6 +59,7 @@ export const putArticle = async ({
       isPublished: false,
       md,
       plainText,
+      productId,
       summary,
       text: html,
       title,

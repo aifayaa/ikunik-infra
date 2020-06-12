@@ -1,14 +1,21 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import postPurchasableProduct from '../lib/postPurchasableProduct';
+import { postPurchasableProduct } from '../lib/postPurchasableProduct';
 import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
 
+const permKey = 'purchasableProduct_post';
 const availableTypes = ['subscription', 'direct'];
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
+  const { appId, perms: authorizerPerms } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
 
   try {
+    const permissions = JSON.parse(authorizerPerms);
+    if (!checkPerms(permKey, permissions)) {
+      throw new Error('access_forbidden');
+    }
+
     if (!event.body) {
       throw new Error('missing_payload');
     }
@@ -41,9 +48,7 @@ export default async (event) => {
 
     [
       _id,
-      appId,
       type,
-      userId,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
@@ -74,8 +79,11 @@ export default async (event) => {
     });
 
     if (options.expireIn) {
-      if (typeof options.expireIn === 'string' && Date(options.expireIn) === Date()) {
-        throw new Error('wrong_argument_value');
+      if (typeof options.expireIn === 'string') {
+        options.expireIn = new Date(options.expireIn);
+        if (options.expireIn.toString() === 'Invalid Date') {
+          throw new Error('wrong_argument_value');
+        }
       } else if (typeof options.expireIn === 'boolean' && options.expireIn) {
         throw new Error('wrong_argument_value');
       } else {

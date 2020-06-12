@@ -1,5 +1,4 @@
-import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const {
   DB_NAME,
@@ -10,7 +9,7 @@ export const postPurchasableProduct = async (
   appId,
   userId,
   {
-    _id = uuidv4(),
+    _id = new ObjectID().toString(),
     content = [],
     options: {
       expireIn = false,
