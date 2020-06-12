@@ -1,3 +1,4 @@
+import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 
@@ -6,6 +7,10 @@ const {
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
 } = process.env;
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 export const postArticle = async ({
   actions,
@@ -16,6 +21,7 @@ export const postArticle = async ({
   md,
   pictures,
   plainText = '',
+  price,
   summary,
   title,
   userId,
@@ -37,6 +43,7 @@ export const postArticle = async ({
 
   const articleId = uuidv4();
   const draftId = uuidv4();
+  const productId = uuidv4();
   let session;
   const client = await MongoClient.connect();
   try {
@@ -54,6 +61,10 @@ export const postArticle = async ({
       title,
       userId,
     };
+
+    if (price) {
+      article.productId = productId;
+    }
     if (videos) {
       article.videos = videos;
     }
@@ -84,7 +95,6 @@ export const postArticle = async ({
       .insertOne(article, opts);
 
     await session.commitTransaction();
-    return { articleId, draftId };
   } catch (error) {
     if (session) {
       await session.abortTransaction();
@@ -94,4 +104,19 @@ export const postArticle = async ({
     if (session) session.endSession();
     client.close();
   }
+
+  if (price) {
+    await lambda.invoke({
+      FunctionName: `purchasableProduct-${process.env.STAGE}-postPurchasableProduct`,
+      Payload: JSON.stringify({
+        _id: productId,
+        content: { id: articleId, collection: 'pressArticle' },
+        perms: { all: true, read: false, write: false },
+        price,
+        type: 'direct',
+      }),
+    }).promise();
+  }
+
+  return { articleId, draftId, productId };
 };
