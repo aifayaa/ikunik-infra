@@ -41,7 +41,7 @@ export default async (userId, packageId, appId) => {
   const { statusCode } = resCredits;
   if (statusCode !== 200) throw new Error(`get credits failed: ${statusCode}`);
   const { credits } = JSON.parse(resCredits.body);
-  if (!credits) throw new Error('unable to get credits from service response');
+  if (credits === undefined) throw new Error('unable to get credits from service response');
   if (credits < price) throw new Error('insufficient credits on user account');
 
   await addBlastToken(type, profileId, qty);

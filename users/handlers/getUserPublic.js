@@ -2,16 +2,19 @@ import pick from 'lodash/pick';
 import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
 import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
 
+const allowedPerms = ['users_get_any'];
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const urlId = event.pathParameters.id;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
 
-    if (userId !== urlId) {
-      return response({ code: 403, message: 'Forbidden' });
+    if (userId !== urlId && !checkPerms(allowedPerms, perms)) {
+      return response({ code: 403, message: 'access_forbidden' });
     }
+
     const results = pick(await doGetUser(userId, appId), [
       'country',
       'createdAt',

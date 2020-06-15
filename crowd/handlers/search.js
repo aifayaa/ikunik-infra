@@ -11,6 +11,7 @@ export default async (event) => {
     event.queryStringParameters = event.queryStringParameters || {};
     const userId = event.requestContext.authorizer.principalId;
     const { appId } = event.requestContext.authorizer;
+    Object.assign(event.queryStringParameters, { filterUserInfo: true });
 
     if (event.queryStringParameters.type && event.queryStringParameters.type === 'press') {
       const permKey = 'search_press';
@@ -25,7 +26,6 @@ export default async (event) => {
     }
 
     const pipeline = buildCrowdPipeline(userId, appId, event.queryStringParameters);
-    Object.assign(event.queryStringParameters, { filterUserInfo: true });
     const results = await search(pipeline, event.queryStringParameters);
     return response({ code: 200, body: results });
   } catch (e) {

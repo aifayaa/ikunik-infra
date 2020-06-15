@@ -7,10 +7,10 @@ import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
 
 export default async ({ phones, message, opts = {} }) => {
-  const { userId, appId } = opts;
+  const { profileId, appId } = opts;
   try {
-    if (userId) {
-      const res = await getBalanceForBlast(userId, 'text', appId);
+    if (profileId) {
+      const res = await getBalanceForBlast(profileId, 'text', appId);
       if (res.text < phones.length) {
         throw new Error('insufficient tokens');
       }
@@ -28,10 +28,9 @@ export default async ({ phones, message, opts = {} }) => {
     });
 
     await sendTexts.drain();
-    const res = await logBlast('text-message', message, `${successfulBlast}`, opts);
+    await logBlast('text-message', message, `${successfulBlast}`, opts);
 
-    if (userId) {
-      const { profileId } = res;
+    if (profileId) {
       await removeBlastToken('text', profileId, `${successfulBlast}`, appId);
     }
     return response({ code: 200, body: results });

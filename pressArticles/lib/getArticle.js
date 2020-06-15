@@ -6,6 +6,7 @@ const {
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
+  COLL_VIDEOS,
   DB_NAME,
 } = process.env;
 
@@ -59,6 +60,15 @@ export const getArticle = async (
           },
         },
       },
+      { /*
+        some users have base 64 pictures in profile,
+        we remove those fields to avoid big trafic load
+        */
+        $project: {
+          'user.profile.avatar': 0,
+          'user.profile.userPictureData': 0,
+        },
+      },
     ];
     if (getPictures) {
       // Lookup on pictures
@@ -72,7 +82,7 @@ export const getArticle = async (
         ),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
-        videos: { $push: '$videos' },
+        videos: { $first: '$videos' },
         feedPicture: { $first: '$feedPicture' },
         _id: '$_id',
       };
@@ -128,6 +138,7 @@ export const getArticle = async (
         category: { $first: '$category' },
         pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
+        feedPicture: { $first: '$feedPicture' },
         _id: '$_id',
       };
       pipeline = pipeline.concat([
@@ -139,7 +150,7 @@ export const getArticle = async (
         },
         {
           $lookup: {
-            from: COLL_PICTURES,
+            from: COLL_VIDEOS,
             localField: 'videos',
             foreignField: '_id',
             as: 'videos',
