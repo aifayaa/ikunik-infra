@@ -1,16 +1,16 @@
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
-import * as lib from '../../lib/removePurchasableProduct';
-import handler from '../../handlers/removePurchasableProduct';
+import * as lib from '../../lib/deletePurchasableProduct';
+import handler from '../../handlers/deletePurchasableProduct';
 
-describe('handlers - removePurchasableProduct', () => {
+describe('handlers - deletePurchasableProduct', () => {
   let stubLib;
   const event = {
     requestContext: {
       authorizer: {
         appId: 'crowdaa_app_id',
-        perms: JSON.stringify({ purchasableProduct_remove: true }),
+        perms: JSON.stringify({ purchasableProduct_delete: true }),
         principalId: 'userId',
       },
     },
@@ -23,7 +23,7 @@ describe('handlers - removePurchasableProduct', () => {
   describe('lib error', () => {
     describe('perms error', () => {
       before(() => {
-        stubLib = sandbox.stub(lib, 'removePurchasableProduct').throws();
+        stubLib = sandbox.stub(lib, 'deletePurchasableProduct').throws();
       });
 
       it('access_forbidden', async () => {
@@ -44,7 +44,7 @@ describe('handlers - removePurchasableProduct', () => {
       const libResult = new Error('lib method fail');
 
       before(() => {
-        stubLib = sandbox.stub(lib, 'removePurchasableProduct').callsFake(() => Promise.reject(libResult));
+        stubLib = sandbox.stub(lib, 'deletePurchasableProduct').callsFake(() => Promise.reject(libResult));
       });
 
       it('should return 500', async () => {
@@ -62,7 +62,7 @@ describe('handlers - removePurchasableProduct', () => {
     const libResult = 'ok';
 
     before(() => {
-      stubLib = sandbox.stub(lib, 'removePurchasableProduct').returns(libResult);
+      stubLib = sandbox.stub(lib, 'deletePurchasableProduct').returns(libResult);
     });
 
     it('should return 200', async () => {

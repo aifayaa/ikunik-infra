@@ -88,7 +88,7 @@ functions:
                 Authorization: true
 
   removePurchasableProduct:
-      handler: handlers/removePurchasableProduct.default
+      handler: handlers/deletePurchasableProduct.default
       events:
         - http:
             path: purchasableProduct/{id}

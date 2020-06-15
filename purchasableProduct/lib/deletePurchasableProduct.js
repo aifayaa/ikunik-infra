@@ -5,7 +5,7 @@ const {
   COLL_PURCHASABLE_PRODUCT,
 } = process.env;
 
-export const removePurchasableProduct = async (
+export const deletePurchasableProduct = async (
   appId,
   userId,
   productId,
@@ -15,7 +15,7 @@ export const removePurchasableProduct = async (
   try {
     return await client.db(DB_NAME)
       .collection(COLL_PURCHASABLE_PRODUCT)
-      .removeOne({ _id: productId });
+      .deleteOne({ _id: productId });
   } finally {
     client.close();
   }

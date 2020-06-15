@@ -1,9 +1,9 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import { removePurchasableProduct } from '../lib/removePurchasableProduct';
+import { deletePurchasableProduct } from '../lib/deletePurchasableProduct';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
-const permKey = 'purchasableProduct_remove';
+const permKey = 'purchasableProduct_delete';
 
 export default async (event) => {
   const { appId, perms } = event.requestContext.authorizer;
@@ -17,7 +17,7 @@ export default async (event) => {
     }
 
     // @TODO: ENSURE NOTHING HAS BEEN PURCHASE YET WITH THAT PRODUCT
-    const results = await removePurchasableProduct(
+    const results = await deletePurchasableProduct(
       appId,
       userId,
       productId,

@@ -30,11 +30,16 @@ export const patchPurchasableProduct = async (
   }
 
   if (typeof expireIn !== 'undefined') {
-    $set.options.expireIn = expireIn;
+    $set.options = {
+      expireIn,
+    };
   }
 
   [all, read, write].forEach((item) => {
     if (typeof item !== 'undefined') {
+      if (typeof $set.perms === 'undefined') {
+        $set.perms = {};
+      }
       $set.perms[item] = item;
     }
   });
