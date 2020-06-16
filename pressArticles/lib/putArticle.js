@@ -1,6 +1,6 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
-import manageArticleProduct from './manageArticleProduct';
+import { manageArticleProduct } from './manageArticleProduct';
 
 const {
   DB_NAME,
@@ -46,7 +46,7 @@ export const putArticle = async ({
         { sort: { createdAt: -1 } },
       );
 
-    const productId = manageArticleProduct(appId, userId, currentArticle, price);
+    const productId = await manageArticleProduct(appId, userId, currentArticle, price);
 
     const draft = {
       _id: draftId,
