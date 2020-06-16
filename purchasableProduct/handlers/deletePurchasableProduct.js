@@ -6,8 +6,11 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const permKey = 'purchasableProduct_delete';
 
 export default async (event) => {
-  const { appId, perms } = event.requestContext.authorizer;
-  const userId = event.requestContext.authorizer.principalId;
+  const {
+    appId,
+    perms,
+    principalId: userId,
+  } = event.requestContext.authorizer;
   const productId = event.pathParameters.id;
 
   try {

@@ -14,20 +14,20 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  getAllArticles:
-    handler: handlers/getAllPurchasableProduct.default
-    events:
-      - http:
-          path: purchasableProductAll/
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+  # getAllPurchasableProducts:
+  #   handler: handlers/getAllPurchasableProducts.default
+  #   events:
+  #     - http:
+  #         path: purchasableProductAll/
+  #         method: get
+  #         cors: true
+  #         authorizer:
+  #           type: CUSTOM
+  #           authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+  #         request:
+  #           parameters:
+  #             headers:
+  #               Authorization: true
 
   findPurchasableProduct:
     handler: handlers/findPurchasableProduct.default
@@ -87,7 +87,7 @@ functions:
               headers:
                 Authorization: true
 
-  removePurchasableProduct:
+  deletePurchasableProduct:
       handler: handlers/deletePurchasableProduct.default
       events:
         - http:

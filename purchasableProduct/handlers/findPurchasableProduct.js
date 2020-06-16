@@ -33,7 +33,7 @@ export default async (event) => {
         contentId,
       },
     );
-    return response({ code: 200, body: results });
+    return response({ code: 200, body: results || {} });
   } catch (e) {
     return response(errorMessage(e));
   }

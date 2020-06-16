@@ -25,19 +25,16 @@ export default async (event) => {
     const {
       _id,
       content,
-      options,
-      perms,
+      options = {},
+      perms = {},
       price,
       type,
     } = bodyParsed;
 
-    if (price && typeof price !== 'number') {
-      throw new Error('wrong_argument_type');
-    }
-
     [
       _id,
       appId,
+      price,
       type,
       userId,
     ].forEach((item) => {
@@ -56,20 +53,22 @@ export default async (event) => {
       }
     });
 
-    if (typeof content !== 'object' || typeof content.length === 'undefined') {
-      throw new Error('wrong_argument_type');
-    }
-
-    content.forEach((contentItem) => {
-      if (!contentItem.id || !contentItem.collection) {
-        throw new Error('missing_argument');
-      }
-      if (typeof contentItem.id !== 'string' || typeof contentItem.collection !== 'string') {
+    if (typeof content !== 'undefined') {
+      if (typeof content !== 'object' || typeof content.length === 'undefined') {
         throw new Error('wrong_argument_type');
       }
-    });
 
-    if (options.expireIn) {
+      content.forEach((contentItem) => {
+        if (!contentItem.id || !contentItem.collection) {
+          throw new Error('missing_argument');
+        }
+        if (typeof contentItem.id !== 'string' || typeof contentItem.collection !== 'string') {
+          throw new Error('wrong_argument_type');
+        }
+      });
+    }
+
+    if (typeof options.expireIn !== 'undefined') {
       if (typeof options.expireIn === 'string') {
         options.expireIn = new Date(options.expireIn);
         if (options.expireIn.toString() === 'Invalid Date') {

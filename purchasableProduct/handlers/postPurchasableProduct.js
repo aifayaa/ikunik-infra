@@ -24,8 +24,8 @@ export default async (event) => {
     const {
       _id,
       content,
-      options,
-      perms,
+      options = {},
+      perms = {},
       price,
       type,
     } = bodyParsed;
@@ -42,12 +42,9 @@ export default async (event) => {
       throw new Error('missing_argument');
     }
 
-    if (typeof price !== 'number') {
-      throw new Error('wrong_argument_type');
-    }
-
     [
       _id,
+      price,
       type,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
@@ -78,7 +75,7 @@ export default async (event) => {
       }
     });
 
-    if (options.expireIn) {
+    if (typeof options.expireIn !== 'undefined') {
       if (typeof options.expireIn === 'string') {
         options.expireIn = new Date(options.expireIn);
         if (options.expireIn.toString() === 'Invalid Date') {
