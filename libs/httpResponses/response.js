@@ -1,5 +1,5 @@
 export default ({ code, body, message, raw }) => {
-  if (!body && !message) throw new Error('missing_arguments');
+  if (!body && !message) throw new Error('missing_response_arguments');
   let respBody;
 
   if (body) {

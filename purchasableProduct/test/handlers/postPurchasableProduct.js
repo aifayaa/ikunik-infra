@@ -23,7 +23,7 @@ describe('handlers - postPurchasableProduct', () => {
         read: false,
         write: false,
       },
-      price: 6,
+      price: '6',
       type: 'direct',
     }),
   };
