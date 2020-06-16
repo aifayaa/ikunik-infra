@@ -12,6 +12,7 @@ import { getArticle } from '../lib/getArticle';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
+import articlePrices from '../articlePrices.json';
 
 const permKey = 'pressArticles_all';
 
@@ -109,7 +110,12 @@ export default async (event) => {
     ) {
       throw new Error('mal_formed_request');
     }
+
     checkActions(actions);
+
+    if (price && !(articlePrices.indexOf(price) + 1)) {
+      throw new Error('mal_formed_request');
+    }
 
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({

@@ -4,6 +4,7 @@ import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { putArticle } from '../lib/putArticle';
 import checkActions from '../lib/checks/checkActions';
+import articlePrices from '../articlePrices.json';
 
 const permKey = 'pressArticles_all';
 
@@ -49,6 +50,10 @@ export default async (event) => {
     }
 
     checkActions(actions);
+
+    if (price && !(articlePrices.indexOf(price) + 1)) {
+      throw new Error('mal_formed_request');
+    }
 
     const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
