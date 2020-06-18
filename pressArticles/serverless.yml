@@ -47,6 +47,21 @@ functions:
               headers:
                 Authorization: true
 
+  getPurchasedArticles:
+    handler: handlers/getPurchasedArticles.default
+    events:
+      - http:
+          path: press/purchasedArticles/
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getArticle:
     handler: handlers/getArticle.default
     events:
