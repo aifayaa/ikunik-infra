@@ -33,7 +33,7 @@ describe('lib - patchPurchasableProduct', () => {
       {
         content: [],
         options: {
-          expireIn: false,
+          expiresIn: false,
         },
         perms: {
           all: false,

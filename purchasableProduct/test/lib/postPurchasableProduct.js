@@ -33,7 +33,7 @@ describe('lib - postPurchasableProduct', () => {
         _id: '_id',
         content: [],
         options: {
-          expireIn: false,
+          expiresIn: false,
         },
         perms: {
           all: false,

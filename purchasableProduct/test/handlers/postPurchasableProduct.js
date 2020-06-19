@@ -17,7 +17,7 @@ describe('handlers - postPurchasableProduct', () => {
     body: JSON.stringify({
       _id: '_id',
       content: [],
-      options: { expireIn: '2020/01/01' },
+      options: { expiresIn: '2020/01/01' },
       perms: {
         all: false,
         read: false,
@@ -180,10 +180,10 @@ describe('handlers - postPurchasableProduct', () => {
         expect(message).to.equal('wrong_argument_type');
       });
 
-      it('wrong type for options.expireIn', async () => {
+      it('wrong type for options.expiresIn', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.options.expireIn = 1;
+        body.options.expiresIn = 1;
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -212,10 +212,10 @@ describe('handlers - postPurchasableProduct', () => {
         expect(message).to.equal('wrong_argument_value');
       });
 
-      it('wrong value for options.expireIn / boolean', async () => {
+      it('wrong value for options.expiresIn / boolean', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.options.expireIn = true;
+        body.options.expiresIn = true;
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -223,10 +223,10 @@ describe('handlers - postPurchasableProduct', () => {
         expect(message).to.equal('wrong_argument_value');
       });
 
-      it('wrong value for options.expireIn / string', async () => {
+      it('wrong value for options.expiresIn / string', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.options.expireIn = 'lala';
+        body.options.expiresIn = 'lala';
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -276,7 +276,7 @@ describe('handlers - postPurchasableProduct', () => {
         appId,
       } = event.requestContext.authorizer;
       const bodyParsed = JSON.parse(event.body);
-      bodyParsed.options.expireIn = new Date(bodyParsed.options.expireIn);
+      bodyParsed.options.expiresIn = new Date(bodyParsed.options.expiresIn);
       sinon.assert.calledWith(
         stubLib,
         appId,

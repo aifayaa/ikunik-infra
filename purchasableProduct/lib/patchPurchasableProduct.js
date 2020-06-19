@@ -12,7 +12,7 @@ export const patchPurchasableProduct = async (
   {
     content = [],
     options: {
-      expireIn,
+      expiresIn,
     } = {},
     perms: {
       all,
@@ -29,9 +29,9 @@ export const patchPurchasableProduct = async (
     $set.content = content;
   }
 
-  if (typeof expireIn !== 'undefined') {
+  if (typeof expiresIn !== 'undefined') {
     $set.options = {
-      expireIn,
+      expiresIn,
     };
   }
 

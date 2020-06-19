@@ -75,13 +75,13 @@ export default async (event) => {
       }
     });
 
-    if (typeof options.expireIn !== 'undefined') {
-      if (typeof options.expireIn === 'string') {
-        options.expireIn = new Date(options.expireIn);
-        if (options.expireIn.toString() === 'Invalid Date') {
+    if (typeof options.expiresIn !== 'undefined') {
+      if (typeof options.expiresIn === 'string') {
+        options.expiresIn = new Date(options.expiresIn);
+        if (options.expiresIn.toString() === 'Invalid Date') {
           throw new Error('wrong_argument_value');
         }
-      } else if (typeof options.expireIn === 'boolean' && options.expireIn) {
+      } else if (typeof options.expiresIn === 'boolean' && options.expiresIn) {
         throw new Error('wrong_argument_value');
       } else {
         throw new Error('wrong_argument_type');

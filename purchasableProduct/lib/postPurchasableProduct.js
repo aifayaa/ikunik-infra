@@ -12,7 +12,7 @@ export const postPurchasableProduct = async (
     _id = new ObjectID().toString(),
     content = [],
     options: {
-      expireIn = false,
+      expiresIn = false,
     } = {},
     perms: {
       all = false,
@@ -29,7 +29,7 @@ export const postPurchasableProduct = async (
     content,
     createdAt: new Date(),
     options: {
-      expireIn,
+      expiresIn,
     },
     perms: {
       all,
