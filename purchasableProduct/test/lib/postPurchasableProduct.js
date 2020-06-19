@@ -31,7 +31,7 @@ describe('lib - postPurchasableProduct', () => {
       'userId',
       {
         _id: '_id',
-        content: [],
+        contents: [],
         options: {
           expiresIn: false,
         },

@@ -31,7 +31,7 @@ describe('lib - patchPurchasableProduct', () => {
       'userId',
       'productId',
       {
-        content: [],
+        contents: [],
         options: {
           expiresIn: false,
         },

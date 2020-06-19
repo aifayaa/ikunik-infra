@@ -10,7 +10,7 @@ export const postPurchasableProduct = async (
   userId,
   {
     _id = new ObjectID().toString(),
-    content = [],
+    contents = [],
     options: {
       expiresIn = false,
     } = {},
@@ -26,7 +26,7 @@ export const postPurchasableProduct = async (
   const purchasableProduct = {
     _id,
     appIds: [appId],
-    content,
+    contents,
     createdAt: new Date(),
     options: {
       expiresIn,

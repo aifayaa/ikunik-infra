@@ -10,7 +10,7 @@ export const patchPurchasableProduct = async (
   userId,
   productId,
   {
-    content = [],
+    contents = [],
     options: {
       expiresIn,
     } = {},
@@ -25,8 +25,8 @@ export const patchPurchasableProduct = async (
 ) => {
   const $set = {};
 
-  if (content && content.length) {
-    $set.content = content;
+  if (contents && contents.length) {
+    $set.contents = contents;
   }
 
   if (typeof expiresIn !== 'undefined') {

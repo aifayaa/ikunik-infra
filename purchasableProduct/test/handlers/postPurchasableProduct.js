@@ -16,7 +16,7 @@ describe('handlers - postPurchasableProduct', () => {
     },
     body: JSON.stringify({
       _id: '_id',
-      content: [],
+      contents: [],
       options: { expiresIn: '2020/01/01' },
       perms: {
         all: false,
@@ -74,7 +74,7 @@ describe('handlers - postPurchasableProduct', () => {
         stubLib = sandbox.stub(lib, 'postPurchasableProduct').throws();
       });
 
-      ['content', 'perms', 'price', 'type'].forEach((key) => {
+      ['contents', 'perms', 'price', 'type'].forEach((key) => {
         it(`missing ${key}`, async () => {
           const testEvent = JSON.parse(JSON.stringify(event));
           const body = JSON.parse(testEvent.body);
@@ -100,10 +100,10 @@ describe('handlers - postPurchasableProduct', () => {
         });
       });
 
-      it('missing content.id', async () => {
+      it('missing contents.id', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.content.push({ collection: 'pressArticles' });
+        body.contents.push({ collection: 'pressArticles' });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -111,10 +111,10 @@ describe('handlers - postPurchasableProduct', () => {
         expect(message).to.equal('missing_argument');
       });
 
-      it('missing content.collection', async () => {
+      it('missing contents.collection', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.content.push({ id: 'id' });
+        body.contents.push({ id: 'id' });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -132,7 +132,7 @@ describe('handlers - postPurchasableProduct', () => {
         stubLib = sandbox.stub(lib, 'postPurchasableProduct').throws();
       });
 
-      ['_id', 'price', 'type', 'content'].forEach((key) => {
+      ['_id', 'price', 'type', 'contents'].forEach((key) => {
         it(`wrong type for ${key}`, async () => {
           const testEvent = JSON.parse(JSON.stringify(event));
           const body = JSON.parse(testEvent.body);
@@ -158,10 +158,10 @@ describe('handlers - postPurchasableProduct', () => {
         });
       });
 
-      it('wrong type for content.id', async () => {
+      it('wrong type for contents.id', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.content.push({ id: 4, collection: 'pressArticles' });
+        body.contents.push({ id: 4, collection: 'pressArticles' });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -169,10 +169,10 @@ describe('handlers - postPurchasableProduct', () => {
         expect(message).to.equal('wrong_argument_type');
       });
 
-      it('wrong type for content.collection', async () => {
+      it('wrong type for contents.collection', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.content.push({ id: 'id', collection: 4 });
+        body.contents.push({ id: 'id', collection: 4 });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);

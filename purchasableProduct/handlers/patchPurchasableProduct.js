@@ -24,7 +24,7 @@ export default async (event) => {
     const bodyParsed = JSON.parse(event.body);
     const {
       _id,
-      content,
+      contents,
       options = {},
       perms = {},
       price,
@@ -53,12 +53,12 @@ export default async (event) => {
       }
     });
 
-    if (typeof content !== 'undefined') {
-      if (typeof content !== 'object' || typeof content.length === 'undefined') {
+    if (typeof contents !== 'undefined') {
+      if (typeof contents !== 'object' || typeof contents.length === 'undefined') {
         throw new Error('wrong_argument_type');
       }
 
-      content.forEach((contentItem) => {
+      contents.forEach((contentItem) => {
         if (!contentItem.id || !contentItem.collection) {
           throw new Error('missing_argument');
         }
@@ -91,7 +91,7 @@ export default async (event) => {
       productId,
       {
         _id,
-        content,
+        contents,
         options,
         perms,
         price,
