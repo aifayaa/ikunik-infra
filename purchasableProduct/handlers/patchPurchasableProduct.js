@@ -7,12 +7,12 @@ const permKey = 'purchasableProducts_patch';
 const availableTypes = ['subscription', 'direct'];
 
 export default async (event) => {
-  const { appId, perms: authorizerPerms } = event.requestContext.authorizer;
+  const { appId, perms } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   const productId = event.pathParameters.id;
 
   try {
-    const permissions = JSON.parse(authorizerPerms);
+    const permissions = JSON.parse(perms);
     if (!checkPerms(permKey, permissions)) {
       throw new Error('access_forbidden');
     }
@@ -26,7 +26,6 @@ export default async (event) => {
       _id,
       contents,
       options = {},
-      perms = {},
       price,
       type,
     } = bodyParsed;
@@ -43,28 +42,34 @@ export default async (event) => {
       }
     });
 
-    [
-      perms.all,
-      perms.read,
-      perms.write,
-    ].forEach((item) => {
-      if (item && typeof item !== 'boolean') {
-        throw new Error('wrong_argument_type');
-      }
-    });
-
     if (typeof contents !== 'undefined') {
       if (typeof contents !== 'object' || typeof contents.length === 'undefined') {
         throw new Error('wrong_argument_type');
       }
 
       contents.forEach((contentItem) => {
-        if (!contentItem.id || !contentItem.collection) {
+        if (
+          !contentItem.id ||
+          !contentItem.collection ||
+          !contentItem.permissions
+        ) {
           throw new Error('missing_argument');
         }
-        if (typeof contentItem.id !== 'string' || typeof contentItem.collection !== 'string') {
+
+        if (
+          typeof contentItem.id !== 'string' ||
+          typeof contentItem.collection !== 'string' ||
+          typeof contentItem.permissions !== 'object' ||
+          typeof contentItem.permissions.length === 'undefined'
+        ) {
           throw new Error('wrong_argument_type');
         }
+
+        Object.keys(contentItem.permissions).forEach((key) => {
+          if (typeof contentItem.permissions[key] !== 'boolean') {
+            throw new Error('wrong_argument_type');
+          }
+        });
       });
     }
 
@@ -93,7 +98,6 @@ export default async (event) => {
         _id,
         contents,
         options,
-        perms,
         price,
         type,
       },

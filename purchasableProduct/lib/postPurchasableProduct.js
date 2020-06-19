@@ -14,11 +14,6 @@ export const postPurchasableProduct = async (
     options: {
       expiresIn = false,
     } = {},
-    perms: {
-      all = false,
-      read = false,
-      write = false,
-    } = {},
     price,
     type,
   },
@@ -30,11 +25,6 @@ export const postPurchasableProduct = async (
     createdAt: new Date(),
     options: {
       expiresIn,
-    },
-    perms: {
-      all,
-      read,
-      write,
     },
     price,
     type,

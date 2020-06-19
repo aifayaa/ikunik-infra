@@ -35,11 +35,6 @@ describe('lib - patchPurchasableProduct', () => {
         options: {
           expiresIn: false,
         },
-        perms: {
-          all: false,
-          read: false,
-          write: false,
-        },
         price: 'price',
         type: 'type',
       },

@@ -14,11 +14,6 @@ export const patchPurchasableProduct = async (
     options: {
       expiresIn,
     } = {},
-    perms: {
-      all,
-      read,
-      write,
-    } = {},
     price,
     type,
   },
@@ -34,15 +29,6 @@ export const patchPurchasableProduct = async (
       expiresIn,
     };
   }
-
-  [all, read, write].forEach((item) => {
-    if (typeof item !== 'undefined') {
-      if (typeof $set.perms === 'undefined') {
-        $set.perms = {};
-      }
-      $set.perms[item] = item;
-    }
-  });
 
   if (price) {
     $set.price = price;

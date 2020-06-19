@@ -21,11 +21,6 @@ describe('handlers - patchPurchasableProduct', () => {
       _id: '_id',
       contents: [],
       options: { expiresIn: '2020/01/01' },
-      perms: {
-        all: false,
-        read: false,
-        write: false,
-      },
       price: '6',
       type: 'direct',
     }),
@@ -80,7 +75,7 @@ describe('handlers - patchPurchasableProduct', () => {
       it('missing contents.id', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ collection: 'pressArticles' });
+        body.contents.push({ collection: 'pressArticles', permissions: {} });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -91,7 +86,18 @@ describe('handlers - patchPurchasableProduct', () => {
       it('missing contents.collection', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ id: 'id' });
+        body.contents.push({ id: 'id', permissions: {} });
+        testEvent.body = JSON.stringify(body);
+        const response = await handler(testEvent);
+        const { message } = JSON.parse(response.body);
+        expect(response.statusCode).to.equal(400);
+        expect(message).to.equal('missing_argument');
+      });
+
+      it('missing contents.permissions', async () => {
+        const testEvent = JSON.parse(JSON.stringify(event));
+        const body = JSON.parse(testEvent.body);
+        body.contents.push({ id: 'id', collection: 'pressArticles' });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -122,23 +128,10 @@ describe('handlers - patchPurchasableProduct', () => {
         });
       });
 
-      ['all', 'read', 'write'].forEach((key) => {
-        it(`wrong type for perms.${key}`, async () => {
-          const testEvent = JSON.parse(JSON.stringify(event));
-          const body = JSON.parse(testEvent.body);
-          body.perms[key] = [];
-          testEvent.body = JSON.stringify(body);
-          const response = await handler(testEvent);
-          const { message } = JSON.parse(response.body);
-          expect(response.statusCode).to.equal(400);
-          expect(message).to.equal('wrong_argument_type');
-        });
-      });
-
       it('wrong type for contents.id', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ id: 4, collection: 'pressArticles' });
+        body.contents.push({ id: 4, collection: 'pressArticles', permissions: {} });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -149,7 +142,29 @@ describe('handlers - patchPurchasableProduct', () => {
       it('wrong type for contents.collection', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ id: 'id', collection: 4 });
+        body.contents.push({ id: 'id', collection: 4, permissions: {} });
+        testEvent.body = JSON.stringify(body);
+        const response = await handler(testEvent);
+        const { message } = JSON.parse(response.body);
+        expect(response.statusCode).to.equal(400);
+        expect(message).to.equal('wrong_argument_type');
+      });
+
+      it('wrong type for contents.permissions', async () => {
+        const testEvent = JSON.parse(JSON.stringify(event));
+        const body = JSON.parse(testEvent.body);
+        body.contents.push({ id: 'id', collection: 'pressArticles', permissions: 4 });
+        testEvent.body = JSON.stringify(body);
+        const response = await handler(testEvent);
+        const { message } = JSON.parse(response.body);
+        expect(response.statusCode).to.equal(400);
+        expect(message).to.equal('wrong_argument_type');
+      });
+
+      it('wrong type for contents.permissions/data', async () => {
+        const testEvent = JSON.parse(JSON.stringify(event));
+        const body = JSON.parse(testEvent.body);
+        body.contents.push({ id: 'id', collection: 'pressArticles', permissions: { read: 4 } });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
