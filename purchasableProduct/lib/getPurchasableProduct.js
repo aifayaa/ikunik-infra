@@ -10,11 +10,7 @@ export const getPurchasableProduct = async (
   productId,
 ) => {
   const query = {
-    appIds: {
-      $elemMatch: {
-        $eq: appId,
-      },
-    },
+    appIds: appId,
     _id: productId,
   };
 
