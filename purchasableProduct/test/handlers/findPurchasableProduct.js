@@ -10,7 +10,7 @@ describe('handlers - findPurchasableProduct', () => {
     requestContext: {
       authorizer: {
         appId: 'crowdaa_app_id',
-        perms: JSON.stringify({ purchasableProduct_find: true }),
+        perms: JSON.stringify({ purchasableProducts_find: true }),
       },
     },
     queryStringParameters: {

@@ -3,7 +3,7 @@ import { deletePurchasableProduct } from '../lib/deletePurchasableProduct';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
-const permKey = 'purchasableProduct_delete';
+const permKey = 'purchasableProducts_delete';
 
 export default async (event) => {
   const {

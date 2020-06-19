@@ -10,7 +10,7 @@ describe('handlers - deletePurchasableProduct', () => {
     requestContext: {
       authorizer: {
         appId: 'crowdaa_app_id',
-        perms: JSON.stringify({ purchasableProduct_delete: true }),
+        perms: JSON.stringify({ purchasableProducts_delete: true }),
         principalId: 'userId',
       },
     },

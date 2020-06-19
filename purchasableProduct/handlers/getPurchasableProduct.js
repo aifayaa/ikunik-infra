@@ -3,7 +3,7 @@ import { getPurchasableProduct } from '../lib/getPurchasableProduct';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
-const permKey = 'purchasableProduct_get';
+const permKey = 'purchasableProducts_get';
 
 export default async (event) => {
   const { appId, perms } = event.requestContext.authorizer;

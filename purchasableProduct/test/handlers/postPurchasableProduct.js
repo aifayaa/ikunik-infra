@@ -10,7 +10,7 @@ describe('handlers - postPurchasableProduct', () => {
     requestContext: {
       authorizer: {
         appId: 'crowdaa_app_id',
-        perms: JSON.stringify({ purchasableProduct_post: true }),
+        perms: JSON.stringify({ purchasableProducts_post: true }),
         principalId: 'userId',
       },
     },

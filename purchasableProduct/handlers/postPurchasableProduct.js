@@ -3,7 +3,7 @@ import { postPurchasableProduct } from '../lib/postPurchasableProduct';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
-const permKey = 'purchasableProduct_post';
+const permKey = 'purchasableProducts_post';
 const availableTypes = ['subscription', 'direct'];
 
 export default async (event) => {

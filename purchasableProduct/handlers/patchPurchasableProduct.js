@@ -3,7 +3,7 @@ import { patchPurchasableProduct } from '../lib/patchPurchasableProduct';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
-const permKey = 'purchasableProduct_patch';
+const permKey = 'purchasableProducts_patch';
 const availableTypes = ['subscription', 'direct'];
 
 export default async (event) => {

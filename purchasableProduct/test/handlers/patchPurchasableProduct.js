@@ -10,7 +10,7 @@ describe('handlers - patchPurchasableProduct', () => {
     requestContext: {
       authorizer: {
         appId: 'crowdaa_app_id',
-        perms: JSON.stringify({ purchasableProduct_patch: true }),
+        perms: JSON.stringify({ purchasableProducts_patch: true }),
         principalId: 'userId',
       },
     },
