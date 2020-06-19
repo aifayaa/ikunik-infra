@@ -13,16 +13,14 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
     },
     type: 'geolocation',
     trashed: false,
-    $expr: {
-      $or: [
-        {
-          contentCollection: COLL_USERS,
-        },
-        {
-          contentCollection: COLL_DEVICES,
-        },
-      ],
-    },
+    $or: [
+      {
+        contentCollection: COLL_USERS,
+      },
+      {
+        contentCollection: COLL_DEVICES,
+      },
+    ],
   };
 
   const $match = {
@@ -98,7 +96,7 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
     {
       $unwind: {
         path: '$um',
-        preserveNullAndEmptyArrays: true,
+        preserveNullAndEmptyArrays: false,
       },
     },
     {
