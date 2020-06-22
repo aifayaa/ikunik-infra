@@ -52,6 +52,32 @@ export default async (event) => {
       throw new Error('Wrong type value');
     }
 
+    switch (type) {
+      case AVAILABLE_TYPES.article:
+        if (
+          !data.title ||
+          !data.content ||
+          !data.pictures ||
+          !data.pictures.length
+        ) {
+          throw new Error('missing_arguments');
+        }
+
+        if (
+          typeof data.title !== 'string' ||
+          typeof data.content !== 'string'
+        ) {
+          throw new Error('wrong_argument_type');
+        }
+        break;
+      case AVAILABLE_TYPES.comment:
+        if (typeof data !== 'string') {
+          throw new Error('wrong_argument_type');
+        }
+        break;
+      default: break;
+    }
+
     const results = await postUserGeneratedContents(
       appId,
       parentId,
@@ -82,6 +108,7 @@ export default async (event) => {
       );
       await sendEmailToAdmin(subject, body, appId);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log('Error when sending mail to admin', e);
     }
     return response({ code: 200, body: results });
