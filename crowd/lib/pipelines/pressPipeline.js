@@ -1,4 +1,5 @@
 const {
+  COLL_DEVICES,
   COLL_PRESS_ARTICLES,
   COLL_PUSH_NOTIFICATIONS,
   COLL_USERS,
@@ -10,9 +11,16 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
     appIds: {
       $elemMatch: { $eq: appId },
     },
-    contentCollection: COLL_USERS,
     type: 'geolocation',
     trashed: false,
+    $or: [
+      {
+        contentCollection: COLL_USERS,
+      },
+      {
+        contentCollection: COLL_DEVICES,
+      },
+    ],
   };
 
   const $match = {
@@ -26,6 +34,9 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
             {
               $ne: ['$userId', null],
             },
+            {
+              contentCollection: COLL_USERS,
+            },
           ],
         },
         {
@@ -35,6 +46,9 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
             },
             {
               $ne: ['$deviceId', null],
+            },
+            {
+              contentCollection: COLL_DEVICES,
             },
           ],
         },
@@ -82,7 +96,7 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
     {
       $unwind: {
         path: '$um',
-        preserveNullAndEmptyArrays: true,
+        preserveNullAndEmptyArrays: false,
       },
     },
     {
