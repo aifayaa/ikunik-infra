@@ -1,9 +1,9 @@
+import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
+import emailTemplate from '../lib/emailUgcNotifyTemplate';
+import pathToCollection from '../../libs/collections/pathToCollection';
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
-import pathToCollection from '../../libs/collections/pathToCollection';
-import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
-import emailTemplate from '../lib/emailUgcNotifyTemplate';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
@@ -31,7 +31,7 @@ export default async (event) => {
     const rootParentCollection = bodyParsed.rootParentCollection || parentCollection;
 
     if (!type || !data) {
-      throw new Error('Missing arguments');
+      throw new Error('missing_arguments');
     }
 
     [
@@ -44,12 +44,12 @@ export default async (event) => {
       type,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
-        throw new Error('Wrong argument type');
+        throw new Error('wrong_argument_type');
       }
     });
 
     if (typeof AVAILABLE_TYPES[type] === 'undefined') {
-      throw new Error('Wrong type value');
+      throw new Error('wrong_type_value');
     }
 
     switch (type) {
