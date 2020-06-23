@@ -10,7 +10,9 @@ export default async (
   collectionName,
   collectionField,
   userId,
-  options = { useTrashedField: true },
+  options = {
+    useTrashedField: true,
+  },
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -31,14 +33,14 @@ export default async (
       .findOne(findObj);
 
     if (!obj) {
-      return { code: 404, message: 'content_not_found' };
+      throw new Error('content_not_found');
     }
 
     if (obj[collectionField] !== userId) {
-      return { code: 403, message: 'forbidden_user' };
+      throw new Error('forbidden_user');
     }
 
-    return true;
+    return obj;
   } finally {
     client.close();
   }
