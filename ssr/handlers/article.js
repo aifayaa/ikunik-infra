@@ -21,7 +21,8 @@ export default async (event) => {
       throw new Error('article_not_found');
     }
     const picture = article.pictures[0] || {};
-    const pictureUrl = (picture && picture.mediumUrl) || '';
+    const video = article.videos[0] || {};
+    const previewUrl = (picture && picture.mediumUrl) || (video && video.thumbUrl) || '';
     const options = {
       height: picture.mediumHeight,
       width: picture.mediumWidth,
@@ -29,7 +30,7 @@ export default async (event) => {
     const body = meta(
       article.title,
       prepareNotifString(article.plainText, 120),
-      pictureUrl,
+      previewUrl,
       options,
     );
     return response({ code: 200, body, raw: true });
