@@ -13,6 +13,8 @@ export const postPurchasableProduct = async (
     contents = [],
     options: {
       expiresIn = false,
+      appleProductId,
+      googleProductId,
     } = {},
     price,
     type,
@@ -25,6 +27,8 @@ export const postPurchasableProduct = async (
     createdAt: new Date(),
     options: {
       expiresIn,
+      appleProductId,
+      googleProductId,
     },
     price,
     type,

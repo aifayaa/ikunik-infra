@@ -18,6 +18,7 @@ export const putArticle = async ({
   pictures,
   plainText = '',
   price,
+  productId: storeProductId,
   summary,
   title,
   userId,
@@ -46,7 +47,13 @@ export const putArticle = async ({
         { sort: { createdAt: -1 } },
       );
 
-    const productId = await manageArticleProduct(appId, userId, currentArticle, price);
+    const productId = await manageArticleProduct(
+      appId,
+      userId,
+      currentArticle,
+      price,
+      storeProductId,
+    );
 
     const draft = {
       _id: draftId,
@@ -59,6 +66,7 @@ export const putArticle = async ({
       isPublished: false,
       md,
       plainText,
+      storeProductId,
       productId,
       summary,
       text: html,
