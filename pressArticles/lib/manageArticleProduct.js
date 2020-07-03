@@ -12,7 +12,13 @@ const processLambdaResponse = (response) => {
   return { Payload, statusCode, body: bodyParsed };
 };
 
-export const manageArticleProduct = async (appId, userId, previousArticle, price) => {
+export const manageArticleProduct = async (
+  appId,
+  userId,
+  previousArticle,
+  price,
+  storeProductId,
+) => {
   const getRequestContext = (key) => ({ authorizer: {
     appId,
     perms: `{ "${key}": true }`,
@@ -28,7 +34,7 @@ export const manageArticleProduct = async (appId, userId, previousArticle, price
       FunctionName: `purchasableProduct-${process.env.STAGE}-getPurchasableProduct`,
       Payload: JSON.stringify({
         pathParameters: { id: previousArticle.productId },
-        requestContext: getRequestContext('purchasableProduct_get'),
+        requestContext: getRequestContext('purchasableProducts_get'),
       }),
     }).promise();
   } else {
@@ -36,10 +42,10 @@ export const manageArticleProduct = async (appId, userId, previousArticle, price
       FunctionName: `purchasableProduct-${process.env.STAGE}-findPurchasableProduct`,
       Payload: JSON.stringify({
         queryStringParameters: {
-          contentId: previousArticle._id,
+          contentId: previousArticle.articleId,
           contentCollection: 'pressArticle',
         },
-        requestContext: getRequestContext('purchasableProduct_find'),
+        requestContext: getRequestContext('purchasableProducts_find'),
       }),
     }).promise();
   }
@@ -57,7 +63,7 @@ export const manageArticleProduct = async (appId, userId, previousArticle, price
       FunctionName: `purchasableProduct-${process.env.STAGE}-deletePurchasableProduct`,
       Payload: JSON.stringify({
         pathParameters: { id: previousArticle.productId },
-        requestContext: getRequestContext('purchasableProduct_delete'),
+        requestContext: getRequestContext('purchasableProducts_delete'),
       }),
     }).promise();
     ({ statusCode, body } = processLambdaResponse(lambdaResponse));
@@ -76,12 +82,19 @@ export const manageArticleProduct = async (appId, userId, previousArticle, price
       Payload: JSON.stringify({
         body: JSON.stringify({
           _id: productId,
-          content: [{ id: previousArticle._id, collection: 'pressArticle' }],
-          perms: { all: true, read: false, write: false },
+          contents: [{
+            id: previousArticle.articleId,
+            collection: 'pressArticle',
+            permissions: { all: true },
+          }],
+          options: {
+            appleProductId: storeProductId,
+            googleProductId: storeProductId,
+          },
           price,
           type: 'direct',
         }),
-        requestContext: getRequestContext('purchasableProduct_post'),
+        requestContext: getRequestContext('purchasableProducts_post'),
       }),
     }).promise();
     ({ statusCode, body } = processLambdaResponse(lambdaResponse));
@@ -97,9 +110,15 @@ export const manageArticleProduct = async (appId, userId, previousArticle, price
     lambdaResponse = await lambda.invoke({
       FunctionName: `purchasableProduct-${process.env.STAGE}-patchPurchasableProduct`,
       Payload: JSON.stringify({
-        body: JSON.stringify({ price }),
+        body: JSON.stringify({
+          options: {
+            appleProductId: storeProductId,
+            googleProductId: storeProductId,
+          },
+          price,
+        }),
         pathParameters: { id: product._id },
-        requestContext: getRequestContext('purchasableProduct_patch'),
+        requestContext: getRequestContext('purchasableProducts_patch'),
       }),
     }).promise();
     ({ statusCode, body } = processLambdaResponse(lambdaResponse));

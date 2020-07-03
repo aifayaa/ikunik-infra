@@ -22,6 +22,7 @@ export const postArticle = async ({
   pictures,
   plainText = '',
   price,
+  productId: storeProductId,
   summary,
   title,
   userId,
@@ -62,8 +63,9 @@ export const postArticle = async ({
       userId,
     };
 
-    if (price) {
+    if (storeProductId) {
       article.productId = productId;
+      article.storeProductId = storeProductId;
     }
     if (videos) {
       article.videos = videos;
@@ -105,13 +107,20 @@ export const postArticle = async ({
     client.close();
   }
 
-  if (price) {
+  if (storeProductId) {
     await lambda.invoke({
       FunctionName: `purchasableProduct-${process.env.STAGE}-postPurchasableProduct`,
       Payload: JSON.stringify({
         _id: productId,
-        content: { id: articleId, collection: 'pressArticle' },
-        perms: { all: true, read: false, write: false },
+        content: [{
+          id: articleId,
+          collection: 'pressArticle',
+          permissions: { all: true },
+        }],
+        options: {
+          appleProductId: storeProductId,
+          googleProductId: storeProductId,
+        },
         price,
         type: 'direct',
       }),

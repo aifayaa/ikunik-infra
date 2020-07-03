@@ -60,7 +60,7 @@ export default async (event) => {
           typeof contentItem.id !== 'string' ||
           typeof contentItem.collection !== 'string' ||
           typeof contentItem.permissions !== 'object' ||
-          typeof contentItem.permissions.length === 'undefined'
+          typeof contentItem.permissions.length !== 'undefined'
         ) {
           throw new Error('wrong_argument_type');
         }

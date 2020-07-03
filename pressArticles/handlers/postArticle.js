@@ -41,7 +41,7 @@ export default async (event) => {
     let md;
     let pictures;
     let plainText;
-    let price;
+    let productId;
     let summary;
     let title;
     let videos;
@@ -57,7 +57,7 @@ export default async (event) => {
           md,
           pictures,
           summary,
-          price,
+          productId,
           title,
           videos,
         } = JSON.parse(event.body));
@@ -70,7 +70,7 @@ export default async (event) => {
         html = xmlToHtml(xml, defaultSettings);
         const infos = getInfos(xml, defaultSettings);
         title = infos.title || infos.name;
-        price = infos.price;
+        productId = infos.productId;
         summary = ' ';
         plainText = xmlToText(xml, defaultSettings);
         if (forcePictures) {
@@ -113,7 +113,7 @@ export default async (event) => {
 
     checkActions(actions);
 
-    if (price && !(articlePrices.indexOf(price) + 1)) {
+    if (productId && !articlePrices[productId]) {
       throw new Error('mal_formed_request');
     }
 
@@ -127,7 +127,8 @@ export default async (event) => {
       md,
       pictures,
       plainText,
-      price,
+      price: articlePrices[productId],
+      productId,
       summary,
       title,
       userId,

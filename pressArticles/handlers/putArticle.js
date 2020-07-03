@@ -25,7 +25,7 @@ export default async (event) => {
       feedPicture,
       md,
       pictures,
-      price,
+      productId,
       summary,
       title,
       videos,
@@ -51,7 +51,7 @@ export default async (event) => {
 
     checkActions(actions);
 
-    if (price && !(articlePrices.indexOf(price) + 1)) {
+    if (productId && !articlePrices[productId]) {
       throw new Error('mal_formed_request');
     }
 
@@ -66,7 +66,8 @@ export default async (event) => {
       md,
       pictures,
       plainText: removeMd(md),
-      price,
+      price: articlePrices[productId],
+      productId,
       summary,
       title,
       userId,

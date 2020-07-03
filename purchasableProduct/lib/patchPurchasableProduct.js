@@ -13,6 +13,8 @@ export const patchPurchasableProduct = async (
     contents = [],
     options: {
       expiresIn,
+      appleProductId,
+      googleProductId,
     } = {},
     price,
     type,
@@ -27,6 +29,18 @@ export const patchPurchasableProduct = async (
   if (typeof expiresIn !== 'undefined') {
     $set.options = {
       expiresIn,
+    };
+  }
+
+  if (typeof appleProductId !== 'undefined') {
+    $set.options = {
+      appleProductId,
+    };
+  }
+
+  if (typeof googleProductId !== 'undefined') {
+    $set.options = {
+      googleProductId,
     };
   }
 
