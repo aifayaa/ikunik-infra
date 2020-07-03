@@ -5,7 +5,7 @@ const {
   DB_NAME,
 } = process.env;
 
-export const addCurrency = async (
+export const addBalance = async (
   appId,
   userId,
   amount,
@@ -28,12 +28,12 @@ export const addCurrency = async (
   const client = await MongoClient.connect();
 
   try {
-    const currency = await client
+    const balance = await client
       .db(DB_NAME)
       .collection(COLL_USER_BALANCES)
       .findOne(findQuery);
 
-    if (!currency) {
+    if (!balance) {
       await client
         .db(DB_NAME)
         .collection(COLL_USER_BALANCES)
@@ -43,7 +43,9 @@ export const addCurrency = async (
         .db(DB_NAME)
         .collection(COLL_USER_BALANCES)
         .updateOne(findQuery, {
-          currency: currency.amount += amount,
+          $set: {
+            amount: ((balance.amount || 0) + amount),
+          },
         });
     }
 

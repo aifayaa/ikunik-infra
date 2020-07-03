@@ -1,4 +1,4 @@
-service: userCurrencies
+service: userBalances
 
 provider:
   name: aws
