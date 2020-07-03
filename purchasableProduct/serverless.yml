@@ -29,6 +29,17 @@ functions:
   #             headers:
   #               Authorization: true
 
+  validatePurchase:
+    handler: handlers/validatePurchase.default
+    events:
+      - http:
+          path: purchasableProduct/validate
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   findPurchasableProduct:
     handler: handlers/findPurchasableProduct.default
     events:

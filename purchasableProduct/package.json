@@ -8,6 +8,8 @@
     "test": "npx sls export-env; npx -f env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
   },
   "dependencies": {
+    "in-app-purchase": "^1.11.4",
+    "lodash": "^4.17.15",
     "mongodb": "^3.5.0"
   },
   "devDependencies": {
