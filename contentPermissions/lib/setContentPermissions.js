@@ -47,18 +47,18 @@ export const setContentPermissions = async (
         .insertOne(insertData);
     }
 
-    const update = {};
+    const update = { $set: {} };
 
     [
       'expiresAt',
       'permissions',
     ].forEach((key) => {
       if (!isEqual(contentPermissions[key], options[key])) {
-        update.permissions = { $set: { ...contentPermissions[key], ...options[key] } };
+        update.$set[key] = { ...contentPermissions[key], ...options[key] };
       }
     });
 
-    if (Object.keys(update).length) {
+    if (Object.keys(update.$set).length) {
       return await client
         .db(DB_NAME)
         .collection(COLL_CONTENT_PERMISSIONS)
