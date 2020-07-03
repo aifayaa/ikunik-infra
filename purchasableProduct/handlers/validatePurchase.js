@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import iap from 'in-app-purchase';
 import MongoClient from '../../libs/mongoClient';
-import addBalance from '../../userBalances/lib/addBalance';
+import { addBalance } from '../../userBalances/lib/addBalance';
 import response from '../../libs/httpResponses/response';
 import articlePrices from '../../pressArticles/articlePrices.json';
 
@@ -90,10 +90,11 @@ export default async (event) => {
       ignoreExpired: true,
     };
     // validatedData contains sandbox: true/false for Apple and Amazon
-    const purchaseData = iap.getPurchaseData(validatedData, options);
+    const [purchaseData] = iap.getPurchaseData(validatedData, options);
 
     const price = articlePrices[purchaseData.productId];
     // @TODO : checks if price is defined ?
+
     await addBalance(appId, userId, parseFloat(price));
 
     const responseBody = { ok: true, data: validatedData };

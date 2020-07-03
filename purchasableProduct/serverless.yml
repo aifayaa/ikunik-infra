@@ -38,7 +38,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
   findPurchasableProduct:
     handler: handlers/findPurchasableProduct.default

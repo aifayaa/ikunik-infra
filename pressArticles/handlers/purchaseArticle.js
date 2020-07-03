@@ -1,9 +1,9 @@
-import addBalance from '../../userBalances/lib/addBalance';
 import articlePrices from '../articlePrices.json';
-import getArticle from '../lib/getArticle';
-import getBalance from '../../userBalances/lib/getBalance';
 import response from '../../libs/httpResponses/response';
-import setContentPermissions from '../../contentPermissions/lib/setContentPermissions';
+import { addBalance } from '../../userBalances/lib/addBalance';
+import { getArticle } from '../lib/getArticle';
+import { getBalance } from '../../userBalances/lib/getBalance';
+import { setContentPermissions } from '../../contentPermissions/lib/setContentPermissions';
 
 const { COLL_PRESS_ARTICLES } = process.env;
 
@@ -18,9 +18,9 @@ export default async (event) => {
       throw new Error('article_not_found');
     }
 
-    const price = articlePrices[article.productId];
+    const price = articlePrices[article.storeProductId];
 
-    if (!article.productId || !price) {
+    if (!article.storeProductId || !price) {
       throw new Error('product_not_found');
     }
 
@@ -35,7 +35,9 @@ export default async (event) => {
       throw new Error('balance_update_failed');
     }
 
-    const results = await setContentPermissions(appId, userId, articleId, COLL_PRESS_ARTICLES);
+    const results = await setContentPermissions(appId, userId, articleId, COLL_PRESS_ARTICLES, {
+      permissions: { all: false, read: true, write: false },
+    });
 
     return response({ code: 200, body: results });
   } catch (e) {
