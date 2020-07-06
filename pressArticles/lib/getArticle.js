@@ -2,6 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import articleFields from './articleFields.json';
 
 const {
+  COLL_CONTENT_PERMISSIONS,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
@@ -13,7 +14,12 @@ const {
 export const getArticle = async (
   id,
   appId,
-  { getPictures = false, isServer = false, publishedOnly = false } = {},
+  {
+    getPictures = false,
+    isServer = false,
+    publishedOnly = false,
+    userId = null,
+  } = {},
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -21,7 +27,9 @@ export const getArticle = async (
       _id: id,
       appIds: { $elemMatch: { $eq: appId } },
     };
+
     if (publishedOnly) $match.isPublished = true;
+
     let pipeline = [
       { $match },
       {
@@ -70,6 +78,41 @@ export const getArticle = async (
         },
       },
     ];
+
+    if (userId) {
+      pipeline = pipeline.concat([
+        {
+          $lookup: {
+            as: 'cp',
+            from: COLL_CONTENT_PERMISSIONS,
+            let: {
+              articleId: '$_id',
+              articleProductId: '$productId',
+            },
+            pipeline: [{ $match: {
+              $expr: {
+                $and: [
+                  { $ne: ['$$articleProductId', null] },
+                  { $eq: ['$contentId', '$$articleId'] },
+                  { $eq: ['$contentCollection', COLL_PRESS_ARTICLES] },
+                  { $eq: ['$userId', userId] },
+                ],
+              },
+            } }],
+          },
+        },
+        {
+          $unwind: {
+            path: '$cp',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: { permissions: '$cp.permissions' },
+        },
+      ]);
+    }
+
     if (getPictures) {
       // Lookup on pictures
       const pictureGroup = {
