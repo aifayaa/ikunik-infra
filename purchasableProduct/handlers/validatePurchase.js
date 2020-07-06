@@ -5,7 +5,11 @@ import { addBalance } from '../../userBalances/lib/addBalance';
 import response from '../../libs/httpResponses/response';
 import articlePrices from '../../pressArticles/articlePrices.json';
 
-const { COLL_APPS, DB_NAME } = process.env;
+const {
+  COLL_APPS,
+  DB_NAME,
+  STAGE,
+} = process.env;
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -44,7 +48,7 @@ export default async (event) => {
     const iapConfiguration = {
       requestDefaults: {},
       // For Apple and Googl Play to force Sandbox validation only
-      test: true,
+      test: STAGE !== 'prod',
       // Output debug logs to stdout stream
       verbose: true,
 
