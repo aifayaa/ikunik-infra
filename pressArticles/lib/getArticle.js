@@ -28,7 +28,9 @@ export const getArticle = async (
       appIds: { $elemMatch: { $eq: appId } },
     };
 
-    if (publishedOnly) $match.isPublished = true;
+    if (publishedOnly) {
+      $match.isPublished = true;
+    }
 
     let pipeline = [
       { $match },
@@ -216,7 +218,20 @@ export const getArticle = async (
       .collection(COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
-    return articles[0] || null;
+
+    const article = articles[0] || null;
+
+    if (article) {
+      /* Filter article if purchasable and not paid yet */
+      if (
+        article.storeProductId &&
+        (!article.permissions || (!article.permissions.all && !article.permissions.read))
+      ) {
+        article.text = null;
+      }
+    }
+
+    return article;
   } finally {
     client.close();
   }
