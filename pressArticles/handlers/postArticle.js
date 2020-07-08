@@ -136,7 +136,7 @@ export default async (event) => {
       if (sendNotifications === 'true') {
         const article = await getArticle(results.articleId, {});
         await doSendNotifications(
-          article.title,
+          prepareNotif(article.title, 60, false),
           prepareNotif(article.plainText),
           appId,
           { articleId: results.articleId },
