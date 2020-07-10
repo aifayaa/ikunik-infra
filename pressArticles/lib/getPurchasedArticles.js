@@ -68,7 +68,7 @@ export const getPurchasedArticles = async (
       ];
     }
 
-    let pipeline = [
+    let countPipeline = [
       {
         $match: {
           contentCollection: COLL_PRESS_ARTICLES,
@@ -111,6 +111,9 @@ export const getPurchasedArticles = async (
       // TODO: optimise by using Category as start point
       // get Category Id with path and then get articles
       { $match },
+    ];
+
+    let pipeline = countPipeline.concat([
       { $sort },
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
@@ -159,7 +162,7 @@ export const getPurchasedArticles = async (
           'user.profile.userPictureData': 0,
         },
       },
-    ];
+    ]);
 
     if (getPictures) {
       // Lookup on pictures
@@ -257,7 +260,10 @@ export const getPurchasedArticles = async (
 
     /* Group stage could break sorting, ensure all is well sorted */
     pipeline.push({ $sort });
-    const [articles = [], total = 0] = await Promise.all([
+
+    countPipeline = countPipeline.concat([{ $count: 'total' }]);
+
+    const [articles = [], [{ total = 0 }]] = await Promise.all([
       client
         .db(DB_NAME)
         .collection(COLL_CONTENT_PERMISSIONS)
@@ -266,8 +272,8 @@ export const getPurchasedArticles = async (
       client
         .db(DB_NAME)
         .collection(COLL_CONTENT_PERMISSIONS)
-        .find($match)
-        .count(),
+        .aggregate(countPipeline)
+        .toArray(),
     ]);
 
     return { articles, total };
