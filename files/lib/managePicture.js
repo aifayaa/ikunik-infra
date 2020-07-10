@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
-import path from 'path';
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
+import path from 'path';
 import MongoClient from '../../libs/mongoClient';
 import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
@@ -53,6 +53,7 @@ const resizeParams = ({ keepRatio = false }) => [{
 
 const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   const { data: resizeBuffer, info } = await Sharp(picture.Body)
+    .rotate()
     .resize(resizeOpts)
     .toFormat('jpeg')
     .toBuffer({ resolveWithObject: true });
