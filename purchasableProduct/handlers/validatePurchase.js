@@ -25,20 +25,31 @@ export default async (event) => {
     const appInfo = await client
       .db(DB_NAME)
       .collection(COLL_APPS)
-      .findOne({ _id: appId });
+      .findOne({ _id: appId }, {
+        projection: {
+          'builds.android.googleApiData': true,
+          'settings.iap.AppleSecret': true,
+          'settings.iap.googleLicenceKey': true,
+        },
+      });
 
     if (!appInfo) {
       throw new Error('app_not_found');
     }
 
     const googleApiData = get(appInfo, 'builds.android.googleApiData');
+    const applePassword = get(appInfo, 'settings.iap.AppleSecret');
+    const googleLicenseKey = get(appInfo, 'settings.iap.googleLicenceKey');
     const receiptRaw = get(bodyParsed, 'transaction.receipt');
+    const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
+    const googleReceipt = receiptRaw && JSON.parse(receiptRaw);
 
-    if (!googleApiData || !receiptRaw) {
+    if (
+      !(appleReceipt && applePassword) ||
+      !(googleReceipt && googleApiData && googleLicenseKey)
+    ) {
       throw new Error('missing_arguments');
     }
-
-    const receipt = JSON.parse(receiptRaw);
 
     const {
       client_email: clientEmail,
@@ -47,24 +58,23 @@ export default async (event) => {
 
     const iapConfiguration = {
       requestDefaults: {},
-      // For Apple and Googl Play to force Sandbox validation only
+      // For Apple and Google Play to force Sandbox validation only
       test: STAGE !== 'prod',
       // Output debug logs to stdout stream
       verbose: true,
 
       // googlePublicKeyPath
-      googlePublicKeyStrLive: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhTz0I9dusZ2HDHHnJasg/cyaKI88duaHQPZkQC7tLxCt1tKarFf/01G9CUjA9o6AnnoSYgoHIXvcczEls4LhYJtoH2QgKnJyBRmVD9FszJWebjpugX7aMOy2Sn53WZCGvsz68wEWc8+bL51oEvZUayg8p8+2XBKZ7jyCH18oYCIalIDoXMnmXPphptk9XoNrkJSZG6hFRIwj7ts3NIsNMB94tGISlNzX89ZwEPsI5qtq988++HAaJW4bz8oRX3U1n9aPDs2Ctm1nZvaCoXIFi0/nif0qXXfoB+AlVch8VizC4D7o6WgtGpKHENVncCzhzx0pq3g3Vw6eKtO8Lyi63wIDAQAB',
+      googlePublicKeyStrLive: googleLicenseKey,
       // googlePublicKeyStrSandBox
+
+      // Apple
+      // if you want to exclude old transaction, set this to true. Default is false
+      appleExcludeOldTransactions: true,
+      // this comes from iTunes Connect (You need this to valiate subscriptions)
+      applePassword,
     };
     // Optionnal fields for Google Play subscriptions
     // googleAccToken, googleRefToken, googleClientID, googleClientSecret
-
-    // if (applePassword) {
-    //   // if you want to exclude old transaction, set this to true. Default is false
-    //   iapConfiguration.appleExcludeOldTransactions = true;
-    //   // this comes from iTunes Connect (You need this to valiate subscriptions)
-    //   iapConfiguration.applePassword = applePassword;
-    // }
 
     if (clientEmail && privateKey) {
       iapConfiguration.googleServiceAccount = {
@@ -75,17 +85,11 @@ export default async (event) => {
 
     iap.config(iapConfiguration);
 
-    await new Promise((resolve, reject) => {
-      iap.setup()
-        .then(() => resolve())
-        .catch((error) => reject(new Error(error)));
-    });
+    await iap.setup();
 
-    const validatedData = await new Promise((resolve, reject) => {
-      iap.validate({ data: receipt, signature: bodyParsed.transaction.signature })
-        .then((data) => resolve(data))
-        .catch((error) => reject(new Error(error)));
-    });
+    const validatedData = await iap.validate(
+      appleReceipt || { data: googleReceipt, signature: bodyParsed.transaction.signature },
+    );
 
     const options = {
       // Apple ONLY (for now...): purchaseData will NOT contain cancceled items
