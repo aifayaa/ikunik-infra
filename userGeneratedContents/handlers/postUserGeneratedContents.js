@@ -57,8 +57,10 @@ export default async (event) => {
         if (
           !data.title ||
           !data.content ||
-          !data.pictures ||
-          !data.pictures.length
+          ((!data.pictures ||
+          !data.pictures.length) &&
+          (!data.videos ||
+          !data.videos.length))
         ) {
           throw new Error('missing_arguments');
         }
