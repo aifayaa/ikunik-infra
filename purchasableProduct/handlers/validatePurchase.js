@@ -99,8 +99,10 @@ export default async (event) => {
     };
     // validatedData contains sandbox: true/false for Apple and Amazon
     const [purchaseData] = iap.getPurchaseData(validatedData, options);
+    // get only last part of productId (com.crowdaa.press.article_01 => article_01)
+    const productId = purchaseData.productId.split('.').pop();
 
-    const price = articlePrices[purchaseData.productId];
+    const price = articlePrices[productId];
     // @TODO : checks if price is defined ?
 
     await addBalance(appId, userId, parseFloat(price));
