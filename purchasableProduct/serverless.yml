@@ -1,0 +1,121 @@
+service: purchasableProduct
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  # getAllPurchasableProducts:
+  #   handler: handlers/getAllPurchasableProducts.default
+  #   events:
+  #     - http:
+  #         path: purchasableProductAll/
+  #         method: get
+  #         cors: true
+  #         authorizer:
+  #           type: CUSTOM
+  #           authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+  #         request:
+  #           parameters:
+  #             headers:
+  #               Authorization: true
+
+  validatePurchase:
+    handler: handlers/validatePurchase.default
+    events:
+      - http:
+          path: purchasableProduct/validate
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  findPurchasableProduct:
+    handler: handlers/findPurchasableProduct.default
+    events:
+      - http:
+          path: purchasableProduct/
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  getPurchasableProduct:
+    handler: handlers/getPurchasableProduct.default
+    events:
+      - http:
+          path: purchasableProduct/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  postPurchasableProduct:
+    handler: handlers/postPurchasableProduct.default
+    events:
+      - http:
+          path: purchasableProduct/
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  patchPurchasableProduct:
+      handler: handlers/patchPurchasableProduct.default
+      events:
+        - http:
+            path: purchasableProduct/{id}
+            method: patch
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  deletePurchasableProduct:
+      handler: handlers/deletePurchasableProduct.default
+      events:
+        - http:
+            path: purchasableProduct/{id}
+            method: delete
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+plugins:
+  - serverless-webpack
+  - serverless-export-env
+
+package:
+  individually: true

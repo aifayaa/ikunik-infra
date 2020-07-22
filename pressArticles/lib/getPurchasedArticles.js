@@ -11,29 +11,112 @@ const {
   DB_NAME,
 } = process.env;
 
-export const getArticle = async (
-  id,
+export const getPurchasedArticles = async (
   appId,
+  userId,
   {
-    getPictures = false,
-    isServer = false,
-    publishedOnly = false,
-    userId = null,
-  } = {},
+    categoryId = null,
+    getPictures = true,
+    limit,
+    onlyPublished = true,
+    start,
+  },
 ) => {
-  const client = await MongoClient.connect();
+  let client;
   try {
+    client = await MongoClient.connect();
+
     const $match = {
-      _id: id,
       appIds: { $elemMatch: { $eq: appId } },
+      /* Find only articles not trashed or trashed undefined */
+      $or: [
+        {
+          trashed: {
+            $exists: false,
+          },
+        },
+        {
+          trashed: false,
+        },
+      ],
     };
 
-    if (publishedOnly) {
-      $match.isPublished = true;
+    if (categoryId) {
+      $match.categoryId = categoryId;
     }
 
-    let pipeline = [
+    let $sort = { createdAt: -1 };
+
+    /* If option is set, returns only published articles */
+    if (onlyPublished) {
+      $sort = {
+        publicationDate: -1,
+        createdAt: -1,
+      };
+      $match.isPublished = true;
+      $match.$or = [
+        {
+          publicationDate: {
+            $exists: false,
+          },
+        },
+        {
+          publicationDate: {
+            $lte: new Date(),
+          },
+        },
+      ];
+    }
+
+    let countPipeline = [
+      {
+        $match: {
+          contentCollection: COLL_PRESS_ARTICLES,
+          userId,
+          $and: [
+            {
+              $or: [
+                { expiresAt: { $eq: null } },
+                { expiresAt: { $gt: new Date() } },
+              ],
+            },
+            {
+              $or: [
+                { 'permissions.read': true },
+                { 'permissions.all': true },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: COLL_PRESS_ARTICLES,
+          localField: 'contentId',
+          foreignField: '_id',
+          as: 'article',
+        },
+      },
+      {
+        $unwind: {
+          path: '$article',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: '$article',
+        },
+      },
+      // TODO: optimise by using Category as start point
+      // get Category Id with path and then get articles
       { $match },
+    ];
+
+    let pipeline = countPipeline.concat([
+      { $sort },
+      { $skip: parseInt(start, 10) || 0 },
+      { $limit: parseInt(limit, 10) || 10 },
       {
         $lookup: {
           from: COLL_PRESS_CATEGORIES,
@@ -45,7 +128,7 @@ export const getArticle = async (
       {
         $unwind: {
           path: '$category',
-          preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: false,
         },
       },
       {
@@ -71,60 +154,24 @@ export const getArticle = async (
         },
       },
       { /*
-        some users have base 64 pictures in profile,
-        we remove those fields to avoid big trafic load
+          some users have base 64 pictures in profile,
+          we remove those fields to avoid big trafic load
         */
         $project: {
           'user.profile.avatar': 0,
           'user.profile.userPictureData': 0,
         },
       },
-    ];
-
-    if (userId) {
-      pipeline = pipeline.concat([
-        {
-          $lookup: {
-            as: 'cp',
-            from: COLL_CONTENT_PERMISSIONS,
-            let: {
-              articleId: '$_id',
-              articleProductId: '$productId',
-            },
-            pipeline: [{ $match: {
-              $expr: {
-                $and: [
-                  { $ne: ['$$articleProductId', null] },
-                  { $eq: ['$contentId', '$$articleId'] },
-                  { $eq: ['$contentCollection', COLL_PRESS_ARTICLES] },
-                  { $eq: ['$userId', userId] },
-                ],
-              },
-            } }],
-          },
-        },
-        {
-          $unwind: {
-            path: '$cp',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $addFields: { permissions: '$cp.permissions' },
-        },
-      ]);
-    }
+    ]);
 
     if (getPictures) {
       // Lookup on pictures
+      // TODO optimise, fetch pictures only for skip/limit range
       const pictureGroup = {
-        ...Object.keys(isServer ? articleFields.server : articleFields.public).reduce(
-          (res, key) => {
-            res[key] = { $first: `$${key}` };
-            return res;
-          },
-          {},
-        ),
+        ...Object.keys(articleFields.public).reduce((res, key) => {
+          res[key] = { $first: `$${key}` };
+          return res;
+        }, {}),
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
         videos: { $first: '$videos' },
@@ -171,15 +218,13 @@ export const getArticle = async (
         },
       ]);
 
-      // Lookup on pictures
+      // Lookup on videos
+      // TODO optimise, fetch videos only for skip/limit range
       const videoGroup = {
-        ...Object.keys(isServer ? articleFields.server : articleFields.public).reduce(
-          (res, key) => {
-            res[key] = { $first: `$${key}` };
-            return res;
-          },
-          {},
-        ),
+        ...Object.keys(articleFields.public).reduce((res, key) => {
+          res[key] = { $first: `$${key}` };
+          return res;
+        }, {}),
         category: { $first: '$category' },
         pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
@@ -213,25 +258,25 @@ export const getArticle = async (
       ]);
     }
 
-    const articles = await client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_ARTICLES)
-      .aggregate(pipeline)
-      .toArray();
+    /* Group stage could break sorting, ensure all is well sorted */
+    pipeline.push({ $sort });
 
-    const article = articles[0] || null;
+    countPipeline = countPipeline.concat([{ $count: 'total' }]);
 
-    if (article) {
-      /* Filter article if purchasable and not paid yet */
-      if (
-        article.storeProductId &&
-        (!article.permissions || (!article.permissions.all && !article.permissions.read))
-      ) {
-        article.text = null;
-      }
-    }
+    const [articles = [], [{ total = 0 }]] = await Promise.all([
+      client
+        .db(DB_NAME)
+        .collection(COLL_CONTENT_PERMISSIONS)
+        .aggregate(pipeline)
+        .toArray(),
+      client
+        .db(DB_NAME)
+        .collection(COLL_CONTENT_PERMISSIONS)
+        .aggregate(countPipeline)
+        .toArray(),
+    ]);
 
-    return article;
+    return { articles, total };
   } finally {
     client.close();
   }

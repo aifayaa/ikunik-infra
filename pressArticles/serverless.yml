@@ -7,6 +7,11 @@ provider:
   memorySize: 128
   timeout: 30
   environment: ${file(../env.yml)}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -32,6 +37,21 @@ functions:
     events:
       - http:
           path: press/articlesAll/
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getPurchasedArticles:
+    handler: handlers/getPurchasedArticles.default
+    events:
+      - http:
+          path: press/purchasedArticles/
           method: get
           cors: true
           authorizer:
@@ -136,6 +156,21 @@ functions:
             authorizer:
               type: CUSTOM
               authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  purchaseArticle:
+      handler: handlers/purchaseArticle.default
+      events:
+        - http:
+            path: press/articles/{id}/purchase
+            method: post
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           request:
             parameters:
               headers:
