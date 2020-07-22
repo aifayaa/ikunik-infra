@@ -1,4 +1,4 @@
-service: purchasableProduct
+service: purchasableProducts
 
 provider:
   name: aws
@@ -14,26 +14,11 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  # getAllPurchasableProducts:
-  #   handler: handlers/getAllPurchasableProducts.default
-  #   events:
-  #     - http:
-  #         path: purchasableProductAll/
-  #         method: get
-  #         cors: true
-  #         authorizer:
-  #           type: CUSTOM
-  #           authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-  #         request:
-  #           parameters:
-  #             headers:
-  #               Authorization: true
-
   validatePurchase:
     handler: handlers/validatePurchase.default
     events:
       - http:
-          path: purchasableProduct/validate
+          path: purchasableProducts/validate
           method: post
           cors: true
           authorizer:
@@ -44,7 +29,7 @@ functions:
     handler: handlers/findPurchasableProduct.default
     events:
       - http:
-          path: purchasableProduct/
+          path: purchasableProducts/
           method: get
           cors: true
           authorizer:
@@ -55,7 +40,7 @@ functions:
     handler: handlers/getPurchasableProduct.default
     events:
       - http:
-          path: purchasableProduct/{id}
+          path: purchasableProducts/{id}
           method: get
           cors: true
           request:
@@ -72,7 +57,7 @@ functions:
     handler: handlers/postPurchasableProduct.default
     events:
       - http:
-          path: purchasableProduct/
+          path: purchasableProducts/
           method: post
           cors: true
           authorizer:
@@ -87,7 +72,7 @@ functions:
       handler: handlers/patchPurchasableProduct.default
       events:
         - http:
-            path: purchasableProduct/{id}
+            path: purchasableProducts/{id}
             method: patch
             cors: true
             authorizer:
@@ -102,7 +87,7 @@ functions:
       handler: handlers/deletePurchasableProduct.default
       events:
         - http:
-            path: purchasableProduct/{id}
+            path: purchasableProducts/{id}
             method: delete
             cors: true
             authorizer:
