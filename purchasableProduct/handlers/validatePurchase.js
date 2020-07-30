@@ -28,7 +28,7 @@ export default async (event) => {
       .findOne({ _id: appId }, {
         projection: {
           'builds.android.googleApiData': true,
-          'settings.iap.AppleSecret': true,
+          'settings.iap.appleSecret': true,
           'settings.iap.googleLicenceKey': true,
         },
       });
@@ -38,15 +38,15 @@ export default async (event) => {
     }
 
     const googleApiData = get(appInfo, 'builds.android.googleApiData');
-    const applePassword = get(appInfo, 'settings.iap.AppleSecret');
-    const googleLicenseKey = get(appInfo, 'settings.iap.googleLicenceKey');
+    const applePassword = get(appInfo, 'settings.iap.appleSecret');
+    const googleLicenceKey = get(appInfo, 'settings.iap.googleLicenceKey');
     const receiptRaw = get(bodyParsed, 'transaction.receipt');
     const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
     const googleReceipt = receiptRaw && JSON.parse(receiptRaw);
 
     if (
-      !(appleReceipt && applePassword) ||
-      !(googleReceipt && googleApiData && googleLicenseKey)
+      !(appleReceipt && applePassword) &&
+      !(googleReceipt && googleApiData && googleLicenceKey)
     ) {
       throw new Error('missing_arguments');
     }
@@ -64,7 +64,7 @@ export default async (event) => {
       verbose: true,
 
       // googlePublicKeyPath
-      googlePublicKeyStrLive: googleLicenseKey,
+      googlePublicKeyStrLive: googleLicenceKey,
       // googlePublicKeyStrSandBox
 
       // Apple
