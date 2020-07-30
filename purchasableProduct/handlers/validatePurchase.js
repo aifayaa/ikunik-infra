@@ -28,7 +28,7 @@ export default async (event) => {
       .findOne({ _id: appId }, {
         projection: {
           'builds.android.googleApiData': true,
-          'settings.iap.AppleSecret': true,
+          'settings.iap.appleSecret': true,
           'settings.iap.googleLicenceKey': true,
         },
       });
@@ -38,7 +38,7 @@ export default async (event) => {
     }
 
     const googleApiData = get(appInfo, 'builds.android.googleApiData');
-    const applePassword = get(appInfo, 'settings.iap.AppleSecret');
+    const applePassword = get(appInfo, 'settings.iap.appleSecret');
     const googleLicenseKey = get(appInfo, 'settings.iap.googleLicenceKey');
     const receiptRaw = get(bodyParsed, 'transaction.receipt');
     const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
