@@ -39,14 +39,14 @@ export default async (event) => {
 
     const googleApiData = get(appInfo, 'builds.android.googleApiData');
     const applePassword = get(appInfo, 'settings.iap.appleSecret');
-    const googleLicenseKey = get(appInfo, 'settings.iap.googleLicenceKey');
+    const googleLicenceKey = get(appInfo, 'settings.iap.googleLicenceKey');
     const receiptRaw = get(bodyParsed, 'transaction.receipt');
     const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
     const googleReceipt = receiptRaw && JSON.parse(receiptRaw);
 
     if (
-      !(appleReceipt && applePassword) ||
-      !(googleReceipt && googleApiData && googleLicenseKey)
+      !(appleReceipt && applePassword) &&
+      !(googleReceipt && googleApiData && googleLicenceKey)
     ) {
       throw new Error('missing_arguments');
     }
@@ -64,7 +64,7 @@ export default async (event) => {
       verbose: true,
 
       // googlePublicKeyPath
-      googlePublicKeyStrLive: googleLicenseKey,
+      googlePublicKeyStrLive: googleLicenceKey,
       // googlePublicKeyStrSandBox
 
       // Apple
