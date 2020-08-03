@@ -110,6 +110,15 @@ export default async (event) => {
     const responseBody = { ok: true, data: validatedData };
     return response({ code: 200, body: responseBody });
   } catch (e) {
+    if (typeof e === 'string') {
+      try {
+        // eslint-disable-next-line no-ex-assign
+        e = JSON.parse(e);
+      } catch (error) {
+        // eslint-disable-next-line no-ex-assign
+        e = new Error('Can\'t parse error');
+      }
+    }
     return response({ code: 500, message: e.message });
   } finally {
     client.close();
