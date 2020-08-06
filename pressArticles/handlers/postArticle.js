@@ -12,6 +12,7 @@ import { getArticle } from '../lib/getArticle';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
+import articlePrices from '../articlePrices.json';
 
 const permKey = 'pressArticles_all';
 
@@ -26,24 +27,25 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
     const {
+      autoPublish,
       forceCategoryId,
       forcePictures,
       forceVideos,
-      autoPublish,
       sendNotifications = false,
     } = event.queryStringParameters || {};
 
     let actions;
     let categoryId;
-    let title;
-    let summary;
+    let feedPicture;
     let html;
     let md;
-    let xml;
     let pictures;
-    let videos;
     let plainText;
-    let feedPicture;
+    let productId;
+    let summary;
+    let title;
+    let videos;
+    let xml;
 
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
@@ -51,12 +53,13 @@ export default async (event) => {
         ({
           actions,
           categoryId,
-          title,
-          summary,
+          feedPicture,
           md,
           pictures,
+          summary,
+          productId,
+          title,
           videos,
-          feedPicture,
         } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
@@ -67,6 +70,7 @@ export default async (event) => {
         html = xmlToHtml(xml, defaultSettings);
         const infos = getInfos(xml, defaultSettings);
         title = infos.title || infos.name;
+        productId = infos.productId;
         summary = ' ';
         plainText = xmlToText(xml, defaultSettings);
         if (forcePictures) {
@@ -106,24 +110,32 @@ export default async (event) => {
     ) {
       throw new Error('mal_formed_request');
     }
+
     checkActions(actions);
+
+    if (productId && !articlePrices[productId]) {
+      throw new Error('mal_formed_request');
+    }
 
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
-      userId,
+      actions,
       appId,
       categoryId,
-      title,
-      summary,
+      feedPicture,
       html,
       md,
-      xml,
       pictures,
-      videos,
-      feedPicture,
       plainText,
-      actions,
+      price: articlePrices[productId],
+      productId,
+      summary,
+      title,
+      userId,
+      videos,
+      xml,
     });
+
     if (autoPublish === 'true') {
       results = await publishArticle(
         userId,
@@ -136,7 +148,7 @@ export default async (event) => {
       if (sendNotifications === 'true') {
         const article = await getArticle(results.articleId, {});
         await doSendNotifications(
-          article.title,
+          prepareNotif(article.title, 60, false),
           prepareNotif(article.plainText),
           appId,
           { articleId: results.articleId },

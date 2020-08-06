@@ -1,5 +1,6 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import { manageArticleProduct } from './manageArticleProduct';
 
 const {
   DB_NAME,
@@ -11,15 +12,17 @@ export const putArticle = async ({
   appId,
   articleId,
   categoryId,
+  feedPicture,
   html,
   md,
   pictures,
-  videos,
-  feedPicture,
   plainText = '',
+  price,
+  productId: storeProductId,
   summary,
   title,
   userId,
+  videos,
 }) => {
   if (
     typeof title !== 'string' ||
@@ -37,11 +40,25 @@ export const putArticle = async ({
   const draftId = uuidv4();
   const client = await MongoClient.connect();
   try {
-    const { _id } = await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS)
-      .findOne({ articleId }, { sort: { createdAt: -1 } });
+    const currentArticle = await client.db(DB_NAME)
+      .collection(COLL_PRESS_DRAFTS)
+      .findOne(
+        { articleId },
+        { sort: { createdAt: -1 } },
+      );
+
+    const productId = await manageArticleProduct(
+      appId,
+      userId,
+      currentArticle,
+      price,
+      storeProductId,
+    );
+
     const draft = {
       _id: draftId,
-      ancestor: _id,
+      actions,
+      ancestor: currentArticle._id,
       appIds: [appId],
       articleId,
       categoryId,
@@ -49,11 +66,12 @@ export const putArticle = async ({
       isPublished: false,
       md,
       plainText,
+      storeProductId,
+      productId,
       summary,
       text: html,
       title,
       userId,
-      actions,
     };
     if (videos) {
       draft.videos = videos;

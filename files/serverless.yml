@@ -82,6 +82,11 @@ functions:
     events:
       - sns: video-stream-${self:provider.stage}
 
+  onVideoEncodeError:
+    handler: handlers/onVideoEncodeError.default
+    events:
+      - sns: video-stream-${self:provider.stage}-error
+
 plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env

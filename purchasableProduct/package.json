@@ -1,0 +1,29 @@
+{
+  "name": "purchasable-product",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa purchasableProduct API.",
+  "main": "handler.js",
+  "scripts": {
+    "test": "npx sls export-env; npx -f env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+  },
+  "dependencies": {
+    "in-app-purchase": "^1.11.4",
+    "lodash": "^4.17.15",
+    "mongodb": "^3.5.0"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^5.0.0",
+    "chai": "^4.2.0",
+    "env-cmd": "^10.0.1",
+    "esm": "^3.2.25",
+    "mocha": "^7.0.0",
+    "serverless": "^1.61.2",
+    "serverless-export-env": "^1.2.0",
+    "serverless-webpack": "^5.3.1",
+    "sinon": "^8.1.0",
+    "webpack": "^4.41.5"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}

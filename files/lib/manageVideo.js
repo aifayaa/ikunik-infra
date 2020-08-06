@@ -104,7 +104,20 @@ export default async (bucket, object, file) => {
         name,
       },
     };
-    await elasticTranscoder.createJob(params).promise();
+
+    try {
+      await elasticTranscoder.createJob(params).promise();
+    } catch (e) {
+      await client.db(DB_NAME)
+        .collection(collection)
+        .updateOne(
+          { _id: document._id },
+          { $set: {
+            message: e.message,
+            status: uploadStatus.ENCODING_JOB_ERROR,
+          } },
+        );
+    }
   } finally {
     client.close();
   }

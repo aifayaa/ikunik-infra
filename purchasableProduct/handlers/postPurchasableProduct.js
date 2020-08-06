@@ -1,0 +1,106 @@
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import { postPurchasableProduct } from '../lib/postPurchasableProduct';
+import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const permKey = 'purchasableProducts_post';
+const availableTypes = ['subscription', 'direct'];
+
+export default async (event) => {
+  const { appId, perms } = event.requestContext.authorizer;
+  const userId = event.requestContext.authorizer.principalId;
+
+  try {
+    const permissions = JSON.parse(perms);
+    if (!checkPerms(permKey, permissions)) {
+      throw new Error('access_forbidden');
+    }
+
+    if (!event.body) {
+      throw new Error('missing_payload');
+    }
+
+    const bodyParsed = JSON.parse(event.body);
+    const {
+      _id,
+      contents,
+      options = {},
+      price,
+      type,
+    } = bodyParsed;
+
+    if (
+      !contents ||
+      !price ||
+      !type
+    ) {
+      throw new Error('missing_argument');
+    }
+
+    [
+      _id,
+      price,
+      type,
+    ].forEach((item) => {
+      if (item && typeof item !== 'string') {
+        throw new Error('wrong_argument_type');
+      }
+    });
+
+    if (typeof contents !== 'object' || typeof contents.length === 'undefined') {
+      throw new Error('wrong_argument_type');
+    }
+
+    contents.forEach((contentItem) => {
+      if (!contentItem.id || !contentItem.collection || !contentItem.permissions) {
+        throw new Error('missing_argument');
+      }
+      if (
+        typeof contentItem.id !== 'string' ||
+        typeof contentItem.collection !== 'string' ||
+        typeof contentItem.permissions !== 'object' ||
+        typeof contentItem.permissions.length !== 'undefined'
+      ) {
+        throw new Error('wrong_argument_type');
+      }
+      Object.keys(contentItem.permissions).forEach((key) => {
+        if (typeof contentItem.permissions[key] !== 'boolean') {
+          throw new Error('wrong_argument_type');
+        }
+      });
+    });
+
+    if (typeof options.expiresIn !== 'undefined') {
+      if (typeof options.expiresIn === 'string') {
+        options.expiresIn = new Date(options.expiresIn);
+        if (options.expiresIn.toString() === 'Invalid Date') {
+          throw new Error('wrong_argument_value');
+        }
+      } else if (typeof options.expiresIn === 'boolean' && options.expiresIn) {
+        throw new Error('wrong_argument_value');
+      } else {
+        throw new Error('wrong_argument_type');
+      }
+    }
+
+    if (!(availableTypes.indexOf(type) + 1)) {
+      throw new Error('wrong_argument_value');
+    }
+
+    const results = await postPurchasableProduct(
+      appId,
+      userId,
+      {
+        _id,
+        contents,
+        options,
+        price,
+        type,
+      },
+    );
+
+    return response({ code: 200, body: results });
+  } catch (e) {
+    return response(errorMessage(e));
+  }
+};
