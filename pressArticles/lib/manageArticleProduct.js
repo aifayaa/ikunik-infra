@@ -31,7 +31,7 @@ export const manageArticleProduct = async (
 
   if (previousArticle.productId) {
     lambdaResponse = await lambda.invoke({
-      FunctionName: `purchasableProduct-${process.env.STAGE}-getPurchasableProduct`,
+      FunctionName: `purchasableProducts-${process.env.STAGE}-getPurchasableProduct`,
       Payload: JSON.stringify({
         pathParameters: { id: previousArticle.productId },
         requestContext: getRequestContext('purchasableProducts_get'),
@@ -39,7 +39,7 @@ export const manageArticleProduct = async (
     }).promise();
   } else {
     lambdaResponse = await lambda.invoke({
-      FunctionName: `purchasableProduct-${process.env.STAGE}-findPurchasableProduct`,
+      FunctionName: `purchasableProducts-${process.env.STAGE}-findPurchasableProduct`,
       Payload: JSON.stringify({
         queryStringParameters: {
           contentId: previousArticle.articleId,
@@ -60,7 +60,7 @@ export const manageArticleProduct = async (
    *  unlink the product and try to delete it if able */
   if (priceIsNull && product) {
     lambdaResponse = await lambda.invoke({
-      FunctionName: `purchasableProduct-${process.env.STAGE}-deletePurchasableProduct`,
+      FunctionName: `purchasableProducts-${process.env.STAGE}-deletePurchasableProduct`,
       Payload: JSON.stringify({
         pathParameters: { id: previousArticle.productId },
         requestContext: getRequestContext('purchasableProducts_delete'),
@@ -78,7 +78,7 @@ export const manageArticleProduct = async (
   if (!priceIsNull && !product) {
     const productId = uuidv4();
     lambdaResponse = await lambda.invoke({
-      FunctionName: `purchasableProduct-${process.env.STAGE}-postPurchasableProduct`,
+      FunctionName: `purchasableProducts-${process.env.STAGE}-postPurchasableProduct`,
       Payload: JSON.stringify({
         body: JSON.stringify({
           _id: productId,
@@ -108,7 +108,7 @@ export const manageArticleProduct = async (
    *  see if they match, otherwise update the product */
   if (!priceIsNull && product) {
     lambdaResponse = await lambda.invoke({
-      FunctionName: `purchasableProduct-${process.env.STAGE}-patchPurchasableProduct`,
+      FunctionName: `purchasableProducts-${process.env.STAGE}-patchPurchasableProduct`,
       Payload: JSON.stringify({
         body: JSON.stringify({
           options: {
