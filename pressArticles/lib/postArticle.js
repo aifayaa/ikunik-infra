@@ -109,7 +109,7 @@ export const postArticle = async ({
 
   if (storeProductId) {
     await lambda.invoke({
-      FunctionName: `purchasableProduct-${process.env.STAGE}-postPurchasableProduct`,
+      FunctionName: `purchasableProducts-${process.env.STAGE}-postPurchasableProduct`,
       Payload: JSON.stringify({
         _id: productId,
         content: [{
