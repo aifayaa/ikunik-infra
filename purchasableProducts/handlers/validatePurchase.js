@@ -54,7 +54,7 @@ export default async (event) => {
     const {
       client_email: clientEmail,
       privateKey,
-    } = googleApiData;
+    } = googleApiData || {};
 
     const iapConfiguration = {
       requestDefaults: {},
