@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import iap from 'in-app-purchase';
 import MongoClient from '../../libs/mongoClient';
 import { addBalance } from '../../userBalances/lib/addBalance';
+import { addPurchaseHistory } from '../lib/addPurchaseHistory';
 import response from '../../libs/httpResponses/response';
 import articlePrices from '../../pressArticles/articlePrices.json';
 
@@ -106,6 +107,7 @@ export default async (event) => {
     // @TODO : checks if price is defined ?
 
     await addBalance(appId, userId, parseFloat(price));
+    await addPurchaseHistory({ appId, userId, productId, bodyParsed, purchaseData });
 
     const responseBody = { ok: true, data: validatedData };
     return response({ code: 200, body: responseBody });
