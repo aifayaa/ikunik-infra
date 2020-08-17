@@ -4,7 +4,14 @@ import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
-  const { start, limit, type, userId } = event.queryStringParameters || {};
+  const {
+    countOnly = false,
+    limit,
+    reported = false,
+    start,
+    type,
+    userId,
+  } = event.queryStringParameters || {};
 
   try {
     // eslint-disable-next-line eqeqeq
@@ -26,14 +33,18 @@ export default async (event) => {
       // throw new Error('This type is not available');
     }
 
-    const results = await getAllUserGeneratedContents(
+    const { results, total } = await getAllUserGeneratedContents(
       appId,
       start,
       limit,
       type,
       userId,
+      {
+        countOnly,
+        reported,
+      },
     );
-    return response({ code: 200, body: results });
+    return response({ code: 200, body: countOnly ? total : results });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
