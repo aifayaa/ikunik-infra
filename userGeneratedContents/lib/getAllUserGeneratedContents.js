@@ -15,6 +15,7 @@ export default async (
   userId,
   {
     countOnly = false,
+    moderated = undefined,
     reported = false,
   } = {},
 ) => {
@@ -37,6 +38,15 @@ export default async (
 
     $match.trashed = false;
     $match.appIds = { $elemMatch: { $eq: appId } };
+
+    if (moderated !== undefined) {
+      $match['settings.moderated'] = moderated;
+    } else {
+      $match.$or = [
+        { 'settings.moderated': true },
+        { 'settings.moderated': { $exists: false } },
+      ];
+    }
 
     /* Prepare pipeline */
     const pipeline = [

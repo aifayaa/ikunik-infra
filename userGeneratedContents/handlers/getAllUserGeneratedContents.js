@@ -7,6 +7,7 @@ export default async (event) => {
   const {
     countOnly = false,
     limit,
+    moderated = undefined,
     reported = false,
     start,
     type,
@@ -41,6 +42,7 @@ export default async (event) => {
       userId,
       {
         countOnly,
+        moderated,
         reported,
       },
     );
