@@ -16,6 +16,7 @@ export default async (
   {
     countOnly = false,
     moderated = undefined,
+    raw,
     reported = false,
   } = {},
 ) => {
@@ -128,34 +129,26 @@ export default async (
     }
 
     countPipeline.push({
-      $group: {
-        _id: null,
-        total: { $sum: 1 },
-      },
-    }, {
-      $project: {
-        _id: 0,
-        total: 1,
-      },
+      $count: 'total',
     });
 
     /* Prepare results */
     let results = [];
-    let total = [{ total: 0 }];
+    let total = 0;
     if (countOnly) {
-      total = await client
+      ([{ total = 0 } = {}] = await client
         .db(DB_NAME)
         .collection(COLL_USER_GENERATED_CONTENTS)
         .aggregate(countPipeline)
-        .toArray();
+        .toArray());
     } else {
-      ([results = [], total] = await Promise.all([
+      ([results = [], [{ total = 0 } = {}] = []] = await Promise.all([
         client
           .db(DB_NAME)
           .collection(COLL_USER_GENERATED_CONTENTS)
           .aggregate(pipeline)
           .toArray(),
-        client
+        raw ? {} : client
           .db(DB_NAME)
           .collection(COLL_USER_GENERATED_CONTENTS)
           .aggregate(countPipeline)
@@ -163,7 +156,7 @@ export default async (
       ]));
     }
 
-    return { results, total: total[0].total };
+    return { items: results, totalCount: total };
   } finally {
     client.close();
   }

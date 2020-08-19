@@ -8,6 +8,7 @@ export default async (event) => {
     countOnly = false,
     limit,
     moderated = undefined,
+    raw,
     reported = false,
     start,
     type,
@@ -29,12 +30,17 @@ export default async (event) => {
       throw new Error('This type is not available');
     }
 
+    if (raw && (['true', 'false'].indexOf(raw)) === undefined) {
+      throw new Error('Wrong argument type status');
+    }
+
     if (userId) {
       // check if user exists
       // throw new Error('This type is not available');
     }
 
-    const { results, total } = await getAllUserGeneratedContents(
+    const isRaw = raw !== 'false';
+    const { items, totalCount } = await getAllUserGeneratedContents(
       appId,
       start,
       limit,
@@ -44,9 +50,19 @@ export default async (event) => {
         countOnly,
         moderated,
         reported,
+        raw: isRaw,
       },
     );
-    return response({ code: 200, body: countOnly ? total : results });
+    let body;
+    if (isRaw) {
+      body = items;
+    } else {
+      body = { totalCount };
+      if (!countOnly) {
+        body.items = items;
+      }
+    }
+    return response({ code: 200, body });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
