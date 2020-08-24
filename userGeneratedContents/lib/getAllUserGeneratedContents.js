@@ -40,13 +40,13 @@ export default async (
     $match.trashed = false;
     $match.appIds = { $elemMatch: { $eq: appId } };
 
-    if (moderated !== undefined) {
-      $match['settings.moderated'] = moderated;
-    } else {
+    if (raw) {
       $match.$or = [
-        { 'settings.moderated': true },
+        { 'settings.moderated': moderated },
         { 'settings.moderated': { $exists: false } },
       ];
+    } else {
+      $match['settings.moderated'] = moderated;
     }
 
     /* Prepare pipeline */
@@ -133,26 +133,27 @@ export default async (
     });
 
     /* Prepare results */
+    const resultsPromise = client
+      .db(DB_NAME)
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .aggregate(pipeline)
+      .toArray();
+    const countPromise = client
+      .db(DB_NAME)
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .aggregate(countPipeline)
+      .toArray();
+
     let results = [];
     let total = 0;
     if (countOnly) {
-      ([{ total = 0 } = {}] = await client
-        .db(DB_NAME)
-        .collection(COLL_USER_GENERATED_CONTENTS)
-        .aggregate(countPipeline)
-        .toArray());
+      ([{ total = 0 } = {}] = await countPromise);
+    } else if (raw) {
+      (results = await resultsPromise);
     } else {
       ([results = [], [{ total = 0 } = {}] = []] = await Promise.all([
-        client
-          .db(DB_NAME)
-          .collection(COLL_USER_GENERATED_CONTENTS)
-          .aggregate(pipeline)
-          .toArray(),
-        raw ? {} : client
-          .db(DB_NAME)
-          .collection(COLL_USER_GENERATED_CONTENTS)
-          .aggregate(countPipeline)
-          .toArray(),
+        resultsPromise,
+        countPromise,
       ]));
     }
 
