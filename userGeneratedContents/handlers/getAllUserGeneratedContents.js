@@ -47,8 +47,8 @@ export default async (event) => {
       type,
       userId,
       {
-        countOnly,
-        moderated,
+        countOnly: countOnly && !isRaw,
+        moderated: typeof moderated !== 'undefined' ? moderated === 'true' : moderated,
         reported,
         raw: isRaw,
       },
