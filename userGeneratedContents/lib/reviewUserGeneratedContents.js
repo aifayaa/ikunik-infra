@@ -20,7 +20,6 @@ export default async (
   try {
     const $set = {
       reviewed: true,
-      modifiedAt: new Date(),
     };
 
     if (!valid) {
@@ -37,7 +36,7 @@ export default async (
       .updateOne(
         {
           _id: ugc._id,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         { $set },
       );
