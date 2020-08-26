@@ -148,6 +148,23 @@ functions:
               headers:
                 Authorization: true
 
+  reviewUGC:
+    handler: handlers/reviewUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/review
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
 plugins:
   - serverless-webpack
   - serverless-export-env
