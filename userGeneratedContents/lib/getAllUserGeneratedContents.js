@@ -18,6 +18,7 @@ export default async (
     moderated = undefined,
     raw,
     reported = false,
+    reviewed = undefined,
   } = {},
 ) => {
   let client;
@@ -40,13 +41,12 @@ export default async (
     $match.trashed = false;
     $match.appIds = { $elemMatch: { $eq: appId } };
 
-    if (raw) {
-      $match.$or = [
-        { 'settings.moderated': moderated },
-        { 'settings.moderated': { $exists: false } },
-      ];
-    } else {
+    if (typeof moderated !== 'undefined') {
       $match['settings.moderated'] = moderated;
+    }
+
+    if (typeof reviewed !== 'undefined') {
+      $match['settings.reviewed'] = reviewed;
     }
 
     /* Prepare pipeline */
@@ -107,6 +107,8 @@ export default async (
           data: 1,
           parentCollection: 1,
           parentId: 1,
+          reason: 1,
+          reviewed: 1,
           rootParentCollection: 1,
           rootParentId: 1,
           type: 1,

@@ -7,9 +7,10 @@ export default async (event) => {
   const {
     countOnly = false,
     limit,
-    moderated = undefined,
+    moderated,
     raw,
     reported = false,
+    reviewed,
     start,
     type,
     userId,
@@ -49,8 +50,9 @@ export default async (event) => {
       {
         countOnly: countOnly && !isRaw,
         moderated: typeof moderated !== 'undefined' ? moderated === 'true' : moderated,
-        reported,
         raw: isRaw,
+        reported,
+        reviewed: typeof reviewed !== 'undefined' ? reviewed === 'true' : reviewed,
       },
     );
     let body;
