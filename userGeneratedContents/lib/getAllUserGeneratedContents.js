@@ -49,7 +49,7 @@ export default async (
       $match.rootParentId = parentId;
     }
 
-    if (typeof moderated !== 'undefined') {
+    if (typeof moderated === 'undefined') {
       $match.$or = [
         { moderated: false },
         { moderated: { $exists: false } },

@@ -8,7 +8,9 @@ const permKeys = [
   'userGeneratedContents_moderate',
 ];
 
-const isBooleanStringOrUndefined = (val) => !!(val && (['true', 'false'].indexOf(val) + 1));
+const isBooleanStringOrUndefined = (val) => typeof val === 'undefined' ||
+  !!(['true', 'false'].indexOf(val) + 1);
+
 
 const ORDER_BY_LIST = [
   'reportsCount',
@@ -36,31 +38,25 @@ export default async (event) => {
   try {
     // eslint-disable-next-line eqeqeq
     if (start && parseInt(start, 10) != start) {
-      throw new Error('Wrong argument type');
+      throw new Error('wrong_argument_type');
     }
 
     // eslint-disable-next-line eqeqeq
     if (limit && parseInt(limit, 10) != limit) {
-      throw new Error('Wrong argument type');
-    }
-
-    if (sortBy && !(ORDER_BY_LIST.indexOf(sortBy) + 1)) {
-      throw new Error('Wrong argument value');
-    }
-
-    if (sortOrder && !(['asc', 'desc'].indexOf(sortOrder) + 1)) {
-      throw new Error('Wrong argument value');
+      throw new Error('wrong_argument_type');
     }
 
     if (
-      isBooleanStringOrUndefined(moderated) &&
-      isBooleanStringOrUndefined(raw) &&
-      isBooleanStringOrUndefined(reported) &&
-      isBooleanStringOrUndefined(trashed) &&
-      isBooleanStringOrUndefined(reviewed) &&
-      isBooleanStringOrUndefined(reportsCount)
+      (sortBy && !(ORDER_BY_LIST.indexOf(sortBy) + 1)) ||
+      (sortOrder && !(['asc', 'desc'].indexOf(sortOrder) + 1)) ||
+      !isBooleanStringOrUndefined(moderated) ||
+      !isBooleanStringOrUndefined(raw) ||
+      !isBooleanStringOrUndefined(reported) ||
+      !isBooleanStringOrUndefined(trashed) ||
+      !isBooleanStringOrUndefined(reviewed) ||
+      !isBooleanStringOrUndefined(reportsCount)
     ) {
-      throw new Error('Wrong argument value');
+      throw new Error('wrong_argument_value');
     }
 
     if (type && AVAILABLE_TYPES[type] === undefined) {
@@ -80,6 +76,7 @@ export default async (event) => {
       if (!isModerator) {
         const error = new Error('Unauthorized: this operation require moderator level rights');
         error.code = 401;
+        throw error;
       }
     }
 
@@ -114,9 +111,6 @@ export default async (event) => {
     }
     return response({ code: 200, body });
   } catch (e) {
-    if (e.code) {
-      return response({ code: e.code, message: e.message });
-    }
-    return response({ code: 500, message: e.message });
+    return response({ code: e.code || 500, message: e.message });
   }
 };
