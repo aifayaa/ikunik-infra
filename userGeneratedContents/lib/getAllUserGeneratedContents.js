@@ -33,7 +33,7 @@ export default async (
     /* Query objects */
     const $match = {
       trashed,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
 
     /* Fill match object */
@@ -50,6 +50,11 @@ export default async (
     }
 
     if (typeof moderated !== 'undefined') {
+      $match.$or = [
+        { moderated: false },
+        { moderated: { $exists: false } },
+      ];
+    } else {
       $match.moderated = moderated;
     }
 
