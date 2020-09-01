@@ -1,51 +1,116 @@
 import getAllUserGeneratedContents from '../lib/getAllUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const permKeys = [
+  'userGeneratedContents_all',
+  'userGeneratedContents_moderate',
+];
+
+const isBooleanStringOrUndefined = (val) => typeof val === 'undefined' ||
+  !!(['true', 'false'].indexOf(val) + 1);
+
+
+const ORDER_BY_LIST = [
+  'reportsCount',
+];
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const {
     countOnly = false,
     limit,
-    reported = false,
+    moderated,
+    parentId,
+    raw,
+    reported = undefined,
+    reportsCount,
+    reviewed = undefined,
     start,
+    trashed,
     type,
     userId,
+    sortBy,
+    sortOrder,
   } = event.queryStringParameters || {};
 
   try {
     // eslint-disable-next-line eqeqeq
     if (start && parseInt(start, 10) != start) {
-      throw new Error('Wrong argument type');
+      throw new Error('wrong_argument_type');
     }
 
     // eslint-disable-next-line eqeqeq
     if (limit && parseInt(limit, 10) != limit) {
-      throw new Error('Wrong argument type');
+      throw new Error('wrong_argument_type');
+    }
+
+    if (
+      (sortBy && !(ORDER_BY_LIST.indexOf(sortBy) + 1)) ||
+      (sortOrder && !(['asc', 'desc'].indexOf(sortOrder) + 1)) ||
+      !isBooleanStringOrUndefined(moderated) ||
+      !isBooleanStringOrUndefined(raw) ||
+      !isBooleanStringOrUndefined(reported) ||
+      !isBooleanStringOrUndefined(trashed) ||
+      !isBooleanStringOrUndefined(reviewed) ||
+      !isBooleanStringOrUndefined(reportsCount)
+    ) {
+      throw new Error('wrong_argument_value');
     }
 
     if (type && AVAILABLE_TYPES[type] === undefined) {
       throw new Error('This type is not available');
     }
 
-    if (userId) {
-      // check if user exists
-      // throw new Error('This type is not available');
+
+    // Moderator only allowed parameters
+    if (
+      typeof moderated !== 'undefined' &&
+      typeof reported !== 'undefined' &&
+      typeof reviewed !== 'undefined' &&
+      typeof trashed !== 'undefined'
+    ) {
+      const perms = JSON.parse(event.requestContext.authorizer.perms);
+      const isModerator = checkPerms(permKeys, perms);
+      if (!isModerator) {
+        const error = new Error('Unauthorized: this operation require moderator level rights');
+        error.code = 401;
+        throw error;
+      }
     }
 
-    const { results, total } = await getAllUserGeneratedContents(
+    const isRaw = raw !== 'false';
+    const { items, totalCount } = await getAllUserGeneratedContents(
       appId,
       start,
       limit,
       type,
       userId,
       {
-        countOnly,
+        countOnly: countOnly && !isRaw,
+        moderated: typeof moderated !== 'undefined' ? moderated === 'true' : moderated,
+        parentId,
+        raw: isRaw,
         reported,
+        reportsCount,
+        reviewed: typeof reviewed !== 'undefined' ? reviewed === 'true' : reviewed,
+        trashed,
+        sortBy,
+        sortOrder,
       },
     );
-    return response({ code: 200, body: countOnly ? total : results });
+    let body;
+    if (isRaw) {
+      body = items;
+    } else {
+      body = { totalCount };
+      if (!countOnly) {
+        body.items = items;
+      }
+    }
+    return response({ code: 200, body });
   } catch (e) {
-    return response({ code: 500, message: e.message });
+    return response({ code: e.code || 500, message: e.message });
   }
 };

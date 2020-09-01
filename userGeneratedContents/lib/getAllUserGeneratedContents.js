@@ -15,7 +15,15 @@ export default async (
   userId,
   {
     countOnly = false,
-    reported = false,
+    moderated = undefined,
+    parentId,
+    raw,
+    reported = undefined,
+    reportsCount = false,
+    reviewed = undefined,
+    trashed = false,
+    sortBy,
+    sortOrder = 'desc',
   } = {},
 ) => {
   let client;
@@ -23,8 +31,10 @@ export default async (
     client = await MongoClient.connect();
 
     /* Query objects */
-    const $match = {};
-    const $sort = { createdAt: -1 };
+    const $match = {
+      trashed,
+      appIds: appId,
+    };
 
     /* Fill match object */
     if (userId) {
@@ -35,34 +45,68 @@ export default async (
       $match.type = type;
     }
 
-    $match.trashed = false;
-    $match.appIds = { $elemMatch: { $eq: appId } };
+    if (parentId) {
+      $match.rootParentId = parentId;
+    }
+
+    if (typeof moderated === 'undefined') {
+      $match.$or = [
+        { moderated: false },
+        { moderated: { $exists: false } },
+      ];
+    } else {
+      $match.moderated = moderated;
+    }
+
+    if (typeof reviewed !== 'undefined') {
+      $match.reviewed = reviewed;
+    }
 
     /* Prepare pipeline */
     const pipeline = [
       { $match },
-      { $sort },
     ];
     const countPipeline = [{ $match }];
 
-    if (reported) {
+    if (reported || reportsCount) {
       const reportLookup = {
         $lookup: {
           from: COLL_USER_GENERATED_CONTENTS_REPORTS,
           localField: '_id',
           foreignField: 'ugcId',
-          as: 'report',
+          as: 'reports',
         },
       };
-      const reportUnwind = {
-        $unwind: {
-          path: '$report',
-          preserveNullAndEmptyArrays: false,
-        },
-      };
-      pipeline.push(reportLookup, reportUnwind);
-      countPipeline.push(reportLookup, reportUnwind);
+      pipeline.push(reportLookup);
+      countPipeline.push(reportLookup);
     }
+
+    if (reported) {
+      const filterUgc = {
+        $match: {
+          reports: { $ne: [] },
+        },
+      };
+      pipeline.push(filterUgc);
+      countPipeline.push(filterUgc);
+    }
+
+    if (reportsCount) {
+      const addReportsCount = {
+        $addFields: {
+          reportsCount: { $size: '$reports' },
+        },
+      };
+      pipeline.push(addReportsCount);
+    }
+
+    /* add sort to pipeline only after added all fields */
+    const $sort = {};
+    if (sortBy) {
+      $sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    }
+    $sort.createdAt = -1;
+    pipeline.push({ $sort });
 
     /* Fill pipeline only when required */
     if (!countOnly) {
@@ -96,9 +140,12 @@ export default async (
           data: 1,
           parentCollection: 1,
           parentId: 1,
+          reason: 1,
+          reviewed: 1,
           rootParentCollection: 1,
           rootParentId: 1,
           type: 1,
+          reportsCount: 1,
           user: {
             firstname: 1,
             isUserPicture: 1,
@@ -118,42 +165,35 @@ export default async (
     }
 
     countPipeline.push({
-      $group: {
-        _id: null,
-        total: { $sum: 1 },
-      },
-    }, {
-      $project: {
-        _id: 0,
-        total: 1,
-      },
+      $count: 'total',
     });
 
     /* Prepare results */
+    const resultsPromise = client
+      .db(DB_NAME)
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .aggregate(pipeline)
+      .toArray();
+    const countPromise = client
+      .db(DB_NAME)
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .aggregate(countPipeline)
+      .toArray();
+
     let results = [];
-    let total = [{ total: 0 }];
+    let total = 0;
     if (countOnly) {
-      total = await client
-        .db(DB_NAME)
-        .collection(COLL_USER_GENERATED_CONTENTS)
-        .aggregate(countPipeline)
-        .toArray();
+      ([{ total = 0 } = {}] = await countPromise);
+    } else if (raw) {
+      (results = await resultsPromise);
     } else {
-      ([results = [], total] = await Promise.all([
-        client
-          .db(DB_NAME)
-          .collection(COLL_USER_GENERATED_CONTENTS)
-          .aggregate(pipeline)
-          .toArray(),
-        client
-          .db(DB_NAME)
-          .collection(COLL_USER_GENERATED_CONTENTS)
-          .aggregate(countPipeline)
-          .toArray(),
+      ([results = [], [{ total = 0 } = {}] = []] = await Promise.all([
+        resultsPromise,
+        countPromise,
       ]));
     }
 
-    return { results, total: total[0].total };
+    return { items: results, totalCount: total };
   } finally {
     client.close();
   }

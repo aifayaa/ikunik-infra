@@ -5,7 +5,7 @@ const {
   COLL_APPS,
 } = process.env;
 
-export default async (appId) => {
+export default async (appId, allSettings = false) => {
   let client;
   try {
     client = await MongoClient.connect();
@@ -18,6 +18,10 @@ export default async (appId) => {
 
     if (!application) {
       return false;
+    }
+
+    if (allSettings) {
+      return application.settings;
     }
 
     const results = {

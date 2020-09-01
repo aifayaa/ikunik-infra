@@ -3,7 +3,7 @@ import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
 
-import getAllUserGeneratedContents from '../../lib/getAllUserGeneratedContents';
+import reviewUserGeneratedContents from '../../lib/reviewUserGeneratedContents';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
@@ -11,31 +11,30 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-describe('lib - getAllUserGeneratedContents', () => {
+describe('lib - reviewUserGeneratedContents', () => {
   let spyMongo;
   let stubMongo;
-  const response1 = [];
-  const response2 = [{ total: 0 }];
+  const response = false;
 
   before(() => {
-    spyMongo = spyMongoMethods(response1, response2);
+    spyMongo = spyMongoMethods(response);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,
+      startSession: spyMongo.startSession,
     };
     stubMongo = sinon.stub(MongoClient, 'connect').returns(fakeClient);
   });
 
-  it('should return an object', async () => {
-    const res = await getAllUserGeneratedContents(
+  it('should return a boolean', async () => {
+    const res = await reviewUserGeneratedContents(
       'crowdaa_app_id',
-      0,
-      10,
-      'article',
       'userId',
+      'userGeneratedContentsId',
+      'data',
     );
-    expect(res).to.deep.eq({ items: [], totalCount: 0 });
-    expect(res).to.be.an('object');
+    expect(res).to.deep.eq(response);
+    expect(res).to.be.a('boolean');
   });
 
   it('mongo connection done', () => {
@@ -45,8 +44,7 @@ describe('lib - getAllUserGeneratedContents', () => {
 
   it('should be called with the good args', () => {
     sinon.assert.calledWith(spyMongo.collection, COLL_USER_GENERATED_CONTENTS);
-    sinon.assert.calledWith(spyMongo.aggregate, spyMongo.aggregate.getCall(0).args[0]);
-    sinon.assert.called(spyMongo.toArray);
+    sinon.assert.calledWith(spyMongo.updateOne, spyMongo.updateOne.getCall(0).args[0]);
   });
 
   after(() => {
