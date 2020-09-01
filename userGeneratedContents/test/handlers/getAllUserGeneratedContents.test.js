@@ -26,7 +26,7 @@ describe('handlers - getAllUserGeneratedContents', () => {
   const sandbox = sinon.createSandbox();
 
   describe('lib success', () => {
-    const libResult = 'ok';
+    const libResult = { items: [], total: 0 };
 
     before(() => {
       stubLib = sandbox.stub(lib, 'default').returns(libResult);
@@ -35,7 +35,7 @@ describe('handlers - getAllUserGeneratedContents', () => {
     it('should return 200', async () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(200);
-      expect(JSON.parse(response.body)).to.eql({ message: 'ok' });
+      expect(JSON.parse(response.body)).to.eql([]);
     });
 
     it('should called with the good args', () => {

@@ -14,7 +14,7 @@ const {
 describe('lib - getAllUserGeneratedContents', () => {
   let spyMongo;
   let stubMongo;
-  const response = [];
+  const response = { items: {}, totalCount: 0 };
 
   before(() => {
     spyMongo = spyMongoMethods(response);
@@ -30,11 +30,11 @@ describe('lib - getAllUserGeneratedContents', () => {
       'crowdaa_app_id',
       0,
       10,
-      'type',
+      'article',
       'userId',
     );
-    expect(res).to.deep.eq(response);
-    expect(res).to.be.an('array');
+    expect(res).to.deep.eq({ items: response, totalCount: 0 });
+    expect(res).to.be.an('object');
   });
 
   it('mongo connection done', () => {
