@@ -14,10 +14,11 @@ const {
 describe('lib - getAllUserGeneratedContents', () => {
   let spyMongo;
   let stubMongo;
-  const response = { items: {}, totalCount: 0 };
+  const response1 = [];
+  const response2 = [{ total: 0 }];
 
   before(() => {
-    spyMongo = spyMongoMethods(response);
+    spyMongo = spyMongoMethods(response1, response2);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,
@@ -33,7 +34,7 @@ describe('lib - getAllUserGeneratedContents', () => {
       'article',
       'userId',
     );
-    expect(res).to.deep.eq({ items: response, totalCount: 0 });
+    expect(res).to.deep.eq({ items: [], totalCount: 0 });
     expect(res).to.be.an('object');
   });
 
