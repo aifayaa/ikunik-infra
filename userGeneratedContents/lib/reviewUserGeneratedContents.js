@@ -11,7 +11,7 @@ export default async (
   ugc,
   {
     reason = '',
-    valid,
+    moderated,
   } = {},
 ) => {
   /* Mongo client */
@@ -19,16 +19,10 @@ export default async (
 
   try {
     const $set = {
+      moderated,
+      reason,
       reviewed: true,
     };
-
-    if (!valid) {
-      $set.moderated = true;
-
-      if (reason) {
-        $set.reason = reason;
-      }
-    }
 
     const { matchedCount } = await client
       .db(DB_NAME)
