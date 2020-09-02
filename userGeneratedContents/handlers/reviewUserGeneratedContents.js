@@ -23,8 +23,8 @@ export default async (event) => {
     const userGeneratedContentsId = event.pathParameters.id;
     const bodyParsed = JSON.parse(event.body);
     const {
+      moderated,
       reason,
-      valid,
     } = bodyParsed;
 
     let ugc = null;
@@ -46,7 +46,7 @@ export default async (event) => {
       throw new Error('ugc_not_found');
     }
 
-    if (typeof valid !== 'boolean') {
+    if (typeof moderated !== 'boolean') {
       throw new Error('wrong_argument_type');
     }
 
