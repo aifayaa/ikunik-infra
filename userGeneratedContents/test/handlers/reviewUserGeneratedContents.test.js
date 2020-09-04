@@ -11,7 +11,7 @@ describe('handlers - reviewUserGeneratedContents', () => {
   const event = {
     body: JSON.stringify({
       reason: 'reason',
-      valid: true,
+      moderated: true,
     }),
     requestContext: {
       authorizer: {
@@ -71,6 +71,11 @@ describe('handlers - reviewUserGeneratedContents', () => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns({ results: {}, error: '' });
         stubLib = sandbox.stub(lib, 'default').throws();
         response = await handler(event);
+      });
+
+      it('should call checkPerms with safeExec option', () => {
+        const { args: [,,,,, callOptions] } = stubOwner.getCall(0);
+        expect(callOptions.safeExec).to.be.true;
       });
 
       it('should return 500', () => {
