@@ -2,9 +2,6 @@ import sinon from 'sinon';
 
 export default (...responses) => {
   let responseCount = -1;
-  if (responses.length === 1) {
-    responses = [responses];
-  }
   const toArray = sinon.spy(
     () => {
       responseCount += 1;
