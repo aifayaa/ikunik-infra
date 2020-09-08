@@ -19,8 +19,11 @@ export default async (appId, parentId, parentCollection, start, limit) => {
           trashed: false,
           appIds: appId,
           $or: [
-            { moderated: false },
-            { moderated: { $exists: false } },
+            /* pre moderation case */
+            { moderated: false, reviewed: true },
+            /* post moderation cases */
+            { moderated: { $exists: false }, reviewed: false },
+            { moderated: { $exists: false }, reviewed: { $exists: false } },
           ],
         },
       },

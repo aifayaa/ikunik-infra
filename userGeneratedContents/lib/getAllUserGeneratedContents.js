@@ -51,8 +51,11 @@ export default async (
 
     if (typeof moderated === 'undefined') {
       $match.$or = [
-        { moderated: false },
-        { moderated: { $exists: false } },
+        /* pre moderation case */
+        { moderated: false, reviewed: true },
+        /* post moderation cases */
+        { moderated: { $exists: false }, reviewed: false },
+        { moderated: { $exists: false }, reviewed: { $exists: false } },
       ];
     } else {
       $match.moderated = moderated;
