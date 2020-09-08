@@ -22,7 +22,7 @@ export default async (
 
   try {
     const appSettings = getAppSettings(appId, true) || {};
-    const moderationRequired = appSettings.press;
+    const { moderationRequired } = appSettings.press || {};
 
     /* Otherwise, insert the category to the database and return it */
     const userGeneratedContents = {
