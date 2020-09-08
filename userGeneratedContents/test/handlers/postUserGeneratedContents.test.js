@@ -16,7 +16,11 @@ describe('handlers - postUserGeneratedContents', () => {
     body: JSON.stringify({
       parentId: '66494021-bcbf-4eea-bf04-a666c44bda57',
       type: 'article',
-      data: {},
+      data: {
+        title: 'title',
+        content: 'content',
+        pictures: ['pictureId'],
+      },
     }),
     requestContext: {
       authorizer: {
@@ -108,7 +112,14 @@ describe('handlers - postUserGeneratedContents', () => {
         stubEmailTemplate,
         userId,
         appId,
-        { contentId: 'userGeneratedContentsId', data: {} },
+        {
+          contentId: 'userGeneratedContentsId',
+          data: {
+            title: 'title',
+            content: 'content',
+            pictures: ['pictureId'],
+          },
+        },
       );
     });
 

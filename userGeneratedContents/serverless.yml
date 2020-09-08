@@ -69,11 +69,11 @@ functions:
               paths:
                 id: true
 
-  getPressArticlesChildrenUGC:
+  getChildrenUGC:
     handler: handlers/getChildrenUserGeneratedContents.default
     events:
       - http:
-          path: press/articles/{id}/userGeneratedContents
+          path: userGeneratedContents/{id}/children
           method: get
           cors: true
           authorizer:
@@ -83,12 +83,8 @@ functions:
             parameters:
               paths:
                 id: true
-
-  getChildrenUGC:
-    handler: handlers/getChildrenUserGeneratedContents.default
-    events:
       - http:
-          path: userGeneratedContents/{id}/children
+          path: press/articles/{id}/userGeneratedContents
           method: get
           cors: true
           authorizer:
@@ -147,6 +143,40 @@ functions:
             parameters:
               headers:
                 Authorization: true
+
+  getReports:
+    handler: handlers/getUserGeneratedContentReports.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/reports
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  reviewUGC:
+    handler: handlers/reviewUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/review
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack
