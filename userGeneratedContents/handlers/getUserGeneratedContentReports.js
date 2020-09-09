@@ -1,5 +1,6 @@
 import getUserGeneratedContentReports from '../lib/getUserGeneratedContentReports';
 import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKeys = [
@@ -14,6 +15,9 @@ export default async (event) => {
   const {
     limit,
     start,
+  } = event.queryStringParameters || {};
+
+  let {
     countOnly = false,
   } = event.queryStringParameters || {};
 
@@ -22,10 +26,9 @@ export default async (event) => {
     const isModerator = checkPerms(permKeys, perms);
 
     if (!isModerator) {
-      const error = new Error('Unauthorized: not enough right level');
-      error.code = 401;
-      throw error;
+      throw new Error('insufficient_user_rights');
     }
+
     if (
       /* eslint-disable eqeqeq */
       (start && parseInt(start, 10) != start) ||
@@ -33,6 +36,15 @@ export default async (event) => {
       /* eslint-enable eqeqeq */
     ) {
       throw new Error('wrong_argument_type');
+    }
+
+    if (typeof countOnly !== 'boolean') {
+      const lowerCaseCountOnly = countOnly.toLowerCase();
+      if (['true', 'false'].indexOf(lowerCaseCountOnly) + 1) {
+        countOnly = countOnly.toLowerCase() === 'true';
+      } else {
+        throw new Error('wrong_argument_type');
+      }
     }
 
     const { items, totalCount } = await getUserGeneratedContentReports(
@@ -49,6 +61,6 @@ export default async (event) => {
       body: countOnly ? { totalCount } : { totalCount, items },
     });
   } catch (e) {
-    return response({ code: e.code || 500, message: e.message });
+    return response(errorMessage({ message: e.message }));
   }
 };
