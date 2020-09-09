@@ -24,15 +24,23 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              querystrings:
+                html: true
+
       - http:
           path: tos/{id}
           method: get
           cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          access: public
+          # authorizer:
+          #   type: CUSTOM
+          #   authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
+              querystrings:
+                html: true
               paths:
                 id: true
 

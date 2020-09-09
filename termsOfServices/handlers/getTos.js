@@ -7,13 +7,22 @@ export default async (event) => {
   const options = {};
   try {
     if (event.queryStringParameters) {
-      ['outdated', 'required'].forEach((v) => {
+      ['outdated', 'required', 'html'].forEach((v) => {
         if (typeof event.queryStringParameters[v] !== 'undefined') {
           options[v] = event.queryStringParameters[v] === 'true';
         }
       });
     }
     const results = await getTos(appId, tosId, options);
+    if (results.length && event.queryStringParameters.html === 'true') {
+      return response({
+        code: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+        body: results,
+      });
+    }
     if (results.length) return response({ code: 200, body: results });
     return response({ code: 404, message: 'tos_not_found' });
   } catch (e) {

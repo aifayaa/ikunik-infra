@@ -14,6 +14,7 @@ export const getTos = async (appId, tosId, options = {}) => {
       },
     },
   };
+
   if (tosId) {
     query._id = tosId;
   }
