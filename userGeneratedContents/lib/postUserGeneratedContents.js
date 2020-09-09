@@ -21,7 +21,7 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    const appSettings = getAppSettings(appId, true) || {};
+    const appSettings = (await getAppSettings(appId, true)) || {};
     const { moderationRequired } = appSettings.press || {};
 
     /* Otherwise, insert the category to the database and return it */
