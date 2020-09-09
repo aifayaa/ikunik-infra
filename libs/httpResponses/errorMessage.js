@@ -1,22 +1,23 @@
-export default ({ message = 'Error' } = {}) => {
-  let code;
+export default ({ code, message = 'Error' } = {}) => {
+  let errorCode;
   switch (message) {
     case 'missing_argument':
     case 'missing_payload':
     case 'wrong_argument_type':
     case 'wrong_argument_value':
-      code = 400;
+      errorCode = 400;
       break;
+    case 'insufficient_user_rights':
     case 'access_forbidden':
     case 'forbidden_user':
-      code = 403;
+      errorCode = 403;
       break;
     case 'content_not_found':
-      code = 404;
+      errorCode = 404;
       break;
     default:
-      code = 500;
+      errorCode = 500;
       break;
   }
-  return { code, message };
+  return { code: code || errorCode, message };
 };
