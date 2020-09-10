@@ -12,7 +12,11 @@ export default async (appId) => {
         {
           _id: appId,
         },
-        { projection: { name: 1, key: 1 } },
+        { projection: {
+          key: 1,
+          name: 1,
+          protocol: 1,
+        } },
       );
 
     if (!app) {
