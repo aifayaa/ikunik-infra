@@ -4,7 +4,10 @@
   "private": true,
   "description": "Crowdaa apps API.",
   "main": "handler.js",
-  "dependencies": {},
+  "dependencies": {
+    "aws-sdk": "^2.749.0",
+    "phone": "^2.4.15"
+  },
   "devDependencies": {
     "serverless": "^1.61.2",
     "serverless-webpack": "^5.3.1",
