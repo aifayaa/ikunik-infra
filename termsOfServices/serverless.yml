@@ -33,16 +33,15 @@ functions:
           path: tos/{id}
           method: get
           cors: true
-          access: public
-          # authorizer:
-          #   type: CUSTOM
-          #   authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           request:
             parameters:
-              querystrings:
-                html: true
               paths:
                 id: true
+              querystrings:
+                html: true
 
 plugins:
   - serverless-webpack
