@@ -54,6 +54,21 @@ functions:
               paths:
                 id: true
 
+  getAppPreview:
+    handler: handlers/getAppPreview.default
+    events:
+      - http:
+          path: apps/preview/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              paths:
+                id: true
+
   sendPreviewInfo:
     handler: handlers/sendPreviewInfo.default
     events:
