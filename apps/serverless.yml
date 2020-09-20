@@ -54,6 +54,18 @@ functions:
               paths:
                 id: true
 
+  getAppTos:
+      handler: handlers/getAppTos.default
+      events:
+        - http:
+            path: apps/{id}/tos
+            method: get
+            cors: true
+            request:
+              parameters:
+                paths:
+                  id: true
+
 plugins:
   - serverless-webpack
 

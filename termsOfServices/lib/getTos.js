@@ -8,16 +8,13 @@ const {
 
 export const getTos = async (appId, tosId, options = {}) => {
   const query = {
-    appIds: {
-      $elemMatch: {
-        $eq: appId,
-      },
-    },
+    appIds: appId,
   };
 
   if (tosId) {
     query._id = tosId;
   }
+
   if (typeof options.outdated !== 'undefined') {
     query.outdated = {
       $exists: options.outdated,
