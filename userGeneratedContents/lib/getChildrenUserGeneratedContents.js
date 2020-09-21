@@ -17,7 +17,14 @@ export default async (appId, parentId, parentCollection, start, limit) => {
           parentId,
           parentCollection,
           trashed: false,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
+          $or: [
+            /* pre moderation case */
+            { moderated: false, reviewed: true },
+            /* post moderation cases */
+            { moderated: { $exists: false }, reviewed: false },
+            { moderated: { $exists: false }, reviewed: { $exists: false } },
+          ],
         },
       },
       {

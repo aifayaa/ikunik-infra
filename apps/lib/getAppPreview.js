@@ -2,7 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 
 const { DB_NAME, COLL_APPS } = process.env;
 
-export default async (appId) => {
+export default async (key) => {
   const client = await MongoClient.connect();
   try {
     const app = await client
@@ -10,7 +10,8 @@ export default async (appId) => {
       .collection(COLL_APPS)
       .findOne(
         {
-          _id: appId,
+          key,
+          'settings.preview': true,
         },
         { projection: {
           key: 1,

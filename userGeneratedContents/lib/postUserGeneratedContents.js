@@ -1,5 +1,6 @@
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
+import getAppSettings from '../../apps/lib/getAppSettings';
 
 const {
   DB_NAME,
@@ -20,6 +21,9 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
+    const appSettings = (await getAppSettings(appId, true)) || {};
+    const { moderationRequired } = appSettings.press || {};
+
     /* Otherwise, insert the category to the database and return it */
     const userGeneratedContents = {
       _id: uuid.v4(),
@@ -35,6 +39,10 @@ export default async (
       createdAt: new Date(),
       modifiedAt: false,
     };
+
+    if (moderationRequired) {
+      userGeneratedContents.moderated = false;
+    }
 
     const _id = await client
       .db(DB_NAME)

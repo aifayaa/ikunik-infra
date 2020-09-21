@@ -32,7 +32,7 @@ describe('handlers - patchUserGeneratedContents', () => {
   describe('no perms', () => {
     let response;
     before(async () => {
-      stubOwner = sandbox.stub(checkOwner, 'default').returns({ code: 403, message: 'forbidden_user' });
+      stubOwner = sandbox.stub(checkOwner, 'default').throws(new Error('forbidden_user'));
       stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
       stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
       stubLib = sandbox.stub(lib, 'default').returns(true);
@@ -66,8 +66,8 @@ describe('handlers - patchUserGeneratedContents', () => {
         response = await handler(finalEvent);
       });
 
-      it('should return 500', () => {
-        expect(response.statusCode).to.equal(500);
+      it('should return 400', () => {
+        expect(response.statusCode).to.equal(400);
       });
 
       it('should not call send email function', () => {

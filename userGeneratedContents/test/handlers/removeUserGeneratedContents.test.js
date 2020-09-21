@@ -33,7 +33,11 @@ describe('handlers - removeUserGeneratedContents', () => {
       describe(title, () => {
         const resultCode = shouldSucceed ? 200 : 403;
         before(() => {
-          stubOwner = sandbox.stub(checkOwner, 'default').returns(isOwner ? true : { code: 403, message: 'forbidden_user' });
+          if (isOwner) {
+            stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
+          } else {
+            stubOwner = sandbox.stub(checkOwner, 'default').throws(new Error('forbidden_user'));
+          }
           sandbox.stub(checkPerms, 'checkPerms').returns(isModerator);
           stubLib = sandbox.stub(lib, 'default').returns({});
         });
@@ -51,7 +55,7 @@ describe('handlers - removeUserGeneratedContents', () => {
 
   describe('content not found', () => {
     before(() => {
-      stubOwner = sandbox.stub(checkOwner, 'default').returns({ code: 404, message: 'content_not_found' });
+      stubOwner = sandbox.stub(checkOwner, 'default').throws(new Error('content_not_found'));
       sandbox.stub(checkPerms, 'checkPerms').returns(true);
       stubLib = sandbox.stub(lib, 'default').returns({});
     });

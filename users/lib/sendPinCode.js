@@ -1,6 +1,7 @@
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import MongoClient from '../../libs/mongoClient';
+import getAppInfos from '../../apps/lib/getAppInfos';
 import generatePinCode from './generatePinCode';
 
 const {
@@ -11,7 +12,10 @@ const {
   SNS_SECRET,
 } = process.env;
 
-export default async (phone) => {
+export default async (phone, appId) => {
+  const { name = 'Crowdaa' } = await getAppInfos(appId);
+  const sanatizedName = name.charAt(0).toUpperCase() + name.slice(1);
+
   const sns = new SNS({
     region: SNS_REGION,
     credentials: {
@@ -37,7 +41,7 @@ export default async (phone) => {
       throw new Error('not a recognized phone number format');
     }
     const cleandedNumber = cleanded[0];
-    const text = `Hey! Your PIN code is ${pinCode} . Enjoy Crowdaa!`;
+    const text = `Hey! Your PIN code is ${pinCode}. Enjoy ${sanatizedName}!`;
     const params = {
       Message: text,
       MessageStructure: 'string',

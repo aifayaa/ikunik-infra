@@ -11,6 +11,7 @@ export default async (
   collectionField,
   userId,
   options = {
+    safeExec: false,
     useTrashedField: true,
   },
 ) => {
@@ -32,12 +33,20 @@ export default async (
       .collection(collectionName)
       .findOne(findObj);
 
+    let error = '';
+
     if (!obj) {
-      throw new Error('content_not_found');
+      error = 'content_not_found';
+    } else if (obj[collectionField] !== userId) {
+      error = 'forbidden_user';
     }
 
-    if (obj[collectionField] !== userId) {
-      throw new Error('forbidden_user');
+    if (options.safeExec) {
+      return { results: obj, error };
+    }
+
+    if (error) {
+      throw new Error(error);
     }
 
     return obj;

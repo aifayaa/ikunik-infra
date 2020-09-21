@@ -34,7 +34,7 @@ describe('lib - getChildrenUserGeneratedContents', () => {
       10,
     );
     expect(res).to.deep.eq(response);
-    expect(res).to.be.a('array');
+    expect(res).to.be.an('array');
   });
 
   it('mongo connection done', () => {

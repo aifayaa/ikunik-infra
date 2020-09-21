@@ -1,17 +1,29 @@
 import sinon from 'sinon';
 
-export default (response) => {
-  const toArray = sinon.spy(() => Promise.resolve(response));
+export default (...responses) => {
+  let responseCount = -1;
+  const toArray = sinon.spy(
+    () => {
+      responseCount += 1;
+      return Promise.resolve(responses[responseCount]);
+    },
+  );
   const aggregate = sinon.spy(() => ({
     toArray,
   }));
-  const count = sinon.spy(() => Promise.resolve(response.length || 0));
+  const count = sinon.spy(() => {
+    responseCount += 1;
+    return Promise.resolve(responses[responseCount].length || 0);
+  });
   const find = sinon.spy(() => ({
     toArray,
     count,
   }));
   const insertOne = sinon.spy(() => true);
-  const findOne = sinon.spy(() => response);
+  const findOne = sinon.spy(() => {
+    responseCount += 1;
+    return responses[responseCount];
+  });
   const updateOne = sinon.spy(() => true);
   const updateMany = sinon.spy(() => true);
   const deleteOne = sinon.spy(() => true);
