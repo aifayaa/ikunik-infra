@@ -1,5 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-import tosFields from '../tosFieldsProjection.json';
+import tosFields from '../../termsOfServices/tosFields.json';
 
 const {
   COLL_TOS,
@@ -8,7 +8,7 @@ const {
 
 export const getAppTos = async (appId, options = {}) => {
   const query = {
-    appIds: { $elemMatch: { $eq: appId } },
+    appIds: appId,
   };
 
   if (typeof options.outdated !== 'undefined') {
