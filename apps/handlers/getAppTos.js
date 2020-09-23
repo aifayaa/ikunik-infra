@@ -1,4 +1,4 @@
-import { getAppTos } from '../lib/getAppTos';
+import { getTos } from '../../termsOfServices/lib/getTos';
 import { getHtmlResults } from '../../termsOfServices/htmlResults';
 import response from '../../libs/httpResponses/response';
 
@@ -14,7 +14,7 @@ export default async (event) => {
       });
     }
 
-    const results = await getAppTos(appId, options);
+    const results = await getTos(appId, false, { outdated: false, required: true });
     const body = getHtmlResults(results);
 
     if (results.length && event.queryStringParameters.html === 'true') {

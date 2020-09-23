@@ -23,7 +23,9 @@ export const getTos = async (appId, tosId, options = {}) => {
   if (typeof options.required !== 'undefined') {
     query.required = options.required;
   }
+
   const { public: projection } = tosFields;
+
   const client = await MongoClient.connect();
   try {
     const tos = await client
