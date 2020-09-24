@@ -1,4 +1,4 @@
-export default ({ code, body, message, raw }) => {
+export default ({ headers = {}, code, body, message, raw }) => {
   if (!body && !message) {
     message = 'http_error_missing_response_arguments';
   }
@@ -21,6 +21,7 @@ export default ({ code, body, message, raw }) => {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': true,
+      ...headers,
     },
   };
 };

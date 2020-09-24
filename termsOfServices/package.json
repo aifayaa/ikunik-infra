@@ -16,7 +16,7 @@
     "mocha": "^7.0.0",
     "serverless": "^1.61.2",
     "serverless-export-env": "^1.2.0",
-    "serverless-webpack": "^5.3.1",
+    "serverless-webpack": "^5.3.3",
     "sinon": "^8.1.0",
     "webpack": "^4.41.5"
   },
