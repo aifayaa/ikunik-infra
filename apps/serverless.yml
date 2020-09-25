@@ -95,8 +95,6 @@ functions:
               parameters:
                 paths:
                   id: true
-                querystrings:
-                  html: true
 
 plugins:
   - serverless-webpack

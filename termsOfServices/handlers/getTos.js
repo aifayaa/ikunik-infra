@@ -8,7 +8,7 @@ export default async (event) => {
   const options = {};
   try {
     if (event.queryStringParameters) {
-      ['outdated', 'required', 'html'].forEach((v) => {
+      ['outdated', 'required'].forEach((v) => {
         if (typeof event.queryStringParameters[v] !== 'undefined') {
           options[v] = event.queryStringParameters[v] === 'true';
         }
@@ -17,17 +17,17 @@ export default async (event) => {
     const results = await getTos(appId, tosId, options);
     const body = getHtmlResults(results);
 
-    if (results.length && event.queryStringParameters.html === 'true') {
+    if (results.length) {
       return response({
         code: 200,
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
+          Accept: 'text/html',
         },
         body,
         raw: true,
       });
     }
-    if (results.length) return response({ code: 200, body: results });
     return response({ code: 404, message: 'tos_not_found' });
   } catch (e) {
     return response({ code: 500, message: e.message });

@@ -24,10 +24,6 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              querystrings:
-                html: true
 
       - http:
           path: tos/{id}
@@ -40,8 +36,6 @@ functions:
             parameters:
               paths:
                 id: true
-              querystrings:
-                html: true
 
 plugins:
   - serverless-webpack
