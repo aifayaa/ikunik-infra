@@ -6,6 +6,7 @@ export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const tosId = event.pathParameters && event.pathParameters.id;
   const options = {};
+
   try {
     if (event.queryStringParameters) {
       ['outdated', 'required'].forEach((v) => {
@@ -17,17 +18,17 @@ export default async (event) => {
     const results = await getTos(appId, tosId, options);
     const body = getHtmlResults(results);
 
-    if (results.length) {
+    if (results.length && event.headers.Accept === 'text/html') {
       return response({
         code: 200,
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          Accept: 'text/html',
         },
         body,
         raw: true,
       });
     }
+    if (results.length) return response({ code: 200, body: results });
     return response({ code: 404, message: 'tos_not_found' });
   } catch (e) {
     return response({ code: 500, message: e.message });
