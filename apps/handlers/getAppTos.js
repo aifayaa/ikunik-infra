@@ -17,17 +17,19 @@ export default async (event) => {
     const results = await getTos(appId, false, { outdated: false, required: true });
     const body = getHtmlResults(results);
 
-    if (results.length && event.headers.Accept === 'text/html') {
-      return response({
-        code: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-        },
-        body,
-        raw: true,
-      });
+    if (results) {
+      if (event.headers.Accept === 'text/html') {
+        return response({
+          code: 200,
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+          },
+          body,
+          raw: true,
+        });
+      }
+      return response({ code: 200, body: results });
     }
-    if (results.length) return response({ code: 200, body: results });
     return response({ code: 404, message: 'tos_not_found' });
   } catch (e) {
     return response({ code: 500, message: e.message });
