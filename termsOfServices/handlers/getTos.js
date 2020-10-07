@@ -18,8 +18,11 @@ export default async (event) => {
     const results = await getTos(appId, tosId, options);
     const body = getHtmlResults(results);
 
+    const accept = event.headers['accept'] || event.headers['Accept'];
+    const acceptArray = accept.split(accept, ',');
+
     if (results) {
-      if (event.headers.Accept === 'text/html') {
+      if (acceptArray.includes('text/html')) {
         return response({
           code: 200,
           headers: {
