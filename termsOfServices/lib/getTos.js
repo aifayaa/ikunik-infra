@@ -8,15 +8,13 @@ const {
 
 export const getTos = async (appId, tosId, options = {}) => {
   const query = {
-    appIds: {
-      $elemMatch: {
-        $eq: appId,
-      },
-    },
+    appIds: appId,
   };
+
   if (tosId) {
     query._id = tosId;
   }
+
   if (typeof options.outdated !== 'undefined') {
     query.outdated = {
       $exists: options.outdated,
@@ -25,7 +23,9 @@ export const getTos = async (appId, tosId, options = {}) => {
   if (typeof options.required !== 'undefined') {
     query.required = options.required;
   }
+
   const { public: projection } = tosFields;
+
   const client = await MongoClient.connect();
   try {
     const tos = await client

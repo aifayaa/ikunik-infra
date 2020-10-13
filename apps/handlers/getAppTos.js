@@ -1,12 +1,10 @@
-import { getTos } from '../lib/getTos';
-import { getHtmlResults } from '../htmlResults';
+import { getTos } from '../../termsOfServices/lib/getTos';
+import { getHtmlResults } from '../../termsOfServices/htmlResults';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
-  const tosId = event.pathParameters && event.pathParameters.id;
+  const appId = event.pathParameters.id;
   const options = {};
-
   try {
     if (event.queryStringParameters) {
       ['outdated', 'required'].forEach((v) => {
@@ -15,7 +13,8 @@ export default async (event) => {
         }
       });
     }
-    const results = await getTos(appId, tosId, options);
+
+    const results = await getTos(appId, false, { outdated: false, required: true });
     const body = getHtmlResults(results);
 
     const accept = event.headers.accept || event.headers.Accept;

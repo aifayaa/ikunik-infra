@@ -24,6 +24,7 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
       - http:
           path: tos/{id}
           method: get
