@@ -72,6 +72,7 @@ describe('handlers - getTos', () => {
     it('should call lib with params', () => {
       sinon.assert.calledWith(stubLib, 'crowdaa_app_id', 'tosId');
     });
+
     it('should return 500', () => {
       expect(response.statusCode).to.eql(500);
     });
