@@ -10,6 +10,7 @@ if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
 }
 
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 const yaml = require('js-yaml');
 const { MongoClient } = require('./index');
 
@@ -25,6 +26,9 @@ const { MongoClient } = require('./index');
   const client = await MongoClient.connect(mongoUrl);
 
   const {
+    AUTH_PASS: pass,
+    AUTH_SMTP: host,
+    AUTH_USER: user,
     COLL_USERS,
     DB_NAME,
   } = envData;
@@ -40,14 +44,6 @@ const { MongoClient } = require('./index');
     );
 
     /* Those indexes are from meteor */
-    // promises.push(
-    //   client.db(DB_NAME).collection(COLL_USERS)
-    //     .createIndex('username', { unique: true, sparse: true }),
-    // );
-    // promises.push(
-    //   client.db(DB_NAME).collection(COLL_USERS)
-    //     .createIndex('emails.address', { unique: true, sparse: true }),
-    // );
     promises.push(
       client.db(DB_NAME).collection(COLL_USERS)
         .createIndex('services.resume.loginTokens.hashedToken', { unique: true, sparse: true }),
@@ -69,13 +65,25 @@ const { MongoClient } = require('./index');
         .createIndex('services.password.reset.when', { sparse: true }),
     );
 
-    const results = await Promise.all(promises);
-
-    // eslint-disable-next-line no-console
-    console.log(results);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e.message);
+    await Promise.all(promises);
+  } catch (indexError) {
+    try {
+      const transporter = nodemailer.createTransport({
+        auth: { user, pass },
+        host,
+        port: 465,
+        secure: true,
+      });
+      await transporter.sendMail({
+        from: 'services@crowdaa.com',
+        html: indexError.message,
+        subject: 'MS Prepare failed',
+        to: 'prod@crowdaa.com',
+      });
+    } catch (mailingError) {
+      // eslint-disable-next-line no-console
+      console.error(mailingError.message);
+    }
   } finally {
     client.close();
   }
