@@ -24,21 +24,30 @@ const { MongoClient } = require('./index');
   const promises = [];
   const client = await MongoClient.connect(mongoUrl);
 
+  const {
+    COLL_USERS,
+    DB_NAME,
+  } = envData;
+
   try {
-    const {
-      COLL_USERS,
-      DB_NAME,
-    } = envData;
+    promises.push(
+      client.db(DB_NAME).collection(COLL_USERS)
+        .createIndex({ username: 1, appIds: 1 }, { unique: true, sparse: true }),
+    );
+    promises.push(
+      client.db(DB_NAME).collection(COLL_USERS)
+        .createIndex({ 'emails.address': 1, appIds: 1 }, { unique: true, sparse: true }),
+    );
 
     /* Those indexes are from meteor */
-    promises.push(
-      client.db(DB_NAME).collection(COLL_USERS)
-        .createIndex('username', { unique: true, sparse: true }),
-    );
-    promises.push(
-      client.db(DB_NAME).collection(COLL_USERS)
-        .createIndex('emails.address', { unique: true, sparse: true }),
-    );
+    // promises.push(
+    //   client.db(DB_NAME).collection(COLL_USERS)
+    //     .createIndex('username', { unique: true, sparse: true }),
+    // );
+    // promises.push(
+    //   client.db(DB_NAME).collection(COLL_USERS)
+    //     .createIndex('emails.address', { unique: true, sparse: true }),
+    // );
     promises.push(
       client.db(DB_NAME).collection(COLL_USERS)
         .createIndex('services.resume.loginTokens.hashedToken', { unique: true, sparse: true }),
