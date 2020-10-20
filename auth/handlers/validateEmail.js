@@ -2,8 +2,6 @@ import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { validateEmail } from '../lib/validateEmail';
 
-const PASSWORD_MIN_LENGTH = 6;
-
 export default async (event) => {
   try {
     if (!event.body) {
