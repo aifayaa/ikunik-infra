@@ -21,9 +21,6 @@ export const validateEmail = async (email, token, appId) => {
     if (!user) {
       throw new Error('user_not_found');
     }
-    else if (user.emails[0].verified) {
-      throw new Error('email_already_verified');
-    }
     else if (user.emails[0].token !== token) {
       throw new Error('invalid_email_token');
     }
@@ -34,6 +31,9 @@ export const validateEmail = async (email, token, appId) => {
     }, {
       $set: {
         'emails.$.verified': true,
+      },
+      $unset: {
+        'emails.$.token': '',
       },
     });
   } finally {
