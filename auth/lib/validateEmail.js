@@ -1,15 +1,8 @@
-// based on meteor accounts-password module
-// createUser method from
-// https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
-
 import MongoClient from '../../libs/mongoClient';
-import { hashPassword } from './password';
-import Random from '../../libs/account_utils/random';
-import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
 
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
 
-export const register = async (email, token, appId) => {
+export const validateEmail = async (email, token, appId) => {
   const client = await MongoClient.connect();
 
   try {
