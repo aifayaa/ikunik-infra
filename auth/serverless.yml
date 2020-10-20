@@ -126,6 +126,17 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  validateEmail:
+    handler: handlers/validateEmail.default
+    events:
+      - http:
+          path: auth/validateEmail
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
 plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env
