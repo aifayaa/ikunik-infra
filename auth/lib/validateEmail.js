@@ -15,7 +15,7 @@ export const validateEmail = async (email, token, appId) => {
       appIds: { $elemMatch: { $eq: appId } },
       'emails.address': email,
     }, {
-      'email.$': 1,
+      'emails.$': 1,
     });
 
     if (!user) {
