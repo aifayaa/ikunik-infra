@@ -10,7 +10,8 @@ const {
   COLL_APPS,
 } = process.env;
 
-export const resetPassword = async (email, appId, token, password) => {
+export const resetPassword = async (rawEmail, appId, token, password) => {
+  const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
   try {

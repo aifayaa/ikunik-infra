@@ -16,6 +16,8 @@ eslint:
   stage: lint
   script:
     - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
+  only:
+    - merge_requests
 
 test:
   image: node:12
@@ -29,6 +31,8 @@ test:
   stage: test
   script:
     - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test; fi; cd ..; done
+  only:
+    - merge_requests
 
 pushDevToAWS:
   variables:
