@@ -20,7 +20,7 @@ export default async (event) => {
     let code;
     switch (e.message) {
       case 'app_not_found':
-      case 'user_not_found':
+      case 'email_not_found':
         code = 404;
         break;
       case 'missing_payload':

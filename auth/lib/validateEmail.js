@@ -14,12 +14,12 @@ export const validateEmail = async (email, token, appId) => {
     const user = await usersCollection.findOne({
       appIds: { $elemMatch: { $eq: appId } },
       'emails.address': email,
-    }).project({
+    }, {
       'email.$': 1,
     });
 
     if (!user) {
-      throw new Error('user_not_found');
+      throw new Error('email_not_found');
     } else if (user.emails[0].token !== token) {
       throw new Error('invalid_email_token');
     }
