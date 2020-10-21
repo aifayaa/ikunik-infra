@@ -1,5 +1,5 @@
 // TODO: intl
-export const addressConfirmationEmailHTML = (username, email, url) => `
+export const addressConfirmationEmailHTML = (username, url) => `
   <body>
   <p>Hi <strong>${username}</strong>,<br>
   <br>

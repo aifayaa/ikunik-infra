@@ -21,11 +21,12 @@ export const register = async (email, username, password, appId) => {
     if (!app) throw new Error('app_not_found');
 
     const hashed = await hashPassword(password);
+    const token = Random.id();
     const newUser = {
       _id: Random.id(),
       createdAt: new Date(),
       username,
-      emails: [{ address: email, verified: false, token: Random.id() }],
+      emails: [{ address: email, verified: false, token }],
       services: {
         password: {
           bcrypt: hashed,
@@ -71,9 +72,9 @@ export const register = async (email, username, password, appId) => {
     const subject = 'Email confirmation'; // TODO: intl
     let url;
     if (app.protocol) {
-      url = `${app.protocol}://validateEmail`;
+      url = `${app.protocol}://validateEmail?token=${token}&email=${email}`;
     } else {
-      url = `${API_BASE_URL}/validateEmail`;
+      url = `${API_BASE_URL}/validateEmail?token=${token}&email=${email}`;
     }
     const html = addressConfirmationEmailHTML(username, email, url);
 
