@@ -9,7 +9,8 @@ import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUser
 
 const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
 
-export const register = async (email, username, password, appId) => {
+export const register = async (rawEmail, username, password, appId) => {
+  const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
   try {

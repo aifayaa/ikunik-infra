@@ -13,7 +13,8 @@ const {
   COLL_APPS,
 } = process.env;
 
-export const forgotPassword = async (email, urlScheme, appId) => {
+export const forgotPassword = async (rawEmail, urlScheme, appId) => {
+  const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
