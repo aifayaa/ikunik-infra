@@ -70,12 +70,7 @@ export const register = async (email, username, password, appId) => {
 
     /* send email verification link to user */
     const subject = 'Email confirmation'; // TODO: intl
-    let url;
-    if (app.protocol) {
-      url = `${app.protocol}://validateEmail?token=${token}&email=${email}`;
-    } else {
-      url = `${API_BASE_URL}/validateEmail?token=${token}&email=${email}`;
-    }
+    const url = `${API_BASE_URL}/validateEmail?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
     const html = addressConfirmationEmailHTML(username, url);
 
     await sendEmail(subject, html, email);
