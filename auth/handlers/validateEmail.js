@@ -23,7 +23,6 @@ export default async (event) => {
       case 'email_not_found':
         code = 404;
         break;
-      case 'missing_payload':
       case 'invalid_email_token':
         code = 400;
         break;
