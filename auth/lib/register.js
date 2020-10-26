@@ -6,8 +6,10 @@ import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
+import { sendEmail } from '../../libs/email/sendEmail';
+import { addressConfirmationEmailHTML } from './addressConfirmationEmailHTML';
 
-const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
+const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
 
 export const register = async (rawEmail, username, password, appId) => {
   const email = rawEmail.toLowerCase();
@@ -20,11 +22,12 @@ export const register = async (rawEmail, username, password, appId) => {
     if (!app) throw new Error('app_not_found');
 
     const hashed = await hashPassword(password);
+    const token = Random.id();
     const newUser = {
       _id: Random.id(),
       createdAt: new Date(),
       username,
-      emails: [{ address: email, verified: false }],
+      emails: [{ address: email, verified: false, token }],
       services: {
         password: {
           bcrypt: hashed,
@@ -66,8 +69,12 @@ export const register = async (rawEmail, username, password, appId) => {
       throw ex;
     }
 
-    // TODO: send verification email here
-    // see packages/accounts-password/password_server.js:866
+    /* send email verification link to user */
+    const subject = 'Email confirmation'; // TODO: intl
+    const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+    const html = addressConfirmationEmailHTML(username, url);
+
+    await sendEmail(subject, html, email);
 
     return { userId };
   } finally {

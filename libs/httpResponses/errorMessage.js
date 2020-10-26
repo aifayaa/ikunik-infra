@@ -5,6 +5,7 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'missing_payload':
     case 'wrong_argument_type':
     case 'wrong_argument_value':
+    case 'invalid_email_token':
       errorCode = 400;
       break;
     case 'insufficient_user_rights':
