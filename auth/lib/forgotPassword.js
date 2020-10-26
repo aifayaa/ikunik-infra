@@ -23,7 +23,7 @@ export const forgotPassword = async (rawEmail, urlScheme, appId) => {
       usersCollection.findOne(
         {
           'emails.address': email,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           projection: { _id: true, emails: true, 'profile.username': true, 'services.password.reset': true },

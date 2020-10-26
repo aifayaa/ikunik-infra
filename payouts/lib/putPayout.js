@@ -69,7 +69,7 @@ export default async (id, resp, appId) => {
     await client
       .db(DB_NAME)
       .collection(COLL_PAYOUTS)
-      .updateOne({ _id: id, appIds: { $elemMatch: { $eq: appId } } }, { $set: patch });
+      .updateOne({ _id: id, appIds: appId }, { $set: patch });
     return true;
   } finally {
     client.close();

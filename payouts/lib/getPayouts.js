@@ -5,7 +5,7 @@ export default async (appId) => {
   try {
     const selector = {
       state: { $in: ['processing', 'pending'] },
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
 
     const payouts = await client

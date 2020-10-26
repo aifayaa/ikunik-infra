@@ -18,7 +18,7 @@ export default async (ticketSerial, scannerId, appId) => {
           {
             $match: {
               serial: ticketSerial,
-              appIds: { $elemMatch: { $eq: appId } },
+              appIds: appId,
             },
           },
           {
@@ -51,7 +51,7 @@ export default async (ticketSerial, scannerId, appId) => {
       .collection(COLL_TICKETS)
       .findOneAndUpdate({
         _id: ticket._id,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $set: {
           scanStatus: 1,

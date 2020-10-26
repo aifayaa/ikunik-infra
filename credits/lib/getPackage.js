@@ -13,7 +13,7 @@ export default async (id, appId) => {
       .collection(COLL_CREDIT_PACKAGES)
       .findOne({
         _id: id,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
     return creditPackage;
   } finally {

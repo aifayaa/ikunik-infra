@@ -19,7 +19,7 @@ export default async (_userId, profileId, contactListId, appId, {
         $match: {
           _id: contactListId,
           profil_ID: profileId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
       },
       {

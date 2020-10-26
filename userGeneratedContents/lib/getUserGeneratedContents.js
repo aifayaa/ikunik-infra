@@ -15,7 +15,7 @@ export default async (appId, userGeneratedContentsId) => {
       {
         $match: {
           _id: userGeneratedContentsId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
           trashed: false,
         },
       },

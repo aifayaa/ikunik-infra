@@ -25,7 +25,7 @@ export const getArticle = async (
   try {
     const $match = {
       _id: id,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
 
     if (publishedOnly) {

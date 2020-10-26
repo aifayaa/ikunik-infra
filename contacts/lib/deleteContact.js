@@ -12,7 +12,7 @@ export default async (_userId, profileId, contactId, appId) => {
       .collection(COLL_CONTACTS)
       .deleteOne({
         _id: contactId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
         invitedByProfil_ID: profileId,
       });
 
@@ -21,7 +21,7 @@ export default async (_userId, profileId, contactId, appId) => {
       .db(DB_NAME)
       .collection(COLL_ARTIST_CONTACT_LIST)
       .updateMany({
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
         contactIDs: contactId,
         profil_ID: profileId,
       }, {

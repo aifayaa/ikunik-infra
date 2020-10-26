@@ -17,14 +17,14 @@ export default async (projectId, userId, appId) => {
       db.collection(COLL_USER_SUBSCRIPTIONS)
         .find({
           userId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
           expireAt: { $gt: new Date() },
         }, { projection: { subscriptionId: 1 } })
         .toArray(),
     ]);
     const query = {
       project_ID: projectId,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
       isPublished: true,
     };
     if (!project) throw new Error('Not found');

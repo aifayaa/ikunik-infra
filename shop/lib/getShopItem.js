@@ -9,7 +9,7 @@ export default async (itemId, appId) => {
       .findOne({
         _id: itemId,
         status: 'active',
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
   } finally {
     client.close();

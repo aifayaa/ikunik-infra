@@ -6,11 +6,7 @@ const doGetBanners = async (appId) => {
   const client = await MongoClient.connect();
   try {
     const selector = {
-      appIds: {
-        $elemMatch: {
-          $eq: appId,
-        },
-      },
+      appIds: appId,
     };
 
     const banners = await client.db(DB_NAME).collection(COLL_BANNERS)

@@ -8,7 +8,7 @@ export default async (scannerId, appId) => {
       .collection(process.env.COLL_SCANNERS)
       .findOne({
         _id: scannerId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
   } finally {
     client.close();

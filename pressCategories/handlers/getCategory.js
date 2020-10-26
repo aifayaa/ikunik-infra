@@ -1,13 +1,15 @@
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import getCategory from '../lib/getCategory';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const catId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
+  const { id: categoryId } = event.pathParameters;
+
   try {
-    const results = await getCategory(appId, catId);
+    const results = await getCategory(appId, categoryId);
     return response({ code: 200, body: results });
   } catch (e) {
-    return response({ code: 500, message: e.message });
+    return response(errorMessage(e));
   }
 };

@@ -14,7 +14,7 @@ export default async (_userId, profileId, appId, {
   try {
     const selector = {
       invitedByProfil_ID: profileId,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
     // FIXME: $text need complete words, regex slow performances
     // if (search) selector.$text = { $search: search };

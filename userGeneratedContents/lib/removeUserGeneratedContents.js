@@ -29,7 +29,7 @@ export default async (
       .collection(COLL_USER_GENERATED_CONTENTS)
       .updateOne({
         _id: userGeneratedContentsId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, patch);
     return !!matchedCount;
   } finally {

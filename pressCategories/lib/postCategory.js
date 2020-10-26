@@ -2,14 +2,15 @@ import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
 const {
-  DB_NAME,
   COLL_PRESS_CATEGORIES,
+  DB_NAME,
   SAFE_ORDER_NUMBER,
 } = process.env;
 
 export default async (appId, name, pathName, color, picture, order) => {
   /* Mongo client */
   const client = await MongoClient.connect();
+
   try {
     const checkAvailability = await isAvailable(client, appId, name, pathName);
     if (checkAvailability !== true) throw new Error(checkAvailability);

@@ -25,7 +25,7 @@ export default async (userId, subId, appId) => {
       .db(DB_NAME)
       .collection(COLL_USER_SUBSCRIPTIONS)
       .findOne({
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
         expireAt: { $gt: new Date() },
         subscriptionId: subId,
         userId,

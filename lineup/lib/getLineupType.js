@@ -13,7 +13,7 @@ export default async (someId, type, appId) => {
   const client = await MongoClient.connect();
   try {
     const selector = {
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
       endDate: { $gte: new Date() },
       [type]: someId,
     };

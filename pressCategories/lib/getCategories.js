@@ -1,20 +1,18 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  DB_NAME,
-  COLL_PRESS_CATEGORIES,
   COLL_PICTURES,
+  COLL_PRESS_CATEGORIES,
+  DB_NAME,
 } = process.env;
 
 export default async (appId) => {
-  let client;
+  const client = await MongoClient.connect();
   try {
-    client = await MongoClient.connect();
-
     const pipeline = [
       {
         $match: {
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
       },
       {

@@ -19,7 +19,7 @@ export default async (userID, appId, amount, opts = {}) => {
     await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({
         userID,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: {
           credits: Number(amount),
