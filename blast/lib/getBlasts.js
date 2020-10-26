@@ -12,11 +12,7 @@ export default async (userId, appId, {
   try {
     const selector = {
       fromUser_ID: userId,
-      appIds: {
-        $elemMatch: {
-          $eq: appId,
-        },
-      },
+      appIds: appId,
     };
     let sort = {};
 

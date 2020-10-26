@@ -27,9 +27,7 @@ export default async (type, profileId, qte, appId) => {
     const res = await client.db(DB_NAME).collection(collName)
       .updateOne({
         profil_ID: profileId,
-        appIds: {
-          $elemMatch: { $eq: appId },
-        },
+        appIds: appId,
       }, {
         $inc: {
           balance: -Number(qte),
