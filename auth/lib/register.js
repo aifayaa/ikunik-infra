@@ -9,7 +9,7 @@ import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUser
 import { sendEmail } from '../../libs/email/sendEmail';
 import { addressConfirmationEmailHTML } from './addressConfirmationEmailHTML';
 
-const { DB_NAME, COLL_USERS, COLL_APPS, API_BASE_URL } = process.env;
+const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
 
 export const register = async (email, username, password, appId) => {
   const client = await MongoClient.connect();
@@ -70,7 +70,7 @@ export const register = async (email, username, password, appId) => {
 
     /* send email verification link to user */
     const subject = 'Email confirmation'; // TODO: intl
-    const url = `${API_BASE_URL}/validateEmail?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+    const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
     const html = addressConfirmationEmailHTML(username, url);
 
     await sendEmail(subject, html, email);

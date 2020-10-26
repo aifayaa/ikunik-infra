@@ -1,6 +1,7 @@
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { validateEmail } from '../lib/validateEmail';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 
 export default async (event) => {
   try {
@@ -17,18 +18,6 @@ export default async (event) => {
 
     return response({ code: 200, body: { status: 'success' } });
   } catch (e) {
-    let code;
-    switch (e.message) {
-      case 'app_not_found':
-      case 'email_not_found':
-        code = 404;
-        break;
-      case 'invalid_email_token':
-        code = 400;
-        break;
-      default:
-        code = 500;
-    }
-    return response({ code, message: e.message });
+    return response(errorMessage(e));
   }
 };

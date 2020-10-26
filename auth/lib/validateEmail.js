@@ -8,7 +8,7 @@ export const validateEmail = async (email, token, appId) => {
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
-    const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
+    const app = await appsCollection.findOne({ appIds: appId }, { projection: { appIds: true } });
     if (!app) throw new Error('app_not_found');
 
     const user = await usersCollection.findOne({
