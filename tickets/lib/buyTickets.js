@@ -52,7 +52,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
       .collection(COLL_TICKET_CATEGORIES)
       .findOneAndUpdate({
         _id: categoryId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: { sold: 1 },
       }, opts).then((res) => res.value);

@@ -15,7 +15,7 @@ export default async (userId, artistId, appId) => {
       .findOne({
         userId,
         artistId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
     return data || {};
   } finally {

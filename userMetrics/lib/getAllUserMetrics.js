@@ -65,7 +65,7 @@ export default async (
     }
 
     $match.trashed = false;
-    $match.appIds = { $elemMatch: { $eq: appId } };
+    $match.appIds = appId;
 
     const $project = {
       _id: 1,

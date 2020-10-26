@@ -26,7 +26,7 @@ export default async (userId, appId, mediumType, mediumId) => {
     };
     const query = {
       _id: mediumId,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
 
     switch (mediumType) {
@@ -73,7 +73,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         .findOne({
           userId,
           content_ID: mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         });
       const { deadlineDate } = deadlines || {};
 
@@ -108,7 +108,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             {
               userId,
               content_ID: mediumId,
-              appIds: { $elemMatch: { $eq: appId } },
+              appIds: appId,
             },
             {
               $set: {
@@ -131,7 +131,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             {
               userId,
               content_ID: mediumId,
-              appIds: { $elemMatch: { $eq: appId } },
+              appIds: appId,
             },
             {
               $inc: {
@@ -153,7 +153,7 @@ export default async (userId, appId, mediumType, mediumId) => {
       .collection(COLL_PROJECTS)
       .updateOne({
         _id: medium.project_ID,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: { views: 1 },
         $set: { lastView: new Date() },
@@ -165,7 +165,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         {
           user_ID: userId,
           content_ID: mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $inc: { views: 1 },
@@ -184,7 +184,7 @@ export default async (userId, appId, mediumType, mediumId) => {
       .db(DB_NAME)
       .collection(COLL_METRICS)
       .updateOne(
-        { appIds: { $elemMatch: { $eq: appId } } },
+        { appIds: appId },
         {
           $inc: { views: 1 },
           $set: { appIds: [appId] },
@@ -198,7 +198,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         {
           userID: userId,
           content_ID: mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $inc: { numviews: 1 },

@@ -19,7 +19,7 @@ export default async (userId, appId, {
       .collection(COLL_USERS)
       .updateOne({
         _id: userId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $set,
       });

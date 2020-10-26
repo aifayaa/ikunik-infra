@@ -19,7 +19,7 @@ export const login = async (rawEmail, username, password, appId) => {
     const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
     if (!app) throw new Error('app_not_found');
 
-    const selector = { appIds: { $elemMatch: { $eq: appId } } };
+    const selector = { appIds: appId };
     if (email) {
       selector['emails.address'] = email;
     } else {
@@ -46,7 +46,7 @@ export const login = async (rawEmail, username, password, appId) => {
     await usersCollection.updateOne(
       {
         _id: user._id,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       },
       {
         $addToSet: {

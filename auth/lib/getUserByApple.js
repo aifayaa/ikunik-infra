@@ -71,7 +71,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
     const collection = db.collection(COLL_USERS);
     const user = await collection.findOne({
       'services.apple.userId': sub,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     }, { projection: { _id: true } });
     const token = generateToken();
     const hash = hashToken(token);

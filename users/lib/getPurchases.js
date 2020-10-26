@@ -10,7 +10,7 @@ export default async (_userId, profileId, appId) => {
         {
           $match: {
             profil_ID: profileId,
-            appIds: { $elemMatch: { $eq: appId } },
+            appIds: appId,
           },
         },
         {

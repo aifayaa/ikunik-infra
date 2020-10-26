@@ -22,7 +22,7 @@ export default async (userId, artistId, appId, isFavorite) => {
       .update({
         userId,
         artistId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, favoriteData, { upsert: true });
     return true;
   } finally {

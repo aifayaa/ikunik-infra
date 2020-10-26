@@ -46,7 +46,7 @@ export default async (name, userId, parent, appId) => {
         .collection(COLL_SELECTIONS)
         .findOne({
           _id: parent,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         }, {
           rootSelection: 1,
           subscriptionIds: 1,

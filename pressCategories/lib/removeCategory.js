@@ -52,7 +52,7 @@ export default async (appId, categoryId) => {
       .updateMany(
         {
           categoryId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $set: {

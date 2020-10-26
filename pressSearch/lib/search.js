@@ -20,7 +20,7 @@ const searchArticle = async (
 ) => {
   const $match = {
     title: { $regex: new RegExp(text, 'gi') },
-    appIds: { $elemMatch: { $eq: appId } },
+    appIds: appId,
     isPublished: true,
   };
 

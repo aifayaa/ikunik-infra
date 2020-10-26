@@ -33,7 +33,7 @@ export default async (
         .collection(COLL_USER_METRICS)
         .updateMany(
           {
-            appIds: { $elemMatch: { $eq: appId } },
+            appIds: appId,
             deviceId,
             userId: null,
           },

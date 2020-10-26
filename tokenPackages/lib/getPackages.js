@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 export default async (appId, opts) => {
   const client = await MongoClient.connect();
   try {
-    const selector = { appIds: { $elemMatch: { $eq: appId } } };
+    const selector = { appIds: appId };
     if (opts.type) selector.type = opts.type;
     const packages = await client
       .db(process.env.DB_NAME)

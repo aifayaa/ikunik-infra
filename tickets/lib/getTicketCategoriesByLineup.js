@@ -30,7 +30,7 @@ export default async (lineupId, userId, appId) => {
         {
           $match: {
             lineupId,
-            appIds: { $elemMatch: { $eq: appId } },
+            appIds: appId,
             removed: { $ne: true },
           },
         },
@@ -115,7 +115,7 @@ export default async (lineupId, userId, appId) => {
         .collection(COLL_TICKET_CATEGORIES)
         .find({
           lineupId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
           removed: { $ne: true },
         })
         .toArray();

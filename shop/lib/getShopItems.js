@@ -8,7 +8,7 @@ export default async (appId) => {
       .collection(process.env.COLL_SHOP_ITEMS)
       .find({
         status: 'active',
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }).toArray();
     return { items };
   } finally {

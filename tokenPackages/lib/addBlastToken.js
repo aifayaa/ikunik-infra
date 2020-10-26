@@ -22,7 +22,7 @@ export default async (type, profileId, qty, appId) => {
       .collection(collName)
       .updateOne({
         profil_ID: profileId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: {
           balance: Number(qty),

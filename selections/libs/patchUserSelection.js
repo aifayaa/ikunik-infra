@@ -27,7 +27,7 @@ export default async (selectionId, userId, appId, patch, noCheck) => {
       .findOneAndUpdate({
         _id: selectionId,
         userId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, patch, { returnOriginal: false });
   } finally {
     client.close();

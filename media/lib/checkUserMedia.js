@@ -14,7 +14,7 @@ export default async (userId, appId, mediaIds) => {
       .find({
         _id: { $in: mediaIds },
         fromUserId: { $ne: userId },
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       })
       .count();
     const videos = await client
@@ -23,7 +23,7 @@ export default async (userId, appId, mediaIds) => {
       .find({
         _id: { $in: mediaIds },
         fromUserId: { $ne: userId },
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       })
       .count();
     return audios === 0 && videos === 0;

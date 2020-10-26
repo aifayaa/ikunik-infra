@@ -2,8 +2,8 @@ import MongoClient from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
 const {
-  DB_NAME,
   COLL_PRESS_CATEGORIES,
+  DB_NAME,
   SAFE_ORDER_NUMBER,
 } = process.env;
 
@@ -107,7 +107,7 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
     }
     bulk.find({
       _id: categoryId,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     }).updateOne({ $set: category });
 
     const { nMatched } = await bulk.execute();

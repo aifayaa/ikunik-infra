@@ -1,19 +1,22 @@
-import { checkPerms } from '../../libs/perms/checkPerms';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import postCategory from '../lib/postCategory';
 import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKey = 'pressCategories_all';
 
 export default async (event) => {
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
-  const { appId } = event.requestContext.authorizer;
-  if (!checkPerms(permKey, perms)) {
-    return response({ code: 403, message: 'access_forbidden' });
-  }
-  if (!event.body) {
-    throw new Error('missing_payload');
-  }
+  const { appId, perms } = event.requestContext.authorizer;
+  const permsParsed = JSON.parse(perms);
+
   try {
+    if (!checkPerms(permKey, permsParsed)) {
+      throw new Error('access_forbidden');
+    }
+    if (!event.body) {
+      throw new Error('missing_payload');
+    }
+
     const {
       name,
       pathName,
@@ -23,7 +26,7 @@ export default async (event) => {
     } = JSON.parse(event.body);
 
     if (!name) {
-      throw new Error('Missing arguments');
+      throw new Error('missing_argument');
     }
 
     [
@@ -32,13 +35,13 @@ export default async (event) => {
       color,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
-        throw new Error('Wrong argument type');
+        throw new Error('wrong_argument_type');
       }
     });
 
     if (picture) {
       if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
-        throw new Error('Wrong argument type');
+        throw new Error('wrong_argument_type');
       }
 
       if (picture.length > 1) {
@@ -57,6 +60,6 @@ export default async (event) => {
     const results = await postCategory(appId, name, pathName, color, picture, order);
     return response({ code: 200, body: results });
   } catch (e) {
-    return response({ code: 500, message: e.message });
+    return response(errorMessage(e));
   }
 };

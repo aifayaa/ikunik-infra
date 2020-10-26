@@ -26,7 +26,7 @@ export default async (
       .updateOne(
         {
           _id: userGeneratedContentsId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         { $set: userGeneratedContents },
       );

@@ -18,7 +18,7 @@ export default async (appId) => {
         {
           $match: {
             startDate: { $gte: new Date() },
-            appIds: { $elemMatch: { $eq: appId } },
+            appIds: appId,
           },
         },
         {
