@@ -22,17 +22,18 @@ export default async (event) => {
     countOnly = false,
     limit,
     moderated,
+    moderator = undefined,
     parentId,
     raw,
     reported = undefined,
     reportsCount,
     reviewed = undefined,
+    sortBy,
+    sortOrder,
     start,
     trashed,
     type,
     userId,
-    sortBy,
-    sortOrder,
   } = event.queryStringParameters || {};
 
   try {
@@ -66,9 +67,10 @@ export default async (event) => {
 
     // Moderator only allowed parameters
     if (
-      typeof moderated !== 'undefined' &&
-      typeof reported !== 'undefined' &&
-      typeof reviewed !== 'undefined' &&
+      typeof moderated !== 'undefined' ||
+      typeof moderator !== 'undefined' ||
+      typeof reported !== 'undefined' ||
+      typeof reviewed !== 'undefined' ||
       typeof trashed !== 'undefined'
     ) {
       const perms = JSON.parse(event.requestContext.authorizer.perms);
@@ -90,14 +92,15 @@ export default async (event) => {
       {
         countOnly: countOnly && !isRaw,
         moderated: typeof moderated !== 'undefined' ? moderated === 'true' : moderated,
+        moderator,
         parentId,
         raw: isRaw,
         reported,
         reportsCount,
         reviewed: typeof reviewed !== 'undefined' ? reviewed === 'true' : reviewed,
-        trashed,
         sortBy,
         sortOrder,
+        trashed,
       },
     );
     let body;
