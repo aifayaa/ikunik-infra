@@ -6,6 +6,9 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'wrong_argument_type':
     case 'wrong_argument_value':
     case 'invalid_email_token':
+    case 'invalid_password_length':
+    case 'username_already_exists':
+    case 'email_already_exists':
       errorCode = 400;
       break;
     case 'insufficient_user_rights':
