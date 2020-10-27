@@ -16,14 +16,15 @@ export default async (
   {
     countOnly = false,
     moderated = undefined,
+    moderator = undefined,
     parentId,
     raw,
     reported = undefined,
     reportsCount = false,
     reviewed = undefined,
-    trashed = false,
     sortBy,
     sortOrder = 'desc',
+    trashed = false,
   } = {},
 ) => {
   let client;
@@ -49,7 +50,9 @@ export default async (
       $match.rootParentId = parentId;
     }
 
-    if (typeof moderated === 'undefined') {
+    if (typeof moderated !== 'undefined') {
+      $match.moderated = moderated;
+    } else if (!moderator) {
       $match.$or = [
         /* pre moderation case */
         { moderated: false, reviewed: true },
@@ -57,8 +60,6 @@ export default async (
         { moderated: { $exists: false }, reviewed: false },
         { moderated: { $exists: false }, reviewed: { $exists: false } },
       ];
-    } else {
-      $match.moderated = moderated;
     }
 
     if (typeof reviewed !== 'undefined') {
