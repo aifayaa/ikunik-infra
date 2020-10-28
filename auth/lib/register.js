@@ -71,7 +71,7 @@ export const register = async (rawEmail, username, password, appId) => {
 
     /* send email verification link to user */
     const subject = 'Email confirmation'; // TODO: intl
-    const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+    const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
     const html = addressConfirmationEmailHTML(username, url);
 
     await sendEmail(subject, html, email);
