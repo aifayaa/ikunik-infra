@@ -11,9 +11,13 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'insufficient_user_rights':
     case 'access_forbidden':
     case 'forbidden_user':
+    case 'token_expired':
+    case 'token_already_sent':
       errorCode = 403;
       break;
     case 'content_not_found':
+    case 'email_not_found':
+    case 'app_not_found':
       errorCode = 404;
       break;
     default:

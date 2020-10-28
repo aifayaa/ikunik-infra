@@ -11,9 +11,10 @@ const {
   DB_NAME,
   COLL_USERS,
   COLL_APPS,
+  REACT_APP_AUTH_URL,
 } = process.env;
 
-export const forgotPassword = async (rawEmail, urlScheme, appId) => {
+export const forgotPassword = async (rawEmail, appId) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
   try {
@@ -62,15 +63,13 @@ export const forgotPassword = async (rawEmail, urlScheme, appId) => {
 
     /* Prepare data for email */
     const subject = 'Forgot Password'; // TODO: intl
-    const build = app.builds && (app.builds.ios || app.builds.android || app.builds[0]);
-    const protocol = urlScheme || (build ? app.builds[0] : app).name.toLowerCase().replace(/ /g, '');
-    const url = `${protocol}://resetPassword`;
+    const url = `${REACT_APP_AUTH_URL}/password-reset-landing?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
 
     /* store token into db */
     await usersCollection.updateOne({ _id: user._id }, { $set });
 
     /* send token by email to user */
-    const html = forgotPasswordEmailHTML(user.profile.username, url, token, email);
+    const html = forgotPasswordEmailHTML(user.profile.username, url, token);
 
     await sendEmail(subject, html, email);
   } finally {
