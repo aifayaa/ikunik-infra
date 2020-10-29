@@ -1,3 +1,4 @@
+import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { forgotPassword } from '../lib/forgotPassword';
 import errorMessage from '../../libs/httpResponses/errorMessage';
@@ -10,6 +11,10 @@ export default async (event) => {
 
     const { email } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
+
+    if (!typeCheck('{ email: String, urlScheme: Maybe String}', { email })) {
+      throw new Error('wrong_argument_type');
+    }
 
     await forgotPassword(email, appId);
 
