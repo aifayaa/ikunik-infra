@@ -9,7 +9,7 @@ export default async (userId, appId, { limit } = {}) => {
       {
         $match: {
           userId,
-          appIds: appId,
+          appId,
         },
       },
       {

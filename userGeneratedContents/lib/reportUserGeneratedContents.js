@@ -24,7 +24,7 @@ export default async (
       .collection(COLL_USER_GENERATED_CONTENTS)
       .findOne({
         _id: ugcId,
-        appIds: appId,
+        appId,
       });
 
     if (!ugc) {
@@ -34,7 +34,7 @@ export default async (
     /* Prepare the report for insertion */
     const ugcReport = {
       _id: uuid.v4(),
-      appIds: [appId],
+      appId,
       createdAt: new Date(),
       details,
       reason,

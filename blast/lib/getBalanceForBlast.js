@@ -33,7 +33,7 @@ export default async (profileId, type, appId) => {
     {
       $match: {
         _id: profileId,
-        appIds: appId,
+        appId,
       },
     },
     {

@@ -62,7 +62,7 @@ export const putArticle = async ({
       _id: draftId,
       actions,
       ancestor: currentArticle._id,
-      appIds: [appId],
+      appId,
       articleId,
       categoryId,
       createdAt: new Date(),

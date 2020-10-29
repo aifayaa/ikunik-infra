@@ -23,7 +23,7 @@ export default async (userId, appId, mediumType, mediumId) => {
   try {
     const query = {
       _id: mediumId,
-      appIds: appId,
+      appId,
     };
     let medium;
     switch (mediumType) {

@@ -30,7 +30,7 @@ export default async (
       .updateOne(
         {
           _id: ugc._id,
-          appIds: appId,
+          appId,
         },
         { $set },
       );

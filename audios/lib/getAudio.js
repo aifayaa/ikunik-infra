@@ -16,7 +16,7 @@ export default async (audioId, appId) => {
       .collection(COLL_AUDIOS)
       .findOne({
         _id: audioId,
-        appIds: appId,
+        appId,
       });
     if (audio.filename && audio.fileObj_ID && audio.url) {
       audio.url = generateSignedURL(

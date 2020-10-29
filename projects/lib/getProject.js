@@ -17,14 +17,14 @@ export default async (projectId, userId, appId) => {
       db.collection(COLL_USER_SUBSCRIPTIONS)
         .find({
           userId,
-          appIds: appId,
+          appId,
           expireAt: { $gt: new Date() },
         }, { projection: { subscriptionId: 1 } })
         .toArray(),
     ]);
     const query = {
       project_ID: projectId,
-      appIds: appId,
+      appId,
       isPublished: true,
     };
     if (!project) throw new Error('Not found');

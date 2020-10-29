@@ -10,7 +10,7 @@ export const getPurchasableProduct = async (
   productId,
 ) => {
   const query = {
-    appIds: appId,
+    appId,
     _id: productId,
   };
 

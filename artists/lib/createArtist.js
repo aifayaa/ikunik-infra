@@ -24,7 +24,7 @@ export default async (userId, profileId, appId, info) => {
       instagram: info.instagram,
       snapshat: info.snapchat,
       twitter: info.twitter,
-      appIds: [appId],
+      appId,
     };
 
     const _id = await client

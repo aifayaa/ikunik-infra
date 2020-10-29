@@ -18,7 +18,7 @@ export default async (cartId, userId, appId, selector, options) => {
         {
           $set: {
             status: 'validated',
-            appIds: [appId],
+            appId,
           },
         },
         options,

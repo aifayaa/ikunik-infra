@@ -18,7 +18,7 @@ export default async (userId, profileId, scannerId, appId) => {
       .collection(process.env.COLL_SCANNERS)
       .findOneAndUpdate({
         _id: scannerId,
-        appIds: appId,
+        appId,
       }, {
         $set: { lastEmail: curDate },
       }, opts).then((res) => res.value);

@@ -12,7 +12,7 @@ export default async (userId, profileId, lineupId, appId) => {
     {
       $match: {
         profil_ID: profileId,
-        appIds: appId,
+        appId,
       },
     },
     {

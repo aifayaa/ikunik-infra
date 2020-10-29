@@ -47,7 +47,7 @@ export default async (selectionId, userId, appId) => {
           {
             $match: {
               _id: selectionId,
-              appIds: appId,
+              appId,
             },
           },
           {
@@ -162,7 +162,7 @@ export default async (selectionId, userId, appId) => {
         .aggregate([
           {
             $match: { selectionId },
-            appIds: appId,
+            appId,
           },
           {
             $lookup: {
@@ -221,7 +221,7 @@ export default async (selectionId, userId, appId) => {
       let aggregationPipeline = [{
         $match: {
           _id: { $in: projectIds },
-          appIds: appId,
+          appId,
         },
       }];
       if (isAudioSelection) {
@@ -353,7 +353,7 @@ export default async (selectionId, userId, appId) => {
         .collection(COLL_PROJECTS)
         .find({
           _id: { $in: projectIds },
-          appIds: appId,
+          appId,
         }, {
           projection: {
             iconeThumbFileUrl: true,

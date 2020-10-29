@@ -12,7 +12,7 @@ export default async (userId, profileId, lineupId, appId) => {
       .collection(process.env.COLL_SCANNERS)
       .find({
         lineupId,
-        appIds: appId,
+        appId,
       }, { sort: { createdAt: -1 } })
       .toArray();
     return { scanners };

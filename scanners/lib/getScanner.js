@@ -8,7 +8,7 @@ export default async (scannerId, appId) => {
       .collection(process.env.COLL_SCANNERS)
       .findOne({
         _id: scannerId,
-        appIds: appId,
+        appId,
       });
   } finally {
     client.close();

@@ -27,7 +27,7 @@ export default async (appId, parentId, parentCollection, start, limit, fetchAll 
           parentId,
           parentCollection,
           trashed: false,
-          appIds: appId,
+          appId,
           ...(fetchAll ? {} : moderatedContentFilter),
         },
       },

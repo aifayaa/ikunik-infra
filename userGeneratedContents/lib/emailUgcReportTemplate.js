@@ -21,7 +21,7 @@ export default async (userId, appId, ugcId, reason, details, lang) => {
         .collection(COLL_USERS)
         .findOne({
           _id: userId,
-          appIds: appId,
+          appId,
         }, { projection: { 'profile.username': true } }),
       db
         .collection(COLL_APPS)

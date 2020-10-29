@@ -8,7 +8,7 @@ export default async (packageId, appId) => {
       .collection(process.env.COLL_TOKEN_PACKAGES)
       .findOne({
         _id: packageId,
-        appIds: appId,
+        appId,
       });
   } finally {
     client.close();

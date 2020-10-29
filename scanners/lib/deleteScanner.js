@@ -14,7 +14,7 @@ export default async (userId, profileId, scannerId, appId) => {
       .collection(process.env.COLL_SCANNERS)
       .findOneAndDelete({
         _id: scannerId,
-        appIds: appId,
+        appId,
       }, opts)
       .then((res) => res.value);
     if (!scanner) {

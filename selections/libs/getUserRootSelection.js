@@ -9,7 +9,7 @@ export default async (userId, appId) => {
       .find({
         userId,
         selectionIds: { $exists: true },
-        appIds: appId,
+        appId,
       })
       .toArray();
     selections = selections.map((selection) => selection.selectionIds);
@@ -20,7 +20,7 @@ export default async (userId, appId) => {
       .find({
         userId,
         _id: { $nin: selections },
-        appIds: appId,
+        appId,
       })
       .toArray();
     return { selections };

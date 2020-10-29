@@ -44,7 +44,7 @@ export default async (appId, userMetricsId) => {
       {
         $match: {
           _id: userMetricsId,
-          appIds: appId,
+          appId,
           trashed: false,
         },
       },

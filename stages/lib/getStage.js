@@ -8,7 +8,7 @@ export default async (stageId, appId) => {
       .collection(process.env.COLL_STAGES)
       .findOne({
         _id: stageId,
-        appIds: appId,
+        appId,
       });
     return stage;
   } finally {

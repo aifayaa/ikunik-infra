@@ -13,7 +13,7 @@ export default async (userID, appId) => {
       .collection(COLL_CREDITS)
       .findOne({
         userID,
-        appIds: appId,
+        appId,
       });
     return credits || { credits: 0 };
   } finally {

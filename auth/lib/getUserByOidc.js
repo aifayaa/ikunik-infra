@@ -30,7 +30,7 @@ export const getUserByOidc = async (identityToken, appId) => {
     const collection = db.collection(COLL_USERS);
     const user = await collection.findOne({
       'services.openIdConnect.sub': sub,
-      appIds: appId,
+      appId,
     }, { projection: { _id: true } });
     const token = generateToken();
     const hash = hashToken(token);
@@ -53,7 +53,7 @@ export const getUserByOidc = async (identityToken, appId) => {
             hashedToken: hash,
             when: date.toISOString(),
           },
-          appIds: appId,
+          appId,
         },
       };
       await collection.updateOne({ _id: userId }, patch);
@@ -77,7 +77,7 @@ export const getUserByOidc = async (identityToken, appId) => {
             }],
           },
         },
-        appIds: [appId],
+        appId,
       };
 
       await collection.insertOne(userDoc);

@@ -87,7 +87,7 @@ export default async (
     organisation,
     name,
     pictureId,
-    appIds: [appId],
+    appId,
   };
   try {
     await client

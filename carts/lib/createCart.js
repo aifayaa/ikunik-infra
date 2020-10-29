@@ -68,7 +68,7 @@ export default async (
       totalCredits,
       totalPrice,
       userId,
-      appIds: [appId],
+      appId,
     };
     await client.db(DB_NAME).collection(COLL_CARTS)
       .insertOne(cart, opts);

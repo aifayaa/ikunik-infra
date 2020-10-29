@@ -23,7 +23,7 @@ export default async (userId, profileId, lineupId, email, appId) => {
       lineupId,
       createdAt: curDate,
       lastEmail: curDate,
-      appIds: [appId],
+      appId,
     };
     await client
       .db(process.env.DB_NAME)

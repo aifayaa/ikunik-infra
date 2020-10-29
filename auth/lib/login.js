@@ -46,7 +46,7 @@ export const login = async (rawEmail, username, password, appId) => {
     await usersCollection.updateOne(
       {
         _id: user._id,
-        appIds: appId,
+        appId,
       },
       {
         $addToSet: {

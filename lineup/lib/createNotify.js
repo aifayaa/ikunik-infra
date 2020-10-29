@@ -40,7 +40,7 @@ export default async (lineupId, appId) => {
       .collection(COLL_LINEUPS)
       .findOne({
         _id: lineupId,
-        appIds: appId,
+        appId,
       });
     const jobId = getRuleName(lineupId);
     const { startDate } = lineup;

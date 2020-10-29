@@ -15,7 +15,7 @@ export default async (userId, artistId, appId) => {
       .findOne({
         userId,
         artistId,
-        appIds: appId,
+        appId,
       });
     return data || {};
   } finally {

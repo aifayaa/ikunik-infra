@@ -49,7 +49,7 @@ export default async (
         .findOne({
           _id: selectionId,
           userId,
-          appIds: appId,
+          appId,
         })
       : null;
     const selectionFindQuery = (selection &&

@@ -22,13 +22,13 @@ export default async (userId, appId, mediumType, mediumId) => {
     const modifier = {
       $inc: { views: 1 },
       $set: {
-        appIds: [appId],
+        appId,
         lastView: new Date(),
       },
     };
     const query = {
       _id: mediumId,
-      appIds: appId,
+      appId,
     };
 
     switch (mediumType) {
@@ -75,7 +75,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         .findOne({
           userId,
           content_ID: mediumId,
-          appIds: appId,
+          appId,
         });
       const { deadlineDate } = deadlines || {};
 
@@ -110,13 +110,13 @@ export default async (userId, appId, mediumType, mediumId) => {
             {
               userId,
               content_ID: mediumId,
-              appIds: appId,
+              appId,
             },
             {
               $set: {
                 deadlineDate: newDate,
                 lastView: newLastView,
-                appIds: [appId],
+                appId,
               },
             },
             {
@@ -133,14 +133,14 @@ export default async (userId, appId, mediumType, mediumId) => {
             {
               userId,
               content_ID: mediumId,
-              appIds: appId,
+              appId,
             },
             {
               $inc: {
                 lastView: -1,
               },
               $set: {
-                appIds: [appId],
+                appId,
               },
             },
             {
@@ -155,7 +155,7 @@ export default async (userId, appId, mediumType, mediumId) => {
       .collection(COLL_PROJECTS)
       .updateOne({
         _id: medium.project_ID,
-        appIds: appId,
+        appId,
       }, {
         $inc: { views: 1 },
         $set: { lastView: new Date() },
@@ -167,13 +167,13 @@ export default async (userId, appId, mediumType, mediumId) => {
         {
           user_ID: userId,
           content_ID: mediumId,
-          appIds: appId,
+          appId,
         },
         {
           $inc: { views: 1 },
           $set: {
             date: new Date(),
-            appIds: [appId],
+            appId,
             collection: mediaCol,
           },
         },
@@ -200,12 +200,12 @@ export default async (userId, appId, mediumType, mediumId) => {
         {
           userID: userId,
           content_ID: mediumId,
-          appIds: appId,
+          appId,
         },
         {
           $inc: { numviews: 1 },
           $set: {
-            appIds: [appId],
+            appId,
           },
         },
         { upsert: true },

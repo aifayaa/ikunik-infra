@@ -43,7 +43,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
       .findOne({
         _id: selectionId,
         userId,
-        appIds: appId,
+        appId,
       }, selectionFields);
     if (!selection) throw new Error('selection not exists or not owned');
     const { rootSelectionId } = selection;
@@ -51,7 +51,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
       .collection(COLL_SELECTIONS)
       .findOne({
         _id: rootSelectionId,
-        appIds: appId,
+        appId,
       }, selectionFields);
     if (!rootSelection) throw new Error('rootSelection not found');
     const { subscriptionIds } = rootSelection;
@@ -61,7 +61,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
         {
           selectionId,
           mediumId,
-          appIds: appId,
+          appId,
         },
         { $set: { selectionId, mediumId, rootSelectionId: rootSelection._id } },
         { upsert: true },
@@ -73,14 +73,14 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
         .collection(COLL_AUDIOS)
         .updateOne({
           _id: { $in: mediaIds },
-          appIds: appId,
+          appId,
         }, mediaModifier),
       client
         .db(DB_NAME)
         .collection(COLL_VIDEOS)
         .updateOne({
           _id: { $in: mediaIds },
-          appIds: appId,
+          appId,
         }, mediaModifier),
     ]);
   } finally {
@@ -98,7 +98,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
         {
           _id: selectionId,
           userId,
-          appIds: appId,
+          appId,
         },
         selectionFields,
       );
@@ -108,7 +108,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
       .collection(COLL_SELECTIONS)
       .findOne({
         _id: rootSelectionId,
-        appIds: appId,
+        appId,
       }, selectionFields);
     if (!rootSelection) throw new Error('rootSelection not exists');
     const { subscriptionIds } = rootSelection;
@@ -119,7 +119,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
       .remove({
         selectionId,
         mediumId,
-        appIds: appId,
+        appId,
       }, true)));
 
     // Remove root selection subscription from media
@@ -130,7 +130,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
           $match: {
             mediumId: { $in: mediaIds },
             rootSelectionId,
-            appIds: appId,
+            appId,
           },
         },
         { $group: { _id: '$mediumId' } },
@@ -144,14 +144,14 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
         .collection(COLL_AUDIOS)
         .update({
           _id: { $in: mediaIdsToRemove },
-          appIds: appId,
+          appId,
         }, mediaModifier, { multi: true }),
       client
         .db(DB_NAME)
         .collection(COLL_VIDEOS)
         .update({
           _id: { $in: mediaIdsToRemove },
-          appIds: appId,
+          appId,
         }, mediaModifier, { multi: true }),
     ]);
   } finally {

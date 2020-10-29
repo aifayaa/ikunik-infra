@@ -35,7 +35,7 @@ export default async (
     /* Query objects */
     const $match = {
       trashed,
-      appIds: appId,
+      appId,
     };
 
     /* Fill match object */

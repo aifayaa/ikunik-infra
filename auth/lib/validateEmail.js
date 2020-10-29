@@ -12,7 +12,7 @@ export const validateEmail = async (email, token, appId) => {
     if (!app) throw new Error('app_not_found');
 
     const user = await usersCollection.findOne({
-      appIds: appId,
+      appId,
       'emails.address': email,
     }, {
       projection: {

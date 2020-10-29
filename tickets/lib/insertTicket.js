@@ -33,7 +33,7 @@ export default async (
         firstname,
         lastname,
       },
-      appIds: [appId],
+      appId,
     };
     await client
       .db(DB_NAME)

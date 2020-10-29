@@ -22,7 +22,7 @@ export const postPurchasableProduct = async (
 ) => {
   const purchasableProduct = {
     _id,
-    appIds: [appId],
+    appId,
     contents,
     createdAt: new Date(),
     options: {
