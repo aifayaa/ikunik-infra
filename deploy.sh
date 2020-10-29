@@ -36,7 +36,9 @@ if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] &&
 fi
 
 # libs
-runSlsDeployFor 'libs'
+cd 'libs'
+npm i
+cd ..
 
 # no deps
 runSlsDeployFor 'api-v1'
