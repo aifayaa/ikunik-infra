@@ -2,21 +2,22 @@ import MongoClient from '../../libs/mongoClient';
 
 const { DB_NAME, COLL_APPS } = process.env;
 
-export default async (appId) => {
+export default async (appId, havePerms) => {
   const client = await MongoClient.connect();
+  const projection = {
+    name: 1,
+    protocol: 1,
+  };
+
+  if (havePerms) projection.key = 1;
+
   try {
     const app = await client
       .db(DB_NAME)
       .collection(COLL_APPS)
       .findOne(
-        {
-          _id: appId,
-        },
-        { projection: {
-          key: 1,
-          name: 1,
-          protocol: 1,
-        } },
+        { _id: appId },
+        { projection },
       );
 
     if (!app) {

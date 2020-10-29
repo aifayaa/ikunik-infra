@@ -20,7 +20,7 @@ export const resetPassword = async (rawEmail, appId, token, password) => {
     const [user, app] = await Promise.all([
       usersCollection.findOne(
         {
-          emails: { $elemMatch: { address: email } },
+          'emails.address': email,
           appIds: appId,
         },
         {
