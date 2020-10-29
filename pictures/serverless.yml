@@ -32,6 +32,7 @@ functions:
                 waitCreation: false
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

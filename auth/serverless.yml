@@ -138,6 +138,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
+  - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env
   - serverless-webpack
