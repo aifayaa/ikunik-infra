@@ -98,6 +98,23 @@ functions:
               headers:
                 Authorization: true
 
+  getApps:
+    handler: handlers/getApps.default
+    events:
+      - http:
+          path: users/{id}/apps
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerNoAppId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+              headers:
+                Authorization: true
+
   getBalances:
     handler: handlers/getBalances.default
     events:
