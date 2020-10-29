@@ -12,7 +12,7 @@ export default async (event) => {
     const { email } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
 
-    if (!typeCheck('{ email: String, urlScheme: Maybe String}', { email })) {
+    if (!typeCheck('{ email: String }', { email })) {
       throw new Error('wrong_argument_type');
     }
 
