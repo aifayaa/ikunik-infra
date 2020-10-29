@@ -1,5 +1,8 @@
 #!/bin/bash
 
+STAGE="$1"
+REGION="$2"
+
 usage() {
   echo "usage : ./deploy.sh [STAGE] [REGION]"
   echo ""
@@ -8,167 +11,92 @@ usage() {
   echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
 }
 
-if ([ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "awax" ] && [ "$1" != "awaxDev" ]) || [ -z "$2" ] ; then
+runSlsDeployFor() {
+  folder="$1"
+  echo "Deploying $folder"
+  cd "$folder"
+  npm i
+  npx sls deploy --stage "$STAGE" --region "$REGION"
+  cd ..
+}
+
+runNpmCustomDeployFor() {
+  folder="$1"
+  echo "Deploying $folder"
+  cd "$folder"
+  # Uses environment variable "$REGION"
+  export REGION
+  npm run "deploy:$STAGE"
+  cd ..
+}
+
+if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then
   usage
+  exit 1
 fi
 
 # libs
-cd libs
-npm i
+runSlsDeployFor 'libs'
 
 # no deps
-cd ../api-v1
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../apps
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'api-v1'
+runSlsDeployFor 'apps'
 
 # requires root api only
-cd ../account
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../auth
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../maintenance
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../ssr
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../press
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'account'
+runSlsDeployFor 'auth'
+runSlsDeployFor 'maintenance'
+runSlsDeployFor 'ssr'
+runSlsDeployFor 'press'
 
 # + authorizer
-cd ../audios
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../authorize
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../banners
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../blast
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../carts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../contactLists
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../contacts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../credits
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../crowd
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../fees
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../festivals
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../files
-REGION=$2 npm run deploy:$1
-cd ../genres
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../media
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../orders
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../payouts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../pictures
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../purchasableProducts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../search
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../shop
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../stages
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../tokenPackages
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../users
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../userMetrics
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'audios'
+runSlsDeployFor 'authorize'
+runSlsDeployFor 'banners'
+runSlsDeployFor 'blast'
+runSlsDeployFor 'carts'
+runSlsDeployFor 'contactLists'
+runSlsDeployFor 'contacts'
+runSlsDeployFor 'credits'
+runSlsDeployFor 'crowd'
+runSlsDeployFor 'fees'
+runSlsDeployFor 'festivals'
+runNpmCustomDeployFor 'files'
+runSlsDeployFor 'genres'
+runSlsDeployFor 'media'
+runSlsDeployFor 'orders'
+runSlsDeployFor 'payouts'
+runSlsDeployFor 'pictures'
+runSlsDeployFor 'purchasableProducts'
+runSlsDeployFor 'search'
+runSlsDeployFor 'shop'
+runSlsDeployFor 'stages'
+runSlsDeployFor 'tokenPackages'
+runSlsDeployFor 'users'
+runSlsDeployFor 'userMetrics'
 
 # + users root api id
-cd ../artists
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../projects
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../selections
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../subscriptions
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../perms
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'artists'
+runSlsDeployFor 'projects'
+runSlsDeployFor 'selections'
+runSlsDeployFor 'subscriptions'
+runSlsDeployFor 'perms'
 
 # + artists api id
-cd ../favorites
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'favorites'
 
 # + festivals & stages api id
-cd ../lineup
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'lineup'
 
 # + lineups api id
-cd ../tickets
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../scanners
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'tickets'
+runSlsDeployFor 'scanners'
 
 # + press api id
-cd ../pressCategories
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'pressCategories'
+runSlsDeployFor 'pressArticles'
+runSlsDeployFor 'pressSearch'
 
-cd ../pressArticles
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'pushNotifications'
 
-cd ../pressSearch
-npm i
-npx sls deploy --stage $1 --region $2
-
-
-cd ../pushNotifications
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../userGeneratedContents
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'userGeneratedContents'
