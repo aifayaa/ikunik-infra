@@ -19,7 +19,7 @@ export const login = async (rawEmail, username, password, appId) => {
     const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
     if (!app) throw new Error('app_not_found');
 
-    const selector = { appIds: appId };
+    const selector = { appId };
     if (email) {
       selector['emails.address'] = email;
     } else {

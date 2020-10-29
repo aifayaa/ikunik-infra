@@ -57,7 +57,7 @@ export default async (
       JSON.parse(selection.selectionFindQuery)) ||
       (selectionIds && { selectionFindQuery: { _id: { $in: [] } } });
 
-    selectionFindQuery.appIds = appId;
+    selectionFindQuery.appId = appId;
     queryReplace(selectionFindQuery);
     if (!selectionFindQuery._id) selectionFindQuery._id = { $in: [] };
     if (!selectionFindQuery._id.$in) selectionFindQuery._id.$in = [];

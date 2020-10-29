@@ -39,11 +39,11 @@ const { default: MongoClient } = esmRequire('./libs/mongoClient');
   try {
     promises.push(
       client.db(DB_NAME).collection(COLL_USERS)
-        .createIndex({ username: 1, appIds: 1 }, { unique: true, sparse: true }),
+        .createIndex({ username: 1, appId: 1 }, { unique: true, sparse: true }),
     );
     promises.push(
       client.db(DB_NAME).collection(COLL_USERS)
-        .createIndex({ 'emails.address': 1, appIds: 1 }, { unique: true, sparse: true }),
+        .createIndex({ 'emails.address': 1, appId: 1 }, { unique: true, sparse: true }),
     );
 
     /* Those indexes are from meteor */

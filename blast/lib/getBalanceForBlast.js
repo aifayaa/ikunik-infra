@@ -50,7 +50,7 @@ export default async (profileId, type, appId) => {
           $filter: {
             input: `$${type}`,
             as: type,
-            cond: { $in: [appId, `$$${type}.appIds`] },
+            cond: { $eq: [appId, `$$${type}.appId`] },
           },
         },
       },

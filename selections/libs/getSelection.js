@@ -113,7 +113,7 @@ export default async (selectionId, userId, appId) => {
     const selectionFindQuery = JSON.parse(selection.selectionFindQuery);
     queryReplace(selectionFindQuery);
     if (selectionFindQuery) {
-      selectionFindQuery.appIds = appId;
+      selectionFindQuery.appId = appId;
       selectionFindQuery.isPublished = true;
     }
 

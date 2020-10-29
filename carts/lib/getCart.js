@@ -8,7 +8,7 @@ export default async (cartId, userId, appId, selector) => {
   } = process.env;
   selector._id = cartId;
   selector.userId = userId;
-  selector.appIds = appId;
+  selector.appId = appId;
   try {
     client = await MongoClient.connect();
     return await client.db(DB_NAME)

@@ -65,11 +65,11 @@ export default async (
     }
 
     $match.trashed = false;
-    $match.appIds = appId;
+    $match.appId = appId;
 
     const $project = {
       _id: 1,
-      appIds: 1,
+      appId: 1,
       type: 1,
       contentId: 1,
       contentCollection: 1,

@@ -44,7 +44,7 @@ export default async (type, message, qte, { userId, listId, projectId, appId }) 
         fromProject_ID: projectId || null,
         fromUser_ID: userId || null,
         numRecipients: Number(qte),
-        appIds: appId ? [appId] : null,
+        appId,
       });
     return { profileId };
   } finally {

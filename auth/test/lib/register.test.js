@@ -43,7 +43,7 @@ describe('lib - register', () => {
         username,
         'emails[0].address': address,
         'emails[0].verified': false,
-        'appIds[0]': appId,
+        appId,
         'profile.username': username,
       });
     });

@@ -186,10 +186,10 @@ export default async (userId, appId, mediumType, mediumId) => {
       .db(DB_NAME)
       .collection(COLL_METRICS)
       .updateOne(
-        { appIds: appId },
+        { appId },
         {
           $inc: { views: 1 },
-          $set: { appIds: [appId] },
+          $set: { appId },
         },
         { upsert: true },
       );
