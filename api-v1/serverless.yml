@@ -25,6 +25,7 @@ functions:
           cors: true
 
 plugins:
+  - serverless-offline
   - serverless-plugin-bind-deployment-id
   # - serverless-domain-manager # See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
   - serverless-webpack

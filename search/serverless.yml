@@ -33,6 +33,7 @@ functions:
               querystrings: ${self:custom.querystrings}
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

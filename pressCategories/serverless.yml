@@ -95,6 +95,7 @@ functions:
                 id: true
 
 plugins:
+  - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
 

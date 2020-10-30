@@ -179,6 +179,7 @@ functions:
                 id: true
 
 plugins:
+  - serverless-offline
   - serverless-webpack
   - serverless-export-env
 

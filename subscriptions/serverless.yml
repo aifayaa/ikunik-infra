@@ -93,6 +93,7 @@ functions:
                 Authorization: true
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

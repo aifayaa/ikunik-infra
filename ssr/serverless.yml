@@ -63,6 +63,7 @@ functions:
                 appName: false
 
 plugins:
+  - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-domain-manager
   - serverless-export-env

@@ -144,6 +144,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

@@ -68,6 +68,7 @@ functions:
     handler: handlers/removeCredits.default
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

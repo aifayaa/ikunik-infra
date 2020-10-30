@@ -97,6 +97,7 @@ functions:
                   id: true
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 resources:
