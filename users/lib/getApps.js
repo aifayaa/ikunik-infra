@@ -26,8 +26,13 @@ export default async (userId) => {
       },
     },
     {
+      $group: {
+        _id: '$appOfPermGroup',
+      },
+    },
+    {
       $replaceRoot: {
-        newRoot: { $mergeObjects: ['$appOfPermGroup'] },
+        newRoot: { $mergeObjects: '$_id' },
       },
     },
     {
