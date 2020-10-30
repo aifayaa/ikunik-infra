@@ -1,17 +1,19 @@
 import getAppInfos from './getAppInfos';
-import { appPreviewEmailHTML } from './appPreviewEmailHTML';
 import { sendEmail } from '../../libs/email/sendEmail';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
-export const sendPreviewInfoEmail = async (appId, email) => {
+export const sendPreviewInfoEmail = async (appId, email, lang) => {
   const { key, name = 'Crowdaa', protocol } = await getAppInfos(appId);
   const sanatizedAppName = name.charAt(0).toUpperCase() + name.slice(1);
 
+  intlInit(lang);
+
   /* Prepare data for email */
-  const subject = `App ${sanatizedAppName} preview`;
+  const subject = formatMessage('apps:app_preview_email_title', { appName: sanatizedAppName });
   const url = `${protocol}://appPreview/${key}`;
 
   /* send token by email to user */
-  const html = appPreviewEmailHTML(sanatizedAppName, url);
+  const html = formatMessage('apps:app_preview_email_html', { appName: sanatizedAppName, url });
 
   return sendEmail(subject, html, email);
 };

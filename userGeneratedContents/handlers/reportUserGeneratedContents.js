@@ -2,6 +2,7 @@ import reportUserGeneratedContents from '../lib/reportUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import emailTemplate from '../lib/emailUgcReportTemplate';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 const AVAILABLE_REASONS = ['inappropriate'];
 
@@ -49,6 +50,8 @@ export default async (event) => {
       details,
     );
 
+    const lang = getUserLanguage(event.headers);
+
     /*
       try to send email to appAdmin
       if it failled for any reason just ignore error
@@ -67,6 +70,7 @@ export default async (event) => {
         userGeneratedContentsId,
         reason,
         details,
+        lang,
       );
       await sendEmailToAdmin(subject, body, appId);
     } catch (e) {

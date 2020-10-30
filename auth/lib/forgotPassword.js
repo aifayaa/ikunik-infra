@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
-import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
 import { sendEmail } from '../../libs/email/sendEmail';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
 const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
@@ -14,7 +14,7 @@ const {
   REACT_APP_AUTH_URL,
 } = process.env;
 
-export const forgotPassword = async (rawEmail, appId) => {
+export const forgotPassword = async (rawEmail, lang, appId) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
   try {
@@ -61,15 +61,18 @@ export const forgotPassword = async (rawEmail, appId) => {
       },
     };
 
+    intlInit(lang);
+
     /* Prepare data for email */
-    const subject = 'Forgot Password'; // TODO: intl
+    const subject = formatMessage('auth:forgot_password_email_title');
     const url = `${REACT_APP_AUTH_URL}/password-reset-landing?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
 
     /* store token into db */
     await usersCollection.updateOne({ _id: user._id }, { $set });
 
     /* send token by email to user */
-    const html = forgotPasswordEmailHTML(user.profile.username, url, token);
+    const html = formatMessage('auth:forgot_password_email_html', { username: user.profile.username, url, token });
+    // const html = forgotPasswordEmailHTML(user.profile.username, url, token);
 
     await sendEmail(subject, html, email);
   } finally {

@@ -4,6 +4,7 @@ import pathToCollection from '../../libs/collections/pathToCollection';
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
@@ -91,6 +92,8 @@ export default async (event) => {
       data,
     );
 
+    const lang = getUserLanguage(event.headers);
+
     /*
       try to send email to appAdmin
       if it failled for any reason just ignore error
@@ -107,6 +110,7 @@ export default async (event) => {
         userId,
         appId,
         { contentId: results._id, data },
+        lang,
       );
       await sendEmailToAdmin(subject, body, appId);
     } catch (e) {

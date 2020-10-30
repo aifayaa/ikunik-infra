@@ -2,6 +2,7 @@ import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { forgotPassword } from '../lib/forgotPassword';
 import errorMessage from '../../libs/httpResponses/errorMessage';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {
   try {
@@ -16,7 +17,8 @@ export default async (event) => {
       throw new Error('wrong_argument_type');
     }
 
-    await forgotPassword(email, appId);
+    const lang = getUserLanguage(event.headers);
+    await forgotPassword(email, lang, appId);
 
     return response({ code: 200, body: { email, message: 'ok' } });
   } catch (e) {

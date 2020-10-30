@@ -1,5 +1,6 @@
 import SNS from 'aws-sdk/clients/sns';
 import getAppInfos from './getAppInfos';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const {
   SNS_KEY_ID,
@@ -7,10 +8,12 @@ const {
   SNS_SECRET,
 } = process.env;
 
-export const sendPreviewInfoSMS = async (appId, phone) => {
+export const sendPreviewInfoSMS = async (appId, phone, lang) => {
   const { key, name = 'Crowdaa', protocol } = await getAppInfos(appId);
   const sanatizedAppName = name.charAt(0).toUpperCase() + name.slice(1);
   const url = `${protocol}://appPreview/${key}`;
+
+  intlInit(lang);
 
   const sns = new SNS({
     region: SNS_REGION,
@@ -20,7 +23,7 @@ export const sendPreviewInfoSMS = async (appId, phone) => {
     },
   });
 
-  const text = `Hey! Here's the link to test your app ${sanatizedAppName} : ${url}, enjoy it!`;
+  const text = formatMessage('apps:app_preview_sms', { appName: sanatizedAppName, url });
   const params = {
     Message: text,
     MessageStructure: 'string',

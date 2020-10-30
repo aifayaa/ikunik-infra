@@ -4,6 +4,7 @@ import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { sendPreviewInfoEmail } from '../lib/sendPreviewInfoEmail';
 import { sendPreviewInfoSMS } from '../lib/sendPreviewInfoSMS';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 const permKey = 'apps_sendPreviewInfo';
 
@@ -45,12 +46,13 @@ export default async (event) => {
       throw new Error('wrong_argument_type');
     }
 
+    const lang = getUserLanguage(event.headers);
     const promises = [];
     if (email) {
-      promises.push(sendPreviewInfoEmail(appId, email));
+      promises.push(sendPreviewInfoEmail(appId, email, lang));
     }
     if (number) {
-      promises.push(sendPreviewInfoSMS(appId, phoneNumber[0]));
+      promises.push(sendPreviewInfoSMS(appId, phoneNumber[0], lang));
     }
     const results = await Promise.all(promises);
 
