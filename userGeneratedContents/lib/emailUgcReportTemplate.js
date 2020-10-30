@@ -8,7 +8,6 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-// TODO: intl
 export default async (userId, appId, contentId, reason, details, lang) => {
   const client = await MongoClient.connect();
   try {

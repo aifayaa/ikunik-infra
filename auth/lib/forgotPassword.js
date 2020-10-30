@@ -72,7 +72,6 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
 
     /* send token by email to user */
     const html = formatMessage('auth:forgot_password_email_html', { username: user.profile.username, url, token });
-    // const html = forgotPasswordEmailHTML(user.profile.username, url, token);
 
     await sendEmail(subject, html, email);
   } finally {

@@ -47,7 +47,6 @@ export async function intlInit(lng) {
     await i18next.init({
       lng,
       resources,
-      // debug: true,
     });
     isInit = true;
   } else {
