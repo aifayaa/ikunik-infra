@@ -30,7 +30,7 @@ export default async (userId, appId, data, lang, { isEdition = false } = {}) => 
 
     const editionType = (isEdition ? formatMessage('ugc:edition_type_edited') : formatMessage('ugc:edition_type_posted'));
     return {
-      body2: formatMessage('ugc:new_ugc_content_email_html', {
+      body: formatMessage('ugc:new_ugc_content_email_html', {
         editionType,
         userId: user._id,
         username: user.profile.username,
