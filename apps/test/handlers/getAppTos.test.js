@@ -24,9 +24,7 @@ describe('handlers - getAppTos', () => {
   describe('tos_not_found', () => {
     let response;
     before(async () => {
-      // We don't care what getHtmlResults returns, it shouldn't be called
       stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
-      // No tos found, getTos returns an empty result
       stubLib = sandbox.stub(lib, 'getTos').returns([]);
       response = await handler(event);
     });
@@ -123,7 +121,7 @@ describe('handlers - getAppTos', () => {
     describe('getHtmlResults', () => {
       let response;
       before(async () => {
-        stubLib = sandbox.stub(lib, 'getTos').returns(['results']);
+        stubLib = sandbox.stub(lib, 'getTos').returns([{}]);
         stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').throws(new Error('An Error'));
         response = await handler(event);
       });

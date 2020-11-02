@@ -11,7 +11,7 @@ const { public: projection } = tosFields;
 
 const { DB_NAME, COLL_TOS } = process.env;
 
-describe.only('lib - getTos', () => {
+describe('lib - getTos', () => {
   let spyMongo;
   let stubMongo;
   const response = [{ _id: 'tosId' }];
