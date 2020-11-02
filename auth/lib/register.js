@@ -64,8 +64,8 @@ export const register = async (rawEmail, username, password, appId) => {
         ownUserId: userId,
       });
     } catch (ex) {
-      // Remove inserted user if the check fails
-      await usersCollection.removeOne({ _id: userId });
+      // Delete inserted user if the check fails
+      await usersCollection.deleteOne({ _id: userId });
       throw ex;
     }
 
