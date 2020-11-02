@@ -24,15 +24,19 @@ describe('handlers - getAppTos', () => {
   describe('tos_not_found', () => {
     let response;
     before(async () => {
-      //return 500 instead of 404
-      stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').throws(new Error('tos_not_found'));
-      console.log(stubHtmlLib);
+      // We don't care what getHtmlResults returns, it shouldn't be called
+      stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
+      // No tos found, getTos returns an empty result
       stubLib = sandbox.stub(lib, 'getTos').returns([]);
       response = await handler(event);
-      console.log(response);
     });
+
     it('should call lib once', () => {
       expect(stubLib.calledOnce).to.be.true;
+    });
+
+    it('shouldn\'t call getHtmlResults', () => {
+      expect(stubHtmlLib.called).to.be.false;
     });
 
     it('should call lib with right params', () => {
@@ -53,50 +57,17 @@ describe('handlers - getAppTos', () => {
     after(sandbox.restore);
   });
 
-  // /////////////////// TEST OK ////////////////////////
-  // describe('Lib return results', () => {
-  //   let response;
-
-  //   before(async () => {
-  //     stubLib = sandbox.stub(lib, 'getTos').returns([{
-  //       _id: 'crowdaa_app_id',
-  //     }]);
-  //     response = await handler(event);
-  //   });
-
-  //   it('should call lib once', () => {
-  //     expect(stubLib.calledOnce).to.be.true;
-  //   });
-
-  //   it('should call lib with right params', () => {
-  //     const appId = event.pathParameters.id;
-  //     sinon.assert.calledWith(
-  //       stubLib,
-  //       appId,
-  //       false,
-  //       { outdated: false, required: true },
-  //     );
-  //   });
-
-  //   it('should return a response with HTTP code 200', () => {
-  //     expect(response.statusCode).to.eql(200);
-  //   });
-  //   after(sandbox.restore);
-  // });
-  // /////////////////// TEST OK ////////////////////////
-
-  describe('Lib trigger error', () => {
+  describe('Lib return results', () => {
     let response;
+
     before(async () => {
-      stubLib = sandbox.stub(lib, 'getTos').callsFake(() => Promise.reject(new Error('error_message')));
-      stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').throws(new Error('tos_not_found'));
+      stubLib = sandbox.stub(lib, 'getTos').returns([{
+        _id: 'crowdaa_app_id',
+      }]);
       response = await handler(event);
-      console.log(response);
     });
 
     it('should call lib once', () => {
-      // AssertError: expected getHtmlResults to be called once but was called 0 times
-      sinon.assert.calledOnce(stubHtmlLib);
       expect(stubLib.calledOnce).to.be.true;
     });
 
@@ -110,10 +81,75 @@ describe('handlers - getAppTos', () => {
       );
     });
 
-    it('should return a response with HTTP code 500', () => {
-      expect(response.statusCode).to.eql(500);
-      // console.log(response.statusCode);
+    it('should return a response with HTTP code 200', () => {
+      expect(response.statusCode).to.eql(200);
     });
     after(sandbox.restore);
+  });
+
+  describe('Libs trigger error', () => {
+    describe('getTos', () => {
+      let response;
+      before(async () => {
+        stubLib = sandbox.stub(lib, 'getTos').throws(new Error('An error'));
+        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
+        response = await handler(event);
+      });
+
+      it('should call lib once', () => {
+        expect(stubLib.calledOnce).to.be.true;
+      });
+
+      it('shouldn\'t call stubHtmlLib', () => {
+        expect(stubHtmlLib.called).to.be.false;
+      });
+
+      it('should call lib with right params', () => {
+        const appId = event.pathParameters.id;
+        sinon.assert.calledWith(
+          stubLib,
+          appId,
+          false,
+          { outdated: false, required: true },
+        );
+      });
+
+      it('should return a response with HTTP code 500', () => {
+        expect(response.statusCode).to.eql(500);
+      });
+      after(sandbox.restore);
+    });
+
+    describe('getHtmlResults', () => {
+      let response;
+      before(async () => {
+        stubLib = sandbox.stub(lib, 'getTos').returns(['results']);
+        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').throws(new Error('An Error'));
+        response = await handler(event);
+      });
+
+      it('should call lib once', () => {
+        expect(stubLib.calledOnce).to.be.true;
+      });
+
+      it('shouldn\'t call stubHtmlLib', () => {
+        expect(stubHtmlLib.called).to.be.true;
+      });
+
+      it('should call lib with right params', () => {
+        const appId = event.pathParameters.id;
+        sinon.assert.calledWith(
+          stubLib,
+          appId,
+          false,
+          { outdated: false, required: true },
+        );
+      });
+
+      it('should return a response with HTTP code 500', () => {
+        expect(response.statusCode).to.eql(500);
+      });
+      after(sandbox.restore);
+    });
   });
 });
