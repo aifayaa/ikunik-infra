@@ -5,6 +5,7 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import patchUserGeneratedContents from '../lib/patchUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 const {
   COLL_USER_GENERATED_CONTENTS,
@@ -68,6 +69,8 @@ export default async (event) => {
       data,
     );
 
+    const lang = getUserLanguage(event.headers);
+
     /*
       try to send email to appAdmin
       if it failled for any reason just ignore error
@@ -84,6 +87,7 @@ export default async (event) => {
         userId,
         appId,
         { contentId: userGeneratedContentsId, data },
+        lang,
         { isEdition: true },
       );
       await sendEmailToAdmin(subject, body, appId);

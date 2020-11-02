@@ -7,11 +7,11 @@ import { hashPassword } from './password';
 import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
 import { sendEmail } from '../../libs/email/sendEmail';
-import { addressConfirmationEmailHTML } from './addressConfirmationEmailHTML';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
 
-export const register = async (rawEmail, username, password, appId) => {
+export const register = async (rawEmail, username, password, lang, appId) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
@@ -69,10 +69,12 @@ export const register = async (rawEmail, username, password, appId) => {
       throw ex;
     }
 
+    intlInit(lang);
+
     /* send email verification link to user */
-    const subject = 'Email confirmation'; // TODO: intl
+    const subject = formatMessage('auth:address_confirmation_email_title');
     const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
-    const html = addressConfirmationEmailHTML(username, url);
+    const html = formatMessage('auth:address_confirmation_email_html', { username, url });
 
     await sendEmail(subject, html, email);
 
