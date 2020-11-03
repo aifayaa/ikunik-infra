@@ -6,19 +6,57 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-export default async (appId, userGeneratedContentsId) => {
+export default async (appId, userGeneratedContentsId, {
+  moderator = undefined,
+  trashed = undefined,
+} = {}) => {
   let client;
   try {
     client = await MongoClient.connect();
 
-    const pipeline = [
-      {
-        $match: {
-          _id: userGeneratedContentsId,
-          appIds: appId,
-          trashed: false,
+    const $match = {
+      _id: userGeneratedContentsId,
+      appIds: appId,
+    };
+
+    if (moderator) {
+      if (typeof trashed !== 'undefined') {
+        $match.trashed = trashed;
+      }
+    } else {
+      $match.trashed = false;
+    }
+
+    const $project = {
+      createdAt: 1,
+      data: 1,
+      parentCollection: 1,
+      parentId: 1,
+      rootParentCollection: 1,
+      rootParentId: 1,
+      type: 1,
+      user: {
+        firstname: 1,
+        isUserPicture: 1,
+        lastname: 1,
+        profile: {
+          avatar: 1,
+          isUserPicture: 1,
+          userPictureData: 1,
+          username: 1,
         },
+        status: 1,
+        username: 1,
+        _id: 1,
       },
+    };
+
+    if (moderator) {
+      $project.trashed = true;
+    }
+
+    const pipeline = [
+      { $match },
       {
         $sort: {
           createdAt: -1,
@@ -38,29 +76,7 @@ export default async (appId, userGeneratedContentsId) => {
         preserveNullAndEmptyArrays: true,
       },
     }, {
-      $project: {
-        createdAt: 1,
-        data: 1,
-        parentCollection: 1,
-        parentId: 1,
-        rootParentCollection: 1,
-        rootParentId: 1,
-        type: 1,
-        user: {
-          firstname: 1,
-          isUserPicture: 1,
-          lastname: 1,
-          profile: {
-            avatar: 1,
-            isUserPicture: 1,
-            userPictureData: 1,
-            username: 1,
-          },
-          status: 1,
-          username: 1,
-          _id: 1,
-        },
-      },
+      $project,
     });
 
     return await client
