@@ -2,6 +2,7 @@ import prepareNotif from '../lib/prepareNotifString';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { doSendNotifications } from '../lib/sendNotifications';
+import { doSendDelayedNotifications } from '../lib/sendDelayedNotifications';
 import { getArticle } from '../lib/getArticle';
 import { publishArticle } from '../lib/publishArticle';
 
@@ -27,13 +28,27 @@ export default async (event) => {
     const results = await publishArticle(userId, appId, articleId, draftId, publicationDate);
     const requestResults = { results };
     if (sendNotifications) {
-      const article = await getArticle(articleId, appId, {});
-      requestResults.notificationResults = await doSendNotifications(
-        prepareNotif(article.title, 60, false),
-        prepareNotif(article.plainText),
-        appId,
-        { articleId },
-      );
+      const delay = ((publicationDate.getTime() - Date.now()) / 1000) | 0;
+      let { title, plainText } = await getArticle(articleId, appId, {});
+      title = prepareNotif(title, 60, false);
+      plainText = prepareNotif(plainText);
+
+      if (delay > 0) {
+        requestResults.notificationResults = await doSendDelayedNotifications(
+          title,
+          plainText,
+          appId,
+          articleId,
+          delay,
+        );
+      } else {
+        requestResults.notificationResults = await doSendNotifications(
+          title,
+          plainText,
+          appId,
+          { articleId },
+        );
+      }
     }
     return response({ code: 200, body: requestResults });
   } catch (e) {
