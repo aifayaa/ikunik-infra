@@ -13,7 +13,7 @@ export default async ({ headers, methodArn, requestContext }) => {
     const app = await getAppFromKey(apiKey);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const user = await authorizeUser(hashedLoginToken);
+    const user = await authorizeUser(hashedLoginToken, app._id);
     if (user) {
       winston.info('allow', authorizationToken, user._id);
       return generatePolicy('allow', methodArn, { userId: user._id, appId: app._id });

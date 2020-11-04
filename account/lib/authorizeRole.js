@@ -1,11 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
+  ADMIN_APP,
   COLL_USERS,
   DB_NAME,
 } = process.env;
 
-export default async (hashedToken) => {
+export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
   try {
     const conds = {
@@ -14,6 +15,10 @@ export default async (hashedToken) => {
         { 'services.apiTokens': { $elemMatch: { hashedToken } } },
       ],
     };
+
+    if (appId) {
+      conds.appIds = { $in: [appId, ADMIN_APP] };
+    }
 
     const user = await client
       .db(DB_NAME)

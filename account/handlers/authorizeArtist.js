@@ -13,10 +13,8 @@ export default async ({ headers, methodArn, requestContext }) => {
     winston.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const [userId, app] = await Promise.all([
-      authorizeArtist(hashedLoginToken),
-      getAppFromKey(apiKey),
-    ]);
+    const app = await getAppFromKey(apiKey);
+    const userId = await authorizeArtist(hashedLoginToken, app._id);
     const profileId = userId && await getProfile(userId, app._id);
     if (userId && profileId) {
       winston.info('allow', authorizationToken, userId);
