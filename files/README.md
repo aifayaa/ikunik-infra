@@ -1,3 +1,18 @@
+# Initialization before deploy
+
+Install `docker` and `docker-compose`.
+
+Then, run, in root :
+
+```sh
+adduser $USER docker
+docker-compose up
+```
+
+You may need to restart your session after doing the adduser step.
+
+It will prepare the docker container to be able to deploy this service.
+
 # Deploy
 Because of sharp package this ms need to be deployed with docker to work without issues.
 
