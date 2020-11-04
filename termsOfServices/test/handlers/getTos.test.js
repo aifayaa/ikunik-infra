@@ -17,7 +17,7 @@ describe('handlers - getTos', () => {
       },
     },
     headers: {
-      accept: 'accept' || 'Accept',
+      accept: 'accept',
     },
     pathParameters: {
       id: 'tosId',
@@ -66,6 +66,18 @@ describe('handlers - getTos', () => {
     it('should call lib with params', () => {
       sinon.assert.calledWith(stubLib, 'crowdaa_app_id', 'tosId');
     });
+    it('should test if return html or json ', () => {
+      const accept = event.headers.accept || event.headers.Accept;
+      const acceptArray = accept.split(',');
+
+      if (acceptArray.includes('text/html')) {
+        expect(stubHtmlLib.called).to.be.true;
+        expect(response).to.be.html;
+      } else if (acceptArray.includes('application/json')) {
+        expect(stubHtmlLib.called).to.be.false;
+        expect(response).to.be.json;
+      }
+    });
     it('should return 200', () => {
       expect(response.statusCode).to.eql(200);
     });
@@ -108,7 +120,7 @@ describe('handlers - getTos', () => {
         expect(stubLib.calledOnce).to.be.true;
       });
 
-      it('shouldn\'t call stubHtmlLib', () => {
+      it('should call stubHtmlLib', () => {
         expect(stubHtmlLib.called).to.be.true;
       });
 

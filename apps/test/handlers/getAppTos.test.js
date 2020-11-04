@@ -15,7 +15,7 @@ describe('handlers - getAppTos', () => {
       id: 'appId',
     },
     headers: {
-      accept: 'accept' || 'Accept',
+      accept: 'accept',
     },
   };
 
@@ -62,6 +62,7 @@ describe('handlers - getAppTos', () => {
       stubLib = sandbox.stub(lib, 'getTos').returns([{
         _id: 'crowdaa_app_id',
       }]);
+      stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
       response = await handler(event);
     });
 
@@ -77,6 +78,19 @@ describe('handlers - getAppTos', () => {
         false,
         { outdated: false, required: true },
       );
+    });
+
+    it('should test if response return html or json ', () => {
+      const accept = event.headers.accept || event.headers.Accept;
+      const acceptArray = accept.split(',');
+
+      if (acceptArray.includes('text/html')) {
+        expect(stubHtmlLib.called).to.be.true;
+        expect(response).to.be.html;
+      } else if (acceptArray.includes('application/json')) {
+        expect(stubHtmlLib.called).to.be.false;
+        expect(response).to.be.json;
+      }
     });
 
     it('should return a response with HTTP code 200', () => {
@@ -130,7 +144,7 @@ describe('handlers - getAppTos', () => {
         expect(stubLib.calledOnce).to.be.true;
       });
 
-      it('shouldn\'t call stubHtmlLib', () => {
+      it('should call stubHtmlLib', () => {
         expect(stubHtmlLib.called).to.be.true;
       });
 
