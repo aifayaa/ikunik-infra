@@ -24,6 +24,7 @@ runNpmCustomDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
+  npm i
   # Uses environment variable "$REGION"
   export REGION
   npm run "deploy:$STAGE"
