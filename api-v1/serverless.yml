@@ -48,6 +48,13 @@ custom:
     awax: awax-api.aws.crowdaa.com
     awaxDev: awax-dev-api.aws.crowdaa.com
 
+  adminApp:
+    prod: cf72c7c3-ae67-42f9-963c-adc9a3211726
+    dev: crowdaa_app_id
+    defJam: crowdaa_app_id
+    awax: cf72c7c3-ae67-42f9-963c-adc9a3211726
+    awaxDev: crowdaa_app_id
+
   customDomain:
     basePath: "v1"
     domainName: ${self:custom.domains.${self:provider.stage}}
@@ -60,6 +67,7 @@ custom:
     prod: key-ee8f3c350f56cbe4002b9c00cce04769
     awax: key-ee8f3c350f56cbe4002b9c00cce04769
     awaxDev: key-ee8f3c350f56cbe4002b9c00cce04769
+
   MAILGUN_DOMAIN:
     dev: mg.crowdaa.com
     prod: mg.crowdaa.com
@@ -154,6 +162,11 @@ resources:
       Value: ${self:custom.mongoDB.${self:provider.stage}}
       Export:
         Name: ${self:service}:${self:provider.stage}:MongoURL
+    AdminApp:
+      Description: Admin App ID
+      Value: ${self:custom.adminApp.${self:provider.stage}}
+      Export:
+        Name: ${self:service}:${self:provider.stage}:AdminApp
     MailgunApiKey:
       Description: MAILGUN API KEY
       Value: ${self:custom.MAILGUN_API_KEY.${self:provider.stage}}
