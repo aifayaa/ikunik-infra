@@ -1,9 +1,9 @@
-import winston from 'winston';
 import get from 'lodash/get';
-import generatePolicy from '../lib/generatePolicy';
-import hashLoginToken from '../lib/hashLoginToken';
+import winston from 'winston';
 import authorizeUser from '../lib/authorizeUser';
+import generatePolicy from '../lib/generatePolicy';
 import getAppFromKey from '../lib/getAppFromKey';
+import hashLoginToken from '../lib/hashLoginToken';
 
 export default async ({ headers, methodArn, requestContext }) => {
   const apiKey = get(requestContext, 'identity.apiKey');

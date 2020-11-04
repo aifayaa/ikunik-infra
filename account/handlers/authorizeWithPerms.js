@@ -1,5 +1,5 @@
-import winston from 'winston';
 import get from 'lodash/get';
+import winston from 'winston';
 import authorizeWithPerms from '../lib/authorizeWithPerms';
 import generatePolicy from '../lib/generatePolicy';
 import getAppFromKey from '../lib/getAppFromKey';

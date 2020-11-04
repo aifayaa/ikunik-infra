@@ -1,11 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  DB_NAME,
-  COLL_PROFILES,
-  COLL_PERM_GROUPS,
-  COLL_USERS,
   COLL_APPS,
+  COLL_PERM_GROUPS,
+  COLL_PROFILES,
+  COLL_USERS,
+  DB_NAME,
 } = process.env;
 
 export default async (userId, appId) => {

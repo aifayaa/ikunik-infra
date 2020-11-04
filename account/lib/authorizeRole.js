@@ -1,11 +1,16 @@
 import MongoClient from '../../libs/mongoClient';
 
+const {
+  COLL_USERS,
+  DB_NAME,
+} = process.env;
+
 export default async (hashedToken) => {
   const client = await MongoClient.connect();
   try {
     const user = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_USERS)
+      .db(DB_NAME)
+      .collection(COLL_USERS)
       .findOne(
         {
           $or: [

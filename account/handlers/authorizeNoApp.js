@@ -1,7 +1,7 @@
 import winston from 'winston';
+import authorizeUser from '../lib/authorizeUser';
 import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';
-import authorizeUser from '../lib/authorizeUser';
 
 export default async ({ headers, methodArn }) => {
   const authorizationToken = headers.authorization || headers.Authorization;

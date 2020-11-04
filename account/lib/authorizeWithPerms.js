@@ -1,13 +1,13 @@
 
 import MongoClient from '../../libs/mongoClient';
 
-export default async (hashedToken, appId) => {
-  const {
-    DB_NAME,
-    COLL_USERS,
-    COLL_PERM_GROUPS,
-  } = process.env;
+const {
+  DB_NAME,
+  COLL_USERS,
+  COLL_PERM_GROUPS,
+} = process.env;
 
+export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
 
   try {
