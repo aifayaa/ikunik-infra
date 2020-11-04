@@ -8,16 +8,18 @@ const {
 export default async (hashedToken) => {
   const client = await MongoClient.connect();
   try {
+    const conds = {
+      $or: [
+        { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
+        { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+      ],
+    };
+
     const user = await client
       .db(DB_NAME)
       .collection(COLL_USERS)
       .findOne(
-        {
-          $or: [
-            { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-            { 'services.apiTokens': { $elemMatch: { hashedToken } } },
-          ],
-        },
+        conds,
         { projection: { _id: 1, roles: 1, profil_ID: 1 } },
       );
     user.roles = user.roles || [];

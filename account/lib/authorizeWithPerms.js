@@ -11,15 +11,20 @@ export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const user = await client.db(DB_NAME).collection(COLL_USERS).findOne(
-      {
-        $or: [
-          { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-          { 'services.apiTokens': { $elemMatch: { hashedToken } } },
-        ],
-      },
-      { projection: { _id: 1, permGroupIds: 1 } },
-    );
+    const conds = {
+      $or: [
+        { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
+        { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+      ],
+    };
+
+    const user = await client
+      .db(DB_NAME)
+      .collection(COLL_USERS)
+      .findOne(
+        conds,
+        { projection: { _id: 1, permGroupIds: 1 } },
+      );
 
     /* if no appId, we cant determine user perms */
     if (!appId) {
