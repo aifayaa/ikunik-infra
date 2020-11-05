@@ -1,0 +1,147 @@
+import yaml from 'js-yaml';
+
+const libs = {};
+
+/**
+ * Included yaml library allowing us to load serverless files and
+ * check that everything is documented. That check function should to be written here
+ * and executed in each service.
+ */
+libs.yaml = yaml;
+
+const defaultRespHeaders = {
+  'Access-Control-Allow-Origin': {
+    type: 'string',
+    default: '*',
+  },
+  'Access-Control-Allow-Credentials': {
+    type: 'boolean',
+    default: true,
+  },
+};
+
+/**
+ * These functions are helpers to create OpenAPI documentation.
+ * You can have some more documentation about OpenAPI schemas here :
+ * https://swagger.io/specification/v2/
+ */
+libs.make = {
+  /**
+   * Create and return a new swagger API parameter
+   * @param {string} name The name of this parameter
+   * @param {string} place The location of this parameter (query, url, header, body, form)
+   * @param {string} type The type of this parameter (integer, number, string, boolean)
+   * @param {boolean} required If this parameter is required. Can be omitted.
+   * @param {object} extra An object of extra parameters to add. Can be omitted.
+   */
+  param(name, place, type, required, extra) {
+    let ret = {
+      name,
+      in: place,
+      required: !!required,
+      type,
+    };
+
+    if (extra) {
+      ret = { ...ret, ...extra };
+    }
+
+    return (ret);
+  },
+
+  /**
+   * Creates a new method object
+   * @param {string} description The description of this method
+   * @param {array} tags Array of tags to add to this method.
+   */
+  method(description, tags = undefined) {
+    return ({
+      description,
+      tags,
+      responses: {},
+    });
+  },
+
+  /**
+   * Creates a new response object
+   * @param {string} description The description of this response
+   * @param {object|undefined} schema The schema for this response
+   * @param {object} headers Headers included in the output
+   * @param {object} examples Some examples, if any
+   */
+  response(description, schema = undefined, headers = defaultRespHeaders, examples = []) {
+    const ret = {
+      description,
+      schema,
+      headers,
+      examples,
+    };
+
+    return (ret);
+  },
+
+  /**
+   * Creates a new response object, with default values for standard error output format.
+   * @param {string} description The description of this error
+   * @param {object} extra Extra parameters to add to this response, if any
+   */
+  responseError(description, extra) {
+    let ret = {
+      description,
+      schema: {
+        type: 'object',
+        required: [
+          'message',
+        ],
+        properties: {
+          message: {
+            type: 'string',
+            description: 'The error string, most often a token that will be translatable by the client',
+          },
+        },
+      },
+      headers: defaultRespHeaders,
+    };
+
+    if (extra) {
+      ret = { ...ret, ...extra };
+    }
+
+    return (ret);
+  },
+
+  /**
+   * Creates a new response object, with default values for standard success output format.
+   * @param {string} description The description of this output
+   * @param {object} properties The properties to include, see schemaObject
+   * @param {object} extra Extra parameters to add to this response, if any
+   */
+  responseObject(description, properties, extra) {
+    let ret = {
+      description,
+      schema: libs.make.schemaObject(properties),
+      headers: defaultRespHeaders,
+    };
+
+    if (extra) {
+      ret = { ...ret, ...extra };
+    }
+
+    return (ret);
+  },
+
+  /**
+   * Creates an object schema
+   * @param {object} properties The properties for this schema
+   */
+  schemaObject(properties) {
+    const ret = {
+      type: 'object',
+      properties,
+    };
+
+    return (ret);
+  },
+};
+
+export default libs;
