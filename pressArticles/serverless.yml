@@ -36,6 +36,10 @@ provider:
       Action:
         - iam:PassRole
       Resource: "${self:provider.environment.NOTIFICATION_STATE_MACHINE_ROLE}"
+    - Effect: Allow
+      Action:
+        - states:StopExecution
+      Resource: "arn:aws:states:us-east-1:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}-*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

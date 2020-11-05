@@ -1,5 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 import { doSendNotifications } from './sendNotifications';
+import prepareNotif from './prepareNotifString';
 
 const {
   DB_NAME,
@@ -7,30 +8,47 @@ const {
 } = process.env;
 
 export const broadcastArticleNotification = async (
-  title,
-  message,
   appId,
   articleId,
+  draftId,
 ) => {
-  const notificationResults = await doSendNotifications(
-    title,
-    message,
-    appId,
-    { articleId },
-  );
   const client = await MongoClient.connect();
-  await client
-    .db(DB_NAME)
-    .collection(COLL_PRESS_ARTICLES)
-    .updateOne(
-      {
-        _id: articleId,
-        appIds: appId,
-      }, {
-        $unset: {
-          pendingNotificationAwsArnId: '',
-        },
-      },
-    );
+  let notificationResults;
+
+  try {
+    const article = await client
+      .db(DB_NAME)
+      .collection(COLL_PRESS_ARTICLES)
+      .findOne({ _id: articleId });
+
+    if (article) {
+      const { title, plainText } = article;
+
+      if (!article.trashed && article.isPublished && article.draftId === draftId) {
+        notificationResults = await doSendNotifications(
+          prepareNotif(title, 60, false),
+          prepareNotif(plainText),
+          appId,
+          { articleId },
+        );
+      }
+
+      await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_ARTICLES)
+        .updateOne(
+          {
+            _id: articleId,
+          }, {
+            $unset: {
+              pendingNotificationAwsArnId: '',
+            },
+          },
+        );
+    }
+  } finally {
+    client.close();
+  }
+
   return (notificationResults);
 };

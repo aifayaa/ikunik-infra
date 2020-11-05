@@ -7,13 +7,13 @@ const {
   NOTIFICATION_STATE_MACHINE_NAME,
   NOTIFICATION_STATE_MACHINE_ROLE,
   NOTIFICATION_STATE_MACHINE_RESOURCE,
+  STAGE,
 } = process.env;
 
 export const doSendDelayedNotifications = async (
-  title,
-  message,
   appId,
   articleId,
+  draftId,
   delay,
 ) => {
   const stepfunctions = new StepFunctions();
@@ -34,10 +34,9 @@ export const doSendDelayedNotifications = async (
           Type: 'Task',
           Resource: NOTIFICATION_STATE_MACHINE_RESOURCE,
           Parameters: {
-            'title.$': '$.title',
-            'message.$': '$.message',
             'appId.$': '$.appId',
             'articleId.$': '$.articleId',
+            'draftId.$': '$.draftId',
           },
           End: true,
         },
@@ -49,11 +48,11 @@ export const doSendDelayedNotifications = async (
 
   const execParams = {
     stateMachineArn,
+    name: `${STAGE}-${draftId}-${Date.now()}`,
     input: JSON.stringify({
-      title,
-      message,
       appId,
       articleId,
+      draftId,
       delay,
     }),
   };
@@ -74,4 +73,7 @@ export const doSendDelayedNotifications = async (
         },
       },
     );
+  client.close();
+
+  return ('ok');
 };
