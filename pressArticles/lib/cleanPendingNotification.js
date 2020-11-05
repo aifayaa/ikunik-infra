@@ -1,57 +1,16 @@
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import MongoClient from '../../libs/mongoClient';
-import { cleanPendingNotification } from './cleanPendingNotification';
 
 const {
-  COLL_PRESS_ARTICLES,
   DB_NAME,
-  COLL_PRESS_DRAFTS,
+  COLL_PRESS_ARTICLES,
 } = process.env;
 
-export const unpublishArticle = async (userId, appId, articleId) => {
+export const cleanPendingNotification = async (
+  articleId,
+) => {
   const client = await MongoClient.connect();
-  let session;
-
   try {
-    session = client.startSession();
-    session.startTransaction();
-    const opts = { session };
-
-    await client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_ARTICLES)
-      .updateOne(
-        {
-          _id: articleId,
-          appIds: appId,
-        },
-        {
-          $set: {
-            isPublished: false,
-          },
-        },
-        opts,
-      );
-
-    await client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_DRAFTS)
-      .updateMany(
-        {
-          articleId,
-          appIds: appId,
-        },
-        {
-          $set: {
-            isPublished: false,
-          },
-        },
-        opts,
-      );
-
-    await session.commitTransaction();
-
-    cleanPendingNotification(articleId);
     const article = await client
       .db(DB_NAME)
       .collection(COLL_PRESS_ARTICLES)
@@ -86,10 +45,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
           },
         );
     }
-
-    return { articleId };
   } finally {
-    if (session) session.endSession();
     client.close();
   }
 };
