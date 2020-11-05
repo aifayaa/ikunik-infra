@@ -50,6 +50,27 @@ libs.make = {
   },
 
   /**
+   * Create and return a new output API parameter
+   * @param {string} description The description of this parameter
+   * @param {string} type The type of this parameter (integer, number, string, boolean)
+   * @param {boolean} required If this parameter is required. Can be omitted.
+   * @param {object} extra An object of extra parameters to add. Can be omitted.
+   */
+  outParam(description, type, required, extra) {
+    let ret = {
+      description,
+      type,
+      required: !!required,
+    };
+
+    if (extra) {
+      ret = { ...ret, ...extra };
+    }
+
+    return (ret);
+  },
+
+  /**
    * Creates a new method object
    * @param {string} description The description of this method
    * @param {array} tags Array of tags to add to this method.

@@ -12,16 +12,8 @@ export default (libs, output) => {
 
   handler.post.responses = {
     200: libs.make.responseObject('Success', {
-      userId: {
-        description: 'The user id',
-        type: 'string',
-        required: true,
-      },
-      authToken: {
-        description: 'The user authentication token',
-        type: 'string',
-        required: true,
-      },
+      userId: libs.make.outParam('The user ID', 'string', true),
+      authToken: libs.make.outParam('The user authentication token', 'string', true),
     }),
     400: libs.make.responseError('Invalid request'),
     401: libs.make.responseError('Invalid token'),
