@@ -13,7 +13,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.yaml$/,
+        test: /\.y(a)?ml$/,
         use: [
           { loader: 'json-loader' },
           { loader: 'yaml-loader' },

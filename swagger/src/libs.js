@@ -32,21 +32,24 @@ libs.make = {
    * @param {string} place The location of this parameter (query, url, header, body, form)
    * @param {string} type The type of this parameter (integer, number, string, boolean)
    * @param {boolean} required If this parameter is required. Can be omitted.
+   * @param {string} description The description of this parameter
    * @param {object} extra An object of extra parameters to add. Can be omitted.
    */
-  param(name, place, type, required, extra) {
-    let ret = {
+  param(name, place, type, required, description = undefined, extra = {}) {
+    const ret = {
       name,
       in: place,
       required: !!required,
+      description,
       type,
+      ...extra,
     };
 
-    if (extra) {
-      ret = { ...ret, ...extra };
-    }
-
     return (ret);
+  },
+
+  apiKeyParam() {
+    return (libs.make.param('X-Api-Key', 'header', 'string', true, 'The API key associated with the user app'));
   },
 
   /**
@@ -56,16 +59,13 @@ libs.make = {
    * @param {boolean} required If this parameter is required. Can be omitted.
    * @param {object} extra An object of extra parameters to add. Can be omitted.
    */
-  outParam(description, type, required, extra) {
-    let ret = {
+  outParam(description, type, required, extra = {}) {
+    const ret = {
       description,
       type,
       required: !!required,
+      ...extra,
     };
-
-    if (extra) {
-      ret = { ...ret, ...extra };
-    }
 
     return (ret);
   },
@@ -106,8 +106,8 @@ libs.make = {
    * @param {string} description The description of this error
    * @param {object} extra Extra parameters to add to this response, if any
    */
-  responseError(description, extra) {
-    let ret = {
+  responseError(description, extra = {}) {
+    const ret = {
       description,
       schema: {
         type: 'object',
@@ -122,11 +122,8 @@ libs.make = {
         },
       },
       headers: defaultRespHeaders,
+      ...extra,
     };
-
-    if (extra) {
-      ret = { ...ret, ...extra };
-    }
 
     return (ret);
   },
@@ -137,16 +134,13 @@ libs.make = {
    * @param {object} properties The properties to include, see schemaObject
    * @param {object} extra Extra parameters to add to this response, if any
    */
-  responseObject(description, properties, extra) {
-    let ret = {
+  responseObject(description, properties, extra = {}) {
+    const ret = {
       description,
       schema: libs.make.schemaObject(properties),
       headers: defaultRespHeaders,
+      ...extra,
     };
-
-    if (extra) {
-      ret = { ...ret, ...extra };
-    }
 
     return (ret);
   },
@@ -162,6 +156,22 @@ libs.make = {
     };
 
     return (ret);
+  },
+};
+
+libs.checks = {
+  forMissingAPIs(slsConfig, swaggerConfig) {
+    Object.keys(slsConfig.functions).forEach((fnName) => {
+      const fn = slsConfig.functions[fnName];
+      if (fn.events) {
+        fn.events.forEach((event) => {
+          if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths, `/${event.http.path}`)) {
+            // eslint-disable-next-line no-console
+            console.error('Missing API documentation for :', event.http.path);
+          }
+        });
+      }
+    });
   },
 };
 
