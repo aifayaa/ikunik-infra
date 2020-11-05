@@ -17,36 +17,35 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const {
-      name,
-      pathName,
-      color,
-      picture,
-      order,
-    } = JSON.parse(event.body);
+    const { name, pathName, color, picture, order, hidden } = JSON.parse(
+      event.body,
+    );
 
     if (!name) {
       throw new Error('missing_argument');
     }
 
-    [
-      name,
-      pathName,
-      color,
-    ].forEach((item) => {
+    [name, pathName, color].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
     });
 
     if (picture) {
-      if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
+      if (
+        typeof picture !== 'object' ||
+        typeof picture.length === 'undefined'
+      ) {
         throw new Error('wrong_argument_type');
       }
 
       if (picture.length > 1) {
         throw new Error('Cannot upload more than one picture');
       }
+    }
+
+    if (typeof hidden !== 'boolean') {
+      throw new Error('wrong_argument_type');
     }
 
     if (color && !/^#(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$/.test(color)) {
@@ -57,7 +56,15 @@ export default async (event) => {
       throw new Error('Wrong order syntax, must be a positive integer');
     }
 
-    const results = await postCategory(appId, name, pathName, color, picture, order);
+    const results = await postCategory(
+      appId,
+      name,
+      pathName,
+      color,
+      picture,
+      order,
+      hidden,
+    );
     return response({ code: 200, body: results });
   } catch (e) {
     return response(errorMessage(e));

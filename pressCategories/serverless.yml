@@ -7,14 +7,15 @@ provider:
   memorySize: 128
   timeout: 30
   environment:
-    $<<: 
-    - ${file(../env.yml)}
-    - ${file(./env.yml)}
+    $<<:
+      - ${file(../env.yml)}
+      - ${file(./env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
+      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
@@ -29,6 +30,20 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+  getCategoriesAdmin:
+    handler: handlers/getCategoriesAdmin.default
+    events:
+      - http:
+          path: admin/press/categories
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getCategory:
     handler: handlers/getCategory.default
@@ -96,7 +111,7 @@ functions:
 
 plugins:
   - serverless-offline
-  - '@cruglobal/serverless-merge-config'
+  - "@cruglobal/serverless-merge-config"
   - serverless-webpack
 
 package:

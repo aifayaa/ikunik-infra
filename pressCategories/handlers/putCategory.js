@@ -18,31 +18,29 @@ export default async (event) => {
       throw new Error('malformed_request');
     }
 
-    const {
-      name,
-      pathName,
-      color,
-      picture,
-      order,
-    } = JSON.parse(event.body);
+    const { name, pathName, color, picture, order, hidden } = JSON.parse(
+      event.body,
+    );
 
     if (!categoryId || !name) {
       throw new Error('missing_argument');
     }
 
-    [
-      categoryId,
-      name,
-      pathName,
-      color,
-    ].forEach((item) => {
+    [categoryId, name, pathName, color].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
     });
 
+    if (typeof hidden !== 'boolean') {
+      throw new Error('wrong_argument_type');
+    }
+
     if (picture) {
-      if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
+      if (
+        typeof picture !== 'object' ||
+        typeof picture.length === 'undefined'
+      ) {
         throw new Error('wrong_argument_type');
       }
 
@@ -59,7 +57,16 @@ export default async (event) => {
       throw new Error('Wrong order syntax, must be a positive integer');
     }
 
-    const results = await putCategory(appId, categoryId, name, pathName, color, picture, order);
+    const results = await putCategory(
+      appId,
+      categoryId,
+      name,
+      pathName,
+      color,
+      picture,
+      order,
+      hidden,
+    );
 
     if (results === false) {
       return response({ code: 404, message: 'category_not_found' });

@@ -1,0 +1,38 @@
+service: admin
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  getAdmin:
+    handler: handler.handleGetAdmin
+    events:
+      - http:
+          path: admin
+          method: get
+          cors: true
+
+plugins:
+  - serverless-offline
+  - serverless-webpack
+
+package:
+  individually: true
+
+resources:
+  Outputs:
+    RestApiRootResourceId:
+      Description: Api Gateway admin ID
+      Value:
+        Ref: ApiGatewayResourceAdmin
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId
