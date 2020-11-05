@@ -1,12 +1,10 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Login to crowdaa API using Apple authentication'),
+    post: libs.make.method('Login using an OpenID account'),
   };
 
   handler.post.parameters = [
-    libs.make.param('authorizationCode', 'query', 'string', true),
     libs.make.param('identityToken', 'query', 'string', true),
-    libs.make.param('fullName', 'query', 'string', true),
     libs.make.apiKeyParam(),
   ];
 
@@ -16,9 +14,10 @@ export default (libs, output) => {
       authToken: libs.make.outParam('The user authentication token', 'string', true),
     }),
     400: libs.make.responseError('Invalid request'),
-    401: libs.make.responseError('Invalid token'),
+    403: libs.make.responseError('Not enough permissions'),
+    404: libs.make.responseError('No data found according to api input'),
     500: libs.make.responseError('Server error, not handled'),
   };
 
-  output.paths['/auth/apple'] = handler;
+  output.paths['/auth/oidc'] = handler;
 };

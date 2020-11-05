@@ -1,12 +1,10 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Login to crowdaa API using Apple authentication'),
+    post: libs.make.method('Login to crowdaa API using Facebook authentication'),
   };
 
   handler.post.parameters = [
-    libs.make.param('authorizationCode', 'query', 'string', true),
-    libs.make.param('identityToken', 'query', 'string', true),
-    libs.make.param('fullName', 'query', 'string', true),
+    libs.make.param('accessToken', 'query', 'string', true),
     libs.make.apiKeyParam(),
   ];
 
@@ -20,5 +18,5 @@ export default (libs, output) => {
     500: libs.make.responseError('Server error, not handled'),
   };
 
-  output.paths['/auth/apple'] = handler;
+  output.paths['/auth/facebook'] = handler;
 };
