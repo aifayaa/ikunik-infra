@@ -4,7 +4,7 @@ export default (libs, output) => {
   };
 
   handler.post.parameters = [
-    libs.make.param('identityToken', 'query', 'string', true),
+    libs.make.param('identityToken', 'body', 'string', true),
     libs.make.apiKeyParam(),
   ];
 
