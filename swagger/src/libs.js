@@ -48,10 +48,6 @@ libs.make = {
     return (ret);
   },
 
-  apiKeyParam() {
-    return (libs.make.param('X-Api-Key', 'header', 'string', true, 'The API key associated with the user app'));
-  },
-
   /**
    * Create and return a new output API parameter
    * @param {string} description The description of this parameter
@@ -88,14 +84,22 @@ libs.make = {
    * @param {string} description The description of this response
    * @param {object|undefined} schema The schema for this response
    * @param {object} headers Headers included in the output
-   * @param {object} examples Some examples, if any
+   * @param {array} examples Some examples, if any
+   * @param {object} extra Extra parameters to add to this response, if any
    */
-  response(description, schema = undefined, headers = defaultRespHeaders, examples = []) {
+  response(
+    description,
+    schema = undefined,
+    headers = defaultRespHeaders,
+    examples = [],
+    extra = {},
+  ) {
     const ret = {
       description,
       schema,
       headers,
       examples,
+      ...extra,
     };
 
     return (ret);
@@ -129,16 +133,14 @@ libs.make = {
   },
 
   /**
-   * Creates a new response object, with default values for standard success output format.
-   * @param {string} description The description of this output
-   * @param {object} properties The properties to include, see schemaObject
-   * @param {object} extra Extra parameters to add to this response, if any
+   * Creates an object schema
+   * @param {object} properties The properties for this schema
+   * @param {object} extra Extra parameters to add to this schema, if any
    */
-  responseObject(description, properties, extra = {}) {
+  schemaObject(properties, extra = {}) {
     const ret = {
-      description,
-      schema: libs.make.schemaObject(properties),
-      headers: defaultRespHeaders,
+      type: 'object',
+      properties,
       ...extra,
     };
 
@@ -146,13 +148,29 @@ libs.make = {
   },
 
   /**
-   * Creates an object schema
-   * @param {object} properties The properties for this schema
+   * Creates an array schema
+   * @param {object} items The item schema that will be included in this array
+   * @param {object} extra Extra parameters to add to this schema, if any
    */
-  schemaObject(properties) {
+  schemaArray(items, extra = {}) {
     const ret = {
-      type: 'object',
-      properties,
+      type: 'array',
+      items,
+      ...extra,
+    };
+
+    return (ret);
+  },
+
+  /**
+   * Creates a schema by reference
+   * @param {object} name The schema name
+   * @param {object} extra Extra parameters to add to this schema, if any
+   */
+  schemaRef(name, extra = {}) {
+    const ret = {
+      $ref: `#/definitions/${name}`,
+      ...extra,
     };
 
     return (ret);

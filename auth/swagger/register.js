@@ -7,16 +7,15 @@ export default (libs, output) => {
     libs.make.param('email', 'body', 'string', true),
     libs.make.param('username', 'body', 'string', true),
     libs.make.param('password', 'body', 'string', true),
-    libs.make.apiKeyParam(),
   ];
 
   handler.post.responses = {
-    200: libs.make.responseObject('Success', {
+    200: libs.make.response('Success', libs.make.schemaObject({
       success: libs.make.outParam('A static "success" string', 'string', true, { example: 'success' }),
       data: libs.make.schemaObject({
         _id: libs.make.outParam('The user ID', 'string', true),
       }),
-    }),
+    })),
     400: libs.make.responseError('Invalid request'),
     403: libs.make.responseError('Not enough permissions'),
     404: libs.make.responseError('No data found according to api input'),
