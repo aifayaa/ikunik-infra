@@ -18,6 +18,8 @@ eslint:
     - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
   only:
     - merge_requests
+  when: manual
+  allow_failure: false
 
 test:
   image: node:12
