@@ -2,7 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 
 const { COLL_PICTURES, COLL_PRESS_CATEGORIES, DB_NAME } = process.env;
 
-export default async (appId, showHidden = false) => {
+export default async (appId, showHidden = false, { start, limit, countOnly = false }) => {
   const client = await MongoClient.connect();
 
   const matchHidden = showHidden
@@ -18,9 +18,28 @@ export default async (appId, showHidden = false) => {
       },
     };
 
+
   try {
+    if (countOnly) {
+      const allCategories = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .aggregate([matchHidden,
+          {
+            $match: {
+              order: { $ne: 999 },
+            },
+          },
+        ])
+        .toArray();
+
+      return { maxOrder: allCategories.length };
+    }
+
     const pipeline = [
       matchHidden,
+      { $skip: parseInt(start, 10) || 0 },
+      { $limit: parseInt(limit, 10) || 10 },
       {
         $sort: {
           order: 1,
@@ -49,8 +68,9 @@ export default async (appId, showHidden = false) => {
       .collection(COLL_PRESS_CATEGORIES)
       .aggregate(pipeline)
       .toArray();
+    const count = categories.length;
 
-    return { categories };
+    return { categories, count };
   } finally {
     client.close();
   }
