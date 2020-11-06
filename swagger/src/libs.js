@@ -1,13 +1,4 @@
-import yaml from 'js-yaml';
-
 const libs = {};
-
-/**
- * Included yaml library allowing us to load serverless files and
- * check that everything is documented. That check function should to be written here
- * and executed in each service.
- */
-libs.yaml = yaml;
 
 const defaultRespHeaders = {
   'Access-Control-Allow-Origin': {
