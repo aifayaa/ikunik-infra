@@ -40,6 +40,28 @@ libs.make = {
   },
 
   /**
+   * Create and return a new swagger API parameter in object format for the body
+   * (mainly for JSON body parameters)
+   * @param {string} name The name of this parameter
+   * @param {boolean} required If this parameter is required. Can be omitted.
+   * @param {string} description The description of this parameter
+   * @param {object} extra An object of extra parameters to add. Can be omitted.
+   */
+  paramBody(name, description, required, schema, extra = {}) {
+    const ret = {
+      name,
+      description,
+      in: 'body',
+      required: !!required,
+      schema,
+      type: 'object',
+      ...extra,
+    };
+
+    return (ret);
+  },
+
+  /**
    * Create and return a new output API parameter
    * @param {string} description The description of this parameter
    * @param {string} type The type of this parameter (integer, number, string, boolean)
@@ -155,13 +177,11 @@ libs.make = {
 
   /**
    * Creates a schema by reference
-   * @param {object} name The schema name
-   * @param {object} extra Extra parameters to add to this schema, if any
+   * @param {object} name The schema name (joined by slashes)
    */
-  schemaRef(name, extra = {}) {
+  schemaRef(...name) {
     const ret = {
-      $ref: `#/definitions/${name}`,
-      ...extra,
+      $ref: `#/definitions/${name.join('/')}`,
     };
 
     return (ret);

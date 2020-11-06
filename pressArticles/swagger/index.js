@@ -1,11 +1,12 @@
 import getArticles from './getArticles';
+import getAllArticles from './getAllArticles';
 
 import yaml from '../serverless.yml';
 
 export default (libs, output) => {
   getArticles(libs, output);
+  getAllArticles(libs, output);
 
-  // Missing : press/articles/
   // Missing : press/articlesAll/
   // Missing : press/purchasedArticles/
   // Missing : press/articles/{id}

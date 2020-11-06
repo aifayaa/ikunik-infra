@@ -4,7 +4,9 @@ export default (libs, output) => {
   };
 
   handler.post.parameters = [
-    libs.make.param('email', 'body', 'string', true),
+    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+      email: libs.make.outParam('The email of the account to recover', 'string', true),
+    })),
   ];
 
   handler.post.responses = {

@@ -1,7 +1,6 @@
 import SwaggerUI from 'swagger-ui';
 import 'swagger-ui/dist/swagger-ui.css';
-import schemasCommonFields from './schemas/commonFields';
-import schemasPictures from './schemas/pictures';
+import schemas from './schemas';
 import libs from './libs';
 
 import auth from '../../auth/swagger';
@@ -9,8 +8,7 @@ import pressArticles from '../../pressArticles/swagger';
 
 const spec = require('./swagger-config.yaml');
 
-schemasCommonFields(libs, spec);
-schemasPictures(libs, spec);
+schemas(libs, spec);
 auth(libs, spec);
 pressArticles(libs, spec);
 

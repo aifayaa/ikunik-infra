@@ -4,9 +4,11 @@ export default (libs, output) => {
   };
 
   handler.post.parameters = [
-    libs.make.param('authorizationCode', 'body', 'string', true),
-    libs.make.param('identityToken', 'body', 'string', true),
-    libs.make.param('fullName', 'body', 'string', true),
+    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+      authorizationCode: libs.make.outParam('The authorization code', 'string', true),
+      identityToken: libs.make.outParam('The identity token', 'string', true),
+      fullName: libs.make.outParam('The user full name', 'string', true),
+    })),
   ];
 
   handler.post.responses = {

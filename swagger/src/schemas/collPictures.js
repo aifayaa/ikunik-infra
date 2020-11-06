@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  output.definitions.collPictures = libs.make.schemaObject({
+  output.definitions.schemas.collPictures = libs.make.schemaObject({
     _id: libs.make.outParam('The image ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     createdAt: libs.make.outParam('The image creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
     thumbFileObj_ID: libs.make.outParam('The thumbnail ID, if any', 'string', false),

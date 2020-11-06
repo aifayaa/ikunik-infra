@@ -11,7 +11,10 @@ consumes:
   - application/json
 produces:
   - application/json
-definitions: {}
+definitions:
+  fields: {}
+  schemas: {}
+  customs: {}
 securityDefinitions:
   apiKey:
     type: apiKey

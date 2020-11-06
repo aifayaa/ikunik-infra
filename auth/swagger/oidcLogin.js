@@ -4,7 +4,9 @@ export default (libs, output) => {
   };
 
   handler.post.parameters = [
-    libs.make.param('identityToken', 'body', 'string', true),
+    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+      identityToken: libs.make.outParam('The OpenID token', 'string', true),
+    })),
   ];
 
   handler.post.responses = {

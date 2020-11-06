@@ -1,11 +1,13 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Ask to reset the password of the given user, identified by his email & app ID pair'),
+    post: libs.make.method('Marks an email address of an account as validated in database'),
   };
 
   handler.post.parameters = [
-    libs.make.param('email', 'body', 'string', true),
-    libs.make.param('password', 'body', 'string', true),
+    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+      email: libs.make.outParam('The email of the account to validate', 'string', true),
+      token: libs.make.outParam('The token that was sent by email', 'string', true),
+    })),
   ];
 
   handler.post.responses = {

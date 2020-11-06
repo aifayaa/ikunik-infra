@@ -4,7 +4,9 @@ export default (libs, output) => {
   };
 
   handler.post.parameters = [
-    libs.make.param('accessToken', 'body', 'string', true),
+    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+      accessToken: libs.make.outParam('The Facebook access token code', 'string', true),
+    })),
   ];
 
   handler.post.responses = {
