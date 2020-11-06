@@ -3,7 +3,7 @@ export default (libs, output) => {
     output.definitions.customs.pressArticles = {};
   }
 
-  output.definitions.customs.pressArticles.getArticles = libs.make.schemaObject({
+  output.definitions.customs.pressArticles.getArticle = libs.make.schemaObject({
     _id: libs.make.outParam('The article ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     user: libs.make.schemaObject({
       username: libs.make.outParam('The user name of the author', 'string', true, { example: 'Foo Bar' }),
