@@ -9,12 +9,12 @@ export default (libs, output) => {
   ];
 
   handler.post.responses = {
-    200: libs.make.responseObject('Success', {
+    200: libs.make.response('Success', libs.make.schemaObject({
       success: libs.make.outParam('A static "success" string', 'string', true, { example: 'success' }),
       data: libs.make.schemaObject({
         message: libs.make.outParam('A static "You\'ve been logged out!" string', 'string', true, { example: 'You\'ve been logged out!' }),
       }),
-    }),
+    })),
     400: libs.make.responseError('Invalid request'),
     404: libs.make.responseError('No data found according to api input'),
     500: libs.make.responseError('Server error, not handled'),
