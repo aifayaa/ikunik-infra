@@ -50,6 +50,64 @@ describe('handlers - getTos', () => {
     after(sandbox.restore);
   });
 
+  describe('Test type of response', () => {
+    describe('Get HTML response', () => {
+      const libResult = '<h1>Results</h1>';
+      let response;
+
+      before(async () => {
+        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns(libResult);
+        stubLib = sandbox.stub(lib, 'getTos').returns([{}]);
+        event.headers.accept = 'text/html';
+        response = await handler(event);
+      });
+
+      it('should call lib once', () => {
+        expect(stubLib.calledOnce).to.be.true;
+      });
+
+      it('should call stubHtmlLib', () => {
+        expect(stubHtmlLib.called).to.be.true;
+      });
+
+      it('should contain text/html in headers.accept', () => {
+        expect(event.headers.accept).to.include('text/html');
+      });
+
+      it('should return html response', () => {
+        expect(response.body).to.eql(libResult);
+      });
+
+      after(sandbox.restore);
+    });
+
+    describe('Get JSON response', () => {
+      const libResult = [{ tos: [] }];
+      let response;
+
+      before(async () => {
+        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
+        stubLib = sandbox.stub(lib, 'getTos').returns(libResult);
+        event.headers.accept = 'application/json';
+        response = await handler(event);
+      });
+
+      it('shouldn\'t call stubHtmlLib', () => {
+        expect(stubHtmlLib.called).to.be.false;
+      });
+
+      it('should contain application/json in headers.accept', () => {
+        expect(event.headers.accept).to.include('application/json');
+      });
+
+      it('should return json response', () => {
+        expect(JSON.parse(response.body)).to.eql(libResult);
+      });
+
+      after(sandbox.restore);
+    });
+  });
+
   describe('Case lib return results', () => {
     let response;
     before(async () => {

@@ -58,14 +58,20 @@ describe('handlers - getAppTos', () => {
   describe('Test type of response', () => {
     describe('Get HTML response', () => {
       const libResult = '<h1>Results</h1>';
+      let response;
 
-      before(() => {
-        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns(libResult);
-        stubLib = sandbox.stub(lib, 'getTos').returns([]);
+      before(async () => {
         event.headers.accept = 'text/html';
+        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns(libResult);
+        stubLib = sandbox.stub(lib, 'getTos').returns([{}]);
+        response = await handler(event);
       });
 
-      // this doesn't work and return false
+      it('should call lib once', () => {
+        expect(stubLib.calledOnce).to.be.true;
+      });
+
+      // if acceptArray includes text/html
       it('should call stubHtmlLib', () => {
         expect(stubHtmlLib.called).to.be.true;
       });
@@ -74,22 +80,22 @@ describe('handlers - getAppTos', () => {
         expect(event.headers.accept).to.include('text/html');
       });
 
-      // AssertionError: expected '{"message":"tos_not_found"}' to deeply equal '<h1>Results</h1>'
-      it('should return html response', async () => {
-        const response = await handler(event);
+      it('should return html response', () => {
         expect(response.body).to.eql(libResult);
-        console.log(response);
       });
 
       after(sandbox.restore);
     });
+
     describe('Get JSON response', () => {
       const libResult = [{ tos: [] }];
+      let response;
 
-      before(() => {
+      before(async () => {
         stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
         stubLib = sandbox.stub(lib, 'getTos').returns(libResult);
         event.headers.accept = 'application/json';
+        response = await handler(event);
       });
 
       it('shouldn\'t call stubHtmlLib', () => {
@@ -100,10 +106,8 @@ describe('handlers - getAppTos', () => {
         expect(event.headers.accept).to.include('application/json');
       });
 
-      it('should return json response', async () => {
-        const response = await handler(event);
+      it('should return json response', () => {
         expect(JSON.parse(response.body)).to.eql(libResult);
-        console.log(response);
       });
 
       after(sandbox.restore);
@@ -180,6 +184,7 @@ describe('handlers - getAppTos', () => {
 
     describe('getHtmlResults', () => {
       let response;
+
       before(async () => {
         stubLib = sandbox.stub(lib, 'getTos').returns([{}]);
         stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').throws(new Error('An Error'));
@@ -190,7 +195,7 @@ describe('handlers - getAppTos', () => {
         expect(stubLib.calledOnce).to.be.true;
       });
 
-      it('should call stubHtmlLib', () => {
+      it('shouldn\'t call stubHtmlLib', () => {
         expect(stubHtmlLib.called).to.be.true;
       });
 
