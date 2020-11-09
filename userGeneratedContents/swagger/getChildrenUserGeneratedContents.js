@@ -12,7 +12,13 @@ export default (libs, output) => {
     500: libs.make.responseError('May be a server or client input error, check error message'),
   };
 
-  const path = '/userGeneratedContents/{id}/children';
+  let path = '/userGeneratedContents/{id}/children';
+  if (!output.paths[path]) {
+    output.paths[path] = {};
+  }
+  output.paths[path].get = method;
+
+  path = '/press/articles/{id}/userGeneratedContents';
   if (!output.paths[path]) {
     output.paths[path] = {};
   }
