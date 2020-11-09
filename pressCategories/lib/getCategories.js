@@ -5,7 +5,7 @@ const { COLL_PICTURES, COLL_PRESS_CATEGORIES, DB_NAME } = process.env;
 export default async (
   appId,
   showHidden = false,
-  { start, limit, countOnly = false, isFetchMaxOrder = false },
+  { start, limit, countOnly = false, fetchMaxOrder = false },
 ) => {
   const client = await MongoClient.connect();
 
@@ -32,7 +32,7 @@ export default async (
 
       return { count: allCategories.length };
     }
-    if (isFetchMaxOrder) {
+    if (fetchMaxOrder) {
       const allCategories = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
