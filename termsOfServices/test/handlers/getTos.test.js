@@ -70,9 +70,11 @@ describe('handlers - getTos', () => {
         expect(stubHtmlLib.called).to.be.true;
       });
 
-      it('should contain text/html in headers.accept', () => {
-        expect(event.headers.accept).to.include('text/html');
-      });
+      if (event.headers.accept.includes('text/html')) {
+        it('should contain text/html in headers.accept', () => {
+          expect(event.headers.accept).to.include('text/html');
+        });
+      }
 
       it('should return html response', () => {
         expect(response.body).to.eql(libResult);
@@ -92,9 +94,11 @@ describe('handlers - getTos', () => {
         response = await handler(event);
       });
 
-      it('shouldn\'t call stubHtmlLib', () => {
-        expect(stubHtmlLib.called).to.be.false;
-      });
+      if (event.headers.accept.includes('application/json')) {
+        it('shouldn\'t call stubHtmlLib', () => {
+          expect(stubHtmlLib.called).to.be.false;
+        });
+      }
 
       it('should contain application/json in headers.accept', () => {
         expect(event.headers.accept).to.include('application/json');
