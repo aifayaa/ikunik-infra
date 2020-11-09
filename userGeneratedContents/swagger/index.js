@@ -1,11 +1,13 @@
 import postUserGeneratedContents from './postUserGeneratedContents';
 import getAllUserGeneratedContents from './getAllUserGeneratedContents';
+import getUserGeneratedContents from './getUserGeneratedContents';
 
 import yaml from '../serverless.yml';
 
 export default (libs, output) => {
   postUserGeneratedContents(libs, output);
   getAllUserGeneratedContents(libs, output);
+  getUserGeneratedContents(libs, output);
 
   /**
    * Missing : /userGeneratedContents/{id} (Method get)
