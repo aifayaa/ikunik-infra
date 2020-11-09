@@ -6,6 +6,7 @@ import postArticle from './postArticle';
 import putArticle from './putArticle';
 import publishArticle from './publishArticle';
 import unpublishArticle from './unpublishArticle';
+import removeArticle from './removeArticle';
 
 import yaml from '../serverless.yml';
 
@@ -18,10 +19,7 @@ export default (libs, output) => {
   putArticle(libs, output);
   publishArticle(libs, output);
   unpublishArticle(libs, output);
-
-  // /press/articles/{id}/publish (Method put)
-  // /press/articles/{id}/unpublish (Method put)
-  // /press/articles/{id} (Method delete)
+  removeArticle(libs, output);
 
   libs.checks.forMissingAPIs(yaml, output);
 };
