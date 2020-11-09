@@ -1,6 +1,6 @@
 export default (libs, output) => {
   const handler = {
-    get: libs.make.method('Get one or more press articles from the database, published or not'),
+    get: libs.make.method('Get one or more press articles from the database, published or not', [{ name: 'pressArticles' }]),
   };
 
   handler.get.parameters = [

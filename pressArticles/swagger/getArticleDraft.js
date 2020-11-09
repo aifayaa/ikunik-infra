@@ -1,10 +1,10 @@
 export default (libs, output) => {
   const handler = {
-    get: libs.make.method('Get the last draft for the given article ID'),
+    get: libs.make.method('Get the last draft for the given article ID', [{ name: 'pressArticles' }]),
   };
 
   handler.get.parameters = [
-    libs.make.param('id', 'url', 'string', true, 'The article draft ID to return'),
+    libs.make.param('id', 'path', 'string', true, 'The article draft ID to return'),
   ];
 
   handler.get.responses = {

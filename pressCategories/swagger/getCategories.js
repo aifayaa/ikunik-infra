@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Gets all visible article categories (public API)');
+  const method = libs.make.method('Gets all visible article categories (public API)', [{ name: 'pressCategories' }]);
 
   method.parameters = [];
 

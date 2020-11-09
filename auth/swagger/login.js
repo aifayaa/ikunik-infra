@@ -1,15 +1,13 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Login using an API account'),
+    post: libs.make.method('Login using an API account', [{ name: 'auth' }]),
   };
 
-  handler.post.parameters = [
-    libs.make.paramBody('bodyParams', 'This is the whole request body', true, libs.make.schemaObject({
-      email: libs.make.outParam('The email of the account to log in to', 'string', false),
-      username: libs.make.outParam('The username of the account to log into (if no email was sent)', 'string', false),
-      password: libs.make.outParam('The password of your account', 'string', true),
-    })),
-  ];
+  handler.post.requestBody = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
+    email: libs.make.outParam('The email of the account to log in to', 'string', false),
+    username: libs.make.outParam('The username of the account to log into (if no email was sent)', 'string', false),
+    password: libs.make.outParam('The password of your account', 'string', true),
+  }));
 
   handler.post.responses = {
     200: libs.make.response('Success', libs.make.schemaObject({

@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Gets all article categories, including hidden ones');
+  const method = libs.make.method('Gets all article categories, including hidden ones', [{ name: 'pressCategories' }]);
 
   method.parameters = [];
 

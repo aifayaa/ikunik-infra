@@ -1,8 +1,8 @@
 export default (libs, output) => {
-  const method = libs.make.method('Removes an article and all associated drafts');
+  const method = libs.make.method('Removes an article and all associated drafts', [{ name: 'pressArticles' }]);
 
   method.parameters = [
-    libs.make.param('id', 'url', 'string', true, 'The article to remove', { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
+    libs.make.param('id', 'path', 'string', true, 'The article to remove', { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
   ];
 
   method.responses = {

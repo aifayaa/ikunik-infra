@@ -1,13 +1,11 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Ask to reset the password of the given user, identified by his email & app ID pair'),
+    post: libs.make.method('Ask to reset the password of the given user, identified by his email & app ID pair', [{ name: 'auth' }]),
   };
 
-  handler.post.parameters = [
-    libs.make.paramBody('bodyParams', 'This is the whole request body', true, libs.make.schemaObject({
-      email: libs.make.outParam('The email of the account to recover', 'string', true),
-    })),
-  ];
+  handler.post.requestBody = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
+    email: libs.make.outParam('The email of the account to recover', 'string', true),
+  }));
 
   handler.post.responses = {
     200: libs.make.response('Success', libs.make.schemaObject({

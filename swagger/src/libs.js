@@ -20,7 +20,7 @@ libs.make = {
   /**
    * Create and return a new swagger API parameter
    * @param {string} name The name of this parameter
-   * @param {string} place The location of this parameter (query, url, header, body, form)
+   * @param {string} place The location of this parameter (query, path, header, body, form)
    * @param {string} type The type of this parameter (integer, number, string, boolean)
    * @param {boolean} required If this parameter is required. Can be omitted.
    * @param {string} description The description of this parameter
@@ -40,22 +40,22 @@ libs.make = {
   },
 
   /**
-   * Create and return a new swagger API parameter in object format for the body
-   * (mainly for JSON body parameters)
-   * @param {string} name The name of this parameter
-   * @param {boolean} required If this parameter is required. Can be omitted.
-   * @param {string} description The description of this parameter
-   * @param {object} extra An object of extra parameters to add. Can be omitted.
+   * Create and return a new swagger API body description (JSON only here)
+   * @param {string} description The description of this content
+   * @param {boolean} required If the request body is required
+   * @param {string} schema The schema of this request body
+   * @param {object} extra Extra parameters (can be used to add examples & else.)
    */
-  paramBody(name, description, required, schema, extra = {}) {
+  requestBody(description, required, schema, extra = {}) {
     const ret = {
-      name,
       description,
-      in: 'body',
       required: !!required,
-      schema,
-      type: 'object',
-      ...extra,
+      content: {
+        'application/json': {
+          schema,
+          ...extra,
+        },
+      },
     };
 
     return (ret);

@@ -1,8 +1,8 @@
 export default (libs, output) => {
-  const method = libs.make.method('Gets a single category by ID');
+  const method = libs.make.method('Gets a single category by ID', [{ name: 'pressCategories' }]);
 
   method.parameters = [
-    libs.make.param('id', 'url', 'string', true, 'The article category ID to return'),
+    libs.make.param('id', 'path', 'string', true, 'The article category ID to return'),
   ];
 
   method.responses = {

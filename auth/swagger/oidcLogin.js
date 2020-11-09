@@ -1,13 +1,11 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Login using an OpenID account'),
+    post: libs.make.method('Login using an OpenID account', [{ name: 'auth' }]),
   };
 
-  handler.post.parameters = [
-    libs.make.paramBody('bodyParams', 'This is the whole request body', true, libs.make.schemaObject({
-      identityToken: libs.make.outParam('The OpenID token', 'string', true),
-    })),
-  ];
+  handler.post.requestBody = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
+    identityToken: libs.make.outParam('The OpenID token', 'string', true),
+  }));
 
   handler.post.responses = {
     200: libs.make.response('Success', libs.make.schemaObject({

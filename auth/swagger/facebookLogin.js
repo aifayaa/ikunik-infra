@@ -1,13 +1,11 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Login to crowdaa API using Facebook authentication'),
+    post: libs.make.method('Login to crowdaa API using Facebook authentication', [{ name: 'auth' }]),
   };
 
-  handler.post.parameters = [
-    libs.make.paramBody('bodyParams', 'This is the whole request body', true, libs.make.schemaObject({
-      accessToken: libs.make.outParam('The Facebook access token code', 'string', true),
-    })),
-  ];
+  handler.post.requestBody = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
+    accessToken: libs.make.outParam('The Facebook access token code', 'string', true),
+  }));
 
   handler.post.responses = {
     200: libs.make.response('Success', libs.make.schemaObject({
