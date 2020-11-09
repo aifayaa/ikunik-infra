@@ -70,16 +70,16 @@ describe('handlers - getAppTos', () => {
       it('should call lib once', () => {
         expect(stubLib.calledOnce).to.be.true;
       });
-
-      it('should call stubHtmlLib', () => {
-        expect(stubHtmlLib.called).to.be.true;
-      });
-
       if (event.headers.accept.includes('text/html')) {
-        it('should contain text/html in headers.accept', () => {
-          expect(event.headers.accept).to.include('text/html');
+        it('should call stubHtmlLib', () => {
+          expect(stubHtmlLib.called).to.be.true;
         });
       }
+
+      it('should contain text/html in headers.accept', () => {
+        expect(event.headers.accept).to.include('text/html');
+      });
+
 
       it('should return html response', () => {
         expect(response.body).to.eql(libResult);
