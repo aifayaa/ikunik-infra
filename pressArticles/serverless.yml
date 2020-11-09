@@ -45,6 +45,7 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
+      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
@@ -67,7 +68,7 @@ functions:
     handler: handlers/getAllArticles.default
     events:
       - http:
-          path: press/articlesAll/
+          path: admin/press/articlesAll/
           method: get
           cors: true
           authorizer:
