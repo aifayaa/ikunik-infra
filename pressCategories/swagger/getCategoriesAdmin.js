@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Gets all visible article categories (public API)');
+  const method = libs.make.method('Gets all article categories, including hidden ones');
 
   method.parameters = [];
 
@@ -8,7 +8,7 @@ export default (libs, output) => {
     500: libs.make.responseError('Server error, not handled'),
   };
 
-  const path = '/press/categories';
+  const path = '/admin/press/categories';
   if (!output.paths[path]) {
     output.paths[path] = {};
   }
