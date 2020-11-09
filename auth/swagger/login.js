@@ -4,7 +4,7 @@ export default (libs, output) => {
   };
 
   handler.post.parameters = [
-    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+    libs.make.paramBody('bodyParams', 'This is the whole request body', true, libs.make.schemaObject({
       email: libs.make.outParam('The email of the account to log in to', 'string', false),
       username: libs.make.outParam('The username of the account to log into (if no email was sent)', 'string', false),
       password: libs.make.outParam('The password of your account', 'string', true),
