@@ -194,9 +194,14 @@ libs.checks = {
       const fn = slsConfig.functions[fnName];
       if (fn.events) {
         fn.events.forEach((event) => {
-          if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths, `/${event.http.path}`)) {
+          const path = `/${event.http.path}`;
+          const { method } = event.http;
+          if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths, path)) {
             // eslint-disable-next-line no-console
-            console.error('Missing API documentation for :', event.http.path);
+            console.error(`Missing API documentation for : ${path} (Method ${method})`);
+          } else if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths[path], method)) {
+            // eslint-disable-next-line no-console
+            console.error(`Missing API documentation for : ${path} (Method ${method})`);
           }
         });
       }
