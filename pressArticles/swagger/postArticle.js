@@ -10,7 +10,6 @@ export default (libs, output) => {
     // libs.make.param('forceVideos', 'query', 'integer', false,
     //     'Overrides the "videos" parameter from the body'),
     libs.make.param('sendNotifications', 'query', 'integer', false, 'If autoPublish is true, send notifications right now too'),
-    libs.make.param('sendNotifications', 'query', 'integer', false, 'If autoPublish is true, send notifications right now too'),
     libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
       actions: libs.make.outParam('An array of actions', 'string', false, { example: [] }),
       categoryId: libs.make.outParam('The category in which to put this article', 'string', true),
