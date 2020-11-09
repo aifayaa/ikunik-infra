@@ -3,6 +3,7 @@ import getAllArticles from './getAllArticles';
 import getArticle from './getArticle';
 import getArticleDraft from './getArticleDraft';
 import postArticle from './postArticle';
+import putArticle from './putArticle';
 
 import yaml from '../serverless.yml';
 
@@ -12,6 +13,7 @@ export default (libs, output) => {
   getArticle(libs, output);
   getArticleDraft(libs, output);
   postArticle(libs, output);
+  putArticle(libs, output);
 
   // Missing : press/articles (post)
   // Missing : press/articles (put)
