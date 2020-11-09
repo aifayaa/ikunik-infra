@@ -4,6 +4,7 @@ import getArticle from './getArticle';
 import getArticleDraft from './getArticleDraft';
 import postArticle from './postArticle';
 import putArticle from './putArticle';
+import publishArticle from './publishArticle';
 
 import yaml from '../serverless.yml';
 
@@ -14,15 +15,11 @@ export default (libs, output) => {
   getArticleDraft(libs, output);
   postArticle(libs, output);
   putArticle(libs, output);
+  publishArticle(libs, output);
 
-  // Missing : press/articles (post)
-  // Missing : press/articles (put)
-  // Missing : press/articles/{id}
-  // Missing : press/articles/{id}/publish
-  // Missing : press/articles/{id}/unpublish
-
-  // Missing : press/articles/{id}/purchase
-  // Missing : press/purchasedArticles/
+  // /press/articles/{id}/publish (Method put)
+  // /press/articles/{id}/unpublish (Method put)
+  // /press/articles/{id} (Method delete)
 
   libs.checks.forMissingAPIs(yaml, output);
 };
