@@ -1,6 +1,7 @@
 import postUserGeneratedContents from './postUserGeneratedContents';
 import getAllUserGeneratedContents from './getAllUserGeneratedContents';
 import getUserGeneratedContents from './getUserGeneratedContents';
+import getChildrenUserGeneratedContents from './getChildrenUserGeneratedContents';
 
 import yaml from '../serverless.yml';
 
@@ -8,10 +9,9 @@ export default (libs, output) => {
   postUserGeneratedContents(libs, output);
   getAllUserGeneratedContents(libs, output);
   getUserGeneratedContents(libs, output);
+  getChildrenUserGeneratedContents(libs, output);
 
   /**
-   * Missing : /userGeneratedContents/{id} (Method get)
-   * Missing : /userGeneratedContents/{id}/children (Method get)
    * Missing : /press/articles/{id}/userGeneratedContents (Method get)
    * Missing : /userGeneratedContents/{id} (Method patch)
    * Missing : /userGeneratedContents/{id} (Method delete)

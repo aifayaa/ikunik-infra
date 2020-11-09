@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Returns all UGC according to input filters', [{ name: 'User Generated Contents' }]);
+  const method = libs.make.method('Returns a single UGC', [{ name: 'User Generated Contents' }]);
 
   method.parameters = [
     libs.make.param('id', 'path', 'string', true, 'The UGC to return'),
