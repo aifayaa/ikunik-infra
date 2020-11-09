@@ -2,7 +2,7 @@ export default (libs, output) => {
   const method = libs.make.method('Creates a press category');
 
   method.parameters = [
-    libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
+    libs.make.paramBody('bodyParams', 'This is the whole request body', true, libs.make.schemaObject({
       name: libs.make.outParam('The category name', 'string', true),
       pathName: libs.make.outParam('The category name that will be visible in the URL', 'string', true),
       color: libs.make.outParam('The category color, if any will be visible in the URL', 'string', false, { example: '#c0ffee' }),
