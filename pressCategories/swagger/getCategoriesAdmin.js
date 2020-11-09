@@ -1,0 +1,16 @@
+export default (libs, output) => {
+  const method = libs.make.method('Gets all article categories, including hidden ones');
+
+  method.parameters = [];
+
+  method.responses = {
+    200: libs.make.response('Success', libs.make.schemaRef('customs', 'pressArticles', 'getCategories')),
+    500: libs.make.responseError('Server error, not handled'),
+  };
+
+  const path = '/admin/press/categories';
+  if (!output.paths[path]) {
+    output.paths[path] = {};
+  }
+  output.paths[path].get = method;
+};
