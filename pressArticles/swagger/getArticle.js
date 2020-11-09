@@ -8,7 +8,7 @@ export default (libs, output) => {
   ];
 
   handler.get.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('customs', 'pressArticles', 'getArticle')),
+    200: libs.make.response('Success', libs.make.schemaRef('responses', 'pressArticles', 'getArticle')),
     404: libs.make.responseError('No article found at this ID'),
     500: libs.make.responseError('Server error, not handled'),
   };

@@ -4,7 +4,7 @@ export default (libs, output) => {
   method.parameters = [];
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('customs', 'pressArticles', 'getCategories')),
+    200: libs.make.response('Success', libs.make.schemaRef('responses', 'pressArticles', 'getCategories')),
     500: libs.make.responseError('Server error, not handled'),
   };
 

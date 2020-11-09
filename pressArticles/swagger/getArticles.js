@@ -10,7 +10,7 @@ export default (libs, output) => {
   ];
 
   handler.get.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('customs', 'pressArticles', 'getArticles')),
+    200: libs.make.response('Success', libs.make.schemaRef('responses', 'pressArticles', 'getArticles')),
     500: libs.make.responseError('Server error, not handled'),
   };
 

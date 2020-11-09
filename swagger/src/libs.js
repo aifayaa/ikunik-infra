@@ -109,7 +109,11 @@ libs.make = {
   ) {
     const ret = {
       description,
-      schema,
+      content: {
+        'application/json': {
+          schema,
+        },
+      },
       headers,
       examples,
       ...extra,
@@ -177,11 +181,11 @@ libs.make = {
 
   /**
    * Creates a schema by reference
-   * @param {object} name The schema name (joined by slashes)
+   * @param {string} name The schema name (Joined by slashes)
    */
   schemaRef(...name) {
     const ret = {
-      $ref: `#/definitions/${name.join('/')}`,
+      $ref: `#/components/${name.join('/')}`,
     };
 
     return (ret);

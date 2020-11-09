@@ -1,9 +1,9 @@
 export default (libs, output) => {
-  if (!output.definitions.customs.pressArticles) {
-    output.definitions.customs.pressArticles = {};
+  if (!output.components.responses.pressArticles) {
+    output.components.responses.pressArticles = {};
   }
 
-  output.definitions.customs.pressArticles.getArticle = libs.make.schemaObject({
+  output.components.responses.pressArticles.getArticle = libs.make.schemaObject({
     _id: libs.make.outParam('The article ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     user: libs.make.schemaObject({
       username: libs.make.outParam('The user name of the author', 'string', true, { example: 'Foo Bar' }),
@@ -17,7 +17,7 @@ export default (libs, output) => {
     }),
     category: libs.make.schemaObject({
       _id: libs.make.outParam('The category ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
-      appIds: libs.make.schemaRef('fields', 'appIds'),
+      appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
       color: libs.make.outParam('The category color, can be null', 'string', false, { example: '#07cafe' }),
       createdAt: libs.make.outParam('The category creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
       name: libs.make.outParam('The category name', 'string', true, { example: '#07cafe' }),

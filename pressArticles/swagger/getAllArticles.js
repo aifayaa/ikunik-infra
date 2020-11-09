@@ -10,7 +10,7 @@ export default (libs, output) => {
   ];
 
   handler.get.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('customs', 'pressArticles', 'getAllArticles')),
+    200: libs.make.response('Success', libs.make.schemaRef('responses', 'pressArticles', 'getAllArticles')),
     500: libs.make.responseError('Server error, not handled'),
   };
   output.paths['/press/articlesAll/'] = handler;
