@@ -14,7 +14,8 @@ export default async (event) => {
     }
     const results = await getArticles(category, start, limit, appId, {
       onlyPublished: false,
-      noCategory: true,
+      getOrphansArticles: true,
+      showHidden: true,
     });
     return response({ code: 200, body: results });
   } catch (e) {

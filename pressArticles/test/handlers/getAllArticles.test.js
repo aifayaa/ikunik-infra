@@ -59,7 +59,7 @@ describe('handlers - getAllArticles', () => {
     it('should call lib with right args', () => {
       const { args } = stubLib.getCall(0);
       expect(args).to.deep.equal(['A_crowdaa_cat', 0, 10, 'crowdaa_app_id', {
-        noCategory: true,
+        getOrphansArticles: true,
         onlyPublished: false,
       }]);
     });
