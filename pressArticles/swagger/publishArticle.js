@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const put = libs.make.method('Edit an article (creates a new draft internally)');
+  const put = libs.make.method('Publish an article draft (promotes it to an article)');
 
   put.parameters = [
     libs.make.param('id', 'url', 'string', true, 'The article to publish', { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
@@ -14,6 +14,7 @@ export default (libs, output) => {
     200: libs.make.response('Success', libs.make.schemaObject({
       articleId: libs.make.outParam('The article ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
       draftId: libs.make.outParam('The new draft ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
+      notificationResults: libs.make.outParam('Notifications statistics about sent notifications', 'object', false),
     })),
     403: libs.make.responseError('Not enough permissions'),
     500: libs.make.responseError('Server error, not handled'),
