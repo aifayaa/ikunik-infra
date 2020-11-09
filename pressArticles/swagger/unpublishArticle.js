@@ -1,8 +1,8 @@
 export default (libs, output) => {
-  const put = libs.make.method('Unpublish an article');
+  const put = libs.make.method('Unpublish an article', [{ name: 'pressArticles' }]);
 
   put.parameters = [
-    libs.make.param('id', 'url', 'string', true, 'The article to unpublish', { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
+    libs.make.param('id', 'path', 'string', true, 'The article to unpublish', { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
   ];
 
   put.responses = {

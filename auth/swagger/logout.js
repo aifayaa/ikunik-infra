@@ -1,6 +1,6 @@
 export default (libs, output) => {
   const handler = {
-    post: libs.make.method('Logout the currently logged in user'),
+    post: libs.make.method('Logout the currently logged in user', [{ name: 'auth' }]),
   };
 
   handler.post.parameters = [
