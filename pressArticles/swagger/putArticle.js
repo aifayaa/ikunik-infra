@@ -3,7 +3,7 @@ export default (libs, output) => {
 
   put.parameters = [
     libs.make.paramBody('app', 'Parameters', true, libs.make.schemaObject({
-      articleId: libs.make.outParam('The article to edit', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
+      articleId: libs.make.outParam('The article to edit', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
       actions: libs.make.outParam('An array of actions', 'string', false, { example: [] }),
       categoryId: libs.make.outParam('The category in which to put this article', 'string', true),
       feedPicture: libs.make.outParam('The article image to show in the news feed', 'string', false),
