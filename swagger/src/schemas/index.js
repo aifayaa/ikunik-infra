@@ -1,5 +1,6 @@
 import schemasCommonFields from './commonFields';
 import schemasPictures from './collPictures';
+import schemasPressCategories from './collPressCategories';
 import getArticles from './getArticles';
 import getAllArticles from './getAllArticles';
 import getArticle from './getArticle';
@@ -10,6 +11,7 @@ export default (libs, spec) => {
   schemasCommonFields(libs, spec);
 
   schemasPictures(libs, spec);
+  schemasPressCategories(libs, spec);
 
   getArticles(libs, spec);
   getAllArticles(libs, spec);
