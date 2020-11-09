@@ -25,7 +25,13 @@ export default (libs, output) => {
     500: libs.make.responseError('Server error, not handled'),
   };
 
-  const path = '/userGeneratedContents';
+  let path = '/userGeneratedContents';
+  if (!output.paths[path]) {
+    output.paths[path] = {};
+  }
+  output.paths[path].post = method;
+
+  path = '/press/articles/userGeneratedContents';
   if (!output.paths[path]) {
     output.paths[path] = {};
   }
