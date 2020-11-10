@@ -8,6 +8,7 @@ import auth from '../../auth/swagger';
 import files from '../../files/swagger';
 import pressArticles from '../../pressArticles/swagger';
 import pressCategories from '../../pressCategories/swagger';
+import pressSearch from '../../pressSearch/swagger';
 import userGeneratedContents from '../../userGeneratedContents/swagger';
 import users from '../../users/swagger';
 
@@ -19,6 +20,7 @@ auth(libs, spec);
 files(libs, spec);
 pressArticles(libs, spec);
 pressCategories(libs, spec);
+pressSearch(libs, spec);
 userGeneratedContents(libs, spec);
 users(libs, spec);
 
