@@ -11,46 +11,33 @@ export default async (
 
   const matchHidden = showHidden
     ? {
-      $match: {
-        appIds: appId,
-      },
+      appIds: appId,
     }
     : {
-      $match: {
-        appIds: appId,
-        hidden: { $not: { $eq: true } },
-      },
+      appIds: appId,
+      hidden: { $not: { $eq: true } },
     };
 
   try {
     if (countOnly) {
-      const allCategories = await client
+      const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .aggregate([matchHidden])
-        .toArray();
-
-      return { count: allCategories.length };
+        .find(matchHidden, { _id: 1 }).count();
+      return { count: categoriesCount };
     }
     if (fetchMaxOrder) {
-      const allCategories = await client
+      matchHidden.order = { $ne: 999 };
+      const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .aggregate([
-          matchHidden,
-          {
-            $match: {
-              order: { $ne: 999 },
-            },
-          },
-        ])
-        .toArray();
+        .find(matchHidden, { _id: 1 }).count();
 
-      return { count: allCategories.length };
+      return { count: categoriesCount };
     }
 
     const pipeline = [
-      matchHidden,
+      { $match: matchHidden },
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
       {
