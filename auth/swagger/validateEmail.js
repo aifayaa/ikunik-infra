@@ -3,7 +3,7 @@ export default (libs, output) => {
     post: libs.make.method('Marks an email address of an account as validated in database', [{ name: 'auth' }]),
   };
 
-  handler.post.parameters = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
+  handler.post.requestBody = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
     email: libs.make.outParam('The email of the account to validate', 'string', true),
     token: libs.make.outParam('The token that was sent by email', 'string', true),
   }));
