@@ -123,6 +123,32 @@ libs.make = {
   },
 
   /**
+   * Creates a new response object with custom mime types
+   * @param {string} description The description of this response
+   * @param {string} content The content
+   * @param {object} headers Headers included in the output
+   * @param {object} extra Extra parameters to add to this response
+   * @param {array} examples Some more examples
+   */
+  responseMulti(
+    description,
+    content,
+    headers = defaultRespHeaders,
+    examples = [],
+    extra = {},
+  ) {
+    const ret = {
+      description,
+      content,
+      headers,
+      examples,
+      ...extra,
+    };
+
+    return (ret);
+  },
+
+  /**
    * Creates a new response object, with default values for standard error output format.
    * @param {string} description The description of this error
    * @param {object} extra Extra parameters to add to this response, if any
