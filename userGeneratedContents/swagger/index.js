@@ -5,6 +5,7 @@ import getChildrenUserGeneratedContents from './getChildrenUserGeneratedContents
 import patchUserGeneratedContents from './patchUserGeneratedContents';
 import removeUserGeneratedContents from './removeUserGeneratedContents';
 import reportUserGeneratedContents from './reportUserGeneratedContents';
+import getUserGeneratedContentReports from './getUserGeneratedContentReports';
 
 import yaml from '../serverless.yml';
 
@@ -16,6 +17,7 @@ export default (libs, output) => {
   patchUserGeneratedContents(libs, output);
   removeUserGeneratedContents(libs, output);
   reportUserGeneratedContents(libs, output);
+  getUserGeneratedContentReports(libs, output);
 
   /**
    * Missing : /userGeneratedContents/{id}/report (Method post)
