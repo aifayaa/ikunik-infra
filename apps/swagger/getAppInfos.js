@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Get our current app settings', [{ name: 'apps' }]);
+  const method = libs.make.method('Get an app infos', [{ name: 'apps' }]);
 
   method.parameters = [
     libs.make.param('id', 'path', 'string', true, 'The app ID'),
