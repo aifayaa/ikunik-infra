@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Returns public informations about a user', [{ name: 'users' }]);
+  const method = libs.make.method('Returns public informations about your user', [{ name: 'users' }]);
 
   method.parameters = [
     libs.make.param('id', 'path', 'string', true, 'The user to return. Must be your own user ID.'),
@@ -41,5 +41,5 @@ export default (libs, output) => {
   if (!output.paths[path]) {
     output.paths[path] = {};
   }
-  output.paths[path].post = method;
+  output.paths[path].get = method;
 };
