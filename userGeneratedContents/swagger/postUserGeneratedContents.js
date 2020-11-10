@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Creates a new UGC (User Generated Content)', [{ name: 'User Generated Contents' }]);
+  const method = libs.make.method('Creates a new UGC (User Generated Content)', [{ name: 'userGeneratedContents' }]);
 
   method.requestBody = libs.make.requestBody('This is the whole request body', true, libs.make.schemaObject({
     parentId: libs.make.outParam('The previous UGC ID (for a reply)', 'string', true),

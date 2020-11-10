@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Returns all visible child UGC from a given root UGC', [{ name: 'User Generated Contents' }]);
+  const method = libs.make.method('Returns all visible child UGC from a given root UGC', [{ name: 'userGeneratedContents' }]);
 
   method.parameters = [
     libs.make.param('id', 'path', 'string', true, 'The UGC ID'),

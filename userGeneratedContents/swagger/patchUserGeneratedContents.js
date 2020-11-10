@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Updates an UGC', [{ name: 'User Generated Contents' }]);
+  const method = libs.make.method('Updates an UGC', [{ name: 'userGeneratedContents' }]);
 
   method.parameters = [
     libs.make.param('id', 'path', 'string', true, 'The UGC ID to edit'),

@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  const method = libs.make.method('Returns all UGC according to input filters', [{ name: 'User Generated Contents' }]);
+  const method = libs.make.method('Returns all UGC according to input filters', [{ name: 'userGeneratedContents' }]);
 
   method.parameters = [
     libs.make.param('start', 'query', 'integer', true, 'Offset of the search results'),
