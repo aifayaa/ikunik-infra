@@ -6,6 +6,7 @@ import patchUserGeneratedContents from './patchUserGeneratedContents';
 import removeUserGeneratedContents from './removeUserGeneratedContents';
 import reportUserGeneratedContents from './reportUserGeneratedContents';
 import getUserGeneratedContentReports from './getUserGeneratedContentReports';
+import reviewUserGeneratedContents from './reviewUserGeneratedContents';
 
 import yaml from '../serverless.yml';
 
@@ -18,12 +19,7 @@ export default (libs, output) => {
   removeUserGeneratedContents(libs, output);
   reportUserGeneratedContents(libs, output);
   getUserGeneratedContentReports(libs, output);
-
-  /**
-   * Missing : /userGeneratedContents/{id}/report (Method post)
-   * Missing : /userGeneratedContents/{id}/reports (Method get)
-   * Missing : /userGeneratedContents/{id}/review (Method patch)
-   */
+  reviewUserGeneratedContents(libs, output);
 
   libs.checks.forMissingAPIs(yaml, output);
 };
