@@ -8,6 +8,7 @@ import auth from '../../auth/swagger';
 import pressArticles from '../../pressArticles/swagger';
 import pressCategories from '../../pressCategories/swagger';
 import userGeneratedContents from '../../userGeneratedContents/swagger';
+import users from '../../users/swagger';
 
 const spec = require('./swagger-config.yaml');
 
@@ -17,6 +18,7 @@ auth(libs, spec);
 pressArticles(libs, spec);
 pressCategories(libs, spec);
 userGeneratedContents(libs, spec);
+users(libs, spec);
 
 SwaggerUI({
   spec,
