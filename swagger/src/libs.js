@@ -198,6 +198,10 @@ libs.checks = {
       const fn = slsConfig.functions[fnName];
       if (fn.events) {
         fn.events.forEach((event) => {
+          if (!event || !event.http || !event.http.path) {
+            return;
+          }
+
           const path = `/${event.http.path}`;
           const { method } = event.http;
           if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths, path)) {
