@@ -7,6 +7,8 @@ export default (libs, output) => {
 
   method.responses = {
     200: libs.make.response('Success', libs.make.outParam('True for success', 'boolean', true)),
+    403: libs.make.responseError('Unauthorized'),
+    404: libs.make.responseError('UGC not found'),
     500: libs.make.responseError('Server error, not handled'),
   };
 
