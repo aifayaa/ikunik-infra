@@ -12,7 +12,7 @@ export default (libs, output) => {
       user: libs.make.schemaObject({
         username: libs.make.outParam('The user name of the author', 'string', true, { example: 'Foo Bar' }),
         profile: libs.make.schemaObject({
-          email: libs.make.outParam('The user email address', 'boolean', true),
+          email: libs.make.outParam('The user email address', 'string', true),
           isSuperAdmin: libs.make.outParam('If the user is a super administrator', 'boolean', true),
           isUserPicture: libs.make.outParam('If the user has a profile picture', 'boolean', true),
           profileIsSetup: libs.make.outParam('If the user account is configured', 'boolean', false),
