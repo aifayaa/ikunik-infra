@@ -7,7 +7,7 @@ export default (libs, output) => {
   ];
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'collPictures')),
+    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'pictures')),
     500: libs.make.responseError('Server error'),
   };
 

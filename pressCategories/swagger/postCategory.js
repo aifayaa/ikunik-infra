@@ -11,7 +11,7 @@ export default (libs, output) => {
   }));
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'collPressCategories')),
+    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'pressCategories')),
     400: libs.make.responseError('Invalid or missing inputs'),
     403: libs.make.responseError('Not enough permissions'),
     500: libs.make.responseError('Server error, not handled'),

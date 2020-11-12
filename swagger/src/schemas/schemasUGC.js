@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  output.components.schemas.collUGC = libs.make.schemaObject({
+  output.components.schemas.userGeneratedContents = libs.make.schemaObject({
     _id: libs.make.outParam('The UGC ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     parentId: libs.make.outParam('The parent UGC ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     parentCollection: libs.make.outParam('The parent collection name', 'string', true),

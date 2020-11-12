@@ -12,7 +12,7 @@ export default (libs, output) => {
     200: libs.make.response('Success', libs.make.schemaObject({
       totalCount: libs.make.outParam('The number of returned reports', 'integer', true),
       items: libs.make.schemaArray(
-        libs.make.schemaRef('schemas', 'collUGCReports'),
+        libs.make.schemaRef('schemas', 'ugcReports'),
         { required: false },
       ),
     })),

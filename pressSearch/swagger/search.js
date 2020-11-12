@@ -12,11 +12,11 @@ export default (libs, output) => {
       articles: libs.make.schemaArray(libs.make.schemaObject({
         _id: libs.make.outParam('The article ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
         actions: libs.make.outParam('An array of actions', 'string', false, { example: [] }),
-        category: libs.make.schemaRef('schemas', 'collPressCategories'),
+        category: libs.make.schemaRef('schemas', 'pressCategories'),
         categoryId: libs.make.outParam('The category ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
         createdAt: libs.make.outParam('The article creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
         permissions: libs.make.outParam('Article permissions', 'object', true),
-        pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'collPictures')),
+        pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'pictures')),
         publicationDate: libs.make.outParam('The article publication date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
         publishedBy: libs.make.outParam('The user ID of the account that published this article', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
         storeProductId: libs.make.outParam('The store product ID, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),

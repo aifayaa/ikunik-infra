@@ -13,7 +13,7 @@ export default (libs, output) => {
       createdAt: libs.make.outParam('The category creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
       order: libs.make.outParam('An ordering number, to sort categories', 'integer', true, { example: 999 }),
       hidden: libs.make.outParam('Indicates if this category is hidden', 'boolean', false),
-      picture: libs.make.schemaArray(libs.make.schemaRef('schemas', 'collPictures'), { description: 'An array of pictures object', required: false }),
+      picture: libs.make.schemaArray(libs.make.schemaRef('schemas', 'pictures'), { description: 'An array of pictures object', required: false }),
     })),
   });
 };

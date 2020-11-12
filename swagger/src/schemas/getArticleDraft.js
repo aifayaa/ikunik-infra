@@ -33,7 +33,7 @@ export default (libs, output) => {
     feedPicture: libs.make.outParam('The article image to show in the news feed, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     md: libs.make.outParam('The article content, as Markdown', 'string', true, { example: '**My article**' }),
     permissions: libs.make.outParam('Always null', 'object', true),
-    pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'collPictures')),
+    pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'pictures')),
     plainText: libs.make.outParam('The article content, as plain text', 'string', true, { example: 'My article' }),
     publicationDate: libs.make.outParam('The article publication date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
     storeProductId: libs.make.outParam('The store product ID, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),

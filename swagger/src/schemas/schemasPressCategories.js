@@ -1,5 +1,5 @@
 export default (libs, output) => {
-  output.components.schemas.collPressCategories = libs.make.schemaObject({
+  output.components.schemas.pressCategories = libs.make.schemaObject({
     _id: libs.make.outParam('The category ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     name: libs.make.outParam('The category name', 'string', true),
     pathName: libs.make.outParam('The category name that will be visible in the URL', 'string', true),

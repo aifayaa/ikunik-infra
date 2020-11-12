@@ -29,7 +29,7 @@ export default (libs, output) => {
     createdAt: libs.make.outParam('The article creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
     feedPicture: libs.make.outParam('The article image to show in the news feed, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     permissions: libs.make.outParam('Always null', 'object', true),
-    pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'collPictures')),
+    pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'pictures')),
     publicationDate: libs.make.outParam('The article publication date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
     publishedBy: libs.make.outParam('The user ID of the account that published this article', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     storeProductId: libs.make.outParam('The store product ID, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),

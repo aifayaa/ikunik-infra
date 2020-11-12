@@ -11,7 +11,7 @@ export default (libs, output) => {
   }));
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'collUGCReports')),
+    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'ugcReports')),
     400: libs.make.responseError('Invalid input'),
     404: libs.make.responseError('UGC not found'),
     500: libs.make.responseError('Server error, not handled'),
