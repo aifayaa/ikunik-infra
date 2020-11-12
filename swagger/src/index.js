@@ -9,6 +9,7 @@ import files from '../../files/swagger';
 import pictures from '../../pictures/swagger';
 import pressArticles from '../../pressArticles/swagger';
 import pressCategories from '../../pressCategories/swagger';
+import pressSearch from '../../pressSearch/swagger';
 import userGeneratedContents from '../../userGeneratedContents/swagger';
 import users from '../../users/swagger';
 
@@ -21,6 +22,7 @@ files(libs, spec);
 pictures(libs, spec);
 pressArticles(libs, spec);
 pressCategories(libs, spec);
+pressSearch(libs, spec);
 userGeneratedContents(libs, spec);
 users(libs, spec);
 
