@@ -13,7 +13,11 @@ import pressSearch from '../../pressSearch/swagger';
 import userGeneratedContents from '../../userGeneratedContents/swagger';
 import users from '../../users/swagger';
 
-const spec = require('./swagger-config.yaml');
+const genericSpecs = require('./swagger-config.yaml');
+const devSpecs = require('./swagger-config.development.yaml');
+const prodSpecs = require('./swagger-config.production.yaml');
+
+const spec = (process.env.NODE_ENV === 'production') ? { ...genericSpecs, ...prodSpecs } : { ...genericSpecs, ...devSpecs };
 
 schemas(libs, spec);
 apps(libs, spec);

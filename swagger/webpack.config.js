@@ -1,12 +1,14 @@
 const path = require('path');
+const { DefinePlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const outputPath = path.resolve(__dirname, 'dist');
 
+const mode = process.env.NODE_ENV || 'development';
+
 module.exports = {
-  mode: 'development',
+  mode,
   entry: {
     app: './src/index.js',
   },
@@ -32,16 +34,11 @@ module.exports = {
     new CleanWebpackPlugin([
       outputPath,
     ]),
-    new CopyWebpackPlugin([
-      {
-        // Copy the Swagger OAuth2 redirect file to the project root;
-        // that file handles the OAuth2 redirect after authenticating the end-user.
-        from: 'node_modules/swagger-ui/dist/oauth2-redirect.html',
-        to: './',
-      },
-    ]),
     new HtmlWebpackPlugin({
       template: 'index.html',
+    }),
+    new DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(mode),
     }),
   ],
   output: {
