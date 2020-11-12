@@ -21,7 +21,7 @@ export default (libs, output) => {
   }));
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'collUGC')),
+    200: libs.make.response('Success', libs.make.schemaRef('schemas', 'userGeneratedContents')),
     500: libs.make.responseError('Server error, not handled'),
   };
 

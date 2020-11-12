@@ -3,6 +3,7 @@ export default (libs, output) => {
 
   method.parameters = [
     libs.make.param('id', 'path', 'string', true, 'The app ID'),
+    libs.make.param('Accept', 'header', 'string', false, 'The output format', { schema: { enum: ['application/json', 'text/html'] }, example: 'application/json' }),
   ];
 
   method.responses = {

@@ -7,7 +7,7 @@ export default (libs, output) => {
 
   method.responses = {
     200: libs.make.response('Success', libs.make.schemaArray(
-      libs.make.schemaRef('schemas', 'collUGC'), // @TODO Not the exact output, some parameters are filters, others are filled from other databases, like user. Fix me.
+      libs.make.schemaRef('schemas', 'userGeneratedContents'), // @TODO Not the exact output, some parameters are filters, others are filled from other databases, like user. Fix me.
     )),
     500: libs.make.responseError('May be a server or client input error, check error message'),
   };

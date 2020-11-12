@@ -21,10 +21,10 @@ export default (libs, output) => {
 
   method.responses = {
     200: libs.make.response('Success', { oneOf: [
-      libs.make.schemaRef('schemas', 'collUGC'), // @TODO Not the exact output, some parameters are filters, others are filled from other databases, like user. Fix me.
+      libs.make.schemaRef('schemas', 'userGeneratedContents'), // @TODO Not the exact output, some parameters are filters, others are filled from other databases, like user. Fix me.
       libs.make.schemaObject({
         totalCount: libs.make.outParam('The number of returned items', 'integer', true),
-        items: libs.make.schemaRef('schemas', 'collUGC'),
+        items: libs.make.schemaRef('schemas', 'userGeneratedContents'),
       }),
     ] }),
     401: libs.make.responseError('Not enough permissions'),
