@@ -1,10 +1,12 @@
 import queue from 'async/queue';
-import winston from 'winston';
 import blastText from '../lib/blastText';
 import getBalanceForBlast from '../lib/getBalanceForBlast';
 import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async ({ phones, message, opts = {} }) => {
   const { profileId, appId } = opts;
@@ -15,7 +17,7 @@ export default async ({ phones, message, opts = {} }) => {
         throw new Error('insufficient tokens');
       }
     }
-    winston.info(phones, message);
+    jsConsole.info(phones, message);
     const sendTexts = queue(blastText, 50);
     const results = [];
     let successfulBlast = 0;

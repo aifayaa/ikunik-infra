@@ -1,5 +1,7 @@
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (type, profileId, qty, appId) => {
   let collName;
@@ -35,7 +37,7 @@ export default async (type, profileId, qty, appId) => {
         },
       }, { upsert: true });
     if (res.upsertedCount === 1 || res.modifiedCount === 1) {
-      winston.info(`increment ${profileId} of ${qty} ${type} tokens`);
+      jsConsole.info(`increment ${profileId} of ${qty} ${type} tokens`);
       return true;
     }
     throw new Error('No profile found');

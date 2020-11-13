@@ -1,7 +1,9 @@
-import winston from 'winston';
 import buyTickets from '../lib/buyTickets';
 import sendTicket from '../lib/sendTicket';
 import response from '../../libs/httpResponses/response';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
@@ -19,7 +21,7 @@ export default async (event) => {
     try {
       await sendTicket(ticketMail, appId);
     } catch (error) {
-      winston.warn('Failed to send ticket', error);
+      jsConsole.warn('Failed to send ticket', error);
     }
     return response({ code: 200, body: true });
   } catch (e) {

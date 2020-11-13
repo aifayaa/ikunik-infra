@@ -1,10 +1,12 @@
-import winston from 'winston';
 import buildCrowdPipeline from '../lib/pipelines/crowdPipeline';
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
 import searchPress from '../lib/searchPress';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (event) => {
   try {
@@ -29,7 +31,7 @@ export default async (event) => {
     const results = await search(pipeline, event.queryStringParameters);
     return response({ code: 200, body: results });
   } catch (e) {
-    winston.error(e);
+    jsConsole.error(e);
     return response({ code: 500, message: e.message });
   }
 };

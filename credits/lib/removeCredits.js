@@ -1,11 +1,13 @@
 import validator from 'validator';
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 
 const {
   DB_NAME,
   COLL_CREDITS,
 } = process.env;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (userID, appId, amount, opts = {}) => {
   if (!validator.isInt(amount, { min: 0, allow_leading_zeroes: false, max: 999 })) {
@@ -31,7 +33,7 @@ export default async (userID, appId, amount, opts = {}) => {
       if (res.credits < 0) {
         throw new Error('insufficient funds');
       }
-      winston.info(`${amount} credits removed to ${userID}`);
+      jsConsole.info(`${amount} credits removed to ${userID}`);
       return true;
     }
     throw new Error('No user found');

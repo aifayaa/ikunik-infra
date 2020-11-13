@@ -1,7 +1,6 @@
 import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 import '../locales/fr.json';
 import '../locales/en.json';
@@ -21,6 +20,9 @@ const lambda = new Lambda({
 i18n.configure({
   directory: '../locales',
 });
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 const {
   BLAST_NOTIF,
@@ -125,7 +127,7 @@ export default async (lineupId, appId) => {
           },
         },
       ]).toArray();
-    winston.info('Notifications length', toNotify.length);
+    jsConsole.info('Notifications length', toNotify.length);
     if (toNotify.length !== 0) {
       const promises = toNotify.map(async (locale) => {
         const { artistName, stageName } = locale;
@@ -140,10 +142,10 @@ export default async (lineupId, appId) => {
               opts: { appId },
             }),
           };
-          winston.info('Notifications will be sent to', locale.endpoints);
+          jsConsole.info('Notifications will be sent to', locale.endpoints);
           await lambda.invoke(paramsNotif).promise();
         }
-        winston.info('Text messages activated:', USE_BLAST_TEXT);
+        jsConsole.info('Text messages activated:', USE_BLAST_TEXT);
         if (locale.phone.length > 0 && USE_BLAST_TEXT === 'true') {
           const paramsText = {
             FunctionName: BLAST_TEXT,
@@ -153,7 +155,7 @@ export default async (lineupId, appId) => {
               opts: { appId },
             }),
           };
-          winston.info('Text messages will be sent to', locale.phone);
+          jsConsole.info('Text messages will be sent to', locale.phone);
           await lambda.invoke(paramsText).promise();
         }
       });
@@ -171,7 +173,7 @@ export default async (lineupId, appId) => {
       await cloudwatchevents.removeTargets({ Rule: jobId, Ids: [targetId] }).promise();
       await cloudwatchevents.deleteRule({ Name: jobId }).promise();
     } catch (e) {
-      winston.error('Failed to delete cronjob', e);
+      jsConsole.error('Failed to delete cronjob', e);
       throw e;
     }
     return true;

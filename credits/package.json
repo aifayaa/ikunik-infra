@@ -5,8 +5,7 @@
   "description": "Crowdaa credits API.",
   "main": "handler.js",
   "dependencies": {
-    "validator": "^12.1.0",
-    "winston": "^3.2.1"
+    "validator": "^12.1.0"
   },
   "devDependencies": {
     "serverless": "^1.61.2",
