@@ -82,7 +82,6 @@ export default async (token, cartId, userId) => {
     // TODO: use appId
     await addCredits(userId, null, `${totalCredits}`, opts);
 
-
     // for each item of the cart apply its function
     const setup = await pool.addEachTask({
       data: cart.items || [],

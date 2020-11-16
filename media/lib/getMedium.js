@@ -18,7 +18,6 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-
 export default async (userId, appId, mediumType, mediumId) => {
   const client = await MongoClient.connect();
   try {

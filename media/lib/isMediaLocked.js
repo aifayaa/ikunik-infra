@@ -43,7 +43,6 @@ export default async (userId, appId, medium) => {
       }),
     ]);
 
-
     if (purchases > 0) {
       return { isLocked: false, state: 'purchased' };
     }

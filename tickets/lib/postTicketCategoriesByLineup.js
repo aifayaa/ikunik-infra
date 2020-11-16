@@ -1,10 +1,8 @@
-
 import uuidv4 from 'uuid/v4';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
 
 import getUserLineups from '../../lineup/lib/getUserLineups';
-
 
 export default async (
   lineupId,
