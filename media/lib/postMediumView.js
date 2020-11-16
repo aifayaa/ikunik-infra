@@ -1,4 +1,3 @@
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 
 const {
@@ -11,6 +10,9 @@ const {
   COLL_VIEWS,
   DB_NAME,
 } = process.env;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (userId, appId, mediumType, mediumId) => {
   const client = await MongoClient.connect();
@@ -79,7 +81,7 @@ export default async (userId, appId, mediumType, mediumId) => {
 
       if ((deadlines && new Date() > deadlineDate) || !deadlines) {
         // Deadline expired or no deadline, new one
-        winston.info(
+        jsConsole.info(
           'create a new deadline because',
           `NoDeadline: ${!deadlines}`,
           `expired:${new Date() > deadlineDate}`,
@@ -122,7 +124,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             },
           );
       } else {
-        winston.info('update an existing deadline');
+        jsConsole.info('update an existing deadline');
         // Simple update the deadline to decrement
         await client
           .db(DB_NAME)

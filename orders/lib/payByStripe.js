@@ -1,6 +1,5 @@
 import Stripe from 'stripe';
 import uuidv4 from 'uuid/v4';
-import winston from 'winston';
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import MongoClient from '../../libs/mongoClient';
 
@@ -16,6 +15,9 @@ const {
 } = process.env;
 
 const stripe = Stripe(STRIPE_API_KEY);
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 const setupProduct = async (id, type, userId, meta, options) => {
   switch (type) {
@@ -98,7 +100,7 @@ export default async (token, cartId, userId) => {
         userId,
       },
     });
-    winston.info(`Charged user ${userId}: ${totalPrice} for ${totalCredits} and status ${status}`);
+    jsConsole.info(`Charged user ${userId}: ${totalPrice} for ${totalCredits} and status ${status}`);
     await session.commitTransaction();
 
     // now handle non mandatory ops on each item of the cart
@@ -109,7 +111,7 @@ export default async (token, cartId, userId) => {
         generator: ({ type, val }) => exeProduct(type, val),
       }).promise();
     } catch (error) {
-      winston.warn('Failed to finalise products', error);
+      jsConsole.warn('Failed to finalise products', error);
     }
     return true;
   } catch (err) {

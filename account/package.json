@@ -6,8 +6,7 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.605.0",
-    "lodash": "^4.17.15",
-    "winston": "^3.2.1"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "serverless": "^1.61.2",

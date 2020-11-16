@@ -5,8 +5,7 @@
   "description": "Crowdaa maintenance API.",
   "main": "handler.js",
   "dependencies": {
-    "lodash": "^4.17.15",
-    "winston": "^3.2.1"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "serverless": "^1.61.2",

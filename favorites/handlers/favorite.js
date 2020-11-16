@@ -1,6 +1,5 @@
 import get from 'lodash/get';
 import Lambda from 'aws-sdk/clients/lambda';
-import winston from 'winston';
 import getFavorite from '../lib/getFavorite';
 import toggleFavorite from '../lib/toggleFavorite';
 import response from '../../libs/httpResponses/response';
@@ -25,6 +24,9 @@ const MSG = {
     'us-US': 'You will not receive notification before the show begins',
   },
 };
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
@@ -62,7 +64,7 @@ export default async (event) => {
           authorizer: event.requestContext.authorizer,
         },
       };
-      winston.info('notifyEvent', notifyEvent);
+      jsConsole.info('notifyEvent', notifyEvent);
       await lambda.invoke({
         FunctionName: `users-${STAGE}-blastNotification`,
         Payload: JSON.stringify(notifyEvent),

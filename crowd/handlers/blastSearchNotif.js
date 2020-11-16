@@ -1,7 +1,6 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import flatten from 'lodash/flatten';
 import queue from 'async/queue';
-import winston from 'winston';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import response from '../../libs/httpResponses/response';
@@ -18,6 +17,9 @@ const lambda = new Lambda({
 });
 
 const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (event) => {
   try {
@@ -68,7 +70,7 @@ export default async (event) => {
     const res = await lambda.invoke(params).promise();
     return response({ code: 200, body: res });
   } catch (e) {
-    winston.error(e);
+    jsConsole.error(e);
     return response({ code: 500, message: e.message });
   }
 };

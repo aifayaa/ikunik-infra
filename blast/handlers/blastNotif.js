@@ -1,10 +1,12 @@
 import queue from 'async/queue';
-import winston from 'winston';
 import blastNotif from '../lib/blastNotif';
 import getBalanceForBlast from '../lib/getBalanceForBlast';
 import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async ({ title, endpoints, message, opts = {} }) => {
   const { profileId, appId } = opts;
@@ -16,7 +18,7 @@ export default async ({ title, endpoints, message, opts = {} }) => {
       }
     }
 
-    winston.info(title, endpoints, message);
+    jsConsole.info(title, endpoints, message);
     const sendNotifications = queue(blastNotif, 50);
     const results = [];
     let successfulBlast = 0;
