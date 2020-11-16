@@ -80,7 +80,6 @@ describe('handlers - getAppTos', () => {
         expect(event.headers.accept).to.include('text/html');
       });
 
-
       it('should return html response', () => {
         expect(response.body).to.eql(libResult);
       });
