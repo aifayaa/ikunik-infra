@@ -76,7 +76,12 @@ export const register = async (rawEmail, username, password, lang, appId) => {
     const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
     const html = formatMessage('auth:address_confirmation_email_html', { username, url });
 
-    await sendEmail(subject, html, email);
+    try {
+      await sendEmail(subject, html, email);
+    } catch (e) {
+      await usersCollection.deleteOne({ _id: userId });
+      throw new Error('cannot_send_email');
+    }
 
     return { userId };
   } finally {
