@@ -1,4 +1,3 @@
-
 import uuidv4 from 'uuid/v4';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
