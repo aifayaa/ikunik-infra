@@ -25,7 +25,6 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
-
   ====================================================================
   This license applies to all code in Meteor that is not an externally
   maintained library. Externally maintained libraries have their own

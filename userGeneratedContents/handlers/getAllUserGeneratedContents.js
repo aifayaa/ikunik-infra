@@ -11,7 +11,6 @@ const permKeys = [
 const isBooleanStringOrUndefined = (val) => typeof val === 'undefined' ||
   !!(['true', 'false'].indexOf(val) + 1);
 
-
 const ORDER_BY_LIST = [
   'reportsCount',
 ];
@@ -63,7 +62,6 @@ export default async (event) => {
     if (type && AVAILABLE_TYPES[type] === undefined) {
       throw new Error('This type is not available');
     }
-
 
     // Moderator only allowed parameters
     if (

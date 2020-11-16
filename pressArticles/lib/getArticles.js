@@ -223,7 +223,6 @@ export const getArticles = async (
       $sort: sortArticles,
     });
 
-
     const [articles = [], total = 0] = await Promise.all([
       client
         .db(DB_NAME)
@@ -243,7 +242,6 @@ export const getArticles = async (
       );
       return { ...article, category: articleCategory };
     });
-
 
     return { articles: articlesWithCategory, total };
   } finally {
