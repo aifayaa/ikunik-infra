@@ -29,8 +29,6 @@ MongoClient.connect = async function connectOverload(mongoURL, opts, cb) {
     cb,
   );
 
-  // const { close } = client;
-
   client.close = function closeOverload() {
     /* Do nothing, let connections timeout */
   };
