@@ -3,8 +3,6 @@ import { before, after, beforeEach, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
 
-// eslint-disable-next-line no-unused-vars
-import unused from './registerHelper';
 import { register } from '../../lib/register';
 
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
