@@ -3,6 +3,10 @@ stages:
   - test
   - pushDev
   - pushProd
+  - buildDevApi
+  - deployDevApi
+  - buildProdApi
+  - deployProdApi
 
 eslint:
   image: node:12
@@ -75,3 +79,61 @@ pushProdToAWS:
 
   only:
     - master
+
+buildDevApi:
+  image: node:12
+  stage: buildDevApi
+  before_script:
+    - cd swagger; npm i; cd ..
+  script:
+    - cd swagger; npm run build; cd ..
+  only:
+    - dev
+  artifacts:
+    expire_in: 1 hrs
+    paths:
+      - swagger/dist/
+
+deployDevApi:
+  variables:
+    S3_BUCKET_NAME: "api-dev.crowdaa.com"
+
+  image: python:latest
+  stage: deployDevApi
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+  dependencies:
+    - buildDevApi
+  only:
+    - dev
+
+buildProdApi:
+  image: node:12
+  stage: buildProdApi
+  before_script:
+    - cd swagger; npm i; cd ..
+  script:
+    - cd swagger; npm run build:prod; cd ..
+  only:
+    - prod
+  artifacts:
+    expire_in: 1 hrs
+    paths:
+      - swagger/dist/
+
+deployProdApi:
+  variables:
+    S3_BUCKET_NAME: "api.crowdaa.com"
+
+  image: python:latest
+  stage: deployProdApi
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+  dependencies:
+    - buildProdApi
+  only:
+    - prod
