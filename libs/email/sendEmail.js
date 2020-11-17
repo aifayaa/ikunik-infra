@@ -1,35 +1,34 @@
-import MailComposer from 'nodemailer/lib/mail-composer';
-import Mailgun from 'mailgun-js';
+import nodemailer from 'nodemailer';
 
 const {
-  MAILGUN_API_KEY,
-  MAILGUN_DOMAIN,
-  MAILGUN_FROM,
+  SMTP_FROM,
+  SMTP_LOGIN,
+  SMTP_SERVER,
+  SMTP_SECURE,
+  SMTP_PASSWORD,
 } = process.env;
 
-const mailgun = Mailgun({
-  apiKey: MAILGUN_API_KEY,
-  domain: MAILGUN_DOMAIN,
-});
+let transport = null;
 
 export const sendEmail = async (subject, html, to) => {
-  const mail = new MailComposer({
+  if (!transport) {
+    transport = nodemailer.createTransport({
+      host: SMTP_SERVER.split(':')[0],
+      port: SMTP_SERVER.split(':')[1] | 0,
+      secure: SMTP_SECURE === 'true',
+      auth: {
+        user: SMTP_LOGIN,
+        pass: SMTP_PASSWORD,
+      },
+    });
+  }
+
+  const response = await transport.sendMail({
+    from: SMTP_FROM,
+    to,
     subject,
     html,
-    from: `${MAILGUN_FROM}@${MAILGUN_DOMAIN}`,
-    to,
   });
 
-  const mailBuild = new Promise((resolve, reject) => {
-    mail.compile().build((error, message) => {
-      if (error) return reject(error);
-      return resolve(message);
-    });
-  });
-  const message = await mailBuild;
-  const dataToSend = {
-    message: message.toString('ascii'),
-    to,
-  };
-  return mailgun.messages().sendMime(dataToSend);
+  return (response);
 };

@@ -2,9 +2,6 @@ import sinon from 'sinon';
 import { before, after, beforeEach, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
 
-// eslint-disable-next-line no-unused-vars
-import unused from '../lib/registerHelper';
-
 import handler from '../../handlers/register';
 import * as lib from '../../lib/register';
 
