@@ -53,9 +53,6 @@ export const getArticles = async (
       .map((category) => category._id);
     const matchArticles = {
       appIds: appId,
-      categoryId: getOrphansArticles
-        ? { $ne: null }
-        : { $in: categoriesIds },
       /* Find only articles not trashed or trashed undefined */
       $or: [
         {
@@ -68,6 +65,12 @@ export const getArticles = async (
         },
       ],
     };
+
+    if (getOrphansArticles) {
+      matchArticles.$or.push({ categoryId: null }, { categoryId: { $in: categoriesIds } });
+    } else {
+      matchArticles.categoryId = { $in: categoriesIds };
+    }
 
     const sortArticles = { createdAt: -1 };
     /* If option is set, returns only published articles */
