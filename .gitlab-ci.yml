@@ -98,7 +98,7 @@ deployDevApiDoc:
   script:
     - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
   dependencies:
-    - buildDevApi
+    - buildDevApiDoc
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
 
@@ -126,6 +126,6 @@ deployProdApiDoc:
   script:
     - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
   dependencies:
-    - buildProdApi
+    - buildProdApiDoc
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
