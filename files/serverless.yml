@@ -56,6 +56,20 @@ functions:
             parameters:
               headers:
                 Authorization: true
+  deleteFiles:
+    handler: handlers/deleteFiles.default
+    events:
+      - http:
+          path: files
+          method: delete
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getSupportedFileFormats:
     handler: handlers/getSupportedFileFormats.default
