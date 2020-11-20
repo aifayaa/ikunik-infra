@@ -56,8 +56,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
-  deleteFiles:
-    handler: handlers/deleteFiles.default
+  deleteFile:
+    handler: handlers/deleteFile.default
     events:
       - http:
           path: files

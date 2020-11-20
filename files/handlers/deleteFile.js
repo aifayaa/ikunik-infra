@@ -1,11 +1,11 @@
 import response from '../../libs/httpResponses/response';
-import deleteFiles from '../lib/deleteFiles';
+import deleteFile from '../lib/deleteFile';
 // import { checkPerms } from '../../libs/perms/checkPerms';
 // const permKey = 'files_delete';
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
+  // const { appId } = event.requestContext.authorizer;
 
   /* Check upload permissions */
   // TODO: better rights management, Delete File is allowed for all logged users
@@ -19,28 +19,26 @@ export default async (event) => {
       throw new Error('missing_user_id');
     }
 
-    const { files } = JSON.parse(event.body);
+    const { file } = JSON.parse(event.body);
 
-    if (typeof files !== 'object' || !files.length) {
+    if (typeof file !== 'object' || !file) {
       throw new Error('wrong_argument');
     }
 
-    files.forEach((v) => {
-      const { name, type, size, id } = v;
-      if (
-        typeof name !== 'string' ||
+    const { name, type, size, id } = file;
+    if (
+      typeof name !== 'string' ||
         typeof type !== 'string' ||
         typeof id !== 'string' ||
         typeof size !== 'number'
-      ) {
-        throw new Error('wrong_argument_type');
-      }
-      if (!name || !type || !size || !id) {
-        throw new Error('wrong_argument');
-      }
-    });
+    ) {
+      throw new Error('wrong_argument_type');
+    }
+    if (!name || !type || !size || !id) {
+      throw new Error('wrong_argument');
+    }
 
-    const info = await deleteFiles(files);
+    const info = await deleteFile(file);
     return response({ code: 200, body: info });
   } catch (e) {
     return response({ code: 500, message: e.message });
