@@ -44,6 +44,7 @@ cd ..
 # no deps
 runSlsDeployFor 'api-v1'
 runSlsDeployFor 'apps'
+runSlsDeployFor 'admin'
 
 # requires root api only
 runSlsDeployFor 'account'
