@@ -1,19 +1,13 @@
 import response from '../../libs/httpResponses/response';
 import deleteFile from '../lib/deleteFile';
 import findFileOfUser from '../lib/findFileOfUser';
-// import { checkPerms } from '../../libs/perms/checkPerms';
-// const permKey = 'files_delete';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const permKeys = ['files_delete', 'files_all'];
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
-
-  /* Check upload permissions */
-  // TODO: better rights management, Delete File is allowed for all logged users
-  // const perms = JSON.parse(event.requestContext.authorizer.perms);
-  // if (!checkPerms(permKey, perms)) {
-  //   return response({ code: 403, message: 'access_forbidden' });
-  // }
 
   try {
     if (!userId) {
@@ -29,9 +23,9 @@ export default async (event) => {
     const { name, type, size, id } = file;
     if (
       typeof name !== 'string' ||
-        typeof type !== 'string' ||
-        typeof id !== 'string' ||
-        typeof size !== 'number'
+      typeof type !== 'string' ||
+      typeof id !== 'string' ||
+      typeof size !== 'number'
     ) {
       throw new Error('wrong_argument_type');
     }
@@ -39,9 +33,15 @@ export default async (event) => {
       throw new Error('wrong_argument');
     }
 
+    /* Check delete permissions */
+    const perms = JSON.parse(event.requestContext.authorizer.perms);
     const fileOfUser = await findFileOfUser(userId, appId, file);
-    if (!fileOfUser) {
-      throw new Error('wrong_argument');
+    const hasPerms = checkPerms(permKeys, perms);
+    if (!hasPerms) {
+      if (!fileOfUser) {
+        throw new Error('wrong_argument');
+      }
+      return response({ code: 403, message: 'access_forbidden' });
     }
 
     const info = await deleteFile(userId, appId, file);
