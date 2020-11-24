@@ -12,7 +12,6 @@ const {
   S3_PICTURES_BUCKET,
   S3_VIDEOS_BUCKET,
   COLL_PICTURES,
-  COLL_VIDEOS,
 } = process.env;
 
 export default async (userId, appId, file) => {
@@ -22,7 +21,12 @@ export default async (userId, appId, file) => {
   const collection = getCollectionFromContentType(type);
 
   /* Preparing s3 parameters to delete objects */
-  const urlNoQueryString = url.split('?')[0]; // example value : 'https://slsupload-dev.s3.amazonaws.com/85db9c75-0860-4014-b02d-b6acd2a9a247.jpg';
+  const urlNoQueryString = url.split('?')[0];
+  /**
+   * Example urlNoQueryString values
+   * "https://slsupload-dev.s3.amazonaws.com/85db9c75-0860-4014-b02d-b6acd2a9a247.jpg"
+   * "https://slsupload-dev.s3.amazonaws.com/VideoStorage/bb72193f-7589-4883-bf18-e2566762915c.mp4"
+   */
   const key = urlNoQueryString.slice(urlNoQueryString.lastIndexOf('/') + 1);
   const uploadS3Params = {
     Bucket: S3_UPLOAD_BUCKET,
@@ -45,11 +49,30 @@ export default async (userId, appId, file) => {
       };
       await s3.deleteObjects(picturesS3Params).promise();
     } else {
-      // const videosS3Params = {
-      //   Bucket: S3_VIDEOS_BUCKET,
-      //   Delete: key,
-      // };
-      // await s3.deleteObjects(videosS3Params).promise();
+      const videoId = key.split('.')[0];
+      const prefix = `videos/${videoId}`;
+      const videosObjects = await s3.listObjectsV2({
+        Bucket: S3_VIDEOS_BUCKET,
+        Prefix: prefix,
+      }).promise();
+
+      if (videosObjects.Contents) {
+        // All encoded videos
+        const keys = videosObjects.Contents.map((videoObject) => ({
+          Key: `${videoObject.Key}`,
+        }));
+        // Root directory
+        keys.push({
+          Key: prefix,
+        });
+        const videosS3Params = {
+          Bucket: S3_VIDEOS_BUCKET,
+          Delete: {
+            Objects: keys,
+          },
+        };
+        await s3.deleteObjects(videosS3Params).promise();
+      }
     }
 
     await s3.deleteObject(uploadS3Params).promise();
