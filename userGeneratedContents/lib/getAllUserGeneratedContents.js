@@ -149,12 +149,6 @@ export default async (
           },
         },
         {
-          $unwind: {
-            path: '$pictures',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
           $project: {
             createdAt: 1,
             data: 1,
