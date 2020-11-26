@@ -2,7 +2,6 @@ import getUserPublic from './getUserPublic';
 import getProfile from './getProfile';
 import generateApiToken from './generateApiToken';
 
-
 import yaml from '../serverless.yml';
 
 export default (libs, output) => {
