@@ -36,10 +36,14 @@ export default async (
       return { count: categoriesCount };
     }
 
+    start = parseInt(start, 10) || 0;
+    limit = parseInt(limit, 10) || 10;
+
+    const pipelineSkipLimit = (limit > 0) ? [{ $skip: start }, { $limit: limit }] : [];
+
     const pipeline = [
       { $match: matchHidden },
-      { $skip: parseInt(start, 10) || 0 },
-      { $limit: parseInt(limit, 10) || 10 },
+      ...pipelineSkipLimit,
       {
         $sort: {
           order: 1,
