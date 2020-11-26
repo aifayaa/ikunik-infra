@@ -45,7 +45,7 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
-      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
+      /admin/press: ${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
