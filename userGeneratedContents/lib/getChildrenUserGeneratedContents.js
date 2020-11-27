@@ -6,10 +6,20 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = process.env;
 
-export default async (appId, parentId, parentCollection, start, limit) => {
+export default async (appId, parentId, parentCollection, start, limit, fetchAll = false) => {
   let client;
   try {
     client = await MongoClient.connect();
+
+    const moderatedContentFilter = {
+      $or: [
+        /* pre moderation case */
+        { moderated: false, reviewed: true },
+        /* post moderation cases */
+        { moderated: { $exists: false }, reviewed: false },
+        { moderated: { $exists: false }, reviewed: { $exists: false } },
+      ],
+    };
 
     const pipeline = [
       {
@@ -18,13 +28,7 @@ export default async (appId, parentId, parentCollection, start, limit) => {
           parentCollection,
           trashed: false,
           appIds: appId,
-          $or: [
-            /* pre moderation case */
-            { moderated: false, reviewed: true },
-            /* post moderation cases */
-            { moderated: { $exists: false }, reviewed: false },
-            { moderated: { $exists: false }, reviewed: { $exists: false } },
-          ],
+          ...(fetchAll ? {} : moderatedContentFilter),
         },
       },
       {
