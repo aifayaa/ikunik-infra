@@ -4,8 +4,14 @@ import passwordResetEmailHtml from './passwordResetEmailHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
 import newUgcContentEmailHtml from './newUgcContentEmailHtml';
 import reportedUgcContentEmailHtml from './reportedUgcContentEmailHtml';
+import emailTemplateClients from './emailTemplateClients';
+import emailTemplateCustomers from './emailTemplateCustomers';
 
 export default {
+  libsEmail: {
+    template_clients: emailTemplateClients,
+    template_customers: emailTemplateCustomers,
+  },
   apps: {
     app_preview_email_html: appPreviewEmailHtml,
     app_preview_email_title: 'App {{appName}} preview',
