@@ -1,5 +1,4 @@
 export default `
-<body>
 <h3>A content has been reported by user <strong>{{userId}}</strong>
 named <strong>{{username}}</strong> on app <strong>{{appName}}</strong></h3><br>
 <p><strong>reported content:</strong></p>
@@ -11,7 +10,4 @@ named <strong>{{username}}</strong> on app <strong>{{appName}}</strong></h3><br>
 <p>
   <q>{{details}}</q>
 </p>
-<br>
-The Crowdaa team.
-</body>
 `;

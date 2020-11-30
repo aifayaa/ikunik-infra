@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
-import { sendEmail } from '../../libs/email/sendEmail';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const {
@@ -68,7 +68,7 @@ export const resetPassword = async (rawEmail, appId, token, password, lang) => {
     const subject = formatMessage('auth:password_reset_email_title');
     const html = formatMessage('auth:password_reset_email_html', { username: user.profile.username, email });
 
-    await sendEmail(subject, html, email);
+    await sendEmailTemplate(lang, 'customers', email, subject, html);
   } finally {
     client.close();
   }
