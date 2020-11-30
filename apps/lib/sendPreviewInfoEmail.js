@@ -1,5 +1,5 @@
 import getAppInfos from './getAppInfos';
-import { sendEmail } from '../../libs/email/sendEmail';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 export const sendPreviewInfoEmail = async (appId, email, lang) => {
@@ -15,5 +15,5 @@ export const sendPreviewInfoEmail = async (appId, email, lang) => {
   /* send token by email to user */
   const html = formatMessage('apps:app_preview_email_html', { appName: sanatizedAppName, url });
 
-  return sendEmail(subject, html, email);
+  return sendEmailTemplate(lang, 'clients', email, subject, html);
 };

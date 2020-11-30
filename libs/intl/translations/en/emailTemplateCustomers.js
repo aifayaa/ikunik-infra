@@ -5,8 +5,7 @@ export default `
     <meta charset="utf-8">
   </head>
   <body>
-    {{{content}}}
-    <br>
+    {{- content}}
     <br>
     The Crowdaa team.
   </body>

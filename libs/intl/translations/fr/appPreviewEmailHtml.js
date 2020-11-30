@@ -1,5 +1,4 @@
 export default `
-  <body>
   <p>Bonjour,<br>
   Vous avez été invité à tester l'application {{appName}}. Vous devez d'abord télécharger l'applicaton Crowdaa News depuis le store, soit par :<br>
   <strong><a href="https://play.google.com/store/apps/details?id=com.crowdaa.free.www&hl=fr">Google Play Store</a></strong><br>
@@ -10,7 +9,4 @@ export default `
   Si vous n'avez pas demandé à recevoir cet email, ignorez-le.
   Merci,
   </p><br>
-  <br>
-  L'équipe Crowdaa.
-  </body>
 `;

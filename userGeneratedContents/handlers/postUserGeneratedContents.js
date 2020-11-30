@@ -112,7 +112,7 @@ export default async (event) => {
         { contentId: results._id, data },
         lang,
       );
-      await sendEmailToAdmin(subject, body, appId);
+      await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log('Error when sending mail to admin', e);

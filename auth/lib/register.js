@@ -6,7 +6,7 @@ import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
-import { sendEmail } from '../../libs/email/sendEmail';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
@@ -77,7 +77,7 @@ export const register = async (rawEmail, username, password, lang, appId) => {
     const html = formatMessage('auth:address_confirmation_email_html', { username, url });
 
     try {
-      await sendEmail(subject, html, email);
+      await sendEmailTemplate(lang, 'customers', email, subject, html);
     } catch (e) {
       await usersCollection.deleteOne({ _id: userId });
       throw new Error('cannot_send_email');

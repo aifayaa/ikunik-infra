@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
-import { sendEmail } from '../../libs/email/sendEmail';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
@@ -74,7 +74,7 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
     const html = formatMessage('auth:forgot_password_email_html', { username: user.profile.username, url, token });
 
     try {
-      await sendEmail(subject, html, email);
+      await sendEmailTemplate(lang, 'customers', email, subject, html);
     } catch (e) {
       throw new Error('cannot_send_email');
     }
