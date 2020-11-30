@@ -53,7 +53,6 @@ runSlsDeployFor 'account'
 runSlsDeployFor 'auth'
 runSlsDeployFor 'maintenance'
 runSlsDeployFor 'ssr'
-runSlsDeployFor 'press'
 
 # + authorizer
 test "x$ALL" = "xALL" && runSlsDeployFor 'audios'
@@ -98,11 +97,12 @@ test "x$ALL" = "xALL" && runSlsDeployFor 'lineup'
 test "x$ALL" = "xALL" && runSlsDeployFor 'tickets'
 test "x$ALL" = "xALL" && runSlsDeployFor 'scanners'
 
+# + admin
+runSlsDeployFor 'press'
+
 # + press api id
 runSlsDeployFor 'pressCategories'
 runSlsDeployFor 'pressArticles'
 runSlsDeployFor 'pressSearch'
-
 runSlsDeployFor 'pushNotifications'
-
 runSlsDeployFor 'userGeneratedContents'

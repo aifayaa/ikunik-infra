@@ -1,10 +1,10 @@
 api-v1
 apps
+admin
 account
 auth
 maintenance
 ssr
-press
 
 userMetrics
 audios
@@ -39,6 +39,8 @@ favorites
 lineup
 tickets
 scanners
+
+press
 pressCategories
 pressArticles
 pressSearch
