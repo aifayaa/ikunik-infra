@@ -9,12 +9,12 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { email, token } = JSON.parse(event.body);
+    const { email, token, appId: inputAppId } = JSON.parse(event.body);
 
     if (!typeCheck('[String]', [email, token])) throw new Error('wrong_argument_type');
 
     const { appId } = event.requestContext.authorizer;
-    await validateEmail(email, token, appId);
+    await validateEmail(email, token, inputAppId || appId);
 
     return response({ code: 200, body: { status: 'success' } });
   } catch (e) {
