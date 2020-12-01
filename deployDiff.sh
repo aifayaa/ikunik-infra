@@ -1,17 +1,17 @@
 #!/bin/bash
 
-fichier="folderList"
+folders="folderList"
 
-for ligne in $(<$fichier)
+for folder in $(<$folders)
 do
-   echo "___________Deploy de $ligne ___________"
-   if [ $ligne != "libs" ]; then
-         cd $ligne
-      if [ $ligne == "files" ]; then
-         REGION=$2 npm run deploy:$1
+   echo "___________Deploying $folder ___________"
+   if [ "$folder" != "libs" ]; then
+         cd "$folder"
+      if [ "$folder" == "files" ]; then
+         REGION=$2 npm run "deploy:$1"
       else
          npm i
-         node --max-old-space-size=2000 ../node_modules/serverless/bin/serverless deploy --stage $1 --region $2
+         npx --node-arg=--max-old-space-size=2000 serverless deploy --stage "$1" --region "$2"
       fi
       cd ..
    fi
