@@ -1,6 +1,5 @@
 import moment from 'moment';
 import QRCode from 'qrcode';
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 
 import generateIntId from './generateIntId';
@@ -14,6 +13,9 @@ const {
   DB_NAME,
   COLL_TICKET_CATEGORIES,
 } = process.env;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (userId, appId, categoryId, lastName, firstName, email, options = {}) => {
   let ticketInfo = await getTicketInfos(categoryId, appId);
@@ -52,7 +54,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
       .collection(COLL_TICKET_CATEGORIES)
       .findOneAndUpdate({
         _id: categoryId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: { sold: 1 },
       }, opts).then((res) => res.value);
@@ -113,7 +115,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
     };
     return ticketMail;
   } catch (e) {
-    winston.warn('Failed to format ticket', e);
+    jsConsole.warn('Failed to format ticket', e);
     throw new Error('ticket_formatting_failed');
   }
 };

@@ -1,46 +1,47 @@
-import { checkPerms } from '../../libs/perms/checkPerms';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import putCategory from '../lib/putCategory';
 import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKey = 'pressCategories_all';
 
 export default async (event) => {
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
-  const categoryId = event.pathParameters.id;
-  const { appId } = event.requestContext.authorizer;
-  if (!checkPerms(permKey, perms)) {
-    return response({ code: 403, message: 'access_forbidden' });
-  }
-  if (!event.body) {
-    throw new Error('malformed_request');
-  }
-  try {
-    const {
-      name,
-      pathName,
-      color,
-      picture,
-      order,
-    } = JSON.parse(event.body);
+  const { id: categoryId } = event.pathParameters;
+  const { appId, perms } = event.requestContext.authorizer;
+  const permsParsed = JSON.parse(perms);
 
-    if (!categoryId || !name) {
-      throw new Error('Missing arguments');
+  try {
+    if (!checkPerms(permKey, permsParsed)) {
+      throw new Error('access_forbidden');
+    }
+    if (!event.body) {
+      throw new Error('malformed_request');
     }
 
-    [
-      categoryId,
-      name,
-      pathName,
-      color,
-    ].forEach((item) => {
+    const { name, pathName, color, picture, order, hidden } = JSON.parse(
+      event.body,
+    );
+
+    if (!categoryId || !name) {
+      throw new Error('missing_argument');
+    }
+
+    [categoryId, name, pathName, color].forEach((item) => {
       if (item && typeof item !== 'string') {
-        throw new Error('Wrong argument type');
+        throw new Error('wrong_argument_type');
       }
     });
 
+    if (typeof hidden !== 'boolean') {
+      throw new Error('wrong_argument_type');
+    }
+
     if (picture) {
-      if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
-        throw new Error('Wrong argument type');
+      if (
+        typeof picture !== 'object' ||
+        typeof picture.length === 'undefined'
+      ) {
+        throw new Error('wrong_argument_type');
       }
 
       if (picture.length > 1) {
@@ -56,13 +57,22 @@ export default async (event) => {
       throw new Error('Wrong order syntax, must be a positive integer');
     }
 
-    const results = await putCategory(appId, categoryId, name, pathName, color, picture, order);
+    const results = await putCategory(
+      appId,
+      categoryId,
+      name,
+      pathName,
+      color,
+      picture,
+      order,
+      hidden,
+    );
 
     if (results === false) {
       return response({ code: 404, message: 'category_not_found' });
     }
     return response({ code: 200, body: results });
   } catch (e) {
-    return response({ code: 500, message: e.message });
+    return response(errorMessage(e));
   }
 };

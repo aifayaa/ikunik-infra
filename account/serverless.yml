@@ -25,6 +25,7 @@ functions:
     handler: handlers/authorizePublic.default
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

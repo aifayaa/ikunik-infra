@@ -8,7 +8,7 @@ export default async (appId) => {
       .collection(process.env.COLL_MAINTENANCE)
       .findOne({
         active: true,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
   } finally {
     client.close();

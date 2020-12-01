@@ -1,11 +1,18 @@
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const permKeys = [
+  'userGeneratedContents_all',
+  'userGeneratedContents_moderate',
+];
 
 export default async (event) => {
   const parentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   const { start, limit } = event.queryStringParameters || {};
+  let { all: fetchAll } = event.queryStringParameters || {};
 
   /* Get collection from resource path */
   const parentCollection = pathToCollection(event.requestContext.resourcePath);
@@ -13,6 +20,14 @@ export default async (event) => {
   try {
     if (!parentId || !parentCollection) {
       throw new Error('Missing arguments');
+    }
+
+    fetchAll = (`${fetchAll}` === 'true');
+
+    const perms = JSON.parse(event.requestContext.authorizer.perms);
+    const isModerator = checkPerms(permKeys, perms);
+    if (!isModerator) {
+      fetchAll = false;
     }
 
     [
@@ -40,6 +55,7 @@ export default async (event) => {
       parentCollection,
       start,
       limit,
+      fetchAll,
     );
     return response({ code: 200, body: results });
   } catch (e) {

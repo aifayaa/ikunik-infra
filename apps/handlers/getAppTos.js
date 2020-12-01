@@ -15,12 +15,13 @@ export default async (event) => {
     }
 
     const results = await getTos(appId, false, { outdated: false, required: true });
-    const body = getHtmlResults(results);
 
-    const accept = event.headers.accept || event.headers.Accept;
-    const acceptArray = accept.split(',');
+    if (results && results.length) {
+      const body = getHtmlResults(results);
 
-    if (results) {
+      const accept = event.headers.accept || event.headers.Accept;
+      const acceptArray = accept.split(',');
+
       if (acceptArray.includes('text/html')) {
         return response({
           code: 200,

@@ -27,6 +27,7 @@ export default (...responses) => {
   const updateOne = sinon.spy(() => true);
   const updateMany = sinon.spy(() => true);
   const deleteOne = sinon.spy(() => true);
+  const removeOne = sinon.spy(() => true);
   const deleteMany = sinon.spy(() => true);
   const collection = sinon.spy(() => ({
     aggregate,
@@ -36,6 +37,7 @@ export default (...responses) => {
     updateOne,
     updateMany,
     deleteOne,
+    removeOne,
     deleteMany,
   }));
   const db = sinon.spy(() => ({ collection }));
@@ -61,6 +63,7 @@ export default (...responses) => {
     findOne,
     find,
     deleteOne,
+    removeOne,
     deleteMany,
     startSession,
     endSession,

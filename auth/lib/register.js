@@ -6,10 +6,12 @@ import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
+import { sendEmail } from '../../libs/email/sendEmail';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
-const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
+const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
 
-export const register = async (rawEmail, username, password, appId) => {
+export const register = async (rawEmail, username, password, lang, appId) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
@@ -20,11 +22,12 @@ export const register = async (rawEmail, username, password, appId) => {
     if (!app) throw new Error('app_not_found');
 
     const hashed = await hashPassword(password);
+    const token = Random.id();
     const newUser = {
       _id: Random.id(),
       createdAt: new Date(),
       username,
-      emails: [{ address: email, verified: false }],
+      emails: [{ address: email, verified: false, token }],
       services: {
         password: {
           bcrypt: hashed,
@@ -61,13 +64,24 @@ export const register = async (rawEmail, username, password, appId) => {
         ownUserId: userId,
       });
     } catch (ex) {
-      // Remove inserted user if the check fails
-      await usersCollection.removeOne({ _id: userId });
+      // Delete inserted user if the check fails
+      await usersCollection.deleteOne({ _id: userId });
       throw ex;
     }
 
-    // TODO: send verification email here
-    // see packages/accounts-password/password_server.js:866
+    intlInit(lang);
+
+    /* send email verification link to user */
+    const subject = formatMessage('auth:address_confirmation_email_title');
+    const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
+    const html = formatMessage('auth:address_confirmation_email_html', { username, url });
+
+    try {
+      await sendEmail(subject, html, email);
+    } catch (e) {
+      await usersCollection.deleteOne({ _id: userId });
+      throw new Error('cannot_send_email');
+    }
 
     return { userId };
   } finally {

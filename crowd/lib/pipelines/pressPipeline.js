@@ -8,9 +8,7 @@ const {
 
 const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
   const $matchOnUserMetrics = {
-    appIds: {
-      $elemMatch: { $eq: appId },
-    },
+    appIds: appId,
     type: 'geolocation',
     trashed: false,
     $or: [
@@ -54,9 +52,7 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
         },
       ],
     },
-    appIds: {
-      $elemMatch: { $eq: appId },
-    },
+    appIds: appId,
     contentCollection: COLL_PRESS_ARTICLES,
     type: 'time',
     trashed: false,
@@ -138,9 +134,7 @@ const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
 
 const useClassicPipeline = (userId, appId, articleId) => {
   const $match = {
-    appIds: {
-      $elemMatch: { $eq: appId },
-    },
+    appIds: appId,
     contentCollection: COLL_PRESS_ARTICLES,
     type: 'time',
     trashed: false,

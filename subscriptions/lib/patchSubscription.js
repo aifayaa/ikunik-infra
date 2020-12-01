@@ -20,7 +20,7 @@ export default async (userId, _id, appId, patch) => {
       .collection(process.env.COLL_SUBSCRIPTIONS)
       .findOneAndUpdate({
         _id,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
         userId,
       }, patch, { returnOriginal: false });
   } finally {

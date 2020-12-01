@@ -1,11 +1,13 @@
 import queue from 'async/queue';
-import winston from 'winston';
 import blastEmail from '../lib/blastEmail';
 import getBalanceForBlast from '../lib/getBalanceForBlast';
 import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import getBuilds from '../../apps/lib/getAppBuilds';
 import response from '../../libs/httpResponses/response';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async ({
   contacts,
@@ -22,7 +24,7 @@ export default async ({
       }
     }
 
-    winston.info(contacts, subject, template);
+    jsConsole.info(contacts, subject, template);
     const sendEmails = queue(blastEmail, 20);
     const results = [];
     let successfulBlast = 0;

@@ -1,18 +1,30 @@
 import MongoClient from '../../libs/mongoClient';
 
-export default async (hashedToken) => {
+const {
+  ADMIN_APP,
+  COLL_USERS,
+  DB_NAME,
+} = process.env;
+
+export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
   try {
+    const conds = {
+      $or: [
+        { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
+        { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+      ],
+    };
+
+    if (appId) {
+      conds.appIds = { $in: [appId, ADMIN_APP] };
+    }
+
     const user = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_USERS)
+      .db(DB_NAME)
+      .collection(COLL_USERS)
       .findOne(
-        {
-          $or: [
-            { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-            { 'services.apiTokens': { $elemMatch: { hashedToken } } },
-          ],
-        },
+        conds,
         { projection: { _id: 1 } },
       );
     return user;

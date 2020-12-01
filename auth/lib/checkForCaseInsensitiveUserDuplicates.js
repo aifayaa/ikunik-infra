@@ -47,7 +47,7 @@ const selectorForFastCaseInsensitiveLookup = (fieldName, string, appId) => {
   const caseInsensitiveClause = {};
   caseInsensitiveClause[fieldName] = new RegExp(`^${escapeRegExp(string)}$`, 'i');
   return {
-    $and: [{ $or: orClause }, caseInsensitiveClause, { appIds: { $elemMatch: { $eq: appId } } }],
+    $and: [{ $or: orClause }, caseInsensitiveClause, { appIds: appId }],
   };
 };
 
@@ -68,9 +68,9 @@ export default async (
   } = {},
 ) => {
   if (fieldValue) {
-    const openClient = !!mongoClient;
+    const noClient = !mongoClient;
 
-    if (openClient) {
+    if (noClient) {
       // initiate mongodb connection if no client given in options
       mongoClient = await MongoClient.connect();
     }
@@ -92,7 +92,7 @@ export default async (
         throw new Error(errorMessage || `${displayName} already exists.`);
       }
     } finally {
-      if (openClient) {
+      if (noClient) {
         mongoClient.close();
       }
     }

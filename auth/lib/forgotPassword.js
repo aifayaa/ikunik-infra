@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
-import { forgotPasswordEmailHTML } from './forgotPasswordEmailHTML';
 import { sendEmail } from '../../libs/email/sendEmail';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
 const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
@@ -11,9 +11,10 @@ const {
   DB_NAME,
   COLL_USERS,
   COLL_APPS,
+  REACT_APP_AUTH_URL,
 } = process.env;
 
-export const forgotPassword = async (rawEmail, urlScheme, appId) => {
+export const forgotPassword = async (rawEmail, lang, appId) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
   try {
@@ -23,7 +24,7 @@ export const forgotPassword = async (rawEmail, urlScheme, appId) => {
       usersCollection.findOne(
         {
           'emails.address': email,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           projection: { _id: true, emails: true, 'profile.username': true, 'services.password.reset': true },
@@ -60,19 +61,23 @@ export const forgotPassword = async (rawEmail, urlScheme, appId) => {
       },
     };
 
+    intlInit(lang);
+
     /* Prepare data for email */
-    const subject = 'Forgot Password'; // TODO: intl
-    const build = app.builds && (app.builds.ios || app.builds.android || app.builds[0]);
-    const protocol = urlScheme || (build ? app.builds[0] : app).name.toLowerCase().replace(/ /g, '');
-    const url = `${protocol}://resetPassword`;
+    const subject = formatMessage('auth:forgot_password_email_title');
+    const url = `${REACT_APP_AUTH_URL}/password-reset-landing?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
 
     /* store token into db */
     await usersCollection.updateOne({ _id: user._id }, { $set });
 
     /* send token by email to user */
-    const html = forgotPasswordEmailHTML(user.profile.username, url, token, email);
+    const html = formatMessage('auth:forgot_password_email_html', { username: user.profile.username, url, token });
 
-    await sendEmail(subject, html, email);
+    try {
+      await sendEmail(subject, html, email);
+    } catch (e) {
+      throw new Error('cannot_send_email');
+    }
   } finally {
     client.close();
   }

@@ -1,24 +1,36 @@
 import MongoClient from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
-const {
-  DB_NAME,
-  COLL_PRESS_CATEGORIES,
-  SAFE_ORDER_NUMBER,
-} = process.env;
+const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
 
-export default async (appId, categoryId, name, pathName, color, picture, order) => {
+export default async (
+  appId,
+  categoryId,
+  name,
+  pathName,
+  color,
+  picture,
+  order,
+  hidden,
+) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
   try {
     let currentOrder = 999;
-    const checkAvailability = await isAvailable(client, appId, name, pathName, categoryId);
+    const checkAvailability = await isAvailable(
+      client,
+      appId,
+      name,
+      pathName,
+      categoryId,
+    );
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
     const category = {
       name,
       pathName,
+      hidden,
     };
 
     if (color) {
@@ -33,18 +45,21 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
       ({ order: currentOrder } = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .findOne({
-          _id: categoryId,
-          appIds: appId,
-        }, { projection: { order: true } }));
+        .findOne(
+          {
+            _id: categoryId,
+            appIds: appId,
+          },
+          { projection: { order: true } },
+        ));
 
-      let defaultOrder = (await client
+      let defaultOrder = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
         .count({
           appIds: appId,
           order: { $ne: SAFE_ORDER_NUMBER },
-        }));
+        });
 
       if (currentOrder === SAFE_ORDER_NUMBER) {
         /* category was previously unordered */
@@ -77,13 +92,15 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           all values between old position and new position must be increased
           [1, 4=>2, 2=>3, 3=>4, 5]
         */
-        bulk.find({
-          appIds: appId,
-          order: {
-            $gt: currentOrder,
-            $lte: category.order,
-          },
-        }).update({ $inc: { order: -1 } });
+        bulk
+          .find({
+            appIds: appId,
+            order: {
+              $gt: currentOrder,
+              $lte: category.order,
+            },
+          })
+          .update({ $inc: { order: -1 } });
       }
       if (category.order < currentOrder) {
         /* ex move 2 to position 4
@@ -95,20 +112,24 @@ export default async (appId, categoryId, name, pathName, color, picture, order) 
           all values between old position and new position must be decreased
           [1, 3=>2, 4=>3, 2=>4, 5]
         */
-        bulk.find({
-          appIds: appId,
-          order: {
-            $gte: category.order,
-            $lt: currentOrder,
-            $ne: SAFE_ORDER_NUMBER,
-          },
-        }).update({ $inc: { order: 1 } });
+        bulk
+          .find({
+            appIds: appId,
+            order: {
+              $gte: category.order,
+              $lt: currentOrder,
+              $ne: SAFE_ORDER_NUMBER,
+            },
+          })
+          .update({ $inc: { order: 1 } });
       }
     }
-    bulk.find({
-      _id: categoryId,
-      appIds: { $elemMatch: { $eq: appId } },
-    }).updateOne({ $set: category });
+    bulk
+      .find({
+        _id: categoryId,
+        appIds: appId,
+      })
+      .updateOne({ $set: category });
 
     const { nMatched } = await bulk.execute();
 

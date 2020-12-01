@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import { intlInit, formatMessage } from '../../libs/intl/intl';
 
 const {
   DB_NAME,
@@ -6,8 +7,7 @@ const {
   COLL_APPS,
 } = process.env;
 
-// TODO: intl
-export default async (userId, appId, data, { isEdition = false } = {}) => {
+export default async (userId, appId, data, lang, { isEdition = false } = {}) => {
   const client = await MongoClient.connect();
   try {
     const [user, app] = await Promise.all([
@@ -26,20 +26,18 @@ export default async (userId, appId, data, { isEdition = false } = {}) => {
         }, { projection: { name: true } }),
     ]);
 
+    intlInit(lang);
+
+    const editionType = (isEdition ? formatMessage('ugc:edition_type_edited') : formatMessage('ugc:edition_type_posted'));
     return {
-      body: `
-        <body>
-        <h3>A new UGC has been ${isEdition ? 'edited' : 'posted'} by <strong>${user._id}</strong>
-        named <strong>${user.profile.username}</strong> on app <strong>${app.name}</strong></h3><br>
-        <h3> details: </h3>
-        <p>
-          <q>${JSON.stringify(data, null, 2)}</q>
-        </p>
-        <br>
-        The Crowdaa team.
-        </body>
-      `,
-      subject: `A new UGC has been ${isEdition ? 'edited' : 'posted'} on app ${app.name}`,
+      body: formatMessage('ugc:new_ugc_content_email_html', {
+        editionType,
+        userId: user._id,
+        username: user.profile.username,
+        appName: app.name,
+        data: JSON.stringify(data, null, 2),
+      }),
+      subject: formatMessage('ugc:new_ugc_content_email_title', { editionType, appName: app.name }),
     };
   } finally {
     client.close();

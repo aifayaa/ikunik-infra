@@ -1,4 +1,3 @@
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 
 const {
@@ -11,6 +10,9 @@ const {
   COLL_VIEWS,
   DB_NAME,
 } = process.env;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (userId, appId, mediumType, mediumId) => {
   const client = await MongoClient.connect();
@@ -26,7 +28,7 @@ export default async (userId, appId, mediumType, mediumId) => {
     };
     const query = {
       _id: mediumId,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
 
     switch (mediumType) {
@@ -73,13 +75,13 @@ export default async (userId, appId, mediumType, mediumId) => {
         .findOne({
           userId,
           content_ID: mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         });
       const { deadlineDate } = deadlines || {};
 
       if ((deadlines && new Date() > deadlineDate) || !deadlines) {
         // Deadline expired or no deadline, new one
-        winston.info(
+        jsConsole.info(
           'create a new deadline because',
           `NoDeadline: ${!deadlines}`,
           `expired:${new Date() > deadlineDate}`,
@@ -108,7 +110,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             {
               userId,
               content_ID: mediumId,
-              appIds: { $elemMatch: { $eq: appId } },
+              appIds: appId,
             },
             {
               $set: {
@@ -122,7 +124,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             },
           );
       } else {
-        winston.info('update an existing deadline');
+        jsConsole.info('update an existing deadline');
         // Simple update the deadline to decrement
         await client
           .db(DB_NAME)
@@ -131,7 +133,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             {
               userId,
               content_ID: mediumId,
-              appIds: { $elemMatch: { $eq: appId } },
+              appIds: appId,
             },
             {
               $inc: {
@@ -153,7 +155,7 @@ export default async (userId, appId, mediumType, mediumId) => {
       .collection(COLL_PROJECTS)
       .updateOne({
         _id: medium.project_ID,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: { views: 1 },
         $set: { lastView: new Date() },
@@ -165,7 +167,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         {
           user_ID: userId,
           content_ID: mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $inc: { views: 1 },
@@ -184,7 +186,7 @@ export default async (userId, appId, mediumType, mediumId) => {
       .db(DB_NAME)
       .collection(COLL_METRICS)
       .updateOne(
-        { appIds: { $elemMatch: { $eq: appId } } },
+        { appIds: appId },
         {
           $inc: { views: 1 },
           $set: { appIds: [appId] },
@@ -198,7 +200,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         {
           userID: userId,
           content_ID: mediumId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $inc: { numviews: 1 },

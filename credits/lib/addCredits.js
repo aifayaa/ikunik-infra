@@ -1,11 +1,13 @@
 import validator from 'validator';
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 
 const {
   DB_NAME,
   COLL_CREDITS,
 } = process.env;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (userID, appId, amount, opts = {}) => {
   if (!validator.isInt(amount, { min: 0, allow_leading_zeroes: false, max: 999 })) {
@@ -19,7 +21,7 @@ export default async (userID, appId, amount, opts = {}) => {
     await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({
         userID,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $inc: {
           credits: Number(amount),
@@ -29,7 +31,7 @@ export default async (userID, appId, amount, opts = {}) => {
           appIds: [appId],
         },
       }, opts);
-    winston.info(`${amount} credits added to ${userID}`);
+    jsConsole.info(`${amount} credits added to ${userID}`);
   } finally {
     client.close();
   }

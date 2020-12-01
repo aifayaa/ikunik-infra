@@ -7,7 +7,6 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-
 export default async (event) => {
   try {
     // TODO: check if user is a fan of artist when DB repaired

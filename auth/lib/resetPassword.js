@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import { sendEmail } from '../../libs/email/sendEmail';
-import { passwordResetEmailHTML } from './passwordResetEmailHTML';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const {
   DB_NAME,
@@ -10,7 +10,7 @@ const {
   COLL_APPS,
 } = process.env;
 
-export const resetPassword = async (rawEmail, appId, token, password) => {
+export const resetPassword = async (rawEmail, appId, token, password, lang) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
@@ -20,8 +20,8 @@ export const resetPassword = async (rawEmail, appId, token, password) => {
     const [user, app] = await Promise.all([
       usersCollection.findOne(
         {
-          emails: { $elemMatch: { address: email } },
-          appIds: { $elemMatch: { $eq: appId } },
+          'emails.address': email,
+          appIds: appId,
         },
         {
           projection: { _id: true, emails: true, 'services.password.reset': true, 'profile.username': true },
@@ -62,9 +62,11 @@ export const resetPassword = async (rawEmail, appId, token, password) => {
       },
     });
 
+    intlInit(lang);
+
     /* send confirmation by email to user */
-    const subject = 'Password has been reset'; // TODO: intl
-    const html = passwordResetEmailHTML(user.profile.username, email);
+    const subject = formatMessage('auth:password_reset_email_title');
+    const html = formatMessage('auth:password_reset_email_html', { username: user.profile.username, email });
 
     await sendEmail(subject, html, email);
   } finally {

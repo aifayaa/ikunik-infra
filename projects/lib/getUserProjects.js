@@ -13,7 +13,7 @@ export default async (_userId, profileId, appId) => {
       .collection(COLL_PROJECTS)
       .find({
         profil_ID: profileId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }).toArray();
     return { projects };
   } finally {

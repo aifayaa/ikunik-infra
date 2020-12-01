@@ -20,7 +20,7 @@ const searchArticle = async (
 ) => {
   const $match = {
     title: { $regex: new RegExp(text, 'gi') },
-    appIds: { $elemMatch: { $eq: appId } },
+    appIds: appId,
     isPublished: true,
   };
 
@@ -54,6 +54,11 @@ const searchArticle = async (
           localField: 'categoryId',
           foreignField: '_id',
           as: 'category',
+        },
+      },
+      {
+        $match: {
+          'category.hidden': { $ne: true },
         },
       },
       {
@@ -109,13 +114,16 @@ const searchArticle = async (
 
 export default async (text, appId, { skip, limit }) => {
   const client = await MongoClient.connect();
-  const {
-    DB_NAME,
-    COLL_PRESS_ARTICLES,
-  } = process.env;
+  const { DB_NAME, COLL_PRESS_ARTICLES } = process.env;
   const collection = client.db(DB_NAME).collection(COLL_PRESS_ARTICLES);
   try {
-    const [result = {}] = await searchArticle(collection, text, appId, { skip, limit }, {});
+    const [result = {}] = await searchArticle(
+      collection,
+      text,
+      appId,
+      { skip, limit },
+      {},
+    );
     return { articles: result.articles || [], total: result.total || 0 };
   } finally {
     client.close();

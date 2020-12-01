@@ -1,22 +1,49 @@
 import MongoClient from '../../libs/mongoClient';
 
-const {
-  DB_NAME,
-  COLL_PRESS_CATEGORIES,
-  COLL_PICTURES,
-} = process.env;
+const { COLL_PICTURES, COLL_PRESS_CATEGORIES, DB_NAME } = process.env;
 
-export default async (appId) => {
-  let client;
+export default async (
+  appId,
+  showHidden = false,
+  { start, limit, countOnly = false, fetchMaxOrder = false },
+) => {
+  const client = await MongoClient.connect();
+
+  const matchHidden = showHidden
+    ? {
+      appIds: appId,
+    }
+    : {
+      appIds: appId,
+      hidden: { $not: { $eq: true } },
+    };
+
   try {
-    client = await MongoClient.connect();
+    if (countOnly) {
+      const categoriesCount = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .find(matchHidden, { _id: 1 }).count();
+      return { count: categoriesCount };
+    }
+    if (fetchMaxOrder) {
+      matchHidden.order = { $ne: 999 };
+      const categoriesCount = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .find(matchHidden, { _id: 1 }).count();
+
+      return { count: categoriesCount };
+    }
+
+    start = parseInt(start, 10) || 0;
+    limit = parseInt(limit, 10) || 10;
+
+    const pipelineSkipLimit = (limit > 0) ? [{ $skip: start }, { $limit: limit }] : [];
 
     const pipeline = [
-      {
-        $match: {
-          appIds: { $elemMatch: { $eq: appId } },
-        },
-      },
+      { $match: matchHidden },
+      ...pipelineSkipLimit,
       {
         $sort: {
           order: 1,
@@ -45,8 +72,9 @@ export default async (appId) => {
       .collection(COLL_PRESS_CATEGORIES)
       .aggregate(pipeline)
       .toArray();
+    const count = categories.length;
 
-    return { categories };
+    return { categories, count };
   } finally {
     client.close();
   }

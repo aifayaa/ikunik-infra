@@ -1,28 +1,28 @@
 import get from 'lodash/get';
-import winston from 'winston';
 import authorizeArtist from '../lib/authorizeArtist';
 import generatePolicy from '../lib/generatePolicy';
-import hashLoginToken from '../lib/hashLoginToken';
 import getAppFromKey from '../lib/getAppFromKey';
 import getProfile from '../lib/getProfile';
+import hashLoginToken from '../lib/hashLoginToken';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async ({ headers, methodArn, requestContext }) => {
   const apiKey = get(requestContext, 'identity.apiKey');
   const authorizationToken = headers.authorization || headers.Authorization;
   try {
-    winston.info(authorizationToken, methodArn);
+    jsConsole.info(authorizationToken, methodArn);
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const [userId, app] = await Promise.all([
-      authorizeArtist(hashedLoginToken),
-      getAppFromKey(apiKey),
-    ]);
+    const app = await getAppFromKey(apiKey);
+    const userId = await authorizeArtist(hashedLoginToken, app._id);
     const profileId = userId && await getProfile(userId, app._id);
     if (userId && profileId) {
-      winston.info('allow', authorizationToken, userId);
+      jsConsole.info('allow', authorizationToken, userId);
       return generatePolicy('allow', methodArn, { userId, appId: app._id, profileId });
     }
-    winston.info('deny', authorizationToken);
+    jsConsole.info('deny', authorizationToken);
     return generatePolicy('deny', methodArn);
   } catch (e) {
     return generatePolicy('deny', methodArn);

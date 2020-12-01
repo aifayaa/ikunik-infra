@@ -1,174 +1,108 @@
 #!/bin/bash
 
+STAGE="$1"
+REGION="$2"
+ALL="$3"
+
 usage() {
-  echo "usage : ./deploy.sh [STAGE] [REGION]"
+  echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
   echo "    Deploy all microservices for a STAGE on a REGION"
   echo "    STAGE can be dev, prod, awax, awaxDev"
   echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
+  echo "    ALL Set to the value « ALL » to deploy all microservices, even those who are not currently being worked on"
 }
 
-if ([ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "awax" ] && [ "$1" != "awaxDev" ]) || [ -z "$2" ] ; then
+runSlsDeployFor() {
+  folder="$1"
+  echo "Deploying $folder"
+  cd "$folder"
+  npm i
+  npx sls deploy --stage "$STAGE" --region "$REGION"
+  cd ..
+}
+
+runNpmCustomDeployFor() {
+  folder="$1"
+  echo "Deploying $folder"
+  cd "$folder"
+  npm i
+  # Uses environment variable "$REGION"
+  export REGION
+  npm run "deploy:$STAGE"
+  cd ..
+}
+
+if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then
   usage
+  exit 1
 fi
 
 # libs
-cd libs
+cd 'libs'
 npm i
+cd ..
 
 # no deps
-cd ../api-v1
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../apps
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'api-v1'
+runSlsDeployFor 'apps'
+runSlsDeployFor 'admin'
 
 # requires root api only
-cd ../account
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../auth
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../maintenance
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../ssr
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../press
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'account'
+runSlsDeployFor 'auth'
+runSlsDeployFor 'maintenance'
+runSlsDeployFor 'ssr'
 
 # + authorizer
-cd ../audios
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../authorize
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../banners
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../blast
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../carts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../contactLists
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../contacts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../credits
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../crowd
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../fees
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../festivals
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../files
-REGION=$2 npm run deploy:$1
-cd ../genres
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../media
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../orders
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../payouts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../pictures
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../purchasableProducts
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../search
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../shop
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../stages
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../tokenPackages
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../users
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../userMetrics
-npm i
-npx sls deploy --stage $1 --region $2
+test "x$ALL" = "xALL" && runSlsDeployFor 'audios'
+runSlsDeployFor 'authorize'
+test "x$ALL" = "xALL" && runSlsDeployFor 'banners'
+runSlsDeployFor 'blast'
+test "x$ALL" = "xALL" && runSlsDeployFor 'carts'
+runSlsDeployFor 'contactLists'
+runSlsDeployFor 'contacts'
+runSlsDeployFor 'credits'
+runSlsDeployFor 'crowd'
+test "x$ALL" = "xALL" && runSlsDeployFor 'fees'
+test "x$ALL" = "xALL" && runSlsDeployFor 'festivals'
+runNpmCustomDeployFor 'files'
+test "x$ALL" = "xALL" && runSlsDeployFor 'genres'
+runSlsDeployFor 'media'
+test "x$ALL" = "xALL" && runSlsDeployFor 'orders'
+test "x$ALL" = "xALL" && runSlsDeployFor 'payouts'
+runSlsDeployFor 'pictures'
+runSlsDeployFor 'purchasableProducts'
+runSlsDeployFor 'search'
+test "x$ALL" = "xALL" && runSlsDeployFor 'shop'
+test "x$ALL" = "xALL" && runSlsDeployFor 'stages'
+test "x$ALL" = "xALL" && runSlsDeployFor 'tokenPackages'
+runSlsDeployFor 'users'
+runSlsDeployFor 'userMetrics'
 
 # + users root api id
-cd ../artists
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../projects
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../selections
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../subscriptions
-npm i
-npx sls deploy --stage $1 --region $2
-cd ../perms
-npm i
-npx sls deploy --stage $1 --region $2
+test "x$ALL" = "xALL" && runSlsDeployFor 'artists'
+test "x$ALL" = "xALL" && runSlsDeployFor 'projects'
+runSlsDeployFor 'selections'
+test "x$ALL" = "xALL" && runSlsDeployFor 'subscriptions'
+runSlsDeployFor 'perms'
 
 # + artists api id
-cd ../favorites
-npm i
-npx sls deploy --stage $1 --region $2
+test "x$ALL" = "xALL" && runSlsDeployFor 'favorites'
 
 # + festivals & stages api id
-cd ../lineup
-npm i
-npx sls deploy --stage $1 --region $2
+test "x$ALL" = "xALL" && runSlsDeployFor 'lineup'
 
 # + lineups api id
-cd ../tickets
-npm i
-npx sls deploy --stage $1 --region $2
+test "x$ALL" = "xALL" && runSlsDeployFor 'tickets'
+test "x$ALL" = "xALL" && runSlsDeployFor 'scanners'
 
-cd ../scanners
-npm i
-npx sls deploy --stage $1 --region $2
+# + admin
+runSlsDeployFor 'press'
 
 # + press api id
-cd ../pressCategories
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../pressArticles
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../pressSearch
-npm i
-npx sls deploy --stage $1 --region $2
-
-
-cd ../pushNotifications
-npm i
-npx sls deploy --stage $1 --region $2
-
-cd ../userGeneratedContents
-npm i
-npx sls deploy --stage $1 --region $2
+runSlsDeployFor 'pressCategories'
+runSlsDeployFor 'pressArticles'
+runSlsDeployFor 'pressSearch'
+runSlsDeployFor 'pushNotifications'
+runSlsDeployFor 'userGeneratedContents'

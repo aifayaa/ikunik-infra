@@ -21,7 +21,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .findOne({
         articleId,
         _id: draftId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, opts);
     if (!draft) {
       throw new Error('Not found');
@@ -72,7 +72,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .updateOne(
         {
           _id: articleId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         }, {
           $set,
         },
@@ -85,7 +85,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .updateMany(
         {
           articleId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $set: {
@@ -101,7 +101,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .updateOne(
         {
           _id: draftId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         {
           $set: {

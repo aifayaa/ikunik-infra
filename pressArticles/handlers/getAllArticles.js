@@ -8,13 +8,14 @@ export default async (event) => {
   try {
     const { appId } = event.requestContext.authorizer;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const { category, start, limit } = event.queryStringParameters || {};
+    const { category = null, start, limit } = event.queryStringParameters || {};
     if (!checkPerms(permKey, perms)) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     const results = await getArticles(category, start, limit, appId, {
       onlyPublished: false,
-      noCategory: true,
+      getOrphansArticles: (!category),
+      showHidden: true,
     });
     return response({ code: 200, body: results });
   } catch (e) {

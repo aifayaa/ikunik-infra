@@ -1,25 +1,34 @@
-
 import MongoClient from '../../libs/mongoClient';
 
-export default async (hashedToken, appId) => {
-  const {
-    DB_NAME,
-    COLL_USERS,
-    COLL_PERM_GROUPS,
-  } = process.env;
+const {
+  ADMIN_APP,
+  DB_NAME,
+  COLL_USERS,
+  COLL_PERM_GROUPS,
+} = process.env;
 
+export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const user = await client.db(DB_NAME).collection(COLL_USERS).findOne(
-      {
-        $or: [
-          { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-          { 'services.apiTokens': { $elemMatch: { hashedToken } } },
-        ],
-      },
-      { projection: { _id: 1, permGroupIds: 1 } },
-    );
+    const conds = {
+      $or: [
+        { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
+        { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+      ],
+    };
+
+    if (appId) {
+      conds.appIds = { $in: [appId, ADMIN_APP] };
+    }
+
+    const user = await client
+      .db(DB_NAME)
+      .collection(COLL_USERS)
+      .findOne(
+        conds,
+        { projection: { _id: 1, permGroupIds: 1 } },
+      );
 
     /* if no appId, we cant determine user perms */
     if (!appId) {

@@ -14,14 +14,14 @@ export const doDeleteUserSelection = async (selectionIds, appId) => {
         .collection(COLL_SELECTIONS)
         .remove({
           _id: { $in: selectionIds },
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         }),
       client
         .db(DB_NAME)
         .collection(COLL_MEDIUM_SELECTION_LINKS)
         .remove({
           selectionId: { $in: selectionIds },
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         }),
     ]);
   } finally {
@@ -38,7 +38,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
       .findOne(
         {
           _id: selectionId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
         { userId: true, rootSelectionId: true, subscriptionIds: true },
       );
@@ -52,7 +52,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
         $match: {
           _id: selectionId,
           userId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
       },
       {
@@ -96,7 +96,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
         {
           $match: {
             rootSelectionId,
-            appIds: { $elemMatch: { $eq: appId } },
+            appIds: appId,
           },
         },
         {
@@ -119,7 +119,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
             $in: subscriptionIds,
           },
         },
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, {
         $pull: {
           subscriptionIds: {

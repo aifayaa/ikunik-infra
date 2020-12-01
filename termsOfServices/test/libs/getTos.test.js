@@ -11,7 +11,7 @@ const { public: projection } = tosFields;
 
 const { DB_NAME, COLL_TOS } = process.env;
 
-describe.only('lib - getTos', () => {
+describe('lib - getTos', () => {
   let spyMongo;
   let stubMongo;
   const response = [{ _id: 'tosId' }];
@@ -31,7 +31,7 @@ describe.only('lib - getTos', () => {
       await getTos('crowdaa_app_id', undefined);
       sinon.assert.calledWith(spyMongo.collection, COLL_TOS);
       const findArgs = spyMongo.find.getCall(0).args;
-      expect(findArgs[0]).to.eql({ appIds: { $elemMatch: { $eq: 'crowdaa_app_id' } } });
+      expect(findArgs[0]).to.eql({ appIds: 'crowdaa_app_id' });
       expect(findArgs[1]).to.eql({ projection, sort });
     });
     it('should call mongo.find with appId and _id', async () => {
@@ -39,7 +39,7 @@ describe.only('lib - getTos', () => {
       sinon.assert.calledWith(spyMongo.collection, COLL_TOS);
       const findArgs = spyMongo.find.getCall(0).args;
       expect(findArgs[0]).to.eql({
-        appIds: { $elemMatch: { $eq: 'crowdaa_app_id' } },
+        appIds: 'crowdaa_app_id',
         _id: 'tosId',
       });
       expect(findArgs[1]).to.eql({ projection, sort });

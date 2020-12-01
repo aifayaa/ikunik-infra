@@ -1,11 +1,13 @@
 stages:
   - lint
   - test
-  - pushDev
-  - pushProd
+  - push
+  - buildApiDoc
+  - deployApiDoc
 
 eslint:
   image: node:12
+  stage: lint
   cache:
     paths:
       - node_modules/
@@ -13,14 +15,18 @@ eslint:
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
     - for i in $(<folderList); do echo "install dep in $i";cd $i; npm i; cd ..; done
-  stage: lint
   script:
     - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
-  only:
-    - merge_requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^(Wip|Draft):/i
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
+  allow_failure: false
 
 test:
   image: node:12
+  stage: test
   cache:
     paths:
       - node_modules/
@@ -28,21 +34,19 @@ test:
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
     - cd libs; npm i; cd ..
-  stage: test
   script:
     - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test; fi; cd ..; done
-  only:
-    - merge_requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
 
 pushDevToAWS:
+  image: python:latest
+  stage: push
   variables:
     S3_BUCKET_NAME: "crowdaa-ci/ms/dev/in"
-
-  image: python:latest
-  stage: pushDev
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
-
   script:
     - pip install awscli
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
@@ -50,19 +54,16 @@ pushDevToAWS:
     - rm -f diffList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
-
-  only:
-    - dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
 
 pushProdToAWS:
+  image: python:latest
+  stage: push
   variables:
     S3_BUCKET_NAME: "crowdaa-ci/ms/prod/in"
-
-  image: python:latest
-  stage: pushProd
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
-
   script:
     - pip install awscli
     - git diff --dirstat=files,0 origin/master^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
@@ -70,6 +71,61 @@ pushProdToAWS:
     - rm -f diffList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
 
-  only:
-    - master
+buildDevApiDoc:
+  image: node:12
+  stage: buildApiDoc
+  before_script:
+    - cd swagger; npm i; cd ..
+  script:
+    - cd swagger; npm run build; cd ..
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+  artifacts:
+    expire_in: 1 hrs
+    paths:
+      - swagger/dist/
+
+deployDevApiDoc:
+  image: python:latest
+  stage: deployApiDoc
+  variables:
+    S3_BUCKET_NAME: "api-dev.crowdaa.com"
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+  dependencies:
+    - buildDevApiDoc
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+buildProdApiDoc:
+  image: node:12
+  stage: buildApiDoc
+  before_script:
+    - cd swagger; npm i; cd ..
+  script:
+    - cd swagger; npm run build:prod; cd ..
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  artifacts:
+    expire_in: 1 hrs
+    paths:
+      - swagger/dist/
+
+deployProdApiDoc:
+  image: python:latest
+  stage: deployApiDoc
+  variables:
+    S3_BUCKET_NAME: "api.crowdaa.com"
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+  dependencies:
+    - buildProdApiDoc
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"

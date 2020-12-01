@@ -15,7 +15,7 @@ export default async (appId) => {
       .collection(COLL_LINEUPS)
       .find({
         startDate: { $gt: new Date() },
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       }, { projection: { _id: 1 } }).toArray();
 
     const pool = new PromisePoolExecutor({

@@ -18,17 +18,12 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-
 export default async (userId, appId, mediumType, mediumId) => {
   const client = await MongoClient.connect();
   try {
     const query = {
       _id: mediumId,
-      appIds: {
-        $elemMatch: {
-          $eq: appId,
-        },
-      },
+      appIds: appId,
     };
     let medium;
     switch (mediumType) {

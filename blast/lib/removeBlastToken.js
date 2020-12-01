@@ -1,4 +1,3 @@
-import winston from 'winston';
 import MongoClient from '../../libs/mongoClient';
 
 const {
@@ -7,6 +6,9 @@ const {
   COLL_BALANCE_NOTIFS,
   DB_NAME,
 } = process.env;
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (type, profileId, qte, appId) => {
   let collName;
@@ -27,9 +29,7 @@ export default async (type, profileId, qte, appId) => {
     const res = await client.db(DB_NAME).collection(collName)
       .updateOne({
         profil_ID: profileId,
-        appIds: {
-          $elemMatch: { $eq: appId },
-        },
+        appIds: appId,
       }, {
         $inc: {
           balance: -Number(qte),
@@ -39,7 +39,7 @@ export default async (type, profileId, qte, appId) => {
         },
       }, { upsert: true });
     if (res.upsertedCount === 1 || res.modifiedCount === 1) {
-      winston.info(`decrement ${profileId} of ${qte} ${type} tokens`);
+      jsConsole.info(`decrement ${profileId} of ${qte} ${type} tokens`);
       return true;
     }
     throw new Error('No profile found');

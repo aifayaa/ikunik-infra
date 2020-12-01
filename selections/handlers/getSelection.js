@@ -1,6 +1,8 @@
-import winston from 'winston';
 import getSelection from '../libs/getSelection';
 import response from '../../libs/httpResponses/response';
+
+// To avoid getting a warning with lint
+const jsConsole = console;
 
 export default async (event) => {
   const selectionId = event.pathParameters.id;
@@ -13,7 +15,7 @@ export default async (event) => {
     return response({ code: 200, body: results });
   } catch (e) {
     const code = (e.message === 'not_found') ? 404 : 500;
-    winston.error(e);
+    jsConsole.error(e);
     return response({ code, message: e.message });
   }
 };

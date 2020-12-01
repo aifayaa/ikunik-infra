@@ -8,7 +8,7 @@ export default async (userId, contentId, appId) => {
       {
         $match: {
           _id: contentId,
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
       },
       {

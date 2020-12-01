@@ -83,11 +83,7 @@ const pipelineLocationStart = (userId, appId, coordinates, range) => [
   {
     $match: {
       'project.fromUserId': userId,
-      'project.appIds': {
-        $elemMatch: {
-          $eq: appId,
-        },
-      },
+      'project.appIds': appId,
     },
   },
   {
@@ -113,11 +109,7 @@ const pipelineStart = (userId, appId) => [
   {
     $match: {
       fromUserId: userId,
-      appIds: {
-        $elemMatch: {
-          $eq: appId,
-        },
-      },
+      appIds: appId,
     },
   },
   {

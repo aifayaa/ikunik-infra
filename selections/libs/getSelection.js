@@ -47,7 +47,7 @@ export default async (selectionId, userId, appId) => {
           {
             $match: {
               _id: selectionId,
-              appIds: { $elemMatch: { $eq: appId } },
+              appIds: appId,
             },
           },
           {
@@ -113,7 +113,7 @@ export default async (selectionId, userId, appId) => {
     const selectionFindQuery = JSON.parse(selection.selectionFindQuery);
     queryReplace(selectionFindQuery);
     if (selectionFindQuery) {
-      selectionFindQuery.appIds = { $elemMatch: { $eq: appId } };
+      selectionFindQuery.appIds = appId;
       selectionFindQuery.isPublished = true;
     }
 
@@ -162,7 +162,7 @@ export default async (selectionId, userId, appId) => {
         .aggregate([
           {
             $match: { selectionId },
-            appIds: { $elemMatch: { $eq: appId } },
+            appIds: appId,
           },
           {
             $lookup: {
@@ -221,7 +221,7 @@ export default async (selectionId, userId, appId) => {
       let aggregationPipeline = [{
         $match: {
           _id: { $in: projectIds },
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         },
       }];
       if (isAudioSelection) {
@@ -353,7 +353,7 @@ export default async (selectionId, userId, appId) => {
         .collection(COLL_PROJECTS)
         .find({
           _id: { $in: projectIds },
-          appIds: { $elemMatch: { $eq: appId } },
+          appIds: appId,
         }, {
           projection: {
             iconeThumbFileUrl: true,

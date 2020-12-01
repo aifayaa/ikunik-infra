@@ -9,12 +9,10 @@ export default async (event) => {
   const appId = event.pathParameters.id;
   const userId = event.requestContext.authorizer.principalId;
   const perms = await getPerms(userId, appId);
-  if (!checkPerms(permKey, perms)) {
-    return response({ code: 403, message: 'access_forbidden' });
-  }
+  const havePerms = checkPerms(permKey, perms);
 
   try {
-    const results = await getAppInfos(appId);
+    const results = await getAppInfos(appId, havePerms);
 
     if (results === false) {
       return response({ code: 404, message: 'app_not_found' });

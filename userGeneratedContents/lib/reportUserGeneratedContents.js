@@ -24,7 +24,7 @@ export default async (
       .collection(COLL_USER_GENERATED_CONTENTS)
       .findOne({
         _id: ugcId,
-        appIds: { $elemMatch: { $eq: appId } },
+        appIds: appId,
       });
 
     if (!ugc) {

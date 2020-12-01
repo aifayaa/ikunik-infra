@@ -70,6 +70,7 @@ functions:
   
 
 plugins:
+  - serverless-offline
   - serverless-webpack
 
 package:

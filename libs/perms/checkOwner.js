@@ -21,7 +21,7 @@ export default async (
   try {
     const findObj = {
       _id: objId,
-      appIds: { $elemMatch: { $eq: appId } },
+      appIds: appId,
     };
 
     if (options.useTrashedField) {

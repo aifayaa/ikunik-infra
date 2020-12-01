@@ -36,7 +36,7 @@ export default async (userId, appId) => {
       .aggregate(pipeline)
       .toArray();
 
-    const perms = permGroups.reduce((acc, curr) => {
+    const perms = (permGroups || []).reduce((acc, curr) => {
       Object.keys(curr.perms).forEach((key) => {
         if (!acc[key]) {
           acc[key] = curr.perms[key];

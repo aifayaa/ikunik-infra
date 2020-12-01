@@ -119,6 +119,5 @@ npx sls remove --stage $1 --region $2
 cd ../pushNotifications
 npx sls remove --stage $1 --region $2
 
-
 cd ../userGeneratedContents
 npx sls remove --stage $1 --region $2
