@@ -18,7 +18,7 @@ runSlsDeployFor() {
   echo "Deploying $folder"
   cd "$folder"
   npm i
-  npx sls deploy --stage "$STAGE" --region "$REGION"
+  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" --region "$REGION"
   cd ..
 }
 

@@ -7,4 +7,5 @@ phases:
 
   build:
     commands:
-      - ./prepare.js dev
+      - echo "Stage is not ready yet"
+      # - ./prepare.js prod
