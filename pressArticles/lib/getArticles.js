@@ -69,10 +69,10 @@ export const getArticles = async (
       ],
     };
 
-    const sortArticles = { createdAt: -1 };
+    let sortArticles = { createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
-      sortArticles.publicationDate = -1;
+      sortArticles = { publicationDate: -1 };
       matchArticles.isPublished = true;
       matchArticles.$or = [
         {
