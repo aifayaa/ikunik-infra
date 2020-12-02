@@ -72,9 +72,9 @@ export const register = async (rawEmail, username, password, lang, appId) => {
     intlInit(lang);
 
     /* send email verification link to user */
-    const subject = formatMessage('auth:address_confirmation_email_title');
+    const subject = formatMessage('auth:address_confirmation_email.title');
     const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
-    const html = formatMessage('auth:address_confirmation_email_html', { username, url });
+    const html = formatMessage('auth:address_confirmation_email.html', { username, url });
 
     try {
       await sendEmailTemplate(lang, 'customers', email, subject, html);

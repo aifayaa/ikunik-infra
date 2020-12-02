@@ -9,11 +9,11 @@ export const sendPreviewInfoEmail = async (appId, email, lang) => {
   intlInit(lang);
 
   /* Prepare data for email */
-  const subject = formatMessage('apps:app_preview_email_title', { appName: sanatizedAppName });
+  const subject = formatMessage('apps:app_preview_email.title', { appName: sanatizedAppName });
   const url = `${protocol}://appPreview/${key}`;
 
   /* send token by email to user */
-  const html = formatMessage('apps:app_preview_email_html', { appName: sanatizedAppName, url });
+  const html = formatMessage('apps:app_preview_email.html', { appName: sanatizedAppName, url });
 
   return sendEmailTemplate(lang, 'clients', email, subject, html);
 };
