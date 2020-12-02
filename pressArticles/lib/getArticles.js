@@ -51,6 +51,7 @@ export const getArticles = async (
           category.hidden === showHidden,
       )
       .map((category) => category._id);
+
     const matchArticles = {
       appIds: appId,
       /* Find only articles not trashed or trashed undefined */
@@ -67,7 +68,12 @@ export const getArticles = async (
     };
 
     if (getOrphansArticles) {
-      matchArticles.$or.push({ categoryId: null }, { categoryId: { $in: categoriesIds } });
+      matchArticles.$or.forEach((condition) => {
+        condition.$or = [
+          { categoryId: null },
+          { categoryId: { $in: categoriesIds } },
+        ];
+      });
     } else {
       matchArticles.categoryId = { $in: categoriesIds };
     }
