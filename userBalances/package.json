@@ -5,7 +5,7 @@
   "description": "Crowdaa userBalances API.",
   "main": "handler.js",
   "scripts": {
-    "test": "npx sls export-env; npx -f env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx -f env-cmd npx mocha --require esm --recursive --timeout 10000"
   },
   "dependencies": {
     "mongodb": "^3.5.0"
