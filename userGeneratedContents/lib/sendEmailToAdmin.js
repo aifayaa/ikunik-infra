@@ -1,5 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-import { sendEmail } from '../../libs/email/sendEmail';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
 const PERMISSIONS = [
   'userGeneratedContents_notify',
@@ -12,7 +12,7 @@ const {
   COLL_PERM_GROUPS,
 } = process.env;
 
-export default async (subject, body, appId) => {
+export default async (lang, subject, body, appId) => {
   const client = await MongoClient.connect();
   try {
     const [result] = await client
@@ -69,7 +69,7 @@ export default async (subject, body, appId) => {
     const promises = emails.map((email) => {
       /* in case of error, ignore it, just try with best effort */
       try {
-        return sendEmail(subject, body, email);
+        return sendEmailTemplate(lang, 'clients', email, subject, body);
       } catch (e) {
         console.error(e);
         return null;

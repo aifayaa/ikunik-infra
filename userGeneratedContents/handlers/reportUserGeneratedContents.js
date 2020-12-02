@@ -72,7 +72,7 @@ export default async (event) => {
         details,
         lang,
       );
-      await sendEmailToAdmin(subject, body, appId);
+      await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {
       console.log('Error when sending mail to admin', e);
     }

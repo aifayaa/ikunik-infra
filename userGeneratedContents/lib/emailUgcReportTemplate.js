@@ -36,7 +36,7 @@ export default async (userId, appId, contentId, reason, details, lang) => {
     intlInit(lang);
 
     return {
-      body: formatMessage('ugc:reported_ugc_content_email_html', {
+      body: formatMessage('ugc:reported_ugc_content_email.html', {
         userId: user._id,
         username: user.profile.username,
         appName: app.name,
@@ -44,7 +44,7 @@ export default async (userId, appId, contentId, reason, details, lang) => {
         reason,
         details,
       }),
-      subject: formatMessage('ugc:reported_ugc_content_email_title', { appName: app.name }),
+      subject: formatMessage('ugc:reported_ugc_content_email.title', { appName: app.name }),
     };
   } finally {
     client.close();
