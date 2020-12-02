@@ -53,7 +53,7 @@ export const sendEmailTemplate = async (lang, template, to, subject, content) =>
     });
   }
 
-  const html = formatMessage(`libsEmail:template_${template}`, { content });
+  const html = formatMessage('libsEmail:template_skeleton', { body: `$t(libsEmail:template_${template})`, content });
   const response = await transport.sendMail({
     from: SMTP_FROM,
     to,

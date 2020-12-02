@@ -6,11 +6,13 @@ import newUgcContentEmailHtml from './newUgcContentEmailHtml';
 import reportedUgcContentEmailHtml from './reportedUgcContentEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
 import emailTemplateCustomers from './emailTemplateCustomers';
+import emailTemplateSkeleton from './emailTemplateSkeleton';
 
 export default {
   libsEmail: {
     template_clients: emailTemplateClients,
     template_customers: emailTemplateCustomers,
+    template_skeleton: emailTemplateSkeleton,
   },
   apps: {
     app_preview_email_html: appPreviewEmailHtml,
