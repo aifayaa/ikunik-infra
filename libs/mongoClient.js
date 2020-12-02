@@ -6,7 +6,6 @@ const {
 
 const DEFAULT_OPTS = {
   useUnifiedTopology: true,
-  autoReconnect: true,
 };
 
 /**

@@ -12,7 +12,7 @@ export default async (event) => {
   try {
     const appsResults = await getApps(userId);
     if (appsResults.length === 0) {
-      return response({ code: 404, message: 'no_permission_found' });
+      return response({ code: 404, message: 'crowdaa_no_apps_permissions' });
     }
 
     return response({

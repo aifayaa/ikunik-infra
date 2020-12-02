@@ -19,9 +19,9 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
-    NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.dev.NOTIFICATION_STATE_MACHINE_NAME}'
-    NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.dev.NOTIFICATION_STATE_MACHINE_ROLE}'
-    NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.dev.NOTIFICATION_STATE_MACHINE_RESOURCE}'
+    NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_NAME}'
+    NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_ROLE}'
+    NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_RESOURCE}'
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -45,7 +45,7 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
-      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
+      /admin/press: ${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 

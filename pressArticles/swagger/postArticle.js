@@ -11,11 +11,11 @@ export default (libs, output) => {
     categoryId: libs.make.outParam('The category in which to put this article', 'string', true),
     feedPicture: libs.make.outParam('The article image to show in the news feed', 'string', false),
     md: libs.make.outParam('The article content, in markdown syntax', 'string', true),
-    pictures: libs.make.outParam('An array of pictures IDs', 'array', false),
+    pictures: libs.make.schemaArray(libs.make.outParam('Picture ID', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }), { description: 'An array of Ppcture IDs' }),
     summary: libs.make.outParam('A summary of this article', 'string', false),
     productId: libs.make.outParam('The product ID (only used for in-app purchase)', 'string', false),
     title: libs.make.outParam('The article title', 'string', true),
-    videos: libs.make.outParam('An array of videos IDs', 'array', false),
+    videos: libs.make.schemaArray(libs.make.outParam('Video ID', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }), { description: 'An array of video IDs' }),
   }));
 
   post.responses = {

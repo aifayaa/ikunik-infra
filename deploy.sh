@@ -2,13 +2,15 @@
 
 STAGE="$1"
 REGION="$2"
+ALL="$3"
 
 usage() {
-  echo "usage : ./deploy.sh [STAGE] [REGION]"
+  echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
   echo "    Deploy all microservices for a STAGE on a REGION"
   echo "    STAGE can be dev, prod, awax, awaxDev"
   echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
+  echo "    ALL Set to the value « ALL » to deploy all microservices, even those who are not currently being worked on"
 }
 
 runSlsDeployFor() {
@@ -16,7 +18,7 @@ runSlsDeployFor() {
   echo "Deploying $folder"
   cd "$folder"
   npm i
-  npx sls deploy --stage "$STAGE" --region "$REGION"
+  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" --region "$REGION"
   cd ..
 }
 
@@ -44,62 +46,63 @@ cd ..
 # no deps
 runSlsDeployFor 'api-v1'
 runSlsDeployFor 'apps'
+runSlsDeployFor 'admin'
 
 # requires root api only
 runSlsDeployFor 'account'
 runSlsDeployFor 'auth'
 runSlsDeployFor 'maintenance'
 runSlsDeployFor 'ssr'
-runSlsDeployFor 'press'
 
 # + authorizer
-runSlsDeployFor 'audios'
+test "x$ALL" = "xALL" && runSlsDeployFor 'audios'
 runSlsDeployFor 'authorize'
-runSlsDeployFor 'banners'
+test "x$ALL" = "xALL" && runSlsDeployFor 'banners'
 runSlsDeployFor 'blast'
-runSlsDeployFor 'carts'
+test "x$ALL" = "xALL" && runSlsDeployFor 'carts'
 runSlsDeployFor 'contactLists'
 runSlsDeployFor 'contacts'
 runSlsDeployFor 'credits'
 runSlsDeployFor 'crowd'
-runSlsDeployFor 'fees'
-runSlsDeployFor 'festivals'
+test "x$ALL" = "xALL" && runSlsDeployFor 'fees'
+test "x$ALL" = "xALL" && runSlsDeployFor 'festivals'
 runNpmCustomDeployFor 'files'
-runSlsDeployFor 'genres'
+test "x$ALL" = "xALL" && runSlsDeployFor 'genres'
 runSlsDeployFor 'media'
-runSlsDeployFor 'orders'
-runSlsDeployFor 'payouts'
+test "x$ALL" = "xALL" && runSlsDeployFor 'orders'
+test "x$ALL" = "xALL" && runSlsDeployFor 'payouts'
 runSlsDeployFor 'pictures'
 runSlsDeployFor 'purchasableProducts'
 runSlsDeployFor 'search'
-runSlsDeployFor 'shop'
-runSlsDeployFor 'stages'
-runSlsDeployFor 'tokenPackages'
+test "x$ALL" = "xALL" && runSlsDeployFor 'shop'
+test "x$ALL" = "xALL" && runSlsDeployFor 'stages'
+test "x$ALL" = "xALL" && runSlsDeployFor 'tokenPackages'
 runSlsDeployFor 'users'
 runSlsDeployFor 'userMetrics'
 
 # + users root api id
-runSlsDeployFor 'artists'
-runSlsDeployFor 'projects'
+test "x$ALL" = "xALL" && runSlsDeployFor 'artists'
+test "x$ALL" = "xALL" && runSlsDeployFor 'projects'
 runSlsDeployFor 'selections'
-runSlsDeployFor 'subscriptions'
+test "x$ALL" = "xALL" && runSlsDeployFor 'subscriptions'
 runSlsDeployFor 'perms'
 
 # + artists api id
-runSlsDeployFor 'favorites'
+test "x$ALL" = "xALL" && runSlsDeployFor 'favorites'
 
 # + festivals & stages api id
-runSlsDeployFor 'lineup'
+test "x$ALL" = "xALL" && runSlsDeployFor 'lineup'
 
 # + lineups api id
-runSlsDeployFor 'tickets'
-runSlsDeployFor 'scanners'
+test "x$ALL" = "xALL" && runSlsDeployFor 'tickets'
+test "x$ALL" = "xALL" && runSlsDeployFor 'scanners'
+
+# + admin
+runSlsDeployFor 'press'
 
 # + press api id
 runSlsDeployFor 'pressCategories'
 runSlsDeployFor 'pressArticles'
 runSlsDeployFor 'pressSearch'
-
 runSlsDeployFor 'pushNotifications'
-
 runSlsDeployFor 'userGeneratedContents'

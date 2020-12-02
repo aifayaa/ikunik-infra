@@ -13,7 +13,7 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const results = await getCategories(appId, true);
+    const results = await getCategories(appId, true, { start: 0, limit: -1 });
     return response({ code: 200, body: results });
   } catch (e) {
     return response(errorMessage(e));

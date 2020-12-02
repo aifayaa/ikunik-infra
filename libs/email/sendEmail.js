@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { intlInit, formatMessage } from '../intl/intl';
 
 const {
   SMTP_FROM,
@@ -10,7 +11,13 @@ const {
 
 let transport = null;
 
-export const sendEmail = async (subject, html, to) => {
+export const sendEmailTemplate = async (lang, template, to, subject, content) => {
+  intlInit(lang);
+
+  if (['clients', 'customers'].indexOf(template) < 0) {
+    throw new Error('Invalid template argument to sendEmail()');
+  }
+
   if (!transport) {
     transport = nodemailer.createTransport({
       host: SMTP_SERVER.split(':')[0],
@@ -23,6 +30,7 @@ export const sendEmail = async (subject, html, to) => {
     });
   }
 
+  const html = formatMessage('libsEmail:template_skeleton', { body: `$t(libsEmail:template_${template})`, content });
   const response = await transport.sendMail({
     from: SMTP_FROM,
     to,

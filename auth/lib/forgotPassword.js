@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
-import { sendEmail } from '../../libs/email/sendEmail';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
@@ -64,17 +64,17 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
     intlInit(lang);
 
     /* Prepare data for email */
-    const subject = formatMessage('auth:forgot_password_email_title');
+    const subject = formatMessage('auth:forgot_password_email.title');
     const url = `${REACT_APP_AUTH_URL}/password-reset-landing?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
 
     /* store token into db */
     await usersCollection.updateOne({ _id: user._id }, { $set });
 
     /* send token by email to user */
-    const html = formatMessage('auth:forgot_password_email_html', { username: user.profile.username, url, token });
+    const html = formatMessage('auth:forgot_password_email.html', { username: user.profile.username, url, token });
 
     try {
-      await sendEmail(subject, html, email);
+      await sendEmailTemplate(lang, 'customers', email, subject, html);
     } catch (e) {
       throw new Error('cannot_send_email');
     }

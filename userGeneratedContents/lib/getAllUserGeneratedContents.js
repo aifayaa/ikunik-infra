@@ -1,6 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
+  COLL_PICTURES,
   COLL_USERS,
   COLL_USER_GENERATED_CONTENTS,
   COLL_USER_GENERATED_CONTENTS_REPORTS,
@@ -67,9 +68,7 @@ export default async (
     }
 
     /* Prepare pipeline */
-    const pipeline = [
-      { $match },
-    ];
+    const pipeline = [{ $match }];
     const countPipeline = [{ $match }];
 
     if (reported || reportsCount) {
@@ -126,46 +125,59 @@ export default async (
         });
       }
 
-      pipeline.push({
-        $lookup: {
-          from: COLL_USERS,
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-        },
-      }, {
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true,
-        },
-      }, {
-        $project: {
-          createdAt: 1,
-          data: 1,
-          parentCollection: 1,
-          parentId: 1,
-          reason: 1,
-          reviewed: 1,
-          rootParentCollection: 1,
-          rootParentId: 1,
-          type: 1,
-          reportsCount: 1,
-          user: {
-            firstname: 1,
-            isUserPicture: 1,
-            lastname: 1,
-            profile: {
-              avatar: 1,
-              isUserPicture: 1,
-              userPictureData: 1,
-              username: 1,
-            },
-            status: 1,
-            username: 1,
-            _id: 1,
+      pipeline.push(
+        {
+          $lookup: {
+            from: COLL_USERS,
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user',
           },
         },
-      });
+        {
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_PICTURES,
+            localField: 'data.pictures',
+            foreignField: '_id',
+            as: 'pictures',
+          },
+        },
+        {
+          $project: {
+            createdAt: 1,
+            data: 1,
+            parentCollection: 1,
+            parentId: 1,
+            reason: 1,
+            reviewed: 1,
+            rootParentCollection: 1,
+            rootParentId: 1,
+            type: 1,
+            reportsCount: 1,
+            pictures: 1,
+            user: {
+              firstname: 1,
+              isUserPicture: 1,
+              lastname: 1,
+              profile: {
+                avatar: 1,
+                isUserPicture: 1,
+                userPictureData: 1,
+                username: 1,
+              },
+              status: 1,
+              username: 1,
+              _id: 1,
+            },
+          },
+        },
+      );
     }
 
     countPipeline.push({
@@ -187,14 +199,14 @@ export default async (
     let results = [];
     let total = 0;
     if (countOnly) {
-      ([{ total = 0 } = {}] = await countPromise);
+      [{ total = 0 } = {}] = await countPromise;
     } else if (raw) {
-      (results = await resultsPromise);
+      results = await resultsPromise;
     } else {
-      ([results = [], [{ total = 0 } = {}] = []] = await Promise.all([
+      [results = [], [{ total = 0 } = {}] = []] = await Promise.all([
         resultsPromise,
         countPromise,
-      ]));
+      ]);
     }
 
     return { items: results, totalCount: total };
