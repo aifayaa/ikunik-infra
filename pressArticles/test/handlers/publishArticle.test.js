@@ -64,6 +64,7 @@ describe('handlers - publishArticle', () => {
       expect(JSON.parse(response.body)).to.eql({ results: libResult });
     });
 
+    // TODO: FIX TEST (Prints an exception)
     it('should called with the good args', () => {
       const eventParsed = JSON.parse(event.body);
       const { principalId, appId } = event.requestContext.authorizer;

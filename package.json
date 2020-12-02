@@ -15,14 +15,14 @@
     "esm": "^3.2.25",
     "js-yaml": "^3.14.0",
     "nodemailer": "^6.4.14",
-    "serverless": "^1.61.2",
-    "serverless-export-env": "^1.3.1"
+    "serverless": "^1.61.2"
   },
   "devDependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
     "eslint": "^7.3.1",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
+    "serverless-export-env": "^1.4.0",
     "serverless-offline": "^6.8.0",
     "serverless-webpack": "^5.3.3",
     "webpack": "^4.41.5"
