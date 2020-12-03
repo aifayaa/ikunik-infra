@@ -3,7 +3,7 @@ import isAvailable from './isAvailable';
 
 const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
 
-export default async (appId, name, pathName, color, picture, order, hidden) => {
+export default async (appId, name, pathName, color, picture, order, hidden, action) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
@@ -43,6 +43,7 @@ export default async (appId, name, pathName, color, picture, order, hidden) => {
       appIds: [appId],
       createdAt: new Date(),
       hidden,
+      action,
       // use default if order not valid
       order: Math.min(order || defaultOrder, defaultOrder),
     };

@@ -18,7 +18,7 @@ export default async (event) => {
       throw new Error('malformed_request');
     }
 
-    const { name, pathName, color, picture, order, hidden } = JSON.parse(
+    const { name, pathName, color, picture, order, hidden, action } = JSON.parse(
       event.body,
     );
 
@@ -26,7 +26,7 @@ export default async (event) => {
       throw new Error('missing_argument');
     }
 
-    [categoryId, name, pathName, color].forEach((item) => {
+    [categoryId, name, pathName, color, action].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
@@ -57,6 +57,10 @@ export default async (event) => {
       throw new Error('Wrong order syntax, must be a positive integer');
     }
 
+    if (action && !/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(action)) {
+      throw new Error('Wrong url syntax, must be http://www.page.com');
+    }
+
     const results = await putCategory(
       appId,
       categoryId,
@@ -66,6 +70,7 @@ export default async (event) => {
       picture,
       order,
       hidden,
+      action,
     );
 
     if (results === false) {
