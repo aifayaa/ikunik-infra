@@ -6,12 +6,15 @@ const {
   COLL_USERS,
   COLL_APPS,
   COLL_USER_GENERATED_CONTENTS,
+  REACT_APP_PRESS_SERVICE_URL,
+  COLL_PICTURES,
+  REACT_APP_API_URL,
 } = process.env;
 
-export default async (userId, appId, contentId, reason, details, lang) => {
+export default async (userId, appId, ugcId, reason, details, lang) => {
   const client = await MongoClient.connect();
   try {
-    const [user, app, content] = await Promise.all([
+    const [user, app, [ugc]] = await Promise.all([
       client
         .db(DB_NAME)
         .collection(COLL_USERS)
@@ -28,10 +31,32 @@ export default async (userId, appId, contentId, reason, details, lang) => {
       client
         .db(DB_NAME)
         .collection(COLL_USER_GENERATED_CONTENTS)
-        .findOne({
-          _id: contentId,
-        }, { projection: { data: true } }),
+        .aggregate([
+          {
+            $match: {
+              _id: ugcId,
+              appIds: appId,
+            },
+          },
+          {
+            $lookup: {
+              from: COLL_PICTURES,
+              localField: 'data.pictures',
+              foreignField: '_id',
+              as: 'dataPicture',
+            },
+          },
+          {
+            $project: { data: 1, type: 1, dataPicture: 1 },
+          },
+        ])
+        .toArray(),
     ]);
+
+    [ugc.dataPicture] = ugc.dataPicture;
+    if (ugc.dataPicture) {
+      ugc.dataPictureUrl = `${REACT_APP_API_URL}/pictures/${ugc.dataPicture._id}/datalocation?appId=${appId}&quality=medium,thumb,large`;
+    }
 
     intlInit(lang);
 
@@ -40,9 +65,11 @@ export default async (userId, appId, contentId, reason, details, lang) => {
         userId: user._id,
         username: user.profile.username,
         appName: app.name,
-        data: JSON.stringify(content.data, null, 2),
+        ugc,
+        ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
         reason,
         details,
+        globalModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation`,
       }),
       subject: formatMessage('ugc:reported_ugc_content_email.title', { appName: app.name }),
     };

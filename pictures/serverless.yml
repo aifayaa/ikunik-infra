@@ -28,8 +28,21 @@ functions:
             parameters:
               paths:
                 id: true
-              querystrings:
-                waitCreation: false
+
+  getPictureDataLocation:
+    handler: handlers/getPictureDataLocation.default
+    events:
+      - http:
+          path: pictures/{id}/datalocation
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-offline

@@ -1,10 +1,12 @@
 export default `
 <h3>
-  A new UGC has been {{editionType}} by <strong>{{userId}}</strong> named <strong>{{username}}</strong> on app <strong>{{appName}}</strong>
+  A new UGC has been {{editionType}} by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>
 </h3>
 <br>
 <h3>Details: </h3>
+{{- ugcDetails}}
 <p>
-  <q>{{data}}</q>
+  You can moderate user generated contents on :
+  <a href="{{globalModerationUrl}}">{{globalModerationUrl}}</a>
 </p>
 `;

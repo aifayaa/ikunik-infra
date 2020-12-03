@@ -7,6 +7,8 @@ import reportedUgcContentEmailHtml from './reportedUgcContentEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
 import emailTemplateCustomers from './emailTemplateCustomers';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
+import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
+import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
 
 export default {
   libsEmail: {
@@ -45,6 +47,10 @@ export default {
     reported_ugc_content_email: {
       html: reportedUgcContentEmailHtml,
       title: 'A User has report an UGC on app {{appName}}',
+    },
+    ugc_user_data_email: {
+      article: ugcDataArticleEmailHtml,
+      comment: ugcDataCommentEmailHtml,
     },
   },
 };
