@@ -12,14 +12,14 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { email, token, password } = JSON.parse(event.body);
+    const { email, token, password, appId: inputAppId } = JSON.parse(event.body);
 
     if (!typeCheck('[String]', [email, token, password])) throw new Error('wrong_argument_type');
     if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
 
     const lang = getUserLanguage(event.headers);
     const { appId } = event.requestContext.authorizer;
-    await resetPassword(email, appId, token, password, lang);
+    await resetPassword(email, inputAppId || appId, token, password, lang);
 
     return response({ code: 200, body: { email, message: 'ok' } });
   } catch (e) {
