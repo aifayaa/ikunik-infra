@@ -62,15 +62,6 @@ export default async (event) => {
       throw new Error('Wrong order syntax, must be a positive integer');
     }
 
-    if (
-      action &&
-      !/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(
-        action,
-      )
-    ) {
-      throw new Error('Wrong url syntax, must be http://www.page.com');
-    }
-
     const results = await postCategory(
       appId,
       name,
