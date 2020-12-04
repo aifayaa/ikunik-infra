@@ -1,9 +1,9 @@
 export default `
 <h3>
-  A content has been reported by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>
+  A comment has been reported by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>
 </h3>
 <br>
-<p><strong>Reported content:</strong></p>
+<p><strong>Details:</strong></p>
 {{- ugcDetails}}
 <p><strong>Reported reason: </strong><q> {{reason}} </q></strong></p>
 <p><strong>Reported details: </strong></p> 

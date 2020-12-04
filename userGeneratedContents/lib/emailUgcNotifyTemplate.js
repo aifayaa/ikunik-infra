@@ -13,23 +13,21 @@ const {
 
 export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) => {
   const client = await MongoClient.connect();
+  const db = client.db(DB_NAME);
   try {
     const [user, app, [ugc]] = await Promise.all([
-      client
-        .db(DB_NAME)
+      db
         .collection(COLL_USERS)
         .findOne({
           _id: userId,
           appIds: appId,
         }, { projection: { 'profile.username': true } }),
-      client
-        .db(DB_NAME)
+      db
         .collection(COLL_APPS)
         .findOne({
           _id: appId,
         }, { projection: { name: true } }),
-      client
-        .db(DB_NAME)
+      db
         .collection(COLL_USER_GENERATED_CONTENTS)
         .aggregate([
           {
@@ -47,7 +45,13 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
             },
           },
           {
-            $project: { data: 1, type: 1, dataPicture: 1 },
+            $project: {
+              data: 1,
+              type: 1,
+              dataPicture: 1,
+              rootParentCollection: 1,
+              rootParentId: 1,
+            },
           },
         ])
         .toArray(),
@@ -58,20 +62,32 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
       ugc.dataPictureUrl = `${REACT_APP_API_URL}/pictures/${ugc.dataPicture._id}/datalocation?appId=${appId}&quality=medium,thumb,large`;
     }
 
+    if (ugc.type === 'comment') {
+      const rootParent = await db
+        .collection(ugc.rootParentCollection)
+        .findOne({ _id: ugc.rootParentId });
+      if (typeof rootParent.data === 'object') {
+        ugc.rootParent = { ...rootParent, ...rootParent.data };
+      } else {
+        ugc.rootParent = rootParent;
+      }
+    }
+
     intlInit(lang);
 
     const editionType = (isEdition ? formatMessage('ugc:edition_type_edited') : formatMessage('ugc:edition_type_posted'));
     return {
-      body: formatMessage('ugc:new_ugc_content_email.html', {
+      body: formatMessage(`ugc:new_ugc_${ugc.type}_email.html`, {
         editionType,
         userId: user._id,
         username: user.profile.username,
         appName: app.name,
         globalModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation`,
         ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
+        user,
         ugc,
       }),
-      subject: formatMessage('ugc:new_ugc_content_email.title', { editionType, appName: app.name }),
+      subject: formatMessage(`ugc:new_ugc_${ugc.type}_email.title`, { editionType, appName: app.name, ugc, user }),
     };
   } finally {
     client.close();

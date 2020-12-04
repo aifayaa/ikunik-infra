@@ -1,10 +1,18 @@
 export default `
 <ul>
-  <li>Titre: {{ugc.data.title}}</li>
+  <li><strong>Titre :</strong> {{ugc.data.title}}</li>
+  <li><strong>Auteur :</strong> {{user.profile.username}}</li>
   <li>
-    Image: <br>
-    <img style="height: 400px;" alt="Image du contenu utilisateur" src="{{ugc.dataPictureUrl}}" />
+    <strong>Image :</strong><br>
+    <a href="{{ugc.dataPictureUrl}}">
+      <img style="height: 400px;" alt="Image du contenu utilisateur" src="{{ugc.dataPictureUrl}}" />
+    </a>
   </li>
-  <li>Contenu: {{ugc.data.content}}</li>
+  <li>
+    <strong>Contenu :</strong><br>
+    <q>
+      {{ugc.data.content}}
+    </q>
+  </li>
 </ul>
 `;

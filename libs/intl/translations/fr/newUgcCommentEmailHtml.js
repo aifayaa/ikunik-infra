@@ -1,6 +1,6 @@
 export default `
 <h3>
-  Un nouveau contenu utilisateur a été {{editionType}} par l'utilisateur <strong title="{{userId}}">{{username}}</strong> sur l'app <strong>{{appName}}</strong>
+  Un nouveau commentaire a été {{editionType}} par l'utilisateur <strong title="{{userId}}">{{username}}</strong> sur l'app <strong>{{appName}}</strong>
 </h3>
 <br>
 <h3>Détails: </h3>

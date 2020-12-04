@@ -1,6 +1,12 @@
 export default `
-<p>
-  <strong>Commentaire :</strong><br>
-  {{ugc.data}}
-</p>
+<ul>
+  <li><strong>Titre de l'article commenté :</strong> {{ugc.rootParent.title}}</li>
+  <li><strong>Auteur du commentaire :</strong> {{user.profile.username}}</li>
+  <li>
+    <strong>Commentaire à modérer :</strong><br>
+    <q>
+      {{ugc.data}}
+    </q>
+  </li>
+</ul>
 `;

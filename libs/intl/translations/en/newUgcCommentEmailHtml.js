@@ -1,6 +1,6 @@
 export default `
 <h3>
-  A new UGC has been {{editionType}} by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>
+  A new comment was {{editionType}} by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>
 </h3>
 <br>
 <h3>Details: </h3>
