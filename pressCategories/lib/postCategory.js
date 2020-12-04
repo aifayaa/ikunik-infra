@@ -3,7 +3,16 @@ import isAvailable from './isAvailable';
 
 const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
 
-export default async (appId, name, pathName, color, picture, order, hidden, action) => {
+export default async (
+  appId,
+  name,
+  pathName,
+  color,
+  picture,
+  order,
+  hidden,
+  action,
+) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 

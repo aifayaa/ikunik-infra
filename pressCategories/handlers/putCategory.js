@@ -18,9 +18,15 @@ export default async (event) => {
       throw new Error('malformed_request');
     }
 
-    const { name, pathName, color, picture, order, hidden, action } = JSON.parse(
-      event.body,
-    );
+    const {
+      name,
+      pathName,
+      color,
+      picture,
+      order,
+      hidden,
+      action,
+    } = JSON.parse(event.body);
 
     if (!categoryId || !name) {
       throw new Error('missing_argument');
@@ -57,7 +63,12 @@ export default async (event) => {
       throw new Error('Wrong order syntax, must be a positive integer');
     }
 
-    if (action && !/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(action)) {
+    if (
+      action &&
+      !/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(
+        action,
+      )
+    ) {
       throw new Error('Wrong url syntax, must be http://www.page.com');
     }
 

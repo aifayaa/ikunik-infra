@@ -43,7 +43,6 @@ export default async (
       category.picture = picture.pop();
     }
 
-
     if (order) {
       ({ order: currentOrder } = await client
         .db(DB_NAME)
