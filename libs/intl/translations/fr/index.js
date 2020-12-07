@@ -42,6 +42,8 @@ export default {
   ugc: {
     edition_type_edited: 'édité',
     edition_type_posted: 'posté',
+    media_type_picture: 'Image',
+    media_type_video: 'Vidéo',
     new_ugc_article_email: {
       html: newUgcArticleEmailHtml,
       title: '[{{- appName}}] Un nouvel article utilisateur a été {{editionType}} avec le titre {{- ugc.data.title}}',

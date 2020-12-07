@@ -3,9 +3,9 @@ export default `
   <li><strong>Titre :</strong> {{ugc.data.title}}</li>
   <li><strong>Auteur :</strong> {{user.profile.username}}</li>
   <li>
-    <strong>Image :</strong><br>
-    <a href="{{ugc.dataPictureUrl}}">
-      <img style="height: 400px;" alt="Image du contenu utilisateur" src="{{ugc.dataPictureUrl}}" />
+    <strong>{{- mediaType}} :</strong><br>
+    <a href="{{ugc.mediaPictureUrl}}">
+      <img style="height: 300px;" alt="Image du contenu utilisateur" src="{{ugc.mediaPictureUrl}}" />
     </a>
   </li>
   <li>

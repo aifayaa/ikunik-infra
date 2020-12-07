@@ -8,6 +8,7 @@ const {
   REACT_APP_PRESS_SERVICE_URL,
   COLL_USER_GENERATED_CONTENTS,
   COLL_PICTURES,
+  COLL_VIDEOS,
   REACT_APP_API_URL,
 } = process.env;
 
@@ -41,14 +42,23 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
               from: COLL_PICTURES,
               localField: 'data.pictures',
               foreignField: '_id',
-              as: 'dataPicture',
+              as: 'dataPictures',
+            },
+          },
+          {
+            $lookup: {
+              from: COLL_VIDEOS,
+              localField: 'data.videos',
+              foreignField: '_id',
+              as: 'dataVideos',
             },
           },
           {
             $project: {
               data: 1,
               type: 1,
-              dataPicture: 1,
+              dataPictures: 1,
+              dataVideos: 1,
               rootParentCollection: 1,
               rootParentId: 1,
             },
@@ -57,9 +67,14 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
         .toArray(),
     ]);
 
-    [ugc.dataPicture] = ugc.dataPicture;
-    if (ugc.dataPicture) {
-      ugc.dataPictureUrl = `${REACT_APP_API_URL}/pictures/${ugc.dataPicture._id}/datalocation?appId=${appId}&quality=medium,thumb,large`;
+    ugc.mediaPictureUrl = '';
+    let mediaType = '';
+    if (ugc.dataPictures && ugc.dataPictures[0]) {
+      ugc.mediaPictureUrl = `${REACT_APP_API_URL}/pictures/${ugc.dataPictures[0]._id}/datalocation?appId=${appId}&quality=medium,thumb,large`;
+      mediaType = '$t(ugc:media_type_picture)';
+    } else if (ugc.dataVideos && ugc.dataVideos[0]) {
+      ugc.mediaPictureUrl = `${REACT_APP_API_URL}/videos/${ugc.dataVideos[0]._id}/thumblocation?appId=${appId}`;
+      mediaType = '$t(ugc:media_type_video)';
     }
 
     if (ugc.type === 'comment') {
@@ -86,6 +101,7 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
         ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
         user,
         ugc,
+        mediaType,
       }),
       subject: formatMessage(`ugc:new_ugc_${ugc.type}_email.title`, { editionType, appName: app.name, ugc, user }),
     };
