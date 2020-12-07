@@ -11,7 +11,7 @@ export default `
   <q>{{details}}</q>
 </p>
 <p>
-  Vous pouvez modérer les contenus de votre application sur :
+  Vous pouvez modérer les contenus de votre application sur :<br>
   <a href="{{globalModerationUrl}}">{{globalModerationUrl}}</a>
 </p>
 `;

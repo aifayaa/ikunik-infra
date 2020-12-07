@@ -6,7 +6,7 @@ export default `
 <h3>Détails: </h3>
 {{- ugcDetails}}
 <p>
-  Vous pouvez modérer les contenus de votre application sur :
+  Vous pouvez modérer les contenus de votre application sur :<br>
   <a href="{{globalModerationUrl}}">{{globalModerationUrl}}</a>
 </p>
 `;
