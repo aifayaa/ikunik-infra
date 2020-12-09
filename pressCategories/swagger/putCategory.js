@@ -49,7 +49,7 @@ export default (libs, output) => {
         false,
         {
           enum: ['tel:', 'https://<url>', 'http://<url>', '/articles/<id>'],
-          example: 'tel:',
+          example: 'http://google.com',
         },
       ),
     }),
