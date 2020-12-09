@@ -48,7 +48,7 @@ custom:
     dev: dev.api.aws.crowdaa.com
     defJam: defjam-api.aws.crowdaa.com
     awax: awax-api.aws.crowdaa.com
-    awaxDev: awax-dev.api.aws.crowdaa.com
+    awaxDev: awax-dev-api.aws.crowdaa.com
 
   adminApp:
     prod: cf72c7c3-ae67-42f9-963c-adc9a3211726
