@@ -13,7 +13,7 @@ export default async (appId, categoryId) => {
   try {
     const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
     const bulk = collection.initializeOrderedBulkOp();
-    const category = collection.findOne(
+    const category = await collection.findOne(
       {
         _id: categoryId,
         appIds: appId,
@@ -22,13 +22,15 @@ export default async (appId, categoryId) => {
     );
     if (!category) throw new Error('category_not_found');
 
-    const childrenCategories = collection.find(
-      {
-        parentId: categoryId,
-        appIds: appId,
-      },
-      { projection: { _id: true } },
-    );
+    const childrenCategories = await collection
+      .find(
+        {
+          parentId: categoryId,
+          appIds: appId,
+        },
+        { projection: { _id: true } },
+      )
+      .toArray();
     if (childrenCategories) {
       throw new Error('category_has_children_categories');
     }
