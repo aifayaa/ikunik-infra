@@ -64,7 +64,7 @@ package:
 custom:
   STRIPE_API_KEY:
     dev: sk_test_wbtCudjJImb2OKWdxR1HvoTr
-    preprod: sk_live_LRPlsPVcghchBVfGKChUTdfV
+    preprod: sk_test_wbtCudjJImb2OKWdxR1HvoTr
     prod: sk_live_LRPlsPVcghchBVfGKChUTdfV
     awax: sk_live_LRPlsPVcghchBVfGKChUTdfV
   MAILGUN_API_KEY:
