@@ -12,6 +12,7 @@ import pressCategories from '../../pressCategories/swagger';
 import pressSearch from '../../pressSearch/swagger';
 import userGeneratedContents from '../../userGeneratedContents/swagger';
 import users from '../../users/swagger';
+import videos from '../../videos/swagger';
 
 const genericSpecs = require('./swagger-config.yaml');
 const devSpecs = require('./swagger-config.development.yaml');
@@ -29,6 +30,7 @@ pressCategories(libs, spec);
 pressSearch(libs, spec);
 userGeneratedContents(libs, spec);
 users(libs, spec);
+videos(libs, spec);
 
 SwaggerUI({
   spec,

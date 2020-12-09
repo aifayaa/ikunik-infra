@@ -26,6 +26,10 @@ provider:
       Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
     - Effect: 'Allow'
       Action:
+        - 's3:*'
+      Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
+    - Effect: 'Allow'
+      Action:
         - elastictranscoder:CreateJob
       Resource: '*'
   environment:
@@ -48,6 +52,20 @@ functions:
       - http:
           path: files
           method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+  deleteFile:
+    handler: handlers/deleteFile.default
+    events:
+      - http:
+          path: files
+          method: delete
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}

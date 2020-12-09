@@ -1,4 +1,4 @@
-service: pictures
+service: videos
 
 provider:
   name: aws
@@ -14,26 +14,11 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  getPicture:
-    handler: handlers/getPicture.default
+  getVideoThumbLocation:
+    handler: handlers/getVideoThumbLocation.default
     events:
       - http:
-          path: pictures/{id}
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              paths:
-                id: true
-
-  getPictureDataLocation:
-    handler: handlers/getPictureDataLocation.default
-    events:
-      - http:
-          path: pictures/{id}/datalocation
+          path: videos/{id}/thumblocation
           method: get
           cors: true
           authorizer:
