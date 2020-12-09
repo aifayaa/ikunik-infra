@@ -1,9 +1,9 @@
 openapi: "3.0.3"
 info:
   version: "2020-11-04T10:36:57Z"
-  title: "dev-api-v1"
+  title: "dev.api-v1"
 servers:
-- url: https://dev-api.aws.crowdaa.com/{basePath}
+- url: https://dev.api.aws.crowdaa.com/{basePath}
   description: Development endpoint
   variables:
     basePath:

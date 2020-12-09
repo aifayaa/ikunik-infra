@@ -8,7 +8,7 @@ usage() {
   echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
   echo "    Deploy all microservices for a STAGE on a REGION"
-  echo "    STAGE can be dev, prod, awax, awaxDev"
+  echo "    STAGE can be dev, preprod, prod, awax, awaxDev"
   echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
   echo "    ALL Set to the value « ALL » to deploy all microservices, even those who are not currently being worked on"
 }
@@ -33,7 +33,7 @@ runNpmCustomDeployFor() {
   cd ..
 }
 
-if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then
+if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then
   usage
   exit 1
 fi
