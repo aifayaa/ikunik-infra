@@ -31,7 +31,7 @@ export default async (appId, categoryId) => {
         { projection: { _id: true } },
       )
       .toArray();
-    if (childrenCategories) {
+    if (childrenCategories.length > 0) {
       throw new Error('category_has_children_categories');
     }
 
