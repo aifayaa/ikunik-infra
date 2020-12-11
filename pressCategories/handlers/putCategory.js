@@ -18,15 +18,21 @@ export default async (event) => {
       throw new Error('malformed_request');
     }
 
-    const { name, pathName, color, picture, order, hidden } = JSON.parse(
-      event.body,
-    );
+    const {
+      name,
+      pathName,
+      color,
+      picture,
+      order,
+      hidden,
+      action,
+    } = JSON.parse(event.body);
 
     if (!categoryId || !name) {
       throw new Error('missing_argument');
     }
 
-    [categoryId, name, pathName, color].forEach((item) => {
+    [categoryId, name, pathName, color, action].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
@@ -66,6 +72,7 @@ export default async (event) => {
       picture,
       order,
       hidden,
+      action,
     );
 
     if (results === false) {
