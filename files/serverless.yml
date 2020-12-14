@@ -36,8 +36,8 @@ provider:
     $<<:
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.yml)}
-    S3_UPLOAD_BUCKET: slsupload-${self:provider.stage}
-    S3_PICTURES_BUCKET: crowdaa-pictures-${self:provider.stage}
+    S3_UPLOAD_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_UPLOAD_BUCKET}
+    S3_PICTURES_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_PICTURES_BUCKET}
     S3_VIDEOS_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_VIDEOS_BUCKET}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}

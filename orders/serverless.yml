@@ -64,13 +64,16 @@ package:
 custom:
   STRIPE_API_KEY:
     dev: sk_test_wbtCudjJImb2OKWdxR1HvoTr
+    preprod: sk_test_wbtCudjJImb2OKWdxR1HvoTr
     prod: sk_live_LRPlsPVcghchBVfGKChUTdfV
     awax: sk_live_LRPlsPVcghchBVfGKChUTdfV
   MAILGUN_API_KEY:
     dev: key-ee8f3c350f56cbe4002b9c00cce04769
+    preprod: key-ee8f3c350f56cbe4002b9c00cce04769
     prod: key-ee8f3c350f56cbe4002b9c00cce04769
     awax: key-ee8f3c350f56cbe4002b9c00cce04769
   MAILGUN_DOMAIN:
     dev: mg.crowdaa.com
+    preprod: mg.crowdaa.com
     prod: mg.crowdaa.com
     awax: mg.crowdaa.com

@@ -11,7 +11,7 @@
     "CloudFront-Is-SmartTV-Viewer": "false",
     "CloudFront-Is-Tablet-Viewer": "false",
     "CloudFront-Viewer-Country": "RE",
-    "Host": "dev-api.aws.crowdaa.com",
+    "Host": "dev.api.aws.crowdaa.com",
     "User-Agent": "curl/7.54.0",
     "Via": "2.0 0a0db3589c5a4e8f4b58345d24c2efd6.cloudfront.net (CloudFront)",
     "X-Amz-Cf-Id": "SCYUKTk_GdxABnVWqtGk-o-T7n-6U-TQN6c1nn1uT8fr9vqHjznzcw==",
@@ -46,7 +46,7 @@
       "RE"
     ],
     "Host": [
-      "dev-api.aws.crowdaa.com"
+      "dev.api.aws.crowdaa.com"
     ],
     "User-Agent": [
       "curl/7.54.0"

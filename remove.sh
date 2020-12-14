@@ -4,11 +4,11 @@ usage() {
   echo "usage : ./remove.sh [STAGE] [REGION]"
   echo ""
   echo "    Remove all microservices for a STAGE deployed on a REGION"
-  echo "    STAGE can be dev, prod, awax, awaxDev"
+  echo "    STAGE can be dev, preprod, prod, awax, awaxDev"
   echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
 }
 
-if ([ "$1" != "dev" ] && [ "$1" != "prod" ] && [ "$1" != "awax" ] && [ "$1" != "awaxDev" ]) || [ -z "$2" ] ; then 
+if ([ "$1" != "dev" ] && [ "$1" != "preprod" ] && [ "$1" != "prod" ] && [ "$1" != "awax" ] && [ "$1" != "awaxDev" ]) || [ -z "$2" ] ; then 
   usage
 fi
 

@@ -6,6 +6,7 @@
   "main": "handler.js",
   "scripts": {
     "deploy:dev": "docker-compose run -e STAGE=dev deploy",
+    "deploy:preprod": "docker-compose run -e STAGE=preprod deploy",
     "deploy:prod": "docker-compose run -e STAGE=prod deploy"
   },
   "dependencies": {

@@ -205,10 +205,12 @@ custom:
   blast:
     text:
       dev: blast-dev-blastText
+      preprod: blast-prod-blastText
       prod: blast-prod-blastText
       awax: blast-prod-blastText
     notif:
       dev: blast-dev-blastNotification
+      preprod: blast-prod-blastNotification
       prod: blast-prod-blastNotification
       awax: blast-prod-blastNotification
 
