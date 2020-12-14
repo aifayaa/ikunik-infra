@@ -5,7 +5,7 @@ const { COLL_PICTURES, COLL_PRESS_CATEGORIES, DB_NAME } = process.env;
 export default async (
   appId,
   showHidden = false,
-  { start, limit, countOnly = false, fetchMaxOrder = false },
+  { start, limit, countOnly = false, fetchMaxOrder = false, parentId = false },
 ) => {
   const client = await MongoClient.connect();
 
@@ -17,13 +17,20 @@ export default async (
       appIds: appId,
       hidden: { $not: { $eq: true } },
     };
+  if (parentId === 'null') {
+    matchHidden.parentId = null;
+  }
+  if (parentId) {
+    matchHidden.parentId = parentId;
+  }
 
   try {
     if (countOnly) {
       const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .find(matchHidden, { _id: 1 }).count();
+        .find(matchHidden, { _id: 1 })
+        .count();
       return { count: categoriesCount };
     }
     if (fetchMaxOrder) {
@@ -31,7 +38,8 @@ export default async (
       const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .find(matchHidden, { _id: 1 }).count();
+        .find(matchHidden, { _id: 1 })
+        .count();
 
       return { count: categoriesCount };
     }
@@ -39,7 +47,8 @@ export default async (
     start = parseInt(start, 10) || 0;
     limit = parseInt(limit, 10) || 10;
 
-    const pipelineSkipLimit = (limit > 0) ? [{ $skip: start }, { $limit: limit }] : [];
+    const pipelineSkipLimit =
+      limit > 0 ? [{ $skip: start }, { $limit: limit }] : [];
 
     const pipeline = [
       { $match: matchHidden },

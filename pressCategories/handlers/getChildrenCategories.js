@@ -4,21 +4,14 @@ import getCategories from '../lib/getCategories';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
-  const {
-    start,
-    limit,
-    countOnly = '',
-    fetchMaxOrder = '',
-  } = event.queryStringParameters || {};
-  const isCountOnly = countOnly.toLowerCase() === 'true';
-  const isFetchMaxOrder = fetchMaxOrder.toLowerCase() === 'true';
+  const { start, limit } = event.queryStringParameters || {};
+  const { id: parentId } = event.pathParameters;
 
   try {
     const results = await getCategories(appId, false, {
       start,
       limit,
-      countOnly: isCountOnly,
-      fetchMaxOrder: isFetchMaxOrder,
+      parentId,
     });
     return response({ code: 200, body: results });
   } catch (e) {
