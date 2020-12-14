@@ -27,7 +27,7 @@ describe('lib - register', () => {
         startSession: spyMongo.startSession,
       };
       stubMongo = sinon.stub(MongoClient, 'connect').returns(fakeClient);
-      stubEmailLib = sinon.stub(sendEmailLib, 'sendEmail');
+      stubEmailLib = sinon.stub(sendEmailLib, 'sendEmailTemplate');
     });
 
     afterEach(() => {
@@ -62,7 +62,7 @@ describe('lib - register', () => {
     const appId = 'app_id';
 
     before(() => {
-      stubEmailLib = sinon.stub(sendEmailLib, 'sendEmail');
+      stubEmailLib = sinon.stub(sendEmailLib, 'sendEmailTemplate');
     });
 
     after(() => {
