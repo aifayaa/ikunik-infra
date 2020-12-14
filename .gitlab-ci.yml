@@ -125,7 +125,7 @@ buildPreprodApiDoc:
   before_script:
     - cd swagger; npm i; cd ..
   script:
-    - cd swagger; npm run build:preprod; cd ..
+    - cd swagger; npm run build:prod; cd ..
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
   artifacts:
