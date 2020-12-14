@@ -3,12 +3,12 @@ info:
   version: "2020-11-04T10:36:57Z"
   title: "dev-api-v1"
 servers:
-- url: https://dev.api.aws.crowdaa.com/{basePath}
+- url: https://dev-api.aws.crowdaa.com/{basePath}
   description: Development endpoint
   variables:
     basePath:
       default: v1
-- url: https://preprod.api.aws.crowdaa.com/{basePath}
+- url: https://preprod-api.aws.crowdaa.com/{basePath}
   description: Pre-production endpoint
   variables:
     basePath:

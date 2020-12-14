@@ -109,7 +109,7 @@ deployDevApiDoc:
   image: python:latest
   stage: deployApiDoc
   variables:
-    S3_BUCKET_NAME: "dev.api.crowdaa.com"
+    S3_BUCKET_NAME: "dev-api.crowdaa.com"
   before_script:
     - pip install awscli
   script:
@@ -137,7 +137,7 @@ deployPreprodApiDoc:
   image: python:latest
   stage: deployApiDoc
   variables:
-    S3_BUCKET_NAME: "preprod.api.crowdaa.com"
+    S3_BUCKET_NAME: "preprod-api.crowdaa.com"
   before_script:
     - pip install awscli
   script:
