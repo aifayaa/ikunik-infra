@@ -28,7 +28,7 @@ doDeploy() {
 
 if [ "$doFullDeploy" = 'true' ]; then
   cp folderList{,.bak}
-  cp api-vi/serverless.yml{,.bak}
+  cp api-v1/serverless.yml{,.bak}
 
   cp deployOrderList folderList
   sed -i -e '/^# remove on first deploy --- START$/,/^# remove  when first deploy --- END$/d' api-v1/serverless.yml
@@ -36,7 +36,7 @@ if [ "$doFullDeploy" = 'true' ]; then
   doDeploy
 
   mv folderList{.bak,}
-  mv api-vi/serverless.yml{.bak,}
+  mv api-v1/serverless.yml{.bak,}
 
   cd api-v1
   npx --node-arg=--max-old-space-size=2000 serverless deploy --stage "$STAGE" --region "$REGION"
