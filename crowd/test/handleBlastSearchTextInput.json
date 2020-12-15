@@ -12,7 +12,7 @@
     "CloudFront-Is-Tablet-Viewer": "false",
     "CloudFront-Viewer-Country": "RE",
     "content-type": "application/x-www-form-urlencoded",
-    "Host": "dev.api.aws.crowdaa.com",
+    "Host": "dev-api.aws.crowdaa.com",
     "User-Agent": "curl/7.54.0",
     "Via": "2.0 eaeb02896a2d60cfeb39bf4d1e8e5932.cloudfront.net (CloudFront)",
     "X-Amz-Cf-Id": "Iy0VpgTcqfKDDnMAidO7_jhfG_qUZxPVs_S73OrAWkCcG6d0dRapPA==",

@@ -44,8 +44,8 @@ custom:
 
   domains:
     prod: api.aws.crowdaa.com
-    preprod: preprod.api.aws.crowdaa.com
-    dev: dev.api.aws.crowdaa.com
+    preprod: preprod-api.aws.crowdaa.com
+    dev: dev-api.aws.crowdaa.com
     defJam: defjam-api.aws.crowdaa.com
     awax: awax-api.aws.crowdaa.com
     awaxDev: awax-dev-api.aws.crowdaa.com

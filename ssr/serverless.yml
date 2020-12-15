@@ -74,8 +74,8 @@ package:
 
 custom:
   domains:
-    dev: dev.ssr.aws.crowdaa.com
-    preprod: preprod.ssr.aws.crowdaa.com
+    dev: dev-ssr.aws.crowdaa.com
+    preprod: preprod-ssr.aws.crowdaa.com
     prod: ssr.aws.crowdaa.com
 
   customDomain:
