@@ -1,8 +1,9 @@
-# TEMP deployment procedure:
+# First deployment :
 # - comment MethodSettings, restApiGatewayDeployment and restApiBasePathMapping on first
 # - deploy api-v1
 # - run deploy script for others MS
 # - uncomment previous then re-deploy api-v1
+# This should now be done automatically using ./serverless-initial-deploy.yml and new changes in ../gitlab-ci and ../deployDiff.sh
 
 service: api-v1
 
@@ -92,7 +93,7 @@ resources:
           Ref: __deployment__
         CacheClusterEnabled: true
         CacheClusterSize: "0.5"
-# comment on first deploy ---START
+# remove on first deploy --- START
         MethodSettings:
           - ResourcePath: "/*"
             CachingEnabled: false
@@ -153,7 +154,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
         Stage: ${self:provider.stage}
-# comment when first deploy ---END
+# remove  when first deploy --- END
 
   Outputs:
     ApiGatewayStage:
