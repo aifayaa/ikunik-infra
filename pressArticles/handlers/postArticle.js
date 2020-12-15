@@ -37,6 +37,7 @@ export default async (event) => {
     let actions;
     let categoryId;
     let feedPicture;
+    let hideFromFeed;
     let html;
     let md;
     let pictures;
@@ -54,6 +55,7 @@ export default async (event) => {
           actions,
           categoryId,
           feedPicture,
+          hideFromFeed,
           md,
           pictures,
           summary,
@@ -123,6 +125,7 @@ export default async (event) => {
       appId,
       categoryId,
       feedPicture,
+      hideFromFeed: !!hideFromFeed,
       html,
       md,
       pictures,

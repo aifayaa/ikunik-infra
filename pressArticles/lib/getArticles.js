@@ -19,7 +19,8 @@ export const getArticles = async (
     onlyPublished = true,
     getPictures = false,
     getOrphansArticles = false,
-    showHidden = false,
+    showWithHiddenCategories = false,
+    showHiddenOnFeed = false,
   },
 ) => {
   let client;
@@ -31,10 +32,14 @@ export const getArticles = async (
     };
 
     if (categoryId) {
+      showHiddenOnFeed = true;
+    }
+
+    if (categoryId) {
       categoriesMatch._id = categoryId;
     }
 
-    if (!showHidden) {
+    if (!showWithHiddenCategories) {
       categoriesMatch.hidden = { $ne: true };
     }
 
@@ -46,26 +51,45 @@ export const getArticles = async (
 
     const categoriesIds = categories
       .filter(
-        (category) => showHidden ||
+        (category) => showWithHiddenCategories ||
           category.hidden === undefined ||
-          category.hidden === showHidden,
+          category.hidden === showWithHiddenCategories,
       )
       .map((category) => category._id);
 
     const matchArticles = {
       appIds: appId,
       /* Find only articles not trashed or trashed undefined */
-      $or: [
+      $and: [
         {
-          trashed: {
-            $exists: false,
-          },
-        },
-        {
-          trashed: false,
+          $or: [
+            {
+              trashed: {
+                $exists: false,
+              },
+            },
+            {
+              trashed: false,
+            },
+          ],
         },
       ],
     };
+
+    if (!showHiddenOnFeed) {
+      matchArticles.$and.push({
+        $or: [
+          {
+            hideFromFeed: {
+              $exists: false,
+            },
+          },
+          {
+            hideFromFeed: false,
+          },
+        ],
+      });
+    }
 
     if (getOrphansArticles) {
       matchArticles.$or.forEach((condition) => {
