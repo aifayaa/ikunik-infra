@@ -252,7 +252,6 @@ resources:
             ]
           ]
         }
-        IdentitySource: method.request.header.X-Amz-Cf-Id, method.request.header.X-Api-Key
         Name: authorizePublicAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
