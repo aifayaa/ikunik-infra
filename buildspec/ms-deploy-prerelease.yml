@@ -3,7 +3,6 @@ version: 0.2
 phases:
   pre_build: 
     commands:
-      - rm -rf package-lock.json
       - npm i
       - cd libs
       - npm i
