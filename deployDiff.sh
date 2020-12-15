@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export STAGE="$1"
+export REGION="$2"
+
 folders="folderList"
 touch fullDeploy
 doFullDeploy=$(cat fullDeploy)
@@ -13,10 +16,10 @@ doDeploy() {
     if [ "$folder" != "libs" ]; then
       cd "$folder"
       if [ "$folder" == "files" ]; then
-        REGION=$2 npm run "deploy:$1"
+        npm run "deploy:$STAGE"
       else
         npm i
-        npx --node-arg=--max-old-space-size=2000 serverless deploy --stage "$1" --region "$2"
+        npx --node-arg=--max-old-space-size=2000 serverless deploy --stage "$STAGE" --region "$REGION"
       fi
       cd ..
     fi
@@ -34,6 +37,11 @@ if [ "$doFullDeploy" = 'true' ]; then
 
   mv folderList{.bak,}
   mv api-vi/serverless.yml{.bak,}
+
+  cd api-v1
+  npx --node-arg=--max-old-space-size=2000 serverless deploy --stage "$STAGE" --region "$REGION"
+  cd ..
+else 
+  doDeploy
 fi
 
-doDeploy
