@@ -5,12 +5,13 @@
   "description": "Crowdaa balance API.",
   "main": "handler.js",
   "scripts": {
-    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000; rm -f .env"
+    "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000"
   },
   "dependencies": {
     "aws-sdk": "^2.605.0",
     "lodash": "^4.17.15",
     "phone": "^2.4.3",
+    "type-check": "^0.4.0",
     "validator": "^12.1.0"
   },
   "devDependencies": {
@@ -20,7 +21,6 @@
     "esm": "^3.2.25",
     "mocha": "^7.0.0",
     "serverless": "^1.61.2",
-    "serverless-export-env": "^1.2.0",
     "serverless-webpack": "^5.3.1",
     "sinon": "^8.1.0",
     "webpack": "^4.41.5"

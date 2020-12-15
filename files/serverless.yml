@@ -26,14 +26,18 @@ provider:
       Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
     - Effect: 'Allow'
       Action:
+        - 's3:*'
+      Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
+    - Effect: 'Allow'
+      Action:
         - elastictranscoder:CreateJob
       Resource: '*'
   environment:
     $<<:
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.yml)}
-    S3_UPLOAD_BUCKET: slsupload-${self:provider.stage}
-    S3_PICTURES_BUCKET: crowdaa-pictures-${self:provider.stage}
+    S3_UPLOAD_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_UPLOAD_BUCKET}
+    S3_PICTURES_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_PICTURES_BUCKET}
     S3_VIDEOS_BUCKET: ${file(./env.${self:provider.stage}.yml):S3_VIDEOS_BUCKET}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
@@ -48,6 +52,20 @@ functions:
       - http:
           path: files
           method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+  deleteFile:
+    handler: handlers/deleteFile.default
+    events:
+      - http:
+          path: files
+          method: delete
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}

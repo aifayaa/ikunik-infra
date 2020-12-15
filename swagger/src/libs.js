@@ -218,6 +218,11 @@ libs.make = {
   },
 };
 
+/**
+ * Returns default response headers
+ */
+libs.defaultRespHeaders = () => defaultRespHeaders;
+
 libs.checks = {
   forMissingAPIs(slsConfig, swaggerConfig) {
     Object.keys(slsConfig.functions).forEach((fnName) => {

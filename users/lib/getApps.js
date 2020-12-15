@@ -1,6 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 
-export default async (userId) => {
+export default async (userId, { sortBy, sortOrder } = {}) => {
   const client = await MongoClient.connect();
   const pipeline = [
     {
@@ -42,12 +42,12 @@ export default async (userId) => {
       },
     },
   ];
-
+  if (sortBy && sortOrder) pipeline.push({ $sort: { [sortBy]: (sortOrder === 'desc' ? 1 : -1) } });
   try {
     const appsOwnedByUser = await client
       .db(process.env.DB_NAME)
       .collection(process.env.COLL_USERS)
-      .aggregate(pipeline)
+      .aggregate(pipeline, { collation: { locale: 'en' } })
       .toArray();
 
     return appsOwnedByUser;

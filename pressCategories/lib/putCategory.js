@@ -12,6 +12,7 @@ export default async (
   picture,
   order,
   hidden,
+  action,
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -31,6 +32,7 @@ export default async (
       name,
       pathName,
       hidden,
+      action,
     };
 
     if (color) {

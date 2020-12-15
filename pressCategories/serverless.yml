@@ -30,6 +30,16 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+  getChildrenCategories:
+    handler: handlers/getCategories.default
+    events:
+      - http:
+          path: press/categories/{id}/children
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
   getCategoriesAdmin:
     handler: handlers/getCategoriesAdmin.default
     events:
@@ -44,7 +54,6 @@ functions:
             parameters:
               headers:
                 Authorization: true
-
   getCategory:
     handler: handlers/getCategory.default
     events:

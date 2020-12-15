@@ -90,7 +90,7 @@ export default async (event) => {
         lang,
         { isEdition: true },
       );
-      await sendEmailToAdmin(subject, body, appId);
+      await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log('Error when sending mail to admin', e);

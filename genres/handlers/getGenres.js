@@ -1,4 +1,3 @@
-
 import getGenres from '../lib/getGenres';
 import response from '../../libs/httpResponses/response';
 

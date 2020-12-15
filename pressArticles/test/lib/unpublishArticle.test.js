@@ -38,6 +38,7 @@ describe('lib - unpublishArticle', () => {
     expect(res.articleId).to.be.a('string');
   });
 
+  // TODO: FIX TEST (Prints an exception)
   it('mongo connection done', () => {
     sinon.assert.calledWith(spyMongo.db, DB_NAME);
     sinon.assert.called(spyMongo.startSession);

@@ -103,8 +103,8 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
       /* create new user */
       const profile = {
         username: fullName.nickname ||
-        (fullName.givenName || fullName.familyName) ?
-          `${fullName.givenName} ${fullName.familyName}`
+        (fullName.givenName || fullName.familyName)
+          ? `${fullName.givenName} ${fullName.familyName}`
           : email.split('@')[0],
       };
 

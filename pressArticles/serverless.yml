@@ -5,6 +5,10 @@ custom:
     NOTIFICATION_STATE_MACHINE_NAME: DevDelayedArticleNotification
     NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevDelayedArticleNotification-role-191bc6ee
     NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:us-east-1:630176884077:function:pressArticles-dev-broadcastArticleNotification
+  preprod:
+    NOTIFICATION_STATE_MACHINE_NAME: PreprodDelayedArticleNotification
+    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodDelayedArticleNotification-role-40903dbe
+    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:us-east-1:630176884077:function:pressArticles-preprod-broadcastArticleNotification
   prod:
     NOTIFICATION_STATE_MACHINE_NAME: ProdDelayedArticleNotification
     NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdDelayedArticleNotification-role-40903dbe

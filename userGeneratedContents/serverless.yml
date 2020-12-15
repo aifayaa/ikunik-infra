@@ -1,12 +1,27 @@
 service: userGeneratedContents
 
+custom:
+  dev:
+    REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
+    REACT_APP_API_URL: https://dev-api.aws.crowdaa.com/v1
+  preprod:
+    REACT_APP_PRESS_SERVICE_URL: https://preprod-blog.crowdaa.com
+    REACT_APP_API_URL: https://preprod-api.aws.crowdaa.com/v1
+  prod:
+    REACT_APP_PRESS_SERVICE_URL: https://blog.crowdaa.com
+    REACT_APP_API_URL: https://api.aws.crowdaa.com/v1
+
 provider:
   name: aws
   runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
-  environment: ${file(../env.yml)}
+  environment:
+    $<<:
+      ${file(../env.yml)}
+    REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.REACT_APP_PRESS_SERVICE_URL}'
+    REACT_APP_API_URL: '${self:custom.${self:provider.stage}.REACT_APP_API_URL}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -179,6 +194,7 @@ functions:
                 id: true
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
   - serverless-offline
   - serverless-webpack
   - serverless-export-env

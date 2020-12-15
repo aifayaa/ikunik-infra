@@ -81,7 +81,7 @@ export default async (event) => {
       default: break;
     }
 
-    const results = await postUserGeneratedContents(
+    const result = await postUserGeneratedContents(
       appId,
       parentId,
       parentCollection,
@@ -109,15 +109,15 @@ export default async (event) => {
       const { subject, body } = await emailTemplate(
         userId,
         appId,
-        { contentId: results._id, data },
+        result._id,
         lang,
       );
-      await sendEmailToAdmin(subject, body, appId);
+      await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log('Error when sending mail to admin', e);
     }
-    return response({ code: 200, body: results });
+    return response({ code: 200, body: result });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }

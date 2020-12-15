@@ -1,0 +1,11 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - cd .
+
+  build:
+    commands:
+      - echo "Stage is not ready yet"
+      # - ./prepare.js prod

@@ -35,7 +35,7 @@ test:
     - npm i
     - cd libs; npm i; cd ..
   script:
-    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test; fi; cd ..; done
+    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test || exit 1; fi; cd ..; done
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
@@ -57,6 +57,23 @@ pushDevToAWS:
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
 
+pushPreprodToAWS:
+  image: python:latest
+  stage: push
+  variables:
+    S3_BUCKET_NAME: "crowdaa-ci/ms/preprod/in"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq zip
+  script:
+    - pip install awscli
+    - git diff --dirstat=files,0 origin/master^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
+    - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
+    - rm -f diffList
+    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
+    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+
 pushProdToAWS:
   image: python:latest
   stage: push
@@ -72,7 +89,7 @@ pushProdToAWS:
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_TAG =~ /^release-.*/i
 
 buildDevApiDoc:
   image: node:12
@@ -92,7 +109,7 @@ deployDevApiDoc:
   image: python:latest
   stage: deployApiDoc
   variables:
-    S3_BUCKET_NAME: "api-dev.crowdaa.com"
+    S3_BUCKET_NAME: "dev-api.crowdaa.com"
   before_script:
     - pip install awscli
   script:
@@ -102,7 +119,7 @@ deployDevApiDoc:
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
 
-buildProdApiDoc:
+buildPreprodApiDoc:
   image: node:12
   stage: buildApiDoc
   before_script:
@@ -111,6 +128,34 @@ buildProdApiDoc:
     - cd swagger; npm run build:prod; cd ..
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
+  artifacts:
+    expire_in: 1 hrs
+    paths:
+      - swagger/dist/
+
+deployPreprodApiDoc:
+  image: python:latest
+  stage: deployApiDoc
+  variables:
+    S3_BUCKET_NAME: "preprod-api.crowdaa.com"
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+  dependencies:
+    - buildPreprodApiDoc
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+
+buildProdApiDoc:
+  image: node:12
+  stage: buildApiDoc
+  before_script:
+    - cd swagger; npm i; cd ..
+  script:
+    - cd swagger; npm run build:prod; cd ..
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^release-.*/i
   artifacts:
     expire_in: 1 hrs
     paths:
@@ -128,4 +173,4 @@ deployProdApiDoc:
   dependencies:
     - buildProdApiDoc
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_TAG =~ /^release-.*/i

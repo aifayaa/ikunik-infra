@@ -23,7 +23,7 @@ export default ({ message, phoneNumber }, cb) => {
     MessageStructure: 'string',
     PhoneNumber: phone(phoneNumber)[0],
   };
-  if (STAGE !== 'dev') return sns.publish(params, cb);
+  if (STAGE !== 'dev' && STAGE !== 'preprod') return sns.publish(params, cb);
   return cb(null, {
     ResponseMetadata: {
       RequestId: AWSId(),

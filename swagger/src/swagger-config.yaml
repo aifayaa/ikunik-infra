@@ -8,6 +8,11 @@ servers:
   variables:
     basePath:
       default: v1
+- url: https://preprod-api.aws.crowdaa.com/{basePath}
+  description: Pre-production endpoint
+  variables:
+    basePath:
+      default: v1
 - url: https://api.aws.crowdaa.com/{basePath}
   description: Production endpoint
   variables:

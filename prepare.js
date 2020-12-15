@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const STAGE = process.argv.pop();
-const AVAILABLE_STAGES = ['dev', 'prod', 'awaxDev', 'awax'];
+const AVAILABLE_STAGES = ['dev', 'preprod', 'prod', 'awaxDev', 'awax'];
 
 if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
   // eslint-disable-next-line no-console

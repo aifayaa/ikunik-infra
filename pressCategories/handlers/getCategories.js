@@ -1,10 +1,15 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import getCategories from '../lib/getCategories';
 import response from '../../libs/httpResponses/response';
+import getCategories from '../lib/getCategories';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
-  const { start, limit, countOnly = '', fetchMaxOrder = '' } = event.queryStringParameters || {};
+  const {
+    start,
+    limit,
+    countOnly = '',
+    fetchMaxOrder = '',
+  } = event.queryStringParameters || {};
   const isCountOnly = countOnly.toLowerCase() === 'true';
   const isFetchMaxOrder = fetchMaxOrder.toLowerCase() === 'true';
 

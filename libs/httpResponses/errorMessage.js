@@ -11,11 +11,12 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'email_already_exists':
       errorCode = 400;
       break;
-    case 'insufficient_user_rights':
     case 'access_forbidden':
+    case 'forbidden':
     case 'forbidden_user':
-    case 'token_expired':
+    case 'insufficient_user_rights':
     case 'token_already_sent':
+    case 'token_expired':
       errorCode = 403;
       break;
     case 'content_not_found':
