@@ -1,6 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 
-export default async (userId, { sortBy, sortOrder }) => {
+export default async (userId, { sortBy, sortOrder } = {}) => {
   const client = await MongoClient.connect();
   const pipeline = [
     {

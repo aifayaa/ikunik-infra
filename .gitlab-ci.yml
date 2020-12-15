@@ -35,7 +35,7 @@ test:
     - npm i
     - cd libs; npm i; cd ..
   script:
-    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test; fi; cd ..; done
+    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test || exit 1; fi; cd ..; done
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"

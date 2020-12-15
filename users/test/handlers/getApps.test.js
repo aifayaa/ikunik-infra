@@ -78,7 +78,7 @@ describe('handler - getApps', () => {
         ...invalidIdEvent,
       });
       responseBody = JSON.parse(response.body);
-      expect(responseBody.message).to.equal('Forbidden');
+      expect(responseBody.message).to.equal('forbidden');
       expect(response.statusCode).to.equal(403);
     });
 
