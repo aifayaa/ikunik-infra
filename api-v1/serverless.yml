@@ -28,7 +28,9 @@ functions:
 plugins:
   - serverless-offline
   - serverless-plugin-bind-deployment-id
-  # - serverless-domain-manager # See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
+## uncomment on first deploy --- START1
+#  - serverless-domain-manager # See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
+## uncomment on first deploy --- END1
   - serverless-webpack
 
 package:
@@ -93,7 +95,7 @@ resources:
           Ref: __deployment__
         CacheClusterEnabled: true
         CacheClusterSize: "0.5"
-# remove on first deploy --- START
+# remove on first deploy --- START1
         MethodSettings:
           - ResourcePath: "/*"
             CachingEnabled: false
@@ -145,16 +147,16 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
         StageName: ${self:provider.stage}
-    restApiBasePathMapping:
-      Type: AWS::ApiGateway::BasePathMapping
-      DependsOn: restApiGatewayDeployment
-      Properties:
-        BasePath: "v1"
-        DomainName: ${self:custom.domains.${self:provider.stage}}
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        Stage: ${self:provider.stage}
-# remove  when first deploy --- END
+    # restApiBasePathMapping:
+    #   Type: AWS::ApiGateway::BasePathMapping
+    #   DependsOn: restApiGatewayDeployment
+    #   Properties:
+    #     BasePath: "v1"
+    #     DomainName: ${self:custom.domains.${self:provider.stage}}
+    #     RestApiId:
+    #       Ref: ApiGatewayRestApi
+    #     Stage: ${self:provider.stage}
+# remove  when first deploy --- END1
 
   Outputs:
     ApiGatewayStage:
