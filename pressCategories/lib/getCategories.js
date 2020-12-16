@@ -17,7 +17,7 @@ export default async (
       appIds: appId,
       hidden: { $not: { $eq: true } },
     };
-  if (parentId === 'null') {
+  if (parentId === null) {
     matchHidden.$or = [{ parentId: { $exists: false } }, { parentId: null }];
   } else if (parentId) {
     matchHidden.parentId = parentId;
