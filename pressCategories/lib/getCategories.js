@@ -18,9 +18,8 @@ export default async (
       hidden: { $not: { $eq: true } },
     };
   if (parentId === 'null') {
-    matchHidden.parentId = null;
-  }
-  if (parentId) {
+    matchHidden.$or = [{ parentId: { $exists: false } }, { parentId: null }];
+  } else if (parentId) {
     matchHidden.parentId = parentId;
   }
 
