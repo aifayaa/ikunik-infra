@@ -46,7 +46,8 @@ if [ "$doFullDeploy" = 'true' ]; then
 
   cp deployOrderList folderList
   sedcmds='/^# remove on first deploy --- START1$/,/^# remove  when first deploy --- END1$/d'
-  sedcmds="$sedcmds;"'/^## uncomment on first deploy --- START1$/,/^## uncomment  when first deploy --- END1$/s/^#//'
+  # Line left here as example, if needed :
+  # sedcmds="$sedcmds;"'/^## uncomment on first deploy --- START1$/,/^## uncomment  when first deploy --- END1$/s/^#//'
   sed -i -e "$sedcmds" api-v1/serverless.yml
 
   doDeploy full
