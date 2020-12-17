@@ -28,9 +28,7 @@ functions:
 plugins:
   - serverless-offline
   - serverless-plugin-bind-deployment-id
-## uncomment on first deploy --- START1
-#  - serverless-domain-manager # See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
-## uncomment on first deploy --- END1
+  - serverless-domain-manager
   - serverless-webpack
 
 package:
@@ -147,6 +145,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
         StageName: ${self:provider.stage}
+    ## See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
     # restApiBasePathMapping:
     #   Type: AWS::ApiGateway::BasePathMapping
     #   DependsOn: restApiGatewayDeployment
