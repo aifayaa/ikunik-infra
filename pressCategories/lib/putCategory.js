@@ -12,6 +12,7 @@ export default async (
   picture,
   order,
   hidden,
+  parentId,
   action,
 ) => {
   /* Mongo client */
@@ -76,6 +77,32 @@ export default async (
       }
 
       category.order = Math.min(order, defaultOrder + 1);
+    }
+
+    if (parentId) {
+      const parentCategory = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .findOne({ _id: parentId });
+      if (!parentCategory) {
+        throw new Error('no_parent_category_found');
+      }
+      if (parentCategory.parentId) {
+        throw new Error('not_root_category');
+      }
+      const hasChildCategories = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .find({ parentId: categoryId }).toArray();
+      if (hasChildCategories.length > 0) {
+        throw new Error('has_already_child_cateogries');
+      }
+      if (parentId === categoryId) {
+        throw new Error('parent_can_not_be_same_category');
+      }
+      category.parentId = parentId;
+    } else {
+      category.parentId = null;
     }
 
     const bulk = client
