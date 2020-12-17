@@ -25,6 +25,7 @@ export default async (event) => {
       picture,
       order,
       hidden,
+      parentId,
       action,
     } = JSON.parse(event.body);
 
@@ -32,7 +33,7 @@ export default async (event) => {
       throw new Error('missing_argument');
     }
 
-    [categoryId, name, pathName, color, action].forEach((item) => {
+    [categoryId, name, pathName, color, parentId, action].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
@@ -72,6 +73,7 @@ export default async (event) => {
       picture,
       order,
       hidden,
+      parentId,
       action,
     );
 

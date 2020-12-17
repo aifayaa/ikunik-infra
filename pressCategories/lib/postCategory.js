@@ -11,6 +11,7 @@ export default async (
   picture,
   order,
   hidden,
+  parentId,
   action,
 ) => {
   /* Mongo client */
@@ -52,10 +53,24 @@ export default async (
       appIds: [appId],
       createdAt: new Date(),
       hidden,
+      parentId: null,
       action,
       // use default if order not valid
       order: Math.min(order || defaultOrder, defaultOrder),
     };
+    if (parentId) {
+      const parentCategory = await client
+        .db(DB_NAME)
+        .collection(COLL_PRESS_CATEGORIES)
+        .findOne({ _id: parentId });
+      if (!parentCategory) {
+        throw new Error('no_parent_category_found');
+      }
+      if (parentCategory.parentId) {
+        throw new Error('not_root_category');
+      }
+      category.parentId = parentId;
+    }
 
     const bulk = client
       .db(DB_NAME)
