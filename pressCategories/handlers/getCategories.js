@@ -15,10 +15,11 @@ export default async (event) => {
 
   try {
     const results = await getCategories(appId, false, {
-      start,
-      limit,
       countOnly: isCountOnly,
       fetchMaxOrder: isFetchMaxOrder,
+      parentId: null,
+      start,
+      limit,
     });
     return response({ code: 200, body: results });
   } catch (e) {

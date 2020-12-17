@@ -7,11 +7,15 @@ const permKey = 'pressCategories_all';
 export default async (event) => {
   const { appId, perms } = event.requestContext.authorizer;
   const permsParsed = JSON.parse(perms);
-  const { parentId = '' } = event.queryStringParameters || {};
+  let { parentId } = event.queryStringParameters || {};
 
   try {
     if (!checkPerms(permKey, permsParsed)) {
       throw new Error('access_forbidden');
+    }
+
+    if (parentId === 'null') {
+      parentId = null;
     }
 
     const results = await getCategories(appId, true, { start: 0, limit: -1, parentId });
