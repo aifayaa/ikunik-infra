@@ -11,19 +11,35 @@ export default async (appId, categoryId) => {
   const client = await MongoClient.connect();
 
   try {
-    const collection = client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_CATEGORIES);
+    const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
     const bulk = collection.initializeOrderedBulkOp();
-    const category = collection.findOne({
-      _id: categoryId,
-      appIds: appId,
-    }, { projection: { order: true } });
+    const category = await collection.findOne(
+      {
+        _id: categoryId,
+        appIds: appId,
+      },
+      { projection: { order: true } },
+    );
     if (!category) throw new Error('category_not_found');
 
-    bulk.find({
-      _id: categoryId,
-    }).removeOne();
+    const childrenCategories = await collection
+      .find(
+        {
+          parentId: categoryId,
+          appIds: appId,
+        },
+        { projection: { _id: true } },
+      )
+      .toArray();
+    if (childrenCategories.length > 0) {
+      throw new Error('category_has_children_categories');
+    }
+
+    bulk
+      .find({
+        _id: categoryId,
+      })
+      .removeOne();
 
     if (category.order) {
       /* ex delete element at 2nd position
@@ -35,13 +51,15 @@ export default async (appId, categoryId) => {
         all values after position 2 must be decreased
         [1, 3=>2, 4=>3, 4=>3, 5=>4]
       */
-      bulk.find({
-        appIds: appId,
-        order: {
-          $gt: category.order,
-          $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
-        },
-      }).update({ $inc: { order: -1 } });
+      bulk
+        .find({
+          appIds: appId,
+          order: {
+            $gt: category.order,
+            $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
+          },
+        })
+        .update({ $inc: { order: -1 } });
     }
 
     const resultDelete = await bulk.execute();
