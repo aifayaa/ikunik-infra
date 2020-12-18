@@ -38,7 +38,7 @@ doDeploy() {
   done
 }
 
-test '!' -d 'node_modules' && npm i || true
+test '!' -d 'node_modules' && npm i && npm run install || true
 
 if [ "$doFullDeploy" = 'true' ]; then
   cp folderList{,"$BACKUP_EXTENSION"}

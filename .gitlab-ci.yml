@@ -14,6 +14,7 @@ eslint:
   before_script:
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
+    - npm run install
   script:
     - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
   rules:
@@ -32,6 +33,7 @@ test:
   before_script:
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
+    - npm run install
   script:
     - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then npm run test || exit 1; fi; cd ..; done
   rules:
@@ -94,6 +96,7 @@ buildDevApiDoc:
   stage: buildApiDoc
   before_script:
     - npm i
+    - npm run install
   script:
     - cd swagger; npm run build; cd ..
   rules:
@@ -122,6 +125,7 @@ buildPreprodApiDoc:
   stage: buildApiDoc
   before_script:
     - npm i
+    - npm run install
   script:
     - cd swagger; npm run build:prod; cd ..
   rules:
@@ -150,6 +154,7 @@ buildProdApiDoc:
   stage: buildApiDoc
   before_script:
     - npm i
+    - npm run install
   script:
     - cd swagger; npm run build:prod; cd ..
   rules:

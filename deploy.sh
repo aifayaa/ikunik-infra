@@ -37,6 +37,7 @@ if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ]
 fi
 
 npm i
+npm run install
 
 # no deps
 runSlsDeployFor 'api-v1'
