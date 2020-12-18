@@ -17,7 +17,6 @@ runSlsDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npm i
   npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" --region "$REGION"
   cd ..
 }
@@ -26,7 +25,6 @@ runNpmCustomDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npm i
   # Uses environment variable "$REGION"
   export REGION
   npm run "deploy:$STAGE"
@@ -38,18 +36,15 @@ if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ]
   exit 1
 fi
 
-# libs
-cd 'libs'
 npm i
-cd ..
 
 # no deps
 runSlsDeployFor 'api-v1'
+runSlsDeployFor 'account'
 runSlsDeployFor 'apps'
 runSlsDeployFor 'admin'
 
 # requires root api only
-runSlsDeployFor 'account'
 runSlsDeployFor 'auth'
 runSlsDeployFor 'maintenance'
 runSlsDeployFor 'ssr'
