@@ -14,5 +14,3 @@ RUN npm i -g serverless
 # working directory
 ADD ./ /microservices
 WORKDIR /microservices/files
-
-RUN npm i
