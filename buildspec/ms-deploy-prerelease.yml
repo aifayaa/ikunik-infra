@@ -4,9 +4,7 @@ phases:
   pre_build: 
     commands:
       - npm i
-      - cd libs
-      - npm i
-      - cd .. 
+      - npm run install
 
   build:
     commands:

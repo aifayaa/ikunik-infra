@@ -98,6 +98,16 @@ functions:
               headers:
                 Authorization: true
 
+custom:
+  MAILGUN_API_KEY:
+    dev: key-ee8f3c350f56cbe4002b9c00cce04769
+    preprod: key-ee8f3c350f56cbe4002b9c00cce04769
+    prod: key-ee8f3c350f56cbe4002b9c00cce04769
+  MAILGUN_DOMAIN:
+    dev: mg.crowdaa.com
+    preprod: mg.crowdaa.com
+    prod: mg.crowdaa.com
+
 plugins:
   - serverless-offline
   - '@cruglobal/serverless-merge-config'

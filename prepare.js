@@ -9,10 +9,13 @@ if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
   process.exit(-1);
 }
 
+// Set options as a parameter, environment variable, or rc file.
+const esmRequire = require('esm')(module/* , options */);
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const yaml = require('js-yaml');
-const { MongoClient } = require('./index');
+
+const { default: MongoClient } = esmRequire('./libs/mongoClient');
 
 (async () => {
   const apiServerlessConfig = fs.readFileSync('./api-v1/serverless.yml', 'utf8');

@@ -15,5 +15,8 @@ services:
       - "REGION=${REGION}"
     command: >
       sh -c '
+      rm -rf node_modules;
+      npm i;
+      npm run install;
       serverless deploy --stage $${STAGE} --region $${REGION:=us-east-1};
       '

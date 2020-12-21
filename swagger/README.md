@@ -6,6 +6,8 @@
 npm install
 ```
 
+If running on root, you may need to also run `npm run install` after it.
+
 ## Building
 
 ```sh

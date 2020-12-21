@@ -14,7 +14,7 @@ eslint:
   before_script:
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
-    - for i in $(<folderList); do echo "install dep in $i";cd $i; npm i; cd ..; done
+    - npm run install
   script:
     - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
   rules:
@@ -33,9 +33,9 @@ test:
   before_script:
     - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
-    - cd libs; npm i; cd ..
+    - npm run install
   script:
-    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then  npm i; npm run test || exit 1; fi; cd ..; done
+    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then npm run test || exit 1; fi; cd ..; done
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
@@ -95,7 +95,8 @@ buildDevApiDoc:
   image: node:12
   stage: buildApiDoc
   before_script:
-    - cd swagger; npm i; cd ..
+    - npm i
+    - npm run install
   script:
     - cd swagger; npm run build; cd ..
   rules:
@@ -123,7 +124,8 @@ buildPreprodApiDoc:
   image: node:12
   stage: buildApiDoc
   before_script:
-    - cd swagger; npm i; cd ..
+    - npm i
+    - npm run install
   script:
     - cd swagger; npm run build:prod; cd ..
   rules:
@@ -151,7 +153,8 @@ buildProdApiDoc:
   image: node:12
   stage: buildApiDoc
   before_script:
-    - cd swagger; npm i; cd ..
+    - npm i
+    - npm run install
   script:
     - cd swagger; npm run build:prod; cd ..
   rules:
