@@ -8,4 +8,4 @@ phases:
 
   build:
     commands:
-      - ./deployDiff.sh prod us-east-1
+      - ./deployDiff.sh prod

@@ -5,6 +5,12 @@ export REGION="$2"
 
 export BACKUP_EXTENSION='.bak'
 
+REGION_ARGS=()
+
+if [ -n "$REGION" ]; then
+  REGION_ARGS=(--region "$REGION")
+fi
+
 folders="folderList"
 doFullDeploy="$CI_FIRST_DEPLOY"
 
@@ -12,7 +18,7 @@ set -e
 
 doServerless() {
   command="$1"
-  npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" --region "$REGION"
+  npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" "${REGION_ARGS[@]}"
 }
 
 doCreateDomain() {

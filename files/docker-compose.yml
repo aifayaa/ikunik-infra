@@ -13,10 +13,4 @@ services:
       - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
       - "STAGE=dev"
       - "REGION=${REGION}"
-    command: >
-      sh -c '
-      rm -rf node_modules;
-      npm i;
-      npm run install;
-      serverless deploy --stage $${STAGE} --region $${REGION:=us-east-1};
-      '
+    command: bash ./docker-deploy.sh

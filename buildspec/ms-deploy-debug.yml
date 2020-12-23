@@ -8,4 +8,4 @@ phases:
 
   build:
     commands:
-      - ./deployDiff.sh dev us-east-1
+      - ./deployDiff.sh dev

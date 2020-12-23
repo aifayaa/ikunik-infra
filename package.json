@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "install": "./install.sh",
-    "deploy:dev": "./deploy.sh dev us-east-1",
-    "deploy:preprod": "./deploy.sh preprod us-east-1",
-    "deploy:prod": "./deploy.sh prod us-east-1",
+    "deploy:dev": "./deploy.sh dev",
+    "deploy:preprod": "./deploy.sh preprod",
+    "deploy:prod": "./deploy.sh prod",
     "deploy:awax": "./deploy.sh awax eu-west-1"
   },
   "dependencies": {
