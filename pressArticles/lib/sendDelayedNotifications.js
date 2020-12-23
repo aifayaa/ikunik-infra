@@ -7,6 +7,7 @@ const {
   NOTIFICATION_STATE_MACHINE_NAME,
   NOTIFICATION_STATE_MACHINE_ROLE,
   NOTIFICATION_STATE_MACHINE_RESOURCE,
+  STATE_MACHINE_REGION,
   STAGE,
 } = process.env;
 
@@ -16,7 +17,9 @@ export const doSendDelayedNotifications = async (
   draftId,
   delay,
 ) => {
-  const stepfunctions = new StepFunctions();
+  const stepfunctions = new StepFunctions({
+    region: STATE_MACHINE_REGION,
+  });
   const stateMachineParams = {
     name: NOTIFICATION_STATE_MACHINE_NAME,
     roleArn: NOTIFICATION_STATE_MACHINE_ROLE,
