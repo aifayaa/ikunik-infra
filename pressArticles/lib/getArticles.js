@@ -102,7 +102,7 @@ export const getArticles = async (
       matchArticles.categoryId = { $in: categoriesIds };
     }
 
-    let sortArticles = { createdAt: -1 };
+    let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
       sortArticles = { publicationDate: -1 };

@@ -30,6 +30,7 @@ export default async (event) => {
       summary,
       title,
       videos,
+      pinned,
     } = bodyParsed;
     let {
       actions,
@@ -67,6 +68,7 @@ export default async (event) => {
       html: mdToHtml(md),
       md,
       pictures,
+      pinned,
       plainText: removeMd(md),
       price: articlePrices[productId],
       productId,

@@ -42,6 +42,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       text,
       title,
       videos,
+      pinned,
     } = draft;
 
     const $set = {
@@ -61,6 +62,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       summary,
       text,
       title,
+      pinned,
       videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
     };
 
