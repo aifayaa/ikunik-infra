@@ -29,12 +29,14 @@ export const postArticle = async ({
   userId,
   videos,
   xml,
+  pinned = false,
 }) => {
   if (
     typeof title !== 'string' ||
     typeof categoryId !== 'string' ||
     typeof summary !== 'string' ||
     typeof html !== 'string' ||
+    typeof pinned !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
     !(['string', 'undefined'].indexOf(typeof xml) + 1) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
@@ -63,6 +65,7 @@ export const postArticle = async ({
       text: html,
       title,
       userId,
+      pinned,
     };
 
     if (storeProductId) {

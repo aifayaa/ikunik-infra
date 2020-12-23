@@ -24,6 +24,7 @@ export const putArticle = async ({
   title,
   userId,
   videos,
+  pinned = false,
 }) => {
   if (
     typeof title !== 'string' ||
@@ -32,6 +33,7 @@ export const putArticle = async ({
     typeof summary !== 'string' ||
     typeof html !== 'string' ||
     typeof md !== 'string' ||
+    typeof pinned !== 'boolean' ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
     (feedPicture && typeof feedPicture !== 'string')
   ) {
@@ -74,6 +76,7 @@ export const putArticle = async ({
       text: html,
       title,
       userId,
+      pinned,
     };
     if (videos) {
       draft.videos = videos;
