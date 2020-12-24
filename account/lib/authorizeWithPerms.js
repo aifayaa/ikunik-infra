@@ -19,7 +19,7 @@ export default async (hashedToken, appId) => {
     };
 
     if (appId) {
-      conds.appIds = { $in: [appId, ADMIN_APP] };
+      conds.appId = { $in: [appId, ADMIN_APP] };
     }
 
     const user = await client

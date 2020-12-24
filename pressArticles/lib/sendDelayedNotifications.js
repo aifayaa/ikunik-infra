@@ -69,7 +69,7 @@ export const doSendDelayedNotifications = async (
     .updateOne(
       {
         _id: articleId,
-        appIds: appId,
+        appId,
       }, {
         $set: {
           pendingNotificationAwsArnId: executionArn,

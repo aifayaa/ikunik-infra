@@ -4,7 +4,7 @@ export default (libs, output) => {
     userId: libs.make.outParam('The author user ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     categoryId: libs.make.outParam('The category ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     actions: libs.make.outParam('An array of actions', 'string', false, { example: [] }),
-    appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
+    appId: libs.make.schemaRef('schemas', 'fieldAppId'),
     createdAt: libs.make.outParam('The article creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
     feedPicture: libs.make.outParam('The article image to show in the news feed, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     pictures: libs.make.schemaArray(libs.make.schemaRef('schemas', 'pictures')),

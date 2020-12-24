@@ -9,7 +9,7 @@ export default (libs, output) => {
     userId: libs.make.outParam('The author user ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     isPublished: libs.make.outParam('The article ID, only when this was published at least once', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     ancestor: libs.make.outParam('The ID of the previous draft, if any', 'string', false, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
-    appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
+    appId: libs.make.schemaRef('schemas', 'fieldAppId'),
     plainText: libs.make.outParam('The article content, as plain text', 'string', true, { example: 'My article' }),
     videos: libs.make.outParam('An array of videos, if any', 'array', false, { example: [] }),
     createdAt: libs.make.outParam('The article creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),

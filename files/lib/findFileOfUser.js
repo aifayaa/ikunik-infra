@@ -13,7 +13,7 @@ export default async (userId, appId, file) => {
     return await client
       .db(DB_NAME)
       .collection(collection)
-      .findOne({ _id: id, fromUserId: userId, appIds: appId });
+      .findOne({ _id: id, fromUserId: userId, appId });
   } finally {
     client.close();
   }

@@ -34,7 +34,7 @@ export default async (userId, appId, ugcId, reason, details, lang) => {
           {
             $match: {
               _id: ugcId,
-              appIds: appId,
+              appId,
             },
           },
           {
