@@ -4,6 +4,7 @@ stages:
   - push
   - buildApiDoc
   - deployApiDoc
+  - prepareDatabase
 
 eslint:
   image: node:12
@@ -180,3 +181,26 @@ deployProdApiDoc:
     - buildProdApiDoc
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-.*/i
+
+preparePreprodDatabase:
+  image: node:12
+  stage: prepareDatabase
+  before_script:
+    - apt update -yq
+    - apt install -yqq openssh-client git
+    - eval $(ssh-agent -s)
+    - echo "$SSH_BOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - 'test -f /.dockerenv && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git config --global user.email "bot@crowdaa.com"
+    - git config --global user.name "Crowdaa Bot"
+    - git clone --depth 1 --branch master git@gitlab.com:crowdaa/crowdaa_utils.git crowdaa_utils
+    - cd crowdaa_utils/js
+    - npm i
+    - cd ../..
+  script:
+    - ./crowdaa_utils/js/bin/cloneDatabase --operation prod_to_preprod --drop --tempDir "$PWD/db-clone-temp"
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/i
+      when: manual
