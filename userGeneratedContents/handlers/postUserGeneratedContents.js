@@ -7,15 +7,24 @@ import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import { getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
-  const userId = event.requestContext.authorizer.principalId;
-  /* Get collection from resource path */
-  let parentCollection = pathToCollection(event.requestContext.resourcePath);
+  const {
+    authorizer,
+    resourcePath,
+  } = event.requestContext;
 
-  if (!event.body) {
-    throw new Error('missing_payload');
-  }
+  const {
+    appId,
+    principalId: userId,
+  } = authorizer;
+
+  /* Get collection from resource path */
+  let parentCollection = pathToCollection(resourcePath);
+
   try {
+    if (!event.body) {
+      throw new Error('missing_payload');
+    }
+
     const bodyParsed = JSON.parse(event.body);
     const {
       parentId,
