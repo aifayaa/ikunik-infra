@@ -60,14 +60,14 @@ export default async (
 
     const project = {
       count: 1,
-      crowd: 1,
     };
-    if (limit !== 0) {
-      project.crowd = { $slice: ['$crowd', (page - 1) * limit, limit] };
+    if (countOnly !== 'true') {
+      project.crowd = 1;
+      if (limit !== 0) {
+        project.crowd = { $slice: ['$crowd', (page - 1) * limit, limit] };
+      }
     }
-    if (countOnly && countOnly === 'true') {
-      project.crowd = 0;
-    }
+
     pipeline.push(
       {
         $sort: {
