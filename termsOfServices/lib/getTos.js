@@ -8,7 +8,7 @@ const {
 
 export const getTos = async (appId, tosId, options = {}) => {
   const query = {
-    appIds: appId,
+    appId,
   };
 
   if (tosId) {

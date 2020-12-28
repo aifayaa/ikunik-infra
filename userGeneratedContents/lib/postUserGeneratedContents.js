@@ -32,7 +32,7 @@ export default async (
       rootParentId,
       rootParentCollection,
       userId,
-      appIds: [appId],
+      appId,
       type,
       data,
       trashed: false,

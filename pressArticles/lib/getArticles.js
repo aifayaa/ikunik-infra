@@ -28,7 +28,7 @@ export const getArticles = async (
     client = await MongoClient.connect();
 
     const categoriesMatch = {
-      appIds: appId,
+      appId,
     };
 
     if (categoryId) {
@@ -58,7 +58,7 @@ export const getArticles = async (
       .map((category) => category._id);
 
     const matchArticles = {
-      appIds: appId,
+      appId,
       /* Find only articles not trashed or trashed undefined */
       $and: [
         {

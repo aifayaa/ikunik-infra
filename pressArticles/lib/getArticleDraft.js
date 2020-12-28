@@ -16,7 +16,7 @@ export const getArticleDraft = async (articleId, appId) => {
         {
           $match: {
             articleId,
-            appIds: appId,
+            appId,
           },
         },
         { $sort: { createdAt: -1 } },

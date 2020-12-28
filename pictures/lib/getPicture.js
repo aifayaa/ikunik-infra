@@ -12,7 +12,7 @@ export default async (id, appId, { isPublished }) => {
   try {
     const $find = {
       _id: id,
-      appIds: appId,
+      appId,
     };
 
     if (typeof isPublished !== 'undefined') {

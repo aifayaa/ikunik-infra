@@ -54,7 +54,7 @@ export const postArticle = async ({
     const article = {
       _id: articleId,
       actions,
-      appIds: [appId],
+      appId,
       categoryId,
       createdAt: new Date(),
       draftId,

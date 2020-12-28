@@ -15,7 +15,7 @@ export const deletePurchasableProduct = async (
   try {
     return await client.db(DB_NAME)
       .collection(COLL_PURCHASABLE_PRODUCT)
-      .deleteOne({ _id: productId, appIds: [appId] });
+      .deleteOne({ _id: productId, appId });
   } finally {
     client.close();
   }

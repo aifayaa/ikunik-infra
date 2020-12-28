@@ -75,7 +75,7 @@ export default async (userId, productId, qty, address, variantId, appId) => {
       qty,
       status: 'pending',
       date: new Date(),
-      appIds: [appId],
+      appId,
     };
 
     /* insert new order in db */

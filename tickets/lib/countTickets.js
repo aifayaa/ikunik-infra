@@ -8,7 +8,7 @@ export default async (categoryId, appId) => {
       .collection(process.env.COLL_TICKETS)
       .countDocuments({
         categoryId,
-        appIds: appId,
+        appId,
       });
     return tickets;
   } finally {

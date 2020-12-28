@@ -8,7 +8,7 @@ export default async (id, appId) => {
       .collection(process.env.COLL_PAYOUTS)
       .findOne({
         _id: id,
-        appIds: appId,
+        appId,
       });
   } finally {
     client.close();

@@ -116,7 +116,7 @@ describe('handlers - getTos', () => {
     before(async () => {
       stubLib = sandbox.stub(lib, 'getTos').returns([{
         _id: 'tosId',
-        appIds: ['crowdaa_app_id'],
+        appId: 'crowdaa_app_id',
       }]);
       response = await handler(event);
     });

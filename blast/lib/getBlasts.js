@@ -12,7 +12,7 @@ export default async (userId, appId, {
   try {
     const selector = {
       fromUser_ID: userId,
-      appIds: appId,
+      appId,
     };
     let sort = {};
 

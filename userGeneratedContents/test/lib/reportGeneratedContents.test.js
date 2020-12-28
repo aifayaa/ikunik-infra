@@ -16,7 +16,7 @@ describe('lib - reportUserGeneratedContents', () => {
   let stubMongo;
   const response = {
     _id: '_id',
-    appIds: ['crowdaa_app_id'],
+    appId: 'crowdaa_app_id',
     createdAt: new Date(),
     details: 'details',
     reason: 'reason',

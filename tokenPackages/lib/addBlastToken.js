@@ -24,7 +24,7 @@ export default async (type, profileId, qty, appId) => {
       .collection(collName)
       .updateOne({
         profil_ID: profileId,
-        appIds: appId,
+        appId,
       }, {
         $inc: {
           balance: Number(qty),
@@ -33,7 +33,7 @@ export default async (type, profileId, qty, appId) => {
           updatedAt: new Date(),
         },
         $addToSet: {
-          appIds: appId,
+          appId,
         },
       }, { upsert: true });
     if (res.upsertedCount === 1 || res.modifiedCount === 1) {

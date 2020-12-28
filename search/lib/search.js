@@ -16,7 +16,7 @@ const searchArtists = (collection, text, appId) => collection.aggregate([
   {
     $match: {
       $text: { $search: text },
-      appIds: appId,
+      appId,
     },
   },
   { $limit: 10 },
@@ -52,7 +52,7 @@ const searchMedia = (collection, text, appId) => collection.aggregate([
   {
     $match: {
       $text: { $search: text },
-      appIds: appId,
+      appId,
     },
   },
   { $limit: 10 },
@@ -83,7 +83,7 @@ export default async (text, appId) => {
   const client = await MongoClient.connect();
   const query = {
     $text: { $search: text },
-    appIds: appId,
+    appId,
   };
   try {
     const results = await Promise.all([

@@ -13,7 +13,7 @@ export default async (id, appId, { isPublished, quality }) => {
   try {
     const $find = {
       _id: id,
-      appIds: appId,
+      appId,
     };
 
     if (!quality) {

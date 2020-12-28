@@ -13,7 +13,7 @@ export default async (_userId, profileId, appId) => {
       .collection(COLL_PROJECTS)
       .find({
         profil_ID: profileId,
-        appIds: appId,
+        appId,
       }).toArray();
     return { projects };
   } finally {

@@ -52,7 +52,7 @@ export default async (userId, appId, files, metadata) => {
       _id: id,
       createdAt: new Date(),
       fromUserId: userId,
-      appIds: [appId],
+      appId,
       isPublished: false,
       status: uploadStatus.UPLOADING,
     };

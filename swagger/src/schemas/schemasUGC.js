@@ -6,7 +6,7 @@ export default (libs, output) => {
     rootParentId: libs.make.outParam('The root parent UGC ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     rootParentCollection: libs.make.outParam('The root parent collection name', 'string', true),
     userId: libs.make.outParam('The user ID of the author', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
-    appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
+    appId: libs.make.schemaRef('schemas', 'fieldAppId'),
     type: libs.make.outParam('The UGC type', 'string', true, { enum: ['comment', 'article'] }),
     data: libs.make.schemaObject({
       title: libs.make.outParam('The article title', 'string', true),

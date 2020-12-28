@@ -14,14 +14,14 @@ export default async (userId, appId) => {
       db.collection(COLL_PROFILES)
         .findOne({
           UserId: userId,
-          appIds: appId,
+          appId,
         }, { projection: { _id: 1 } }),
       db.collection(COLL_USERS)
         .aggregate([
           {
             $match: {
               _id: userId,
-              appIds: appId,
+              appId,
             },
           },
           {

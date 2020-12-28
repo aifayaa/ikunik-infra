@@ -8,7 +8,7 @@ export default async (pack, userId, profileId, appId) => {
       userId,
       profileId,
       date: new Date(),
-      appIds: [appId],
+      appId,
     };
     delete purchase._id;
 

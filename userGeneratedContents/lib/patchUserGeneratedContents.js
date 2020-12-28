@@ -26,7 +26,7 @@ export default async (
       .updateOne(
         {
           _id: userGeneratedContentsId,
-          appIds: appId,
+          appId,
         },
         { $set: userGeneratedContents },
       );

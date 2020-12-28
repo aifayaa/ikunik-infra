@@ -13,7 +13,7 @@ export default async (festivalId, appId) => {
       .collection(COLL_FESTIVALS)
       .findOne({
         _id: festivalId,
-        appIds: appId,
+        appId,
       });
     return festival;
   } finally {

@@ -33,7 +33,7 @@ export const register = async (rawEmail, username, password, lang, appId) => {
           bcrypt: hashed,
         },
       },
-      appIds: [appId],
+      appId,
       profile: {
         username,
       },

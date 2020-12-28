@@ -8,7 +8,7 @@ export default async (subId, appId) => {
       .collection(process.env.COLL_SUBSCRIPTIONS)
       .findOne({
         _id: subId,
-        appIds: appId,
+        appId,
       });
     return sub;
   } finally {

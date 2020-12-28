@@ -8,7 +8,7 @@ export default async (userId, appId) => {
       .collection(process.env.COLL_USERS)
       .updateOne(
         { _id: userId },
-        { $addToSet: { appIds: appId } },
+        { $addToSet: { appId } },
       );
     return value;
   } finally {

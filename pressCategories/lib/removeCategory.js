@@ -16,7 +16,7 @@ export default async (appId, categoryId) => {
     const category = await collection.findOne(
       {
         _id: categoryId,
-        appIds: appId,
+        appId,
       },
       { projection: { order: true } },
     );
@@ -26,7 +26,7 @@ export default async (appId, categoryId) => {
       .find(
         {
           parentId: categoryId,
-          appIds: appId,
+          appId,
         },
         { projection: { _id: true } },
       )
@@ -53,7 +53,7 @@ export default async (appId, categoryId) => {
       */
       bulk
         .find({
-          appIds: appId,
+          appId,
           order: {
             $gt: category.order,
             $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
@@ -70,7 +70,7 @@ export default async (appId, categoryId) => {
       .updateMany(
         {
           categoryId,
-          appIds: appId,
+          appId,
         },
         {
           $set: {

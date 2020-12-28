@@ -16,7 +16,7 @@ export default async (appId, userGeneratedContentsId, {
 
     const $match = {
       _id: userGeneratedContentsId,
-      appIds: appId,
+      appId,
     };
 
     if (moderator) {

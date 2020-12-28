@@ -23,7 +23,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
       .updateOne(
         {
           _id: articleId,
-          appIds: appId,
+          appId,
         },
         {
           $set: {
@@ -39,7 +39,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
       .updateMany(
         {
           articleId,
-          appIds: appId,
+          appId,
         },
         {
           $set: {

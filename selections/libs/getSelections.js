@@ -5,7 +5,7 @@ export default async ({ type, web, mobile, root, appId }) => {
   const client = await MongoClient.connect();
   try {
     const selector = {
-      appIds: appId,
+      appId,
       isPublished: true,
     };
     if (type && ['audio', 'video'].includes(type)) {
