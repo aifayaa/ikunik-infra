@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pkgDirs=$(find -mindepth 2 -maxdepth 2 -name package.json | cut -d'/' -f2)
+pkgDirs=$(find . -mindepth 2 -maxdepth 2 -name package.json | cut -d'/' -f2)
 
 for i in $pkgDirs; do
   src='../node_modules'
