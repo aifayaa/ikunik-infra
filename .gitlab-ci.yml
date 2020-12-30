@@ -132,10 +132,8 @@ incrementVersion:
     - |
       case "$CI_COMMIT_TITLE" in
         "Merge branch 'release/"*)
-          export RELEASE=true;
           export NEW_VERSION=$(npm version minor --no-git-tag-version);;
         *)
-          export HOTFIX=true;
           export NEW_VERSION=$(npm version patch --no-git-tag-version);;
       esac
     - git add package*.json
