@@ -34,11 +34,6 @@ createRelease:
       fi
     - git branch "$BRANCH_NAME"
     - git push -u origin "$BRANCH_NAME"
-  artifacts:
-    paths:
-    - "package.json"
-    - "package-lock.json"
-    - ".env.*"
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       when: manual
