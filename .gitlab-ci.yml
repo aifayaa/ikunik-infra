@@ -86,7 +86,7 @@ eslint:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^(Wip|Draft):/i
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
-    - if: ($CI_COMMIT_BRANCH =~ /^release\/.*/ || $CI_COMMIT_BRANCH == "dev") && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to |^Merge branch '(master|release/.*)' into '?dev'?$/i
+    - if: ($CI_COMMIT_BRANCH =~ /^release\/.*/ || $CI_COMMIT_BRANCH == "dev") && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to |^Merge branch '(master|release\/.*)' into '?dev'?$/i
 
 test:
   image: node:12
