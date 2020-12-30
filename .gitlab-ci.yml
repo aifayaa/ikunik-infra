@@ -147,7 +147,7 @@ incrementVersion:
     - "package.json"
     - "package-lock.json"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to $/i
 
 pushDevToAWS:
   image: python:latest
