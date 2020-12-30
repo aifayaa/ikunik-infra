@@ -25,7 +25,8 @@ createRelease:
     - git remote set-url origin "$SSH_REPOSITORY_URL"
     - git fetch
     - git checkout dev
-    - VERSION=$(node -pe 'require('\"'./package.json'\"').version');
+    - VERSION=$(npm version minor --no-git-tag-version)
+    - git checkout -- package.json package-lock.json
     - BRANCH_NAME="release/$version"
     - |
       if git show-branch "origin/$BRANCH_NAME" >& /dev/null; then
