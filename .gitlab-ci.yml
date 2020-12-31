@@ -70,7 +70,12 @@ eslint:
     paths:
       - node_modules/
   before_script:
-    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - |
+      if [ $CI_PIPELINE_SOURCE = "merge_request_event" ]; then
+        git diff --dirstat=files,0 "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | awk '{ print $2 }' | cut -d'/' -f1 | uniq > folderList
+      else
+        git diff --dirstat=files,0 "origin/$CI_COMMIT_BRANCH"^ | awk '{ print $2 }' | cut -d'/' -f1 | uniq > folderList
+      fi
     - npm i
     - npm run install
   script:
@@ -96,12 +101,11 @@ test:
     paths:
       - node_modules/
   before_script:
-    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
     - npm run install
   script:
     - |
-      for i in $(<folderList); do
+      for i in $(<deployOrderList); do
         echo "Test in $i"
         cd "$i"
         if [ -d ./test ]; then
