@@ -27,7 +27,7 @@ createRelease:
     - git checkout dev
     - VERSION=$(npm version minor --no-git-tag-version)
     - git checkout -- package.json package-lock.json
-    - BRANCH_NAME="release/$version"
+    - BRANCH_NAME="release/$VERSION"
     - |
       if git show-branch "origin/$BRANCH_NAME" >& /dev/null; then
         echo 'This branch already exist, maybe you miss a merge from master?' 1>&2
