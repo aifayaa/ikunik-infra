@@ -169,7 +169,7 @@ pushPreprodToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: "crowdaa-ci/ms/preprod/in"
+    S3_BUCKET_NAME: "crowdaa-ci-fr/ms/preprod/in"
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
