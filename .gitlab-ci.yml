@@ -1,45 +1,151 @@
 stages:
+  - createRelease
+  - prepareDatabase
   - lint
   - test
+  - incrementVersion
   - push
   - buildApiDoc
   - deployApiDoc
-  - prepareDatabase
+
+createRelease:
+  image: node:12
+  stage: createRelease
+  allow_failure: true
+  before_script:
+    - apt update -yq && apt install -yqq openssh-client git
+    - eval $(ssh-agent -s)
+    - echo "$SSH_BOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git config --global user.email "bot@crowdaa.com"
+    - git config --global user.name "Crowdaa Bot"
+  script:
+    - SSH_REPOSITORY_URL=$(echo "${CI_REPOSITORY_URL}" | sed -e 's|https\?://gitlab-ci-token:.*@|ssh://git@|g')
+    - git remote set-url origin "$SSH_REPOSITORY_URL"
+    - git fetch
+    - git checkout dev
+    - VERSION=$(npm version minor --no-git-tag-version)
+    - git checkout -- package.json package-lock.json
+    - BRANCH_NAME="release/$version"
+    - |
+      if git show-branch "origin/$BRANCH_NAME" >& /dev/null; then
+        echo 'This branch already exist, maybe you miss a merge from master?' 1>&2
+        exit 1
+      fi
+    - git branch "$BRANCH_NAME"
+    - git push -u origin "$BRANCH_NAME"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: manual
+
+preparePreprodDatabase:
+  image: node:12
+  stage: prepareDatabase
+  allow_failure: true
+  before_script:
+    - apt update -yq
+    - apt install -yqq openssh-client git
+    - eval $(ssh-agent -s)
+    - echo "$SSH_BOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - 'test -f /.dockerenv && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git config --global user.email "bot@crowdaa.com"
+    - git config --global user.name "Crowdaa Bot"
+    - git clone --depth 1 --branch master git@gitlab.com:crowdaa/crowdaa_utils.git crowdaa_utils
+    - cd crowdaa_utils/js
+    - npm i
+    - cd ../..
+  script:
+    - ./crowdaa_utils/js/bin/cloneDatabase --operation prod_to_preprod --drop --tempDir "$PWD/db-clone-temp"
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/i
+      when: manual
 
 eslint:
   image: node:12
   stage: lint
-  cache:
-    paths:
-      - node_modules/
   before_script:
-    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
+    - |
+      if [ $CI_PIPELINE_SOURCE = "merge_request_event" ]; then
+        git diff --dirstat=files,0 "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | awk '{ print $2 }' | cut -d'/' -f1 | uniq > folderList
+      else
+        git diff --dirstat=files,0 "origin/$CI_COMMIT_BRANCH"^ | awk '{ print $2 }' | cut -d'/' -f1 | uniq > folderList
+      fi
     - npm i
     - npm run install
   script:
-    - for i in $(<folderList);do if [ $i != buildspec ]; then echo "lint in $i";cd $i; ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore ; cd .. ; fi ; done
+    - |
+      for i in $(<folderList); do
+        if [ $i != buildspec ]; then
+          echo "Eslint in $i"
+          cd "$i"
+          ../node_modules/.bin/eslint . --ext .js --ignore-path .gitignore
+          cd ..
+        fi
+      done
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^(Wip|Draft):/i
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
-    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
-  allow_failure: false
+    - if: ($CI_COMMIT_BRANCH =~ /^release\/.*/ || $CI_COMMIT_BRANCH == "dev") && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to |^Merge branch '(master|release\/.*)' into '?dev'?$/i
 
 test:
   image: node:12
   stage: test
-  cache:
-    paths:
-      - node_modules/
   before_script:
-    - git diff --dirstat=files,0 origin/dev^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq > folderList
     - npm i
     - npm run install
   script:
-    - for i in $(<folderList);do echo "lint in $i"; cd $i; if [ -d $(pwd)/test ]; then npm run test || exit 1; fi; cd ..; done
+    - |
+      for i in $(<deployOrderList); do
+        echo "Test in $i"
+        cd "$i"
+        if [ -d ./test ]; then
+          npm run test || exit 1
+        fi
+        cd ..
+      done
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
+
+incrementVersion:
+  image: node:12
+  stage: incrementVersion
+  before_script:
+    - apt update -yq && apt install -yqq openssh-client git
+    - eval $(ssh-agent -s)
+    - echo "$SSH_BOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git config --global user.email "bot@crowdaa.com"
+    - git config --global user.name "Crowdaa Bot"
+  script:
+    - |
+      case "$CI_COMMIT_TITLE" in
+        "Merge branch 'release/"*)
+          export NEW_VERSION=$(npm version minor --no-git-tag-version);;
+        *)
+          export NEW_VERSION=$(npm version patch --no-git-tag-version);;
+      esac
+    - git add package*.json
+    - git checkout master
+    - git commit --allow-empty -m "Auto-upgrade version to $NEW_VERSION"
+    - SSH_REPOSITORY_URL=$(echo "${CI_REPOSITORY_URL}" | sed -e 's|https\?://gitlab-ci-token:.*@|ssh://git@|g')
+    - git remote set-url origin "$SSH_REPOSITORY_URL"
+    - git fetch
+    - git push origin master
+    - git checkout dev
+    - git merge --no-ff master
+    - git push origin dev
+  artifacts:
+    paths:
+    - "package.json"
+    - "package-lock.json"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to /i
 
 pushDevToAWS:
   image: python:latest
@@ -68,14 +174,14 @@ pushPreprodToAWS:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
-    - git diff --dirstat=files,0 origin/master^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
+    - git diff --dirstat=files,0 "origin/$CI_COMMIT_BRANCH"^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
     - if [ "$CI_FORCE_PUSH_TO" = "$CI_COMMIT_BRANCH" ]; then cp deployOrderList folderList; fi
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
 
 pushProdToAWS:
   image: python:latest
@@ -86,14 +192,11 @@ pushProdToAWS:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
-    - git diff --dirstat=files,0 origin/master^ -- . ':(exclude)*package-lock.json' | sort | cut -d'/' -f1 | cut -d'%' -f2 | uniq | cut -d' ' -f2 > diffList
-    - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
-    - rm -f diffList
-    - if [ "$CI_FORCE_PUSH_TO" = "$CI_COMMIT_TAG" ]; then cp deployOrderList folderList; fi
+    - cp deployOrderList folderList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
   rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/i
+    - if: $CI_COMMIT_TAG =~ /^release-.*/
 
 buildDevApiDoc:
   image: node:12
@@ -102,7 +205,9 @@ buildDevApiDoc:
     - npm i
     - npm run install
   script:
-    - cd swagger; npm run build; cd ..
+    - cd swagger
+    - npm run build
+    - cd ..
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       changes:
@@ -137,7 +242,9 @@ buildPreprodApiDoc:
     - npm i
     - npm run install
   script:
-    - cd swagger; npm run build:prod; cd ..
+    - cd swagger
+    - npm run build:prod
+    - cd ..
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
       changes:
@@ -172,9 +279,11 @@ buildProdApiDoc:
     - npm i
     - npm run install
   script:
-    - cd swagger; npm run build:prod; cd ..
+    - cd swagger
+    - npm run build:prod
+    - cd ..
   rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/i
+    - if: $CI_COMMIT_TAG =~ /^release-.*/
       changes:
         - '*/swagger/*'
         - swagger/**/*
@@ -195,30 +304,7 @@ deployProdApiDoc:
   dependencies:
     - buildProdApiDoc
   rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/i
+    - if: $CI_COMMIT_TAG =~ /^release-.*/
       changes:
         - '*/swagger/*'
         - swagger/**/*
-
-preparePreprodDatabase:
-  image: node:12
-  stage: prepareDatabase
-  before_script:
-    - apt update -yq
-    - apt install -yqq openssh-client git
-    - eval $(ssh-agent -s)
-    - echo "$SSH_BOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - 'test -f /.dockerenv && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - git config --global user.email "bot@crowdaa.com"
-    - git config --global user.name "Crowdaa Bot"
-    - git clone --depth 1 --branch master git@gitlab.com:crowdaa/crowdaa_utils.git crowdaa_utils
-    - cd crowdaa_utils/js
-    - npm i
-    - cd ../..
-  script:
-    - ./crowdaa_utils/js/bin/cloneDatabase --operation prod_to_preprod --drop --tempDir "$PWD/db-clone-temp"
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/i
-      when: manual
