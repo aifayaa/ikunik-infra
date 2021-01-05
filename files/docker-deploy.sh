@@ -2,7 +2,6 @@
 
 rm -rf node_modules
 npm i
-npm run install
 
 if [ -n "$REGION" ]; then
   REGION_ARGS=(--region "$REGION")
