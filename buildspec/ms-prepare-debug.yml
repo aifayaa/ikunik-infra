@@ -7,5 +7,5 @@ phases:
 
   build:
     commands:
-      - echo "Stage is not ready yet"
-      # - ./prepare.js prod
+      - npm i
+      - ./prepare.js dev verbose,remove
