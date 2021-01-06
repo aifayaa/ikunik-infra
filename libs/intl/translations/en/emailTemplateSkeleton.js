@@ -7,7 +7,7 @@ export default `
   <body style="text-align: center;">
     <div style="text-align: left; display: inline-block; padding: 10px 20px; background-color: #eee; width: 660px; border-radius: 5px;">
       <div style="text-align: center;">
-        <img alt="Crowdaa logo" src="https://static.wixstatic.com/media/59488b_6ae184faa1c441f890f5e05d0546d46d~mv2.png/v1/fill/w_308,h_116,al_c,q_85,usm_0.66_1.00_0.01/Crowdaa_logocropped-89600685_61964330887.webp" style="width: 200px; margin-top: 10px;" />
+        <img alt="Crowdaa logo" src="http://d1ndui12o2femm.cloudfront.net/Crowdaa%20Emails.png" style="width: 200px; margin-top: 10px;" />
       </div>
       {{- body}}
     </div>
