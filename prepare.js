@@ -7,8 +7,8 @@ const AVAILABLE_STAGES = ['dev', 'preprod', 'prod', 'awaxDev', 'awax'];
 
 if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
   console.log('usage : ./prepare.js [STAGE] [EXTRA]\n');
-  console.log('  STAGE can be dev, prod, awaxDev, awax');
-  console.log('  EXTRA is a comma-separated list of extra operations to do. It can have :');
+  console.log(`  STAGE can be ${AVAILABLE_STAGES.join(', ')}`);
+  console.log('  EXTRA is a comma-separated list of extra operations to do. It may contain :');
   console.log('    - remove : Checks and removes database indexes that we did not list in this script');
   console.log('    - verbose : Display extra information about what is being done');
   console.log('    - dry : Don\'t run any database operation');
@@ -22,38 +22,26 @@ const yaml = require('js-yaml');
 module.require = require('esm')(module/* , options */);
 
 const isEqual = require('lodash/isEqual');
+const omitBy = require('lodash/omitBy');
+const isUndefined = require('lodash/isUndefined');
 const { default: MongoClient } = require('./libs/mongoClient');
 
-function objEquals(obj1, obj2) {
-  if (Object.keys(obj1).length !== Object.keys(obj2).length) {
-    return (false);
-  }
-
-  return !(Object.keys(obj1).some(
-    (k) => (obj1[k] !== obj2[k]),
-  ));
-}
-
+/**
+ * Checks whether the smaller object is included in the bigger one.
+ * We cannot use lodash/isMatch here since we also want to compare undefined values, for example :
+ *     ({ x: undefined }, {})
+ * shall be true, but :
+ *     ({ x: undefined }, { x: 2 })
+ * shall be false. And we need to test for equality, inside the root object. It's because of
+ * the behavior of makeOpts, which returns all possible options, and they all need to be tested.
+ * Deeper tests should be stric equals however, so we can use isEqual.
+ * @param {object} smallObj A smaller object
+ * @param {object} bigObj A bigger object
+ */
 function objInclude(smallObj, bigObj) {
-  if (Object.keys(smallObj).length > Object.keys(bigObj).length) {
-    return (false);
-  }
-
   return !(Object.keys(smallObj).some(
     (k) => !isEqual(smallObj[k], bigObj[k]),
   ));
-}
-
-function removeUndefinedValues(obj) {
-  const ret = {};
-
-  Object.keys(obj).forEach((v) => {
-    if (obj[v] !== undefined) {
-      ret[v] = obj[v];
-    }
-  });
-
-  return (ret);
 }
 
 function makeOpts(...params) {
@@ -108,10 +96,10 @@ async function processCollection(collection, indexSchemas) {
     for (let j = 0; j < collIndexes.length; j += 1) {
       let exists = false;
 
-      if (!objEquals(collIndexes[j].key, { _id: 1 })) {
+      if (!isEqual(collIndexes[j].key, { _id: 1 })) {
         for (let i = 0; i < indexSchemas.length; i += 1) {
           if (
-            objEquals(indexSchemas[i].key, collIndexes[j].key) &&
+            isEqual(indexSchemas[i].key, collIndexes[j].key) &&
             objInclude(indexSchemas[i].opts, collIndexes[j])
           ) {
             exists = true;
@@ -140,11 +128,11 @@ async function processCollection(collection, indexSchemas) {
 
   for (let i = 0; i < indexSchemas.length; i += 1) {
     let found = false;
-    const cleanedOptions = removeUndefinedValues(indexSchemas[i].opts);
+    const cleanedOptions = omitBy(indexSchemas[i].opts, isUndefined);
 
     for (let j = 0; j < collIndexes.length; j += 1) {
       if (
-        objEquals(indexSchemas[i].key, collIndexes[j].key) &&
+        isEqual(indexSchemas[i].key, collIndexes[j].key) &&
         objInclude(indexSchemas[i].opts, collIndexes[j])
       ) {
         found = collIndexes[j];
@@ -226,7 +214,6 @@ async function processCollection(collection, indexSchemas) {
           name: 'crowdaa_appid_facebookid_unique',
           key: { appId: 1, 'services.facebook.id': 1 },
           opts: makeOpts('unique', { partialFilterExpression: {
-            appId: { $exists: true },
             'services.facebook.id': { $exists: true },
           } }),
         },
@@ -234,7 +221,6 @@ async function processCollection(collection, indexSchemas) {
           name: 'crowdaa_appid_instagramid_unique',
           key: { appId: 1, 'services.instagram.id': 1 },
           opts: makeOpts('unique', { partialFilterExpression: {
-            appId: { $exists: true },
             'services.instagram.id': { $exists: true },
           } }),
         },
@@ -242,7 +228,6 @@ async function processCollection(collection, indexSchemas) {
           name: 'crowdaa_appid_twitterid_unique',
           key: { appId: 1, 'services.twitter.id': 1 },
           opts: makeOpts('unique', { partialFilterExpression: {
-            appId: { $exists: true },
             'services.twitter.id': { $exists: true },
           } }),
         },
