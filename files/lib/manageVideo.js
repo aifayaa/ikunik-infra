@@ -7,12 +7,14 @@ import uploadStatus from '../uploadStatus.json';
 const {
   DB_NAME,
   EL_PIPELINE,
+  EL_PIPELINE_REGION,
+  EL_PIPELINE_PRESET,
 } = process.env;
 
 /* Encoding parameters */
 const HLSVideos = [
   /* hls-2M is copied from default one, using HQ thumbnails */
-  { vPath: 'hls-2M', presetId: '1573190421735-3iyjy4' },
+  { vPath: 'hls-2M', presetId: EL_PIPELINE_PRESET },
   /* All other presets are the defaults ones */
   { vPath: 'hls-1.5M', presetId: '1351620000001-200020' },
   { vPath: 'hls-1M', presetId: '1351620000001-200030' },
@@ -79,7 +81,9 @@ export default async (bucket, object, file) => {
       );
 
     /* Proceed to encoding */
-    const elasticTranscoder = new ElasticTranscoder();
+    const elasticTranscoder = new ElasticTranscoder({
+      region: EL_PIPELINE_REGION,
+    });
     const videoPath = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
     const { name } = path.parse(videoPath);
     const params = {
