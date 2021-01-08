@@ -89,6 +89,7 @@ test "x$ALL" = "xALL" && runSlsDeployFor 'projects'
 runSlsDeployFor 'selections'
 test "x$ALL" = "xALL" && runSlsDeployFor 'subscriptions'
 runSlsDeployFor 'perms'
+runSlsDeployFor 'termsOfServices'
 
 # + artists api id
 test "x$ALL" = "xALL" && runSlsDeployFor 'favorites'
