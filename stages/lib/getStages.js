@@ -6,7 +6,7 @@ export default async (appId) => {
     const stages = await client
       .db(process.env.DB_NAME)
       .collection(process.env.COLL_STAGES)
-      .find({ appIds: appId })
+      .find({ appId })
       .toArray();
     return stages;
   } finally {

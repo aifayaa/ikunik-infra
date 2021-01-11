@@ -4,10 +4,8 @@ phases:
   pre_build: 
     commands:
       - npm i
-      - cd libs
-      - npm i
-      - cd .. 
+      - npm run install
 
   build:
     commands:
-      - ./deployDiff.sh preprod us-east-1
+      - ./deployDiff.sh preprod

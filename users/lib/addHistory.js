@@ -8,7 +8,7 @@ export default async (userId, contentId, appId) => {
       {
         $match: {
           _id: contentId,
-          appIds: appId,
+          appId,
         },
       },
       {
@@ -38,7 +38,7 @@ export default async (userId, contentId, appId) => {
           collection: '$collection',
           content_ID: '$content._id',
           content: '$content',
-          appIds: '$appIds',
+          appId: '$appId',
           date: new Date(),
         },
       },
@@ -53,7 +53,7 @@ export default async (userId, contentId, appId) => {
     }
     history._id = ObjectID().toString();
     history.userId = userId;
-    history.appIds = [appId];
+    history.appId = appId;
     await db.collection(process.env.COLL_USER_HISTORY).insert(history);
     return true;
   } finally {

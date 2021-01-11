@@ -47,6 +47,7 @@ export default async (event) => {
     let title;
     let videos;
     let xml;
+    let pinned;
 
     const contentType = event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
@@ -62,6 +63,7 @@ export default async (event) => {
           productId,
           title,
           videos,
+          pinned,
         } = JSON.parse(event.body));
         plainText = removeMd(md);
         html = mdToHtml(md);
@@ -137,6 +139,7 @@ export default async (event) => {
       userId,
       videos,
       xml,
+      pinned,
     });
 
     if (autoPublish === 'true') {

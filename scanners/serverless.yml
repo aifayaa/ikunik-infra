@@ -15,7 +15,7 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       lineup/{id}: ${cf:lineup-${self:provider.stage}.RestApiRootResourceId}
-  region: ${opt:region, "us-east-1"}
+  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
@@ -97,6 +97,16 @@ functions:
                 id: true
               headers:
                 Authorization: true
+
+custom:
+  MAILGUN_API_KEY:
+    dev: key-ee8f3c350f56cbe4002b9c00cce04769
+    preprod: key-ee8f3c350f56cbe4002b9c00cce04769
+    prod: key-ee8f3c350f56cbe4002b9c00cce04769
+  MAILGUN_DOMAIN:
+    dev: mg.crowdaa.com
+    preprod: mg.crowdaa.com
+    prod: mg.crowdaa.com
 
 plugins:
   - serverless-offline

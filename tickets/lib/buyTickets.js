@@ -54,7 +54,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
       .collection(COLL_TICKET_CATEGORIES)
       .findOneAndUpdate({
         _id: categoryId,
-        appIds: appId,
+        appId,
       }, {
         $inc: { sold: 1 },
       }, opts).then((res) => res.value);
@@ -100,7 +100,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
     organisationMail: organisation.email,
     orderDate: moment(curDate).format('DD/MM/YYYY HH:mm'),
     img: lineup.img || 'https://d1m3cwh7hj7lba.cloudfront.net/crowdaa-logos/crowdaa_logo_pink2.png',
-    appIds: [appId],
+    appId,
   };
   try {
     const qrcode = await QRCode.toDataURL(serial, { width: 256 });

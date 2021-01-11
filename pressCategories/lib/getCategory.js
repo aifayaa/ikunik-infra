@@ -11,7 +11,7 @@ export default async (appId, catId) => {
       .aggregate([
         {
           $match: {
-            appIds: appId,
+            appId,
             _id: catId,
           },
         },

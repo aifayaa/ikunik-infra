@@ -21,7 +21,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .findOne({
         articleId,
         _id: draftId,
-        appIds: appId,
+        appId,
       }, opts);
     if (!draft) {
       throw new Error('Not found');
@@ -42,6 +42,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       text,
       title,
       videos,
+      pinned,
     } = draft;
 
     const $set = {
@@ -61,6 +62,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       summary,
       text,
       title,
+      pinned,
       videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
     };
 
@@ -74,7 +76,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .updateOne(
         {
           _id: articleId,
-          appIds: appId,
+          appId,
         }, {
           $set,
         },
@@ -87,7 +89,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .updateMany(
         {
           articleId,
-          appIds: appId,
+          appId,
         },
         {
           $set: {
@@ -103,7 +105,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       .updateOne(
         {
           _id: draftId,
-          appIds: appId,
+          appId,
         },
         {
           $set: {

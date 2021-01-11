@@ -5,6 +5,12 @@ export REGION="$2"
 
 export BACKUP_EXTENSION='.bak'
 
+REGION_ARGS=()
+
+if [ -n "$REGION" ]; then
+  REGION_ARGS=(--region "$REGION")
+fi
+
 folders="folderList"
 doFullDeploy="$CI_FIRST_DEPLOY"
 
@@ -12,7 +18,7 @@ set -e
 
 doServerless() {
   command="$1"
-  npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" --region "$REGION"
+  npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" "${REGION_ARGS[@]}"
 }
 
 doCreateDomain() {
@@ -25,20 +31,20 @@ doDeploy() {
   for folder in $(<$folders)
   do
     echo "___________Deploying $folder ___________"
-    if [ "$folder" != "libs" ]; then
-      cd "$folder"
-      npm i
-      case "$folder" in
-        files) npm run "deploy:$STAGE";;
-        api-v1|ssr)
-          if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
-          doServerless deploy;;
-        *) doServerless deploy;;
-      esac
-      cd ..
-    fi
+    cd "$folder"
+    case "$folder" in
+      libs) echo 'libs folder skipped';;
+      files) npm run "deploy:$STAGE";;
+      api-v1|ssr)
+        if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
+        doServerless deploy;;
+      *) doServerless deploy;;
+    esac
+    cd ..
   done
 }
+
+test '!' -d 'node_modules' && npm i && npm run install || true
 
 if [ "$doFullDeploy" = 'true' ]; then
   cp folderList{,"$BACKUP_EXTENSION"}
@@ -57,7 +63,6 @@ if [ "$doFullDeploy" = 'true' ]; then
 
   cd api-v1
   echo "___________Re-Deploying api-v1 ___________"
-  npm i
   doServerless deploy
   cd ..
 else 

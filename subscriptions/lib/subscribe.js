@@ -25,7 +25,7 @@ export default async (userId, subId, appId) => {
       .db(DB_NAME)
       .collection(COLL_USER_SUBSCRIPTIONS)
       .findOne({
-        appIds: appId,
+        appId,
         expireAt: { $gt: new Date() },
         subscriptionId: subId,
         userId,
@@ -49,7 +49,7 @@ export default async (userId, subId, appId) => {
       subscriptionId: subId,
       createdAt: new Date(),
       amount: price,
-      appIds: [appId],
+      appId,
     };
     const { insertedId } = await client
       .db(DB_NAME)

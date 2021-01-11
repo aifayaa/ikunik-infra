@@ -10,7 +10,7 @@ export default async (userId, subIds, appId) => {
       .db(process.env.DB_NAME)
       .collection(process.env.COLL_USER_SUBSCRIPTIONS)
       .findOne({
-        appIds: appId,
+        appId,
         expireAt: { $gt: new Date() },
         subscriptionId: { $in: subIds },
         userId,

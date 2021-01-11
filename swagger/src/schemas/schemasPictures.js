@@ -4,7 +4,7 @@ export default (libs, output) => {
     createdAt: libs.make.outParam('The image creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
     thumbFileObj_ID: libs.make.outParam('The thumbnail ID, if any', 'string', false),
     profil_ID: libs.make.outParam('The profile ID, if any', 'string', false),
-    appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
+    appId: libs.make.schemaRef('schemas', 'fieldAppId'),
     description: libs.make.outParam('The image description, if any', 'string', true),
     fromUserId: libs.make.outParam('The ID of the user who uploaded it', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
     isPublished: libs.make.outParam('If the picture is published', 'boolean', true),

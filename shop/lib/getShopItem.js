@@ -9,7 +9,7 @@ export default async (itemId, appId) => {
       .findOne({
         _id: itemId,
         status: 'active',
-        appIds: appId,
+        appId,
       });
   } finally {
     client.close();

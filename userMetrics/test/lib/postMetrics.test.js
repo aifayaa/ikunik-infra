@@ -16,7 +16,7 @@ describe('lib - postUserMetrics', () => {
   let stubMongo;
   const response = {
     _id: '_id',
-    appIds: ['crowdaa_app_id'],
+    appId: 'crowdaa_app_id',
     userId: 'userId',
     type: 'type',
     contentId: 'contentId',

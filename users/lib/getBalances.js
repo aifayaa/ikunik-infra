@@ -22,7 +22,7 @@ export default async (profileId, appId) => {
               $filter: {
                 input: '$emailsBalance',
                 as: 'balance',
-                cond: { $in: [appId, '$$balance.appIds'] },
+                cond: { $eq: [appId, '$$balance.appId'] },
               },
             },
           },
@@ -41,7 +41,7 @@ export default async (profileId, appId) => {
               $filter: {
                 input: '$textMessagesBalance',
                 as: 'balance',
-                cond: { $in: [appId, '$$balance.appIds'] },
+                cond: { $eq: [appId, '$$balance.appId'] },
               },
             },
           },
@@ -60,7 +60,7 @@ export default async (profileId, appId) => {
               $filter: {
                 input: '$notificationsBalance',
                 as: 'balance',
-                cond: { $in: [appId, '$$balance.appIds'] },
+                cond: { $eq: [appId, '$$balance.appId'] },
               },
             },
           },

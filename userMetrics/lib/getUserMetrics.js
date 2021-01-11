@@ -13,7 +13,7 @@ export default async (appId, userMetricsId) => {
 
     const $project = {
       _id: 1,
-      appIds: 1,
+      appId: 1,
       type: 1,
       contentId: 1,
       contentCollection: 1,
@@ -44,7 +44,7 @@ export default async (appId, userMetricsId) => {
       {
         $match: {
           _id: userMetricsId,
-          appIds: appId,
+          appId,
           trashed: false,
         },
       },

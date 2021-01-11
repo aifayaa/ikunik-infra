@@ -1,17 +1,18 @@
 import MongoClient from '../../libs/mongoClient';
 
-const {
-  COLL_USER_METRICS,
-  DB_NAME,
-} = process.env;
+const { COLL_USER_METRICS, DB_NAME } = process.env;
 
-export default async (pipeline, {
-  limit = 20,
-  page = 1,
-  sortBy = 'views',
-  sortOrder = 'asc',
-  filterUserInfo = false,
-}) => {
+export default async (
+  pipeline,
+  {
+    limit = 20,
+    page = 1,
+    sortBy = 'views',
+    sortOrder = 'asc',
+    countOnly = false,
+    filterUserInfo = false,
+  },
+) => {
   const client = await MongoClient.connect();
 
   if (page && typeof page !== 'number') {
@@ -46,9 +47,7 @@ export default async (pipeline, {
           hasPhone: {
             $cond: {
               if: {
-                $or: [
-                  { $ifNull: ['$user.profile.phone', false] },
-                ],
+                $or: [{ $ifNull: ['$user.profile.phone', false] }],
               },
               then: true,
               else: false,
@@ -58,10 +57,21 @@ export default async (pipeline, {
         },
       });
     }
+
+    const project = {
+      count: 1,
+    };
+    if (countOnly !== 'true') {
+      project.crowd = 1;
+      if (limit !== 0) {
+        project.crowd = { $slice: ['$crowd', (page - 1) * limit, limit] };
+      }
+    }
+
     pipeline.push(
       {
         $sort: {
-          [sortBy]: (sortOrder === 'asc' ? 1 : -1),
+          [sortBy]: sortOrder === 'asc' ? 1 : -1,
         },
       },
       {
@@ -72,14 +82,12 @@ export default async (pipeline, {
         },
       },
       {
-        $project: {
-          count: 1,
-          crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
-        },
+        $project: project,
       },
     );
 
-    const [result] = await client.db(DB_NAME)
+    const [result] = await client
+      .db(DB_NAME)
       .collection(COLL_USER_METRICS)
       .aggregate(pipeline)
       .toArray();

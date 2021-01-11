@@ -13,7 +13,4 @@ services:
       - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
       - "STAGE=dev"
       - "REGION=${REGION}"
-    command: >
-      sh -c '
-      serverless deploy --stage $${STAGE} --region $${REGION:=us-east-1};
-      '
+    command: bash ./docker-deploy.sh

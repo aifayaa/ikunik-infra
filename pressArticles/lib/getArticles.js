@@ -28,7 +28,7 @@ export const getArticles = async (
     client = await MongoClient.connect();
 
     const categoriesMatch = {
-      appIds: appId,
+      appId,
     };
 
     if (categoryId) {
@@ -58,7 +58,7 @@ export const getArticles = async (
       .map((category) => category._id);
 
     const matchArticles = {
-      appIds: appId,
+      appId,
       /* Find only articles not trashed or trashed undefined */
       $and: [
         {
@@ -102,7 +102,7 @@ export const getArticles = async (
       matchArticles.categoryId = { $in: categoriesIds };
     }
 
-    let sortArticles = { createdAt: -1 };
+    let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
       sortArticles = { publicationDate: -1 };

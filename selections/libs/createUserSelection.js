@@ -38,7 +38,7 @@ export default async (name, userId, parent, appId) => {
       selectionOptionQuery: '{}',
       userId,
       subscriptionIds: subscriptions.map((item) => item._id),
-      appIds: [appId],
+      appId,
     };
     if (parent) {
       const parentSelection = await client
@@ -46,7 +46,7 @@ export default async (name, userId, parent, appId) => {
         .collection(COLL_SELECTIONS)
         .findOne({
           _id: parent,
-          appIds: appId,
+          appId,
         }, {
           rootSelection: 1,
           subscriptionIds: 1,

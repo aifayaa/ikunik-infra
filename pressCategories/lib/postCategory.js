@@ -30,7 +30,7 @@ export default async (
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
         .count({
-          appIds: appId,
+          appId,
           /*
             SAFE_ORDER_NUMBER = 999 is used as a safe position for unordered categories
             mongodb sort null values on top, that's why all categories
@@ -50,7 +50,7 @@ export default async (
       pathName,
       color,
       picture: picture.pop(),
-      appIds: [appId],
+      appId,
       createdAt: new Date(),
       hidden,
       parentId: null,
@@ -88,7 +88,7 @@ export default async (
     */
     bulk
       .find({
-        appIds: appId,
+        appId,
         order: {
           $gte: category.order,
           $lt: SAFE_ORDER_NUMBER,

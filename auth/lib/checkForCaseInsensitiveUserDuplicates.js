@@ -47,7 +47,7 @@ const selectorForFastCaseInsensitiveLookup = (fieldName, string, appId) => {
   const caseInsensitiveClause = {};
   caseInsensitiveClause[fieldName] = new RegExp(`^${escapeRegExp(string)}$`, 'i');
   return {
-    $and: [{ $or: orClause }, caseInsensitiveClause, { appIds: appId }],
+    $and: [{ $or: orClause }, caseInsensitiveClause, { appId }],
   };
 };
 

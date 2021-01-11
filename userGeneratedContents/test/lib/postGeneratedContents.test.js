@@ -21,7 +21,7 @@ describe('lib - postUserGeneratedContents', () => {
     rootParentId: 'rootParentId',
     rootParentCollection: 'rootParentCollection',
     userId: 'userId',
-    appIds: ['crowdaa_app_id'],
+    appId: 'crowdaa_app_id',
     type: 'type',
     data: 'data',
     trashed: false,

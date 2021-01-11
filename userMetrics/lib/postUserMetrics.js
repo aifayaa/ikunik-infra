@@ -23,7 +23,7 @@ export default async (
     /* Prepare the object to insert in the database */
     const userMetrics = {
       _id: ObjectID().toString(),
-      appIds: [appId],
+      appId,
       contentCollection,
       contentId,
       createdAt: new Date(),

@@ -11,7 +11,7 @@ export default async (appId) => {
     const festivals = await client
       .db(DB_NAME)
       .collection(COLL_FESTIVALS)
-      .find({ appIds: appId })
+      .find({ appId })
       .toArray();
     return festivals;
   } finally {

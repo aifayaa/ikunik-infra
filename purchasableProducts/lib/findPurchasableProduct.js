@@ -13,7 +13,7 @@ export const findPurchasableProduct = async (
   } = {},
 ) => {
   const query = {
-    appIds: appId,
+    appId,
     content: [{
       contentCollection,
       contentId,

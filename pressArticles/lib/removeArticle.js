@@ -21,7 +21,7 @@ export const removeArticle = async (_userId, appId, articleId) => {
       .deleteOne(
         {
           _id: articleId,
-          appIds: appId,
+          appId,
         },
         opts,
       );
@@ -32,7 +32,7 @@ export const removeArticle = async (_userId, appId, articleId) => {
       .deleteMany(
         {
           articleId,
-          appIds: appId,
+          appId,
         },
         opts,
       );

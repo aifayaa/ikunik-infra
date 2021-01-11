@@ -4,12 +4,18 @@ STAGE="$1"
 REGION="$2"
 ALL="$3"
 
+REGION_ARGS=()
+
+if [ -n "$REGION" ]; then
+  REGION_ARGS=(--region "$REGION")
+fi
+
 usage() {
   echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
   echo "    Deploy all microservices for a STAGE on a REGION"
   echo "    STAGE can be dev, preprod, prod, awax, awaxDev"
-  echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
+  echo "    REGION can be empty ('') to use the default one, or all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
   echo "    ALL Set to the value « ALL » to deploy all microservices, even those who are not currently being worked on"
 }
 
@@ -17,8 +23,7 @@ runSlsDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npm i
-  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" --region "$REGION"
+  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" "${REGION_ARGS[@]}"
   cd ..
 }
 
@@ -26,7 +31,6 @@ runNpmCustomDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npm i
   # Uses environment variable "$REGION"
   export REGION
   npm run "deploy:$STAGE"
@@ -38,18 +42,16 @@ if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ]
   exit 1
 fi
 
-# libs
-cd 'libs'
 npm i
-cd ..
+npm run install
 
 # no deps
 runSlsDeployFor 'api-v1'
+runSlsDeployFor 'account'
 runSlsDeployFor 'apps'
 runSlsDeployFor 'admin'
 
 # requires root api only
-runSlsDeployFor 'account'
 runSlsDeployFor 'auth'
 runSlsDeployFor 'maintenance'
 runSlsDeployFor 'ssr'

@@ -10,11 +10,9 @@ export default async (
   const client = await MongoClient.connect();
 
   const matchHidden = showHidden
-    ? {
-      appIds: appId,
-    }
+    ? { appId }
     : {
-      appIds: appId,
+      appId,
       hidden: { $not: { $eq: true } },
     };
   if (parentId === null) {

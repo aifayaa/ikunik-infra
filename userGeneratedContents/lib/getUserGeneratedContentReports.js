@@ -22,7 +22,7 @@ export default async (
     /* Query objects */
     const $match = {
       ugcId: userGeneratedContentId,
-      appIds: appId,
+      appId,
     };
     const $sort = { createdAt: -1 };
 

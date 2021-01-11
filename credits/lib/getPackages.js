@@ -11,7 +11,7 @@ export default async (appId) => {
     const packages = await client
       .db(DB_NAME)
       .collection(COLL_CREDIT_PACKAGES)
-      .find({ appIds: appId })
+      .find({ appId })
       .toArray();
     return { packages };
   } finally {

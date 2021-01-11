@@ -9,10 +9,13 @@ if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
   process.exit(-1);
 }
 
+// Set options as a parameter, environment variable, or rc file.
+const esmRequire = require('esm')(module/* , options */);
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const yaml = require('js-yaml');
-const { MongoClient } = require('./index');
+
+const { default: MongoClient } = esmRequire('./libs/mongoClient');
 
 (async () => {
   const apiServerlessConfig = fs.readFileSync('./api-v1/serverless.yml', 'utf8');
@@ -36,11 +39,11 @@ const { MongoClient } = require('./index');
   try {
     promises.push(
       client.db(DB_NAME).collection(COLL_USERS)
-        .createIndex({ username: 1, appIds: 1 }, { unique: true, sparse: true }),
+        .createIndex({ username: 1, appId: 1 }, { unique: true, sparse: true }),
     );
     promises.push(
       client.db(DB_NAME).collection(COLL_USERS)
-        .createIndex({ 'emails.address': 1, appIds: 1 }, { unique: true, sparse: true }),
+        .createIndex({ 'emails.address': 1, appId: 1 }, { unique: true, sparse: true }),
     );
 
     /* Those indexes are from meteor */

@@ -51,7 +51,7 @@ export default async (
         .findOne(
           {
             _id: categoryId,
-            appIds: appId,
+            appId,
           },
           { projection: { order: true } },
         ));
@@ -60,7 +60,7 @@ export default async (
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
         .count({
-          appIds: appId,
+          appId,
           order: { $ne: SAFE_ORDER_NUMBER },
         });
 
@@ -123,7 +123,7 @@ export default async (
         */
         bulk
           .find({
-            appIds: appId,
+            appId,
             order: {
               $gt: currentOrder,
               $lte: category.order,
@@ -143,7 +143,7 @@ export default async (
         */
         bulk
           .find({
-            appIds: appId,
+            appId,
             order: {
               $gte: category.order,
               $lt: currentOrder,
@@ -156,7 +156,7 @@ export default async (
     bulk
       .find({
         _id: categoryId,
-        appIds: appId,
+        appId,
       })
       .updateOne({ $set: category });
 

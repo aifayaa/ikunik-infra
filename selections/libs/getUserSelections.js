@@ -8,7 +8,7 @@ export default async (userId, appId) => {
       .collection(process.env.COLL_SELECTIONS)
       .find({
         userId,
-        appIds: appId,
+        appId,
       })
       .toArray();
 

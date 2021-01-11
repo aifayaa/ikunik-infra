@@ -11,7 +11,7 @@ export default async (userId, artistId, appId, isFavorite) => {
     userId,
     artistId,
     isFavorite,
-    appIds: [appId],
+    appId,
     date: new Date(),
   };
 
@@ -22,7 +22,7 @@ export default async (userId, artistId, appId, isFavorite) => {
       .update({
         userId,
         artistId,
-        appIds: appId,
+        appId,
       }, favoriteData, { upsert: true });
     return true;
   } finally {

@@ -10,7 +10,7 @@ export default async (name, addr, appId) => {
   try {
     const stage = {
       _id: stageId,
-      appIds: [appId],
+      appId,
       name,
       addr,
     };

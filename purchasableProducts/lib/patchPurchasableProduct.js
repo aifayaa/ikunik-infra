@@ -62,7 +62,7 @@ export const patchPurchasableProduct = async (
     const { matchedCount, modifiedCount } = await client.db(DB_NAME)
       .collection(COLL_PURCHASABLE_PRODUCT)
       .updateOne(
-        { _id: productId, appIds: [appId] },
+        { _id: productId, appId },
         { $set },
       );
 

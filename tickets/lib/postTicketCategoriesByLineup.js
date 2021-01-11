@@ -41,7 +41,7 @@ export default async (
       startSale: new Date(startSale),
       endSale: new Date(endSale),
       createdAt: new Date(),
-      appIds: [appId],
+      appId,
     };
     await client
       .db(process.env.DB_NAME)

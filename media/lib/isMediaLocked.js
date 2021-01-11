@@ -23,23 +23,23 @@ export default async (userId, appId, medium) => {
       db.collection('deadlines').findOne({
         content_ID: mediumId,
         userId,
-        appIds: appId,
+        appId,
       }),
       db.collection('views').findOne({
         userID: userId,
         content_ID: mediumId,
-        appIds: appId,
+        appId,
       }),
       db.collection('unlocks').count({
         userId,
         content_ID: mediumId,
         date: { $gte: lastday },
-        appIds: appId,
+        appId,
       }),
       db.collection('purchases').count({
         'purchase.userId': userId,
         'purchase.audios._id': mediumId,
-        appIds: appId,
+        appId,
       }),
     ]);
 

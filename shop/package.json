@@ -5,7 +5,7 @@
   "description": "Crowdaa shop API.",
   "main": "handler.js",
   "dependencies": {
-    "aws-sdk": "^2.605.0",
+    "aws-sdk": "^2.749.0",
     "lodash": "^4.17.15",
     "request": "^2.88.0",
     "uuid": "^3.4.0",
@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "serverless": "^1.61.2",
-    "serverless-webpack": "^5.3.1",
+    "serverless-webpack": "^5.3.3",
     "webpack": "^4.41.5"
   },
   "author": "Crowdaa",

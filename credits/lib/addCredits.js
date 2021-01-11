@@ -21,14 +21,14 @@ export default async (userID, appId, amount, opts = {}) => {
     await client.db(DB_NAME).collection(COLL_CREDITS)
       .findOneAndUpdate({
         userID,
-        appIds: appId,
+        appId,
       }, {
         $inc: {
           credits: Number(amount),
         },
         $set: {
           updatedAt: new Date(),
-          appIds: [appId],
+          appId,
         },
       }, opts);
     jsConsole.info(`${amount} credits added to ${userID}`);

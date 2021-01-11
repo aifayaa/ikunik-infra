@@ -10,7 +10,7 @@ export default async (ticketId, appId, withSerial) => {
       .collection(process.env.TICKETS)
       .findOne({
         _id: ticketId,
-        appIds: appId,
+        appId,
       }, { projection });
   } finally {
     client.close();

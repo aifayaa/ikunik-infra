@@ -16,7 +16,7 @@ export default async (categoryId, appId) => {
         {
           $match: {
             _id: categoryId,
-            appIds: appId,
+            appId,
           },
         }, {
           $lookup: {

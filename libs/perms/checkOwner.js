@@ -21,7 +21,7 @@ export default async (
   try {
     const findObj = {
       _id: objId,
-      appIds: appId,
+      appId,
     };
 
     if (options.useTrashedField) {

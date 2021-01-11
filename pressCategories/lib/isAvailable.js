@@ -7,7 +7,7 @@ export default async (mongoClient, appId, name, pathName, id) => {
   /* Request for categories having the same appId and name or pathName */
   const queryExists = {
     $or: [{ name }],
-    appIds: appId,
+    appId,
   };
   if (pathName) queryExists.$or.push({ pathName });
   if (id) queryExists._id = { $ne: id };

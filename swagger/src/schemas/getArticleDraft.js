@@ -17,10 +17,10 @@ export default (libs, output) => {
         username: libs.make.outParam('The nickname of the author', 'string', true, { example: 'Foo' }),
       }),
     }),
-    appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
+    appId: libs.make.schemaRef('schemas', 'fieldAppId'),
     category: libs.make.schemaObject({
       _id: libs.make.outParam('The category ID', 'string', true, { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }),
-      appIds: libs.make.schemaRef('schemas', 'fieldAppIds'),
+      appId: libs.make.schemaRef('schemas', 'fieldAppId'),
       color: libs.make.outParam('The category color, can be null', 'string', false, { example: '#07cafe' }),
       createdAt: libs.make.outParam('The category creation date', 'string', true, { example: '1970-12-31T23:59:59.000Z' }),
       name: libs.make.outParam('The category name', 'string', true, { example: '#07cafe' }),

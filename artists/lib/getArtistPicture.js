@@ -15,7 +15,7 @@ export default async (artistId, appId) => {
         artist_ID: artistId,
         iconeThumbFileUrl: { $exists: true },
         projectIsValidated: true,
-        appIds: appId,
+        appId,
       }, {
         sort: { createdAt: -1 },
       });

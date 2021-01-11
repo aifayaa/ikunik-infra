@@ -33,7 +33,7 @@ export default async (
         .collection(COLL_USER_METRICS)
         .updateMany(
           {
-            appIds: appId,
+            appId,
             deviceId,
             userId: null,
           },

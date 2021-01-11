@@ -27,7 +27,7 @@ export const getPurchasedArticles = async (
     client = await MongoClient.connect();
 
     const $match = {
-      appIds: appId,
+      appId,
       /* Find only articles not trashed or trashed undefined */
       $or: [
         {
