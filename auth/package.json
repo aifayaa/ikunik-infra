@@ -11,6 +11,7 @@
     "async": "3.1.0",
     "aws-sdk": "^2.749.0",
     "bcryptjs": "^2.4.3",
+    "jose": "^2.0.3",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.7.0",
     "lodash": "^4.17.15",

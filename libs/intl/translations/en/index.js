@@ -1,6 +1,7 @@
 import addressConfirmationEmailHtml from './addressConfirmationEmailHtml';
 import forgotPasswordEmailHtml from './forgotPasswordEmailHtml';
 import passwordResetEmailHtml from './passwordResetEmailHtml';
+import siwaPeriodicRenewalHtml from './siwaPeriodicRenewalHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
 import newUgcArticleEmailHtml from './newUgcArticleEmailHtml';
 import newUgcCommentEmailHtml from './newUgcCommentEmailHtml';
@@ -8,6 +9,7 @@ import reportedUgcArticleEmailHtml from './reportedUgcArticleEmailHtml';
 import reportedUgcCommentEmailHtml from './reportedUgcCommentEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
 import emailTemplateCustomers from './emailTemplateCustomers';
+import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
@@ -16,6 +18,7 @@ export default {
   libsEmail: {
     template_clients: emailTemplateClients,
     template_customers: emailTemplateCustomers,
+    template_internal: emailTemplateInternal,
     template_skeleton: emailTemplateSkeleton,
   },
   apps: {
@@ -37,6 +40,16 @@ export default {
     password_reset_email: {
       html: passwordResetEmailHtml,
       title: 'Password has been reset',
+    },
+    /* This block is defined in english only for now, since we have no use for an other language. */
+    siwa_periodic_renewal: {
+      global_error: 'Error during general Apple SIWA token renewal : {{error}}',
+      html: siwaPeriodicRenewalHtml,
+      list_line_error: '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}<br><b>Reason</b>: {{reason}}',
+      list_line_success: '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}',
+      title: '[{{stage}}] SIWA periodic renewal summary',
+      title_error: '<h4>Failed renewals</h4>',
+      title_success: '<h4>Successful renewals</h4>',
     },
   },
   ugc: {
