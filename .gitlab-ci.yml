@@ -109,7 +109,7 @@ test:
       done
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
+    - if: ($CI_COMMIT_BRANCH =~ /^release\/.*/ || $CI_COMMIT_BRANCH == "dev") && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to |^Merge branch '(master|release\/.*)' into '?dev'?$/i
 
 incrementVersion:
   image: node:12
@@ -246,7 +246,7 @@ buildPreprodApiDoc:
     - npm run build:prod
     - cd ..
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
       changes:
         - '*/swagger/*'
         - swagger/**/*
@@ -267,7 +267,7 @@ deployPreprodApiDoc:
   dependencies:
     - buildPreprodApiDoc
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
       changes:
         - '*/swagger/*'
         - swagger/**/*
