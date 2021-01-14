@@ -13,8 +13,8 @@ export default async (hashedToken, appId) => {
   try {
     const conds = {
       $or: [
-        { 'services.resume.loginTokens': { $elemMatch: { hashedToken } } },
-        { 'services.apiTokens': { $elemMatch: { hashedToken } } },
+        { 'services.resume.loginTokens.hashedToken': hashedToken },
+        { 'services.apiTokens.hashedToken': hashedToken },
       ],
     };
 
