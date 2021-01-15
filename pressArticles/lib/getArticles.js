@@ -105,7 +105,7 @@ export const getArticles = async (
     let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
-      sortArticles = { publicationDate: -1 };
+      sortArticles = { pinned: -1, publicationDate: -1 };
       matchArticles.isPublished = true;
       matchArticles.$or = [
         {
