@@ -16,7 +16,7 @@ export default (libs, output) => {
       'string',
       false,
       {
-        enum: ['tel:', 'https://<url>', 'http://<url>', '/articles/<id>'],
+        enum: ['tel:', 'https://<url>', 'http://<url>', '/articles/<id>', 'mailto:'],
         example: 'http://google.com',
       },
     ),
