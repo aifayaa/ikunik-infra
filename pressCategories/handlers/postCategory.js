@@ -2,6 +2,7 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import postCategory from '../lib/postCategory';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
+import { actionRegexp } from '../utils/regexp';
 
 const permKey = 'pressCategories_all';
 
@@ -61,6 +62,12 @@ export default async (event) => {
 
     if (order && (!Number.isInteger(order) || order < 1)) {
       throw new Error('Wrong order syntax, must be a positive integer');
+    }
+
+    if (action) {
+      if (!actionRegexp.test(action)) {
+        throw new Error('invalid_action_url');
+      }
     }
 
     const results = await postCategory(
