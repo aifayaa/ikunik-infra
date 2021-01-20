@@ -5,6 +5,7 @@ import response from '../../libs/httpResponses/response';
 const {
   COLL_VIDEOS,
   DB_NAME,
+  REGION,
   STAGE,
 } = process.env;
 
@@ -42,7 +43,7 @@ export default async (event) => {
     // this should be done in a better way ..
     const thumbFilename = '00001.png';
     const thumbUrl = `https://crowdaa-pictures-${STAGE}.s3.amazonaws.com/${outputKeyPrefix}${thumbFilename}`;
-    const url = `https://s3.amazonaws.com/video-stream-${STAGE}.crowdaa.com/${outputKeyPrefix}master.m3u8`;
+    const url = `https://s3.${REGION}.amazonaws.com/video-stream-${STAGE}.crowdaa.com/${outputKeyPrefix}master.m3u8`;
     const videoDoc = {
       filename: name,
       isPublished: true,
