@@ -83,6 +83,7 @@ export default async (bucket, object, file) => {
     /* Proceed to encoding */
     const elasticTranscoder = new ElasticTranscoder({
       region: EL_PIPELINE_REGION,
+      endpoint: `https://elastictranscoder.${EL_PIPELINE_REGION}.amazonaws.com`,
     });
     const videoPath = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
     const { name } = path.parse(videoPath);
