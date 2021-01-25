@@ -14,7 +14,7 @@ let transport = null;
 export const sendEmailTemplate = async (lang, template, to, subject, content) => {
   intlInit(lang);
 
-  if (['clients', 'customers'].indexOf(template) < 0) {
+  if (['clients', 'customers', 'internal'].indexOf(template) < 0) {
     throw new Error('Invalid template argument to sendEmail()');
   }
 

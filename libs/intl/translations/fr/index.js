@@ -8,6 +8,7 @@ import reportedUgcArticleEmailHtml from './reportedUgcArticleEmailHtml';
 import reportedUgcCommentEmailHtml from './reportedUgcCommentEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
 import emailTemplateCustomers from './emailTemplateCustomers';
+import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
@@ -16,6 +17,7 @@ export default {
   libsEmail: {
     template_clients: emailTemplateClients,
     template_customers: emailTemplateCustomers,
+    template_internal: emailTemplateInternal,
     template_skeleton: emailTemplateSkeleton,
   },
   apps: {
