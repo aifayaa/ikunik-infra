@@ -49,7 +49,6 @@ export default async (appId, categoryId) => {
         .update({ $inc: { order: -1 } });
     }
 
-
     bulk
       .find({
         _id: categoryId,
