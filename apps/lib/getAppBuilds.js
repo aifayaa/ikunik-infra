@@ -20,8 +20,10 @@ export default async (appId) => {
             'builds.ios.iosAppId': 1,
             'builds.ios.packageId': 1,
             'builds.ios.platform': 1,
+            'builds.ios.deployed': 1,
             'builds.android.packageId': 1,
             'builds.android.platform': 1,
+            'builds.android.deployed': 1,
           },
         },
       );
