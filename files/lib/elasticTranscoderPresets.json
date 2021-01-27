@@ -1,0 +1,83 @@
+{
+  "dev": [
+    {
+      "vPath": "hls-2M",
+      "presetId": "1611653107710-do1pi5",
+      "thumbnailName": "thumbnail-hq-{count}"
+    },
+    {
+      "vPath": "hls-1.5M",
+      "presetId": "1611653541202-6nsxec",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-1M",
+      "presetId": "1611653541112-966lrq",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-600k",
+      "presetId": "1611653541206-ur4u3r",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-400k",
+      "presetId": "1611653541118-j99cw1",
+      "thumbnailName": ""
+    }
+  ],
+  "preprod": [
+    {
+      "vPath": "hls-2M",
+      "presetId": "1611722397442-e08s1i",
+      "thumbnailName": "thumbnail-hq-{count}"
+    },
+    {
+      "vPath": "hls-1.5M",
+      "presetId": "1611722397393-k5ogys",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-1M",
+      "presetId": "1611722397423-0austm",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-600k",
+      "presetId": "1611722397387-30pkas",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-400k",
+      "presetId": "1611722397496-1sqxpg",
+      "thumbnailName": ""
+    }
+  ],
+  "prod": [
+    {
+      "vPath": "hls-2M",
+      "presetId": "1611722864799-4l19gj",
+      "thumbnailName": "thumbnail-hq-{count}"
+    },
+    {
+      "vPath": "hls-1.5M",
+      "presetId": "1611722833698-wkamad",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-1M",
+      "presetId": "1611722803711-7ehwsx",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-600k",
+      "presetId": "1611722730315-tjdwtv",
+      "thumbnailName": ""
+    },
+    {
+      "vPath": "hls-400k",
+      "presetId": "1611722770525-nz0rkr",
+      "thumbnailName": ""
+    }
+  ]
+}
