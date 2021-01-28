@@ -247,6 +247,27 @@ async function processCollection(collection, indexSchemas) {
           },
           opts: makeOpts(),
         },
+        {
+          name: 'crowdaa_login_hashtoken_unique',
+          key: { appId: 1, 'services.resume.loginTokens.hashedToken': 1 },
+          opts: makeOpts('unique', { partialFilterExpression: {
+            'services.resume.loginTokens.hashedToken': { $exists: true },
+            appId: { $exists: true },
+          } }),
+        },
+        {
+          name: 'crowdaa_apitoken_hashtoken_appid',
+          key: { appId: 1, 'services.apiTokens.hashedToken': 1 },
+          opts: makeOpts('unique', { partialFilterExpression: {
+            'services.apiTokens.hashedToken': { $exists: true },
+            appId: { $exists: true },
+          } }),
+        },
+        {
+          name: 'crowdaa_apitoken_hashtoken',
+          key: { 'services.apiTokens.hashedToken': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
 
         /* Meteor indexes */
         { name: 'meteor_resume_hashtoken_unique', key: { 'services.resume.loginTokens.hashedToken': 1 }, opts: makeOpts('unique', 'sparse') },
