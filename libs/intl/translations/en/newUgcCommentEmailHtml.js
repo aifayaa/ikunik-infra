@@ -6,7 +6,7 @@ export default `
 <h3>Details: </h3>
 {{- ugcDetails}}
 <p>
-  You can moderate user generated contents on :<br>
-  <a href="{{globalModerationUrl}}">{{globalModerationUrl}}</a>
+  You can moderate this comment on :<br>
+  <a href="{{ugcModerationUrl}}">{{ugcModerationUrl}}</a>
 </p>
 `;
