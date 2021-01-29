@@ -1,4 +1,5 @@
 import appleLogin from './appleLogin';
+import changePassword from './changePassword';
 import facebookLogin from './facebookLogin';
 import forgotPassword from './forgotPassword';
 import login from './login';
@@ -12,6 +13,7 @@ import yaml from '../serverless.yml';
 
 export default (libs, output) => {
   appleLogin(libs, output);
+  changePassword(libs, output);
   facebookLogin(libs, output);
   forgotPassword(libs, output);
   login(libs, output);

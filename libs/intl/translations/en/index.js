@@ -1,6 +1,7 @@
 import addressConfirmationEmailHtml from './addressConfirmationEmailHtml';
 import forgotPasswordEmailHtml from './forgotPasswordEmailHtml';
 import passwordResetEmailHtml from './passwordResetEmailHtml';
+import passwordChangedEmailHtml from './passwordChangedEmailHtml';
 import siwaPeriodicRenewalHtml from './siwaPeriodicRenewalHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
 import newUgcArticleEmailHtml from './newUgcArticleEmailHtml';
@@ -39,6 +40,10 @@ export default {
     },
     password_reset_email: {
       html: passwordResetEmailHtml,
+      title: 'Password has been reset',
+    },
+    password_changed_email: {
+      html: passwordChangedEmailHtml,
       title: 'Password has been reset',
     },
     /* This block is defined in english only for now, since we have no use for an other language. */

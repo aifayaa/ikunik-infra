@@ -22,6 +22,7 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'content_not_found':
     case 'email_not_found':
     case 'app_not_found':
+    case 'user_not_found':
       errorCode = 404;
       break;
     case 'cannot_send_email':

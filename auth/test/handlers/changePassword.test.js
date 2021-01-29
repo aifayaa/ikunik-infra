@@ -2,38 +2,34 @@ import sinon from 'sinon';
 import { before, after, beforeEach, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
 
-import handler from '../../handlers/register';
-import * as lib from '../../lib/register';
+import handler from '../../handlers/changePassword';
+import * as lib from '../../lib/changePassword';
 import * as libIntl from '../../../libs/intl/intl';
 
-describe('handler - register', () => {
+describe('handler - changePassword', () => {
   let stubLib;
   let stubIntl;
-  const accessToken = 'myAccessToken';
   let response;
   let responseBody;
   const event = {
     requestContext: {
       authorizer: {
         appId: 'myAppId',
+        principalId: 'myUserId',
       },
     },
   };
   const fullEvent = {
     ...event,
     body: JSON.stringify({
-      accessToken,
-      email: 'some@valid.email',
-      username: 'some_user_name',
+      oldPassword: 'some_old_password',
       password: 'some_password',
     }),
   };
 
-  describe('normal register', () => {
-    const userId = 'some_user_id';
-
+  describe('normal password change', () => {
     before(async () => {
-      stubLib = sinon.stub(lib, 'register').returns({ userId });
+      stubLib = sinon.stub(lib, 'changePassword');
       stubIntl = sinon.stub(libIntl, 'getUserLanguage').returns('en');
       response = await handler({
         ...fullEvent,
@@ -50,16 +46,14 @@ describe('handler - register', () => {
       expect(response.statusCode).to.equal(200);
     });
 
-    it('should return user id', () => {
-      expect(responseBody.data._id).to.equal(userId);
+    it('should return OK', () => {
+      expect(responseBody.message).to.equal('ok');
     });
   });
 
-  describe('invalid register cases from handler', () => {
-    const userId = 'some_user_id';
-
+  describe('invalid password change cases from handler', () => {
     before(() => {
-      stubLib = sinon.stub(lib, 'register').returns({ userId });
+      stubLib = sinon.stub(lib, 'changePassword');
     });
 
     after(() => {
@@ -79,9 +73,7 @@ describe('handler - register', () => {
       response = await handler({
         ...event,
         body: JSON.stringify({
-          accessToken,
-          email: 'some@valid.email',
-          username: 'some_user_name',
+          oldPassword: 'anyPasswordHere',
           password: 'short',
         }),
       });
@@ -94,9 +86,7 @@ describe('handler - register', () => {
       response = await handler({
         ...event,
         body: JSON.stringify({
-          accessToken,
-          email: 42,
-          username: 42,
+          oldPassword: 42,
           password: 42,
         }),
       });
@@ -106,9 +96,9 @@ describe('handler - register', () => {
     });
   });
 
-  describe('invalid register cases from lib', () => {
+  describe('invalid password change cases from lib', () => {
     beforeEach(() => {
-      stubLib = sinon.stub(lib, 'register');
+      stubLib = sinon.stub(lib, 'changePassword');
       stubIntl = sinon.stub(libIntl, 'getUserLanguage').returns('en');
     });
 
@@ -117,40 +107,16 @@ describe('handler - register', () => {
       stubIntl.restore();
     });
 
-    it('should return app not found', async () => {
-      stubLib.throws(new Error('app_not_found'));
+    it('should return user not found', async () => {
+      stubLib.throws(new Error('user_not_found'));
 
       response = await handler({
         ...fullEvent,
       });
 
       responseBody = JSON.parse(response.body);
-      expect(responseBody.message).to.equal('app_not_found');
+      expect(responseBody.message).to.equal('user_not_found');
       expect(response.statusCode).to.equal(404);
-    });
-
-    it('should return username already exists', async () => {
-      stubLib.throws(new Error('username_already_exists'));
-
-      response = await handler({
-        ...fullEvent,
-      });
-
-      responseBody = JSON.parse(response.body);
-      expect(responseBody.message).to.equal('username_already_exists');
-      expect(response.statusCode).to.equal(400);
-    });
-
-    it('should return email already exists', async () => {
-      stubLib.throws(new Error('email_already_exists'));
-
-      response = await handler({
-        ...fullEvent,
-      });
-
-      responseBody = JSON.parse(response.body);
-      expect(responseBody.message).to.equal('email_already_exists');
-      expect(response.statusCode).to.equal(400);
     });
 
     it('should return a 500 error', async () => {

@@ -132,6 +132,23 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  changePassword:
+    handler: handlers/changePassword.default
+    events:
+      - http:
+          path: auth/changePassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
   validateEmail:
     handler: handlers/validateEmail.default
     events:

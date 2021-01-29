@@ -1,6 +1,7 @@
 import addressConfirmationEmailHtml from './addressConfirmationEmailHtml';
 import forgotPasswordEmailHtml from './forgotPasswordEmailHtml';
 import passwordResetEmailHtml from './passwordResetEmailHtml';
+import passwordChangedEmailHtml from './passwordChangedEmailHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
 import newUgcArticleEmailHtml from './newUgcArticleEmailHtml';
 import newUgcCommentEmailHtml from './newUgcCommentEmailHtml';
@@ -38,6 +39,10 @@ export default {
     },
     password_reset_email: {
       html: passwordResetEmailHtml,
+      title: 'Mot de passe changé',
+    },
+    password_changed_email: {
+      html: passwordChangedEmailHtml,
       title: 'Mot de passe changé',
     },
   },
