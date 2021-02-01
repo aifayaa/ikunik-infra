@@ -3,7 +3,7 @@ export default `
   Bonjour <strong>{{username}}</strong>,<br>
   <br>
   Une dernière étape!<br>
-  Pour confirmer ton adresse email, clique ici : <a href="{{url}}">{{url}}</a>.<br>
-  Si tu ne peux pas cliquer sur ce lien, copie-le dans ton navigateur.
+  Pour confirmer votre adresse email, cliquez ici : <a href="{{url}}">{{url}}</a>.<br>
+  Si vous ne pouvez pas cliquer sur ce lien, copiez-le dans votre navigateur.
 </p>
 `;
