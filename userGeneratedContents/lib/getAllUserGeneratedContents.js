@@ -17,7 +17,7 @@ export default async (
   {
     countOnly = false,
     moderated = undefined,
-    moderator = undefined,
+    moderator,
     parentId,
     raw,
     reported = undefined,
@@ -51,9 +51,16 @@ export default async (
       $match.rootParentId = parentId;
     }
 
-    if (typeof moderated !== 'undefined') {
+    if (typeof reviewed !== 'undefined') {
+      $match.reviewed = reviewed ? true : null;
+    }
+
+    if (typeof moderated !== 'undefined' && moderated === true) {
       $match.moderated = moderated;
-    } else if (!moderator) {
+      if ($match.reviewed === undefined) {
+        $match.reviewed = true;
+      }
+    } else if (moderated === false) {
       $match.$or = [
         /* pre moderation case */
         { moderated: false, reviewed: true },
@@ -62,9 +69,14 @@ export default async (
         { moderated: { $exists: false }, reviewed: { $exists: false } },
       ];
     }
-
-    if (typeof reviewed !== 'undefined') {
-      $match.reviewed = reviewed;
+    if (!moderator) {
+      $match.$or = [
+        /* pre moderation case */
+        { moderated: false, reviewed: true },
+        /* post moderation cases */
+        { moderated: { $exists: false }, reviewed: false },
+        { moderated: { $exists: false }, reviewed: { $exists: false } },
+      ];
     }
 
     /* Prepare pipeline */
@@ -84,12 +96,21 @@ export default async (
       countPipeline.push(reportLookup);
     }
 
-    if (reported) {
-      const filterUgc = {
-        $match: {
-          reports: { $ne: [] },
-        },
-      };
+    if (typeof reported !== 'undefined') {
+      let filterUgc;
+      if (reported === 'true') {
+        filterUgc = {
+          $match: {
+            reports: { $ne: [] },
+          },
+        };
+      } else {
+        filterUgc = {
+          $match: {
+            reports: [],
+          },
+        };
+      }
       pipeline.push(filterUgc);
       countPipeline.push(filterUgc);
     }
