@@ -49,12 +49,35 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     if (found) throw new Error('already_registered_token');
 
     const Platform = platformApplicationArns[platform].platform;
-    const params = {
-      PlatformApplicationArn,
-      Token,
-      CustomUserData: uuidv4(),
-    };
-    const { EndpointArn } = await sns.createPlatformEndpoint(params).promise();
+    let CustomUserData = uuidv4();
+    let EndpointArn = null;
+
+    try {
+      const params = {
+        CustomUserData,
+        PlatformApplicationArn,
+        Token,
+      };
+      ({ EndpointArn } = await sns.createPlatformEndpoint(params).promise());
+    } catch (e) {
+      /* If its a known error : ARN does already exists */
+      if (e.statusCode === 400 && !e.retryable && e.code === 'InvalidParameter') {
+        ([EndpointArn] = e.message.match(/arn:aws:sns:[^: ]+:[0-9]+:([^ ,'":])+/));
+
+        if (!EndpointArn) throw new Error('AWS API changed : cannot retrieve EndpointArn');
+
+        const { Attributes } = await sns.getEndpointAttributes({ EndpointArn }).promise();
+
+        if (Attributes.Token !== Token) throw new Error('token_mismatch');
+
+        ({ CustomUserData } = Attributes);
+
+      /* Re-throwing unknown errors */
+      } else {
+        throw e;
+      }
+    }
+
     const modifier = {
       $set: {
         deviceUUID,
@@ -63,7 +86,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
         PlatformApplicationArn,
         Token,
         EndpointArn,
-        SNSUserData: params.CustomUserData,
+        SNSUserData: CustomUserData,
         userId: userId || null,
         modifiedAt: new Date(),
         appId,
