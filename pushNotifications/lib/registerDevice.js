@@ -63,11 +63,14 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
       /* If its a known error : ARN does already exists */
       if (e.statusCode === 400 && !e.retryable && e.code === 'InvalidParameter') {
         ([EndpointArn] = e.message.match(/arn:aws:sns:[^: ]+:[0-9]+:([^ ,'":])+/));
-        if (!EndpointArn) {
-          throw new Error('AWS API changed : cannot retrieve EndpointArn');
-        }
+
+        if (!EndpointArn) throw new Error('AWS API changed : cannot retrieve EndpointArn');
+
         const { Attributes } = await sns.getEndpointAttributes({ EndpointArn }).promise();
-        ({ CustomUserData, Token } = Attributes);
+
+        if (Attributes.Token !== Token) throw new Error('token_mismatch');
+
+        ({ CustomUserData } = Attributes);
 
       /* Re-throwing unknown errors */
       } else {
