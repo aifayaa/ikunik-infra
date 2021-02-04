@@ -36,13 +36,13 @@ export const getUserByFacebook = async (userToken, appId) => {
         $set: {
           'services.facebook.accessToken': accessToken,
           'services.facebook.expiresAt': expiresAt,
+          appId,
         },
         $addToSet: {
           'services.resume.loginTokens': {
             hashedToken: hash,
             when: date.toISOString(),
           },
-          appId,
         },
       };
       await collection.updateOne({ _id: userId }, patch);
