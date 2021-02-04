@@ -68,6 +68,9 @@ export default async (
             parentId,
             order: { $ne: SAFE_ORDER_NUMBER },
           });
+        if (order >= defaultOrder + 1) {
+          throw new Error('press_service_order_superior_to_max_order');
+        }
       } else {
         defaultOrder = await client
           .db(DB_NAME)
