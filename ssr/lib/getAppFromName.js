@@ -14,11 +14,20 @@ export default async (appName) => {
     const app = await client
       .db(DB_NAME)
       .collection(COLL_APPS)
-      .findOne({ name }, { projection: { _id: 1 } });
+      .findOne({ name }, {
+        projection: {
+          _id: 1,
+          'builds.android.packageId': true,
+          'builds.android.name': true,
+          'builds.ios.iosAppId': true,
+          'builds.ios.name': true,
+          'credentials.facebook.appId': true,
+        },
+      });
     if (!app) {
       throw new Error('app_not_found');
     }
-    return app._id;
+    return app;
   } finally {
     client.close();
   }

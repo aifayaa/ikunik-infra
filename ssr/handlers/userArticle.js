@@ -1,5 +1,6 @@
+import get from 'lodash/get';
 import response from '../../libs/httpResponses/response';
-import getAppId from '../lib/getAppId';
+import getAppFromName from '../lib/getAppFromName';
 import getUserGeneratedContents from '../../userGeneratedContents/lib/getUserGeneratedContents';
 import meta from '../lib/meta';
 import prepareNotifString from '../../pressArticles/lib/prepareNotifString';
@@ -10,7 +11,11 @@ export default async (event) => {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
     const { appName } = (event.queryStringParameters || {});
     const userAgent = event.headers['User-Agent'];
-    const appId = await getAppId(appName);
+    const {
+      _id: appId,
+      builds,
+      credentials,
+    } = await getAppFromName(appName);
     const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
@@ -26,6 +31,12 @@ export default async (event) => {
     const options = {
       height: picture.mediumHeight,
       width: picture.mediumWidth,
+      url: redirectUrl,
+      androidAppName: get(builds, 'android.name'),
+      androidPackageId: get(builds, 'android.packageId'),
+      iosAppName: get(builds, 'ios.name'),
+      iosAppStoreId: get(builds, 'ios.iosAppId'),
+      fbAppId: get(credentials, 'facebook.appId'),
     };
     const body = meta(
       article.data.title,

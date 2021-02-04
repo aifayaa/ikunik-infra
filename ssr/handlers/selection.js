@@ -1,4 +1,4 @@
-import getAppId from '../lib/getAppId';
+import getAppFromName from '../lib/getAppFromName';
 import getSelection from '../../selections/libs/getSelection';
 import meta from '../lib/meta';
 import redirect from '../lib/redirect';
@@ -10,7 +10,7 @@ export default async (event) => {
 
   try {
     const userAgent = event.headers['User-Agent'];
-    const appId = await getAppId(appName);
+    const { _id: appId } = await getAppFromName(appName);
     const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
