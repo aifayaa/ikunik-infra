@@ -81,7 +81,7 @@ export default async (
       if (defaultOrderChildCategory >= SAFE_ORDER_NUMBER) {
         throw new Error('max_child_category_reached');
       }
-      if (order >= defaultOrderChildCategory) {
+      if (order > defaultOrderChildCategory) {
         throw new Error('press_service_order_superior_to_max_order');
       }
       category.order = Math.min(
