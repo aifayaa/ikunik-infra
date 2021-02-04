@@ -10,7 +10,7 @@ export default async (
     sortBy = 'views',
     sortOrder = 'asc',
     countOnly = false,
-    filterUserInfo = false,
+    filterUserInfo = true,
   },
 ) => {
   const client = await MongoClient.connect();
@@ -30,7 +30,11 @@ export default async (
           user_ID: 1,
           deviceId: 1,
           elapsedTime: 1,
-          'user.profile.username': 1,
+          'user.profile': 1,
+          'user.emails': 1,
+          'user.createdAt': 1,
+          lastGeolocation: { $arrayElemAt: ['$userGeolocations', -1] },
+          'userArticles.title': 1,
           hasEmail: {
             $cond: {
               if: {
