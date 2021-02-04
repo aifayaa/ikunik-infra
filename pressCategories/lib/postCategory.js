@@ -58,6 +58,7 @@ export default async (
       // use default if order not valid
       order: Math.min(order || defaultOrder, defaultOrder),
     };
+
     if (parentId) {
       const parentCategory = await client
         .db(DB_NAME)
@@ -69,6 +70,24 @@ export default async (
       if (parentCategory.parentId) {
         throw new Error('not_root_category');
       }
+
+      // Default order is number of other children categories from a parent
+      const defaultOrderChildCategory =
+        (await client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES).count({
+          appId,
+          parentId,
+        })) + 1;
+
+      if (defaultOrderChildCategory >= SAFE_ORDER_NUMBER) {
+        throw new Error('max_child_category_reached');
+      }
+      if (order >= defaultOrderChildCategory) {
+        throw new Error('press_service_order_superior_to_max_order');
+      }
+      category.order = Math.min(
+        order || defaultOrderChildCategory,
+        defaultOrderChildCategory,
+      );
       category.parentId = parentId;
     }
 
@@ -76,25 +95,27 @@ export default async (
       .db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
       .initializeOrderedBulkOp();
-
-    /* ex inserting at 2nd position
-       new
-        ||
-        \/
+    if (!parentId) {
+      /* ex inserting at 2nd position
+      new
+      ||
+      \/
       [1, 2 , 3, 4, 5]
 
       all values after position 2 must be increased
       [1, n=>2, 2=>3, 3=>4, 4=>5, 5=>6]
-    */
-    bulk
-      .find({
-        appId,
-        order: {
-          $gte: category.order,
-          $lt: SAFE_ORDER_NUMBER,
-        },
-      })
-      .update({ $inc: { order: 1 } });
+      */
+      bulk
+        .find({
+          appId,
+          order: {
+            $gte: category.order,
+            $lt: SAFE_ORDER_NUMBER,
+          },
+        })
+        .update({ $inc: { order: 1 } });
+    }
+
     bulk.insert(category);
     await bulk.execute();
 
