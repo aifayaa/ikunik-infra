@@ -41,7 +41,7 @@ export default async (
     };
 
     if (moderationRequired) {
-      userGeneratedContents.moderated = false;
+      userGeneratedContents.reviewed = false;
     }
 
     const _id = await client

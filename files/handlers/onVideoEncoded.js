@@ -1,3 +1,4 @@
+import S3 from 'aws-sdk/clients/s3';
 import MongoClient from '../../libs/mongoClient';
 import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
@@ -7,7 +8,12 @@ const {
   DB_NAME,
   REGION,
   STAGE,
+  S3_PICTURES_BUCKET,
 } = process.env;
+
+const s3 = new S3({
+  signatureVersion: 'v4',
+});
 
 export default async (event) => {
   const {
@@ -40,28 +46,97 @@ export default async (event) => {
       throw new Error('encoding_error');
     }
 
-    // this should be done in a better way ..
-    const thumbFilename = '00001.png';
-    const thumbUrl = `https://crowdaa-pictures-${STAGE}.s3.amazonaws.com/${outputKeyPrefix}${thumbFilename}`;
-    const url = `https://s3.${REGION}.amazonaws.com/video-stream-${STAGE}.crowdaa.com/${outputKeyPrefix}master.m3u8`;
-    const videoDoc = {
-      filename: name,
-      isPublished: true,
-      status: uploadStatus.READY,
-      thumbFileObj_ID: null,
-      thumbFilename,
-      thumbUrl,
-      url,
-    };
+    // We need to remove unused thumbnails to save space, since one thumbnail
+    // will be created for every 3 seconds of video
+    const thumbnailPrefix = 'thumbnail-hq-';
+    let thumbFilename = `${outputKeyPrefix}${thumbnailPrefix}00001.png`;
+    try {
+      let continuationToken = null;
+      const toRemoveThumbnails = {};
+      const keepFilenames = {
+        [`${outputKeyPrefix}${thumbnailPrefix}00002.png`]: {
+          found: false,
+          priority: 2,
+        },
+        [`${outputKeyPrefix}${thumbnailPrefix}00001.png`]: {
+          found: false,
+          priority: 1,
+        },
+      };
 
-    await client.db(DB_NAME)
-      .collection(COLL_VIDEOS)
-      .updateOne(
-        { _id: userMetadata.id },
-        { $set: videoDoc },
-      );
+      do {
+        const query = {
+          Bucket: S3_PICTURES_BUCKET,
+          Prefix: `${outputKeyPrefix}${thumbnailPrefix}`,
+        };
+        if (continuationToken) query.ContinuationToken = continuationToken;
+        // eslint-disable-next-line no-await-in-loop
+        const videosObjects = await s3.listObjectsV2(query).promise();
 
-    return response({ code: 200, body: 'ok' });
+        if (videosObjects.Contents) {
+          videosObjects.Contents.forEach(({ Key }) => {
+            if (!keepFilenames[Key]) {
+              toRemoveThumbnails[Key] = true;
+            } else {
+              keepFilenames[Key].found = true;
+            }
+          });
+        }
+
+        if (videosObjects.isTruncated) continuationToken = videosObjects.NextContinuationToken;
+        else continuationToken = null;
+      } while (continuationToken);
+
+      let keepKey = null;
+      Object.keys(keepFilenames).forEach((key) => {
+        if (keepFilenames[key].found) {
+          if (!keepKey) {
+            keepKey = key;
+          } else if (keepFilenames[key].priority > keepFilenames[keepKey].priority) {
+            toRemoveThumbnails[keepKey] = true;
+            keepKey = key;
+          } else {
+            toRemoveThumbnails[key] = true;
+          }
+        }
+      });
+
+      if (keepKey) {
+        thumbFilename = keepKey;
+      }
+
+      const deleteParams = {
+        Bucket: S3_PICTURES_BUCKET,
+        Delete: {
+          Objects: Object.keys(toRemoveThumbnails).map((Key) => ({ Key })),
+        },
+      };
+      await s3.deleteObjects(deleteParams).promise();
+
+      return response({ code: 200, body: 'ok' });
+    } catch (e) {
+      return response({ code: 500, body: `${e}` });
+    } finally {
+      // this should be done in a better way ..
+      const thumbUrl = `https://crowdaa-pictures-${STAGE}.s3.amazonaws.com/${thumbFilename}`;
+      const url = `https://s3.${REGION}.amazonaws.com/video-stream-${STAGE}.crowdaa.com/${outputKeyPrefix}master.m3u8`;
+      const videoDoc = {
+        filename: name,
+        isPublished: true,
+        status: uploadStatus.READY,
+        thumbFileObj_ID: null,
+        thumbFilename,
+        thumbUrl,
+        url,
+      };
+
+      await client.db(DB_NAME)
+        .collection(COLL_VIDEOS)
+        .updateOne(
+          { _id: userMetadata.id },
+          { $set: videoDoc },
+        );
+    }
   } catch (e) {
     return response({ code: 500, message: e.message });
   }

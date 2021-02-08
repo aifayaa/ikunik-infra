@@ -97,7 +97,7 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
         userId: user._id,
         username: user.profile.username,
         appName: app.name,
-        globalModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation`,
+        ugcModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation?contentId=${ugcId}`,
         ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
         user,
         ugc,

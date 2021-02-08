@@ -101,7 +101,7 @@ export default async (userId, appId, ugcId, reason, details, lang) => {
         reason,
         details,
         mediaType,
-        globalModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation`,
+        ugcModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation?contentId=${ugcId}`,
       }),
       subject: formatMessage(`ugc:reported_ugc_${ugc.type}_email.title`, { appName: app.name, ugc, user }),
     };

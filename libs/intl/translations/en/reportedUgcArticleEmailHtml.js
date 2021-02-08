@@ -11,7 +11,7 @@ export default `
   <q>{{details}}</q>
 </p>
 <p>
-  You can moderate user generated contents on :<br>
-  <a href="{{globalModerationUrl}}">{{globalModerationUrl}}</a>
+  You can moderate this article on :<br>
+  <a href="{{ugcModerationUrl}}">{{ugcModerationUrl}}</a>
 </p>
 `;
