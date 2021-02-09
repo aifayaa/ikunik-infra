@@ -1,5 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-import articleFields from './articleFields.json';
+import { common as commonFields } from './articleFields';
 
 const {
   COLL_PICTURES,
@@ -163,7 +163,7 @@ export const getArticles = async (
       // Lookup on pictures
       // TODO optimise, fetch pictures only for skip/limit range
       const pictureGroup = {
-        ...Object.keys(articleFields.public).reduce((res, key) => {
+        ...Object.keys(commonFields).reduce((res, key) => {
           res[key] = { $first: `$${key}` };
           return res;
         }, {}),
@@ -214,7 +214,7 @@ export const getArticles = async (
       // Lookup on videos
       // TODO optimise, fetch videos only for skip/limit range
       const videoGroup = {
-        ...Object.keys(articleFields.public).reduce((res, key) => {
+        ...Object.keys(commonFields).reduce((res, key) => {
           res[key] = { $first: `$${key}` };
           return res;
         }, {}),
