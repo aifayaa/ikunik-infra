@@ -17,7 +17,7 @@ export const handleArtist = async (event) => {
     const artistId = event.pathParameters.id;
     const artist = await getArtist(artistId, appId);
     const body = meta(artist.artistName, artist.biography, artist.avatar);
-    return response({ code: 200, body, raw: true });
+    return response({ code: 200, body, raw: true, headers: { 'Content-Type': 'text/html' } });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }

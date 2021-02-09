@@ -22,7 +22,7 @@ export default async (event) => {
       selection.overrideIcon || selection.tracks[0].title,
       selection.tracks[0].projectMediumFileUrl,
     );
-    return response({ code: 200, body, raw: true });
+    return response({ code: 200, body, raw: true, headers: { 'Content-Type': 'text/html' } });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
