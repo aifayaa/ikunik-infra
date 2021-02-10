@@ -191,6 +191,73 @@ export default (
 
   pipeline.push({
     $lookup: {
+      from: COLL_USER_METRICS,
+      let: {
+        userId: '$user_ID',
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ['$userId', '$$userId'],
+            },
+            appId,
+            type: 'geolocation',
+            trashed: false,
+            contentCollection: COLL_USERS,
+          },
+        },
+      ],
+      as: 'userGeolocations',
+    },
+  });
+
+  pipeline.push(
+    {
+      $lookup: {
+        from: COLL_USER_METRICS,
+        let: {
+          userId: '$user_ID',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$userId', '$$userId'],
+              },
+              appId,
+              type: 'time',
+              trashed: false,
+              contentCollection: COLL_PRESS_ARTICLES,
+            },
+          },
+        ],
+        as: 'userArticles',
+      },
+    },
+    {
+      $lookup: {
+        from: COLL_PRESS_ARTICLES,
+        localField: 'userArticles.contentId',
+        foreignField: '_id',
+        as: 'userArticles.articles',
+      },
+    },
+    {
+      $group: {
+        _id: '$user_ID',
+        user_ID: { $first: '$user_ID' },
+        deviceId: { $first: '$deviceId' },
+        elapsedTime: { $first: '$elapsedTime' },
+        user: { $first: '$user' },
+        userArticles: { $first: '$userArticles.articles' },
+        userGeolocations: { $first: '$userGeolocations' },
+      },
+    },
+  );
+
+  pipeline.push({
+    $lookup: {
       from: COLL_PUSH_NOTIFICATIONS,
       let: {
         userId: '$user_ID',
