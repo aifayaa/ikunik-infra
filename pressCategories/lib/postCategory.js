@@ -2,6 +2,7 @@ import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
 const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
+const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (
   appId,
@@ -36,10 +37,10 @@ export default async (
             mongodb sort null values on top, that's why all categories
             should have an order field.
           */
-          order: { $ne: SAFE_ORDER_NUMBER },
+          order: { $ne: safeOrderNumber },
         })) + 1;
 
-    if (defaultOrder >= SAFE_ORDER_NUMBER) {
+    if (defaultOrder >= safeOrderNumber) {
       throw new Error('max_category_reached');
     }
 
@@ -78,7 +79,7 @@ export default async (
           parentId,
         })) + 1;
 
-      if (defaultOrderChildCategory >= SAFE_ORDER_NUMBER) {
+      if (defaultOrderChildCategory >= safeOrderNumber) {
         throw new Error('max_child_category_reached');
       }
       if (order > defaultOrderChildCategory) {
@@ -110,11 +111,12 @@ export default async (
           appId,
           order: {
             $gte: category.order,
-            $lt: SAFE_ORDER_NUMBER,
+            $lt: safeOrderNumber,
           },
         })
         .update({ $inc: { order: 1 } });
     }
+
 
     bulk.insert(category);
     await bulk.execute();
