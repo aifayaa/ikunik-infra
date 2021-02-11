@@ -1,5 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
-import articleFields from './articleFields.json';
+import {
+  common,
+  admin,
+  server,
+} from './articleFields';
 
 const {
   COLL_CONTENT_PERMISSIONS,
@@ -21,6 +25,15 @@ export const getArticle = async (
     userId = null,
   } = {},
 ) => {
+  const options = {
+    articleFields: common,
+  };
+  if (!publishedOnly) {
+    options.articleFields = admin;
+  }
+  if (isServer) {
+    options.articleFields = server;
+  }
   const client = await MongoClient.connect();
   try {
     const $match = {
@@ -118,7 +131,7 @@ export const getArticle = async (
     if (getPictures) {
       // Lookup on pictures
       const pictureGroup = {
-        ...Object.keys(isServer ? articleFields.server : articleFields.public).reduce(
+        ...Object.keys(options.articleFields).reduce(
           (res, key) => {
             res[key] = { $first: `$${key}` };
             return res;
@@ -173,7 +186,7 @@ export const getArticle = async (
 
       // Lookup on pictures
       const videoGroup = {
-        ...Object.keys(isServer ? articleFields.server : articleFields.public).reduce(
+        ...Object.keys(options.articleFields).reduce(
           (res, key) => {
             res[key] = { $first: `$${key}` };
             return res;

@@ -1,8 +1,8 @@
 import MongoClient from '../../libs/mongoClient';
-import articleFields from '../../pressArticles/lib/articleFields.json';
+import { common as commonFields } from '../../pressArticles/lib/articleFields';
 
 const pictureGroup = {
-  ...Object.keys(articleFields.public).reduce((res, key) => {
+  ...Object.keys(commonFields).reduce((res, key) => {
     res[key] = { $first: `$${key}` };
     return res;
   }, {}),
