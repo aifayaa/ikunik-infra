@@ -60,6 +60,11 @@ export default async (
       order: Math.min(order || defaultOrder, defaultOrder),
     };
 
+    const bulk = client
+      .db(DB_NAME)
+      .collection(COLL_PRESS_CATEGORIES)
+      .initializeOrderedBulkOp();
+
     if (parentId) {
       const parentCategory = await client
         .db(DB_NAME)
@@ -85,17 +90,25 @@ export default async (
       if (order > defaultOrderChildCategory) {
         throw new Error('press_service_order_superior_to_max_order');
       }
+
       category.order = Math.min(
         order || defaultOrderChildCategory,
         defaultOrderChildCategory,
       );
       category.parentId = parentId;
+
+      bulk
+        .find({
+          appId,
+          parentId,
+          order: {
+            $gte: category.order,
+            $lt: safeOrderNumber,
+          },
+        })
+        .update({ $inc: { order: 1 } });
     }
 
-    const bulk = client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_CATEGORIES)
-      .initializeOrderedBulkOp();
     if (!parentId) {
       /* ex inserting at 2nd position
       new

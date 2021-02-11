@@ -2,7 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
 const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
-
+const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 export default async (
   appId,
   categoryId,
@@ -66,9 +66,9 @@ export default async (
           .count({
             appId,
             parentId,
-            order: { $ne: SAFE_ORDER_NUMBER },
+            order: { $ne: safeOrderNumber },
           });
-        if (order >= defaultOrder + 1) {
+        if (order > defaultOrder + 1) {
           throw new Error('press_service_order_superior_to_max_order');
         }
       } else {
@@ -77,14 +77,14 @@ export default async (
           .collection(COLL_PRESS_CATEGORIES)
           .count({
             appId,
-            order: { $ne: SAFE_ORDER_NUMBER },
+            order: { $ne: safeOrderNumber },
           });
       }
 
-      if (currentCategoryOrder === SAFE_ORDER_NUMBER) {
+      if (currentCategoryOrder === safeOrderNumber) {
         /* category was previously unordered */
         defaultOrder += 1;
-        if (defaultOrder >= SAFE_ORDER_NUMBER) {
+        if (defaultOrder >= safeOrderNumber) {
           /*
             In case we are trying to move a 999 order category
             and there is already 998 ordered categories
@@ -165,7 +165,7 @@ export default async (
             order: {
               $gte: category.order,
               $lt: currentOrder,
-              $ne: SAFE_ORDER_NUMBER,
+              $ne: safeOrderNumber,
             },
           })
           .update({ $inc: { order: 1 } });
@@ -209,7 +209,7 @@ export default async (
             order: {
               $gte: category.order,
               $lt: currentOrder,
-              $ne: SAFE_ORDER_NUMBER,
+              $ne: safeOrderNumber,
             },
           })
           .update({ $inc: { order: 1 } });
