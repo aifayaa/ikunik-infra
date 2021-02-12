@@ -122,6 +122,7 @@ export default async (
       bulk
         .find({
           appId,
+          parentId: null,
           order: {
             $gte: category.order,
             $lt: safeOrderNumber,
