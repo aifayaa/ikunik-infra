@@ -1,9 +1,15 @@
 import MongoClient from '../../libs/mongoClient';
 
-const { COLL_USER_METRICS, DB_NAME } = process.env;
+const {
+  COLL_PRESS_ARTICLES,
+  COLL_USERS,
+  COLL_USER_METRICS,
+  DB_NAME,
+} = process.env;
 
 export default async (
   pipeline,
+  appId,
   {
     limit = 20,
     page = 1,
@@ -97,6 +103,140 @@ export default async (
       .toArray();
 
     const { crowd, count } = result || { crowd: [], count: 0 };
+
+    /* If crowd results available, fetch more data to add to it */
+    if (crowd && crowd.length) {
+      const userIds = crowd
+        .map((crowdUser) => crowdUser.user_ID)
+        .filter((v) => v);
+      const deviceIds = crowd
+        .map((crowdUser) => !crowdUser.user_ID && crowdUser.deviceId)
+        .filter((v) => v);
+
+      const usersGeolocations = await client
+        .db(DB_NAME)
+        .collection(COLL_USER_METRICS)
+        .aggregate([
+          {
+            $match: {
+              appId,
+              $or: [
+                { userId: { $in: userIds } },
+                { deviceId: { $in: deviceIds } },
+              ],
+              type: 'geolocation',
+              trashed: false,
+              contentCollection: COLL_USERS,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              deviceId: 1,
+              location: 1,
+              userId: 1,
+            },
+          },
+        ])
+        .toArray();
+
+      const usersArticles = await client
+        .db(DB_NAME)
+        .collection(COLL_USER_METRICS)
+        .aggregate([
+          {
+            $match: {
+              appId,
+              $or: [
+                { userId: { $in: userIds } },
+                { deviceId: { $in: deviceIds } },
+              ],
+              type: 'time',
+              trashed: false,
+              contentCollection: COLL_PRESS_ARTICLES,
+            },
+          },
+          {
+            $lookup: {
+              from: COLL_PRESS_ARTICLES,
+              localField: 'contentId',
+              foreignField: '_id',
+              as: 'articles',
+            },
+          },
+          {
+            $unwind: '$articles',
+          },
+          {
+            $project: {
+              _id: 1,
+              deviceId: 1,
+              location: 1,
+              userId: 1,
+              'articles.title': 1,
+            },
+          },
+        ])
+        .toArray();
+
+      /* Format data into practical arrays */
+      const geolocationDataFormattedByDevice = {};
+      const geolocationDataFormattedById = {};
+
+      usersGeolocations.forEach((value) => {
+        const { deviceId, location, userId } = value;
+        if (userId) {
+          if (!geolocationDataFormattedById[userId]) {
+            geolocationDataFormattedById[userId] = [];
+          }
+          geolocationDataFormattedById[userId].push(location);
+        } else if (deviceId) {
+          if (!geolocationDataFormattedByDevice[deviceId]) {
+            geolocationDataFormattedByDevice[deviceId] = [];
+          }
+          geolocationDataFormattedByDevice[deviceId].push(location);
+        }
+      });
+
+      const articleDataFormattedByDevice = {};
+      const articleDataFormattedById = {};
+
+      usersArticles.forEach((value) => {
+        const { articles: { title }, deviceId, userId } = value;
+        if (userId) {
+          if (!articleDataFormattedById[userId]) {
+            articleDataFormattedById[userId] = [];
+          }
+          articleDataFormattedById[userId].push(title);
+        } else if (deviceId) {
+          if (!articleDataFormattedByDevice[deviceId]) {
+            articleDataFormattedByDevice[deviceId] = [];
+          }
+          articleDataFormattedByDevice[deviceId].push(title);
+        }
+      });
+
+      /* Insert data to crowd results */
+      crowd.forEach((value, key) => {
+        const { deviceId, user_ID: userId } = value;
+        if (userId) {
+          crowd[key].userArticles = articleDataFormattedById[userId]
+            ? articleDataFormattedById[userId].filter((v, i, a) => a.indexOf(v) === i)
+            : [];
+          crowd[key].userGeolocations = geolocationDataFormattedById[userId]
+            ? geolocationDataFormattedById[userId].filter((v, i, a) => a.indexOf(v) === i)
+            : [];
+        } else if (deviceId) {
+          crowd[key].userArticles = articleDataFormattedByDevice[deviceId]
+            ? articleDataFormattedByDevice[deviceId].filter((v, i, a) => a.indexOf(v) === i)
+            : [];
+          crowd[key].userGeolocations = geolocationDataFormattedByDevice[deviceId]
+            ? geolocationDataFormattedByDevice[deviceId].filter((v, i, a) => a.indexOf(v) === i)
+            : [];
+        }
+      });
+    }
+
     return { crowd, count };
   } finally {
     client.close();
