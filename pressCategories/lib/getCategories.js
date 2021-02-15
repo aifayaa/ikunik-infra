@@ -49,7 +49,6 @@ export default async (
 
     const pipeline = [
       { $match: matchHidden },
-      ...pipelineSkipLimit,
       {
         $sort: {
           order: 1,
@@ -57,6 +56,7 @@ export default async (
           name: 1,
         },
       },
+      ...pipelineSkipLimit,
       {
         $lookup: {
           from: COLL_PICTURES,
