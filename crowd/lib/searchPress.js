@@ -130,6 +130,11 @@ export default async (
             },
           },
           {
+            $sort: {
+              createdAt: -1,
+            },
+          },
+          {
             $project: {
               _id: 1,
               deviceId: 1,
@@ -202,17 +207,17 @@ export default async (
       const articleDataFormattedById = {};
 
       usersArticles.forEach((value) => {
-        const { articles: { title }, deviceId, userId } = value;
+        const { articles, deviceId, userId } = value;
         if (userId) {
           if (!articleDataFormattedById[userId]) {
             articleDataFormattedById[userId] = [];
           }
-          articleDataFormattedById[userId].push(title);
+          articleDataFormattedById[userId].push(articles);
         } else if (deviceId) {
           if (!articleDataFormattedByDevice[deviceId]) {
             articleDataFormattedByDevice[deviceId] = [];
           }
-          articleDataFormattedByDevice[deviceId].push(title);
+          articleDataFormattedByDevice[deviceId].push(articles);
         }
       });
 
@@ -220,18 +225,18 @@ export default async (
       crowd.forEach((value, key) => {
         const { deviceId, user_ID: userId } = value;
         if (userId) {
+          crowd[key].lastGeolocation = { location: geolocationDataFormattedById[userId]
+            ? geolocationDataFormattedById[userId].pop()
+            : null };
           crowd[key].userArticles = articleDataFormattedById[userId]
             ? articleDataFormattedById[userId].filter((v, i, a) => a.indexOf(v) === i)
             : [];
-          crowd[key].userGeolocations = geolocationDataFormattedById[userId]
-            ? geolocationDataFormattedById[userId].filter((v, i, a) => a.indexOf(v) === i)
-            : [];
         } else if (deviceId) {
+          crowd[key].lastGeolocation = { location: geolocationDataFormattedByDevice[userId]
+            ? geolocationDataFormattedByDevice[userId].pop()
+            : null };
           crowd[key].userArticles = articleDataFormattedByDevice[deviceId]
             ? articleDataFormattedByDevice[deviceId].filter((v, i, a) => a.indexOf(v) === i)
-            : [];
-          crowd[key].userGeolocations = geolocationDataFormattedByDevice[deviceId]
-            ? geolocationDataFormattedByDevice[deviceId].filter((v, i, a) => a.indexOf(v) === i)
             : [];
         }
       });
