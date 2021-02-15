@@ -23,7 +23,7 @@ export default async (event) => {
       }
 
       const pipeline = buildPressPipeline(userId, appId, event.queryStringParameters);
-      const results = await searchPress(pipeline, event.queryStringParameters);
+      const results = await searchPress(pipeline, appId, event.queryStringParameters);
       return response({ code: 200, body: results });
     }
 

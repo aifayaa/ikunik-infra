@@ -180,12 +180,11 @@ const useClassicPipeline = (userId, appId, articleId) => {
   ];
 };
 
-export default (userId, appId, {
-  articleId = '',
-  coordinates,
-  range,
-  search = '',
-}) => {
+export default (
+  userId,
+  appId,
+  { articleId = '', coordinates, range, search = '' },
+) => {
   const pipeline = coordinates
     ? useLocationPipeline(userId, appId, coordinates, range, articleId)
     : useClassicPipeline(userId, appId, articleId);

@@ -18,7 +18,7 @@ export default async (appId, categoryId) => {
         _id: categoryId,
         appId,
       },
-      { projection: { order: true } },
+      { projection: { order: true, parentId: true } },
     );
     if (!category) throw new Error('category_not_found');
 
@@ -33,6 +33,20 @@ export default async (appId, categoryId) => {
       .toArray();
     if (childrenCategories.length > 0) {
       throw new Error('category_has_children_categories');
+    }
+
+    // If category is child, update all orders of other children categories
+    if (category.parentId) {
+      bulk
+        .find({
+          appId,
+          parentId: category.parentId,
+          order: {
+            $gt: category.order,
+            $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
+          },
+        })
+        .update({ $inc: { order: -1 } });
     }
 
     bulk

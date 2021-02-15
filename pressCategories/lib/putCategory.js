@@ -19,7 +19,7 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    let currentOrder = 999;
+    const currentOrder = 999;
     const checkAvailability = await isAvailable(
       client,
       appId,
@@ -45,7 +45,10 @@ export default async (
     }
 
     if (order) {
-      ({ order: currentOrder } = await client
+      const {
+        order: currentCategoryOrder,
+        parentId: isChildCategory,
+      } = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
         .findOne(
@@ -53,18 +56,32 @@ export default async (
             _id: categoryId,
             appId,
           },
-          { projection: { order: true } },
-        ));
+          { projection: { order: true, parentId: true } },
+        );
+      let defaultOrder;
+      if (isChildCategory) {
+        defaultOrder = await client
+          .db(DB_NAME)
+          .collection(COLL_PRESS_CATEGORIES)
+          .count({
+            appId,
+            parentId,
+            order: { $ne: SAFE_ORDER_NUMBER },
+          });
+        if (order >= defaultOrder + 1) {
+          throw new Error('press_service_order_superior_to_max_order');
+        }
+      } else {
+        defaultOrder = await client
+          .db(DB_NAME)
+          .collection(COLL_PRESS_CATEGORIES)
+          .count({
+            appId,
+            order: { $ne: SAFE_ORDER_NUMBER },
+          });
+      }
 
-      let defaultOrder = await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_CATEGORIES)
-        .count({
-          appId,
-          order: { $ne: SAFE_ORDER_NUMBER },
-        });
-
-      if (currentOrder === SAFE_ORDER_NUMBER) {
+      if (currentCategoryOrder === SAFE_ORDER_NUMBER) {
         /* category was previously unordered */
         defaultOrder += 1;
         if (defaultOrder >= SAFE_ORDER_NUMBER) {
@@ -78,6 +95,11 @@ export default async (
 
       category.order = Math.min(order, defaultOrder + 1);
     }
+
+    const bulk = client
+      .db(DB_NAME)
+      .collection(COLL_PRESS_CATEGORIES)
+      .initializeOrderedBulkOp();
 
     if (parentId) {
       const parentCategory = await client
@@ -93,7 +115,8 @@ export default async (
       const hasChildCategories = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .find({ parentId: categoryId }).toArray();
+        .find({ parentId: categoryId })
+        .toArray();
       if (hasChildCategories.length > 0) {
         throw new Error('has_already_child_cateogries');
       }
@@ -105,13 +128,28 @@ export default async (
       category.parentId = null;
     }
 
-    const bulk = client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_CATEGORIES)
-      .initializeOrderedBulkOp();
-
-    if (order) {
+    if (order && parentId) {
       if (category.order > currentOrder) {
+        /* ex move 2 to position 4
+               _______
+              |       |
+              |       \/
+          [1, 2 , 3, 4, 5]
+
+          all values between old position and new position must be decreased
+          [1, 3=>2, 4=>3, 2=>4, 5]
+        */
+        bulk
+          .find({
+            parentId,
+            order: {
+              $gt: currentOrder,
+              $lte: category.order,
+            },
+          })
+          .update({ $inc: { order: -1 } });
+      }
+      if (category.order < currentOrder) {
         /* ex move 4 to position 2
              ________
             |        |
@@ -123,15 +161,19 @@ export default async (
         */
         bulk
           .find({
-            appId,
+            parentId,
             order: {
-              $gt: currentOrder,
-              $lte: category.order,
+              $gte: category.order,
+              $lt: currentOrder,
+              $ne: SAFE_ORDER_NUMBER,
             },
           })
-          .update({ $inc: { order: -1 } });
+          .update({ $inc: { order: 1 } });
       }
-      if (category.order < currentOrder) {
+    }
+
+    if (order && !parentId) {
+      if (category.order > currentOrder) {
         /* ex move 2 to position 4
                _______
               |       |
@@ -145,6 +187,26 @@ export default async (
           .find({
             appId,
             order: {
+              $gt: currentOrder,
+              $lte: category.order,
+            },
+          })
+          .update({ $inc: { order: -1 } });
+      }
+      if (category.order < currentOrder) {
+        /* ex move 4 to position 2
+             ________
+            |        |
+            \/       |
+          [1, 2 , 3, 4, 5]
+
+          all values between old position and new position must be increased
+          [1, 4=>2, 2=>3, 3=>4, 5]
+        */
+        bulk
+          .find({
+            appId,
+            order: {
               $gte: category.order,
               $lt: currentOrder,
               $ne: SAFE_ORDER_NUMBER,
@@ -153,6 +215,7 @@ export default async (
           .update({ $inc: { order: 1 } });
       }
     }
+
     bulk
       .find({
         _id: categoryId,

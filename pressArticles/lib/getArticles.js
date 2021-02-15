@@ -92,12 +92,10 @@ export const getArticles = async (
     }
 
     if (getOrphansArticles) {
-      matchArticles.$or.forEach((condition) => {
-        condition.$or = [
-          { categoryId: null },
-          { categoryId: { $in: categoriesIds } },
-        ];
-      });
+      matchArticles.$or = [
+        { categoryId: null },
+        { categoryId: { $in: categoriesIds } },
+      ];
     } else {
       matchArticles.categoryId = { $in: categoriesIds };
     }
