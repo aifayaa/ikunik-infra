@@ -34,7 +34,11 @@ export default async (
       const matchOrderedCategories = {
         appId,
         order: { $ne: 999 },
+        parentId: null,
       };
+      if (parentId) {
+        matchOrderedCategories.parentId = parentId;
+      }
       const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
