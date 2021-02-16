@@ -31,11 +31,15 @@ export default async (
       return { count: categoriesCount };
     }
     if (fetchMaxOrder) {
-      matchHidden.order = { $ne: 999 };
       const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .find({}, { _id: 1 })
+        .find(
+          {
+            order: { $ne: 999 },
+          },
+          { _id: 1 },
+        )
         .count();
 
       return { count: categoriesCount };
