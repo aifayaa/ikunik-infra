@@ -141,6 +141,7 @@ export default async (
         */
         bulk
           .find({
+            appId,
             parentId: parentId || null,
             order: {
               $gt: currentOrder,
@@ -161,6 +162,7 @@ export default async (
         */
         bulk
           .find({
+            appId,
             parentId: parentId || null,
             order: {
               $gte: category.order,
