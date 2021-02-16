@@ -128,7 +128,7 @@ export default async (
       category.parentId = null;
     }
 
-    if (order && parentId) {
+    if (order) {
       if (category.order > currentOrder) {
         /* ex move 2 to position 4
                _______
@@ -141,7 +141,7 @@ export default async (
         */
         bulk
           .find({
-            parentId,
+            parentId: parentId || null,
             order: {
               $gt: currentOrder,
               $lte: category.order,
@@ -161,53 +161,7 @@ export default async (
         */
         bulk
           .find({
-            parentId,
-            order: {
-              $gte: category.order,
-              $lt: currentOrder,
-              $ne: safeOrderNumber,
-            },
-          })
-          .update({ $inc: { order: 1 } });
-      }
-    }
-
-    if (order && !parentId) {
-      if (category.order > currentOrder) {
-        /* ex move 2 to position 4
-               _______
-              |       |
-              |       \/
-          [1, 2 , 3, 4, 5]
-
-          all values between old position and new position must be decreased
-          [1, 3=>2, 4=>3, 2=>4, 5]
-        */
-        bulk
-          .find({
-            appId,
-            parentId: null,
-            order: {
-              $gt: currentOrder,
-              $lte: category.order,
-            },
-          })
-          .update({ $inc: { order: -1 } });
-      }
-      if (category.order < currentOrder) {
-        /* ex move 4 to position 2
-             ________
-            |        |
-            \/       |
-          [1, 2 , 3, 4, 5]
-
-          all values between old position and new position must be increased
-          [1, 4=>2, 2=>3, 3=>4, 5]
-        */
-        bulk
-          .find({
-            appId,
-            parentId: null,
+            parentId: parentId || null,
             order: {
               $gte: category.order,
               $lt: currentOrder,

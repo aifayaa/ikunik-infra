@@ -96,21 +96,9 @@ export default async (
         defaultOrderChildCategory,
       );
       category.parentId = parentId;
-
-      bulk
-        .find({
-          appId,
-          parentId,
-          order: {
-            $gte: category.order,
-            $lt: safeOrderNumber,
-          },
-        })
-        .update({ $inc: { order: 1 } });
     }
 
-    if (!parentId) {
-      /* ex inserting at 2nd position
+    /* ex inserting at 2nd position
       new
       ||
       \/
@@ -119,19 +107,16 @@ export default async (
       all values after position 2 must be increased
       [1, n=>2, 2=>3, 3=>4, 4=>5, 5=>6]
       */
-      bulk
-        .find({
-          appId,
-          parentId: null,
-          order: {
-            $gte: category.order,
-            $lt: safeOrderNumber,
-          },
-        })
-        .update({ $inc: { order: 1 } });
-    }
-
-
+    bulk
+      .find({
+        appId,
+        parentId: parentId || null,
+        order: {
+          $gte: category.order,
+          $lt: safeOrderNumber,
+        },
+      })
+      .update({ $inc: { order: 1 } });
     bulk.insert(category);
     await bulk.execute();
 
