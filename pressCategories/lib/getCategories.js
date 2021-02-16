@@ -35,7 +35,7 @@ export default async (
       const categoriesCount = await client
         .db(DB_NAME)
         .collection(COLL_PRESS_CATEGORIES)
-        .find(matchHidden, { _id: 1 })
+        .find({}, { _id: 1 })
         .count();
 
       return { count: categoriesCount };
