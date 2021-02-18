@@ -44,6 +44,8 @@ export default async (
       category.picture = picture.pop();
     }
 
+    let previousOrder = null;
+    let previousParentId = null;
     if (order) {
       const {
         order: currentCategoryOrder,
@@ -58,6 +60,8 @@ export default async (
           },
           { projection: { order: true, parentId: true } },
         );
+      previousOrder = currentCategoryOrder;
+      previousParentId = isChildCategory;
       let defaultOrder;
       if (isChildCategory) {
         defaultOrder = await client
@@ -129,7 +133,7 @@ export default async (
     }
 
     if (order) {
-      if (category.order > currentOrder) {
+      if (category.order > previousOrder) {
         /* ex move 2 to position 4
                _______
               |       |
@@ -144,13 +148,13 @@ export default async (
             appId,
             parentId: parentId || null,
             order: {
-              $gt: currentOrder,
               $lte: category.order,
+              $ne: safeOrderNumber,
             },
           })
           .update({ $inc: { order: -1 } });
       }
-      if (category.order < currentOrder) {
+      if (category.order < previousOrder) {
         /* ex move 4 to position 2
              ________
             |        |

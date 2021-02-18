@@ -6,6 +6,7 @@ const {
   COLL_PRESS_CATEGORIES,
   SAFE_ORDER_NUMBER,
 } = process.env;
+const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (appId, categoryId) => {
   const client = await MongoClient.connect();
@@ -35,20 +36,6 @@ export default async (appId, categoryId) => {
       throw new Error('category_has_children_categories');
     }
 
-    // If category is child, update all orders of other children categories
-    if (category.parentId) {
-      bulk
-        .find({
-          appId,
-          parentId: category.parentId,
-          order: {
-            $gt: category.order,
-            $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
-          },
-        })
-        .update({ $inc: { order: -1 } });
-    }
-
     bulk
       .find({
         _id: categoryId,
@@ -68,9 +55,10 @@ export default async (appId, categoryId) => {
       bulk
         .find({
           appId,
+          parentId: category.parentId || null,
           order: {
             $gt: category.order,
-            $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
+            $lt: safeOrderNumber, // do not touch order 999 documents
           },
         })
         .update({ $inc: { order: -1 } });
