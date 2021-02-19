@@ -19,7 +19,6 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    const currentOrder = 999;
     const checkAvailability = await isAvailable(
       client,
       appId,
