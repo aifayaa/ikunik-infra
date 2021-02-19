@@ -44,10 +44,7 @@ export default async (
       category.picture = picture.pop();
     }
 
-    const {
-      order: previousOrder,
-      parentId: previousParentId,
-    } = await client
+    const { order: previousOrder, parentId: previousParentId } = await client
       .db(DB_NAME)
       .collection(COLL_PRESS_CATEGORIES)
       .findOne(
@@ -127,16 +124,12 @@ export default async (
 
       // Update previous parent category subset of children
       if (previousParentId && previousParentId !== parentId) {
-        console.log('parentId', parentId);
-        console.log('previousParentId', previousParentId);
-        console.log('category.order', category.order);
-        console.log('safeOrderNumber', safeOrderNumber);
         bulk
           .find({
             appId,
             parentId: previousParentId,
             order: {
-              $gte: category.order,
+              $gte: previousOrder,
               $lt: safeOrderNumber,
             },
           })
@@ -147,6 +140,24 @@ export default async (
     }
 
     if (order) {
+      // Change parent category without modifying the order
+      if (
+        category.order === previousOrder &&
+        previousParentId &&
+        parentId &&
+        previousParentId !== parentId
+      ) {
+        bulk
+          .find({
+            appId,
+            parentId: parentId || null,
+            order: {
+              $gte: category.order,
+              $lt: safeOrderNumber,
+            },
+          })
+          .update({ $inc: { order: 1 } });
+      }
       if (category.order > previousOrder) {
         /* ex move 2 to position 4
                _______
@@ -184,8 +195,7 @@ export default async (
             parentId: parentId || null,
             order: {
               $gte: category.order,
-              $lt: currentOrder,
-              $ne: safeOrderNumber,
+              $lt: safeOrderNumber,
             },
           })
           .update({ $inc: { order: 1 } });
