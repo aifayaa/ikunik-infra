@@ -44,26 +44,22 @@ export default async (
       category.picture = picture.pop();
     }
 
-    let previousOrder = null;
-    let previousParentId = null;
+    const {
+      order: previousOrder,
+      parentId: previousParentId,
+    } = await client
+      .db(DB_NAME)
+      .collection(COLL_PRESS_CATEGORIES)
+      .findOne(
+        {
+          _id: categoryId,
+          appId,
+        },
+        { projection: { order: true, parentId: true } },
+      );
     if (order) {
-      const {
-        order: currentCategoryOrder,
-        parentId: isChildCategory,
-      } = await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_CATEGORIES)
-        .findOne(
-          {
-            _id: categoryId,
-            appId,
-          },
-          { projection: { order: true, parentId: true } },
-        );
-      previousOrder = currentCategoryOrder;
-      previousParentId = isChildCategory;
       let defaultOrder;
-      if (isChildCategory) {
+      if (previousParentId) {
         defaultOrder = await client
           .db(DB_NAME)
           .collection(COLL_PRESS_CATEGORIES)
@@ -85,7 +81,7 @@ export default async (
           });
       }
 
-      if (currentCategoryOrder === safeOrderNumber) {
+      if (previousOrder === safeOrderNumber) {
         /* category was previously unordered */
         defaultOrder += 1;
         if (defaultOrder >= safeOrderNumber) {
@@ -128,6 +124,24 @@ export default async (
         throw new Error('parent_can_not_be_same_category');
       }
       category.parentId = parentId;
+
+      // Update previous parent category subset of children
+      if (previousParentId && previousParentId !== parentId) {
+        console.log('parentId', parentId);
+        console.log('previousParentId', previousParentId);
+        console.log('category.order', category.order);
+        console.log('safeOrderNumber', safeOrderNumber);
+        bulk
+          .find({
+            appId,
+            parentId: previousParentId,
+            order: {
+              $gte: category.order,
+              $lt: safeOrderNumber,
+            },
+          })
+          .update({ $inc: { order: -1 } });
+      }
     } else {
       category.parentId = null;
     }
