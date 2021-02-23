@@ -44,7 +44,7 @@ export default async (event) => {
       pictureUrl,
       options,
     );
-    return response({ code: 200, body, raw: true });
+    return response({ code: 200, body, raw: true, headers: { 'Content-Type': 'text/html' } });
   } catch (e) {
     let code;
     switch (e.message) {

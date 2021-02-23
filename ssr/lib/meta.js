@@ -28,6 +28,7 @@ export default (
   ` : '';
   return `
     ${fbAppId ? `<meta property="fb:app_id" content="${fbAppId}" />` : ''}\
+    <meta name="twitter:card" content="summary"></meta>\
     <meta property="og:title" content="${title}" />\
     <meta property="og:description" content="${description}" />\
     <meta property="og:image" content="${imageUrl}" />\

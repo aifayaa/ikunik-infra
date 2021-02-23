@@ -222,6 +222,11 @@ export default async (
       });
 
       /* Insert data to crowd results */
+      const unique = (arrayOfArticles) => arrayOfArticles
+        .map((v) => v.title)
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .map((v) => ({ title: v }));
+
       crowd.forEach((value, key) => {
         const { deviceId, user_ID: userId } = value;
         if (userId) {
@@ -229,14 +234,14 @@ export default async (
             ? geolocationDataFormattedById[userId].pop()
             : null };
           crowd[key].userArticles = articleDataFormattedById[userId]
-            ? articleDataFormattedById[userId].filter((v, i, a) => a.indexOf(v) === i)
+            ? unique(articleDataFormattedById[userId])
             : [];
         } else if (deviceId) {
           crowd[key].lastGeolocation = { location: geolocationDataFormattedByDevice[userId]
             ? geolocationDataFormattedByDevice[userId].pop()
             : null };
           crowd[key].userArticles = articleDataFormattedByDevice[deviceId]
-            ? articleDataFormattedByDevice[deviceId].filter((v, i, a) => a.indexOf(v) === i)
+            ? unique(articleDataFormattedByDevice[deviceId])
             : [];
         }
       });
