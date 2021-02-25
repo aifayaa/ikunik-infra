@@ -88,16 +88,18 @@ export default async (
 
     let maximumOrderValueForParentId = 0;
     if (hasParentIdChanged) {
-      const parentCategory = await collection.findOne({ _id: parentId });
+      if (parentId) {
+        const parentCategory = await collection.findOne({ _id: parentId });
 
-      /* Specified parentId was not found */
-      if (!parentCategory) {
-        throw new Error('no_parent_category_found');
-      }
+        /* Specified parentId was not found */
+        if (!parentCategory) {
+          throw new Error('no_parent_category_found');
+        }
 
-      /* For now we don't allow recursive categories, we stop at first level of child */
-      if (parentCategory.parentId) {
-        throw new Error('not_root_category');
+        /* For now we don't allow recursive categories, we stop at first level of child */
+        if (parentCategory.parentId) {
+          throw new Error('not_root_category');
+        }
       }
 
       /* Get the maximum order value for that parentId */
