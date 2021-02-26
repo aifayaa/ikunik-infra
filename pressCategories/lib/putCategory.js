@@ -86,7 +86,13 @@ export default async (
       throw new Error('press_service_order_superior_to_max_order');
     }
 
-    let maximumOrderValueForParentId = 0;
+    /* Get the maximum order value for that parentId */
+    const maximumOrderValueForParentId = (await collection.countDocuments({
+      appId,
+      parentId,
+      order: { $ne: safeOrderNumber },
+    })) + 1;
+
     if (hasParentIdChanged) {
       if (parentId) {
         const parentCategory = await collection.findOne({ _id: parentId });
@@ -101,13 +107,6 @@ export default async (
           throw new Error('not_root_category');
         }
       }
-
-      /* Get the maximum order value for that parentId */
-      maximumOrderValueForParentId = (await collection.countDocuments({
-        appId,
-        parentId,
-        order: { $ne: safeOrderNumber },
-      })) + 1;
 
       /* Also checking we didn't exceed the maximum number of child categories for that parent */
       if (maximumOrderValueForParentId >= safeOrderNumber) {
