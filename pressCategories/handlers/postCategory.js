@@ -20,7 +20,6 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
-      action,
       color,
       hidden,
       name,
@@ -29,6 +28,12 @@ export default async (event) => {
       pathName,
       picture,
     } = parsedBody;
+    let { action } = parsedBody;
+
+    /* Encore URI for internal PDF links */
+    if (action && action.indexOf('/pdf/') === 0) {
+      action = `/pdf/${encodeURIComponent(action.substring(5))}`;
+    }
 
     const results = await postCategory(
       appId,
