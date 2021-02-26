@@ -37,7 +37,7 @@ export default ({ title, endpoint, message }, cb) => {
     MessageStructure: 'json',
     TargetArn: endpoint.EndpointArn,
   };
-  if (process.env.STAGE !== 'dev' && process.env.STAGE !== 'preprod') return sns.publish(params, cb);
+  if (process.env.STAGE !== 'preprod') return sns.publish(params, cb);
   return cb(null, {
     ResponseMetadata: {
       RequestId: AWSId(),

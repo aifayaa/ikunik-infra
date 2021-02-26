@@ -2,10 +2,8 @@ import Lambda from 'aws-sdk/clients/lambda';
 import phone from 'phone';
 import queue from 'async/queue';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
-import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import response from '../../libs/httpResponses/response';
 import search from '../lib/search';
-import searchPress from '../lib/searchPress';
 
 const {
   REGION,
@@ -26,18 +24,13 @@ export default async (event) => {
     /* Some base variables */
     const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
     const { message } = JSON.parse(event.body);
-    const { type = 'label' } = event.queryStringParameters;
     Object.assign(event.queryStringParameters, { hasText: true });
-    const pipeline = (
-      type === 'press' ? buildPressPipeline : buildPipeline
-    )(userId, appId, event.queryStringParameters || {});
+    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
 
     /* whole queueing system to process batch of mongo queries */
     let phones = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await (
-        type === 'press' ? searchPress : search
-      )([...pipeline], queryStringParameters || {});
+      const localResults = await search([...pipeline], queryStringParameters || {});
       phones = phones.concat(localResults.crowd.map((fan) => phone(fan.user.profile.phone)[0])
         .filter((phoneNumber) => phoneNumber));
       doneCallback();

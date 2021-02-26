@@ -34,6 +34,7 @@
     "mongo-round": "^1.0.0",
     "mongodb": "3.5.3",
     "nodemailer": "^6.4.14",
+    "p-queue": "^6.6.2",
     "phone": "^2.4.15",
     "promise-pool-executor": "^1.1.1",
     "qrcode": "^1.4.4",
