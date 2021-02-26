@@ -67,7 +67,7 @@ export default async (
       });
 
       if (currentCategoriesHasChildren) {
-        throw new Error('has_already_child_cateogries');
+        throw new Error('has_already_child_categories');
       }
 
       /* Cannot set itself as a parent */
