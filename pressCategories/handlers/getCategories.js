@@ -8,15 +8,12 @@ export default async (event) => {
     start,
     limit,
     countOnly = '',
-    fetchMaxOrder = '',
   } = event.queryStringParameters || {};
   const isCountOnly = countOnly.toLowerCase() === 'true';
-  const isFetchMaxOrder = fetchMaxOrder.toLowerCase() === 'true';
 
   try {
     const results = await getCategories(appId, false, {
       countOnly: isCountOnly,
-      fetchMaxOrder: isFetchMaxOrder,
       parentId: null,
       start,
       limit,

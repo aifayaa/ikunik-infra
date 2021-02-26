@@ -2,6 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
 const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
+const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (
   appId,
@@ -19,7 +20,36 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    const currentOrder = 999;
+    const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
+
+    /* * * * * * * * * * * * * * * * * * * * * * * * *
+     *
+     * DOING FETCHS : getting previous values & preparing variables
+     *
+     * * * * * * * * * * * * * * * * * * * * * * * * */
+
+    const previousCategoryValues = await collection.findOne(
+      { _id: categoryId, appId },
+      { projection: { order: 1, parentId: 1 } },
+    );
+    const { order: previousOrder, parentId: previousParentId } = previousCategoryValues;
+    const hasOrderChanged = previousOrder !== order;
+    const hasParentIdChanged = previousParentId !== parentId;
+
+    /* maximumOrderValue is the number of categories */
+    const maximumOrderValue = (await collection.countDocuments({
+      appId,
+      parentId: previousParentId,
+      order: { $ne: safeOrderNumber },
+    }));
+
+    /* * * * * * * * * * * * * * * * * * * * * * * * *
+     *
+     * DOING CHECKS : making sure operation is authorized
+     *
+     * * * * * * * * * * * * * * * * * * * * * * * * */
+
+    /* Ensure category is unique : checking if any similar category already exists */
     const checkAvailability = await isAvailable(
       client,
       appId,
@@ -29,151 +59,137 @@ export default async (
     );
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
-    const category = {
-      name,
-      pathName,
-      hidden,
-      action,
-    };
+    /* If current category already has children, it cannot be set as a child */
+    if (parentId) {
+      const currentCategoriesHasChildren = await collection.countDocuments({
+        appId,
+        parentId: categoryId,
+      });
 
-    if (color) {
-      category.color = color;
+      if (currentCategoriesHasChildren) {
+        throw new Error('has_already_child_categories');
+      }
+
+      /* Cannot set itself as a parent */
+      if (parentId === categoryId) {
+        throw new Error('parent_can_not_be_same_category');
+      }
     }
+
+    /* Checking we didn't exceed the maximum number of categories */
+    if (maximumOrderValue >= safeOrderNumber) {
+      throw new Error('max_category_reached');
+    }
+
+    /* Checking specified order does not exceed the maximum value */
+    if (order > maximumOrderValue) {
+      throw new Error('press_service_order_superior_to_max_order');
+    }
+
+    /* Get the maximum order value for that parentId */
+    const maximumOrderValueForParentId = (await collection.countDocuments({
+      appId,
+      parentId,
+      order: { $ne: safeOrderNumber },
+    })) + 1;
+
+    if (hasParentIdChanged) {
+      if (parentId) {
+        const parentCategory = await collection.findOne({ _id: parentId });
+
+        /* Specified parentId was not found */
+        if (!parentCategory) {
+          throw new Error('no_parent_category_found');
+        }
+
+        /* For now we don't allow recursive categories, we stop at first level of child */
+        if (parentCategory.parentId) {
+          throw new Error('not_root_category');
+        }
+      }
+
+      /* Also checking we didn't exceed the maximum number of child categories for that parent */
+      if (maximumOrderValueForParentId >= safeOrderNumber) {
+        throw new Error('max_child_category_reached');
+      }
+
+      /* Checking the specified value does not exceed the current maximum order value */
+      if (order > maximumOrderValueForParentId) {
+        throw new Error('press_service_order_superior_to_max_order');
+      }
+    } else if (hasOrderChanged) {
+      /*
+        In case we are trying to move a 999 order category
+        and there is already 998 ordered categories
+      */
+      if (previousOrder === safeOrderNumber) {
+        if (maximumOrderValue >= safeOrderNumber) {
+          throw new Error('max_ordered_category_reached');
+        }
+      }
+    }
+
+    /* * * * * * * * * * * * * * * * * * * * * * * * *
+     *
+     * PROCESSING : updating database
+     *
+     * * * * * * * * * * * * * * * * * * * * * * * * */
+
+    /* Prepare the category object for database insertion */
+    const category = {
+      action,
+      color: color || null,
+      hidden,
+      name,
+      parentId: parentId || null,
+      pathName,
+    };
 
     if (picture && picture.length) {
       category.picture = picture.pop();
     }
 
     if (order) {
-      const {
-        order: currentCategoryOrder,
-        parentId: isChildCategory,
-      } = await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_CATEGORIES)
-        .findOne(
-          {
-            _id: categoryId,
-            appId,
+      const whichMaximumOrderValue = parentId ? maximumOrderValueForParentId : maximumOrderValue;
+      category.order = Math.min(
+        order || whichMaximumOrderValue,
+        whichMaximumOrderValue,
+      );
+    }
+
+    /* Inserting into database */
+    const bulk = collection.initializeOrderedBulkOp();
+
+    /* If parent category has changed */
+    if (hasParentIdChanged) {
+      /* Update previous subset order */
+      bulk
+        .find({
+          appId,
+          parentId: previousParentId,
+          order: {
+            $gte: previousOrder,
+            $lt: safeOrderNumber,
           },
-          { projection: { order: true, parentId: true } },
-        );
-      let defaultOrder;
-      if (isChildCategory) {
-        defaultOrder = await client
-          .db(DB_NAME)
-          .collection(COLL_PRESS_CATEGORIES)
-          .count({
-            appId,
-            parentId,
-            order: { $ne: SAFE_ORDER_NUMBER },
-          });
-        if (order >= defaultOrder + 1) {
-          throw new Error('press_service_order_superior_to_max_order');
-        }
-      } else {
-        defaultOrder = await client
-          .db(DB_NAME)
-          .collection(COLL_PRESS_CATEGORIES)
-          .count({
-            appId,
-            order: { $ne: SAFE_ORDER_NUMBER },
-          });
-      }
+        })
+        .update({ $inc: { order: -1 } });
 
-      if (currentCategoryOrder === SAFE_ORDER_NUMBER) {
-        /* category was previously unordered */
-        defaultOrder += 1;
-        if (defaultOrder >= SAFE_ORDER_NUMBER) {
-          /*
-            In case we are trying to move a 999 order category
-            and there is already 998 ordered categories
-          */
-          throw new Error('max_ordered_category_reached');
-        }
-      }
+      /* And update next subset order */
+      bulk
+        .find({
+          appId,
+          parentId: category.parentId,
+          order: {
+            $gte: category.order,
+            $lt: safeOrderNumber,
+          },
+        })
+        .update({ $inc: { order: 1 } });
 
-      category.order = Math.min(order, defaultOrder + 1);
-    }
-
-    const bulk = client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_CATEGORIES)
-      .initializeOrderedBulkOp();
-
-    if (parentId) {
-      const parentCategory = await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_CATEGORIES)
-        .findOne({ _id: parentId });
-      if (!parentCategory) {
-        throw new Error('no_parent_category_found');
-      }
-      if (parentCategory.parentId) {
-        throw new Error('not_root_category');
-      }
-      const hasChildCategories = await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_CATEGORIES)
-        .find({ parentId: categoryId })
-        .toArray();
-      if (hasChildCategories.length > 0) {
-        throw new Error('has_already_child_cateogries');
-      }
-      if (parentId === categoryId) {
-        throw new Error('parent_can_not_be_same_category');
-      }
-      category.parentId = parentId;
-    } else {
-      category.parentId = null;
-    }
-
-    if (order && parentId) {
-      if (category.order > currentOrder) {
-        /* ex move 2 to position 4
-               _______
-              |       |
-              |       \/
-          [1, 2 , 3, 4, 5]
-
-          all values between old position and new position must be decreased
-          [1, 3=>2, 4=>3, 2=>4, 5]
-        */
-        bulk
-          .find({
-            parentId,
-            order: {
-              $gt: currentOrder,
-              $lte: category.order,
-            },
-          })
-          .update({ $inc: { order: -1 } });
-      }
-      if (category.order < currentOrder) {
-        /* ex move 4 to position 2
-             ________
-            |        |
-            \/       |
-          [1, 2 , 3, 4, 5]
-
-          all values between old position and new position must be increased
-          [1, 4=>2, 2=>3, 3=>4, 5]
-        */
-        bulk
-          .find({
-            parentId,
-            order: {
-              $gte: category.order,
-              $lt: currentOrder,
-              $ne: SAFE_ORDER_NUMBER,
-            },
-          })
-          .update({ $inc: { order: 1 } });
-      }
-    }
-
-    if (order && !parentId) {
-      if (category.order > currentOrder) {
+    /* Otherwise if parent has not changed but order changed */
+    } else if (hasOrderChanged) {
+      /* If order was increased */
+      if (category.order > previousOrder) {
         /* ex move 2 to position 4
                _______
               |       |
@@ -186,14 +202,17 @@ export default async (
         bulk
           .find({
             appId,
+            parentId: category.parentId,
             order: {
-              $gt: currentOrder,
               $lte: category.order,
+              $gt: previousOrder,
+              $ne: safeOrderNumber,
             },
           })
           .update({ $inc: { order: -1 } });
-      }
-      if (category.order < currentOrder) {
+
+      /* Otherwise if order was decreased */
+      } else if (category.order < previousOrder) {
         /* ex move 4 to position 2
              ________
             |        |
@@ -206,10 +225,11 @@ export default async (
         bulk
           .find({
             appId,
+            parentId: category.parentId,
             order: {
               $gte: category.order,
-              $lt: currentOrder,
-              $ne: SAFE_ORDER_NUMBER,
+              $lt: previousOrder,
+              $ne: safeOrderNumber,
             },
           })
           .update({ $inc: { order: 1 } });
