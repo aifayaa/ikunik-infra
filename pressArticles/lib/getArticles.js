@@ -17,11 +17,12 @@ export const getArticles = async (
   limit,
   appId,
   {
-    onlyPublished = true,
-    getPictures = false,
+    admin = false,
     getOrphansArticles = false,
-    showWithHiddenCategories = false,
+    getPictures = false,
+    onlyPublished = true,
     showHiddenOnFeed = false,
+    showWithHiddenCategories = false,
   },
 ) => {
   let client;
@@ -120,9 +121,39 @@ export const getArticles = async (
       ];
     }
 
-    let articlesPipeline = [
-      { $match: matchArticles },
-      { $sort: sortArticles },
+    let articlesPipeline = [{ $match: matchArticles }];
+
+    if (admin) {
+      articlesPipeline.push(...[
+        {
+          $addFields: {
+            sortPublicationDate: {
+              $cond: {
+                if: {
+                  $eq: ['isPublished', true],
+                },
+                then: '$publicationDate',
+                else: 0,
+              },
+            },
+          },
+        },
+        {
+          $sort: {
+            pinned: -1,
+            isPublished: 1,
+            sortPublicationDate: -1,
+            createdAt: -1,
+          },
+        },
+      ]);
+    } else {
+      articlesPipeline.push({
+        $sort: sortArticles,
+      });
+    }
+
+    articlesPipeline.push(...[
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
       {
@@ -158,7 +189,7 @@ export const getArticles = async (
           userTemp: 0,
         },
       },
-    ];
+    ]);
 
     if (getPictures) {
       // Lookup on pictures
@@ -251,9 +282,20 @@ export const getArticles = async (
       ]);
     }
     /* Group stage could break sorting, ensure all is well sorted */
-    articlesPipeline.push({
-      $sort: sortArticles,
-    });
+    if (admin) {
+      articlesPipeline.push({
+        $sort: {
+          pinned: -1,
+          isPublished: 1,
+          sortPublicationDate: -1,
+          createdAt: -1,
+        },
+      });
+    } else {
+      articlesPipeline.push({
+        $sort: sortArticles,
+      });
+    }
 
     const [articles = [], total = 0] = await Promise.all([
       client
