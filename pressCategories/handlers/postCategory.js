@@ -2,7 +2,7 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import postCategory from '../lib/postCategory';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
-import { actionRegexp } from '../utils/regexp';
+import { actionRegexp } from '../../libs/regexp/action';
 
 const permKey = 'pressCategories_all';
 

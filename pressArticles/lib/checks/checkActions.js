@@ -1,8 +1,4 @@
-import { URL } from 'url';
-
-const stringIsAValidUrl = (s) => {
-  try { return new URL(s); } catch (err) { return false; }
-};
+import { actionRegexp } from '../../../libs/regexp/action';
 
 export default (actions) => {
   if (!Array.isArray(actions)) {
@@ -10,10 +6,10 @@ export default (actions) => {
   }
   actions.forEach((action) => {
     if (!action.title || !action.url) {
-      throw new Error('mal_formed_request');
+      throw new Error('action_field_missing');
     }
-    if (!stringIsAValidUrl(action.url)) {
-      throw new Error('URL error');
+    if (!actionRegexp.test(action.url)) {
+      throw new Error('invalid_action_url');
     }
   });
   return true;

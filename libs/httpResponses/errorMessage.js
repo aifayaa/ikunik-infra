@@ -1,14 +1,15 @@
 export default ({ code, message = 'Error' } = {}) => {
   let errorCode;
   switch (message) {
-    case 'missing_argument':
-    case 'missing_payload':
-    case 'wrong_argument_type':
-    case 'wrong_argument_value':
+    case 'action_field_missing':
+    case 'email_already_exists':
     case 'invalid_email_token':
     case 'invalid_password_length':
+    case 'missing_argument':
+    case 'missing_payload':
     case 'username_already_exists':
-    case 'email_already_exists':
+    case 'wrong_argument_type':
+    case 'wrong_argument_value':
       errorCode = 400;
       break;
     case 'access_forbidden':
