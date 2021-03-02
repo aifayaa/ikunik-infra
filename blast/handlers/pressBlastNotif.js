@@ -1,11 +1,12 @@
-import queue from 'async/queue';
 import PQueue from 'p-queue';
 import flatten from 'lodash/flatten';
+import queue from 'async/queue';
 import blastNotif from '../lib/blastNotif';
-import response from '../../libs/httpResponses/response';
-import logBlast from '../lib/pressLogBlast';
 import buildPipeline from '../../crowd/lib/pipelines/pressPipeline';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import logBlast from '../lib/pressLogBlast';
 import pressSearch from '../../crowd/lib/pressSearch';
+import response from '../../libs/httpResponses/response';
 
 const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
 const UPDATE_STATUS_INTERVAL = 5000;
@@ -23,7 +24,6 @@ export default async ({
 }) => {
   let currentLogBlast;
   try {
-    // eslint-disable-next-line no-console
     currentLogBlast = await logBlast({
       id: operationId,
       userId,
@@ -102,11 +102,9 @@ export default async ({
 
     return response({ code: 200, body: results });
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
     if (currentLogBlast) {
       await currentLogBlast.fails(e.message);
     }
-    return response({ code: 500, message: e.message });
+    return response(errorMessage(e));
   }
 };

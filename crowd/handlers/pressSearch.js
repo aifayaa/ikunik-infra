@@ -1,29 +1,27 @@
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
-import searchPress from '../lib/pressSearch';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
+import searchPress from '../lib/pressSearch';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKey = 'search_press';
 
 export default async (event) => {
-  try {
-    event.queryStringParameters = event.queryStringParameters || {};
-    const userId = event.requestContext.authorizer.principalId;
-    const { appId, perms } = event.requestContext.authorizer;
-    Object.assign(event.queryStringParameters, { filterUserInfo: true });
+  const { queryStringParameters = {} } = event;
+  const { appId, perms, principalId: userId } = event.requestContext.authorizer;
 
+  try {
+    queryStringParameters.filterUserInfo = true;
     const parsedPerms = JSON.parse(perms);
     if (!checkPerms(permKey, parsedPerms)) {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
-    const pipeline = buildPressPipeline(userId, appId, event.queryStringParameters);
-    const results = await searchPress(pipeline, appId, event.queryStringParameters);
+    const pipeline = buildPressPipeline(userId, appId, queryStringParameters);
+    const results = await searchPress(pipeline, appId, queryStringParameters);
 
     return response({ code: 200, body: results });
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
-    return response({ code: 500, message: e.message });
+    return response(errorMessage(e));
   }
 };
