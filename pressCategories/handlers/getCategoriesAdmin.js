@@ -7,7 +7,11 @@ const permKey = 'pressCategories_all';
 export default async (event) => {
   const { appId, perms } = event.requestContext.authorizer;
   const permsParsed = JSON.parse(perms);
+  const {
+    fetchMaxOrder: fetchMaxOrderParameter = '',
+  } = event.queryStringParameters || {};
   let { parentId } = event.queryStringParameters || {};
+  const fetchMaxOrder = fetchMaxOrderParameter.toLowerCase() === 'true';
 
   try {
     if (!checkPerms(permKey, permsParsed)) {
@@ -18,7 +22,12 @@ export default async (event) => {
       parentId = null;
     }
 
-    const results = await getCategories(appId, true, { start: 0, limit: -1, parentId });
+    const results = await getCategories(appId, true, {
+      fetchMaxOrder,
+      limit: -1,
+      parentId,
+      start: 0,
+    });
     return response({ code: 200, body: results });
   } catch (e) {
     return response(errorMessage(e));

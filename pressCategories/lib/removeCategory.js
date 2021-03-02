@@ -1,61 +1,42 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  DB_NAME,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
+  DB_NAME,
   SAFE_ORDER_NUMBER,
 } = process.env;
+const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (appId, categoryId) => {
   const client = await MongoClient.connect();
 
   try {
     const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
-    const bulk = collection.initializeOrderedBulkOp();
-    const category = await collection.findOne(
-      {
-        _id: categoryId,
-        appId,
-      },
-      { projection: { order: true, parentId: true } },
-    );
-    if (!category) throw new Error('category_not_found');
 
-    const childrenCategories = await collection
-      .find(
-        {
-          parentId: categoryId,
-          appId,
-        },
-        { projection: { _id: true } },
-      )
-      .toArray();
-    if (childrenCategories.length > 0) {
+    const previousCategoryValues = await collection.findOne(
+      { _id: categoryId, appId },
+      { projection: { order: 1, parentId: 1 } },
+    );
+
+    if (!previousCategoryValues) throw new Error('category_not_found');
+
+    const { order, parentId } = previousCategoryValues;
+
+    const currentCategoriesHasChildren = await collection.countDocuments({
+      appId,
+      parentId: categoryId,
+    });
+
+    if (currentCategoriesHasChildren) {
       throw new Error('category_has_children_categories');
     }
 
-    // If category is child, update all orders of other children categories
-    if (category.parentId) {
-      bulk
-        .find({
-          appId,
-          parentId: category.parentId,
-          order: {
-            $gt: category.order,
-            $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
-          },
-        })
-        .update({ $inc: { order: -1 } });
-    }
+    const bulk = collection.initializeOrderedBulkOp();
 
-    bulk
-      .find({
-        _id: categoryId,
-      })
-      .removeOne();
+    bulk.find({ _id: categoryId }).removeOne();
 
-    if (category.order) {
+    if (order) {
       /* ex delete element at 2nd position
          delete
            ||
@@ -68,9 +49,10 @@ export default async (appId, categoryId) => {
       bulk
         .find({
           appId,
+          parentId: parentId || null,
           order: {
-            $gt: category.order,
-            $lt: SAFE_ORDER_NUMBER, // do not touch order 999 documents
+            $gt: order,
+            $lt: safeOrderNumber, // do not touch order 999 documents
           },
         })
         .update({ $inc: { order: -1 } });
@@ -83,8 +65,8 @@ export default async (appId, categoryId) => {
       .collection(COLL_PRESS_ARTICLES)
       .updateMany(
         {
-          categoryId,
           appId,
+          categoryId,
         },
         {
           $set: {

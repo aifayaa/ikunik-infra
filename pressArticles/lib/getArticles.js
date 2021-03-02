@@ -5,6 +5,7 @@ const {
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
+  COLL_PRESS_DRAFTS,
   COLL_USERS,
   COLL_VIDEOS,
   DB_NAME,
@@ -267,7 +268,26 @@ export const getArticles = async (
         .count(),
     ]);
 
-    const articlesWithCategory = articles.map((article) => {
+    // Get drafts of articles
+    let articlesWithDraft = articles;
+    if (articles.length > 0) {
+      // @TODO Group all articles ids to do a single query
+      const getDrafts = async (article) => {
+        const lastDraft = await client
+          .db(DB_NAME)
+          .collection(COLL_PRESS_DRAFTS)
+          .find({ articleId: article._id })
+          .sort({ createdAt: -1 })
+          .limit(1)
+          .toArray();
+        return { ...article, draft: lastDraft[0] || {} };
+      };
+      articlesWithDraft = await Promise.all(
+        articles.map((article) => getDrafts(article)),
+      );
+    }
+
+    const articlesWithCategory = articlesWithDraft.map((article) => {
       const articleCategory = categories.find(
         (category) => category._id === article.categoryId,
       );

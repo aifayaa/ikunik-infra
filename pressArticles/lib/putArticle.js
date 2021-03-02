@@ -2,10 +2,7 @@ import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import { manageArticleProduct } from './manageArticleProduct';
 
-const {
-  DB_NAME,
-  COLL_PRESS_DRAFTS,
-} = process.env;
+const { DB_NAME, COLL_PRESS_DRAFTS } = process.env;
 
 export const putArticle = async ({
   actions,
@@ -43,12 +40,10 @@ export const putArticle = async ({
   const draftId = uuidv4();
   const client = await MongoClient.connect();
   try {
-    const currentArticle = await client.db(DB_NAME)
+    const currentArticle = await client
+      .db(DB_NAME)
       .collection(COLL_PRESS_DRAFTS)
-      .findOne(
-        { articleId },
-        { sort: { createdAt: -1 } },
-      );
+      .findOne({ articleId }, { sort: { createdAt: -1 } });
 
     const productId = await manageArticleProduct(
       appId,
@@ -88,9 +83,7 @@ export const putArticle = async ({
       draft.feedPicture = feedPicture;
     }
 
-    await client.db(DB_NAME)
-      .collection(COLL_PRESS_DRAFTS)
-      .insertOne(draft);
+    await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS).insertOne(draft);
 
     return { articleId, draftId };
   } finally {
