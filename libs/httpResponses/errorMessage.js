@@ -29,6 +29,8 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'cannot_send_email':
     default:
       errorCode = 500;
+      // eslint-disable-next-line no-console
+      console.error(message);
       break;
   }
   return { code: code || errorCode, message };

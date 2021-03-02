@@ -194,14 +194,26 @@ export default (
       from: COLL_PUSH_NOTIFICATIONS,
       let: {
         userId: '$user_ID',
+        deviceId: '$deviceId',
       },
       pipeline: [
         {
           $match: {
-            $expr: {
-              $eq: ['$_id', '$$userId'],
-            },
-            appId,
+            appId: 'crowdaa_app_id',
+            $or: [
+              {
+                userId: { $ne: null },
+                $expr: {
+                  $eq: ['$userId', '$$userId'],
+                },
+              },
+              {
+                deviceId: { $ne: null },
+                $expr: {
+                  $eq: ['$deviceUUID', '$$deviceId'],
+                },
+              },
+            ],
           },
         },
       ],

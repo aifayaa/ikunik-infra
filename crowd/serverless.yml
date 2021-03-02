@@ -15,6 +15,8 @@ provider:
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /admin/press: ${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}
   region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
@@ -61,6 +63,48 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings: ${self:custom.querystrings}
+
+  pressBlastSearchNotification:
+    handler: handlers/pressBlastSearchNotif.default
+    events:
+      - http:
+          path: admin/press/crowd/blast/notifications
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              querystrings: ${self:custom.querystrings}
+
+  pressSearch:
+    handler: handlers/pressSearch.default
+    events:
+      - http:
+          path: admin/press/crowd
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors:
+            origin: '*'
+            headers:
+              - Cache-Control
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
           request:
             parameters:
               headers:
