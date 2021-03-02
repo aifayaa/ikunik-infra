@@ -199,7 +199,7 @@ export default (
       pipeline: [
         {
           $match: {
-            appId: 'crowdaa_app_id',
+            appId,
             $or: [
               {
                 userId: { $ne: null },
