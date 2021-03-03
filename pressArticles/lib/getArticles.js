@@ -11,6 +11,61 @@ const {
   DB_NAME,
 } = process.env;
 
+const getDraftLookupArray = (appId) => [
+  {
+    $lookup: {
+      from: COLL_PRESS_DRAFTS,
+      as: 'draft',
+      let: {
+        articleId: '$_id',
+      },
+      pipeline: [
+        {
+          $match: {
+            appId,
+            $expr: {
+              /* Can probably add more expr in here to lighten the request more */
+              $eq: ['$articleId', '$$articleId'],
+            },
+          },
+        },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+        {
+          $group: {
+            _id: '$articleId',
+            createdAt: { $first: '$createdAt' },
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: {
+      path: '$draft',
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+];
+
+const getSortArticlesArray = (onlyPublished, admin) => {
+  let $sort = { pinned: -1, createdAt: -1 };
+  if (admin) {
+    $sort = {
+      pinned: -1,
+      isPublished: 1,
+      sortPublicationDate: -1,
+      'draft.createdAt': -1,
+    };
+  } else if (onlyPublished) {
+    $sort = { pinned: -1, publicationDate: -1 };
+  }
+  return [{ $sort }];
+};
+
 export const getArticles = async (
   categoryId,
   start,
@@ -102,10 +157,8 @@ export const getArticles = async (
       matchArticles.categoryId = { $in: categoriesIds };
     }
 
-    let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
-      sortArticles = { pinned: -1, publicationDate: -1 };
       matchArticles.isPublished = true;
       matchArticles.$or = [
         {
@@ -121,39 +174,23 @@ export const getArticles = async (
       ];
     }
 
-    let articlesPipeline = [{ $match: matchArticles }];
-
-    if (admin) {
-      articlesPipeline.push(...[
-        {
-          $addFields: {
-            sortPublicationDate: {
-              $cond: {
-                if: {
-                  $eq: ['isPublished', true],
-                },
-                then: '$publicationDate',
-                else: 0,
+    let articlesPipeline = [
+      { $match: matchArticles },
+      {
+        $addFields: {
+          sortPublicationDate: {
+            $cond: {
+              if: {
+                $eq: ['$isPublished', true],
               },
+              then: '$publicationDate',
+              else: 0,
             },
           },
         },
-        {
-          $sort: {
-            pinned: -1,
-            isPublished: 1,
-            sortPublicationDate: -1,
-            createdAt: -1,
-          },
-        },
-      ]);
-    } else {
-      articlesPipeline.push({
-        $sort: sortArticles,
-      });
-    }
-
-    articlesPipeline.push(...[
+      },
+      ...getDraftLookupArray(appId),
+      ...getSortArticlesArray(onlyPublished, admin),
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
       {
@@ -189,7 +226,7 @@ export const getArticles = async (
           userTemp: 0,
         },
       },
-    ]);
+    ];
 
     if (getPictures) {
       // Lookup on pictures
@@ -281,21 +318,9 @@ export const getArticles = async (
         },
       ]);
     }
+
     /* Group stage could break sorting, ensure all is well sorted */
-    if (admin) {
-      articlesPipeline.push({
-        $sort: {
-          pinned: -1,
-          isPublished: 1,
-          sortPublicationDate: -1,
-          createdAt: -1,
-        },
-      });
-    } else {
-      articlesPipeline.push({
-        $sort: sortArticles,
-      });
-    }
+    articlesPipeline.push(...getSortArticlesArray(onlyPublished, admin));
 
     const [articles = [], total = 0] = await Promise.all([
       client
@@ -310,26 +335,7 @@ export const getArticles = async (
         .count(),
     ]);
 
-    // Get drafts of articles
-    let articlesWithDraft = articles;
-    if (articles.length > 0) {
-      // @TODO Group all articles ids to do a single query
-      const getDrafts = async (article) => {
-        const lastDraft = await client
-          .db(DB_NAME)
-          .collection(COLL_PRESS_DRAFTS)
-          .find({ articleId: article._id })
-          .sort({ createdAt: -1 })
-          .limit(1)
-          .toArray();
-        return { ...article, draft: lastDraft[0] || {} };
-      };
-      articlesWithDraft = await Promise.all(
-        articles.map((article) => getDrafts(article)),
-      );
-    }
-
-    const articlesWithCategory = articlesWithDraft.map((article) => {
+    const articlesWithCategory = articles.map((article) => {
       const articleCategory = categories.find(
         (category) => category._id === article.categoryId,
       );
