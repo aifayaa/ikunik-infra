@@ -13,10 +13,11 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
     const results = await getArticles(category, start, limit, appId, {
-      onlyPublished: false,
+      admin: true,
       getOrphansArticles: (!category),
-      showWithHiddenCategories: true,
+      onlyPublished: false,
       showHiddenOnFeed: true,
+      showWithHiddenCategories: true,
     });
     return response({ code: 200, body: results });
   } catch (e) {
