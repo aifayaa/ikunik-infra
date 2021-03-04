@@ -38,6 +38,7 @@ const getDraftLookupArray = (appId) => [
           $group: {
             _id: '$articleId',
             createdAt: { $first: '$createdAt' },
+            title: { $first: '$title' },
           },
         },
       ],
