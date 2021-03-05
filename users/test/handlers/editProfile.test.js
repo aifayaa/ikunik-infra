@@ -18,6 +18,7 @@ describe('handlers - editProfile', () => {
       id: 'userId',
     },
     body: JSON.stringify({
+      avatar: 'avatar',
       username: 'username',
     }),
   };
@@ -62,7 +63,7 @@ describe('handlers - editProfile', () => {
     it('should return 403', async () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(403);
-      expect(JSON.parse(response.body).message).to.eq('Forbidden');
+      expect(JSON.parse(response.body).message).to.eq('forbidden');
     });
 
     after(() => {
@@ -106,12 +107,20 @@ describe('handlers - editProfile', () => {
         username: 2,
       });
       const response = await handler(event);
-      expect(response.statusCode).to.eq(500);
+      expect(response.statusCode).to.eq(400);
     });
 
     it('event.body.username is too short', async () => {
       event.body = JSON.stringify({
         username: 'a',
+      });
+      const response = await handler(event);
+      expect(response.statusCode).to.eq(500);
+    });
+
+    it('event.body.avatar not a string', async () => {
+      event.body = JSON.stringify({
+        avatar: 2,
       });
       const response = await handler(event);
       expect(response.statusCode).to.eq(500);

@@ -10,7 +10,7 @@ export default async (event) => {
   try {
     // Only restricting to self for now, should allow admin users later
     if (userId !== id) {
-      throw new Error('Forbidden');
+      throw new Error('forbidden');
     }
 
     if (!event.body) {
