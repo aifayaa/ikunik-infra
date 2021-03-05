@@ -1,14 +1,15 @@
 import editProfile from '../lib/editProfile';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
-  const urlId = event.pathParameters.id;
+  const { pathParameters, requestContext } = event;
+  const { appId, principalId: userId } = requestContext.authorizer;
+  const { id } = pathParameters;
 
   try {
     // Only restricting to self for now, should allow admin users later
-    if (userId !== urlId) {
+    if (userId !== id) {
       throw new Error('Forbidden');
     }
 
@@ -18,6 +19,7 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
     const {
+      avatar,
       username,
     } = bodyParsed;
 
@@ -33,14 +35,13 @@ export default async (event) => {
       throw new Error('username too short');
     }
 
+    if (avatar && typeof avatar !== 'string') {
+      throw new Error('wrong_argument_type');
+    }
+
     const results = await editProfile(userId, appId, bodyParsed);
     return response({ code: 200, body: { updated: results } });
   } catch (e) {
-    let code = 500;
-    switch (e.message) {
-      case 'Forbidden': code = 403; break;
-      default: code = 500; break;
-    }
-    return response({ code, message: e.message });
+    return response(errorMessage(e));
   }
 };
