@@ -1,10 +1,8 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import queue from 'async/queue';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
-import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import response from '../../libs/httpResponses/response';
 import search from '../lib/search';
-import searchPress from '../lib/searchPress';
 
 const {
   REGION,
@@ -25,17 +23,12 @@ export default async (event) => {
     /* Some base variables */
     const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
     const { subject, template } = JSON.parse(event.body);
-    const { type = 'label' } = event.queryStringParameters;
     Object.assign(event.queryStringParameters, { hasEmail: true });
-    const pipeline = (
-      type === 'press' ? buildPressPipeline : buildPipeline
-    )(userId, appId, event.queryStringParameters || {});
+    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
     /* whole queueing system to process batch of mongo queries */
     let contacts = [];
     const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await (
-        type === 'press' ? searchPress : search
-      )([...pipeline], queryStringParameters || {});
+      const localResults = await search([...pipeline], queryStringParameters || {});
       contacts = contacts.concat(localResults.crowd.map((fan) => ({
         email: fan.user.email ||
           fan.user.profile.email ||

@@ -1,5 +1,4 @@
 import SNS from 'aws-sdk/clients/sns';
-import AWSId from './generateAWSId';
 
 const {
   SNS_REGION,
@@ -37,11 +36,5 @@ export default ({ title, endpoint, message }, cb) => {
     MessageStructure: 'json',
     TargetArn: endpoint.EndpointArn,
   };
-  if (process.env.STAGE !== 'dev' && process.env.STAGE !== 'preprod') return sns.publish(params, cb);
-  return cb(null, {
-    ResponseMetadata: {
-      RequestId: AWSId(),
-      MessageId: AWSId(),
-    },
-  });
+  return sns.publish(params, cb);
 };

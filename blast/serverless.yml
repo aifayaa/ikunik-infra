@@ -28,6 +28,8 @@ functions:
     handler: handlers/blastNotif.default
   blastText:
     handler: handlers/blastText.default
+  pressBlastNotif:
+    handler: handlers/pressBlastNotif.default
   removeBlastToken:
     handler: handlers/removeBlastToken.default
 

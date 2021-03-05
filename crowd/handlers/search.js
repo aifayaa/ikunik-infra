@@ -1,7 +1,7 @@
 import buildCrowdPipeline from '../lib/pipelines/crowdPipeline';
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
-import searchPress from '../lib/searchPress';
+import pressSearch from '../lib/pressSearch';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
@@ -23,7 +23,7 @@ export default async (event) => {
       }
 
       const pipeline = buildPressPipeline(userId, appId, event.queryStringParameters);
-      const results = await searchPress(pipeline, appId, event.queryStringParameters);
+      const results = await pressSearch(pipeline, appId, event.queryStringParameters);
       return response({ code: 200, body: results });
     }
 

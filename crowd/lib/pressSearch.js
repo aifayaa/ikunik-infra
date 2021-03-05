@@ -19,8 +19,6 @@ export default async (
     filterUserInfo = true,
   },
 ) => {
-  const client = await MongoClient.connect();
-
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);
   }
@@ -28,6 +26,7 @@ export default async (
     limit = parseInt(limit, 10);
   }
 
+  const client = await MongoClient.connect();
   try {
     if (filterUserInfo) {
       pipeline.push({
