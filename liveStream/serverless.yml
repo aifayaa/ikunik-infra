@@ -1,0 +1,163 @@
+service: liveStream
+
+custom:
+  dev:
+    NOTIFICATION_STATE_MACHINE_NAME: DevLiveStreamAutoStart
+    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevLiveStreamAutoStart-role-e7771f00
+    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:liveStream-dev-autoStartLiveStream
+    REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
+  preprod:
+    NOTIFICATION_STATE_MACHINE_NAME: PreprodLiveStreamAutoStart
+    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodLiveStreamAutoStart-role-852aa119
+    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:liveStream-preprod-autoStartLiveStream
+    REACT_APP_PRESS_SERVICE_URL: https://preprod-blog.crowdaa.com
+  prod:
+    NOTIFICATION_STATE_MACHINE_NAME: ProdLiveStreamAutoStart
+    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdLiveStreamAutoStart-role-35931b42
+    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:liveStream-prod-autoStartLiveStream
+    REACT_APP_PRESS_SERVICE_URL: https://blog.crowdaa.com
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    $<<:
+      ${file(../env.yml)}
+    NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_NAME}'
+    NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_ROLE}'
+    NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_RESOURCE}'
+    REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.REACT_APP_PRESS_SERVICE_URL}'
+    STATE_MACHINE_REGION: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - states:CreateStateMachine
+        - states:StartExecution
+      Resource: "arn:aws:states:${self:provider.environment.STATE_MACHINE_REGION}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
+    - Effect: Allow
+      Action:
+        - iam:PassRole
+      Resource: "${self:provider.environment.NOTIFICATION_STATE_MACHINE_ROLE}"
+    - Effect: Allow
+      Action:
+        - states:StopExecution
+      Resource: "arn:aws:states:${self:provider.environment.STATE_MACHINE_REGION}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}-*"
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  autoStartLiveStream:
+      handler: handlers/autoStartLiveStream.default
+
+  createLiveStream:
+    handler: handlers/createLiveStream.default
+    events:
+      - http:
+          path: liveStream
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  getLiveStreams:
+    handler: handlers/getLiveStreams.default
+    events:
+      - http:
+          path: liveStream
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  refreshLiveStream:
+    handler: handlers/refreshLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}/refresh
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  startLiveStream:
+    handler: handlers/startLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}/start
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  stopLiveStream:
+    handler: handlers/stopLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}/stop
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  updateLiveStream:
+    handler: handlers/updateLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  deleteLiveStream:
+    handler: handlers/deleteLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - '@cruglobal/serverless-merge-config'
+  - serverless-offline
+  - serverless-webpack
+  - serverless-export-env

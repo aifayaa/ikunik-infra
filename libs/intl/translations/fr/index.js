@@ -13,6 +13,10 @@ import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
+import liveStreamScheduleError from './liveStreamScheduleError';
+import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
+import liveStreamStartError from './liveStreamStartError';
+import liveStreamStartSuccess from './liveStreamStartSuccess';
 
 export default {
   libsEmail: {
@@ -20,6 +24,9 @@ export default {
     template_customers: emailTemplateCustomers,
     template_internal: emailTemplateInternal,
     template_skeleton: emailTemplateSkeleton,
+  },
+  general: {
+    the_date_at_time: 'le {{dd}}/{{mm}}/{{yyyy}} à {{HH}}:{{MM}}',
   },
   apps: {
     app_preview_email: {
@@ -70,6 +77,24 @@ export default {
     ugc_user_data_email: {
       article: ugcDataArticleEmailHtml,
       comment: ugcDataCommentEmailHtml,
+    },
+  },
+  liveStream: {
+    schedule_error: {
+      title: '[{{- appName}}] Erreur lors de la planification du lancement automatique de la diffusion {{- liveStreamName}}',
+      html: liveStreamScheduleError,
+    },
+    schedule_success: {
+      title: '[{{- appName}}] Planification du lancement automatique de la diffusion {{- liveStreamName}}',
+      html: liveStreamScheduleSuccess,
+    },
+    start_error: {
+      title: '[{{- appName}}] Erreur de lancement automatique de la diffusion {{- liveStreamName}}',
+      html: liveStreamStartError,
+    },
+    start_success: {
+      title: '[{{- appName}}] Lancement automatique de la diffusion {{- liveStreamName}}',
+      html: liveStreamStartSuccess,
     },
   },
 };

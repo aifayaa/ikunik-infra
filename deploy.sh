@@ -105,6 +105,7 @@ test "x$ALL" = "xALL" && runSlsDeployFor 'scanners'
 runSlsDeployFor 'press'
 
 # + press api id
+runSlsDeployFor 'liveStream'
 runSlsDeployFor 'pressCategories'
 runSlsDeployFor 'pressArticles'
 runSlsDeployFor 'pressSearch'

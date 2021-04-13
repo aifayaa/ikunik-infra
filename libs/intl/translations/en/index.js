@@ -14,6 +14,10 @@ import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
+import liveStreamScheduleError from './liveStreamScheduleError';
+import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
+import liveStreamStartError from './liveStreamStartError';
+import liveStreamStartSuccess from './liveStreamStartSuccess';
 
 export default {
   libsEmail: {
@@ -21,6 +25,9 @@ export default {
     template_customers: emailTemplateCustomers,
     template_internal: emailTemplateInternal,
     template_skeleton: emailTemplateSkeleton,
+  },
+  general: {
+    the_date_at_time: 'the {{dd}}/{{mm}}/{{yyyy}} at {{HH}}:{{MM}}',
   },
   apps: {
     app_preview_email: {
@@ -81,6 +88,24 @@ export default {
     ugc_user_data_email: {
       article: ugcDataArticleEmailHtml,
       comment: ugcDataCommentEmailHtml,
+    },
+  },
+  liveStream: {
+    schedule_error: {
+      title: '[{{- appName}}] Error while scheduling automatic live streaming start for {{- liveStreamName}}',
+      html: liveStreamScheduleError,
+    },
+    schedule_success: {
+      title: '[{{- appName}}] Scheduled live streaming automatic start for {{- liveStreamName}}',
+      html: liveStreamScheduleSuccess,
+    },
+    start_error: {
+      title: '[{{- appName}}] Error starting live streaming {{- liveStreamName}}',
+      html: liveStreamStartError,
+    },
+    start_success: {
+      title: '[{{- appName}}] Started live streaming {{- liveStreamName}}',
+      html: liveStreamStartSuccess,
     },
   },
 };
