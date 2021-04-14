@@ -12,7 +12,7 @@ const {
 } = process.env;
 
 const LANG = 'en';
-const ALWAYS_MAIL_TO = ['admin@crowdaa.com'];
+const ALWAYS_MAIL_TO = ['support@crowdaa.com'];
 
 /** @TODO Maybe add specific permissions for live streams? */
 const PERMISSION = 'pressArticles_all';
