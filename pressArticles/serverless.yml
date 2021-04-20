@@ -213,6 +213,40 @@ functions:
               headers:
                 Authorization: true
 
+  addLikeArticle:
+    handler: handlers/addLikeArticle.default
+    events:
+      - http:
+          path: press/articles/{id}/like
+          method: put
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  addViewArticle:
+    handler: handlers/addViewArticle.default
+    events:
+      - http:
+          path: press/articles/{id}/view
+          method: put
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   removeArticle:
       handler: handlers/removeArticle.default
       events:
