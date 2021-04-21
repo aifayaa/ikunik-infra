@@ -17,6 +17,8 @@ const AUTO_START_BEFORE = 1000 * 60 * 15;
 const installStepFunction = async (
   appId,
   liveStreamId,
+  start,
+  field,
   delay,
 ) => {
   const stepfunctions = new StepFunctions({
@@ -41,6 +43,7 @@ const installStepFunction = async (
           Parameters: {
             'appId.$': '$.appId',
             'liveStreamId.$': '$.liveStreamId',
+            'start.$': '$.start',
           },
           End: true,
         },
@@ -56,6 +59,7 @@ const installStepFunction = async (
     input: JSON.stringify({
       appId,
       liveStreamId,
+      start,
       delay,
     }),
   };
@@ -72,7 +76,7 @@ const installStepFunction = async (
         appId,
       }, {
         $set: {
-          autoStartAwsArnId: executionArn,
+          [field]: executionArn,
         },
       },
     );
@@ -118,7 +122,44 @@ export const unsetDelayedAutoStart = async (
   }
 };
 
-export const setDelayedAutoStart = async (
+export const unsetDelayedAutoEnd = async (
+  liveStream,
+) => {
+  const client = await MongoClient.connect();
+  try {
+    if (liveStream.autoEndAwsArnId) {
+      const stepfunctions = new StepFunctions();
+      try {
+        await stepfunctions.stopExecution({
+          executionArn: liveStream.autoEndAwsArnId,
+        }).promise();
+      } catch (e) {
+        /**
+         * We don't need to investigate further, other cases are
+         * handled in the handler itself
+         */
+      }
+
+      delete liveStream.autoEndAwsArnId;
+      await client
+        .db(DB_NAME)
+        .collection(COLL_LIVE_STREAM)
+        .updateOne(
+          {
+            _id: liveStream._id,
+          }, {
+            $unset: {
+              autoEndAwsArnId: '',
+            },
+          },
+        );
+    }
+  } finally {
+    client.close();
+  }
+};
+
+export const setDelayedAutoStartEnd = async (
   liveStream,
 ) => {
   const { appId } = liveStream;
@@ -127,18 +168,35 @@ export const setDelayedAutoStart = async (
     AUTO_START_BEFORE -
     Date.now()
   ) / 1000) | 0;
+  const endDelay = ((
+    liveStream.endDateTime.getTime() -
+    Date.now()
+  ) / 1000) | 0;
 
   if (liveStream.autoStartAwsArnId) {
     await unsetDelayedAutoStart(liveStream);
   }
 
+  if (liveStream.autoEndAwsArnId) {
+    await unsetDelayedAutoEnd(liveStream);
+  }
+
+  if (endDelay < 0) {
+    return ({
+      scheduled: false,
+      error: false,
+      skipped: true,
+    });
+  }
+
   let error = false;
   try {
     if (startDelay > 0) {
-      liveStream.autoStartAwsArnId = await installStepFunction(appId, liveStream._id, startDelay);
-    } else {
+      liveStream.autoStartAwsArnId = await installStepFunction(appId, liveStream._id, true, 'autoStartAwsArnId', startDelay);
+    } else if (liveStream.state !== 'starting' && liveStream.state !== 'started') {
       await startStopLiveStream(appId, liveStream._id, true);
     }
+    liveStream.autoEndAwsArnId = await installStepFunction(appId, liveStream._id, false, 'autoEndAwsArnId', endDelay);
   } catch (e) {
     error = e;
   }

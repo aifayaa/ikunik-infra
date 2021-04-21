@@ -1,6 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 import wowzaApi from './wowzaApi';
-import { unsetDelayedAutoStart } from './autoStartManagement';
+import { unsetDelayedAutoEnd, unsetDelayedAutoStart } from './autoStartManagement';
 
 const {
   COLL_LIVE_STREAM,
@@ -25,6 +25,7 @@ export default async (appId, liveStreamId) => {
     await wowzaApi('DELETE', `/live_streams/${dbLiveStream.wowzaId}`);
 
     await unsetDelayedAutoStart(dbLiveStream);
+    await unsetDelayedAutoEnd(dbLiveStream);
 
     await client
       .db(DB_NAME)

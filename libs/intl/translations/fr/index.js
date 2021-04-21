@@ -17,6 +17,7 @@ import liveStreamScheduleError from './liveStreamScheduleError';
 import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
 import liveStreamStartError from './liveStreamStartError';
 import liveStreamStartSuccess from './liveStreamStartSuccess';
+import liveStreamEndError from './liveStreamEndError';
 
 export default {
   libsEmail: {
@@ -80,6 +81,10 @@ export default {
     },
   },
   liveStream: {
+    end_error: {
+      title: '[{{- appName}}] Erreur d\'arret automatique de la diffusion {{- liveStreamName}}',
+      html: liveStreamEndError,
+    },
     schedule_error: {
       title: '[{{- appName}}] Erreur lors de la planification du lancement automatique de la diffusion {{- liveStreamName}}',
       html: liveStreamScheduleError,

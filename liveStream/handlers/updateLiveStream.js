@@ -24,6 +24,7 @@ export default async (event) => {
       width,
       broadcastLocation,
       startDateTime,
+      endDateTime,
     } = bodyParsed;
 
     if (
@@ -31,7 +32,8 @@ export default async (event) => {
       !height ||
       !width ||
       !broadcastLocation ||
-      !startDateTime
+      !startDateTime ||
+      !endDateTime
     ) {
       throw new Error('mal_formed_request');
     }
@@ -40,7 +42,7 @@ export default async (event) => {
       !checks.streamSize(width, height) ||
       !checks.broadcastLocation(broadcastLocation) ||
       !checks.name(name, appId) ||
-      !checks.startDateTime(startDateTime)
+      !checks.startEndDateTime(startDateTime, endDateTime)
     ) {
       throw new Error('mal_formed_request');
     }
@@ -51,6 +53,7 @@ export default async (event) => {
       width,
       broadcastLocation,
       startDateTime,
+      endDateTime,
     });
     return response({ code: 200, body: results });
   } catch (e) {

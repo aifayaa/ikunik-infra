@@ -1,7 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 import wowzaApi from './wowzaApi';
 import { filterOutput } from './utils';
-import { setDelayedAutoStart } from './autoStartManagement';
+import { setDelayedAutoStartEnd } from './autoStartManagement';
 import { notifyAdminsOfStart } from './emailNotifications';
 
 const {
@@ -16,6 +16,7 @@ export default async (appId, liveStreamId, {
   width,
   broadcastLocation,
   startDateTime,
+  endDateTime,
 }) => {
   const client = await MongoClient.connect();
   try {
@@ -45,6 +46,7 @@ export default async (appId, liveStreamId, {
     const liveStream = response.live_stream;
 
     const oldStartDate = dbLiveStream.startDateTime.getTime();
+    const oldEndDate = dbLiveStream.endDateTime.getTime();
 
     dbLiveStream = {
       ...dbLiveStream,
@@ -54,21 +56,29 @@ export default async (appId, liveStreamId, {
       width,
       broadcastLocation,
       startDateTime: new Date(startDateTime),
+      endDateTime: new Date(endDateTime),
       inputParameters: liveStream.source_connection_information || dbLiveStream.inputParameters,
       hostedPageUrl: liveStream.hosted_page_url || dbLiveStream.hostedPageUrl,
+      hlsPlaybackUrl: liveStream.player_hls_playback_url || dbLiveStream.hlsPlaybackUrl,
     };
     await client
       .db(DB_NAME)
       .collection(COLL_LIVE_STREAM)
       .updateOne({ _id: liveStreamId }, { $set: dbLiveStream });
 
-    if (oldStartDate !== dbLiveStream.startDateTime.getTime() || !dbLiveStream.autoStartAwsArnId) {
+    if (
+      oldStartDate !== dbLiveStream.startDateTime.getTime() ||
+      oldEndDate !== dbLiveStream.endDateTime.getTime() ||
+      !dbLiveStream.autoStartAwsArnId) {
       const {
         error,
         scheduled,
-      } = await setDelayedAutoStart(dbLiveStream);
+        skipped = false,
+      } = await setDelayedAutoStartEnd(dbLiveStream);
 
-      await notifyAdminsOfStart(dbLiveStream._id, scheduled, error);
+      if (!skipped) {
+        await notifyAdminsOfStart(dbLiveStream._id, scheduled, error);
+      }
     }
 
     return (filterOutput(dbLiveStream));
