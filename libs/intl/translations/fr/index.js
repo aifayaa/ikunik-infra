@@ -18,6 +18,7 @@ import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
 import liveStreamStartError from './liveStreamStartError';
 import liveStreamStartSuccess from './liveStreamStartSuccess';
 import liveStreamEndError from './liveStreamEndError';
+import liveStreamCountDown from './liveStreamCountDown';
 
 export default {
   libsEmail: {
@@ -81,6 +82,7 @@ export default {
     },
   },
   liveStream: {
+    countdown_html_page: liveStreamCountDown,
     end_error: {
       title: '[{{- appName}}] Erreur d\'arret automatique de la diffusion {{- liveStreamName}}',
       html: liveStreamEndError,

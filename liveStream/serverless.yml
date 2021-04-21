@@ -156,6 +156,17 @@ functions:
               paths:
                 id: true
 
+  countDownLiveStream:
+      handler: handlers/countDownLiveStream.default
+      events:
+        - http:
+            path: liveStream/{id}/countdown
+            method: get
+            request:
+              parameters:
+                paths:
+                  id: true
+
 plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-offline

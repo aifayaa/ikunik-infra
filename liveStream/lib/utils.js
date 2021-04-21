@@ -11,5 +11,6 @@ export function filterOutput(input) {
     broadcastLocation: input.broadcastLocation,
     inputParameters: input.inputParameters,
     hostedPageUrl: input.hostedPageUrl,
+    hlsPlaybackUrl: input.hlsPlaybackUrl,
   });
 }
