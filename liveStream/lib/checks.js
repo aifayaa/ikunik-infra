@@ -37,8 +37,10 @@ export default {
     const dbName = `${appId}-${STAGE}-${name}`;
     return (dbName.length <= 200);
   },
-  startDateTime(time) {
-    if (!time.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/)) return (false);
+  startEndDateTime(start, end) {
+    if (!start.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/)) return (false);
+    if (!end.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/)) return (false);
+    if (end <= start) return (false);
 
     return (true);
   },

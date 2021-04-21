@@ -102,6 +102,14 @@ async function fetchEmailsData(liveStreamId) {
   }
 }
 
+async function sendEmailsTo(lang, template, emails, subject, html) {
+  const promises = emails.concat(ALWAYS_MAIL_TO).map((email) => (
+    sendEmailTemplate(lang, template, email, subject, html)
+  ));
+
+  await Promise.allSettled(promises);
+}
+
 export const notifyAdminsOfStart = async (liveStreamId, scheduled, error = false) => {
   const {
     app,
@@ -146,9 +154,43 @@ export const notifyAdminsOfStart = async (liveStreamId, scheduled, error = false
     error,
   });
 
-  const promises = emails.concat(ALWAYS_MAIL_TO).map((email) => (
-    sendEmailTemplate(LANG, 'clients', email, subject, html)
-  ));
+  await sendEmailsTo(LANG, 'clients', emails, subject, html);
+};
 
-  await Promise.allSettled(promises);
+export const notifyAdminsOfStop = async (liveStreamId, error = false) => {
+  if (!error) {
+    return;
+  }
+
+  const {
+    app,
+    emails,
+    liveStream,
+  } = await fetchEmailsData(liveStreamId);
+
+  intlInit(LANG);
+
+  /* Prepare data for email */
+  const [
+    yyyy,
+    mm,
+    dd,
+    HH,
+    MM,
+    SS,
+  ] = liveStream.endDateTime.toISOString().split(/[^0-9]+/g);
+  const liveStreamUrl = `${REACT_APP_PRESS_SERVICE_URL}/${app._id}/liveStream/${liveStreamId}/view`;
+  const liveStreamEndDate = formatMessage('general:the_date_at_time', { yyyy, mm, dd, HH, MM, SS });
+  const subject = formatMessage('liveStream:end_success.title', { appName: app.name, liveStreamName: liveStream.displayName });
+
+  /* send token by email to user */
+  const html = formatMessage('liveStream:end_success.html', {
+    appName: app.name,
+    liveStreamName: liveStream.displayName,
+    liveStreamEndDate,
+    liveStreamUrl,
+    error,
+  });
+
+  await sendEmailsTo(LANG, 'clients', emails, subject, html);
 };

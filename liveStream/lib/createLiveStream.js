@@ -2,7 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import Random from '../../libs/account_utils/random';
 import wowzaApi from './wowzaApi';
 import { filterOutput } from './utils';
-import { setDelayedAutoStart } from './autoStartManagement';
+import { setDelayedAutoStartEnd } from './autoStartManagement';
 import { notifyAdminsOfStart } from './emailNotifications';
 
 const {
@@ -17,6 +17,7 @@ export default async (appId, {
   width,
   broadcastLocation,
   startDateTime,
+  endDateTime,
 }) => {
   const client = await MongoClient.connect();
   try {
@@ -40,8 +41,6 @@ export default async (appId, {
       aspect_ratio_height: height,
       aspect_ratio_width: width,
       broadcast_location: broadcastLocation,
-      username: `login-${Random.id(4)}`,
-      password: Random.secret(10),
 
       billing_mode: 'pay_as_you_go',
       encoder: 'other_rtmp',
@@ -79,9 +78,11 @@ export default async (appId, {
       broadcastLocation,
       state: 'stopped',
       startDateTime: new Date(startDateTime),
+      endDateTime: new Date(endDateTime),
       wowzaId: liveStream.id,
       inputParameters: liveStream.source_connection_information,
       hostedPageUrl: liveStream.hosted_page_url,
+      hlsPlaybackUrl: liveStream.player_hls_playback_url,
     };
     await client
       .db(DB_NAME)
@@ -95,8 +96,8 @@ export default async (appId, {
           host_port: 1935,
           stream_name: '4a43e8fb',
           disable_authentication: false,
-          username: 'login-fx9H',
-          password: 'iBb5p3YFXf'
+          username: 'login-fx9H', // Not provided anymore
+          password: 'iBb5p3YFXf'  // Not provided anymore
         }
      */
 
@@ -104,9 +105,12 @@ export default async (appId, {
     const {
       error,
       scheduled,
-    } = await setDelayedAutoStart(dbLiveStream);
+      skipped = false,
+    } = await setDelayedAutoStartEnd(dbLiveStream);
 
-    await notifyAdminsOfStart(dbLiveStream._id, scheduled, error);
+    if (!skipped) {
+      await notifyAdminsOfStart(dbLiveStream._id, scheduled, error);
+    }
 
     return (filterOutput(dbLiveStream));
   } finally {

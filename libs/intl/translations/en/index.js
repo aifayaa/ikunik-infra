@@ -18,6 +18,7 @@ import liveStreamScheduleError from './liveStreamScheduleError';
 import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
 import liveStreamStartError from './liveStreamStartError';
 import liveStreamStartSuccess from './liveStreamStartSuccess';
+import liveStreamEndError from './liveStreamEndError';
 
 export default {
   libsEmail: {
@@ -91,6 +92,10 @@ export default {
     },
   },
   liveStream: {
+    end_error: {
+      title: '[{{- appName}}] Error while stopping live streaming for {{- liveStreamName}}',
+      html: liveStreamEndError,
+    },
     schedule_error: {
       title: '[{{- appName}}] Error while scheduling automatic live streaming start for {{- liveStreamName}}',
       html: liveStreamScheduleError,

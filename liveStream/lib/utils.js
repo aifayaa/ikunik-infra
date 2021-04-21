@@ -3,6 +3,7 @@ export function filterOutput(input) {
     _id: input._id,
     createdAt: input.createdAt,
     startDateTime: input.startDateTime,
+    endDateTime: input.endDateTime,
     displayName: input.displayName,
     height: input.height,
     width: input.width,

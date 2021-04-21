@@ -31,6 +31,7 @@ export default async (appId, liveStreamId) => {
       state,
       inputParameters: liveStream.source_connection_information,
       hostedPageUrl: liveStream.hosted_page_url,
+      hlsPlaybackUrl: liveStream.player_hls_playback_url,
     };
     await client
       .db(DB_NAME)
