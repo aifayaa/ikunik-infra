@@ -19,6 +19,7 @@ import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
 import liveStreamStartError from './liveStreamStartError';
 import liveStreamStartSuccess from './liveStreamStartSuccess';
 import liveStreamEndError from './liveStreamEndError';
+import liveStreamCountDown from './liveStreamCountDown';
 
 export default {
   libsEmail: {
@@ -92,6 +93,7 @@ export default {
     },
   },
   liveStream: {
+    countdown_html_page: liveStreamCountDown,
     end_error: {
       title: '[{{- appName}}] Error while stopping live streaming for {{- liveStreamName}}',
       html: liveStreamEndError,
