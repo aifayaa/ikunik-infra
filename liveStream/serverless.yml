@@ -8,7 +8,7 @@ custom:
     REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
   preprod:
     NOTIFICATION_STATE_MACHINE_NAME: PreprodLiveStreamAutoStart
-    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodLiveStreamAutoStart-role-852aa119
+    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodLiveStreamAutoStart-role-d9856587
     NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:liveStream-preprod-autoStartLiveStream
     REACT_APP_PRESS_SERVICE_URL: https://preprod-blog.crowdaa.com
   prod:
@@ -30,7 +30,7 @@ provider:
     NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_ROLE}'
     NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_RESOURCE}'
     REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.REACT_APP_PRESS_SERVICE_URL}'
-    STATE_MACHINE_REGION: us-east-1
+    STATE_MACHINE_REGION: '${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}'
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -40,7 +40,7 @@ provider:
       Action:
         - states:CreateStateMachine
         - states:StartExecution
-      Resource: "arn:aws:states:${self:provider.environment.STATE_MACHINE_REGION}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
+      Resource: "arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
     - Effect: Allow
       Action:
         - iam:PassRole
@@ -48,7 +48,7 @@ provider:
     - Effect: Allow
       Action:
         - states:StopExecution
-      Resource: "arn:aws:states:${self:provider.environment.STATE_MACHINE_REGION}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}-*"
+      Resource: "arn:aws:states:${self:provider.region}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}-*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

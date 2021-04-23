@@ -48,7 +48,7 @@ export default async (appId, {
       closed_caption_type: 'none',
       delivery_method: 'push',
       delivery_type: 'single-bitrate',
-      disable_authentication: false,
+      disable_authentication: true,
       hosted_page: true,
       hosted_page_description: name,
       hosted_page_sharing_icons: false,
