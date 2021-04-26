@@ -3,6 +3,7 @@ const common = {
   actions: true,
   categoryId: true,
   createdAt: true,
+  likes: true,
   permissions: true,
   pinned: true,
   publicationDate: true,
@@ -12,6 +13,7 @@ const common = {
   text: true,
   title: true,
   user: true,
+  views: true,
 };
 
 const admin = {
