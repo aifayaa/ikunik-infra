@@ -22,9 +22,31 @@ export const incArticleLikesViews = async (
       throw new Error('content_not_found');
     }
 
+    const currentArticleLikes = currentArticle.likes || 0;
+    const currentArticleViews = currentArticle.views || 0;
+    const minLikes = 1;
+    const minViews = 1;
     const $inc = {};
-    if (likes) $inc.likes = likes;
-    if (views) $inc.views = views;
+    if (likes) {
+      const newVal = currentArticleLikes + likes;
+      if (newVal >= minLikes) {
+        $inc.likes = likes;
+      } else if (currentArticleLikes > minLikes) {
+        $inc.likes = minLikes - currentArticleLikes;
+      }
+    }
+    if (views) {
+      const newVal = currentArticleViews + views;
+      if (newVal >= minViews) {
+        $inc.views = views;
+      } else if (currentArticleViews > minViews) {
+        $inc.views = minViews - currentArticleViews;
+      }
+    }
+
+    if (!$inc.likes && !$inc.views) {
+      return;
+    }
 
     await client
       .db(DB_NAME)
