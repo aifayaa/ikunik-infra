@@ -53,6 +53,15 @@ export default async (event) => {
 
     checkActions(actions);
 
+    /* Encore URI for internal PDF links */
+    if (actions.length) {
+      Object.keys(actions).forEach((k) => {
+        if (actions[k].url.indexOf('/pdf/') === 0) {
+          actions[k].url = `/pdf/${encodeURIComponent(actions[k].url.substring(5))}`;
+        }
+      });
+    }
+
     if (productId && !articlePrices[productId]) {
       throw new Error('mal_formed_request');
     }

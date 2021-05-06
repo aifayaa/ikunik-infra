@@ -19,6 +19,7 @@ export const postArticle = async ({
   feedPicture,
   hideFromFeed,
   html,
+  likes = 0,
   md,
   pictures,
   plainText = '',
@@ -28,13 +29,16 @@ export const postArticle = async ({
   title,
   userId,
   videos,
+  views = 0,
   xml,
   pinned = false,
 }) => {
   if (
     typeof title !== 'string' ||
     typeof categoryId !== 'string' ||
+    typeof likes !== 'number' ||
     typeof summary !== 'string' ||
+    typeof views !== 'number' ||
     typeof html !== 'string' ||
     typeof pinned !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
@@ -59,12 +63,14 @@ export const postArticle = async ({
       createdAt: new Date(),
       draftId,
       isPublished: false,
+      likes,
       hideFromFeed,
       plainText,
       summary,
       text: html,
       title,
       userId,
+      views,
       pinned,
     };
 
