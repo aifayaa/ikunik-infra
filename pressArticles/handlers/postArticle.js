@@ -134,6 +134,11 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
+    likes = parseInt(likes, 10) || 0;
+    if (likes < 0) likes = 0;
+    views = parseInt(views, 10) || 0;
+    if (views < 0) views = 0;
+
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
       actions,
@@ -142,7 +147,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
-      likes: parseInt(likes, 10) || 0,
+      likes,
       md,
       pictures,
       plainText,
@@ -152,7 +157,7 @@ export default async (event) => {
       title,
       userId,
       videos,
-      views: parseInt(views, 10) || 0,
+      views,
       xml,
       pinned,
     });
