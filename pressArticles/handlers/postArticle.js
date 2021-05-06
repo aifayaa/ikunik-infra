@@ -39,6 +39,7 @@ export default async (event) => {
     let feedPicture;
     let hideFromFeed;
     let html;
+    let likes;
     let md;
     let pictures;
     let plainText;
@@ -46,6 +47,7 @@ export default async (event) => {
     let summary;
     let title;
     let videos;
+    let views;
     let xml;
     let pinned;
 
@@ -57,12 +59,14 @@ export default async (event) => {
           categoryId,
           feedPicture,
           hideFromFeed,
+          likes,
           md,
           pictures,
-          summary,
           productId,
+          summary,
           title,
           videos,
+          views,
           pinned,
         } = JSON.parse(event.body));
         plainText = removeMd(md);
@@ -130,6 +134,11 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
+    likes = parseInt(likes, 10) || 0;
+    if (likes < 0) likes = 0;
+    views = parseInt(views, 10) || 0;
+    if (views < 0) views = 0;
+
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
       actions,
@@ -138,6 +147,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
+      likes,
       md,
       pictures,
       plainText,
@@ -147,6 +157,7 @@ export default async (event) => {
       title,
       userId,
       videos,
+      views,
       xml,
       pinned,
     });
