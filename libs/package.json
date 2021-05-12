@@ -14,6 +14,7 @@
     "i18next": "^19.8.3",
     "mongodb": "^3.5.0",
     "nodemailer": "^6.4.14",
+    "request-promise-native": "^1.0.9",
     "sinon": "^9.2.0"
   }
 }
