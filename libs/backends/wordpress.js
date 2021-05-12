@@ -21,7 +21,7 @@ function WordpressAPI(app) {
 WordpressAPI.prototype.call = async function call(method, path, data, options = {
   body: 'json',
 }) {
-  const uri = `${this.app.backend.url}/wp-json${path}`;
+  const uri = `${this.app.backend.url}${path}`;
   const params = {
     method,
     uri,

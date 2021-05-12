@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
+import { wordpressForgotPassword } from './backends/wordpressForgotPassword';
 
 const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
 const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
@@ -37,6 +38,17 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
     ]);
 
     if (!app) throw new Error('app_not_found');
+
+    if (app.backend) {
+      switch (app.backend.type) {
+        case 'wordpress':
+          wordpressForgotPassword(email, app);
+          return ({ backend: true });
+        default:
+          throw new Error('unknown_backend');
+      }
+    }
+
     if (!user) throw new Error('email_not_found');
     if ((new Date() - get(user, 'services.password.reset.when', 0)) < RETRY_TIMEOUT) {
       throw new Error('token_already_sent');
@@ -78,6 +90,8 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
     } catch (e) {
       throw new Error('cannot_send_email');
     }
+
+    return ({});
   } finally {
     client.close();
   }

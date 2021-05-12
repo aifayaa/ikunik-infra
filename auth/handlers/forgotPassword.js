@@ -18,9 +18,9 @@ export default async (event) => {
     }
 
     const lang = getUserLanguage(event.headers);
-    await forgotPassword(email, lang, appId);
+    const result = await forgotPassword(email, lang, appId);
 
-    return response({ code: 200, body: { email, message: 'ok' } });
+    return response({ code: 200, body: { email, message: 'ok', backend: result.backend } });
   } catch (e) {
     return response(errorMessage(e));
   }
