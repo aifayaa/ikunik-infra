@@ -10,7 +10,13 @@ import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { wordpressRegister } from './backends/wordpressRegister';
 
-const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
+const {
+  ADMIN_APP,
+  DB_NAME,
+  COLL_USERS,
+  COLL_APPS,
+  REACT_APP_AUTH_URL,
+} = process.env;
 
 export const register = async (rawEmail, username, password, lang, appId) => {
   const email = rawEmail.toLowerCase();
@@ -26,7 +32,7 @@ export const register = async (rawEmail, username, password, lang, appId) => {
     );
     if (!app) throw new Error('app_not_found');
 
-    if (app.backend) {
+    if (appId !== ADMIN_APP && app.backend) {
       switch (app.backend.type) {
         case 'wordpress':
           return (wordpressRegister(username, rawEmail, password, app));

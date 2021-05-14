@@ -8,7 +8,12 @@ import hashLoginToken from './hashLoginToken';
 import Random from '../../libs/account_utils/random';
 import { wordpressLogin } from './backends/wordpressLogin';
 
-const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
+const {
+  ADMIN_APP,
+  DB_NAME,
+  COLL_USERS,
+  COLL_APPS,
+} = process.env;
 
 export const login = async (rawEmail, username, password, appId) => {
   const email = rawEmail && rawEmail.toLowerCase();
@@ -24,7 +29,7 @@ export const login = async (rawEmail, username, password, appId) => {
     );
     if (!app) throw new Error('app_not_found');
 
-    if (app.backend) {
+    if (appId !== ADMIN_APP && app.backend) {
       switch (app.backend.type) {
         case 'wordpress':
           return (wordpressLogin(username, password, app));
