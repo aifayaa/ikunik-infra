@@ -9,6 +9,7 @@ const TOKEN_TIMEOUT = 3600000; // 1 hour in ms
 const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
 
 const {
+  ADMIN_APP,
   DB_NAME,
   COLL_USERS,
   COLL_APPS,
@@ -39,7 +40,7 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
 
     if (!app) throw new Error('app_not_found');
 
-    if (app.backend) {
+    if (appId !== ADMIN_APP && app.backend) {
       switch (app.backend.type) {
         case 'wordpress':
           wordpressForgotPassword(email, app);
