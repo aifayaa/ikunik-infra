@@ -29,6 +29,7 @@ export default async (event) => {
       productId,
       summary,
       title,
+      videoPlayMode,
       videos,
       pinned,
     } = bodyParsed;
@@ -84,6 +85,7 @@ export default async (event) => {
       summary,
       title,
       userId,
+      videoPlayMode,
       videos,
     });
     return response({ code: 200, body: results });
