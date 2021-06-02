@@ -46,6 +46,7 @@ export default async (event) => {
     let productId;
     let summary;
     let title;
+    let videoPlayMode;
     let videos;
     let views;
     let xml;
@@ -65,6 +66,7 @@ export default async (event) => {
           productId,
           summary,
           title,
+          videoPlayMode,
           videos,
           views,
           pinned,
@@ -156,6 +158,7 @@ export default async (event) => {
       summary,
       title,
       userId,
+      videoPlayMode,
       videos,
       views,
       xml,

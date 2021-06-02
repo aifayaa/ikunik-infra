@@ -28,6 +28,7 @@ export const postArticle = async ({
   summary,
   title,
   userId,
+  videoPlayMode = 'autoplay+fullscreen',
   videos,
   views = 0,
   xml,
@@ -70,6 +71,7 @@ export const postArticle = async ({
       text: html,
       title,
       userId,
+      videoPlayMode,
       views,
       pinned,
     };
