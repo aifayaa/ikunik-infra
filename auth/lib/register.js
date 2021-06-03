@@ -8,8 +8,15 @@ import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
+import { wordpressRegister } from './backends/wordpressRegister';
 
-const { DB_NAME, COLL_USERS, COLL_APPS, REACT_APP_AUTH_URL } = process.env;
+const {
+  ADMIN_APP,
+  DB_NAME,
+  COLL_USERS,
+  COLL_APPS,
+  REACT_APP_AUTH_URL,
+} = process.env;
 
 export const register = async (rawEmail, username, password, lang, appId) => {
   const email = rawEmail.toLowerCase();
@@ -18,8 +25,21 @@ export const register = async (rawEmail, username, password, lang, appId) => {
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
-    const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
+
+    const app = await appsCollection.findOne(
+      { _id: appId },
+      { projection: { _id: true, backend: true } },
+    );
     if (!app) throw new Error('app_not_found');
+
+    if (appId !== ADMIN_APP && app.backend) {
+      switch (app.backend.type) {
+        case 'wordpress':
+          return (wordpressRegister(username, rawEmail, password, app));
+        default:
+          throw new Error('unknown_backend');
+      }
+    }
 
     const hashed = await hashPassword(password);
     const token = Random.id();

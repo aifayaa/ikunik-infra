@@ -13,6 +13,7 @@ const common = {
   text: true,
   title: true,
   user: true,
+  videoPlayMode: true,
   views: true,
 };
 

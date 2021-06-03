@@ -6,18 +6,37 @@ import MongoClient from '../../libs/mongoClient';
 import { checkPassword } from './password';
 import hashLoginToken from './hashLoginToken';
 import Random from '../../libs/account_utils/random';
+import { wordpressLogin } from './backends/wordpressLogin';
 
-const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
+const {
+  ADMIN_APP,
+  DB_NAME,
+  COLL_USERS,
+  COLL_APPS,
+} = process.env;
 
 export const login = async (rawEmail, username, password, appId) => {
-  const email = rawEmail.toLowerCase();
+  const email = rawEmail && rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
-    const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
+
+    const app = await appsCollection.findOne(
+      { _id: appId },
+      { projection: { _id: true, backend: true } },
+    );
     if (!app) throw new Error('app_not_found');
+
+    if (appId !== ADMIN_APP && app.backend) {
+      switch (app.backend.type) {
+        case 'wordpress':
+          return (wordpressLogin(username, password, app));
+        default:
+          throw new Error('unknown_backend');
+      }
+    }
 
     const selector = { appId };
     if (email) {
