@@ -41,6 +41,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       summary,
       text,
       title,
+      videoPlayMode,
       videos,
       pinned,
     } = draft;
@@ -62,6 +63,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       summary,
       text,
       title,
+      videoPlayMode,
       pinned,
       videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
     };

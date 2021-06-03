@@ -20,6 +20,7 @@ export const putArticle = async ({
   summary,
   title,
   userId,
+  videoPlayMode = 'autoplay+fullscreen',
   videos,
   pinned = false,
 }) => {
@@ -71,6 +72,7 @@ export const putArticle = async ({
       text: html,
       title,
       userId,
+      videoPlayMode,
       pinned,
     };
     if (videos) {
