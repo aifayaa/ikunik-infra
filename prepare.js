@@ -71,26 +71,36 @@ if (EXTRA) {
   EXTRA = {};
 }
 
-let logTitle = '-';
-function setTitle(title) {
-  logTitle = title;
+function makeLogger(initialTitle) {
+  let logTitle = initialTitle || '-';
+
+  const logObject = {
+    setTitle(title) {
+      logTitle = title;
+    },
+    log(...params) {
+      console.log(`${logTitle} >`, ...params);
+    },
+    verbose(...params) {
+      if (EXTRA.verbose) {
+        logObject.log(...params);
+      }
+    },
+  };
+
+  return (logObject);
 }
 
-function log(...params) {
-  console.log(`${logTitle} >`, ...params);
-}
-
-function verbose(...params) {
-  if (EXTRA.verbose) {
-    log(...params);
-  }
-}
+const {
+  setTitle,
+  log,
+} = makeLogger();
 
 async function processCollection(collection, indexSchemas) {
   const collIndexes = await collection.indexes();
   const promises = [];
 
-  setTitle(`Collection ${collection.collectionName}`);
+  const logger = makeLogger(`Collection ${collection.collectionName}`);
 
   if (EXTRA.remove) {
     for (let j = 0; j < collIndexes.length; j += 1) {
@@ -108,7 +118,7 @@ async function processCollection(collection, indexSchemas) {
         }
 
         if (!exists) {
-          verbose('Removing index', collIndexes[j].name, collIndexes[j]);
+          logger.verbose('Removing index', collIndexes[j].name, collIndexes[j]);
           if (!EXTRA.dry) {
             promises.push(collection.dropIndex(collIndexes[j].name));
           }
@@ -120,7 +130,7 @@ async function processCollection(collection, indexSchemas) {
       if (promises.length > 0) {
         await Promise.all(promises);
       } else {
-        verbose('Nothing to remove');
+        logger.verbose('Nothing to remove');
       }
     }
     promises.splice(0);
@@ -141,7 +151,7 @@ async function processCollection(collection, indexSchemas) {
     }
 
     if (found && found.name !== indexSchemas[i].name) {
-      verbose('Renaming index', indexSchemas[i].key, cleanedOptions);
+      logger.verbose('Renaming index', indexSchemas[i].key, cleanedOptions);
       if (!EXTRA.dry) {
         promises.push(collection.dropIndex(found.name).then(() => collection.createIndex(
           indexSchemas[i].key,
@@ -152,7 +162,7 @@ async function processCollection(collection, indexSchemas) {
         )));
       }
     } else if (!found || EXTRA.force) {
-      verbose('Creating index', indexSchemas[i].key, cleanedOptions);
+      logger.verbose('Creating index', indexSchemas[i].key, cleanedOptions);
       if (!EXTRA.dry) {
         promises.push(collection.createIndex(
           indexSchemas[i].key,
@@ -169,10 +179,10 @@ async function processCollection(collection, indexSchemas) {
     if (promises.length > 0) {
       await Promise.all(promises);
     } else {
-      verbose('Nothing to create or rename');
+      logger.verbose('Nothing to create or rename');
     }
   } else {
-    log('Dry mode, nothing was done');
+    logger.log('Dry mode, nothing was done');
   }
 }
 
@@ -188,6 +198,7 @@ async function processCollection(collection, indexSchemas) {
   const client = await MongoClient.connect(mongoUrl);
 
   const {
+    COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
     DB_NAME,
   } = envData;
@@ -275,6 +286,10 @@ async function processCollection(collection, indexSchemas) {
         { name: 'meteor_resume_haveloginstodelete_search', key: { 'services.resume.haveLoginTokensToDelete': 1 }, opts: makeOpts('sparse') },
         { name: 'meteor_resume_logintokens_when', key: { 'services.resume.loginTokens.when': 1 }, opts: makeOpts('sparse') },
         { name: 'meteor_password_reset_when_search', key: { 'services.password.reset.when': 1 }, opts: makeOpts('sparse') },
+      ],
+      [COLL_PUSH_NOTIFICATIONS]: [
+        { name: 'crowdaa_blast_query_1', key: { userId: 1, appId: 1 }, opts: makeOpts() },
+        { name: 'crowdaa_blast_query_2', key: { deviceUUID: 1, appId: 1 }, opts: makeOpts() },
       ],
     };
 
