@@ -95,7 +95,6 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
             hashedToken: hash,
             when: date.toISOString(),
           },
-          appId,
         },
       };
       await collection.updateOne({ _id: userId }, patch);
