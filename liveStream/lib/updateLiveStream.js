@@ -53,7 +53,8 @@ export default async (appId, liveStreamId, {
       dbLiveStream.dbName = dbName;
       dbLiveStream.displayName = name;
     }
-    if (startDateTime !== dbLiveStream.startDateTime && !dbLiveStream.expired) {
+    startDateTime = new Date(startDateTime);
+    if (startDateTime.getTime() !== dbLiveStream.startDateTime.getTime() && !dbLiveStream.expired) {
       update.startDateTime = startDateTime;
       dbLiveStream.startDateTime = startDateTime;
 

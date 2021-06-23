@@ -138,6 +138,17 @@ functions:
                 paths:
                   id: true
 
+  viewLiveStreamRecording:
+      handler: handlers/viewLiveStreamRecording.default
+      events:
+        - http:
+            path: liveStream/{id}/recording
+            method: get
+            request:
+              parameters:
+                paths:
+                  id: true
+
 plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-offline

@@ -15,6 +15,7 @@ import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
 import liveStreamView from './liveStreamView';
+import liveStreamRecordingView from './liveStreamRecordingView';
 
 export default {
   libsEmail: {
@@ -88,6 +89,7 @@ export default {
     },
   },
   liveStream: {
-    view_html_page: liveStreamView,
+    view_stream_html_page: liveStreamView,
+    view_recording_html_page: liveStreamRecordingView,
   },
 };
