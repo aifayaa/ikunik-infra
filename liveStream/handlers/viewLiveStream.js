@@ -16,9 +16,9 @@ export default async (event) => {
     const lang = getUserLanguage(event.headers);
     intlInit(lang);
 
-    const body = formatMessage('liveStream:countdown_html_page', {
+    const body = formatMessage('liveStream:view_html_page', {
       startDateTime: JSON.stringify(liveStream.startDateTime.getTime()),
-      streamUrl: JSON.stringify(liveStream.hlsPlaybackUrl),
+      streamUrl: JSON.stringify(liveStream.playbackUrl),
     });
 
     return response({

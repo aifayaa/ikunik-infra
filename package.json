@@ -14,7 +14,7 @@
   "dependencies": {
     "accept-language-parser": "^1.5.0",
     "async": "3.1.0",
-    "aws-sdk": "^2.749.0",
+    "aws-sdk": "^2.931.0",
     "bcryptjs": "^2.4.3",
     "check-types": "^11.1.1",
     "css-loader": "^2.1.0",

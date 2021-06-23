@@ -13,6 +13,7 @@ export default async (appId, {
 }) => {
   const $match = {
     appId,
+    provider: 'aws-ivs',
   };
 
   const client = await MongoClient.connect();

@@ -13,12 +13,7 @@ import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
-import liveStreamScheduleError from './liveStreamScheduleError';
-import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
-import liveStreamStartError from './liveStreamStartError';
-import liveStreamStartSuccess from './liveStreamStartSuccess';
-import liveStreamEndError from './liveStreamEndError';
-import liveStreamCountDown from './liveStreamCountDown';
+import liveStreamView from './liveStreamView';
 
 export default {
   libsEmail: {
@@ -82,26 +77,6 @@ export default {
     },
   },
   liveStream: {
-    countdown_html_page: liveStreamCountDown,
-    end_error: {
-      title: '[{{- appName}}] Erreur d\'arret automatique de la diffusion {{- liveStreamName}}',
-      html: liveStreamEndError,
-    },
-    schedule_error: {
-      title: '[{{- appName}}] Erreur lors de la planification du lancement automatique de la diffusion {{- liveStreamName}}',
-      html: liveStreamScheduleError,
-    },
-    schedule_success: {
-      title: '[{{- appName}}] Planification du lancement automatique de la diffusion {{- liveStreamName}}',
-      html: liveStreamScheduleSuccess,
-    },
-    start_error: {
-      title: '[{{- appName}}] Erreur de lancement automatique de la diffusion {{- liveStreamName}}',
-      html: liveStreamStartError,
-    },
-    start_success: {
-      title: '[{{- appName}}] Lancement automatique de la diffusion {{- liveStreamName}}',
-      html: liveStreamStartSuccess,
-    },
+    view_html_page: liveStreamView,
   },
 };
