@@ -15,6 +15,7 @@ export default async (appId, liveStreamId) => {
       .findOne({
         _id: liveStreamId,
         appId,
+        provider: 'aws-ivs',
       }));
   } finally {
     client.close();

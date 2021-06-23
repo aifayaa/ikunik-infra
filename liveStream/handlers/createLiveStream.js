@@ -19,40 +19,26 @@ export default async (event) => {
     const bodyParsed = JSON.parse(event.body);
     const {
       name,
-      height,
-      width,
-      broadcastLocation,
       startDateTime,
-      endDateTime,
     } = bodyParsed;
 
     if (
       !name ||
-      !height ||
-      !width ||
-      !broadcastLocation ||
-      !startDateTime ||
-      !endDateTime
+      !startDateTime
     ) {
       throw new Error('mal_formed_request');
     }
 
     if (
-      !checks.streamSize(width, height) ||
-      !checks.broadcastLocation(broadcastLocation) ||
       !checks.name(name, appId) ||
-      !checks.startEndDateTime(startDateTime, endDateTime)
+      !checks.startDateTime(startDateTime)
     ) {
       throw new Error('mal_formed_request');
     }
 
     const results = await createLiveStream(appId, {
       name,
-      height,
-      width,
-      broadcastLocation,
       startDateTime,
-      endDateTime,
     });
     return response({ code: 200, body: results });
   } catch (e) {

@@ -3,14 +3,14 @@ export function filterOutput(input) {
     _id: input._id,
     createdAt: input.createdAt,
     startDateTime: input.startDateTime,
-    endDateTime: input.endDateTime,
+    expireDateTime: input.expireDateTime,
     displayName: input.displayName,
-    height: input.height,
-    width: input.width,
-    state: input.state,
-    broadcastLocation: input.broadcastLocation,
-    inputParameters: input.inputParameters,
-    hostedPageUrl: input.hostedPageUrl,
-    hlsPlaybackUrl: input.hlsPlaybackUrl,
+    expired: input.expired,
+
+    ingestEndpoint: input.ingestEndpoint,
+    streamKey: input.streamKey,
+    playbackUrl: input.playbackUrl,
+
+    recordings: input.recordings,
   });
 }
