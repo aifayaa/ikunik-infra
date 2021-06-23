@@ -20,7 +20,7 @@ export default `
         'minutes',
         'hours',
         'days',
-      ]
+      ];
 
       const urlParams = new URLSearchParams(window.location.search);
       const countdownTo = {{- startDateTime}};
@@ -56,12 +56,6 @@ export default `
         document.head.appendChild(style);
         document.head.appendChild(script);
         document.head.appendChild(hlsScript);
-      }
-
-      function escapeHTML(html) {
-        const escape = document.createElement('textarea');
-        escape.textContent = html;
-        return (escape.innerHTML);
       }
 
       function checkTime() {

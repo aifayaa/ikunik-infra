@@ -6,19 +6,33 @@ export default async (event) => {
   try {
     const { id } = event.pathParameters;
     const [appId, liveStreamId] = id.split(',');
+    const {
+      recordingId,
+    } = event.queryStringParameters || {};
 
     const liveStream = await getLiveStream(appId, liveStreamId);
 
-    if (!liveStream) {
+    if (!liveStream || !liveStream.recordings || liveStream.recordings.length === 0) {
+      throw new Error('not_found');
+    }
+
+    let recording = null;
+    for (let i = 0; i < liveStream.recordings.length && !recording; i += 1) {
+      const current = liveStream.recordings[i];
+      if (current.root === recordingId) {
+        recording = current;
+      }
+    }
+
+    if (!recording) {
       throw new Error('not_found');
     }
 
     const lang = getUserLanguage(event.headers);
     intlInit(lang);
 
-    const body = formatMessage('liveStream:view_stream_html_page', {
-      startDateTime: JSON.stringify(liveStream.startDateTime.getTime()),
-      streamUrl: JSON.stringify(liveStream.playbackUrl),
+    const body = formatMessage('liveStream:view_recording_html_page', {
+      recordingUrl: JSON.stringify(`${recording.baseUrl}/${recording.root}/${recording.playlist}`),
     });
 
     return response({
