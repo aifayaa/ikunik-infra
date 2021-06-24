@@ -3,10 +3,13 @@ service: liveStream
 custom:
   dev:
     IVS_REGION: us-east-1
+    IVS_BUCKET: 'live-streams-recordings-dev'
   preprod:
     IVS_REGION: eu-west-1
+    IVS_BUCKET: 'live-streams-recordings-preprod'
   prod:
     IVS_REGION: us-east-1
+    IVS_BUCKET: 'live-streams-recordings'
 
 provider:
   name: aws
@@ -18,7 +21,8 @@ provider:
     $<<:
       ${file(../env.yml)}
     IVS_REGION: '${self:custom.${self:provider.stage}.IVS_REGION, "us-east-1"}'
-    IVS_BUCKET: 'live-streams-recordings-${self:provider.stage}'
+    IVS_BUCKET: '${self:custom.${self:provider.stage}.IVS_BUCKET, "live-streams-recordings-dev"}'
+    MEDIACONVERT_IAM_ROLE_ARN: 'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-${self:provider.stage}'
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -47,6 +51,19 @@ provider:
         - iam:AttachRolePolicy
         - iam:PutRolePolicy
       Resource: "arn:aws:iam::630176884077:role/aws-service-role/ivs.amazonaws.com/AWSServiceRoleForIVSRecordToS3*"
+    - Effect: Allow
+      Action:
+        - mediaconvert:GetJob
+        - mediaconvert:CreateJob
+      Resource: "arn:aws:mediaconvert:${self:provider.environment.IVS_REGION}:630176884077:*"
+    - Effect: Allow
+      Action:
+        - mediaconvert:DescribeEndpoints
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - iam:PassRole
+      Resource: "${self:provider.environment.MEDIACONVERT_IAM_ROLE_ARN}"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -87,6 +104,21 @@ functions:
     events:
       - http:
           path: liveStream/{id}/refresh
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  convertLiveStreamRecording:
+    handler: handlers/convertLiveStreamRecording.default
+    events:
+      - http:
+          path: liveStream/{id}/recordingConvert
           method: put
           cors: true
           authorizer:
