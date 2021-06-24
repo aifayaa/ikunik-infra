@@ -1,4 +1,5 @@
 import S3 from 'aws-sdk/clients/s3';
+import MediaConvert from 'aws-sdk/clients/mediaconvert';
 import MongoClient from '../../libs/mongoClient';
 import { filterOutput } from './utils';
 
@@ -14,6 +15,24 @@ const s3 = new S3({
   region: IVS_REGION,
 });
 
+const mediaconvert = new MediaConvert({
+  apiVersion: '2017-08-29',
+  region: IVS_REGION,
+});
+
+/** Customer-specific endpoint is required, so we need to fetch it first */
+async function loadCSMediaConvertEndpoint() {
+  const { Endpoints } = await mediaconvert.describeEndpoints({}).promise();
+
+  const csmediaconvert = new MediaConvert({
+    apiVersion: '2017-08-29',
+    region: IVS_REGION,
+    endpoint: Endpoints[0].Url,
+  });
+
+  return (csmediaconvert);
+}
+
 export default async (appId, liveStreamId) => {
   const client = await MongoClient.connect();
   try {
@@ -28,6 +47,8 @@ export default async (appId, liveStreamId) => {
     if (!dbLiveStream) {
       throw new Error('live_stream_not_found');
     }
+
+    let csmediaconvert = null;
 
     let continuationToken;
     const s3Prefix = `ivs/v1/630176884077/${dbLiveStream.aws.arn.split('/').pop()}/`;
@@ -62,6 +83,19 @@ export default async (appId, liveStreamId) => {
     if (Object.keys(recordingsByState).length > 0) {
       const dbRecordings = [];
 
+      const getRecordingWithRoot = (root) => {
+        if (!dbLiveStream.recordings) return ({});
+
+        for (let i = 0; i < dbLiveStream.recordings.length; i += 1) {
+          const current = dbLiveStream.recordings[i];
+          if (current.root === root) {
+            return (JSON.parse(JSON.stringify(current)));
+          }
+        }
+
+        return ({});
+      };
+
       await Promise.allSettled(Object.keys(recordingsByState).map(async (s3Root) => {
         let state;
         if (recordingsByState[s3Root].ended) state = 'ended';
@@ -75,20 +109,39 @@ export default async (appId, liveStreamId) => {
         const jsonText = s3data.Body.toString('utf8');
         const json = JSON.parse(jsonText);
 
-        const newDbRecording = {
-          state,
-          start: new Date(json.recording_started_at),
-          duration: json.media.hls.duration_ms,
-          baseUrl: `https://${IVS_BUCKET}.s3.amazonaws.com`,
-          root: s3Root,
-        };
-        if (json.recording_ended_at) newDbRecording.end = new Date(json.recording_ended_at);
-        if (json.duration_ms) newDbRecording.duration = json.duration_ms;
+        const currentRecording = getRecordingWithRoot(s3Root);
+        currentRecording.state = state;
+        currentRecording.start = new Date(json.recording_started_at);
+        currentRecording.duration = json.media.hls.duration_ms;
+        currentRecording.baseUrl = `https://${IVS_BUCKET}.s3.amazonaws.com`;
+        currentRecording.root = s3Root;
+
+        if (json.recording_ended_at) currentRecording.end = new Date(json.recording_ended_at);
+        if (json.duration_ms) currentRecording.duration = json.duration_ms;
         if (json.media && json.media.hls && json.media.hls.path) {
-          newDbRecording.playlist = `${json.media.hls.path}/${json.media.hls.playlist}`;
+          currentRecording.playlist = `${json.media.hls.path}/${json.media.hls.playlist}`;
         }
 
-        dbRecordings.push(newDbRecording);
+        if (currentRecording.conversion) {
+          if (
+            currentRecording.conversion.status !== 'COMPLETE' &&
+            currentRecording.conversion.status !== 'CANCELED' &&
+            currentRecording.conversion.status !== 'ERROR'
+          ) {
+            if (!csmediaconvert) {
+              csmediaconvert = await loadCSMediaConvertEndpoint();
+            }
+
+            const convertJob = await csmediaconvert.getJob({
+              Id: currentRecording.conversion.mediaConvertId,
+            }).promise();
+
+            currentRecording.conversion.status = convertJob.Job.Status || 'PROCESSING';
+            currentRecording.conversion.completion = convertJob.Job.JobPercentComplete || 0;
+          }
+        }
+
+        dbRecordings.push(currentRecording);
       }));
 
       if (dbRecordings.length > 0) {
