@@ -20,14 +20,19 @@ const mediaconvert = new MediaConvert({
   region: IVS_REGION,
 });
 
+let endpointUrl = null;
+
 /** Customer-specific endpoint is required, so we need to fetch it first */
 async function loadCSMediaConvertEndpoint() {
-  const { Endpoints } = await mediaconvert.describeEndpoints({}).promise();
+  if (endpointUrl === null) {
+    const { Endpoints } = await mediaconvert.describeEndpoints({}).promise();
+    endpointUrl = Endpoints[0].Url;
+  }
 
   const csmediaconvert = new MediaConvert({
     apiVersion: '2017-08-29',
     region: IVS_REGION,
-    endpoint: Endpoints[0].Url,
+    endpoint: endpointUrl,
   });
 
   return (csmediaconvert);
