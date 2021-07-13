@@ -14,12 +14,8 @@ import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
-import liveStreamScheduleError from './liveStreamScheduleError';
-import liveStreamScheduleSuccess from './liveStreamScheduleSuccess';
-import liveStreamStartError from './liveStreamStartError';
-import liveStreamStartSuccess from './liveStreamStartSuccess';
-import liveStreamEndError from './liveStreamEndError';
-import liveStreamCountDown from './liveStreamCountDown';
+import liveStreamView from './liveStreamView';
+import liveStreamRecordingView from './liveStreamRecordingView';
 
 export default {
   libsEmail: {
@@ -93,26 +89,7 @@ export default {
     },
   },
   liveStream: {
-    countdown_html_page: liveStreamCountDown,
-    end_error: {
-      title: '[{{- appName}}] Error while stopping live streaming for {{- liveStreamName}}',
-      html: liveStreamEndError,
-    },
-    schedule_error: {
-      title: '[{{- appName}}] Error while scheduling automatic live streaming start for {{- liveStreamName}}',
-      html: liveStreamScheduleError,
-    },
-    schedule_success: {
-      title: '[{{- appName}}] Scheduled live streaming automatic start for {{- liveStreamName}}',
-      html: liveStreamScheduleSuccess,
-    },
-    start_error: {
-      title: '[{{- appName}}] Error starting live streaming {{- liveStreamName}}',
-      html: liveStreamStartError,
-    },
-    start_success: {
-      title: '[{{- appName}}] Started live streaming {{- liveStreamName}}',
-      html: liveStreamStartSuccess,
-    },
+    view_stream_html_page: liveStreamView,
+    view_recording_html_page: liveStreamRecordingView,
   },
 };

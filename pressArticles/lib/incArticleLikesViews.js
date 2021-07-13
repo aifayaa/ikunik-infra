@@ -24,23 +24,33 @@ export const incArticleLikesViews = async (
 
     const currentArticleLikes = currentArticle.likes || 0;
     const currentArticleViews = currentArticle.views || 0;
+    let newLikesVal = currentArticleLikes;
+    let newViewsVal = currentArticleViews;
     const minLikes = 1;
     const minViews = 1;
     const $inc = {};
     if (likes) {
-      const newVal = currentArticleLikes + likes;
-      if (newVal >= minLikes) {
+      newLikesVal = currentArticleLikes + likes;
+      if (newLikesVal >= minLikes) {
         $inc.likes = likes;
       } else if (currentArticleLikes > minLikes) {
         $inc.likes = minLikes - currentArticleLikes;
       }
     }
     if (views) {
-      const newVal = currentArticleViews + views;
-      if (newVal >= minViews) {
+      newViewsVal = currentArticleViews + views;
+      if (newViewsVal >= minViews) {
         $inc.views = views;
       } else if (currentArticleViews > minViews) {
         $inc.views = minViews - currentArticleViews;
+      }
+    }
+
+    if (newLikesVal > newViewsVal) {
+      if ($inc.likes) {
+        $inc.likes += newViewsVal - newLikesVal;
+      } else {
+        $inc.likes = newViewsVal - newLikesVal;
       }
     }
 
