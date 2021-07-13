@@ -1,18 +1,18 @@
 export default `
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-    <title>Live stream</title>
+    <title>Diffusion en direct</title>
     <script type="text/javascript">
       const ts = {
-        start: 'The stream will start in :',
-        days: ' days ',
-        hours: ' hours ',
+        start: 'Le stream démarrera dans :',
+        days: ' jours ',
+        hours: ' heures ',
         minutes: ' minutes ',
-        seconds: ' seconds',
-        redir: 'Starting...',
+        seconds: ' secondes',
+        redir: 'Démarrage...',
       };
 
       const smhdOrder = [
@@ -20,7 +20,7 @@ export default `
         'minutes',
         'hours',
         'days',
-      ]
+      ];
 
       const urlParams = new URLSearchParams(window.location.search);
       const countdownTo = {{- startDateTime}};
@@ -56,12 +56,6 @@ export default `
         document.head.appendChild(style);
         document.head.appendChild(script);
         document.head.appendChild(hlsScript);
-      }
-
-      function escapeHTML(html) {
-        const escape = document.createElement('textarea');
-        escape.textContent = html;
-        return (escape.innerHTML);
       }
 
       function checkTime() {
