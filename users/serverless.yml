@@ -19,6 +19,17 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  searchUser:
+    handler: handlers/searchUser.default
+    events:
+      - http:
+          path: users/search
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+
   addAppId:
     handler: handlers/addAppId.default
     events:
