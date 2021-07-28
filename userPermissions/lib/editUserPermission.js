@@ -1,7 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  COLL_USERS,
   COLL_USER_PERMISSIONS,
 } = process.env;
 
@@ -55,14 +54,6 @@ export default async (userPermissionId, appId, {
         _id: userPermissionId,
         appId,
       }, { $set });
-
-    await client.db().collection(COLL_USERS).updateMany(
-      { appId, 'permissions.id': userPermObj._id },
-      { $set: {
-        'permissions.$.color': userPermObj.color,
-        'permissions.$.name': userPermObj.name,
-      } },
-    );
 
     return ({ ...userPermObj, ...$set });
   } finally {

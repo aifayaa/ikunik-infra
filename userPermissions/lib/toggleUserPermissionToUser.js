@@ -34,8 +34,6 @@ export default async (
         { _id: userId, appId },
         { $addToSet: { permissions: {
           id: userPermObj._id,
-          color: userPermObj.color,
-          name: userPermObj.name,
         } } },
       );
     } else if (action === 'remove') {

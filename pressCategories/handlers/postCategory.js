@@ -26,6 +26,7 @@ export default async (event) => {
       order,
       parentId,
       pathName,
+      permissions,
       picture,
     } = parsedBody;
     let { action } = parsedBody;
@@ -44,6 +45,7 @@ export default async (event) => {
       order,
       hidden,
       parentId || null,
+      permissions || [],
       action,
     );
     return response({ code: 200, body: results });
