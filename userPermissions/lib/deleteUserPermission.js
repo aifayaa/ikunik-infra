@@ -2,6 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_USERS,
+  COLL_PRESS_CATEGORIES,
   COLL_USER_PERMISSIONS,
 } = process.env;
 
@@ -32,6 +33,12 @@ export default async (userPermissionId, appId) => {
     await client.db().collection(COLL_USERS).updateMany(
       { appId, 'permissions.id': userPermObj._id },
       { $pull: { permissions: {
+        id: userPermObj._id,
+      } } },
+    );
+    await client.db().collection(COLL_PRESS_CATEGORIES).updateMany(
+      { appId, 'permissions.list.id': userPermObj._id },
+      { $pull: { 'permissions.list': {
         id: userPermObj._id,
       } } },
     );
