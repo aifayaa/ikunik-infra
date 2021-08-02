@@ -7,7 +7,7 @@ function makeUsernameRegex(search) {
 
   ret = ret.join('.*');
 
-  return (new RegExp(ret));
+  return (new RegExp(ret, 'i'));
 }
 
 export default async (appId, {
