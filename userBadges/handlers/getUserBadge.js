@@ -1,4 +1,4 @@
-import getUserPermission from '../lib/getUserPermission';
+import getUserBadge from '../lib/getUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -6,7 +6,7 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
-  const userPermissionId = event.pathParameters.id;
+  const userBadgeId = event.pathParameters.id;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
@@ -14,8 +14,8 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const userPermission = await getUserPermission(userPermissionId, appId);
-    return response({ code: 200, body: { userPermission } });
+    const userBadge = await getUserBadge(userBadgeId, appId);
+    return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

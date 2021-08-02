@@ -1,4 +1,4 @@
-import deleteUserPermission from '../lib/deleteUserPermission';
+import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -6,7 +6,7 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
-  const userPermissionId = event.pathParameters.id;
+  const userBadgeId = event.pathParameters.id;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
@@ -14,8 +14,26 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    await deleteUserPermission(userPermissionId, appId);
-    return response({ code: 200, body: { ok: true } });
+    if (!event.body) {
+      throw new Error('mal_formed_request');
+    }
+
+    const bodyParsed = JSON.parse(event.body);
+    const {
+      action,
+      userId,
+    } = bodyParsed;
+
+    if (!userBadgeId || !userId) {
+      throw new Error('mal_formed_request');
+    }
+
+    const userBadge = await toggleUserBadgeToUser(
+      userBadgeId,
+      appId,
+      { action, userId },
+    );
+    return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

@@ -1,4 +1,4 @@
-import toggleUserPermissionToUser from '../lib/toggleUserPermissionToUser';
+import editUserBadge from '../lib/editUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -6,7 +6,7 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
-  const userPermissionId = event.pathParameters.id;
+  const userBadgeId = event.pathParameters.id;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
@@ -20,20 +20,19 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
     const {
-      action,
-      userId,
+      name,
     } = bodyParsed;
 
-    if (!userPermissionId || !userId) {
+    if (!name) {
       throw new Error('mal_formed_request');
     }
 
-    const userPermission = await toggleUserPermissionToUser(
-      userPermissionId,
-      appId,
-      { action, userId },
-    );
-    return response({ code: 200, body: { userPermission } });
+    if (typeof name !== 'string') {
+      throw new Error('wrong_argument_type');
+    }
+
+    const userBadge = await editUserBadge(userBadgeId, appId, bodyParsed);
+    return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

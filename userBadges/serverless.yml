@@ -1,4 +1,4 @@
-service: userPermissions
+service: userBadges
 
 provider:
   name: aws
@@ -19,22 +19,22 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  addUserPermission:
-    handler: handlers/addUserPermission.default
+  addUserBadge:
+    handler: handlers/addUserBadge.default
     events:
       - http:
-          path: userPermissions
+          path: userBadges
           method: post
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           cors: true
 
-  getUserPermission:
-    handler: handlers/getUserPermission.default
+  getUserBadge:
+    handler: handlers/getUserBadge.default
     events:
       - http:
-          path: userPermissions/{id}
+          path: userBadges/{id}
           method: get
           authorizer:
             type: CUSTOM
@@ -45,22 +45,22 @@ functions:
               paths:
                 id: true
 
-  listUserPermissions:
-    handler: handlers/listUserPermissions.default
+  listUserBadges:
+    handler: handlers/listUserBadges.default
     events:
       - http:
-          path: userPermissions
+          path: userBadges
           method: get
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           cors: true
 
-  editUserPermission:
-    handler: handlers/editUserPermission.default
+  editUserBadge:
+    handler: handlers/editUserBadge.default
     events:
       - http:
-          path: userPermissions/{id}
+          path: userBadges/{id}
           method: put
           authorizer:
             type: CUSTOM
@@ -71,11 +71,11 @@ functions:
               paths:
                 id: true
 
-  deleteUserPermission:
-    handler: handlers/deleteUserPermission.default
+  deleteUserBadge:
+    handler: handlers/deleteUserBadge.default
     events:
       - http:
-          path: userPermissions/{id}
+          path: userBadges/{id}
           method: delete
           authorizer:
             type: CUSTOM
@@ -86,11 +86,11 @@ functions:
               paths:
                 id: true
 
-  toggleUserPermissionToUser:
-    handler: handlers/toggleUserPermissionToUser.default
+  toggleUserBadgeToUser:
+    handler: handlers/toggleUserBadgeToUser.default
     events:
       - http:
-          path: userPermissions/{id}/user
+          path: userBadges/{id}/user
           method: put
           authorizer:
             type: CUSTOM

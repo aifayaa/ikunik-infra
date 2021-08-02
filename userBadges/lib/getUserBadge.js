@@ -1,22 +1,22 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  COLL_USER_PERMISSIONS,
+  COLL_USER_BADGES,
 } = process.env;
 
-export default async (userPermissionId, appId) => {
+export default async (userBadgeId, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const userPermObj = await client
+    const userBadgeObj = await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
+      .collection(COLL_USER_BADGES)
       .findOne({
-        _id: userPermissionId,
+        _id: userBadgeId,
         appId,
       });
 
-    return (userPermObj);
+    return (userBadgeObj);
   } finally {
     client.close();
   }

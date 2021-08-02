@@ -3,43 +3,43 @@ import MongoClient from '../../libs/mongoClient';
 const {
   COLL_USERS,
   COLL_PRESS_CATEGORIES,
-  COLL_USER_PERMISSIONS,
+  COLL_USER_BADGES,
 } = process.env;
 
-export default async (userPermissionId, appId) => {
+export default async (userBadgeId, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const userPermObj = await client
+    const userBadgeObj = await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
+      .collection(COLL_USER_BADGES)
       .findOne({
-        _id: userPermissionId,
+        _id: userBadgeId,
         appId,
       });
 
-    if (!userPermObj) {
+    if (!userBadgeObj) {
       throw new Error('content_not_found');
     }
 
     await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
+      .collection(COLL_USER_BADGES)
       .deleteOne({
-        _id: userPermissionId,
+        _id: userBadgeId,
         appId,
       });
 
     await client.db().collection(COLL_USERS).updateMany(
-      { appId, 'permissions.id': userPermObj._id },
-      { $pull: { permissions: {
-        id: userPermObj._id,
+      { appId, 'badges.id': userBadgeObj._id },
+      { $pull: { badges: {
+        id: userBadgeObj._id,
       } } },
     );
     await client.db().collection(COLL_PRESS_CATEGORIES).updateMany(
-      { appId, 'permissions.list.id': userPermObj._id },
-      { $pull: { 'permissions.list': {
-        id: userPermObj._id,
+      { appId, 'badges.list.id': userBadgeObj._id },
+      { $pull: { 'badges.list': {
+        id: userBadgeObj._id,
       } } },
     );
   } finally {
