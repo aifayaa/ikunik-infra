@@ -2,11 +2,11 @@ import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_USERS,
-  COLL_USER_PERMISSIONS,
+  COLL_USER_BADGES,
 } = process.env;
 
 export default async (
-  userPermissionId,
+  userBadgeId,
   appId,
   { action = 'add', userId },
 ) => {
@@ -18,29 +18,29 @@ export default async (
     }
 
     if (action === 'add') {
-      const userPermObj = await client
+      const userBadgeObj = await client
         .db()
-        .collection(COLL_USER_PERMISSIONS)
+        .collection(COLL_USER_BADGES)
         .findOne({
-          _id: userPermissionId,
+          _id: userBadgeId,
           appId,
         });
 
-      if (!userPermObj) {
+      if (!userBadgeObj) {
         throw new Error('content_not_found');
       }
 
       await client.db().collection(COLL_USERS).updateOne(
         { _id: userId, appId },
-        { $addToSet: { permissions: {
-          id: userPermObj._id,
+        { $addToSet: { badges: {
+          id: userBadgeObj._id,
         } } },
       );
     } else if (action === 'remove') {
       await client.db().collection(COLL_USERS).updateOne(
         { _id: userId, appId },
-        { $pull: { permissions: {
-          id: userPermissionId,
+        { $pull: { badges: {
+          id: userBadgeId,
         } } },
       );
     }

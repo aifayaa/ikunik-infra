@@ -1,4 +1,4 @@
-import listUserPermissions from '../lib/listUserPermissions';
+import listUserBadges from '../lib/listUserBadges';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -9,13 +9,12 @@ export default async (event) => {
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
-    console.log('DEBUG', allowedPerms, perms);
     if (!checkPerms(allowedPerms, perms)) {
       throw new Error('access_forbidden');
     }
 
-    const userPermissions = await listUserPermissions(appId);
-    return response({ code: 200, body: { userPermissions } });
+    const userBadges = await listUserBadges(appId);
+    return response({ code: 200, body: { userBadges } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

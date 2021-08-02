@@ -1,7 +1,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 
 const {
-  COLL_USER_PERMISSIONS,
+  COLL_USER_BADGES,
 } = process.env;
 
 export default async (userId, appId, {
@@ -12,18 +12,18 @@ export default async (userId, appId, {
   const client = await MongoClient.connect();
 
   try {
-    if (!name) throw new Error('missing_user_permission_name');
+    if (!name) throw new Error('missing_user_badge_name');
 
     const existingObj = await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
+      .collection(COLL_USER_BADGES)
       .findOne({ appId, name });
 
     if (existingObj) {
-      throw new Error('duplicate_user_permission');
+      throw new Error('duplicate_user_badge');
     }
 
-    const userPermObj = {
+    const userBadgeObj = {
       _id: new ObjectID().toString(),
       appId,
       createdAt: new Date(),
@@ -35,10 +35,10 @@ export default async (userId, appId, {
 
     await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
-      .insertOne(userPermObj);
+      .collection(COLL_USER_BADGES)
+      .insertOne(userBadgeObj);
 
-    return (userPermObj);
+    return (userBadgeObj);
   } finally {
     client.close();
   }

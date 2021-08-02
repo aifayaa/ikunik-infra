@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
-  COLL_USER_PERMISSIONS,
+  COLL_USER_BADGES,
 } = process.env;
 
-export default async (userPermissionId, appId, {
+export default async (userBadgeId, appId, {
   name,
   description,
   color,
@@ -12,27 +12,27 @@ export default async (userPermissionId, appId, {
   const client = await MongoClient.connect();
 
   try {
-    if (!name) throw new Error('missing_user_permission_name');
-    const userPermObj = await client
+    if (!name) throw new Error('missing_user_badge_name');
+    const userBadgeObj = await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
+      .collection(COLL_USER_BADGES)
       .findOne({
-        _id: userPermissionId,
+        _id: userBadgeId,
         appId,
       });
 
-    if (!userPermObj) {
+    if (!userBadgeObj) {
       throw new Error('content_not_found');
     }
 
-    if (userPermObj.name !== name) {
+    if (userBadgeObj.name !== name) {
       const existingObj = await client
         .db()
-        .collection(COLL_USER_PERMISSIONS)
+        .collection(COLL_USER_BADGES)
         .findOne({ appId, name });
 
       if (existingObj) {
-        throw new Error('duplicate_user_permission');
+        throw new Error('duplicate_user_badge');
       }
     }
 
@@ -49,13 +49,13 @@ export default async (userPermissionId, appId, {
 
     await client
       .db()
-      .collection(COLL_USER_PERMISSIONS)
+      .collection(COLL_USER_BADGES)
       .updateOne({
-        _id: userPermissionId,
+        _id: userBadgeId,
         appId,
       }, { $set });
 
-    return ({ ...userPermObj, ...$set });
+    return ({ ...userBadgeObj, ...$set });
   } finally {
     client.close();
   }

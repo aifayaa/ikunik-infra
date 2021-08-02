@@ -1,4 +1,4 @@
-import addUserPermission from '../lib/addUserPermission';
+import addUserBadge from '../lib/addUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -31,8 +31,8 @@ export default async (event) => {
       throw new Error('wrong_argument_type');
     }
 
-    const userPermission = await addUserPermission(userId, appId, bodyParsed);
-    return response({ code: 200, body: { userPermission } });
+    const userBadge = await addUserBadge(userId, appId, bodyParsed);
+    return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

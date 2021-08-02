@@ -123,7 +123,7 @@ export const getArticle = async (
           },
         },
         {
-          $addFields: { contentPermissions: '$cp.permissions' },
+          $addFields: { permissions: '$cp.permissions' },
         },
       ]);
     }
@@ -241,7 +241,7 @@ export const getArticle = async (
       };
 
       /* Filter article if purchasable and not paid yet */
-      const cp = article.contentPermissions;
+      const cp = article.permissions;
       if (
         article.storeProductId &&
         (!cp || (!cp.all && !cp.read))
@@ -251,31 +251,31 @@ export const getArticle = async (
 
       if (
         article.category &&
-        article.category.permissions &&
-        article.category.permissions.list.length > 0
+        article.category.badges &&
+        article.category.badges.list.length > 0
       ) {
         const user = await client
           .db(DB_NAME)
           .collection(COLL_USERS)
           .findOne({ _id: userId });
 
-        if (!user || !user.permissions || user.permissions.length === 0) {
-          articleRequires('userPermissions');
+        if (!user || !user.badges || user.badges.length === 0) {
+          articleRequires('userBadges');
         } else {
-          const up = user.permissions.reduce((acc, perm) => {
+          const userBadges = user.badges.reduce((acc, perm) => {
             acc[perm.id] = true;
             return (acc);
           }, {});
           let valid = false;
 
-          article.category.permissions.list.forEach((perm) => {
-            if (up[perm.id]) {
+          article.category.badges.list.forEach((perm) => {
+            if (userBadges[perm.id]) {
               valid = true;
             }
           });
 
           if (!valid) {
-            articleRequires('userPermissions');
+            articleRequires('userBadges');
           }
         }
       }

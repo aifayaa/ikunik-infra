@@ -1,7 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
-const { COLL_PRESS_CATEGORIES, COLL_USER_PERMISSIONS, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
+const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (
@@ -14,7 +14,7 @@ export default async (
   order,
   hidden,
   parentId,
-  permissions,
+  badges,
   action,
 ) => {
   /* Mongo client */
@@ -130,15 +130,15 @@ export default async (
       }
     }
 
-    if (permissions.length > 0) {
-      const allPerms = await client.db(DB_NAME).collection(COLL_USER_PERMISSIONS).find().toArray();
-      const allPermsMap = allPerms.reduce((acc, perm) => {
-        acc[perm._id] = perm;
+    if (badges.length > 0) {
+      const allBadges = await client.db(DB_NAME).collection(COLL_USER_BADGES).find().toArray();
+      const allBadgesMap = allBadges.reduce((acc, badge) => {
+        acc[badge._id] = badge;
         return (acc);
       }, {});
 
-      permissions = permissions.map((p) => {
-        const dbPerm = allPermsMap[p];
+      badges = badges.map((p) => {
+        const dbPerm = allBadgesMap[p];
         if (!dbPerm) {
           throw new Error('invalid_permission');
         }
@@ -163,8 +163,8 @@ export default async (
       name,
       parentId: parentId || null,
       pathName,
-      permissions: {
-        list: permissions,
+      badges: {
+        list: badges,
         allow: 'any',
       },
     };
