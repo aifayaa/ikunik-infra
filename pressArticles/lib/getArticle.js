@@ -123,7 +123,7 @@ export const getArticle = async (
           },
         },
         {
-          $addFields: { permissions: '$cp.permissions' },
+          $addFields: { contentPermissions: '$cp.permissions' },
         },
       ]);
     }
@@ -235,12 +235,49 @@ export const getArticle = async (
     const article = articles[0] || null;
 
     if (article) {
+      const articleRequires = (what) => {
+        article.text = null;
+        article.requires = what;
+      };
+
       /* Filter article if purchasable and not paid yet */
+      const cp = article.contentPermissions;
       if (
         article.storeProductId &&
-        (!article.permissions || (!article.permissions.all && !article.permissions.read))
+        (!cp || (!cp.all && !cp.read))
       ) {
-        article.text = null;
+        articleRequires('iap');
+      }
+
+      if (
+        article.category &&
+        article.category.permissions &&
+        article.category.permissions.list.length > 0
+      ) {
+        const user = await client
+          .db(DB_NAME)
+          .collection(COLL_USERS)
+          .findOne({ _id: userId });
+
+        if (!user || !user.permissions || user.permissions.length === 0) {
+          articleRequires('userPermissions');
+        } else {
+          const up = user.permissions.reduce((acc, perm) => {
+            acc[perm.id] = true;
+            return (acc);
+          }, {});
+          let valid = false;
+
+          article.category.permissions.list.forEach((perm) => {
+            if (up[perm.id]) {
+              valid = true;
+            }
+          });
+
+          if (!valid) {
+            articleRequires('userPermissions');
+          }
+        }
       }
     }
 

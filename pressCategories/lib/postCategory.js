@@ -1,7 +1,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
-const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
+const { COLL_PRESS_CATEGORIES, COLL_USER_PERMISSIONS, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (
@@ -13,6 +13,7 @@ export default async (
   order,
   hidden,
   parentId,
+  permissions,
   action,
 ) => {
   /* Mongo client */
@@ -87,6 +88,25 @@ export default async (
       }
     }
 
+    if (permissions.length > 0) {
+      const allPerms = await client.db(DB_NAME).collection(COLL_USER_PERMISSIONS).find().toArray();
+      const allPermsMap = allPerms.reduce((acc, perm) => {
+        acc[perm._id] = perm;
+        return (acc);
+      }, {});
+
+      permissions = permissions.map((p) => {
+        const dbPerm = allPermsMap[p];
+        if (!dbPerm) {
+          throw new Error('invalid_permission');
+        }
+
+        return ({
+          id: p,
+        });
+      });
+    }
+
     /* * * * * * * * * * * * * * * * * * * * * * * * *
      *
      * PROCESSING : updating database
@@ -105,6 +125,10 @@ export default async (
       parentId: parentId || null,
       pathName,
       picture: picture.pop(),
+      permissions: {
+        list: permissions,
+        allow: 'any',
+      },
     };
 
     const whichMaximumOrderValue = parentId ? maximumOrderValueForParentId : maximumOrderValue;

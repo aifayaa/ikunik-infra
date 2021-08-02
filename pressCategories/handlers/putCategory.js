@@ -33,6 +33,7 @@ export default async (event) => {
       order,
       parentId,
       pathName,
+      permissions,
       picture,
     } = parsedBody;
     let { action } = parsedBody;
@@ -52,6 +53,7 @@ export default async (event) => {
       order,
       hidden,
       parentId || null,
+      permissions || null,
       action,
     );
 
