@@ -81,7 +81,7 @@ export default async (appId, liveStreamId) => {
         });
       }
 
-      if (videosObjects.isTruncated) continuationToken = videosObjects.NextContinuationToken;
+      if (videosObjects.IsTruncated) continuationToken = videosObjects.NextContinuationToken;
       else continuationToken = null;
     } while (continuationToken);
 
