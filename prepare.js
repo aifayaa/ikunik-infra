@@ -198,6 +198,7 @@ async function processCollection(collection, indexSchemas) {
   const client = await MongoClient.connect(mongoUrl);
 
   const {
+    COLL_APPS,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
     DB_NAME,
@@ -290,6 +291,9 @@ async function processCollection(collection, indexSchemas) {
       [COLL_PUSH_NOTIFICATIONS]: [
         { name: 'crowdaa_blast_query_1', key: { userId: 1, appId: 1 }, opts: makeOpts() },
         { name: 'crowdaa_blast_query_2', key: { deviceUUID: 1, appId: 1 }, opts: makeOpts() },
+      ],
+      [COLL_APPS]: [
+        { name: 'crowdaa_app_preview_key', key: { 'settings.previewKey': 1 }, opts: makeOpts('unique', 'sparse') },
       ],
     };
 
