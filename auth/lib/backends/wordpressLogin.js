@@ -2,6 +2,7 @@ import MongoClient from '../../../libs/mongoClient';
 import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
+import { hashPassword } from '../password';
 
 const { DB_NAME, COLL_USERS } = process.env;
 
@@ -58,6 +59,7 @@ export const wordpressLogin = async (username, password, app) => {
       wpToken,
       expiresAt: Date.now() + 7 * 86400 * 1000,
     };
+    const hashedPassword = await hashPassword(password);
     if (!user) {
       user = {
         _id: Random.id(),
@@ -71,6 +73,9 @@ export const wordpressLogin = async (username, password, app) => {
           },
           resume: {
             loginTokens: [loginToken],
+          },
+          password: {
+            bcrypt: hashedPassword,
           },
         },
         appId,
@@ -92,6 +97,9 @@ export const wordpressLogin = async (username, password, app) => {
             'services.wordpress.userEmail': userEmail,
             'services.wordpress.userNicename': userNicename,
             'services.wordpress.userDisplayName': userDisplayName,
+            'services.password': {
+              bcrypt: hashedPassword,
+            },
           },
           $addToSet: {
             'services.resume.loginTokens': loginToken,
