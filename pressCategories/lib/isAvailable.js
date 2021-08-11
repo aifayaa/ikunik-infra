@@ -6,7 +6,7 @@ const {
 export default async (mongoClient, appId, name, pathName, id) => {
   /* Request for categories having the same appId and name or pathName */
   const queryExists = {
-    $or: [{ name }],
+    $or: [],
     appId,
   };
   if (pathName) queryExists.$or.push({ pathName });
@@ -15,7 +15,7 @@ export default async (mongoClient, appId, name, pathName, id) => {
     .collection(COLL_PRESS_CATEGORIES)
     .findOne(queryExists);
 
-  if (categoryFound) {
+  if (queryExists.$or.length > 0 && categoryFound) {
     let errorCatFound = `Already exists for appId ${appId}`;
     if (pathName && pathName === categoryFound.pathName) {
       errorCatFound = `Pathname ${pathName}, ${errorCatFound}`;
