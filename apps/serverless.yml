@@ -25,6 +25,22 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  getAppAllSettings:
+    handler: handlers/getAppAllSettings.default
+    events:
+      - http:
+          path: apps/{id}/settings
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              paths:
+                id: true
+              headers:
+                Authorization: true
   getAppInfos:
     handler: handlers/getAppInfos.default
     events:
