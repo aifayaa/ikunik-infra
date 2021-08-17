@@ -1,31 +1,18 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getAppPreview from '../lib/getAppPreview';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKey = 'apps_getAppPreview';
 
 export default async (event) => {
-  const {
-    pathParameters,
-    requestContext,
-  } = event;
-  const { id: key } = pathParameters;
-  const { perms: rawPerms } = requestContext.authorizer;
-  const perms = JSON.parse(rawPerms);
+  const { id: previewKey } = event.pathParameters;
 
   try {
-    if (!checkPerms(permKey, perms)) {
-      throw new Error('access_forbidden');
-    }
+    const app = await getAppPreview(previewKey);
 
-    const results = await getAppPreview(key);
-
-    if (results === false) {
+    if (app === false) {
       throw new Error('app_not_found');
     }
 
-    return response({ code: 200, body: results });
+    return response({ code: 200, body: app });
   } catch (e) {
     return response(errorMessage(e));
   }
