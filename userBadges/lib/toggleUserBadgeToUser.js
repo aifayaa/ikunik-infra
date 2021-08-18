@@ -1,0 +1,52 @@
+import MongoClient from '../../libs/mongoClient';
+
+const {
+  COLL_USERS,
+  COLL_USER_BADGES,
+} = process.env;
+
+export default async (
+  userBadgeId,
+  appId,
+  { action = 'add', userId },
+) => {
+  const client = await MongoClient.connect();
+
+  try {
+    if (action !== 'add' && action !== 'remove') {
+      action = 'add';
+    }
+
+    if (action === 'add') {
+      const userBadgeObj = await client
+        .db()
+        .collection(COLL_USER_BADGES)
+        .findOne({
+          _id: userBadgeId,
+          appId,
+        });
+
+      if (!userBadgeObj) {
+        throw new Error('content_not_found');
+      }
+
+      await client.db().collection(COLL_USERS).updateOne(
+        { _id: userId, appId },
+        { $addToSet: { badges: {
+          id: userBadgeObj._id,
+        } } },
+      );
+    } else if (action === 'remove') {
+      await client.db().collection(COLL_USERS).updateOne(
+        { _id: userId, appId },
+        { $pull: { badges: {
+          id: userBadgeId,
+        } } },
+      );
+    }
+
+    return ({ success: true });
+  } finally {
+    client.close();
+  }
+};

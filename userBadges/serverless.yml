@@ -1,0 +1,110 @@
+service: userBadges
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  memorySize: 128
+  timeout: 30
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  addUserBadge:
+    handler: handlers/addUserBadge.default
+    events:
+      - http:
+          path: userBadges
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+
+  getUserBadge:
+    handler: handlers/getUserBadge.default
+    events:
+      - http:
+          path: userBadges/{id}
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  listUserBadges:
+    handler: handlers/listUserBadges.default
+    events:
+      - http:
+          path: userBadges
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+
+  editUserBadge:
+    handler: handlers/editUserBadge.default
+    events:
+      - http:
+          path: userBadges/{id}
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  deleteUserBadge:
+    handler: handlers/deleteUserBadge.default
+    events:
+      - http:
+          path: userBadges/{id}
+          method: delete
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  toggleUserBadgeToUser:
+    handler: handlers/toggleUserBadgeToUser.default
+    events:
+      - http:
+          path: userBadges/{id}/user
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - serverless-offline
+  - serverless-webpack
+  - serverless-export-env
+
+package:
+  individually: true

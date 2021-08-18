@@ -235,12 +235,49 @@ export const getArticle = async (
     const article = articles[0] || null;
 
     if (article) {
+      const articleRequires = (what) => {
+        article.text = null;
+        article.requires = what;
+      };
+
       /* Filter article if purchasable and not paid yet */
+      const cp = article.permissions;
       if (
         article.storeProductId &&
-        (!article.permissions || (!article.permissions.all && !article.permissions.read))
+        (!cp || (!cp.all && !cp.read))
       ) {
-        article.text = null;
+        articleRequires('iap');
+      }
+
+      if (
+        article.category &&
+        article.category.badges &&
+        article.category.badges.list.length > 0
+      ) {
+        const user = await client
+          .db(DB_NAME)
+          .collection(COLL_USERS)
+          .findOne({ _id: userId });
+
+        if (!user || !user.badges || user.badges.length === 0) {
+          articleRequires('userBadges');
+        } else {
+          const userBadges = user.badges.reduce((acc, perm) => {
+            acc[perm.id] = true;
+            return (acc);
+          }, {});
+          let valid = false;
+
+          article.category.badges.list.forEach((perm) => {
+            if (userBadges[perm.id]) {
+              valid = true;
+            }
+          });
+
+          if (!valid) {
+            articleRequires('userBadges');
+          }
+        }
       }
     }
 
