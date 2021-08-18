@@ -6,7 +6,6 @@ auth
 maintenance
 ssr
 
-userMetrics
 audios
 authorize
 banners
@@ -31,6 +30,7 @@ shop
 stages
 tokenPackages
 users
+userMetrics
 
 artists
 projects
@@ -48,5 +48,6 @@ pressCategories
 pressArticles
 pressSearch
 pushNotifications
+userBadges
 
 userGeneratedContents

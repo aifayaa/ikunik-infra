@@ -6,10 +6,9 @@ for i in $pkgDirs; do
   src='../node_modules'
   dest="./$i/node_modules"
 
-  if [ "$i" = 'node_modules' ]; then
-    continue
-  fi
-
+  test "$i" = 'node_modules' && continue
+  test -d "$dest" && continue
   test -h "$dest" && rm -f "$dest"
+
   ln -s "$src" "$dest"
 done

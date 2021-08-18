@@ -26,6 +26,7 @@ export default async (event) => {
       order,
       parentId,
       pathName,
+      badges,
       picture,
     } = parsedBody;
     let { action } = parsedBody;
@@ -44,6 +45,7 @@ export default async (event) => {
       order,
       hidden,
       parentId || null,
+      badges || [],
       action,
     );
     return response({ code: 200, body: results });

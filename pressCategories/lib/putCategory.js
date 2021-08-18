@@ -1,7 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 import isAvailable from './isAvailable';
 
-const { COLL_PRESS_CATEGORIES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
+const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (
@@ -14,6 +14,7 @@ export default async (
   order,
   hidden,
   parentId,
+  badges,
   action,
 ) => {
   /* Mongo client */
@@ -129,6 +130,25 @@ export default async (
       }
     }
 
+    if (badges.length > 0) {
+      const allBadges = await client.db(DB_NAME).collection(COLL_USER_BADGES).find().toArray();
+      const allBadgesMap = allBadges.reduce((acc, badge) => {
+        acc[badge._id] = badge;
+        return (acc);
+      }, {});
+
+      badges = badges.map((p) => {
+        const dbPerm = allBadgesMap[p];
+        if (!dbPerm) {
+          throw new Error('invalid_permission');
+        }
+
+        return ({
+          id: p,
+        });
+      });
+    }
+
     /* * * * * * * * * * * * * * * * * * * * * * * * *
      *
      * PROCESSING : updating database
@@ -143,6 +163,10 @@ export default async (
       name,
       parentId: parentId || null,
       pathName,
+      badges: {
+        list: badges,
+        allow: 'any',
+      },
     };
 
     if (picture && picture.length) {
