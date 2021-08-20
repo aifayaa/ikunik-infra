@@ -3,9 +3,9 @@ import sinon from 'sinon';
 export default (...responses) => {
   let responseCount = -1;
   const forEach = sinon.spy(
-    () => {
+    (cb) => {
       responseCount += 1;
-      return Promise.resolve(responses[responseCount]);
+      return Promise.resolve(cb(responses[responseCount]));
     },
   );
   const toArray = sinon.spy(
@@ -64,6 +64,7 @@ export default (...responses) => {
     collection,
     aggregate,
     toArray,
+    forEach,
     updateMany,
     updateOne,
     insertOne,
