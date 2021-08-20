@@ -32,6 +32,7 @@ export default {
       title: 'Prévisualisation de {{- appName}}',
     },
     app_preview_sms: 'Salut! Voila le lien pour tester votre application {{- sanatizedAppName}} : {{- url}}, bonne découverte!',
+    invite_app_admin_email_title: 'Appli.City || Votre tableau de bord {{- appName}}',
   },
   auth: {
     address_confirmation_email: {
