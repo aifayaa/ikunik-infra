@@ -58,7 +58,7 @@ describe('lib - sendNotifications', () => {
         spyMongo.find.getCall(0).args[0],
         spyMongo.find.getCall(0).args[1],
       );
-      sinon.assert.called(spyMongo.toArray);
+      sinon.assert.called(spyMongo.forEach);
     });
 
     after(() => {
