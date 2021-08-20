@@ -1,4 +1,3 @@
-import queue from 'async/queue';
 import AWS from 'aws-sdk';
 import MongoClient from '../../libs/mongoClient';
 
@@ -10,14 +9,7 @@ const {
   SNS_SECRET,
 } = process.env;
 
-const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) => {
-  const sns = new AWS.SNS({
-    region: SNS_REGION,
-    credentials: {
-      accessKeyId: SNS_KEY_ID,
-      secretAccessKey: SNS_SECRET,
-    },
-  });
+const doBlastNotification = ({ sns, title, message, endpoint, extraData = {} }, cb) => {
   const msg = {};
   msg.default = '';
   if (endpoint.Platform === 'APNS') {
@@ -47,23 +39,30 @@ const doBlastNotification = ({ title, message, endpoint, extraData = {} }, cb) =
 export const doSendNotifications = async (title, message, appId, extraData) => {
   const client = await MongoClient.connect();
   try {
-    const endpoints = await client
+    const endpoints = client
       .db(DB_NAME)
       .collection(COLL_PUSH_NOTIFICATIONS)
       .find(
         { appId },
         { projection: { _id: 1, Platform: 1, EndpointArn: 1 } },
-      ).toArray();
-    const sendNotifications = queue(doBlastNotification, 50);
-    const results = [];
-    let successful = 0;
-    endpoints.forEach((endpoint) => {
-      sendNotifications.push({ title, message, endpoint, extraData }, (error, res) => {
-        if (!error) successful += 1;
-        results.push(error || res);
-      });
+      );
+    const sns = new AWS.SNS({
+      region: SNS_REGION,
+      credentials: {
+        accessKeyId: SNS_KEY_ID,
+        secretAccessKey: SNS_SECRET,
+      },
     });
-    await sendNotifications.drain();
+    const promises = [];
+    let successful = 0;
+    await endpoints.forEach((endpoint) => {
+      promises.push(
+        doBlastNotification({ sns, title, message, endpoint, extraData }, (error/* , res */) => {
+          if (!error) successful += 1;
+        }),
+      );
+    });
+    await Promise.allSettled(promises);
     return { successful };
   } finally {
     client.close();
