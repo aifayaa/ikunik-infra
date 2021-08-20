@@ -2,6 +2,12 @@ import sinon from 'sinon';
 
 export default (...responses) => {
   let responseCount = -1;
+  const forEach = sinon.spy(
+    () => {
+      responseCount += 1;
+      return Promise.resolve(responses[responseCount]);
+    },
+  );
   const toArray = sinon.spy(
     () => {
       responseCount += 1;
@@ -18,6 +24,7 @@ export default (...responses) => {
   const find = sinon.spy(() => ({
     toArray,
     count,
+    forEach,
   }));
   const insertOne = sinon.spy(() => true);
   const findOne = sinon.spy(() => {
