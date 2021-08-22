@@ -33,7 +33,7 @@ const doBlastNotification = ({ sns, title, message, endpoint, extraData = {} }, 
     MessageStructure: 'json',
     TargetArn: endpoint.EndpointArn,
   };
-  return sns.publish(params, cb);
+  return sns.publish(params, cb).promise();
 };
 
 export const doSendNotifications = async (title, message, appId, extraData) => {
