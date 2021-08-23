@@ -49,11 +49,13 @@ export default async (
       { _id: adminId },
       {
         $pull: {
-          permGroupIds,
+          permGroupIds: { $in: permGroupIds },
         },
       },
     );
   } finally {
     client.close();
   }
+
+  return (true);
 };
