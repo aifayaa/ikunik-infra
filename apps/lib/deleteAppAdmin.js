@@ -38,12 +38,12 @@ export default async (
       ))),
     ]);
 
-    permGroupsResults.forEach((pg) => {
-      if (!pg) {
-        throw new Error('app_configuration_error');
-      }
-    });
-    const permGroupIds = { $in: permGroupsResults.map((result) => (ObjectID(result._id))) };
+    const permGroupIds = permGroupsResults
+      .filter((pg) => (pg))
+      .map((result) => (ObjectID(result._id)));
+    if (permGroupIds.length === 0) {
+      throw new Error('app_configuration_error');
+    }
 
     await db.collection(COLL_USERS).updateOne(
       { _id: adminId },
