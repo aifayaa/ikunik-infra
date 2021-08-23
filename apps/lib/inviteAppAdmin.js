@@ -102,12 +102,10 @@ export default async (
         'emails.address': email,
       }),
     ]);
-    permGroupsResults.forEach((pg) => {
-      if (!pg) {
-        throw new Error('app_configuration_error');
-      }
-    });
-    const permGroupIds = permGroupsResults.map((result) => (result._id));
+    const permGroupIds = permGroupsResults.filter((pg) => (pg)).map((result) => (result._id));
+    if (permGroupIds.length === 0) {
+      throw new Error('app_configuration_error');
+    }
     if (usersResults) {
       userId = usersResults._id;
     } else {
