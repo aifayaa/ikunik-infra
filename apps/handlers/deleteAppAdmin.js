@@ -25,6 +25,10 @@ export default async (event) => {
       throw new Error('wrong_argument_type');
     }
 
+    if (adminId === userId) {
+      throw new Error('cannot_delete_self');
+    }
+
     const results = await deleteAppAdmin(appId, adminId);
 
     if (results === false) {
