@@ -1,6 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 
 const {
+  ADMIN_APP,
   COLL_APPS,
   COLL_PERM_GROUPS,
   COLL_USERS,
@@ -38,6 +39,7 @@ export default async (
     }
 
     const userQuery = {
+      appId: ADMIN_APP,
       permGroupIds: { $in: permGroupIds },
     };
     const userProjection = {
