@@ -12,6 +12,7 @@
     "accept-language-parser": "^1.5.0",
     "aws-sdk": "^2.749.0",
     "i18next": "^19.8.3",
+    "mailgun-js": "^0.22.0",
     "mongodb": "^3.5.0",
     "nodemailer": "^6.4.14",
     "request-promise-native": "^1.0.9",
