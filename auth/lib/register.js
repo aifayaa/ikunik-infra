@@ -18,7 +18,14 @@ const {
   REACT_APP_AUTH_URL,
 } = process.env;
 
-export const register = async (rawEmail, username, password, lang, appId) => {
+export const register = async (
+  rawEmail,
+  username,
+  password,
+  lang,
+  appId,
+  { firstname, lastname } = {},
+) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
@@ -55,6 +62,8 @@ export const register = async (rawEmail, username, password, lang, appId) => {
       },
       appId,
       profile: {
+        firstname,
+        lastname,
         username,
       },
     };
