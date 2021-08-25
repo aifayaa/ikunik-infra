@@ -33,7 +33,7 @@ const doBlastNotification = ({ sns, title, message, endpoint, extraData = {} }, 
     MessageStructure: 'json',
     TargetArn: endpoint.EndpointArn,
   };
-  return sns.publish(params, cb).promise();
+  return sns.publish(params, cb);
 };
 
 export const doSendNotifications = async (title, message, appId, extraData) => {
@@ -57,8 +57,11 @@ export const doSendNotifications = async (title, message, appId, extraData) => {
     let successful = 0;
     await endpoints.forEach((endpoint) => {
       promises.push(
-        doBlastNotification({ sns, title, message, endpoint, extraData }, (error/* , res */) => {
-          if (!error) successful += 1;
+        new Promise((resolve) => {
+          doBlastNotification({ sns, title, message, endpoint, extraData }, (error/* , res */) => {
+            if (!error) successful += 1;
+            resolve();
+          });
         }),
       );
     });
