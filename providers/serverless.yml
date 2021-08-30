@@ -1,0 +1,38 @@
+service: providers
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  provLeQuotidienViewPdf:
+    handler: handlers/leQuotidien/viewPdf.default
+    events:
+      - http:
+          path: providers/lequotidien/viewpdf/{pdfId}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+plugins:
+  - serverless-offline
+  - '@cruglobal/serverless-merge-config'
+  - serverless-webpack
+
+package:
+  individually: true
