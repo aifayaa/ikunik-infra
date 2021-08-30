@@ -33,7 +33,7 @@ export default {
       title: 'App {{- appName}} preview',
     },
     app_preview_sms: 'Hey! Here\'s the link to test your app {{- sanatizedAppName}} : {{- url}}, enjoy it!',
-    invite_app_admin_email_title: 'Appli.City || Your dashboard {{- appName}}',
+    invite_app_admin_email_title: 'Crowdaa || Your dashboard {{- appName}}',
   },
   auth: {
     address_confirmation_email: {
