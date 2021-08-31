@@ -42,7 +42,7 @@ provider:
       Action:
         - states:CreateStateMachine
         - states:StartExecution
-      Resource: "arn:aws:states:${self:provider.REGION}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
+      Resource: "arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
     - Effect: Allow
       Action:
         - iam:PassRole
@@ -50,7 +50,7 @@ provider:
     - Effect: Allow
       Action:
         - states:StopExecution
-      Resource: "arn:aws:states:${self:provider.REGION}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*"
+      Resource: "arn:aws:states:${self:provider.region}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

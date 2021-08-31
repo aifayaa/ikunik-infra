@@ -29,7 +29,7 @@ doDeploy() {
   fullDeploy="$1"
   for folder in $(<$folders)
   do
-    echo "___________ Deploying $folder on $STAGE/$REGION ___________"
+    echo "___________ Deploying $folder on $STAGE / $REGION ___________"
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
