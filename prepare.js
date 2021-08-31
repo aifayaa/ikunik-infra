@@ -110,19 +110,22 @@ const {
 } = makeLogger();
 
 async function processCollection(db, collName, indexSchemas) {
+  const logger = makeLogger(`Collection ${collName}`);
+
   if (CI_FIRST_DEPLOY === 'true') {
     try {
-      db.createCollection(collName);
+      logger.verbose(`Attempting to create collection ${collName}`);
+      if (!EXTRA.dry) {
+        await db.createCollection(collName);
+      }
     } catch (e) {
-      verbose(`Collection creation failed for ${collName}, maybe it already exists?`);
+      logger.verbose(`Collection creation failed for ${collName}, maybe it already exists?`);
     }
   }
 
   const collection = db.collection(collName);
   const collIndexes = await collection.indexes();
   const promises = [];
-
-  const logger = makeLogger(`Collection ${collection.collectionName}`);
 
   if (EXTRA.remove) {
     for (let j = 0; j < collIndexes.length; j += 1) {
