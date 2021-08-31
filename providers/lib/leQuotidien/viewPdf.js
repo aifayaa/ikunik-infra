@@ -4,9 +4,9 @@ import MongoClient from '../../../libs/mongoClient';
 const {
   COLL_USERS,
   DB_NAME,
-  LEQUOTIDIEN_AWS_ACCESS_KEY, // @TODO DEFINE ME
   LEQUOTIDIEN_AWS_KEY, // @TODO DEFINE ME
   LEQUOTIDIEN_AWS_REGION, // @TODO DEFINE ME
+  LEQUOTIDIEN_AWS_SECRET, // @TODO DEFINE ME
   LEQUOTIDIEN_BUCKET_PDF, // @TODO DEFINE ME
 } = process.env;
 
@@ -14,7 +14,7 @@ const s3 = new S3({
   region: LEQUOTIDIEN_AWS_REGION,
   credentials: {
     accessKeyId: LEQUOTIDIEN_AWS_KEY,
-    secretAccessKey: LEQUOTIDIEN_AWS_ACCESS_KEY,
+    secretAccessKey: LEQUOTIDIEN_AWS_SECRET,
   },
 });
 
