@@ -16,6 +16,4 @@ This microservice requires `docker` and `docker-compose` to be run because it re
 
 ### ./deployDiff.sh
 
-This file deploys changes microservices on dev/preprod/prod automatically using gitlab-ci. When a variable `CI_FIRST_DEPLOY` is defined at `true` in the AWS microservice pipeline environment variables, it will run a full & deploy to create everything, not using the changed folders list.
-
-When doing this, you should also increase the pipeline timeout to 2 hours, because the deployment currently takes around 1 hour and 15 minutes.
+This file deploys changes microservices on dev/preprod/prod automatically using gitlab-ci. When a variable `CI_FIRST_DEPLOY` is defined at `true` in the AWS microservice codebuild environment variables, it will run a full & deploy to create everything, not using the changed folders list. This variable is needed for all of the codebuilds in the codepipeline.

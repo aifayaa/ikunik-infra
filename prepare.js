@@ -12,6 +12,7 @@ const AVAILABLE_STAGES_REGIONS = [
   'awaxDev:eu-west-1',
   'awax:eu-west-1',
 ];
+const { CI_FIRST_DEPLOY } = process.env;
 
 if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
   const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS
@@ -105,9 +106,19 @@ function makeLogger(initialTitle) {
 const {
   setTitle,
   log,
+  verbose,
 } = makeLogger();
 
-async function processCollection(collection, indexSchemas) {
+async function processCollection(db, collName, indexSchemas) {
+  if (CI_FIRST_DEPLOY === 'true') {
+    try {
+      db.createCollection(collName);
+    } catch (e) {
+      verbose(`Collection creation failed for ${collName}, maybe it already exists?`);
+    }
+  }
+
+  const collection = db.collection(collName);
   const collIndexes = await collection.indexes();
   const promises = [];
 
@@ -197,6 +208,8 @@ async function processCollection(collection, indexSchemas) {
   }
 }
 
+verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringify(EXTRA)}`);
+
 (async () => {
   const apiServerlessConfig = fs.readFileSync('./api-v1/serverless.yml', 'utf8');
   const envConfig = fs.readFileSync('./env.yml', 'utf8');
@@ -212,7 +225,6 @@ async function processCollection(collection, indexSchemas) {
     COLL_APPS,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
-    DB_NAME,
   } = envData;
 
   try {
@@ -309,11 +321,10 @@ async function processCollection(collection, indexSchemas) {
     };
 
     const collNames = Object.keys(indexSchemas);
+    const db = client.db();
     for (let i = 0; i < collNames.length; i += 1) {
       const collName = collNames[i];
-      const collection = client.db(DB_NAME).collection(collName);
-      // eslint-disable-next-line no-await-in-loop
-      promises.push(processCollection(collection, indexSchemas[collName]));
+      promises.push(processCollection(db, collName, indexSchemas[collName]));
     }
 
     await Promise.all(promises);
