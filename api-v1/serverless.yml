@@ -82,7 +82,7 @@ custom:
 
   customDomain:
     basePath: "v1"
-    domainName: ${self:custom.domains.${self:provider.stage}.${self.provider.region}}
+    domainName: ${self:custom.domains.${self:provider.stage}.${self:provider.region}}
     endpointType: "regional"
     stage: "${self:provider.stage}"
     createRoute53Record: true
@@ -172,7 +172,7 @@ resources:
     #   DependsOn: restApiGatewayDeployment
     #   Properties:
     #     BasePath: "v1"
-    #     DomainName: ${self:custom.domains.${self:provider.stage}:${self.provider.region}}
+    #     DomainName: ${self:custom.domains.${self:provider.stage}:${self:provider.region}}
     #     RestApiId:
     #       Ref: ApiGatewayRestApi
     #     Stage: ${self:provider.stage}
@@ -187,7 +187,7 @@ resources:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayStage
     MongoURL:
       Description: MongoDB URL
-      Value: ${self:custom.mongoDB.${self:provider.stage}.${self.provider.region}}
+      Value: ${self:custom.mongoDB.${self:provider.stage}.${self:provider.region}}
       Export:
         Name: ${self:service}:${self:provider.stage}:MongoURL
     AdminApp:
