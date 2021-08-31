@@ -9,8 +9,8 @@ provider:
   environment:
     $<<:
       - ${file(../env.yml)}
-      - ${file(./env.${self:provider.stage}.yml)}
-  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+      - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
+  region: ${opt:region}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
@@ -74,11 +74,15 @@ package:
 
 custom:
   domains:
-    dev: dev-ssr.aws.crowdaa.com
-    preprod: preprod-ssr.aws.crowdaa.com
-    prod: ssr.aws.crowdaa.com
+    dev:
+      us-east-1: dev-ssr.aws.crowdaa.com
+    preprod:
+      eu-west-3: preprod-ssr.aws.crowdaa.com
+    prod:
+      us-east-1: ssr.aws.crowdaa.com
+      eu-west-3: ssr-fr.aws.crowdaa.com
 
   customDomain:
-    domainName: ${self:custom.domains.${self:provider.stage}}
+    domainName: ${self:custom.domains.${self:provider.stage}.${self:provider.region}}
     stage: '${self:provider.stage}'
     createRoute53Record: true

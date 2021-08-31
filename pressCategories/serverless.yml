@@ -16,7 +16,7 @@ provider:
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
       /admin/press: ${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}
-  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  region: ${opt:region}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:

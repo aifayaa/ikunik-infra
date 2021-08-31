@@ -14,11 +14,11 @@ provider:
   environment:
     $<<: 
       - ${file(../env.yml)}
-      - ${file(./env.${self:provider.stage}.yml)}
+      - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
-  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  region: ${opt:region}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:

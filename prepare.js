@@ -2,12 +2,23 @@
 /* eslint-disable no-console */
 
 const STAGE = process.argv[2];
-let EXTRA = process.argv[3];
-const AVAILABLE_STAGES = ['dev', 'preprod', 'prod', 'awaxDev', 'awax'];
+const REGION = process.argv[3];
+let EXTRA = process.argv[4];
+const AVAILABLE_STAGES_REGIONS = [
+  'dev:us-east-1',
+  'preprod:eu-west-3',
+  'prod:us-east-1',
+  'prod:eu-west-3',
+  'awaxDev:eu-west-1',
+  'awax:eu-west-1',
+];
 
-if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
-  console.log('usage : ./prepare.js [STAGE] [EXTRA]\n');
-  console.log(`  STAGE can be ${AVAILABLE_STAGES.join(', ')}`);
+if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
+  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS
+    .map((x) => (x.replace(':', ' + ')))
+    .join(', ');
+  console.log('usage : ./prepare.js [STAGE] [REGION] [EXTRA]\n');
+  console.log(`  STAGE + REGION are mandatory and can be : ${stageRegionsDisplayList}`);
   console.log('  EXTRA is a comma-separated list of extra operations to do. It may contain :');
   console.log('    - remove : Checks and removes database indexes that we did not list in this script');
   console.log('    - verbose : Display extra information about what is being done');
@@ -192,7 +203,7 @@ async function processCollection(collection, indexSchemas) {
   const apiServerlessData = yaml.safeLoad(apiServerlessConfig);
   const envData = yaml.safeLoad(envConfig);
 
-  const mongoUrl = apiServerlessData.custom.mongoDB[STAGE];
+  const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
 
   const promises = [];
   const client = await MongoClient.connect(mongoUrl);

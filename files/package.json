@@ -5,9 +5,10 @@
   "description": "Crowdaa files API.",
   "main": "handler.js",
   "scripts": {
-    "deploy:dev": "sh dockerLogin.sh; docker-compose run -e STAGE=dev deploy",
-    "deploy:preprod": "sh dockerLogin.sh; docker-compose run -e STAGE=preprod deploy",
-    "deploy:prod": "sh dockerLogin.sh; docker-compose run -e STAGE=prod deploy"
+    "deploy:dev:us-east-1": "sh dockerLogin.sh; docker-compose run -e STAGE=dev -e REGION=us-east-1 deploy",
+    "deploy:preprod:eu-west-3": "sh dockerLogin.sh; docker-compose run -e STAGE=preprod -e REGION=eu-west-3 deploy",
+    "deploy:prod:us-east-1": "sh dockerLogin.sh; docker-compose run -e STAGE=prod -e REGION=us-east-1 deploy",
+    "deploy:prod:eu-west-3": "sh dockerLogin.sh; docker-compose run -e STAGE=prod -e REGION=eu-west-3 deploy"
   },
   "dependencies": {
     "aws-sdk": "^2.749.0",

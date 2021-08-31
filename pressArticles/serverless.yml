@@ -2,17 +2,24 @@ service: pressArticles
 
 custom:
   dev:
-    NOTIFICATION_STATE_MACHINE_NAME: DevDelayedArticleNotification
-    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevDelayedArticleNotification-role-191bc6ee
-    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-dev-broadcastArticleNotification
+    us-east-1:
+      NOTIFICATION_STATE_MACHINE_NAME: DevDelayedArticleNotification
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevDelayedArticleNotification-role-191bc6ee
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-dev-broadcastArticleNotification
   preprod:
-    NOTIFICATION_STATE_MACHINE_NAME: PreprodDelayedArticleNotification
-    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodDelayedArticleNotification-role-40903dbe
-    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-preprod-broadcastArticleNotification
+    eu-west-3:
+      NOTIFICATION_STATE_MACHINE_NAME: PreprodDelayedArticleNotification
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodDelayedArticleNotification-role
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-preprod-broadcastArticleNotification
   prod:
-    NOTIFICATION_STATE_MACHINE_NAME: ProdDelayedArticleNotification
-    NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdDelayedArticleNotification-role-40903dbe
-    NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-broadcastArticleNotification
+    us-east-1:
+      NOTIFICATION_STATE_MACHINE_NAME: ProdDelayedArticleNotification
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdDelayedArticleNotification-role-40903dbe
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-broadcastArticleNotification
+    eu-west-3:
+      NOTIFICATION_STATE_MACHINE_NAME: ProdFrDelayedArticleNotification
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrDelayedArticleNotification-role
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-broadcastArticleNotification
 
 provider:
   name: aws
@@ -23,10 +30,9 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
-    NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_NAME}'
-    NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_ROLE}'
-    NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.${self:provider.stage}.NOTIFICATION_STATE_MACHINE_RESOURCE}'
-    STATE_MACHINE_REGION: us-east-1
+    NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}'
+    NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}'
+    NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_RESOURCE}'
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -36,7 +42,7 @@ provider:
       Action:
         - states:CreateStateMachine
         - states:StartExecution
-      Resource: "arn:aws:states:${self:provider.environment.STATE_MACHINE_REGION}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
+      Resource: "arn:aws:states:${self:provider.REGION}:630176884077:stateMachine:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}"
     - Effect: Allow
       Action:
         - iam:PassRole
@@ -44,14 +50,14 @@ provider:
     - Effect: Allow
       Action:
         - states:StopExecution
-      Resource: "arn:aws:states:${self:provider.environment.STATE_MACHINE_REGION}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}-*"
+      Resource: "arn:aws:states:${self:provider.REGION}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press: ${cf:press-${self:provider.stage}.RestApiRootResourceId}
       /admin/press: ${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}
-  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  region: ${opt:region}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
