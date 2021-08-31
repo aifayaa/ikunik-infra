@@ -29,7 +29,7 @@ doDeploy() {
   fullDeploy="$1"
   for folder in $(<$folders)
   do
-    echo "___________Deploying $folder ___________"
+    echo "___________ Deploying $folder on $STAGE/$REGION ___________"
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
@@ -61,7 +61,7 @@ if [ "$doFullDeploy" = 'true' ]; then
   mv api-v1/serverless.yml{"$BACKUP_EXTENSION",}
 
   cd api-v1
-  echo "___________Re-Deploying api-v1 ___________"
+  echo "___________ Re-Deploying api-v1 ___________"
   doServerless deploy
   cd ..
 else 
