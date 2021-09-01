@@ -5,10 +5,16 @@ import errorMessage from '../../../libs/httpResponses/errorMessage';
 export default async (event) => {
   try {
     const { pdfId } = event.pathParameters;
-    const { appId, userId, loginToken } = event.requestContext.authorizer;
+    const {
+      appId,
+      principalId: userId,
+      loginToken: strLoginToken,
+    } = event.requestContext.authorizer;
 
     if (!appId) throw new Error('app_not_found');
-    if (!userId || !loginToken) throw new Error('not_connected');
+    if (!userId || !strLoginToken) throw new Error('forbidden');
+
+    const loginToken = JSON.parse(strLoginToken);
 
     const pdfUrl = await viewPdf(pdfId, { appId, userId, loginToken });
 

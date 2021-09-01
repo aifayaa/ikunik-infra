@@ -32,13 +32,25 @@ export default async (hashedToken, appId) => {
         { projection: {
           _id: 1,
           permGroupIds: 1,
-          'services.resume.loginTokens.$': 1,
+          'services.resume.loginTokens': 1,
         } },
       );
 
     let loginToken = null;
-    if (user && user.services.resume && user.services.resume.loginTokens) {
-      const [dbToken] = user.services.resume.loginTokens;
+    if (
+      user &&
+      user.services &&
+      user.services.resume &&
+      user.services.resume.loginTokens
+    ) {
+      /** We have to do this since mongo < 4.4 does not support positional projection
+       * with a condition inside an `$or`, and `$elemMatch` isn't supported either */
+      const dbToken = user.services.resume.loginTokens.reduce((acc, tok) => {
+        if (tok.hashedToken === hashedToken) {
+          return (tok);
+        }
+        return (acc);
+      }, null);
       loginToken = dbToken;
 
       if (dbToken && dbToken.backend === 'wordpress') {

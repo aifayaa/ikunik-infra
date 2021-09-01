@@ -27,33 +27,39 @@ export default async (pdfId, { appId, userId, loginToken }) => {
       .findOne({
         _id: userId,
         appId,
-        'services.resume.loginTokens.hashedToken': loginToken,
+        'services.resume.loginTokens.hashedToken': loginToken.hashedToken,
       }, {
         projection: {
           'services.resume.loginTokens.$': 1,
         },
       });
 
+    if (loginToken.backend !== 'wordpress') {
+      throw new Error('forbidden');
+    }
     if (!user) {
       throw new Error('user_not_found');
     }
 
     // @TODO CHECK USER PERMS WITH API
 
+    try {
+      await s3.headObject({
+        Bucket: LEQUOTIDIEN_BUCKET_PDF,
+        Key: `${pdfId}.pdf`,
+      }).promise();
+    } catch (e) {
+      throw new Error('content_not_found');
+    }
+
     const s3Params = {
       Bucket: LEQUOTIDIEN_BUCKET_PDF,
-      Key: `pdfs/${pdfId}.pdf`, // @TODO REPLACE ME
-      ContentType: 'application/pdf',
-      // ACL: 'public-read',
-      // Metadata: {
-      //   ...metadata,
-      //   id,
-      //   type,
-      // },
+      Key: `${pdfId}.pdf`,
+      ResponseContentType: 'application/pdf',
       Expires: 600,
     };
 
-    return (s3.getSignedUrl('putObject', s3Params));
+    return (s3.getSignedUrl('getObject', s3Params));
   } finally {
     client.close();
   }

@@ -1,5 +1,17 @@
 service: providers
 
+custom:
+  preprod:
+    LEQUOTIDIEN_AWS_KEY: 'AKIA4DV6YH4CUGEHOAQX'
+    LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
+    LEQUOTIDIEN_AWS_SECRET: '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'
+    LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
+  prod:
+    LEQUOTIDIEN_AWS_KEY: 'AKIA4DV6YH4CUGEHOAQX'
+    LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
+    LEQUOTIDIEN_AWS_SECRET: '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'
+    LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -9,11 +21,10 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
-    LEQUOTIDIEN_AWS_KEY: 'AKIA4DV6YH4CUGEHOAQX'
-    LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
-    LEQUOTIDIEN_AWS_SECRET: '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'
-    LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
-  environment: ${file(../env.yml)}
+    LEQUOTIDIEN_AWS_KEY: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_KEY, "NONE"}'
+    LEQUOTIDIEN_AWS_REGION: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_REGION, "NONE"}'
+    LEQUOTIDIEN_AWS_SECRET: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_SECRET, "NONE"}'
+    LEQUOTIDIEN_BUCKET_PDF: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_BUCKET_PDF, "NONE"}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

@@ -27,8 +27,8 @@ export default async ({ headers, methodArn, requestContext }) => {
     if (user) {
       opts.userId = user.id;
       opts.perms = user.perms;
-      opts.loginToken = loginToken;
-      jsConsole.info('allow', authorizationToken, user._id);
+      opts.loginToken = user.loginToken;
+      jsConsole.info('allow', authorizationToken, user.id);
       return generatePolicy('allow', methodArn, opts);
     }
     jsConsole.info('deny', authorizationToken);
