@@ -42,6 +42,8 @@ createRelease:
 preparePreprodDatabase:
   image: node:12
   stage: prepareDatabase
+  variables:
+    OPERATION: prod_to_preprod
   allow_failure: true
   before_script:
     - which gpg > /dev/null || apt update -yq && apt install gnupg
@@ -62,7 +64,7 @@ preparePreprodDatabase:
     - npm i
     - cd ../..
   script:
-    - ./crowdaa_utils/js/bin/cloneDatabase --operation prod_to_preprod --drop --tempDir "$PWD/db-clone-temp"
+    - ./crowdaa_utils/js/bin/cloneDatabase --operation "${OPERATION:-prod_to_preprod}" --drop --tempDir "$PWD/db-clone-temp"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/i
       when: manual
