@@ -6,7 +6,7 @@ custom:
       REACT_APP_AUTH_URL: https://dev-auth.crowdaa.com
       REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
   preprod:
-    us-east-1:
+    eu-west-3:
       REACT_APP_AUTH_URL: https://depreprodv-auth.crowdaa.com
       REACT_APP_PRESS_SERVICE_URL: https://preprod-blog.crowdaa.com
   prod:
