@@ -15,7 +15,7 @@ provider:
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       lineup/{id}: ${cf:lineup-${self:provider.stage}.RestApiRootResourceId}
-  region: ${opt:region}
+  region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
