@@ -31,7 +31,7 @@ runNpmCustomDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npm run "deploy:$STAGE:$REGION"
+  npm run deploy --stage="$STAGE" --region="$REGION"
   cd ..
 }
 

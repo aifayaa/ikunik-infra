@@ -33,7 +33,7 @@ doDeploy() {
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      files) npm run "deploy:$STAGE:$REGION";;
+      files) npm run deploy --stage="$STAGE" --region="$REGION";;
       api-v1|ssr)
         if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
         doServerless deploy;;
