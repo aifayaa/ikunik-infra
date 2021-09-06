@@ -9,16 +9,12 @@ provider:
   environment:
     $<<: 
       - ${file(../env.yml)}
-      - ${file(./env.${self:provider.stage}.yml)}
-    S3_APPS_RESSOURCES_REGION: ${self:custom.s3_apps_ressources_region.${self:provider.stage}, "us-east-1"}
+      - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
-  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
-
-custom:
-  s3_apps_ressources_region: {}
 
 functions:
   appleLogin:
