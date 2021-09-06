@@ -4,26 +4,26 @@ STAGE="$1"
 REGION="$2"
 ALL="$3"
 
-REGION_ARGS=()
-
-if [ -n "$REGION" ]; then
-  REGION_ARGS=(--region "$REGION")
-fi
-
 usage() {
   echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
   echo "    Deploy all microservices for a STAGE on a REGION"
   echo "    STAGE can be dev, preprod, prod, awax, awaxDev"
-  echo "    REGION can be empty ('') to use the default one, or all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
+  echo "    REGION must be set to one of the possible regions for the API, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions for a list of all regions"
   echo "    ALL Set to the value « ALL » to deploy all microservices, even those who are not currently being worked on"
 }
+
+if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
+  echo "MISSING STAGE ($STAGE) OR REGION ($REGION) PARAMETER" 1>&2
+  usage
+  exit 1
+fi
 
 runSlsDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" "${REGION_ARGS[@]}"
+  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" --region "$REGION"
   cd ..
 }
 
@@ -31,9 +31,7 @@ runNpmCustomDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  # Uses environment variable "$REGION"
-  export REGION
-  npm run "deploy:$STAGE"
+  npm run deploy --stage="$STAGE" --region="$REGION"
   cd ..
 }
 
@@ -60,7 +58,6 @@ runSlsDeployFor 'ssr'
 test "x$ALL" = "xALL" && runSlsDeployFor 'audios'
 runSlsDeployFor 'authorize'
 test "x$ALL" = "xALL" && runSlsDeployFor 'banners'
-runSlsDeployFor 'blast'
 test "x$ALL" = "xALL" && runSlsDeployFor 'carts'
 runSlsDeployFor 'contactLists'
 runSlsDeployFor 'contacts'
@@ -109,6 +106,7 @@ runSlsDeployFor 'liveStream'
 runSlsDeployFor 'pressCategories'
 runSlsDeployFor 'pressArticles'
 runSlsDeployFor 'pressSearch'
+runSlsDeployFor 'blast'
 runSlsDeployFor 'pushNotifications'
 runSlsDeployFor 'userBadges'
 runSlsDeployFor 'userGeneratedContents'

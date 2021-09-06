@@ -2,14 +2,20 @@ service: userGeneratedContents
 
 custom:
   dev:
-    REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
-    REACT_APP_API_URL: https://dev-api.aws.crowdaa.com/v1
+    us-east-1:
+      REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
+      REACT_APP_API_URL: https://dev-api.aws.crowdaa.com/v1
   preprod:
-    REACT_APP_PRESS_SERVICE_URL: https://preprod-blog.crowdaa.com
-    REACT_APP_API_URL: https://preprod-api.aws.crowdaa.com/v1
+    eu-west-3:
+      REACT_APP_PRESS_SERVICE_URL: https://preprod-blog.crowdaa.com
+      REACT_APP_API_URL: https://preprod-api.aws.crowdaa.com/v1
   prod:
-    REACT_APP_PRESS_SERVICE_URL: https://blog.crowdaa.com
-    REACT_APP_API_URL: https://api.aws.crowdaa.com/v1
+    us-east-1:
+      REACT_APP_PRESS_SERVICE_URL: https://blog.crowdaa.com
+      REACT_APP_API_URL: https://api.aws.crowdaa.com/v1
+    eu-west-3:
+      REACT_APP_PRESS_SERVICE_URL: https://blog-fr.crowdaa.com
+      REACT_APP_API_URL: https://api-fr.aws.crowdaa.com/v1
 
 provider:
   name: aws
@@ -20,15 +26,15 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
-    REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.REACT_APP_PRESS_SERVICE_URL}'
-    REACT_APP_API_URL: '${self:custom.${self:provider.stage}.REACT_APP_API_URL}'
+    REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}'
+    REACT_APP_API_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
     restApiResources:
       /press/articles: ${cf:pressArticles-${self:provider.stage}.RestApiRootResourcePressId}
       /press/articles/{id}: ${cf:pressArticles-${self:provider.stage}.RestApiRootResourcePressArticlesId}
-  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:

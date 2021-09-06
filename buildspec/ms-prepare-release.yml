@@ -8,4 +8,4 @@ phases:
   build:
     commands:
       - npm i
-      - ./prepare.js prod verbose,remove
+      - ./prepare.js prod "$AWS_REGION" verbose,remove

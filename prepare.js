@@ -2,12 +2,24 @@
 /* eslint-disable no-console */
 
 const STAGE = process.argv[2];
-let EXTRA = process.argv[3];
-const AVAILABLE_STAGES = ['dev', 'preprod', 'prod', 'awaxDev', 'awax'];
+const REGION = process.argv[3];
+let EXTRA = process.argv[4];
+const AVAILABLE_STAGES_REGIONS = [
+  'dev:us-east-1',
+  'preprod:eu-west-3',
+  'prod:us-east-1',
+  'prod:eu-west-3',
+  'awaxDev:eu-west-1',
+  'awax:eu-west-1',
+];
+const { CI_FIRST_DEPLOY } = process.env;
 
-if (!(AVAILABLE_STAGES.indexOf(STAGE) + 1)) {
-  console.log('usage : ./prepare.js [STAGE] [EXTRA]\n');
-  console.log(`  STAGE can be ${AVAILABLE_STAGES.join(', ')}`);
+if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
+  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS
+    .map((x) => (x.replace(':', ' + ')))
+    .join(', ');
+  console.log('usage : ./prepare.js [STAGE] [REGION] [EXTRA]\n');
+  console.log(`  STAGE + REGION are mandatory and can be : ${stageRegionsDisplayList}`);
   console.log('  EXTRA is a comma-separated list of extra operations to do. It may contain :');
   console.log('    - remove : Checks and removes database indexes that we did not list in this script');
   console.log('    - verbose : Display extra information about what is being done');
@@ -94,13 +106,26 @@ function makeLogger(initialTitle) {
 const {
   setTitle,
   log,
+  verbose,
 } = makeLogger();
 
-async function processCollection(collection, indexSchemas) {
+async function processCollection(db, collName, indexSchemas) {
+  const logger = makeLogger(`Collection ${collName}`);
+
+  if (CI_FIRST_DEPLOY === 'true') {
+    try {
+      logger.verbose(`Attempting to create collection ${collName}`);
+      if (!EXTRA.dry) {
+        await db.createCollection(collName);
+      }
+    } catch (e) {
+      logger.verbose(`Collection creation failed for ${collName}, maybe it already exists?`);
+    }
+  }
+
+  const collection = db.collection(collName);
   const collIndexes = await collection.indexes();
   const promises = [];
-
-  const logger = makeLogger(`Collection ${collection.collectionName}`);
 
   if (EXTRA.remove) {
     for (let j = 0; j < collIndexes.length; j += 1) {
@@ -186,13 +211,15 @@ async function processCollection(collection, indexSchemas) {
   }
 }
 
+verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringify(EXTRA)}`);
+
 (async () => {
   const apiServerlessConfig = fs.readFileSync('./api-v1/serverless.yml', 'utf8');
   const envConfig = fs.readFileSync('./env.yml', 'utf8');
   const apiServerlessData = yaml.safeLoad(apiServerlessConfig);
   const envData = yaml.safeLoad(envConfig);
 
-  const mongoUrl = apiServerlessData.custom.mongoDB[STAGE];
+  const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
 
   const promises = [];
   const client = await MongoClient.connect(mongoUrl);
@@ -201,7 +228,6 @@ async function processCollection(collection, indexSchemas) {
     COLL_APPS,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
-    DB_NAME,
   } = envData;
 
   try {
@@ -298,11 +324,10 @@ async function processCollection(collection, indexSchemas) {
     };
 
     const collNames = Object.keys(indexSchemas);
+    const db = client.db();
     for (let i = 0; i < collNames.length; i += 1) {
       const collName = collNames[i];
-      const collection = client.db(DB_NAME).collection(collName);
-      // eslint-disable-next-line no-await-in-loop
-      promises.push(processCollection(collection, indexSchemas[collName]));
+      promises.push(processCollection(db, collName, indexSchemas[collName]));
     }
 
     await Promise.all(promises);

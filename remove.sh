@@ -11,6 +11,12 @@ usage() {
   echo "    REGION can be all AWS available regions, see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions"
 }
 
+if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
+  echo "MISSING STAGE ($STAGE) OR REGION ($REGION) PARAMETER" 1>&2
+  usage
+  exit 1
+fi
+
 if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then 
   usage
   exit 1

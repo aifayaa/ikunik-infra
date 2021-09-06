@@ -1,15 +1,16 @@
 {
   "name": "crowdaa-microservices",
-  "version": "1.17.2",
+  "version": "1.18.0",
   "private": true,
   "description": "Crowdaa AWS microservices implemented via serverless.",
   "main": "index.js",
   "scripts": {
     "install": "./install.sh",
-    "deploy:dev": "./deploy.sh dev",
-    "deploy:preprod": "./deploy.sh preprod",
-    "deploy:prod": "./deploy.sh prod",
-    "deploy:awax": "./deploy.sh awax eu-west-1"
+    "deploy:dev:us-east-1": "./deploy.sh dev us-east-1",
+    "deploy:preprod:eu-west-3": "./deploy.sh preprod eu-west-3",
+    "deploy:prod:eu-west-3": "./deploy.sh prod eu-west-3",
+    "deploy:prod:us-east-1": "./deploy.sh prod us-east-1",
+    "deploy:awax:eu-west-1": "./deploy.sh awax eu-west-1"
   },
   "dependencies": {
     "accept-language-parser": "^1.5.0",

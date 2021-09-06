@@ -8,4 +8,4 @@ phases:
 
   build:
     commands:
-      - ./deployDiff.sh preprod
+      - ./deployDiff.sh preprod "$AWS_REGION"
