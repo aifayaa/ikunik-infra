@@ -74,6 +74,15 @@ function makeOpts(...params) {
   return (ret);
 }
 
+/**
+ * That function is required since the ORDER of elements also matters to mongodb.
+ * Javascript has no guarantee of the order of its elements, but nodejs currently does.
+ * AFAIK, this is not in the specs of nodejs, though, so we're lucky if it stays that way.
+ */
+function isStrictEqual(o1, o2) {
+  return (JSON.stringify(o1) === JSON.stringify(o2));
+}
+
 if (EXTRA) {
   EXTRA = EXTRA.split(',').map((v) => v.trim()).reduce((result, item) => {
     result[item] = true;
@@ -84,14 +93,14 @@ if (EXTRA) {
 }
 
 function makeLogger(initialTitle) {
-  let logTitle = initialTitle || '-';
+  let logTitle = initialTitle ? `${initialTitle} >` : '>';
 
   const logObject = {
     setTitle(title) {
-      logTitle = title;
+      logTitle = title ? `${title} > ` : '';
     },
     log(...params) {
-      console.log(`${logTitle} >`, ...params);
+      console.log(`${logTitle}`, ...params);
     },
     verbose(...params) {
       if (EXTRA.verbose) {
@@ -131,10 +140,10 @@ async function processCollection(db, collName, indexSchemas) {
     for (let j = 0; j < collIndexes.length; j += 1) {
       let exists = false;
 
-      if (!isEqual(collIndexes[j].key, { _id: 1 })) {
+      if (!isStrictEqual(collIndexes[j].key, { _id: 1 })) {
         for (let i = 0; i < indexSchemas.length; i += 1) {
           if (
-            isEqual(indexSchemas[i].key, collIndexes[j].key) &&
+            isStrictEqual(indexSchemas[i].key, collIndexes[j].key) &&
             objInclude(indexSchemas[i].opts, collIndexes[j])
           ) {
             exists = true;
@@ -167,7 +176,7 @@ async function processCollection(db, collName, indexSchemas) {
 
     for (let j = 0; j < collIndexes.length; j += 1) {
       if (
-        isEqual(indexSchemas[i].key, collIndexes[j].key) &&
+        isStrictEqual(indexSchemas[i].key, collIndexes[j].key) &&
         objInclude(indexSchemas[i].opts, collIndexes[j])
       ) {
         found = collIndexes[j];
@@ -226,8 +235,11 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
 
   const {
     COLL_APPS,
+    COLL_PRESS_ARTICLES,
+    COLL_PICTURES,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
+    COLL_USER_METRICS,
   } = envData;
 
   try {
@@ -317,9 +329,71 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
       [COLL_PUSH_NOTIFICATIONS]: [
         { name: 'crowdaa_blast_query_1', key: { userId: 1, appId: 1 }, opts: makeOpts() },
         { name: 'crowdaa_blast_query_2', key: { deviceUUID: 1, appId: 1 }, opts: makeOpts() },
+        { name: 'crowdaa_blast_single_1', key: { Token: 1, PlatformApplicationArn: 1, appId: 1 }, opts: makeOpts() },
       ],
       [COLL_APPS]: [
         { name: 'crowdaa_app_preview_key', key: { 'settings.previewKey': 1 }, opts: makeOpts('unique', 'sparse') },
+      ],
+      [COLL_PRESS_ARTICLES]: [
+        {
+          name: 'crowdaa_articles_search_dashboard',
+          key: {
+            appId: 1,
+            trashed: 1,
+            categoryId: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_articles_search_public',
+          key: {
+            appId: 1,
+            trashed: 1,
+            categoryId: 1,
+            hideFromFeed: 1,
+            pinned: -1,
+            publicationDate: -1,
+          },
+          opts: makeOpts('sparse'),
+        },
+      ],
+      [COLL_USER_METRICS]: [
+        {
+          name: 'location_2dsphere',
+          key: { location: '2dsphere' },
+          opts: makeOpts({ background: true, '2dsphereIndexVersion': 3 }),
+        },
+        {
+          name: 'crowdaa_userMetrics_query1',
+          key: {
+            appId: 1,
+            contentCollection: 1,
+            type: 1,
+            trashed: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_userMetrics_query2',
+          key: {
+            appId: 1,
+            deviceId: 1,
+            userId: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+      ],
+      [COLL_PICTURES]: [
+        {
+          name: 'crowdaa_pictures_appid',
+          key: { appId: 1 },
+          opts: makeOpts(),
+        },
+        {
+          name: 'profil_ID_1_project_ID_1',
+          key: { profil_ID: 1, project_ID: 1 },
+          opts: makeOpts({ background: true }),
+        },
       ],
     };
 
