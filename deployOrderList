@@ -30,6 +30,7 @@ stages
 tokenPackages
 users
 userMetrics
+providers
 
 artists
 projects

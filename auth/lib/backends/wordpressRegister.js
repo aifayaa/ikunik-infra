@@ -10,7 +10,7 @@ export const wordpressRegister = async (username, email, password, app) => {
     let reply;
 
     try {
-      reply = await wpApi.call('POST', '/wp/v2/users/register', {
+      reply = await wpApi.call('POST', '/crowdaa-sync/v1/users/register', {
         username,
         email,
         password,
@@ -18,6 +18,8 @@ export const wordpressRegister = async (username, email, password, app) => {
     } catch (e) {
       if (!e.response) {
         throw new Error('backend_network_error');
+      } else if (e.error && e.error.message) {
+        reply = e.error;
       } else {
         throw new Error('backend_error');
       }

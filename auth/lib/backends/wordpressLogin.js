@@ -22,6 +22,8 @@ export const wordpressLogin = async (username, password, app) => {
     } catch (e) {
       if (!e.response) {
         throw new Error('backend_network_error');
+      } else if (e.error && e.error.message) {
+        reply = e.error;
       } else {
         throw new Error('backend_error');
       }

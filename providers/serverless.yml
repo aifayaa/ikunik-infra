@@ -1,0 +1,59 @@
+service: providers
+
+custom:
+  preprod:
+    LEQUOTIDIEN_APP_ID: 'bce0f190-1bfb-46a7-a0e9-01e67f578621'
+    LEQUOTIDIEN_AWS_KEY: 'AKIA4DV6YH4CUGEHOAQX'
+    LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
+    LEQUOTIDIEN_AWS_SECRET: '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'
+    LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
+  prod:
+    LEQUOTIDIEN_APP_ID: 'bce0f190-1bfb-46a7-a0e9-01e67f578621'
+    LEQUOTIDIEN_AWS_KEY: 'AKIA4DV6YH4CUGEHOAQX'
+    LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
+    LEQUOTIDIEN_AWS_SECRET: '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'
+    LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    $<<:
+      ${file(../env.yml)}
+    LEQUOTIDIEN_APP_ID: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_APP_ID, "NONE"}'
+    LEQUOTIDIEN_AWS_KEY: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_KEY, "NONE"}'
+    LEQUOTIDIEN_AWS_REGION: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_REGION, "NONE"}'
+    LEQUOTIDIEN_AWS_SECRET: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_SECRET, "NONE"}'
+    LEQUOTIDIEN_BUCKET_PDF: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_BUCKET_PDF, "NONE"}'
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  provLeQuotidienViewPdf:
+    handler: handlers/leQuotidien/viewPdf.default
+    events:
+      - http:
+          path: providers/lequotidien/viewpdf/{pdfId}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+plugins:
+  - serverless-offline
+  - '@cruglobal/serverless-merge-config'
+  - serverless-webpack
+
+package:
+  individually: true
