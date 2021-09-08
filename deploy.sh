@@ -79,6 +79,7 @@ test "x$ALL" = "xALL" && runSlsDeployFor 'stages'
 test "x$ALL" = "xALL" && runSlsDeployFor 'tokenPackages'
 runSlsDeployFor 'users'
 runSlsDeployFor 'userMetrics'
+runSlsDeployFor 'providers'
 
 # + users root api id
 test "x$ALL" = "xALL" && runSlsDeployFor 'artists'
