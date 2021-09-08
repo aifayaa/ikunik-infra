@@ -9,12 +9,14 @@ export const wordpressForgotPassword = async (email, app) => {
     let reply;
 
     try {
-      reply = await wpApi.call('POST', '/wp/v2/users/lost-password', {
+      reply = await wpApi.call('POST', '/crowdaa-sync/v1/users/forgotpassword', {
         email,
       });
     } catch (e) {
       if (!e.response) {
         throw new Error('backend_network_error');
+      } else if (e.error && e.error.message) {
+        reply = e.error;
       } else {
         throw new Error('backend_error');
       }

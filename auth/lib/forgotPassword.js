@@ -34,7 +34,7 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
       ),
       appsCollection.findOne(
         { _id: appId },
-        { projection: { _id: true, builds: true, name: true } },
+        { projection: { _id: true, builds: true, name: true, backend: true } },
       ),
     ]);
 
@@ -43,7 +43,7 @@ export const forgotPassword = async (rawEmail, lang, appId) => {
     if (appId !== ADMIN_APP && app.backend) {
       switch (app.backend.type) {
         case 'wordpress':
-          wordpressForgotPassword(email, app);
+          await wordpressForgotPassword(email, app);
           return ({ backend: true });
         default:
           throw new Error('unknown_backend');
