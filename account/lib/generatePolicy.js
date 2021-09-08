@@ -1,4 +1,4 @@
-export default (Effect, _Resource, { userId, profileId, roles, perms, appId } = {}) => {
+export default (Effect, _Resource, { userId, profileId, roles, perms, appId, loginToken } = {}) => {
   const policy = {
     principalId: userId,
     policyDocument: {
@@ -20,6 +20,9 @@ export default (Effect, _Resource, { userId, profileId, roles, perms, appId } = 
   }
   if (perms) {
     policy.context.perms = JSON.stringify(perms);
+  }
+  if (loginToken) {
+    policy.context.loginToken = JSON.stringify(loginToken);
   }
   if (appId) {
     policy.context.appId = appId;
