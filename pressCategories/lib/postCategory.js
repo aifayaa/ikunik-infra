@@ -88,7 +88,7 @@ export default async (
       }
     }
 
-    if (badges.length > 0) {
+    if (badges && badges.length > 0) {
       const allPerms = await client.db(DB_NAME).collection(COLL_USER_BADGES).find().toArray();
       const allPermsMap = allPerms.reduce((acc, perm) => {
         acc[perm._id] = perm;
