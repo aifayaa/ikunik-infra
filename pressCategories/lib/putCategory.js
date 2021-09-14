@@ -130,7 +130,7 @@ export default async (
       }
     }
 
-    if (badges && badges.length > 0) {
+    if (badges.length > 0) {
       const allBadges = await client.db(DB_NAME).collection(COLL_USER_BADGES).find().toArray();
       const allBadgesMap = allBadges.reduce((acc, badge) => {
         acc[badge._id] = badge;
