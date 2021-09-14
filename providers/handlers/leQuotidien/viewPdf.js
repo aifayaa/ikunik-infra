@@ -12,18 +12,18 @@ export default async (event) => {
     const {
       appId,
       principalId: userId,
-      // loginToken: strLoginToken,
+      loginToken: strLoginToken,
     } = event.requestContext.authorizer;
 
-    // if (!appId) throw new Error('app_not_found');
-    // if (!userId || !strLoginToken) throw new Error('forbidden');
+    if (!appId) throw new Error('app_not_found');
+    if (!userId || !strLoginToken) throw new Error('forbidden');
 
-    // const loginToken = JSON.parse(strLoginToken);
+    const loginToken = JSON.parse(strLoginToken);
 
     const pdfUrl = await viewPdf(pdfId, {
       appId: appId || LEQUOTIDIEN_APP_ID,
       userId,
-      // loginToken,
+      loginToken,
     });
 
     return ({
