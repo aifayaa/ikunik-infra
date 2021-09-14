@@ -53,7 +53,7 @@ export default async (event) => {
       order,
       hidden,
       parentId || null,
-      badges || null,
+      badges || [],
       action,
     );
 
