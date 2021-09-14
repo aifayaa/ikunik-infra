@@ -4,18 +4,19 @@ const {
 } = process.env;
 
 export default async (mongoClient, appId, name, pathName, id) => {
-  /* Request for categories having the same appId and name or pathName */
+  /* Request for categories having the same appId and pathName */
+  if (!pathName) return (true);
   const queryExists = {
-    $or: [],
     appId,
+    pathName,
   };
-  if (pathName) queryExists.$or.push({ pathName });
+
   if (id) queryExists._id = { $ne: id };
   const categoryFound = await mongoClient.db(DB_NAME)
     .collection(COLL_PRESS_CATEGORIES)
     .findOne(queryExists);
 
-  if (queryExists.$or.length > 0 && categoryFound) {
+  if (categoryFound) {
     let errorCatFound = `Already exists for appId ${appId}`;
     if (pathName && pathName === categoryFound.pathName) {
       errorCatFound = `Pathname ${pathName}, ${errorCatFound}`;
