@@ -18,8 +18,12 @@ export const wordpressRegister = async (username, email, password, app) => {
     } catch (e) {
       if (!e.response) {
         throw new Error('backend_network_error');
-      } else if (e.error && e.error.message) {
-        reply = e.error;
+      } else if (!e.error) {
+        throw new Error('backend_error');
+      } else if (e.error.code === 'email_exists') {
+        throw new Error('email_already_exists');
+      } else if (e.error.code === 'username_exists') {
+        throw new Error('username_already_exists');
       } else {
         throw new Error('backend_error');
       }

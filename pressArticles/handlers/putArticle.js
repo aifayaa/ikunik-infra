@@ -79,7 +79,13 @@ export default async (event) => {
       md,
       pictures,
       pinned,
-      plainText: removeMd(md),
+      /**
+       * The following regex is to fix catastrophic backtracking regex matching. See :
+       * - https://github.com/stiang/remove-markdown/issues/52
+       * - https://github.com/stiang/remove-markdown/issues/35
+       * - https://stackoverflow.com/questions/2407870/javascript-regex-hangs-using-v8
+       */
+      plainText: removeMd(md.replace(/(\s{4})\s*/g, '$1')),
       price: articlePrices[productId],
       productId,
       summary,
