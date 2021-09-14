@@ -15,15 +15,25 @@ export const wordpressForgotPassword = async (email, app) => {
     } catch (e) {
       if (!e.response) {
         throw new Error('backend_network_error');
-      } else if (e.error && e.error.message) {
-        reply = e.error;
+      } else if (!e.error) {
+        throw new Error('backend_error');
+      } else if (e.error.code === 'email_send_error') {
+        throw new Error('cannot_send_email');
+      } else if (e.error.code === 'email_not_found') {
+        throw new Error('email_not_found');
       } else {
         throw new Error('backend_error');
       }
     }
 
-    if (!reply || reply.code !== 200) {
-      throw new Error('email_not_found');
+    if (!reply) {
+      throw new Error('backend_error');
+    }
+    if (reply.code !== 200) {
+      if (reply.message) {
+        throw new Error(reply.message);
+      }
+      throw new Error('invalid_credentials');
     }
   } finally {
     client.close();
