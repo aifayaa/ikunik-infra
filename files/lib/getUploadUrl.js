@@ -43,8 +43,9 @@ export default async (userId, appId, files, metadata) => {
         id,
         type,
       },
-      /* URL will expire in 15 minutes */
-      Expires: 900,
+      /* URL will expire in 6 hours. Required for big videos (or files in general)
+       * since the timeout silently discard the upload if it's still running */
+      Expires: 21600,
     };
 
     /* Inserting a document in the database already with status UPLOADING */

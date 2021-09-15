@@ -25,17 +25,18 @@ export default async (event) => {
       Key: decodeURI(object.key).replace(/\+/gi, ' '),
     };
 
-    const file = await s3.getObject(params).promise();
+    const fileHead = await s3.headObject(params).promise();
 
     const {
       ContentType,
-    } = file;
+    } = fileHead;
 
     const collection = getCollectionFromContentType(ContentType);
     if (collection === COLL_PICTURES) {
+      const file = await s3.getObject(params).promise();
       await managePicture(bucket, object, file);
     } else if (collection === COLL_VIDEOS) {
-      await manageVideo(bucket, object, file);
+      await manageVideo(bucket, object, fileHead);
     }
 
     return response({ code: 200, body: 'ok' });
