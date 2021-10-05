@@ -25,7 +25,11 @@ export const login = async (rawEmail, username, password, appId) => {
 
     const app = await appsCollection.findOne(
       { _id: appId },
-      { projection: { _id: true, backend: true } },
+      { projection: {
+        _id: true,
+        backend: true,
+        'settings.press.env.apiKeyCanBeChanged': true,
+      } },
     );
     if (!app) throw new Error('app_not_found');
 
@@ -44,9 +48,18 @@ export const login = async (rawEmail, username, password, appId) => {
     } else {
       selector.username = username;
     }
-    const user = await usersCollection.findOne(selector);
+    let user = await usersCollection.findOne(selector);
+    let userIsAdminForPreview = false;
     if (!user) {
-      throw new Error('user_not_found');
+      if (app.settings.press.env.apiKeyCanBeChanged) {
+        userIsAdminForPreview = true;
+        selector.appId = ADMIN_APP;
+        user = await usersCollection.findOne(selector);
+      }
+
+      if (!user) {
+        throw new Error('user_not_found');
+      }
     }
 
     if (
@@ -62,23 +75,61 @@ export const login = async (rawEmail, username, password, appId) => {
 
     const token = Random.secret();
 
-    await usersCollection.updateOne(
-      {
-        _id: user._id,
-        appId,
-      },
-      {
-        $addToSet: {
-          'services.resume.loginTokens': {
-            hashedToken: hashLoginToken(token),
-            when: new Date(),
+    if (userIsAdminForPreview) {
+      const newUser = {
+        _id: Random.id(),
+        createdAt: new Date(),
+        username: username || user.username || email.replace(/@.*/, `-${Random.id(10)}`),
+        emails: [{ address: email, verified: false, token }],
+        services: {
+          password: user.services.password,
+          resume: {
+            loginTokens: [{
+              hashedToken: hashLoginToken(token),
+              when: new Date(),
+            }],
           },
         },
-      },
-    );
+        appId,
+        profile: user.profile,
+        previewForAdmin: user._id,
+      };
+
+      const inserted = await usersCollection.insertOne(newUser);
+      user.previewForAdmin = user._id;
+      user._id = inserted.insertedId;
+    } else {
+      await usersCollection.updateOne(
+        {
+          _id: user._id,
+          appId,
+        },
+        {
+          $addToSet: {
+            'services.resume.loginTokens': {
+              hashedToken: hashLoginToken(token),
+              when: new Date(),
+            },
+          },
+        },
+      );
+
+      if (user.previewForAdmin) {
+        const adminUser = await usersCollection.findOne({
+          _id: user.previewForAdmin,
+          appId: ADMIN_APP,
+        }, { projection: { _id: 1 } });
+        if (!adminUser) {
+          await usersCollection.deleteOne({ _id: user._id, appId });
+
+          throw new Error('user_not_found');
+        }
+      }
+    }
 
     return {
       userId: user._id,
+      previewForAdmin: user.previewForAdmin,
       authToken: token,
     };
   } finally {

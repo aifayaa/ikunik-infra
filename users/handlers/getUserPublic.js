@@ -24,6 +24,7 @@ export default async (event) => {
       'profile',
       'username',
       'optIn',
+      'previewForAdmin',
     ]);
     results.perms = perms;
 
