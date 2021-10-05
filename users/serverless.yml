@@ -126,6 +126,23 @@ functions:
               headers:
                 Authorization: true
 
+  getAppsPreviews:
+    handler: handlers/getAppsPreviews.default
+    events:
+      - http:
+          path: users/{id}/apps/previews
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+              headers:
+                Authorization: true
+
   getBalances:
     handler: handlers/getBalances.default
     events:
