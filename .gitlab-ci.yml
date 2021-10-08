@@ -196,7 +196,7 @@ pushPreprodToAWS:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
 
-pushProdToAWS:
+pushProdUsToAWS:
   image: python:latest
   stage: push
   variables:
