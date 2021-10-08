@@ -11,6 +11,7 @@ const common = {
   storeProductId: true,
   summary: true,
   text: true,
+  thumbnailDisplayMethod: true,
   title: true,
   user: true,
   videoPlayMode: true,

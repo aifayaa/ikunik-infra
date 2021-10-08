@@ -45,6 +45,7 @@ export default async (event) => {
     let plainText;
     let productId;
     let summary;
+    let thumbnailDisplayMethod;
     let title;
     let videoPlayMode;
     let videos;
@@ -65,6 +66,7 @@ export default async (event) => {
           pictures,
           productId,
           summary,
+          thumbnailDisplayMethod,
           title,
           videoPlayMode,
           videos,
@@ -162,6 +164,7 @@ export default async (event) => {
       price: articlePrices[productId],
       productId,
       summary,
+      thumbnailDisplayMethod,
       title,
       userId,
       videoPlayMode,
