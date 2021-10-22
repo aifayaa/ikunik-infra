@@ -20,7 +20,7 @@ describe('lib - register', () => {
     const appId = 'appId_does_not_exist';
 
     beforeEach(() => {
-      spyMongo = spyMongoMethods({ _id: 0 }, [], [], [], []);
+      spyMongo = spyMongoMethods({ _id: 0 }, null, [], [], [], []);
       const fakeClient = {
         db: spyMongo.db,
         close: spyMongo.close,
@@ -88,7 +88,7 @@ describe('lib - register', () => {
     });
 
     it('should fail with duplicate username or email', async () => {
-      spyMongo = spyMongoMethods({ _id: 0 }, [], [], [{ _id: 0 }, { _id: 1 }], []);
+      spyMongo = spyMongoMethods({ _id: 0 }, null, [], [], [{ _id: 0 }, { _id: 1 }], []);
       const fakeClient = {
         db: spyMongo.db,
         close: spyMongo.close,
