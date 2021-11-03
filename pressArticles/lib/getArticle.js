@@ -4,7 +4,7 @@ import {
   admin,
   server,
 } from './articleFields';
-import checkBadges from './checks/checkBadges';
+import checkBadges from '../../libs/badges/checkBadges';
 
 const {
   ADMIN_APP,
@@ -259,7 +259,7 @@ export const getArticle = async (
         : null;
 
       if (!user || user.appId !== ADMIN_APP) {
-        const userBadges = user ? user.badges : [];
+        const userBadges = (user && user.badges) || [];
 
         const opts = {
           appId,

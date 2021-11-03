@@ -23,9 +23,10 @@ export default (userBadges, toCheckbadges, options) => {
         USER_ID: options.userId,
       };
       const uri = perm.validationUrl.replace(
-        /\{([A-Z_]+)\}/g,
+        /\{([A-Z_]+)\}/ig,
         (_val, name) => (replacements[name] || 'null'),
       );
+
       return (async () => {
         const params = {
           method: 'GET',
