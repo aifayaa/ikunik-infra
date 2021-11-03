@@ -15,7 +15,7 @@ const lambda = new Lambda({
 export const postArticle = async ({
   actions,
   appId,
-  badges,
+  badges = [],
   categoryId,
   feedPicture,
   hideFromFeed,

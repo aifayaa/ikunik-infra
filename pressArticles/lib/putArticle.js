@@ -8,7 +8,7 @@ export const putArticle = async ({
   actions,
   appId,
   articleId,
-  badges,
+  badges = [],
   categoryId,
   feedPicture,
   hideFromFeed,
