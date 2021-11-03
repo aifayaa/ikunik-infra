@@ -1,6 +1,6 @@
 import request from 'request-promise-native';
 
-export default (userBadges, toCheckbadges, options) => {
+export default async (userBadges, toCheckbadges, options) => {
   if (!toCheckbadges) {
     return (true);
   }
@@ -49,7 +49,7 @@ export default (userBadges, toCheckbadges, options) => {
     return (Promise.resolve(null));
   });
 
-  Promise.all(promises);
+  await Promise.all(promises);
 
   return (valid);
 };

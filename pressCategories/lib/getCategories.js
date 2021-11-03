@@ -1,11 +1,17 @@
 import MongoClient from '../../libs/mongoClient';
+import checkBadges from '../../libs/badges/checkBadges';
 
-const { COLL_PICTURES, COLL_PRESS_CATEGORIES, DB_NAME } = process.env;
+const {
+  ADMIN_APP,
+  COLL_PICTURES,
+  COLL_PRESS_CATEGORIES,
+  COLL_USERS,
+} = process.env;
 
 export default async (
   appId,
   showHidden = false,
-  { start, limit, countOnly = false, fetchMaxOrder = false, parentId = false },
+  { start, limit, countOnly = false, fetchMaxOrder = false, parentId = false, userId = null },
 ) => {
   const client = await MongoClient.connect();
 
@@ -24,7 +30,7 @@ export default async (
   try {
     if (countOnly) {
       const categoriesCount = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_CATEGORIES)
         .find(matchHidden, { _id: 1 })
         .count();
@@ -40,7 +46,7 @@ export default async (
         matchOrderedCategories.parentId = parentId;
       }
       const categoriesCount = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_CATEGORIES)
         .find(matchOrderedCategories, { _id: 1 })
         .count();
@@ -80,12 +86,43 @@ export default async (
       },
     ];
 
-    const categories = await client
-      .db(DB_NAME)
+    let categories = await client
+      .db()
       .collection(COLL_PRESS_CATEGORIES)
       .aggregate(pipeline)
       .toArray();
     const count = categories.length;
+
+    const user = userId
+      ? await client
+        .db()
+        .collection(COLL_USERS)
+        .findOne({ _id: userId })
+      : null;
+
+    if (!user || user.appId !== ADMIN_APP) {
+      const userBadges = (user && user.badges) || [];
+
+      const opts = {
+        appId,
+        userId,
+        categoryId: null,
+      };
+      const promises = categories.map((cat) => (
+        (async () => {
+          const valid = await checkBadges(
+            userBadges,
+            cat.badges,
+            { ...opts, categoryId: cat._id },
+          );
+          if (valid) return (cat);
+          return (null);
+        })()
+      ));
+
+      categories = await Promise.all(promises);
+      categories = categories.filter((x) => (x));
+    }
 
     return { categories, count };
   } finally {

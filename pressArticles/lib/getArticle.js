@@ -267,9 +267,17 @@ export const getArticle = async (
           articleId: id,
           categoryId: article.categoryId,
         };
-        if (!checkBadges(userBadges, article.badges, opts)) {
+        if (!await checkBadges(
+          userBadges,
+          article.badges,
+          opts,
+        )) {
           articleRequires('userBadges');
-        } else if (!checkBadges(userBadges, (article.category && article.category.badges), opts)) {
+        } else if (!await checkBadges(
+          userBadges,
+          (article.category && article.category.badges),
+          opts,
+        )) {
           articleRequires('userBadges');
         }
       }
