@@ -8,6 +8,7 @@ export default async (userId, appId, {
   name,
   description = '',
   color = '#FFFFFF',
+  validationUrl = '',
 }) => {
   const client = await MongoClient.connect();
 
@@ -31,6 +32,7 @@ export default async (userId, appId, {
       name,
       description,
       color,
+      validationUrl,
     };
 
     await client
