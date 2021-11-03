@@ -30,6 +30,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     const {
       _id,
       actions,
+      badges,
       categoryId,
       feedPicture,
       hideFromFeed,
@@ -49,6 +50,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
 
     const $set = {
       actions,
+      badges: badges || ({ list: [], allow: 'any' }),
       categoryId,
       draftId: _id,
       feedPicture: feedPicture || undefined,

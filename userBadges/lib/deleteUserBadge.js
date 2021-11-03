@@ -2,6 +2,8 @@ import MongoClient from '../../libs/mongoClient';
 
 const {
   COLL_USERS,
+  COLL_PRESS_ARTICLES,
+  COLL_PRESS_DRAFTS,
   COLL_PRESS_CATEGORIES,
   COLL_USER_BADGES,
 } = process.env;
@@ -37,6 +39,18 @@ export default async (userBadgeId, appId) => {
       } } },
     );
     await client.db().collection(COLL_PRESS_CATEGORIES).updateMany(
+      { appId, 'badges.list.id': userBadgeObj._id },
+      { $pull: { 'badges.list': {
+        id: userBadgeObj._id,
+      } } },
+    );
+    await client.db().collection(COLL_PRESS_ARTICLES).updateMany(
+      { appId, 'badges.list.id': userBadgeObj._id },
+      { $pull: { 'badges.list': {
+        id: userBadgeObj._id,
+      } } },
+    );
+    await client.db().collection(COLL_PRESS_DRAFTS).updateMany(
       { appId, 'badges.list.id': userBadgeObj._id },
       { $pull: { 'badges.list': {
         id: userBadgeObj._id,

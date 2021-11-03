@@ -8,6 +8,7 @@ export const putArticle = async ({
   actions,
   appId,
   articleId,
+  badges,
   categoryId,
   feedPicture,
   hideFromFeed,
@@ -33,6 +34,7 @@ export const putArticle = async ({
     typeof html !== 'string' ||
     typeof md !== 'string' ||
     typeof pinned !== 'boolean' ||
+    !Array.isArray(badges) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
     (feedPicture && typeof feedPicture !== 'string')
   ) {
@@ -61,6 +63,10 @@ export const putArticle = async ({
       ancestor: currentArticle._id,
       appId,
       articleId,
+      badges: {
+        list: badges.map((id) => ({ id })),
+        allow: 'any',
+      },
       categoryId,
       createdAt: new Date(),
       isPublished: false,
