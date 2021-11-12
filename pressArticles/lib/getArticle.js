@@ -140,6 +140,7 @@ export const getArticle = async (
           },
           {},
         ),
+        badges: { $first: '$badges' },
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
         videos: { $first: '$videos' },
@@ -195,6 +196,7 @@ export const getArticle = async (
           },
           {},
         ),
+        badges: { $first: '$badges' },
         category: { $first: '$category' },
         pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
@@ -258,7 +260,7 @@ export const getArticle = async (
           .findOne({ _id: userId })
         : null;
 
-      if (!user || user.appId !== ADMIN_APP) {
+      if (!isServer && (!user || user.appId !== ADMIN_APP)) {
         const userBadges = (user && user.badges) || [];
 
         const opts = {
