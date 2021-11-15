@@ -2,6 +2,7 @@ import editUserBadge from '../lib/editUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
+import { optionnalUrlRegexp } from '../../libs/regexp/url';
 
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
@@ -21,6 +22,7 @@ export default async (event) => {
     const bodyParsed = JSON.parse(event.body);
     const {
       name,
+      validationUrl = '',
     } = bodyParsed;
 
     if (!name) {
@@ -29,6 +31,9 @@ export default async (event) => {
 
     if (typeof name !== 'string') {
       throw new Error('wrong_argument_type');
+    }
+    if (!optionnalUrlRegexp.test(validationUrl)) {
+      throw new Error('invalid_badge_validation_url');
     }
 
     const userBadge = await editUserBadge(userBadgeId, appId, bodyParsed);

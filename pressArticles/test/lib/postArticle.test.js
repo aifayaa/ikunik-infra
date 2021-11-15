@@ -7,7 +7,6 @@ import { postArticle } from '../../lib/postArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
 } = process.env;
@@ -45,7 +44,7 @@ describe('lib - postArticle', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.called(spyMongo.db);
     sinon.assert.called(spyMongo.startSession);
     sinon.assert.called(spyMongo.startTransaction);
     sinon.assert.called(spyMongo.commitTransaction);

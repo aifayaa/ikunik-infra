@@ -35,6 +35,7 @@ export default async (event) => {
     } = event.queryStringParameters || {};
 
     let actions;
+    let badges;
     let categoryId;
     let feedPicture;
     let hideFromFeed;
@@ -58,6 +59,7 @@ export default async (event) => {
       case 'application/json': {
         ({
           actions,
+          badges,
           categoryId,
           feedPicture,
           hideFromFeed,
@@ -153,6 +155,7 @@ export default async (event) => {
     let results = await postArticle({
       actions,
       appId,
+      badges: badges || [],
       categoryId,
       feedPicture,
       hideFromFeed: !!hideFromFeed,
