@@ -3,7 +3,7 @@ import response from '../../libs/httpResponses/response';
 import getCategories from '../lib/getCategories';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const { start, limit } = event.queryStringParameters || {};
   const { id: parentId } = event.pathParameters;
 
@@ -12,6 +12,7 @@ export default async (event) => {
       start,
       limit,
       parentId,
+      userId,
     });
     return response({ code: 200, body: results });
   } catch (e) {

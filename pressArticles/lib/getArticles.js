@@ -336,6 +336,64 @@ export const getArticles = async (
         .count(),
     ]);
 
+    // Get drafts of articles
+    if (articles.length > 0) {
+      const draftPipeline = [
+        {
+          $match: {
+            articleId: { $in: articles.map((a) => (a._id)) },
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_USERS,
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'userTemp',
+          },
+        },
+        {
+          $unwind: {
+            path: '$userTemp',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            user: {
+              profile: '$userTemp.profile',
+              username: '$userTemp.username',
+            },
+          },
+        },
+        {
+          /*
+            some users have base 64 pictures in profile,
+            we remove those fields to avoid big trafic load
+          */
+          $project: {
+            'user.profile.avatar': 0,
+            'user.profile.userPictureData': 0,
+            userTemp: 0,
+          },
+        },
+      ];
+      const drafts = await client
+        .db()
+        .collection(COLL_PRESS_DRAFTS)
+        .aggregate(draftPipeline)
+        .toArray();
+
+      const articlesMap = articles.reduce((acc, art) => {
+        acc[art._id] = art;
+        art.draft = null;
+        return (acc);
+      }, {});
+      drafts.forEach((draft) => {
+        articlesMap[draft.articleId].draft = draft;
+      });
+    }
+
     const articlesWithCategory = articles.map((article) => {
       const articleCategory = categories.find(
         (category) => category._id === article.categoryId,

@@ -15,6 +15,7 @@ const lambda = new Lambda({
 export const postArticle = async ({
   actions,
   appId,
+  badges = [],
   categoryId,
   feedPicture,
   hideFromFeed,
@@ -45,6 +46,7 @@ export const postArticle = async ({
     typeof pinned !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
     !(['string', 'undefined'].indexOf(typeof xml) + 1) ||
+    !Array.isArray(badges) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
     (feedPicture && typeof feedPicture !== 'string')
   ) {
@@ -61,6 +63,10 @@ export const postArticle = async ({
       _id: articleId,
       actions,
       appId,
+      badges: {
+        list: badges.map((id) => ({ id })),
+        allow: 'any',
+      },
       categoryId,
       createdAt: new Date(),
       draftId,

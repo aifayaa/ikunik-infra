@@ -4,8 +4,10 @@ import {
   admin,
   server,
 } from './articleFields';
+import checkBadges from '../../libs/badges/checkBadges';
 
 const {
+  ADMIN_APP,
   COLL_CONTENT_PERMISSIONS,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
@@ -138,6 +140,7 @@ export const getArticle = async (
           },
           {},
         ),
+        badges: { $first: '$badges' },
         category: { $first: '$category' },
         pictures: { $push: '$pictures' },
         videos: { $first: '$videos' },
@@ -193,6 +196,7 @@ export const getArticle = async (
           },
           {},
         ),
+        badges: { $first: '$badges' },
         category: { $first: '$category' },
         pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
@@ -249,34 +253,34 @@ export const getArticle = async (
         articleRequires('iap');
       }
 
-      if (
-        article.category &&
-        article.category.badges &&
-        article.category.badges.list.length > 0
-      ) {
-        const user = await client
+      const user = userId
+        ? await client
           .db(DB_NAME)
           .collection(COLL_USERS)
-          .findOne({ _id: userId });
+          .findOne({ _id: userId })
+        : null;
 
-        if (!user || !user.badges || user.badges.length === 0) {
+      if (!isServer && (!user || user.appId !== ADMIN_APP)) {
+        const userBadges = (user && user.badges) || [];
+
+        const opts = {
+          appId,
+          userId,
+          articleId: id,
+          categoryId: article.categoryId,
+        };
+        if (!await checkBadges(
+          userBadges,
+          article.badges,
+          opts,
+        )) {
           articleRequires('userBadges');
-        } else {
-          const userBadges = user.badges.reduce((acc, perm) => {
-            acc[perm.id] = true;
-            return (acc);
-          }, {});
-          let valid = false;
-
-          article.category.badges.list.forEach((perm) => {
-            if (userBadges[perm.id]) {
-              valid = true;
-            }
-          });
-
-          if (!valid) {
-            articleRequires('userBadges');
-          }
+        } else if (!await checkBadges(
+          userBadges,
+          (article.category && article.category.badges),
+          opts,
+        )) {
+          articleRequires('userBadges');
         }
       }
     }

@@ -5,7 +5,7 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 
 const permKey = 'pressCategories_all';
 export default async (event) => {
-  const { appId, perms } = event.requestContext.authorizer;
+  const { appId, perms, principalId: userId } = event.requestContext.authorizer;
   const permsParsed = JSON.parse(perms);
   const {
     fetchMaxOrder: fetchMaxOrderParameter = '',
@@ -27,6 +27,7 @@ export default async (event) => {
       limit: -1,
       parentId,
       start: 0,
+      userId,
     });
     return response({ code: 200, body: results });
   } catch (e) {

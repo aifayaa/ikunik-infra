@@ -8,6 +8,7 @@ export default async (userBadgeId, appId, {
   name,
   description,
   color,
+  validationUrl,
 }) => {
   const client = await MongoClient.connect();
 
@@ -45,6 +46,9 @@ export default async (userBadgeId, appId, {
     }
     if (color !== undefined) {
       $set.color = color;
+    }
+    if (validationUrl !== undefined) {
+      $set.validationUrl = validationUrl;
     }
 
     await client

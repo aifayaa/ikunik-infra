@@ -3,7 +3,7 @@ import response from '../../libs/httpResponses/response';
 import getCategories from '../lib/getCategories';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const {
     start,
     limit,
@@ -17,6 +17,7 @@ export default async (event) => {
       parentId: null,
       start,
       limit,
+      userId,
     });
     return response({ code: 200, body: results });
   } catch (e) {
