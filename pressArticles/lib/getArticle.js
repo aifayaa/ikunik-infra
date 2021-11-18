@@ -4,7 +4,7 @@ import {
   admin,
   server,
 } from './articleFields';
-import checkBadges from '../../libs/badges/checkBadges';
+import BadgeChecker from '../../libs/badges/BadgeChecker';
 
 const {
   ADMIN_APP,
@@ -37,6 +37,7 @@ export const getArticle = async (
     options.articleFields = server;
   }
   const client = await MongoClient.connect();
+  const badgeChecker = new BadgeChecker(appId);
   try {
     const $match = {
       _id: id,
@@ -263,21 +264,33 @@ export const getArticle = async (
       if (!isServer && (!user || user.appId !== ADMIN_APP)) {
         const userBadges = (user && user.badges) || [];
 
+        await badgeChecker.init;
+
+        badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
+        if (article.badges) {
+          badgeChecker.registerBadges(article.badges.list.map(({ id: badgeId }) => (badgeId)));
+        }
+        const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
+        if (categoryBadges) {
+          badgeChecker.registerBadges(categoryBadges.list.map(({ id: badgeId }) => (badgeId)));
+        }
+        badgeChecker.loadBadges();
+
         const opts = {
           appId,
           userId,
           articleId: id,
           categoryId: article.categoryId,
         };
-        if (!await checkBadges(
+        if (!await badgeChecker.checkBadges(
           userBadges,
           article.badges,
           opts,
         )) {
           articleRequires('userBadges');
-        } else if (!await checkBadges(
+        } else if (!await badgeChecker.checkBadges(
           userBadges,
-          (article.category && article.category.badges),
+          categoryBadges,
           opts,
         )) {
           articleRequires('userBadges');
@@ -287,6 +300,7 @@ export const getArticle = async (
 
     return article;
   } finally {
+    badgeChecker.close();
     client.close();
   }
 };

@@ -3,7 +3,6 @@ import MongoClient from '../../../libs/mongoClient';
 
 const {
   COLL_USERS,
-  DB_NAME,
   LEQUOTIDIEN_AWS_KEY,
   LEQUOTIDIEN_AWS_REGION,
   LEQUOTIDIEN_AWS_SECRET,
@@ -25,7 +24,7 @@ export default async (
 ) => {
   const client = await MongoClient.connect();
   try {
-    const user = await client.db(DB_NAME)
+    const user = await client.db()
       .collection(COLL_USERS)
       .findOne({
         _id: userId,
