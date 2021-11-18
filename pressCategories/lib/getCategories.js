@@ -1,5 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-import checkBadges from '../../libs/badges/checkBadges';
+import BadgeChecker from '../../libs/badges/BadgeChecker';
 
 const {
   ADMIN_APP,
@@ -14,6 +14,7 @@ export default async (
   { start, limit, countOnly = false, fetchMaxOrder = false, parentId = false, userId = null },
 ) => {
   const client = await MongoClient.connect();
+  const badgeChecker = new BadgeChecker(appId);
 
   const matchHidden = showHidden
     ? { appId }
@@ -103,6 +104,15 @@ export default async (
     if (!user || user.appId !== ADMIN_APP) {
       const userBadges = (user && user.badges) || [];
 
+      await badgeChecker.init;
+
+      categories.forEach((cat) => {
+        if (cat.badges && cat.badges.list.length > 0) {
+          badgeChecker.registerBadges(cat.badges.list.map(({ id }) => (id)));
+        }
+      });
+      badgeChecker.loadBadges();
+
       const opts = {
         appId,
         userId,
@@ -110,7 +120,7 @@ export default async (
       };
       const promises = categories.map((cat) => (
         (async () => {
-          const valid = await checkBadges(
+          const valid = await badgeChecker.checkBadges(
             userBadges,
             cat.badges,
             { ...opts, categoryId: cat._id },
@@ -126,6 +136,7 @@ export default async (
 
     return { categories, count };
   } finally {
+    badgeChecker.close();
     client.close();
   }
 };

@@ -7,12 +7,14 @@ custom:
     LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
     LEQUOTIDIEN_AWS_SECRET: 'a7aMITbP56fAYhk+Hps3xkBfPRHI9KcIj5rkTDSu'
     LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
+    LEQUOTIDIEN_ACCESS_CHECK_URI: '/crowdaa-sync/v1/lqr/article/validate-access'
   prod:
     LEQUOTIDIEN_APP_ID: 'bce0f190-1bfb-46a7-a0e9-01e67f578621'
     LEQUOTIDIEN_AWS_KEY: 'AKIA4DV6YH4CUGEHOAQX'
     LEQUOTIDIEN_AWS_REGION: 'eu-west-3'
     LEQUOTIDIEN_AWS_SECRET: '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'
     LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf'
+    LEQUOTIDIEN_ACCESS_CHECK_URI: '/crowdaa-sync/v1/lqr/article/validate-access'
 
 provider:
   name: aws
@@ -49,6 +51,14 @@ functions:
             parameters:
               paths:
                 pdfId: true
+
+  provLeQuotidienValidateArticleAccess:
+    handler: handlers/leQuotidien/validateArticleAccess.default
+    events:
+      - http:
+          path: providers/lequotidien/validateArticleAccess
+          method: get
+          cors: true
 
 plugins:
   - serverless-offline
