@@ -21,11 +21,13 @@ function sendNewAccountPassword(app, email, lang, {
 
   const subject = formatMessage('apps:invite_app_admin_email_title', { appName: app.name });
 
+  const template = app.builds ? `send_dashboard_access_${lang}` : `welcome_preview_${lang}`;
+
   return (sendEmailMailgunTemplate(
     'No reply <support@crowdaa.com>',
     email,
     subject,
-    `send_dashboard_access_${lang}`,
+    template,
     {
       appId: app._id,
       appName: app.name,
