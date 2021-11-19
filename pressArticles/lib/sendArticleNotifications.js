@@ -48,7 +48,7 @@ export const sendArticleNotifications = async (
 
     let sent = 0;
     let failed = 0;
-    const retry = (pendingNotifs.length === PROCESS_BATCH_SIZE) && article;
+    const retry = !!((pendingNotifs.length === PROCESS_BATCH_SIZE) && article);
     if (article) {
       const title = prepareNotif(article.title, 60, false);
       const message = prepareNotif(article.plainText);
