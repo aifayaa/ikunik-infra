@@ -2,13 +2,11 @@ import removeMd from 'remove-markdown';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import prepareNotif from '../lib/prepareNotifString';
 import response from '../../libs/httpResponses/response';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
 import { checkPerms } from '../../libs/perms/checkPerms';
-import { doSendNotifications } from '../lib/sendNotifications';
-import { getArticle } from '../lib/getArticle';
+import { queueArticleNotifications } from '../lib/notificationsQueue';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
@@ -187,12 +185,12 @@ export default async (event) => {
       );
       results.published = true;
       if (sendNotifications === 'true') {
-        const article = await getArticle(results.articleId, {});
-        await doSendNotifications(
-          prepareNotif(article.title, 60, false),
-          prepareNotif(article.plainText),
+        await queueArticleNotifications(
           appId,
-          { articleId: results.articleId },
+          results.articleId,
+          results.draftId,
+          userId,
+          new Date(),
         );
         results.notificationSent = true;
       }
