@@ -1,11 +1,7 @@
-import prepareNotif from '../lib/prepareNotifString';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
-import { doSendNotifications } from '../lib/sendNotifications';
-import { doSendDelayedNotifications } from '../lib/sendDelayedNotifications';
-import { getArticle } from '../lib/getArticle';
+import { queueArticleNotifications, cleanPendingArticleNotifications } from '../lib/notificationsQueue';
 import { publishArticle } from '../lib/publishArticle';
-import { cleanPendingNotification } from '../lib/cleanPendingNotification';
 
 const permKey = 'pressArticles_all';
 
@@ -28,25 +24,15 @@ export default async (event) => {
     const articleId = event.pathParameters.id;
     const results = await publishArticle(userId, appId, articleId, draftId, publicationDate);
     const requestResults = { results };
-    cleanPendingNotification(articleId);
+    await cleanPendingArticleNotifications(articleId);
     if (sendNotifications) {
-      const delay = ((publicationDate.getTime() - Date.now()) / 1000) | 0;
-      if (delay > 0) {
-        requestResults.notificationResults = await doSendDelayedNotifications(
-          appId,
-          articleId,
-          draftId,
-          delay,
-        );
-      } else {
-        const { title, plainText } = await getArticle(articleId, appId, {});
-        requestResults.notificationResults = await doSendNotifications(
-          prepareNotif(title, 60, false),
-          prepareNotif(plainText),
-          appId,
-          { articleId },
-        );
-      }
+      requestResults.notificationResults = await queueArticleNotifications(
+        appId,
+        articleId,
+        draftId,
+        userId,
+        publicationDate,
+      );
     }
     return response({ code: 200, body: requestResults });
   } catch (e) {

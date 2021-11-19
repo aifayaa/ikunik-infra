@@ -1,6 +1,5 @@
-import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import MongoClient from '../../libs/mongoClient';
-import { cleanPendingNotification } from './cleanPendingNotification';
+import { cleanPendingArticleNotifications } from './notificationsQueue';
 
 const {
   COLL_PRESS_ARTICLES,
@@ -51,41 +50,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
 
     await session.commitTransaction();
 
-    cleanPendingNotification(articleId);
-    const article = await client
-      .db(DB_NAME)
-      .collection(COLL_PRESS_ARTICLES)
-      .findOne({ _id: articleId });
-
-    if (article.pendingNotificationAwsArnId) {
-      if (article.publicationDate.getTime() > Date.now()) {
-        const stepfunctions = new StepFunctions();
-        try {
-          await stepfunctions.stopExecution({
-            executionArn: article.pendingNotificationAwsArnId,
-          }).promise();
-        } finally {
-          /**
-           * We don't need to investigate further, other cases are
-           * handled in broadcastArticleNotification handler, so the user will never get an invalid
-           * or wrong notification title/content/...
-           */
-        }
-      }
-
-      await client
-        .db(DB_NAME)
-        .collection(COLL_PRESS_ARTICLES)
-        .updateOne(
-          {
-            _id: articleId,
-          }, {
-            $unset: {
-              pendingNotificationAwsArnId: '',
-            },
-          },
-        );
-    }
+    await cleanPendingArticleNotifications(articleId);
 
     return { articleId };
   } finally {

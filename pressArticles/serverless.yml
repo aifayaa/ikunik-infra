@@ -3,23 +3,23 @@ service: pressArticles
 custom:
   dev:
     us-east-1:
-      NOTIFICATION_STATE_MACHINE_NAME: DevDelayedArticleNotification
-      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevDelayedArticleNotification-role-191bc6ee
-      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-dev-broadcastArticleNotification
+      NOTIFICATION_STATE_MACHINE_NAME: DevSendArticleNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevUsSendArticleNotifications-role
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-dev-sendArticleNotifications
   preprod:
     eu-west-3:
-      NOTIFICATION_STATE_MACHINE_NAME: PreprodDelayedArticleNotification
-      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodDelayedArticleNotification-role
-      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-preprod-broadcastArticleNotification
+      NOTIFICATION_STATE_MACHINE_NAME: PreprodSendArticleNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodFrSendArticleNotifications-role
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-preprod-sendArticleNotifications
   prod:
     us-east-1:
-      NOTIFICATION_STATE_MACHINE_NAME: ProdDelayedArticleNotification
-      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdDelayedArticleNotification-role-40903dbe
-      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-broadcastArticleNotification
+      NOTIFICATION_STATE_MACHINE_NAME: ProdSendArticleNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdUsSendArticleNotifications-role
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications
     eu-west-3:
-      NOTIFICATION_STATE_MACHINE_NAME: ProdFrDelayedArticleNotification
-      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrDelayedArticleNotification-role
-      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-broadcastArticleNotification
+      NOTIFICATION_STATE_MACHINE_NAME: ProdSendArticleNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrSendArticleNotifications-role
+      NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications
 
 provider:
   name: aws
@@ -61,8 +61,8 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  broadcastArticleNotification:
-      handler: handlers/broadcastArticleNotification.default
+  sendArticleNotifications:
+    handler: handlers/sendArticleNotifications.default
 
   getArticles:
     handler: handlers/getArticles.default
