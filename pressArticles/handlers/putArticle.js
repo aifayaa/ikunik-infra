@@ -25,7 +25,7 @@ export default async (event) => {
       categoryId,
       feedPicture,
       hideFromFeed,
-      md,
+      md = '',
       pictures,
       productId,
       summary,

@@ -62,7 +62,7 @@ export default async (event) => {
           feedPicture,
           hideFromFeed,
           likes,
-          md,
+          md = '',
           pictures,
           productId,
           summary,
