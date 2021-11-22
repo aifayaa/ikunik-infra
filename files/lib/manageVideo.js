@@ -13,7 +13,7 @@ const {
 } = process.env;
 
 /* Encoding parameters */
-const HLSVideos = transcoderPresets[STAGE];
+const HLSVideos = transcoderPresets[`${STAGE}.${EL_PIPELINE_REGION}`];
 
 export default async (bucket, object, file) => {
   const client = await MongoClient.connect();
