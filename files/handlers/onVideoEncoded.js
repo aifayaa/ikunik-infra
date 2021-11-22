@@ -7,8 +7,8 @@ const {
   COLL_VIDEOS,
   DB_NAME,
   REGION,
-  STAGE,
   S3_PICTURES_BUCKET,
+  S3_VIDEOS_BUCKET,
 } = process.env;
 
 const s3 = new S3({
@@ -118,8 +118,8 @@ export default async (event) => {
       return response({ code: 500, body: `${e}` });
     } finally {
       // this should be done in a better way ..
-      const thumbUrl = `https://crowdaa-pictures-${STAGE}.s3.amazonaws.com/${thumbFilename}`;
-      const url = `https://s3.${REGION}.amazonaws.com/video-stream-${STAGE}.crowdaa.com/${outputKeyPrefix}master.m3u8`;
+      const thumbUrl = `https://${S3_PICTURES_BUCKET}.s3.amazonaws.com/${thumbFilename}`;
+      const url = `https://s3.${REGION}.amazonaws.com/${S3_VIDEOS_BUCKET}/${outputKeyPrefix}master.m3u8`;
       const videoDoc = {
         filename: name,
         isPublished: true,
