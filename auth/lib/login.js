@@ -51,7 +51,7 @@ export const login = async (rawEmail, username, password, appId) => {
     let user = await usersCollection.findOne(selector);
     let userIsAdminForPreview = false;
     if (!user) {
-      if (app.settings.press.env.apiKeyCanBeChanged) {
+      if (appId !== ADMIN_APP && app.settings.press.env.apiKeyCanBeChanged) {
         userIsAdminForPreview = true;
         selector.appId = ADMIN_APP;
         user = await usersCollection.findOne(selector);
