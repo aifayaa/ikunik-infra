@@ -48,7 +48,8 @@ describe('lib - register', () => {
       });
     });
 
-    it('should send an email to the user', async () => {
+    // TODO: Disabled since we are not sending an email anymore. Enable it back later!
+    it.skip('should send an email to the user', async () => {
       await register(address, username, password, appId);
 
       expect(stubEmailLib.args[0][2]).to.equal(address);
