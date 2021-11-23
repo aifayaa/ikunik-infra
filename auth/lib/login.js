@@ -80,7 +80,7 @@ export const login = async (rawEmail, username, password, appId) => {
         _id: Random.id(),
         createdAt: new Date(),
         username: username || user.username || email.replace(/@.*/, `-${Random.id(10)}`),
-        emails: [{ address: email, verified: false, token }],
+        emails: [{ address: email }],
         services: {
           password: user.services.password,
           resume: {
