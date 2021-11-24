@@ -39,6 +39,10 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
       $project: {
         _id: 1,
         name: 1,
+        'website.dns.internal.name': 1,
+        'website.eb.env.cname': 1,
+        'website.ssl.domains': 1,
+        'website.type': 1,
       },
     },
   ];

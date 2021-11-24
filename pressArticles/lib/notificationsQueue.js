@@ -107,22 +107,25 @@ const createArticleNotificationSender = async (
         },
       },
     );
-  client.close();
+  await client.close();
 };
 
 export const queueArticleNotifications = async (
   appId,
   articleId,
   draftId,
-  fromUserId,
   notifyAt,
 ) => {
   const client = await MongoClient.connect();
   try {
-    if (!notifyAt || notifyAt < new Date()) {
-      notifyAt = new Date();
-    } else if (!(notifyAt instanceof Date)) {
+    if (!(notifyAt instanceof Date)) {
       notifyAt = new Date(notifyAt);
+    } else if (notifyAt < new Date()) {
+      notifyAt = new Date();
+    }
+
+    if (notifyAt.toJSON() === null) {
+      notifyAt = new Date();
     }
 
     const dbPushNotifications = client.db().collection(COLL_PUSH_NOTIFICATIONS);
@@ -130,7 +133,7 @@ export const queueArticleNotifications = async (
 
     const endpoints = dbPushNotifications.find(
       { appId },
-      { projection: { _id: 1, Platform: 1, EndpointArn: 1 } },
+      { projection: { _id: 1, Platform: 1, EndpointArn: 1, userId: 1 } },
     ).batchSize(PROCESS_BATCH_SIZE);
 
     const promises = [];
@@ -143,7 +146,7 @@ export const queueArticleNotifications = async (
         articleId,
         draftId,
         endpointId: endpoint._id,
-        fromUserId,
+        userId: endpoint.userId,
         notifyAt,
       });
       queued += 1;
@@ -169,7 +172,7 @@ export const queueArticleNotifications = async (
 
     await createArticleNotificationSender(appId, articleId, draftId, notifyAt, delay);
   } finally {
-    client.close();
+    await client.close();
   }
 };
 
@@ -220,6 +223,6 @@ export const cleanPendingArticleNotifications = async (
       articleId,
     });
   } finally {
-    client.close();
+    await client.close();
   }
 };

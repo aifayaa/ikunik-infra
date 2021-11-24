@@ -6,8 +6,6 @@ import MongoClient from '../../libs/mongoClient';
 import { hashPassword } from './password';
 import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
-import { sendEmailTemplate } from '../../libs/email/sendEmail';
-import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { wordpressRegister } from './backends/wordpressRegister';
 
 const {
@@ -15,14 +13,12 @@ const {
   DB_NAME,
   COLL_USERS,
   COLL_APPS,
-  REACT_APP_AUTH_URL,
 } = process.env;
 
 export const register = async (
   rawEmail,
   username,
   password,
-  lang,
   appId,
   { firstname, lastname } = {},
 ) => {
@@ -49,8 +45,6 @@ export const register = async (
     }
 
     const hashed = await hashPassword(password);
-    let token;
-    let verified;
     let userId;
 
     const existingUser = email && await usersCollection.findOne({
@@ -67,12 +61,6 @@ export const register = async (
 
     if (existingUser) {
       userId = existingUser._id;
-      const currentEmail = existingUser.emails.reduce((acc, emailObj) => {
-        if (emailObj.address === email) return (emailObj);
-        return (acc);
-      }, null);
-      token = currentEmail.token;
-      verified = currentEmail.verified;
 
       await usersCollection.updateOne({
         _id: existingUser._id,
@@ -85,14 +73,12 @@ export const register = async (
       });
     } else {
       userId = Random.id();
-      token = Random.id();
-      verified = false;
 
       const newUser = {
         _id: userId,
         createdAt: new Date(),
         username,
-        emails: [{ address: email, verified, token }],
+        emails: [{ address: email }],
         services: {
           password: {
             bcrypt: hashed,
@@ -137,21 +123,26 @@ export const register = async (
       }
     }
 
-    if (!verified) {
-      intlInit(lang);
+    /*
+     * 20211123 : Removed email validation process since it was never used, and currently
+     *            serves no purpose. It shall be used later though
+     * if (!verified) {
+     *   intlInit(lang);
 
-      /* send email verification link to user */
-      const subject = formatMessage('auth:address_confirmation_email.title');
-      const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
-      const html = formatMessage('auth:address_confirmation_email.html', { username, url });
+     *   // send email verification link to user
+     *   const subject = formatMessage('auth:address_confirmation_email.title');
+     *   const url = `${REACT_APP_AUTH_URL}/validateEmail?token=${encodeURIComponent(token)}&
+     *   appid=${encodeURIComponent(appId)}&email=${encodeURIComponent(email)}`;
+     *   const html = formatMessage('auth:address_confirmation_email.html', { username, url });
 
-      try {
-        await sendEmailTemplate(lang, 'customers', email, subject, html);
-      } catch (e) {
-        await usersCollection.deleteOne({ _id: userId });
-        throw new Error('cannot_send_email');
-      }
-    }
+     *   try {
+     *     await sendEmailTemplate(lang, 'customers', email, subject, html);
+     *   } catch (e) {
+     *     await usersCollection.deleteOne({ _id: userId });
+     *     throw new Error('cannot_send_email');
+     *   }
+     * }
+     */
 
     return { userId };
   } finally {
