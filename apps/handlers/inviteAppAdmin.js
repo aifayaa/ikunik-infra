@@ -33,7 +33,13 @@ export default async (event) => {
     }
 
     const lang = getUserLanguage(event.headers);
-    const results = await inviteAppAdmin(appId, email, firstname, lastname, lang);
+    const results = await inviteAppAdmin(
+      appId,
+      email.trim(),
+      firstname.trim(),
+      lastname.trim(),
+      lang,
+    );
 
     if (results === false) {
       return response({ code: 404, message: 'app_not_found' });

@@ -189,7 +189,6 @@ export default async (event) => {
           appId,
           results.articleId,
           results.draftId,
-          userId,
           new Date(),
         );
         results.notificationSent = true;

@@ -116,7 +116,6 @@ export default async (
         email,
         email,
         password,
-        lang,
         ADMIN_APP,
         { firstname, lastname },
       );

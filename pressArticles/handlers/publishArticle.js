@@ -30,7 +30,6 @@ export default async (event) => {
         appId,
         articleId,
         draftId,
-        userId,
         publicationDate,
       );
     }
