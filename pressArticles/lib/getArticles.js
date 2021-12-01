@@ -22,6 +22,8 @@ export const getArticles = async (
     getOrphansArticles = false,
     showWithHiddenCategories = false,
     showHiddenOnFeed = false,
+    reversedSort = false,
+    noDateFilter = false,
   },
 ) => {
   let client;
@@ -104,20 +106,41 @@ export const getArticles = async (
     let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
-      sortArticles = { pinned: -1, publicationDate: -1 };
-      matchArticles.isPublished = true;
-      matchArticles.$or = [
-        {
-          publicationDate: {
-            $exists: false,
-          },
-        },
-        {
-          publicationDate: {
-            $lte: new Date(),
-          },
-        },
-      ];
+      if (reversedSort) {
+        sortArticles = { pinned: -1, publicationDate: 1 };
+        matchArticles.isPublished = true;
+        if (!noDateFilter) {
+          matchArticles.$or = [
+            {
+              publicationDate: {
+                $exists: false,
+              },
+            },
+            {
+              publicationDate: {
+                $gte: new Date(),
+              },
+            },
+          ];
+        }
+      } else {
+        sortArticles = { pinned: -1, publicationDate: -1 };
+        matchArticles.isPublished = true;
+        if (!noDateFilter) {
+          matchArticles.$or = [
+            {
+              publicationDate: {
+                $exists: false,
+              },
+            },
+            {
+              publicationDate: {
+                $lte: new Date(),
+              },
+            },
+          ];
+        }
+      }
     }
 
     let articlesPipeline = [
