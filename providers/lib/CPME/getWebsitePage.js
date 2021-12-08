@@ -61,8 +61,20 @@ export default async (
   return (response
     .replace(/<head>/g, `<head>
 <style>
-form, div.span4, header.header_block, div#slider, div#content_bottom, footer {
+form,
+div.span4,
+header.header_block,
+div#slider,
+div#content_bottom,
+footer,
+nav#menu,
+breadcrumb,
+div#content_top {
   display: none !important;
+}
+
+body {
+  transition: none !important;
 }
 
 div.container {
