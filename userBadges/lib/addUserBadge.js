@@ -5,9 +5,12 @@ const {
 } = process.env;
 
 export default async (userId, appId, {
-  name,
-  description = '',
+  access,
   color = '#FFFFFF',
+  description = '',
+  isDefault,
+  management,
+  name,
   validationUrl = '',
 }) => {
   const client = await MongoClient.connect();
@@ -29,9 +32,13 @@ export default async (userId, appId, {
       appId,
       createdAt: new Date(),
       authorId: userId,
+
       name,
       description,
       color,
+      access,
+      management,
+      isDefault,
       validationUrl,
     };
 

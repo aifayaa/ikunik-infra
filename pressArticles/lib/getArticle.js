@@ -240,9 +240,10 @@ export const getArticle = async (
     const article = articles[0] || null;
 
     if (article) {
-      const articleRequires = (what) => {
+      const articleRequires = (what, requiredElements) => {
         article.text = null;
         article.requires = what;
+        article.requiredElements = requiredElements;
       };
 
       /* Filter article if purchasable and not paid yet */
@@ -282,18 +283,21 @@ export const getArticle = async (
           articleId: id,
           categoryId: article.categoryId,
         };
-        if (!await badgeChecker.checkBadges(
+        let checkerResults = await badgeChecker.checkBadges(
           userBadges,
           article.badges,
           opts,
-        )) {
-          articleRequires('userBadges');
-        } else if (!await badgeChecker.checkBadges(
+        );
+        checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
           userBadges,
           categoryBadges,
           opts,
-        )) {
-          articleRequires('userBadges');
+        ));
+        if (!checkerResults.canList) {
+          throw new Error('forbidden');
+        }
+        if (!checkerResults.canRead) {
+          articleRequires('userBadges', checkerResults.restrictedBy);
         }
       }
     }

@@ -120,12 +120,12 @@ export default async (
       };
       const promises = categories.map((cat) => (
         (async () => {
-          const valid = await badgeChecker.checkBadges(
+          const result = await badgeChecker.checkBadges(
             userBadges,
             cat.badges,
             { ...opts, categoryId: cat._id },
           );
-          if (valid) return (cat);
+          if (result.canList) return (cat);
           return (null);
         })()
       ));
