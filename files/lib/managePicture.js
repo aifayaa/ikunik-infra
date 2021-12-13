@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
+import heicDecode from 'heic-decode';
 import path from 'path';
 import MongoClient from '../../libs/mongoClient';
 import getCollectionFromContentType from './getCollectionFromContentType';
@@ -17,6 +18,15 @@ const {
 } = process.env;
 
 const outBucket = S3_PICTURES_BUCKET;
+
+const heicMimeTypes = {
+  'image/avif': true,
+  'image/avif-sequence': true,
+  'image/heic': true,
+  'image/heic-sequence': true,
+  'image/heif': true,
+  'image/heif-sequence': true,
+};
 
 const resizeParams = ({ keepRatio = false }) => [{
   resize: {
@@ -52,7 +62,20 @@ const resizeParams = ({ keepRatio = false }) => [{
 }];
 
 const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
-  const { data: resizeBuffer, info } = await Sharp(picture.Body)
+  let body = picture.Body;
+  const options = {};
+
+  if (heicMimeTypes[picture.ContentType]) {
+    const rawData = await heicDecode({ buffer: body });
+    body = Buffer.from(rawData.data);
+    options.raw = {
+      width: rawData.width,
+      height: rawData.height,
+      channels: 4,
+    };
+  }
+
+  const { data: resizeBuffer, info } = await Sharp(body, options)
     .rotate()
     .resize(resizeOpts)
     .toFormat('jpeg')
