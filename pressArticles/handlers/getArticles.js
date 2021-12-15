@@ -3,7 +3,7 @@ import { getArticles } from '../lib/getArticles';
 
 export default async (event) => {
   try {
-    const { appId } = event.requestContext.authorizer;
+    const { appId, principalId: userId } = event.requestContext.authorizer;
     const {
       category,
       start,
@@ -20,6 +20,7 @@ export default async (event) => {
         getPictures: true,
         reversedSort: (reversedSort === 'true'),
         noDateFilter: (noDateFilter === 'true'),
+        userId,
       },
     );
     return response({ code: 200, body: results });

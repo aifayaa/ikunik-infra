@@ -275,7 +275,7 @@ export const getArticle = async (
         if (categoryBadges) {
           badgeChecker.registerBadges(categoryBadges.list.map(({ id: badgeId }) => (badgeId)));
         }
-        badgeChecker.loadBadges();
+        await badgeChecker.loadBadges();
 
         const opts = {
           appId,

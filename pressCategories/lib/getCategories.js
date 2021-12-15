@@ -111,7 +111,7 @@ export default async (
           badgeChecker.registerBadges(cat.badges.list.map(({ id }) => (id)));
         }
       });
-      badgeChecker.loadBadges();
+      await badgeChecker.loadBadges();
 
       const opts = {
         appId,
