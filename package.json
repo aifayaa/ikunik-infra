@@ -1,6 +1,6 @@
 {
   "name": "crowdaa-microservices",
-  "version": "1.26.2",
+  "version": "1.27.0",
   "private": true,
   "description": "Crowdaa AWS microservices implemented via serverless.",
   "main": "index.js",
@@ -21,6 +21,7 @@
     "css-loader": "^2.1.0",
     "esm": "^3.2.25",
     "fast-xml-parser": "^3.16.0",
+    "heic-decode": "^1.1.2",
     "i18n": "^0.8.4",
     "i18next": "^19.8.3",
     "in-app-purchase": "^1.11.4",
