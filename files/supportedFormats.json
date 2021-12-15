@@ -1,5 +1,11 @@
 {
+  "image/avif": true,
+  "image/avif-sequence": true,
   "image/gif": true,
+  "image/heic": true,
+  "image/heic-sequence": true,
+  "image/heif": true,
+  "image/heif-sequence": true,
   "image/jpeg": true,
   "image/png": true,
   "video/avi": true,
