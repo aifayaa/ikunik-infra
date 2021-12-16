@@ -12,6 +12,7 @@ const {
   ADMIN_APP,
   DB_NAME,
   COLL_USERS,
+  COLL_USER_BADGES,
   COLL_APPS,
 } = process.env;
 
@@ -28,6 +29,7 @@ export const register = async (
   try {
     const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
     const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
+    const badgesCollection = client.db(DB_NAME).collection(COLL_USER_BADGES);
 
     const app = await appsCollection.findOne(
       { _id: appId },
@@ -74,6 +76,11 @@ export const register = async (
     } else {
       userId = Random.id();
 
+      const badges = (await badgesCollection
+        .find({ appId, isDefault: true })
+        .toArray())
+        .map((badge) => ({ id: badge._id }));
+
       const newUser = {
         _id: userId,
         createdAt: new Date(),
@@ -90,6 +97,7 @@ export const register = async (
           lastname,
           username,
         },
+        badges,
       };
 
       // Perform a case insensitive check before insert

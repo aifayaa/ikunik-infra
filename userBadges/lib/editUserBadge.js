@@ -5,10 +5,13 @@ const {
 } = process.env;
 
 export default async (userBadgeId, appId, {
+  access,
+  color = '#FFFFFF',
+  description = '',
+  isDefault,
+  management,
   name,
-  description,
-  color,
-  validationUrl,
+  validationUrl = '',
 }) => {
   const client = await MongoClient.connect();
 
@@ -40,16 +43,14 @@ export default async (userBadgeId, appId, {
     const $set = {
       name,
       updatedAt: new Date(),
+
+      description,
+      access,
+      management,
+      isDefault,
+      color,
+      validationUrl,
     };
-    if (description !== undefined) {
-      $set.description = description;
-    }
-    if (color !== undefined) {
-      $set.color = color;
-    }
-    if (validationUrl !== undefined) {
-      $set.validationUrl = validationUrl;
-    }
 
     await client
       .db()

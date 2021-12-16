@@ -22,6 +22,7 @@ export default async (event) => {
     const {
       articleId,
       badges,
+      badgesAllow,
       categoryId,
       feedPicture,
       hideFromFeed,
@@ -75,6 +76,7 @@ export default async (event) => {
       appId,
       articleId,
       badges: badges || [],
+      badgesAllow: badgesAllow || 'any',
       categoryId,
       feedPicture,
       hideFromFeed: !!hideFromFeed,

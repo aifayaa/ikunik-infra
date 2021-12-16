@@ -1,7 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
 import { common as commonFields } from './articleFields';
+import BadgeChecker from '../../libs/badges/BadgeChecker';
 
 const {
+  ADMIN_APP,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
@@ -24,9 +26,11 @@ export const getArticles = async (
     showHiddenOnFeed = false,
     reversedSort = false,
     noDateFilter = false,
+    userId,
   },
 ) => {
   let client;
+  const badgeChecker = new BadgeChecker(appId);
   try {
     client = await MongoClient.connect();
 
@@ -356,8 +360,66 @@ export const getArticles = async (
       return { ...article, category: articleCategory };
     });
 
+    /** Permissions checks */
+    const user = userId
+      ? await client
+        .db(DB_NAME)
+        .collection(COLL_USERS)
+        .findOne({ _id: userId })
+      : null;
+
+    if (!user || user.appId !== ADMIN_APP) {
+      const userBadges = (user && user.badges) || [];
+
+      await badgeChecker.init;
+
+      badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
+
+      articlesWithCategory.forEach((article) => {
+        if (article.badges) {
+          const toRegister = article.badges.list.map(({ id: badgeId }) => (badgeId));
+          badgeChecker.registerBadges(toRegister);
+        }
+
+        if (article.category) {
+          if (article.category.badges) {
+            const toRegister = article.category.badges.list.map(({ id: badgeId }) => (badgeId));
+            badgeChecker.registerBadges(toRegister);
+          }
+        }
+      });
+
+      await badgeChecker.loadBadges();
+
+      const promises = articlesWithCategory.map(async (article, id) => {
+        const opts = {
+          appId,
+          userId,
+          articleId: article._id,
+          categoryId: article.categoryId,
+        };
+        const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
+        let checkerResults = await badgeChecker.checkBadges(
+          userBadges,
+          article.badges,
+          opts,
+        );
+        checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
+          userBadges,
+          categoryBadges,
+          opts,
+        ));
+        if (!checkerResults.canList) {
+          articlesWithCategory[id] = null;
+        }
+      });
+
+      await Promise.all(promises);
+    }
+
     return { articles: articlesWithCategory, total };
   } finally {
+    badgeChecker.close();
     client.close();
   }
 };
