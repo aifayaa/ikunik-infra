@@ -16,6 +16,7 @@ export const postArticle = async ({
   actions,
   appId,
   badges = [],
+  badgesAllow = 'any',
   categoryId,
   feedPicture,
   hideFromFeed,
@@ -65,7 +66,7 @@ export const postArticle = async ({
       appId,
       badges: {
         list: badges.map((id) => ({ id })),
-        allow: 'any',
+        allow: badgesAllow,
       },
       categoryId,
       createdAt: new Date(),

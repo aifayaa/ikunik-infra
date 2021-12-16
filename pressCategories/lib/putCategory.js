@@ -15,6 +15,7 @@ export default async (
   hidden,
   parentId,
   badges,
+  badgesAllow,
   action,
 ) => {
   /* Mongo client */
@@ -165,7 +166,7 @@ export default async (
       pathName,
       badges: {
         list: badges,
-        allow: 'any',
+        allow: badgesAllow || 'any',
       },
     };
 

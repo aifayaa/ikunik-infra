@@ -14,6 +14,7 @@ export default async (
   hidden,
   parentId,
   badges,
+  badgesAllow,
   action,
 ) => {
   /* Mongo client */
@@ -127,7 +128,7 @@ export default async (
       picture: picture.pop(),
       badges: {
         list: badges,
-        allow: 'any',
+        allow: badgesAllow || 'any',
       },
     };
 

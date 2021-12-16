@@ -9,6 +9,7 @@ export const putArticle = async ({
   appId,
   articleId,
   badges = [],
+  badgesAllow = 'any',
   categoryId,
   feedPicture,
   hideFromFeed,
@@ -65,7 +66,7 @@ export const putArticle = async ({
       articleId,
       badges: {
         list: badges.map((id) => ({ id })),
-        allow: 'any',
+        allow: badgesAllow,
       },
       categoryId,
       createdAt: new Date(),
