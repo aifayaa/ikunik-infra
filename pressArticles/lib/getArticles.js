@@ -371,6 +371,12 @@ export const getArticles = async (
     if (!user || user.appId !== ADMIN_APP) {
       const userBadges = (user && user.badges) || [];
 
+      const articleRequires = (article, what, requiredElements) => {
+        article.text = null;
+        article.requires = what;
+        article.requiredElements = requiredElements;
+      };
+
       await badgeChecker.init;
 
       badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
@@ -411,6 +417,8 @@ export const getArticles = async (
         ));
         if (!checkerResults.canList) {
           articlesWithCategory[id] = null;
+        } else if (!checkerResults.canRead) {
+          articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
         }
       });
 
