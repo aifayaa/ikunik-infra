@@ -1,0 +1,69 @@
+service: forms
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  region: ${opt:region, "us-east-1"}
+  memorySize: 128
+  timeout: 30
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  postFormRegister:
+    handler: handlers/postFormRegister.default
+    events:
+      - http:
+          path: forms/register
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          cors: true
+
+  editFormRegister:
+    handler: handlers/editFormRegister.default
+    events:
+      - http:
+          path: forms/edit/{id}
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  getFormRegister:
+    handler: handlers/getFormRegister.default
+    events:
+      - http:
+          path: forms/get/{id}
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - serverless-offline
+  - serverless-webpack
+  - serverless-export-env
+
+package:
+  individually: true
