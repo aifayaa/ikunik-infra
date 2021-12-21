@@ -55,6 +55,7 @@ runSlsDeployFor 'maintenance'
 runSlsDeployFor 'ssr'
 
 # + authorizer
+runSlsDeployFor 'forms'
 test "x$ALL" = "xALL" && runSlsDeployFor 'audios'
 runSlsDeployFor 'authorize'
 test "x$ALL" = "xALL" && runSlsDeployFor 'banners'
