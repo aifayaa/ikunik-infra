@@ -1,7 +1,6 @@
 import postFormRegister from '../lib/postFormRegister';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {
   try {
@@ -15,8 +14,7 @@ export default async (event) => {
       throw new Error('wrong_argument_type');
     }
 
-    const lang = getUserLanguage(event.headers);
-    const inserted = await postFormRegister(bodyParsed, lang);
+    const inserted = await postFormRegister(bodyParsed);
     return response({ code: 200, body: inserted });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
