@@ -2,14 +2,12 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { findPurchasableProduct } from '../../lib/findPurchasableProduct';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  DB_NAME,
-  COLL_PURCHASABLE_PRODUCT,
-} = process.env;
+const { COLL_PURCHASABLE_PRODUCT } = mongoCollections;
 
 describe('lib - findPurchasableProduct', () => {
   let spyMongo;
@@ -38,7 +36,7 @@ describe('lib - findPurchasableProduct', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.close);
   });
 

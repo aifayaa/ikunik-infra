@@ -1,11 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (appId) => {
   const client = await MongoClient.connect();
   try {
     const items = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_SHOP_ITEMS)
+      .db()
+      .collection(mongoCollections.COLL_SHOP_ITEMS)
       .find({
         status: 'active',
         appId,

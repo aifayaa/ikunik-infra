@@ -1,16 +1,14 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_ARTISTS_FAV,
-} = process.env;
+const { COLL_ARTISTS_FAV } = mongoCollections;
 
 export default async (userId, artistId, appId) => {
   const client = await MongoClient.connect();
 
   try {
     const data = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_ARTISTS_FAV)
       .findOne({
         userId,

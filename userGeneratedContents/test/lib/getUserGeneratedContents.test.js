@@ -2,14 +2,12 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import getUserGeneratedContents from '../../lib/getUserGeneratedContents';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  DB_NAME,
-  COLL_USER_GENERATED_CONTENTS,
-} = process.env;
+const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 describe('lib - getUserGeneratedContents', () => {
   let spyMongo;
@@ -35,7 +33,7 @@ describe('lib - getUserGeneratedContents', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.close);
   });
 

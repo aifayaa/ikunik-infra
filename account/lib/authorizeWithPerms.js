@@ -1,18 +1,21 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   ADMIN_APP,
-  DB_NAME,
+} = process.env;
+
+const {
   COLL_USERS,
   COLL_PERM_GROUPS,
-} = process.env;
+} = mongoCollections;
 
 export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
 
   try {
     const usersCollection = client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USERS);
 
     const conds = {
@@ -85,7 +88,7 @@ export default async (hashedToken, appId) => {
     /* get user perms */
     const permGroupIds = (user && user.permGroupIds) || [];
     const permsAll = permGroupIds.length ? await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PERM_GROUPS)
       .find({
         _id: { $in: permGroupIds },

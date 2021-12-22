@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_VIDEOS,
-} = process.env;
+const { COLL_VIDEOS } = mongoCollections;
 
 // TODO: add a check to user permission to access videos not published
 export default async (id, appId, { isPublished }) => {
@@ -19,7 +17,7 @@ export default async (id, appId, { isPublished }) => {
     }
 
     client = await MongoClient.connect();
-    const video = await client.db(DB_NAME)
+    const video = await client.db()
       .collection(COLL_VIDEOS)
       .findOne($find);
 

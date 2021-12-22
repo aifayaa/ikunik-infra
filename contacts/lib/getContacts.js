@@ -1,11 +1,14 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  COLL_CONTACTS,
-  DB_NAME,
   DEFAULT_LIMIT,
   LIMIT_MAX,
 } = process.env;
+
+const {
+  COLL_CONTACTS,
+} = mongoCollections;
 
 export default async (_userId, profileId, appId, {
   idsOnly, filter, limit, search, skip, sortBy, sortOrder, type,
@@ -45,11 +48,11 @@ export default async (_userId, profileId, appId, {
       if (sortBy && sortOrder) opts.sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
     }
     const [contacts, totalCount] = await Promise.all([
-      client.db(DB_NAME)
+      client.db()
         .collection(COLL_CONTACTS)
         .find(selector, opts)
         .toArray(),
-      client.db(DB_NAME)
+      client.db()
         .collection(COLL_CONTACTS)
         .find(selector, opts)
         .count(),

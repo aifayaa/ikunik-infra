@@ -3,14 +3,14 @@ import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 import Random from '../../libs/account_utils/random';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
 const {
-  DB_NAME,
   COLL_APPS,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 export const getUserByApple = async (authorizationCode, _identityToken, appId, {
   fullName,
@@ -19,7 +19,7 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
 
   const client = await MongoClient.connect();
   try {
-    const db = client.db(DB_NAME);
+    const db = client.db();
     const app = await db.collection(COLL_APPS).findOne({
       _id: appId,
     }, { projection: { 'credentials.apple': true, 'builds.ios.packageId': true } });

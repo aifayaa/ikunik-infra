@@ -1,15 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_FESTIVALS,
-} = process.env;
+const { COLL_FESTIVALS } = mongoCollections;
 
 export default async (appId) => {
   const client = await MongoClient.connect();
   try {
     const festivals = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_FESTIVALS)
       .find({ appId })
       .toArray();

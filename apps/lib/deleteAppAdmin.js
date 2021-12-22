@@ -1,11 +1,15 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   ADMIN_APP,
+} = process.env;
+
+const {
   COLL_APPS,
   COLL_PERM_GROUPS,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   appId,

@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { wordpressForgotPassword } from './backends/wordpressForgotPassword';
@@ -10,18 +11,20 @@ const RETRY_TIMEOUT = 2 * 60000; // 2 min in ms
 
 const {
   ADMIN_APP,
-  DB_NAME,
-  COLL_USERS,
-  COLL_APPS,
   REACT_APP_AUTH_URL,
 } = process.env;
+
+const {
+  COLL_USERS,
+  COLL_APPS,
+} = mongoCollections;
 
 export const forgotPassword = async (rawEmail, lang, appId) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
-    const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
+    const usersCollection = client.db().collection(COLL_USERS);
+    const appsCollection = client.db().collection(COLL_APPS);
     const [user, app] = await Promise.all([
       usersCollection.findOne(
         {

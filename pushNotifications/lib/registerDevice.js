@@ -4,15 +4,18 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   SNS_REGION,
   SNS_KEY_ID,
   SNS_SECRET,
-  DB_NAME,
+} = process.env;
+
+const {
   COLL_APPS,
   COLL_PUSH_NOTIFICATIONS,
-} = process.env;
+} = mongoCollections;
 
 const sns = new SNS({
   region: SNS_REGION,
@@ -31,7 +34,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
 
   const client = await MongoClient.connect();
   try {
-    const app = await client.db(DB_NAME)
+    const app = await client.db()
       .collection(COLL_APPS).findOne({ _id: appId });
     if (!app) throw new Error('app_not_found');
 
@@ -39,7 +42,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     if (!platformApplicationArns) throw new Error('missing_platform_arn_in_app_config');
 
     const PlatformApplicationArn = platformApplicationArns[platform].arn;
-    const collection = client.db(DB_NAME)
+    const collection = client.db()
       .collection(COLL_PUSH_NOTIFICATIONS);
 
     const found = await collection.findOne(

@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import identifyUserMetrics from '../../lib/identifyUserMetrics';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
@@ -9,8 +10,7 @@ import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 const {
   COLL_PUSH_NOTIFICATIONS,
   COLL_USER_METRICS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 describe('lib - identifyUserMetrics', () => {
   let spyMongo;
@@ -39,7 +39,7 @@ describe('lib - identifyUserMetrics', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.close);
   });
 

@@ -1,14 +1,14 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_PROFILES,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 export default async (userId, appId) => {
   const client = await MongoClient.connect();
-  const db = client.db(DB_NAME);
+  const db = client.db();
   try {
     const [profileFromProfile, [profileFromUser]] = await Promise.all([
       db.collection(COLL_PROFILES)

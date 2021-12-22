@@ -4,14 +4,12 @@ import { expect } from 'chai';
 import iap from 'in-app-purchase';
 import handler from '../../handlers/validatePurchase';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 import * as addBalanceLib from '../../../userBalances/lib/addBalance';
 import articlePrices from '../../../pressArticles/articlePrices.json';
 
-const {
-  COLL_APPS,
-  DB_NAME,
-} = process.env;
+const { COLL_APPS } = mongoCollections;
 
 describe('handlers - validatePurchase', () => {
   const productId = 'com.crowdaa.yui.www.article_05';
@@ -78,7 +76,7 @@ describe('handlers - validatePurchase', () => {
     });
 
     it('mongo connection done', () => {
-      sinon.assert.calledWith(spyMongo.db, DB_NAME);
+      sinon.assert.calledWith(spyMongo.db);
       sinon.assert.called(spyMongo.close);
     });
 

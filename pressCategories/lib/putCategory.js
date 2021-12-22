@@ -1,7 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
 
-const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES, DB_NAME, SAFE_ORDER_NUMBER } = process.env;
+const { SAFE_ORDER_NUMBER } = process.env;
+const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (
@@ -22,7 +24,7 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
+    const collection = client.db().collection(COLL_PRESS_CATEGORIES);
 
     /* * * * * * * * * * * * * * * * * * * * * * * * *
      *
@@ -132,7 +134,7 @@ export default async (
     }
 
     if (badges.length > 0) {
-      const allBadges = await client.db(DB_NAME).collection(COLL_USER_BADGES).find().toArray();
+      const allBadges = await client.db().collection(COLL_USER_BADGES).find().toArray();
       const allBadgesMap = allBadges.reduce((acc, badge) => {
         acc[badge._id] = badge;
         return (acc);

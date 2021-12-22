@@ -1,17 +1,17 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_AUDIOS,
   COLL_VIDEOS,
   COLL_USER_SUBSCRIPTIONS,
   COLL_PROJECTS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (projectId, userId, appId) => {
   const client = await MongoClient.connect();
   try {
-    const db = client.db(DB_NAME);
+    const db = client.db();
     const [project, userSubscriptions] = await Promise.all([
       db.collection(COLL_PROJECTS).findOne({ _id: projectId }),
       db.collection(COLL_USER_SUBSCRIPTIONS)

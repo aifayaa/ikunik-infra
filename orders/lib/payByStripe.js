@@ -2,17 +2,16 @@ import Stripe from 'stripe';
 import uuidv4 from 'uuid/v4';
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import addCredits from '../../credits/lib/addCredits';
 import buyTickets from '../../tickets/lib/buyTickets';
 import sendTicket from '../../tickets/lib/sendTicket';
 import updateCart from '../../carts/lib/updateCart';
 
-const {
-  STRIPE_API_KEY,
-  DB_NAME,
-  COLL_BILLING,
-} = process.env;
+const { STRIPE_API_KEY } = process.env;
+
+const { COLL_BILLING } = mongoCollections;
 
 const stripe = Stripe(STRIPE_API_KEY);
 
@@ -76,7 +75,7 @@ export default async (token, cartId, userId) => {
       token,
       userId,
     };
-    await client.db(DB_NAME).collection(COLL_BILLING)
+    await client.db().collection(COLL_BILLING)
       .insertOne(billing, opts);
 
     // TODO: use appId

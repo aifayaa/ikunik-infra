@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_ARTISTS,
@@ -6,8 +7,7 @@ const {
   COLL_TICKETS,
   COLL_TICKET_CATEGORIES,
   COLL_USERS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 const ticketCategoriesFields = {
   _id: 1,
@@ -106,12 +106,12 @@ export default async (lineupId, userId, appId) => {
           },
         },
       ];
-      ticketCategories = await client.db(DB_NAME)
+      ticketCategories = await client.db()
         .collection(COLL_TICKET_CATEGORIES)
         .aggregate(aggregate)
         .toArray();
     } else {
-      ticketCategories = await client.db(DB_NAME)
+      ticketCategories = await client.db()
         .collection(COLL_TICKET_CATEGORIES)
         .find({
           lineupId,

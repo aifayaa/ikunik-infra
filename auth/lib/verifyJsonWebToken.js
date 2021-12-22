@@ -3,6 +3,7 @@ import jwksClient from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const verify = promisify(jwt.verify);
 
@@ -15,14 +16,14 @@ const verify = promisify(jwt.verify);
  * @returns {Object}
  */
 export default async (token, appId, { mongoClient }) => {
-  const { DB_NAME, COLL_APPS } = process.env;
+  const { COLL_APPS } = mongoCollections;
   const client = mongoClient || await MongoClient.connect();
   try {
     const {
       header,
     } = await jwt.decode(token, { complete: true });
     const app = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_APPS)
       .findOne({ _id: appId }, { projection: { 'settings.auth': true } });
 

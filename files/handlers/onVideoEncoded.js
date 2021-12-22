@@ -1,15 +1,18 @@
 import S3 from 'aws-sdk/clients/s3';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
 
 const {
-  COLL_VIDEOS,
-  DB_NAME,
   REGION,
   S3_PICTURES_BUCKET,
   S3_VIDEOS_BUCKET,
 } = process.env;
+
+const {
+  COLL_VIDEOS,
+} = mongoCollections;
 
 const s3 = new S3({
   signatureVersion: 'v4',
@@ -26,7 +29,7 @@ export default async (event) => {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);
     const { id, name } = userMetadata;
 
-    const document = await client.db(DB_NAME)
+    const document = await client.db()
       .collection(COLL_VIDEOS)
       .findOne({
         _id: id,
@@ -37,7 +40,7 @@ export default async (event) => {
     }
 
     if (state !== 'COMPLETED') {
-      await client.db(DB_NAME)
+      await client.db()
         .collection(COLL_VIDEOS)
         .updateOne(
           { _id: id },
@@ -130,7 +133,7 @@ export default async (event) => {
         url,
       };
 
-      await client.db(DB_NAME)
+      await client.db()
         .collection(COLL_VIDEOS)
         .updateOne(
           { _id: userMetadata.id },

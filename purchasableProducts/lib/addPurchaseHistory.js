@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PURCHASES,
-  DB_NAME,
-} = process.env;
+const { COLL_PURCHASES } = mongoCollections;
 
 export const addPurchaseHistory = async ({
   appId,
@@ -26,7 +24,7 @@ export const addPurchaseHistory = async ({
 
   try {
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PURCHASES)
       .insertOne(insertData);
 

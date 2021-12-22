@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_USERS,
   COLL_USER_GENERATED_CONTENTS,
-} = process.env;
+} = mongoCollections;
 
 export default async (appId, parentId, parentCollection, start, limit, fetchAll = false) => {
   let client;
@@ -88,7 +88,7 @@ export default async (appId, parentId, parentCollection, start, limit, fetchAll 
     });
 
     return await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
       .aggregate(pipeline)
       .toArray();

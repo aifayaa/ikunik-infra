@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_BALANCES,
-  DB_NAME,
-} = process.env;
+const { COLL_USER_BALANCES } = mongoCollections;
 
 export const addBalance = async (
   appId,
@@ -29,18 +27,18 @@ export const addBalance = async (
 
   try {
     const balance = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_BALANCES)
       .findOne(findQuery);
 
     if (!balance) {
       await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USER_BALANCES)
         .insertOne(insertData);
     } else {
       await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USER_BALANCES)
         .updateOne(findQuery, {
           $set: {

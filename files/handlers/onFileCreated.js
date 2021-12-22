@@ -3,11 +3,12 @@ import managePicture from '../lib/managePicture';
 import manageVideo from '../lib/manageVideo';
 import response from '../../libs/httpResponses/response';
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_PICTURES,
   COLL_VIDEOS,
-} = process.env;
+} = mongoCollections;
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',

@@ -1,17 +1,15 @@
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import createNotify from './createNotify';
 
-const {
-  COLL_LINEUPS,
-  DB_NAME,
-} = process.env;
+const { COLL_LINEUPS } = mongoCollections;
 
 export default async (appId) => {
   const client = await MongoClient.connect();
   try {
     const lineup = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LINEUPS)
       .find({
         startDate: { $gt: new Date() },

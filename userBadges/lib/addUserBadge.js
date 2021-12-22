@@ -1,8 +1,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_BADGES,
-} = process.env;
+const { COLL_USER_BADGES } = mongoCollections;
 
 export default async (userId, appId, {
   access,

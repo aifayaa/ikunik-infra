@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (appId) => {
   const client = await MongoClient.connect();
@@ -9,8 +10,8 @@ export default async (appId) => {
     };
 
     const payouts = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_PAYOUTS)
+      .db()
+      .collection(mongoCollections.COLL_PAYOUTS)
       .find(selector)
       .toArray();
     return { payouts };

@@ -1,13 +1,17 @@
 import S3 from 'aws-sdk/clients/s3';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 const {
-  COLL_USERS,
   LEQUOTIDIEN_AWS_KEY,
   LEQUOTIDIEN_AWS_REGION,
   LEQUOTIDIEN_AWS_SECRET,
   LEQUOTIDIEN_BUCKET_PDF,
 } = process.env;
+
+const {
+  COLL_USERS,
+} = mongoCollections;
 
 const s3 = new S3({
   region: LEQUOTIDIEN_AWS_REGION,

@@ -1,4 +1,5 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const splitParagraphes = (biography = '') => {
   const tmp = biography.split(/(?:\r\n|\r|\n)/g);
@@ -28,8 +29,8 @@ export default async (userId, profileId, appId, info) => {
     };
 
     const _id = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_ARTISTS)
+      .db()
+      .collection(mongoCollections.COLL_ARTISTS)
       .insertOne(artist);
     return { _id, ...artist };
   } finally {

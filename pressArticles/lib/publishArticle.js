@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
-} = process.env;
+} = mongoCollections;
 
 export const publishArticle = async (userId, appId, articleId, draftId, publicationDate) => {
   const client = await MongoClient.connect();
@@ -16,7 +16,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     const opts = { session };
 
     const draft = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_DRAFTS)
       .findOne({
         articleId,
@@ -77,7 +77,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     }
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .updateOne(
         {
@@ -90,7 +90,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       );
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_DRAFTS)
       .updateMany(
         {
@@ -106,7 +106,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       );
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_DRAFTS)
       .updateOne(
         {

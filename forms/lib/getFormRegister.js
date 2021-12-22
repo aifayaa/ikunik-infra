@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const COLL_FORMS = 'forms';
-// const {
-//   COLL_FORMS,
-// } = process.env;
+const { COLL_FORMS } = mongoCollections;
 
 export default async (formId) => {
   const client = await MongoClient.connect();

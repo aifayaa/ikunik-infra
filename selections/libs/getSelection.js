@@ -1,6 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 import queryReplace from './queryReplace';
+
+const {
+  DEFAULT_LIMIT,
+} = process.env;
 
 const {
   COLL_AUDIOS,
@@ -10,9 +15,7 @@ const {
   COLL_SELECTIONS,
   COLL_USER_SUBSCRIPTIONS,
   COLL_VIDEOS,
-  DB_NAME,
-  DEFAULT_LIMIT,
-} = process.env;
+} = mongoCollections;
 
 const selectionFields = [
   'banners',
@@ -41,7 +44,7 @@ export default async (selectionId, userId, appId) => {
   try {
     const [selections, userSubscriptions] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_SELECTIONS)
         .aggregate([
           {
@@ -85,7 +88,7 @@ export default async (selectionId, userId, appId) => {
         .toArray(),
       userId
         ? client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_USER_SUBSCRIPTIONS)
           .find(
             {
@@ -125,7 +128,7 @@ export default async (selectionId, userId, appId) => {
 
     const audioPromise = (selection.selectionFindQuery && isAudioSelection)
       ? client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_AUDIOS)
         .aggregate([
           { $match: selectionFindQuery },
@@ -149,7 +152,7 @@ export default async (selectionId, userId, appId) => {
       : [];
     const videoPromise = (selection.selectionFindQuery && isVideoSelection)
       ? client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_VIDEOS)
         .find(selectionFindQuery, JSON.parse(selection.selectionOptionQuery))
         .toArray()
@@ -157,7 +160,7 @@ export default async (selectionId, userId, appId) => {
 
     const mediaChannelPromise = !selection.selectionFindQuery
       ? client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_MEDIUM_SELECTION_LINKS)
         .aggregate([
           {
@@ -338,7 +341,7 @@ export default async (selectionId, userId, appId) => {
         },
       ]);
       const projectTracks = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PROJECTS)
         .aggregate(aggregationPipeline)
         .toArray();
@@ -349,7 +352,7 @@ export default async (selectionId, userId, appId) => {
       }));
     } else {
       projects = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PROJECTS)
         .find({
           _id: { $in: projectIds },

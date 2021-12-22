@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_PURCHASABLE_PRODUCT,
-} = process.env;
+const { COLL_PURCHASABLE_PRODUCT } = mongoCollections;
 
 export const deletePurchasableProduct = async (
   appId,
@@ -13,7 +11,7 @@ export const deletePurchasableProduct = async (
   const client = await MongoClient.connect();
 
   try {
-    return await client.db(DB_NAME)
+    return await client.db()
       .collection(COLL_PURCHASABLE_PRODUCT)
       .deleteOne({ _id: productId, appId });
   } finally {

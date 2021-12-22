@@ -1,11 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
 
-const {
-  COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+const { COLL_VIDEOS } = mongoCollections;
 
 export default async (event) => {
   const {
@@ -18,7 +16,7 @@ export default async (event) => {
     const { state, userMetadata } = JSON.parse(message);
     const { id } = userMetadata;
 
-    const document = await client.db(DB_NAME)
+    const document = await client.db()
       .collection(COLL_VIDEOS)
       .findOne({
         _id: id,
@@ -29,7 +27,7 @@ export default async (event) => {
     }
 
     if (state !== 'COMPLETED') {
-      await client.db(DB_NAME)
+      await client.db()
         .collection(COLL_VIDEOS)
         .updateOne(
           { _id: id },

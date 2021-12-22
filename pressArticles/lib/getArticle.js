@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import {
   common,
   admin,
@@ -6,16 +7,16 @@ import {
 } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 
+const { ADMIN_APP } = process.env;
+
 const {
-  ADMIN_APP,
   COLL_CONTENT_PERMISSIONS,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export const getArticle = async (
   id,
@@ -232,7 +233,7 @@ export const getArticle = async (
     }
 
     const articles = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
@@ -257,7 +258,7 @@ export const getArticle = async (
 
       const user = userId
         ? await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_USERS)
           .findOne({ _id: userId })
         : null;

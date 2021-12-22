@@ -1,15 +1,18 @@
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random';
 import { filterOutput } from './utils';
 
 const {
-  COLL_LIVE_STREAM,
-  DB_NAME,
   IVS_BUCKET,
   IVS_REGION,
   STAGE,
 } = process.env;
+
+const {
+  COLL_LIVE_STREAM,
+} = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -92,7 +95,7 @@ export default async (appId, {
     };
 
     let dbLiveStream = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .findOne(query);
 
@@ -142,7 +145,7 @@ export default async (appId, {
     };
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .insertOne(dbLiveStream);
 

@@ -1,12 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 // TODO substract rejected payout from others
 export default async (userId, profileId, appId) => {
   const client = await MongoClient.connect();
   try {
     const record = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_PAYOUTS)
+      .db()
+      .collection(mongoCollections.COLL_PAYOUTS)
       .aggregate([
         {
           $match: {

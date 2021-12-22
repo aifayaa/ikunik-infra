@@ -12,7 +12,6 @@ const S3 = new AWS.S3({
 });
 
 const {
-  DB_NAME,
   S3_PICTURES_BUCKET,
   CDN_DOMAIN_NAME,
 } = process.env;
@@ -114,7 +113,7 @@ export default async (bucket, object, file) => {
 
   try {
     const collection = getCollectionFromContentType(type);
-    const document = await client.db(DB_NAME)
+    const document = await client.db()
       .collection(collection)
       .findOne({
         _id: id,
@@ -125,7 +124,7 @@ export default async (bucket, object, file) => {
     }
 
     if (type !== file.ContentType) {
-      await client.db(DB_NAME)
+      await client.db()
         .collection(collection)
         .updateOne(
           { _id: document._id },
@@ -164,7 +163,7 @@ export default async (bucket, object, file) => {
       views: 0,
     });
 
-    await client.db(DB_NAME)
+    await client.db()
       .collection(collection)
       .updateOne(
         { _id: document._id },
@@ -199,7 +198,7 @@ export default async (bucket, object, file) => {
 
     pictureDoc.status = uploadStatus.READY;
 
-    await client.db(DB_NAME)
+    await client.db()
       .collection(collection)
       .updateOne(
         { _id: document._id },

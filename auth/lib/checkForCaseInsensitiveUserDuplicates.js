@@ -1,6 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const { DB_NAME, COLL_USERS } = process.env;
+const { COLL_USERS } = mongoCollections;
 
 /*
   from meteor string_utils
@@ -76,7 +77,7 @@ export default async (
     }
     try {
       const matchedUsers = await mongoClient
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USERS)
         .find(selectorForFastCaseInsensitiveLookup(fieldName, fieldValue, appId))
         .toArray();

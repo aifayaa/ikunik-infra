@@ -1,15 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_SELECTIONS_BACKUP,
-} = process.env;
+const { COLL_SELECTIONS_BACKUP } = mongoCollections;
 
 export default async (selection) => {
   const client = await MongoClient.connect();
   try {
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_SELECTIONS_BACKUP)
       .replaceOne({ _id: selection._id }, selection, { upsert: true });
     return;

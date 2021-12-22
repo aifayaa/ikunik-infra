@@ -1,17 +1,18 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 
+const { ADMIN_APP } = process.env;
+
 const {
-  ADMIN_APP,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   COLL_PRESS_DRAFTS,
   COLL_USERS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export const getArticles = async (
   categoryId,
@@ -51,7 +52,7 @@ export const getArticles = async (
     }
 
     const categories = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_CATEGORIES)
       .find(categoriesMatch)
       .toArray();
@@ -284,12 +285,12 @@ export const getArticles = async (
 
     const [articles = [], total = 0] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_ARTICLES)
         .aggregate(articlesPipeline)
         .toArray(),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_ARTICLES)
         .find(matchArticles)
         .count(),
@@ -363,7 +364,7 @@ export const getArticles = async (
     /** Permissions checks */
     const user = userId
       ? await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USERS)
         .findOne({ _id: userId })
       : null;

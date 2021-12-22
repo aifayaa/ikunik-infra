@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
 import * as pathToCollection from '../../../libs/collections/pathToCollection';
+import mongoCollections from '../../../libs/mongoCollections.json';
 import * as lib from '../../lib/getChildrenUserGeneratedContents';
 import handler from '../../handlers/getChildrenUserGeneratedContents';
 
@@ -34,7 +35,7 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
 
     before(() => {
       stubLib = sandbox.stub(lib, 'default').returns(libResult);
-      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(process.env.COLL_USER_GENERATED_CONTENTS);
+      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
     });
 
     it('should return 200', async () => {
@@ -57,7 +58,7 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
         stubLib,
         appId,
         id,
-        process.env.COLL_USER_GENERATED_CONTENTS,
+        mongoCollections.COLL_USER_GENERATED_CONTENTS,
         start,
         limit,
       );
@@ -73,7 +74,7 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
 
     before(() => {
       stubLib = sandbox.stub(lib, 'default').callsFake(() => Promise.reject(libResult));
-      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(process.env.COLL_USER_GENERATED_CONTENTS);
+      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
     });
 
     it('should return 500', async () => {

@@ -1,6 +1,7 @@
 import moment from 'moment';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import generateMail from './generateMail';
 import getUserLineups from '../../lineup/lib/getUserLineups';
@@ -26,8 +27,8 @@ export default async (userId, profileId, lineupId, email, appId) => {
       appId,
     };
     await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_SCANNERS)
+      .db()
+      .collection(mongoCollections.COLL_SCANNERS)
       .insertOne(scanner);
     const data = {
       name: lineup.name || '',

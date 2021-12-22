@@ -6,6 +6,7 @@ import sinon from 'sinon';
 import { before, beforeEach, afterEach, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { getUserByFacebook } from '../../lib/getUserByFacebook';
 import * as lib0 from '../../lib/getFacebookAppToken';
@@ -14,7 +15,7 @@ import * as lib2 from '../../lib/getFacebookUserProfile';
 
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const { COLL_USERS } = process.env;
+const { COLL_USERS } = mongoCollections;
 
 const lib0Return = 'MyAppToken';
 const lib1Return = {

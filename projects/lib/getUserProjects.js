@@ -1,15 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PROJECTS,
-  DB_NAME,
-} = process.env;
+const { COLL_PROJECTS } = mongoCollections;
 
 export default async (_userId, profileId, appId) => {
   const client = await MongoClient.connect();
   try {
     const projects = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PROJECTS)
       .find({
         profil_ID: profileId,

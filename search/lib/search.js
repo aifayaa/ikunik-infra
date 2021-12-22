@@ -2,15 +2,15 @@ import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
 import zipObject from 'lodash/zipObject';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_ARTISTS,
   COLL_AUDIOS,
   COLL_PROJECTS,
   COLL_SELECTIONS,
   COLL_VIDEOS,
-} = process.env;
+} = mongoCollections;
 
 const searchArtists = (collection, text, appId) => collection.aggregate([
   {
@@ -87,11 +87,11 @@ export default async (text, appId) => {
   };
   try {
     const results = await Promise.all([
-      searchMedia(client.db(DB_NAME).collection(COLL_AUDIOS), text, appId),
-      searchMedia(client.db(DB_NAME).collection(COLL_VIDEOS), text, appId),
-      searchArtists(client.db(DB_NAME).collection(COLL_ARTISTS), text, appId),
-      client.db(DB_NAME).collection(COLL_PROJECTS).find(query).toArray(),
-      client.db(DB_NAME).collection(COLL_SELECTIONS).find(query).toArray(),
+      searchMedia(client.db().collection(COLL_AUDIOS), text, appId),
+      searchMedia(client.db().collection(COLL_VIDEOS), text, appId),
+      searchArtists(client.db().collection(COLL_ARTISTS), text, appId),
+      client.db().collection(COLL_PROJECTS).find(query).toArray(),
+      client.db().collection(COLL_SELECTIONS).find(query).toArray(),
     ]);
     return omitBy(zipObject(['audios', 'videos', 'artists', 'projects', 'selections'], results), isEmpty);
   } finally {

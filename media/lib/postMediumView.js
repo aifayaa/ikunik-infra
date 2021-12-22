@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_AUDIOS,
@@ -8,8 +9,7 @@ const {
   COLL_PROJECTS,
   COLL_VIDEOS,
   COLL_VIEWS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 // To avoid getting a warning with lint
 const jsConsole = console;
@@ -35,27 +35,27 @@ export default async (userId, appId, mediumType, mediumId) => {
       case 'audio':
         mediaCol = COLL_AUDIOS;
         ({ value: medium } = await client
-          .db(DB_NAME)
+          .db()
           .collection(mediaCol)
           .findOneAndUpdate(query, modifier));
         break;
       case 'video':
         mediaCol = COLL_VIDEOS;
         ({ value: medium } = await client
-          .db(DB_NAME)
+          .db()
           .collection(mediaCol)
           .findOneAndUpdate(query, modifier));
         break;
       case 'all':
         mediaCol = COLL_AUDIOS;
         ({ value: medium } = await client
-          .db(DB_NAME)
+          .db()
           .collection(mediaCol)
           .findOneAndUpdate(query, modifier));
         if (!medium) {
           mediaCol = COLL_VIDEOS;
           ({ value: medium } = await client
-            .db(DB_NAME)
+            .db()
             .collection(mediaCol)
             .findOneAndUpdate(query, modifier));
         }
@@ -70,7 +70,7 @@ export default async (userId, appId, mediumType, mediumId) => {
     // Deadline should be update only if it's freePerDay distros
     if (distribution && distribution.includes('PerDay')) {
       const deadlines = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_DEADLINES)
         .findOne({
           userId,
@@ -104,7 +104,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         }
         const newLastView = maxViews - 1;
         await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_DEADLINES)
           .updateOne(
             {
@@ -127,7 +127,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         jsConsole.info('update an existing deadline');
         // Simple update the deadline to decrement
         await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_DEADLINES)
           .updateOne(
             {
@@ -151,7 +151,7 @@ export default async (userId, appId, mediumType, mediumId) => {
     }
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PROJECTS)
       .updateOne({
         _id: medium.project_ID,
@@ -161,7 +161,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         $set: { lastView: new Date() },
       });
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_CONTENT_BY_USER_METRIC)
       .updateOne(
         {
@@ -183,7 +183,7 @@ export default async (userId, appId, mediumType, mediumId) => {
     // update the total number for Crowdaa
     // Historic code
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_METRICS)
       .updateOne(
         { appId },
@@ -194,7 +194,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         { upsert: true },
       );
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_VIEWS)
       .updateOne(
         {

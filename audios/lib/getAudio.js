@@ -1,18 +1,18 @@
 import { URL } from 'url';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 
 export default async (audioId, appId) => {
   const {
-    DB_NAME,
     COLL_AUDIOS,
-  } = process.env;
+  } = mongoCollections;
 
   const client = await MongoClient.connect();
   try {
     const audio = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_AUDIOS)
       .findOne({
         _id: audioId,

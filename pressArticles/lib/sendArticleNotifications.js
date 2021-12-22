@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { sendNotificationTo } from './snsNotifications';
 import prepareNotif from './prepareNotifString';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
@@ -9,7 +10,7 @@ const {
   COLL_PRESS_NOTIFICATIONS_QUEUE,
   COLL_PUSH_NOTIFICATIONS,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 const PROCESS_BATCH_SIZE = 200;
 

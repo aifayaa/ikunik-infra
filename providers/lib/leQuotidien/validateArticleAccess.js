@@ -1,11 +1,13 @@
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
+
+const { LEQUOTIDIEN_ACCESS_CHECK_URI } = process.env;
 
 const {
   COLL_APPS,
   COLL_USERS,
-  LEQUOTIDIEN_ACCESS_CHECK_URI,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   appId,

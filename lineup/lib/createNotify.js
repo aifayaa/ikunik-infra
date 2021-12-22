@@ -2,6 +2,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import {
   getRuleName,
   getTargetId,
@@ -15,10 +16,12 @@ const THRESHOLD = 15; // minutes
 
 const {
   REGION,
-  DB_NAME,
-  COLL_LINEUPS,
   STAGE,
 } = process.env;
+
+const {
+  COLL_LINEUPS,
+} = mongoCollections;
 
 const cloudwatchevents = new CloudWatchEvents({
   region: REGION,
@@ -36,7 +39,7 @@ export default async (lineupId, appId) => {
   const client = await MongoClient.connect();
   try {
     const lineup = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LINEUPS)
       .findOne({
         _id: lineupId,
