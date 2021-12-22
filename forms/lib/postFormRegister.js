@@ -26,11 +26,13 @@ export default async (data = {}) => {
 
     await dbForm.insertOne(form);
 
+    const lang = ((['fr', 'en'].indexOf(data.region) >= 0) ? data.region : 'en');
+
     await sendEmailMailgunTemplate(
       'No reply <support@crowdaa.com>',
       'support@crowdaa.com',
       'Register',
-      'send_register_crowdaa_team_fr',
+      `send_register_crowdaa_team_${lang}`,
       data,
       {
         cc: 'ob@crowdaa.com, vigile@crowdaa.com, eric.eloy@crowdaa.com',
@@ -41,7 +43,7 @@ export default async (data = {}) => {
       'No reply <support@crowdaa.com>',
       data.email,
       'Register',
-      'send_register_crowdaa_owner_fr',
+      `send_register_crowdaa_owner_${lang}`,
       data,
       {
         bcc: 'support@crowdaa.com, ob@crowdaa.com, vigile@crowdaa.com, eric.eloy@crowdaa.com',
