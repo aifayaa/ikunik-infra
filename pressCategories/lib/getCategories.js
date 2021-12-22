@@ -1,12 +1,14 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 
+const { ADMIN_APP } = process.env;
+
 const {
-  ADMIN_APP,
   COLL_PICTURES,
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   appId,

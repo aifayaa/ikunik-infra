@@ -6,10 +6,9 @@ import patchUserGeneratedContents from '../lib/patchUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import { getUserLanguage } from '../../libs/intl/intl';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_GENERATED_CONTENTS,
-} = process.env;
+const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 export default async (event) => {
   try {

@@ -2,17 +2,21 @@ import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  SNS_REGION,
   SNS_KEY_ID,
+  SNS_REGION,
   SNS_SECRET,
-  DB_NAME,
-  COLL_PHONES,
   SNS_TOPIC,
-  COLL_USERS,
-  COLL_CONTACTS,
 } = process.env;
+
+const {
+  COLL_CONTACTS,
+  COLL_PHONES,
+  COLL_USERS,
+} = mongoCollections;
+
 export default async (phone, pinCode, deviceUuid, userId) => {
   const sns = new SNS({
     region: SNS_REGION,
@@ -24,7 +28,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
   const client = await MongoClient.connect();
   try {
     const { value } = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PHONES)
       .findOneAndUpdate({
         phone,
@@ -60,7 +64,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
     }
 
     const res = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USERS)
       .findOneAndUpdate({ _id: userId }, { $set: { 'profile.phone': cleandedPhoneNumber } });
     const user = res.value || {};
@@ -82,7 +86,7 @@ export default async (phone, pinCode, deviceUuid, userId) => {
     };
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_CONTACTS)
       .update({ phoneNumber: phone }, { $set: contact }, { upsert: true });
   } finally {

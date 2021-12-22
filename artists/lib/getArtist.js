@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_ARTISTS,
   COLL_PROJECTS,
-} = process.env;
+} = mongoCollections;
 
 const artistFields = [
   'artistName',
@@ -25,7 +25,7 @@ export default async (artistId, appId) => {
   const client = await MongoClient.connect();
   try {
     const artist = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_ARTISTS)
       .aggregate([
         {

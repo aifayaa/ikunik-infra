@@ -1,12 +1,15 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  COLL_BLASTS,
-  DB_NAME,
   REGION,
   STAGE,
 } = process.env;
+
+const {
+  COLL_BLASTS,
+} = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -33,7 +36,7 @@ export default async (type, message, qte, { userId, listId, projectId, appId }) 
 
     client = await MongoClient.connect();
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_BLASTS)
       .insertOne({
         message,

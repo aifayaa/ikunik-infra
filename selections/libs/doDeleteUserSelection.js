@@ -1,23 +1,24 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_MEDIUM_SELECTION_LINKS,
   COLL_SELECTIONS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
+
 export const doDeleteUserSelection = async (selectionIds, appId) => {
   const client = await MongoClient.connect();
   try {
     Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_SELECTIONS)
         .remove({
           _id: { $in: selectionIds },
           appId,
         }),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_MEDIUM_SELECTION_LINKS)
         .remove({
           selectionId: { $in: selectionIds },
@@ -33,7 +34,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
   const client = await MongoClient.connect();
   try {
     const selection = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_SELECTIONS)
       .findOne(
         {
@@ -80,7 +81,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
       },
     ];
     const [selectionIdsObj] = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_SELECTIONS)
       .aggregate(getChildSelectionIdsPipeline)
       .toArray();
@@ -90,7 +91,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
     // remove selection with all child selection
     await doDeleteUserSelection(selectionIds);
     const [remainingMedia] = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_MEDIUM_SELECTION_LINKS)
       .aggregate([
         {
@@ -108,7 +109,7 @@ export const doDeleteUserSelectionTree = async (userId, selectionId, appId) => {
       ]).toArray();
     const { mediaIds } = remainingMedia || { mediaIds: [] };
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_MEDIUM_SELECTION_LINKS)
       .updateMany({
         _id: {

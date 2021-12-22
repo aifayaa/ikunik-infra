@@ -1,11 +1,9 @@
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getAppSettings from '../../apps/lib/getAppSettings';
 
-const {
-  DB_NAME,
-  COLL_USER_GENERATED_CONTENTS,
-} = process.env;
+const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 export default async (
   appId,
@@ -45,7 +43,7 @@ export default async (
     }
 
     const _id = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
       .insertOne(userGeneratedContents);
 

@@ -3,14 +3,15 @@ import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getShopItem from './getShopItem';
 
 const {
-  COLL_SHOP_ORDERS,
-  DB_NAME,
   REGION,
   STAGE,
 } = process.env;
+
+const { COLL_SHOP_ORDERS } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -80,7 +81,7 @@ export default async (userId, productId, qty, address, variantId, appId) => {
 
     /* insert new order in db */
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_SHOP_ORDERS)
       .insertOne(orderData);
     return true;

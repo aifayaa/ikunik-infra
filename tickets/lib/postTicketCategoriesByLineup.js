@@ -1,6 +1,7 @@
 import uuidv4 from 'uuid/v4';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
@@ -44,8 +45,8 @@ export default async (
       appId,
     };
     await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_TICKET_CATEGORIES)
+      .db()
+      .collection(mongoCollections.COLL_TICKET_CATEGORIES)
       .insertOne(cat, opts);
     return catId;
   } finally {

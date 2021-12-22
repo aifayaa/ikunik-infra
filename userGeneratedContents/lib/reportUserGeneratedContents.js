@@ -1,11 +1,11 @@
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_USER_GENERATED_CONTENTS,
   COLL_USER_GENERATED_CONTENTS_REPORTS,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   appId,
@@ -20,7 +20,7 @@ export default async (
   try {
     /* Check if that UGC exists in that appId */
     const ugc = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
       .findOne({
         _id: ugcId,
@@ -44,7 +44,7 @@ export default async (
 
     /* Insert report in database */
     const _id = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_GENERATED_CONTENTS_REPORTS)
       .insertOne(ugcReport);
 

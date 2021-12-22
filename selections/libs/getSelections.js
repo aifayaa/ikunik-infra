@@ -1,7 +1,8 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async ({ type, web, mobile, root, appId }) => {
-  const { DB_NAME, COLL_SELECTIONS } = process.env;
+  const { COLL_SELECTIONS } = mongoCollections;
   const client = await MongoClient.connect();
   try {
     const selector = {
@@ -21,7 +22,7 @@ export default async ({ type, web, mobile, root, appId }) => {
       selector.isMobilePublished = { $ne: false };
     }
     const selections = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_SELECTIONS)
       .find(selector)
       .sort({ selectionRank: 1 })

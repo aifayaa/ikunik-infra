@@ -1,9 +1,8 @@
 import request from 'request-promise-native';
 import MongoClient from '../mongoClient';
+import mongoCollections from '../mongoCollections.json';
 
-const {
-  COLL_USER_BADGES,
-} = process.env;
+const { COLL_USER_BADGES } = mongoCollections;
 
 function BadgeCheckerResults({
   canList = true,

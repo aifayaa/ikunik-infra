@@ -5,14 +5,12 @@ import { expect } from 'chai';
 import AWSMock from 'aws-sdk-mock';
 import AWS from 'aws-sdk';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { sendNotificationTo } from '../../lib/snsNotifications';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  DB_NAME,
-  COLL_PUSH_NOTIFICATIONS,
-} = process.env;
+const { COLL_PUSH_NOTIFICATIONS } = mongoCollections;
 
 describe('lib - sendNotifications', () => {
   let spyMongo;
@@ -49,7 +47,7 @@ describe('lib - sendNotifications', () => {
 
     // TODO: FIX TEST (Notifications changes)
     it.skip('mongo connection done', () => {
-      sinon.assert.calledWith(spyMongo.db, DB_NAME);
+      sinon.assert.calledWith(spyMongo.db);
       sinon.assert.called(spyMongo.close);
     });
 

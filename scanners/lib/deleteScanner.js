@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
@@ -10,8 +11,8 @@ export default async (userId, profileId, scannerId, appId) => {
     session.startTransaction();
     const opts = { session };
     const scanner = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_SCANNERS)
+      .db()
+      .collection(mongoCollections.COLL_SCANNERS)
       .findOneAndDelete({
         _id: scannerId,
         appId,

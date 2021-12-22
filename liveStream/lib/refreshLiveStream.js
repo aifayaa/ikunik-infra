@@ -1,14 +1,17 @@
 import S3 from 'aws-sdk/clients/s3';
 import MediaConvert from 'aws-sdk/clients/mediaconvert';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
 
 const {
-  COLL_LIVE_STREAM,
-  DB_NAME,
   IVS_BUCKET,
   IVS_REGION,
 } = process.env;
+
+const {
+  COLL_LIVE_STREAM,
+} = mongoCollections;
 
 const s3 = new S3({
   apiVersion: '2006-03-01',
@@ -42,7 +45,7 @@ export default async (appId, liveStreamId) => {
   const client = await MongoClient.connect();
   try {
     const dbLiveStream = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .findOne({
         _id: liveStreamId,
@@ -153,7 +156,7 @@ export default async (appId, liveStreamId) => {
         dbRecordings.sort((a, b) => (a.start.getTime() - b.start.getTime()));
 
         await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_LIVE_STREAM)
           .updateOne({ _id: liveStreamId }, {
             $set: {

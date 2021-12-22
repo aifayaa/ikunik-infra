@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_ARTISTS_FAV,
-} = process.env;
+const { COLL_ARTISTS_FAV } = mongoCollections;
 
 export default async (userId, artistId, appId, isFavorite) => {
   const client = await MongoClient.connect();
@@ -17,7 +15,7 @@ export default async (userId, artistId, appId, isFavorite) => {
 
   try {
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_ARTISTS_FAV)
       .update({
         userId,

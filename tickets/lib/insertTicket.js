@@ -1,10 +1,8 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_TICKETS,
-  DB_NAME,
-} = process.env;
+const { COLL_TICKETS } = mongoCollections;
 
 export default async (
   categoryId,
@@ -36,7 +34,7 @@ export default async (
       appId,
     };
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_TICKETS)
       .insertOne(ticket, opts);
     return ticketId;

@@ -1,16 +1,19 @@
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getAppInfos from '../../apps/lib/getAppInfos';
 import generatePinCode from './generatePinCode';
 
 const {
-  COLL_PHONES,
-  DB_NAME,
   SNS_KEY_ID,
   SNS_REGION,
   SNS_SECRET,
 } = process.env;
+
+const {
+  COLL_PHONES,
+} = mongoCollections;
 
 export default async (phone, appId) => {
   const { name = 'Crowdaa' } = await getAppInfos(appId);
@@ -33,7 +36,7 @@ export default async (phone, appId) => {
   const client = await MongoClient.connect();
   try {
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PHONES)
       .insertOne(phoneObj);
     const cleanded = phoneCleaner(phone, '');
@@ -54,7 +57,7 @@ export default async (phone, appId) => {
       PhoneNumber: cleandedNumber,
     };
     await sns.publish(params).promise();
-    await client.db(DB_NAME).collection(COLL_PHONES)
+    await client.db().collection(COLL_PHONES)
       .update({
         phone,
         pinCode,

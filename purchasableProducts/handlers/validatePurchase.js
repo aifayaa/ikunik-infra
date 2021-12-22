@@ -1,16 +1,15 @@
 import get from 'lodash/get';
 import iap from 'in-app-purchase';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { addBalance } from '../../userBalances/lib/addBalance';
 import { addPurchaseHistory } from '../lib/addPurchaseHistory';
 import response from '../../libs/httpResponses/response';
 import articlePrices from '../../pressArticles/articlePrices.json';
 
-const {
-  COLL_APPS,
-  DB_NAME,
-  STAGE,
-} = process.env;
+const { STAGE } = process.env;
+
+const { COLL_APPS } = mongoCollections;
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -24,7 +23,7 @@ export default async (event) => {
     const bodyParsed = JSON.parse(event.body);
 
     const appInfo = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_APPS)
       .findOne({ _id: appId }, {
         projection: {

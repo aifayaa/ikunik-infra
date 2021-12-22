@@ -1,6 +1,7 @@
 import moment from 'moment';
 import QRCode from 'qrcode';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import generateIntId from './generateIntId';
 import generateTicket from './generateTicket';
@@ -9,10 +10,7 @@ import getTicketInfos from './getTicketInfos';
 import insertTicket from './insertTicket';
 import removeCredits from '../../credits/lib/removeCredits';
 
-const {
-  DB_NAME,
-  COLL_TICKET_CATEGORIES,
-} = process.env;
+const { COLL_TICKET_CATEGORIES } = mongoCollections;
 
 // To avoid getting a warning with lint
 const jsConsole = console;
@@ -50,7 +48,7 @@ export default async (userId, appId, categoryId, lastName, firstName, email, opt
     if (!hasUpperSession) session.startTransaction();
     opts = { session, returnOriginal: false };
     const ticketCat = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_TICKET_CATEGORIES)
       .findOneAndUpdate({
         _id: categoryId,

@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const { DB_NAME, COLL_USERS } = process.env;
+const { COLL_USERS } = mongoCollections;
 
 const bcryptRounds = 10;
 
@@ -72,7 +73,7 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
     }
     try {
       await mongoClient
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USERS)
         .updateOne(
           { _id: user._id },

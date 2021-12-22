@@ -1,10 +1,8 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import tosFields from '../tosFields.json';
 
-const {
-  COLL_TOS,
-  DB_NAME,
-} = process.env;
+const { COLL_TOS } = mongoCollections;
 
 export const getTos = async (appId, tosId, options = {}) => {
   const query = {
@@ -29,7 +27,7 @@ export const getTos = async (appId, tosId, options = {}) => {
   const client = await MongoClient.connect();
   try {
     const tos = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_TOS)
       .find(query, {
         projection,

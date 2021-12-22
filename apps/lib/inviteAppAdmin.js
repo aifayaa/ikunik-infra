@@ -1,4 +1,5 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
 import { register } from '../../auth/lib/register';
 import Random from '../../libs/account_utils/random';
@@ -6,12 +7,15 @@ import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const {
   ADMIN_APP,
-  COLL_APPS,
-  COLL_PERM_GROUPS,
-  COLL_USERS,
   REACT_APP_PRESS_SERVICE_URL,
   REACT_APP_AUTH_URL,
 } = process.env;
+
+const {
+  COLL_APPS,
+  COLL_PERM_GROUPS,
+  COLL_USERS,
+} = mongoCollections;
 
 function sendNewAccountPassword(app, email, lang, {
   firstname,

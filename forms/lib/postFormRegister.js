@@ -1,10 +1,8 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
 
-const COLL_FORMS = 'forms';
-// const {
-//   COLL_FORMS,
-// } = process.env;
+const { COLL_FORMS } = mongoCollections;
 
 export default async (data = {}) => {
   const client = await MongoClient.connect();

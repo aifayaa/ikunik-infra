@@ -1,7 +1,9 @@
 import MongoClient from '../libs/mongoClient';
+import mongoCollections from '../libs/mongoCollections.json';
 import response from '../libs/httpResponses/response';
 
-const { DB_NAME, COLL_BANNERS } = process.env;
+const { COLL_BANNERS } = mongoCollections;
+
 const doGetBanners = async (appId) => {
   const client = await MongoClient.connect();
   try {
@@ -9,7 +11,7 @@ const doGetBanners = async (appId) => {
       appId,
     };
 
-    const banners = await client.db(DB_NAME).collection(COLL_BANNERS)
+    const banners = await client.db().collection(COLL_BANNERS)
       .find(selector, { sort: [['date', -1]] }).toArray();
     return { banners };
   } finally {

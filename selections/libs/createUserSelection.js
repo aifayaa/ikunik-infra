@@ -1,4 +1,5 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import generatePatchUserSelection from './generatePatchUserSelection';
 import getSelectionSubscriptions from './getSelectionSubscriptions';
 import patchUserSelection from './patchUserSelection';
@@ -6,8 +7,7 @@ import patchUserSelection from './patchUserSelection';
 const {
   COLL_SELECTIONS,
   COLL_SUBSCRIPTIONS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (name, userId, parent, appId) => {
   const client = await MongoClient.connect();
@@ -42,7 +42,7 @@ export default async (name, userId, parent, appId) => {
     };
     if (parent) {
       const parentSelection = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_SELECTIONS)
         .findOne({
           _id: parent,
@@ -63,11 +63,11 @@ export default async (name, userId, parent, appId) => {
       parent
         ? generatePatchUserSelection(parent, userId, appId, undefined, [selection._id], 'add')
         : client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_SUBSCRIPTIONS)
           .insertMany(subscriptions),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_SELECTIONS)
         .insertOne(selection),
     ]);

@@ -6,7 +6,6 @@ import uploadStatus from '../uploadStatus.json';
 import transcoderPresets from './elasticTranscoderPresets.json';
 
 const {
-  DB_NAME,
   EL_PIPELINE,
   EL_PIPELINE_REGION,
   STAGE,
@@ -32,7 +31,7 @@ export default async (bucket, object, file) => {
   try {
     /* Get existing document and check it exists */
     const collection = getCollectionFromContentType(type);
-    const document = await client.db(DB_NAME)
+    const document = await client.db()
       .collection(collection)
       .findOne({
         _id: id,
@@ -44,7 +43,7 @@ export default async (bucket, object, file) => {
 
     /* Check content type match */
     if (type !== file.ContentType) {
-      await client.db(DB_NAME)
+      await client.db()
         .collection(collection)
         .updateOne(
           { _id: document._id },
@@ -66,7 +65,7 @@ export default async (bucket, object, file) => {
       status: uploadStatus.ENCODING,
     });
 
-    await client.db(DB_NAME)
+    await client.db()
       .collection(collection)
       .updateOne(
         { _id: document._id },
@@ -106,7 +105,7 @@ export default async (bucket, object, file) => {
     try {
       await elasticTranscoder.createJob(params).promise();
     } catch (e) {
-      await client.db(DB_NAME)
+      await client.db()
         .collection(collection)
         .updateOne(
           { _id: document._id },

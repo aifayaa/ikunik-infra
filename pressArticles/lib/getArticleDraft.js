@@ -1,16 +1,16 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_PRESS_CATEGORIES,
   COLL_PRESS_DRAFTS,
   COLL_PURCHASABLE_PRODUCT,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export const getArticleDraft = async (articleId, appId) => {
   const client = await MongoClient.connect();
   try {
-    const articles = await client.db(DB_NAME)
+    const articles = await client.db()
       .collection(COLL_PRESS_DRAFTS)
       .aggregate([
         {
@@ -40,7 +40,7 @@ export const getArticleDraft = async (articleId, appId) => {
     const article = articles[0];
 
     if (article.productId) {
-      const product = await client.db(DB_NAME)
+      const product = await client.db()
         .collection(COLL_PURCHASABLE_PRODUCT)
         .findOne({
           _id: article.productId,

@@ -1,7 +1,6 @@
-const {
-  COLL_PRESS_CATEGORIES,
-  DB_NAME,
-} = process.env;
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_PRESS_CATEGORIES } = mongoCollections;
 
 export default async (mongoClient, appId, name, pathName, id) => {
   /* Request for categories having the same appId and pathName */
@@ -12,7 +11,7 @@ export default async (mongoClient, appId, name, pathName, id) => {
   };
 
   if (id) queryExists._id = { $ne: id };
-  const categoryFound = await mongoClient.db(DB_NAME)
+  const categoryFound = await mongoClient.db()
     .collection(COLL_PRESS_CATEGORIES)
     .findOne(queryExists);
 

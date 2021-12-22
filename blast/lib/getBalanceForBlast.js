@@ -1,12 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_BALANCE_EMAILS,
   COLL_BALANCE_MESSAGES,
   COLL_BALANCE_NOTIFS,
   COLL_PROFILES,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (profileId, type, appId) => {
   let client;
@@ -69,7 +69,7 @@ export default async (profileId, type, appId) => {
   try {
     client = await MongoClient.connect();
     const record = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PROFILES)
       .aggregate(pipeline)
       .toArray();

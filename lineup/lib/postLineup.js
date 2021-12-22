@@ -2,6 +2,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import {
   getRuleName,
   getTargetId,
@@ -11,9 +12,11 @@ import {
 const {
   REGION,
   STAGE,
-  DB_NAME,
-  COLL_LINEUPS,
 } = process.env;
+
+const {
+  COLL_LINEUPS,
+} = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -91,7 +94,7 @@ export default async (
   };
   try {
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LINEUPS)
       .insertOne(lineup);
     return lineup;

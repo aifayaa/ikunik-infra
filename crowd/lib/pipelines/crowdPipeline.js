@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 const {
   COLL_CONTENT_BY_USER_METRIC,
@@ -7,7 +8,7 @@ const {
   COLL_VIDEOS,
   COLL_USERS,
   COLL_PUSH_NOTIFICATIONS,
-} = process.env;
+} = mongoCollections;
 
 const pipelineLocationStart = (userId, appId, coordinates, range) => [
   {

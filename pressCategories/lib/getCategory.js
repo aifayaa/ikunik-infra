@@ -1,10 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const { COLL_PRESS_CATEGORIES, DB_NAME } = process.env;
+const { COLL_PRESS_CATEGORIES } = mongoCollections;
 
 export default async (appId, catId) => {
   const client = await MongoClient.connect();
-  const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
+  const collection = client.db().collection(COLL_PRESS_CATEGORIES);
 
   try {
     const categoryWithParent = await collection

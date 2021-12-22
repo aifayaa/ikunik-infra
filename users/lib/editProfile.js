@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-  DB_NAME,
-} = process.env;
+const { COLL_USERS } = mongoCollections;
 
 export default async (userId, appId, {
   username,
@@ -15,7 +13,7 @@ export default async (userId, appId, {
 
   try {
     const { matchedCount } = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USERS)
       .updateOne({
         _id: userId,

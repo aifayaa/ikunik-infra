@@ -1,12 +1,12 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
-} = process.env;
+} = mongoCollections;
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -106,7 +106,7 @@ export const postArticle = async ({
     session = client.startSession();
     session.startTransaction();
     const opts = { session, returnOriginal: false };
-    await client.db(DB_NAME)
+    await client.db()
       .collection(COLL_PRESS_ARTICLES)
       .insertOne(article, opts);
 
@@ -114,7 +114,7 @@ export const postArticle = async ({
     article.articleId = articleId;
     article._id = draftId;
     article.ancestor = null;
-    await client.db(DB_NAME)
+    await client.db()
       .collection(COLL_PRESS_DRAFTS)
       .insertOne(article, opts);
 

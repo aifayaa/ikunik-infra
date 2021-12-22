@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_BLASTS,
-  DB_NAME,
-} = process.env;
+const { COLL_BLASTS } = mongoCollections;
 
 export default async (userId, appId, {
   limit, skip, sortBy, sortOrder, type,
@@ -21,7 +19,7 @@ export default async (userId, appId, {
     skip = parseInt(skip, 10) || 0;
     if (sortBy && sortOrder) sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
 
-    const [record] = await client.db(DB_NAME).collection(COLL_BLASTS)
+    const [record] = await client.db().collection(COLL_BLASTS)
       .aggregate([
         { $match: selector },
         { $sort: sort },

@@ -1,10 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   ADMIN_APP,
-  COLL_USERS,
-  DB_NAME,
 } = process.env;
+
+const {
+  COLL_USERS,
+} = mongoCollections;
 
 export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
@@ -21,7 +24,7 @@ export default async (hashedToken, appId) => {
     }
 
     const user = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USERS)
       .findOne(
         conds,

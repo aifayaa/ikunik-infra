@@ -2,15 +2,15 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { unpublishArticle } from '../../lib/unpublishArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  DB_NAME,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_DRAFTS,
-} = process.env;
+} = mongoCollections;
 
 describe('lib - unpublishArticle', () => {
   let spyMongo;
@@ -40,7 +40,7 @@ describe('lib - unpublishArticle', () => {
 
   // TODO: FIX TEST (Prints an exception)
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.startSession);
     sinon.assert.called(spyMongo.startTransaction);
     sinon.assert.called(spyMongo.commitTransaction);

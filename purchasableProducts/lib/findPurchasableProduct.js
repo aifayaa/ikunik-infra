@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PURCHASABLE_PRODUCT,
-  DB_NAME,
-} = process.env;
+const { COLL_PURCHASABLE_PRODUCT } = mongoCollections;
 
 export const findPurchasableProduct = async (
   appId,
@@ -24,7 +22,7 @@ export const findPurchasableProduct = async (
 
   try {
     const product = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PURCHASABLE_PRODUCT)
       .findOne(query, {
         sort: { createdAt: -1 },

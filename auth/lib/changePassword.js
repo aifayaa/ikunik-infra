@@ -1,19 +1,19 @@
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { hashPassword, checkPassword } from './password';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const {
-  DB_NAME,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 export const changePassword = async (userId, oldPassword, password, appId, lang) => {
   const client = await MongoClient.connect();
 
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
+    const usersCollection = client.db().collection(COLL_USERS);
     const user = await usersCollection.findOne(
       {
         _id: userId,

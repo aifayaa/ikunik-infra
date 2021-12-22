@@ -1,16 +1,16 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_APPS,
-} = process.env;
+} = mongoCollections;
 
 export default async (appId, allSettings = false) => {
   let client;
   try {
     client = await MongoClient.connect();
 
-    const application = await client.db(DB_NAME)
+    const application = await client.db()
       .collection(COLL_APPS)
       .findOne({
         _id: appId,

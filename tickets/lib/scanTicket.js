@@ -1,18 +1,18 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_TICKETS,
   COLL_TICKET_CATEGORIES,
   COLL_SCANNERS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (ticketSerial, scannerId, appId) => {
   const client = await MongoClient.connect();
   try {
     const [[ticket], scanner] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_TICKETS)
         .aggregate([
           {
@@ -32,7 +32,7 @@ export default async (ticketSerial, scannerId, appId) => {
           { $unwind: '$category' },
         ]).toArray(),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_SCANNERS)
         .findOne({
           _id: scannerId,
@@ -47,7 +47,7 @@ export default async (ticketSerial, scannerId, appId) => {
     if (scanner.lineupId !== ticket.category.lineupId) throw new Error('scanner_unauthorized');
 
     const updatedTicket = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_TICKETS)
       .findOneAndUpdate({
         _id: ticket._id,

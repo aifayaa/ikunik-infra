@@ -1,18 +1,20 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { SAFE_ORDER_NUMBER } = process.env;
 
 const {
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
-  DB_NAME,
-  SAFE_ORDER_NUMBER,
-} = process.env;
+} = mongoCollections;
+
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async (appId, categoryId) => {
   const client = await MongoClient.connect();
 
   try {
-    const collection = client.db(DB_NAME).collection(COLL_PRESS_CATEGORIES);
+    const collection = client.db().collection(COLL_PRESS_CATEGORIES);
 
     const previousCategoryValues = await collection.findOne(
       { _id: categoryId, appId },
@@ -61,7 +63,7 @@ export default async (appId, categoryId) => {
     const resultDelete = await bulk.execute();
 
     const resultTrashed = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .updateMany(
         {

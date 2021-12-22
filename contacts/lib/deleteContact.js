@@ -1,14 +1,15 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_CONTACTS,
   COLL_ARTIST_CONTACT_LIST,
-} = process.env;
+} = mongoCollections;
+
 export default async (_userId, profileId, contactId, appId) => {
   const client = await MongoClient.connect();
   try {
-    await client.db(DB_NAME)
+    await client.db()
       .collection(COLL_CONTACTS)
       .deleteOne({
         _id: contactId,
@@ -18,7 +19,7 @@ export default async (_userId, profileId, contactId, appId) => {
 
     // Updates all contact lists
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_ARTIST_CONTACT_LIST)
       .updateMany({
         appId,
