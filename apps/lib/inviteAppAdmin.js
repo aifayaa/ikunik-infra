@@ -35,7 +35,7 @@ function sendNewAccountPassword(app, email, lang, {
       firstname,
       pwd: password,
       url: `${REACT_APP_PRESS_SERVICE_URL}/${app._id}`,
-      authUrl: `${REACT_APP_AUTH_URL}//password-forgot?skipPhoneRegister=true&redirect_uri=${REACT_APP_PRESS_SERVICE_URL}/${app._id}/home`,
+      authUrl: `${REACT_APP_AUTH_URL}/password-forgot?skipPhoneRegister=true&redirect_uri=${REACT_APP_PRESS_SERVICE_URL}/${app._id}/home`,
     },
     {
       bcc: 'vigile@crowdaa.com, ob@crowdaa.com, eric.eloy@crowdaa.com',
