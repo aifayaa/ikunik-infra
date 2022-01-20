@@ -37,13 +37,21 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
       },
     },
     {
+      $lookup: {
+        from: mongoCollections.COLL_WEBSITES,
+        localField: '_id',
+        foreignField: 'appId',
+        as: 'websites',
+      },
+    },
+    {
       $project: {
         _id: 1,
         name: 1,
-        'website.dns.internal.name': 1,
-        'website.eb.env.cname': 1,
-        'website.ssl.domains': 1,
-        'website.type': 1,
+        'websites._id': 1,
+        'websites.dns.internal.name': 1,
+        'websites.ssl.domains': 1,
+        'websites.type': 1,
       },
     },
   ];

@@ -53,13 +53,14 @@
   "COLL_TOKEN_PACKAGES": "tokenPackages",
   "COLL_TOS": "termsOfServices",
   "COLL_USERS": "users",
+  "COLL_USER_BADGES": "userBadges",
   "COLL_USER_BALANCES": "userBalances",
   "COLL_USER_GENERATED_CONTENTS": "userGeneratedContents",
   "COLL_USER_GENERATED_CONTENTS_REPORTS": "ugcReports",
   "COLL_USER_HISTORY": "userHistory",
   "COLL_USER_METRICS": "userMetrics",
-  "COLL_USER_BADGES": "userBadges",
   "COLL_USER_SUBSCRIPTIONS": "userSubscriptions",
   "COLL_VIDEOS": "video",
-  "COLL_VIEWS": "views"
+  "COLL_VIEWS": "views",
+  "COLL_WEBSITES": "websites"
 }
