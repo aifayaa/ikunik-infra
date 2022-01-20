@@ -1,5 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 
+const COLL_WEBSITES = 'websites';
+
 export default async (userId, { sortBy, sortOrder } = {}) => {
   const client = await MongoClient.connect();
   const pipeline = [
@@ -37,7 +39,7 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
     },
     {
       $lookup: {
-        from: process.env.COLL_WEBSITES,
+        from: COLL_WEBSITES,
         localField: '_id',
         foreignField: 'appId',
         as: 'websites',
