@@ -44,11 +44,6 @@ const searchArticle = async (
         $match,
       },
       {
-        $sort: {
-          createdAt: 1,
-        },
-      },
-      {
         $lookup: {
           from: 'pressCategories',
           localField: 'categoryId',
@@ -89,6 +84,11 @@ const searchArticle = async (
       },
       {
         $group: pictureGroup,
+      },
+      {
+        $sort: {
+          publicationDate: -1,
+        },
       },
       {
         $group: {
