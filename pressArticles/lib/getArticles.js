@@ -20,13 +20,14 @@ export const getArticles = async (
   limit,
   appId,
   {
-    onlyPublished = true,
-    getPictures = false,
+    checkBadges = true,
     getOrphansArticles = false,
-    showWithHiddenCategories = false,
-    showHiddenOnFeed = false,
-    reversedSort = false,
+    getPictures = false,
     noDateFilter = false,
+    onlyPublished = true,
+    reversedSort = false,
+    showHiddenOnFeed = false,
+    showWithHiddenCategories = false,
     userId,
   },
 ) => {
@@ -369,7 +370,7 @@ export const getArticles = async (
         .findOne({ _id: userId })
       : null;
 
-    if (!user || user.appId !== ADMIN_APP) {
+    if (checkBadges && (!user || user.appId !== ADMIN_APP)) {
       const userBadges = (user && user.badges) || [];
 
       const articleRequires = (article, what, requiredElements) => {
