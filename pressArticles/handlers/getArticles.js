@@ -3,7 +3,7 @@ import { getArticles } from '../lib/getArticles';
 
 export default async (event) => {
   try {
-    const { resource } = event;
+    const { resource = '/press/articles/v2' } = event;
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const {
       category,
