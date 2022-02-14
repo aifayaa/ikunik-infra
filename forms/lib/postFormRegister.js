@@ -1,5 +1,6 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const COLL_FORMS = 'forms';
 // const {
@@ -28,10 +29,12 @@ export default async (data = {}) => {
 
     const lang = ((['fr', 'en'].indexOf(data.region) >= 0) ? data.region : 'en');
 
+    await intlInit(lang);
+
     await sendEmailMailgunTemplate(
       'No reply <support@crowdaa.com>',
       'support@crowdaa.com',
-      'Register',
+      formatMessage('forms:postFormRegisterEmail.title'),
       `send_register_crowdaa_team_${lang}`,
       data,
       {
@@ -42,7 +45,7 @@ export default async (data = {}) => {
     await sendEmailMailgunTemplate(
       'No reply <support@crowdaa.com>',
       data.email,
-      'Register',
+      formatMessage('forms:postFormRegisterEmail.title'),
       `send_register_crowdaa_owner_${lang}`,
       data,
       {
