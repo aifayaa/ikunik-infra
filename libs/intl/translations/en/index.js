@@ -93,4 +93,9 @@ export default {
     view_stream_html_page: liveStreamView,
     view_recording_html_page: liveStreamRecordingView,
   },
+  forms: {
+    postFormRegisterEmail: {
+      title: 'Crowdaa || Summary of your account creation',
+    },
+  },
 };
