@@ -1,14 +1,16 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getPayout from './getPayout';
 
 const {
-  COLL_PAYOUTS,
-  DB_NAME,
   REGION,
   STAGE,
 } = process.env;
+
+const { COLL_PAYOUTS } = mongoCollections;
+
 const lambda = new Lambda({
   region: REGION,
 });
@@ -67,7 +69,7 @@ export default async (id, resp, appId) => {
     }
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PAYOUTS)
       .updateOne({ _id: id, appId }, { $set: patch });
     return true;

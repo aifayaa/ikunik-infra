@@ -1,10 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (selectionId, userId, appId) => {
   const client = await MongoClient.connect();
   try {
-    const [{ subscriptions } = {}] = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_SELECTIONS)
+    const [{ subscriptions } = {}] = await client.db()
+      .collection(mongoCollections.COLL_SELECTIONS)
       .aggregate([
         {
           $match: {
@@ -21,7 +22,7 @@ export default async (selectionId, userId, appId) => {
         },
         {
           $lookup: {
-            from: process.env.COLL_SUBSCRIPTIONS,
+            from: mongoCollections.COLL_SUBSCRIPTIONS,
             localField: 'subscriptionIds',
             foreignField: '_id',
             as: 'subscription',

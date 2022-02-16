@@ -1,3 +1,4 @@
+import mongoCollections from '../../libs/mongoCollections.json';
 import articlePrices from '../articlePrices.json';
 import response from '../../libs/httpResponses/response';
 import { addBalance } from '../../userBalances/lib/addBalance';
@@ -5,7 +6,7 @@ import { getArticle } from '../lib/getArticle';
 import { getBalance } from '../../userBalances/lib/getBalance';
 import { setContentPermissions } from '../../contentPermissions/lib/setContentPermissions';
 
-const { COLL_PRESS_ARTICLES } = process.env;
+const { COLL_PRESS_ARTICLES } = mongoCollections;
 
 export default async (event) => {
   const articleId = event.pathParameters.id;

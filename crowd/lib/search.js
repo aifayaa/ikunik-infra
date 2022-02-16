@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_PROJECTS,
-} = process.env;
+const { COLL_PROJECTS } = mongoCollections;
 
 export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
   if (page && typeof page !== 'number') page = parseInt(page, 10);
@@ -60,7 +58,7 @@ export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserI
         },
       },
     );
-    const [result] = await client.db(DB_NAME)
+    const [result] = await client.db()
       .collection(coordinates ? 'users' : COLL_PROJECTS).aggregate(pipeline)
       .toArray();
     const { crowd, fancount } = result || { crowd: [], fancount: 0 };

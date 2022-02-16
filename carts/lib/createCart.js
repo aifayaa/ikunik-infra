@@ -1,14 +1,12 @@
 import { PromisePoolExecutor } from 'promise-pool-executor';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import getPackage from '../../credits/lib/getPackage';
 import getTicketCategory from '../../tickets/lib/getTicketCategory';
 
-const {
-  DB_NAME,
-  COLL_CARTS,
-} = process.env;
+const { COLL_CARTS } = mongoCollections;
 
 const getPricing = async (id, appId, type, opts) => {
   switch (type) {
@@ -70,7 +68,7 @@ export default async (
       userId,
       appId,
     };
-    await client.db(DB_NAME).collection(COLL_CARTS)
+    await client.db().collection(COLL_CARTS)
       .insertOne(cart, opts);
     return cartId;
   } finally {

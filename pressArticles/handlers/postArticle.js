@@ -34,6 +34,7 @@ export default async (event) => {
 
     let actions;
     let badges;
+    let badgesAllow;
     let categoryId;
     let feedPicture;
     let hideFromFeed;
@@ -58,6 +59,7 @@ export default async (event) => {
         ({
           actions,
           badges,
+          badgesAllow,
           categoryId,
           feedPicture,
           hideFromFeed,
@@ -154,6 +156,7 @@ export default async (event) => {
       actions,
       appId,
       badges: badges || [],
+      badgesAllow: badgesAllow || 'any',
       categoryId,
       feedPicture,
       hideFromFeed: !!hideFromFeed,

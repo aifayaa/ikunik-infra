@@ -1,11 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (appId) => {
   const client = await MongoClient.connect();
   try {
     const genres = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_GENRES)
+      .db()
+      .collection(mongoCollections.COLL_GENRES)
       .find({ appId })
       .toArray();
     return { genres };

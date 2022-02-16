@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_PUSH_NOTIFICATIONS,
   COLL_USER_METRICS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   appId,
@@ -19,7 +19,7 @@ export default async (
       userMetricsResults,
     ] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PUSH_NOTIFICATIONS)
         .updateMany(
           {
@@ -29,7 +29,7 @@ export default async (
           { $set: { userId } },
         ),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USER_METRICS)
         .updateMany(
           {

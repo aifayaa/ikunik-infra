@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { postArticle } from '../../lib/postArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
@@ -9,7 +10,7 @@ import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 const {
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
-} = process.env;
+} = mongoCollections;
 
 describe('lib - postArticle', () => {
   let spyMongo;

@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (pack, userId, profileId, appId) => {
   const client = await MongoClient.connect();
@@ -13,8 +14,8 @@ export default async (pack, userId, profileId, appId) => {
     delete purchase._id;
 
     await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_PACKAGE_PURCHASES)
+      .db()
+      .collection(mongoCollections.COLL_PACKAGE_PURCHASES)
       .insertOne(purchase);
     return true;
   } finally {

@@ -1,11 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (appId) => {
   const client = await MongoClient.connect();
   try {
     return await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_MAINTENANCE)
+      .db()
+      .collection(mongoCollections.COLL_MAINTENANCE)
       .findOne({
         active: true,
         appId,

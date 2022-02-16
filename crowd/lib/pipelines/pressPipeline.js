@@ -1,10 +1,12 @@
+import mongoCollections from '../../../libs/mongoCollections.json';
+
 const {
   COLL_DEVICES,
   COLL_PRESS_ARTICLES,
   COLL_PUSH_NOTIFICATIONS,
   COLL_USERS,
   COLL_USER_METRICS,
-} = process.env;
+} = mongoCollections;
 
 const useLocationPipeline = (userId, appId, coordinates, range, articleId) => {
   const $matchOnUserMetrics = {

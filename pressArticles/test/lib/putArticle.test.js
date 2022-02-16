@@ -2,14 +2,12 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { putArticle } from '../../lib/putArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  DB_NAME,
-  COLL_PRESS_DRAFTS,
-} = process.env;
+const { COLL_PRESS_DRAFTS } = mongoCollections;
 
 describe('lib - putArticle', () => {
   let spyMongo;
@@ -48,7 +46,7 @@ describe('lib - putArticle', () => {
 
   // TODO: FIX TEST (This it() fails if the first one is not executed, fix it!)
   it.skip('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.close);
   });
 

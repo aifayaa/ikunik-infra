@@ -2,15 +2,15 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { removeArticle } from '../../lib/removeArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
 const {
-  DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
-} = process.env;
+} = mongoCollections;
 
 describe('lib - removeArticle', () => {
   let spyMongo;
@@ -39,7 +39,7 @@ describe('lib - removeArticle', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.startSession);
     sinon.assert.called(spyMongo.startTransaction);
     sinon.assert.called(spyMongo.commitTransaction);

@@ -1,6 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-
-const COLL_WEBSITES = 'websites';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (userId, { sortBy, sortOrder } = {}) => {
   const client = await MongoClient.connect();
@@ -12,7 +11,7 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
     },
     {
       $lookup: {
-        from: process.env.COLL_PERM_GROUPS,
+        from: mongoCollections.COLL_PERM_GROUPS,
         localField: 'permGroupIds',
         foreignField: '_id',
         as: 'permGroup',
@@ -21,7 +20,7 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
     { $unwind: '$permGroup' },
     {
       $lookup: {
-        from: process.env.COLL_APPS,
+        from: mongoCollections.COLL_APPS,
         localField: 'permGroup.appId',
         foreignField: '_id',
         as: 'appOfPermGroup',
@@ -39,7 +38,7 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
     },
     {
       $lookup: {
-        from: COLL_WEBSITES,
+        from: mongoCollections.COLL_WEBSITES,
         localField: '_id',
         foreignField: 'appId',
         as: 'websites',
@@ -59,8 +58,8 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
   if (sortBy && sortOrder) pipeline.push({ $sort: { [sortBy]: (sortOrder === 'desc' ? 1 : -1) } });
   try {
     const appsOwnedByUser = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_USERS)
+      .db()
+      .collection(mongoCollections.COLL_USERS)
       .aggregate(pipeline, { collation: { locale: 'en' } })
       .toArray();
 

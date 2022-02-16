@@ -1,14 +1,16 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { manageArticleProduct } from './manageArticleProduct';
 
-const { DB_NAME, COLL_PRESS_DRAFTS } = process.env;
+const { COLL_PRESS_DRAFTS } = mongoCollections;
 
 export const putArticle = async ({
   actions,
   appId,
   articleId,
   badges = [],
+  badgesAllow = 'any',
   categoryId,
   feedPicture,
   hideFromFeed,
@@ -45,7 +47,7 @@ export const putArticle = async ({
   const client = await MongoClient.connect();
   try {
     const currentArticle = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_DRAFTS)
       .findOne({ articleId }, { sort: { createdAt: -1 } });
 
@@ -65,7 +67,7 @@ export const putArticle = async ({
       articleId,
       badges: {
         list: badges.map((id) => ({ id })),
-        allow: 'any',
+        allow: badgesAllow,
       },
       categoryId,
       createdAt: new Date(),
@@ -93,7 +95,7 @@ export const putArticle = async ({
       draft.feedPicture = feedPicture;
     }
 
-    await client.db(DB_NAME).collection(COLL_PRESS_DRAFTS).insertOne(draft);
+    await client.db().collection(COLL_PRESS_DRAFTS).insertOne(draft);
 
     return { articleId, draftId };
   } finally {

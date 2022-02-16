@@ -1,18 +1,21 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import { URL } from 'url';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 import isMediaLocked from './isMediaLocked';
 
 const {
-  COLL_AUDIOS,
-  COLL_PICTURES,
-  COLL_VIDEOS,
-  DB_NAME,
   STAGE,
   REGION,
 } = process.env;
+
+const {
+  COLL_AUDIOS,
+  COLL_PICTURES,
+  COLL_VIDEOS,
+} = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -29,24 +32,24 @@ export default async (userId, appId, mediumType, mediumId) => {
     switch (mediumType) {
       case 'audio':
         medium = await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_AUDIOS)
           .findOne(query);
         break;
       case 'video':
         medium = await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_VIDEOS)
           .findOne(query);
         break;
       case 'all':
         medium = await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_AUDIOS)
           .findOne(query);
         if (!medium) {
           medium = await client
-            .db(DB_NAME)
+            .db()
             .collection(COLL_VIDEOS)
             .findOne(query);
         }
@@ -58,7 +61,7 @@ export default async (userId, appId, mediumType, mediumId) => {
     if (medium.pictureId) {
       // get picture
       const picture = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PICTURES)
         .findOne({ _id: medium.pictureId });
       if (picture) {

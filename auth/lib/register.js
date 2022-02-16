@@ -3,6 +3,7 @@
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { hashPassword } from './password';
 import Random from '../../libs/account_utils/random';
 import checkForCaseInsensitiveUserDuplicates from './checkForCaseInsensitiveUserDuplicates';
@@ -10,10 +11,13 @@ import { wordpressRegister } from './backends/wordpressRegister';
 
 const {
   ADMIN_APP,
-  DB_NAME,
-  COLL_USERS,
-  COLL_APPS,
 } = process.env;
+
+const {
+  COLL_USERS,
+  COLL_USER_BADGES,
+  COLL_APPS,
+} = mongoCollections;
 
 export const register = async (
   rawEmail,
@@ -26,8 +30,9 @@ export const register = async (
   const client = await MongoClient.connect();
 
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
-    const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
+    const usersCollection = client.db().collection(COLL_USERS);
+    const appsCollection = client.db().collection(COLL_APPS);
+    const badgesCollection = client.db().collection(COLL_USER_BADGES);
 
     const app = await appsCollection.findOne(
       { _id: appId },
@@ -74,6 +79,11 @@ export const register = async (
     } else {
       userId = Random.id();
 
+      const badges = (await badgesCollection
+        .find({ appId, isDefault: true })
+        .toArray())
+        .map((badge) => ({ id: badge._id }));
+
       const newUser = {
         _id: userId,
         createdAt: new Date(),
@@ -90,6 +100,7 @@ export const register = async (
           lastname,
           username,
         },
+        badges,
       };
 
       // Perform a case insensitive check before insert

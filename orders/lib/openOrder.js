@@ -1,14 +1,15 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import creditsPacks from './creditsPacks.json';
 
 const {
   REGION,
   IOS_FEES,
-  DB_NAME,
-  COLL_NAME,
   STAGE,
 } = process.env;
+
+const { COLL_NAME } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -37,7 +38,7 @@ export default async (creditPackId, userId) => {
       status: 'paid',
     };
 
-    await client.db(DB_NAME).collection(COLL_NAME)
+    await client.db().collection(COLL_NAME)
       .insertOne(billing);
 
     const params = {

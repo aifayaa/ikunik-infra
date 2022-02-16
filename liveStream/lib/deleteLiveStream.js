@@ -1,11 +1,10 @@
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_LIVE_STREAM,
-  DB_NAME,
-  IVS_REGION,
-} = process.env;
+const { IVS_REGION } = process.env;
+
+const { COLL_LIVE_STREAM } = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -16,7 +15,7 @@ export default async (appId, liveStreamId) => {
   const client = await MongoClient.connect();
   try {
     const dbLiveStream = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .findOne({
         _id: liveStreamId,
@@ -54,7 +53,7 @@ export default async (appId, liveStreamId) => {
     }
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .deleteOne({ _id: liveStreamId });
 

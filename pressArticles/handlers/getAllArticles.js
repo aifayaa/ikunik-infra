@@ -6,7 +6,7 @@ const permKey = 'pressArticles_all';
 
 export default async (event) => {
   try {
-    const { appId } = event.requestContext.authorizer;
+    const { appId, principalId: userId } = event.requestContext.authorizer;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
     const { category = null, start, limit } = event.queryStringParameters || {};
     if (!checkPerms(permKey, perms)) {
@@ -17,6 +17,7 @@ export default async (event) => {
       getOrphansArticles: (!category),
       showWithHiddenCategories: true,
       showHiddenOnFeed: true,
+      userId,
     });
     return response({ code: 200, body: results });
   } catch (e) {

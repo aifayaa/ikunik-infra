@@ -1,14 +1,15 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import moment from 'moment';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getSubscription from './getSubscription';
 
 const {
-  COLL_USER_SUBSCRIPTIONS,
   REGION,
   STAGE,
-  DB_NAME,
 } = process.env;
+
+const { COLL_USER_SUBSCRIPTIONS } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -22,7 +23,7 @@ export default async (userId, subId, appId) => {
   try {
     client = await MongoClient.connect();
     const userSub = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_SUBSCRIPTIONS)
       .findOne({
         appId,
@@ -52,7 +53,7 @@ export default async (userId, subId, appId) => {
       appId,
     };
     const { insertedId } = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_SUBSCRIPTIONS)
       .insertOne(subscription);
     const credParams = {

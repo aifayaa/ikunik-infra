@@ -1,16 +1,16 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_LINEUPS,
   COLL_TICKET_CATEGORIES,
   COLL_STAGES,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (categoryId, appId) => {
   const client = await MongoClient.connect();
   try {
-    return await client.db(DB_NAME)
+    return await client.db()
       .collection(COLL_TICKET_CATEGORIES)
       .aggregate([
         {

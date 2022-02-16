@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (userId, appId, { limit } = {}) => {
   const client = await MongoClient.connect();
@@ -41,8 +42,8 @@ export default async (userId, appId, { limit } = {}) => {
       },
       { $limit: limit },
     ];
-    const history = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_USER_HISTORY)
+    const history = await client.db()
+      .collection(mongoCollections.COLL_USER_HISTORY)
       .aggregate(pipeline)
       .toArray();
     return { history };

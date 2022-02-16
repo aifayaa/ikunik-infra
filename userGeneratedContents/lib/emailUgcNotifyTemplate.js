@@ -1,20 +1,23 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 
 const {
-  DB_NAME,
-  COLL_USERS,
-  COLL_APPS,
-  REACT_APP_PRESS_SERVICE_URL,
-  COLL_USER_GENERATED_CONTENTS,
-  COLL_PICTURES,
-  COLL_VIDEOS,
   REACT_APP_API_URL,
+  REACT_APP_PRESS_SERVICE_URL,
 } = process.env;
+
+const {
+  COLL_APPS,
+  COLL_PICTURES,
+  COLL_USERS,
+  COLL_USER_GENERATED_CONTENTS,
+  COLL_VIDEOS,
+} = mongoCollections;
 
 export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) => {
   const client = await MongoClient.connect();
-  const db = client.db(DB_NAME);
+  const db = client.db();
   try {
     const [user, app, [ugc]] = await Promise.all([
       db

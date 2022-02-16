@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getUserLineups from '../../lineup/lib/getUserLineups';
 
 export default async (userId, profileId, lineupId, appId) => {
@@ -8,8 +9,8 @@ export default async (userId, profileId, lineupId, appId) => {
   }
   const client = await MongoClient.connect();
   try {
-    const scanners = await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_SCANNERS)
+    const scanners = await client.db()
+      .collection(mongoCollections.COLL_SCANNERS)
       .find({
         lineupId,
         appId,

@@ -1,13 +1,16 @@
 import MediaConvert from 'aws-sdk/clients/mediaconvert';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  COLL_LIVE_STREAM,
-  DB_NAME,
   IVS_BUCKET,
   IVS_REGION,
   MEDIACONVERT_IAM_ROLE_ARN,
 } = process.env;
+
+const {
+  COLL_LIVE_STREAM,
+} = mongoCollections;
 
 const mediaconvert = new MediaConvert({
   apiVersion: '2017-08-29',
@@ -42,7 +45,7 @@ export default async (appId, liveStreamId, recordingRoot) => {
       'recordings.root': recordingRoot,
     };
     const dbLiveStream = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .findOne(
         dbQuery,
@@ -152,7 +155,7 @@ export default async (appId, liveStreamId, recordingRoot) => {
     };
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .updateOne(dbQuery, {
         $set: {

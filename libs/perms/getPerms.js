@@ -1,6 +1,7 @@
 import MongoClient from '../mongoClient';
+import mongoCollections from '../mongoCollections.json';
 
-const { DB_NAME, COLL_USERS, COLL_PERM_GROUPS } = process.env;
+const { COLL_USERS, COLL_PERM_GROUPS } = mongoCollections;
 
 export default async (userId, appId) => {
   const pipeline = [
@@ -31,7 +32,7 @@ export default async (userId, appId) => {
   const client = await MongoClient.connect();
   try {
     const [{ permGroups } = {}] = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USERS)
       .aggregate(pipeline)
       .toArray();

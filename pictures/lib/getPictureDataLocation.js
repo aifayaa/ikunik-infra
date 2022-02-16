@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_PICTURES,
-} = process.env;
+const { COLL_PICTURES } = mongoCollections;
 
 const QUALITIES = ['large', 'medium', 'thumb'];
 
@@ -38,7 +36,7 @@ export default async (id, appId, { isPublished, quality }) => {
     }
 
     client = await MongoClient.connect();
-    const picture = await client.db(DB_NAME)
+    const picture = await client.db()
       .collection(COLL_PICTURES)
       .findOne($find);
 

@@ -1,14 +1,15 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import checkSelectionsOwner from './checkSelectionsOwner';
 import queryReplace from './queryReplace';
 
 const {
-  COLL_SELECTIONS,
-  DB_NAME,
   REGION,
   STAGE,
 } = process.env;
+
+const { COLL_SELECTIONS } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -44,7 +45,7 @@ export default async (
     let modifier = {};
     const selection = action !== 'replace'
       ? await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_SELECTIONS)
         .findOne({
           _id: selectionId,

@@ -1,12 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_PICTURES,
   COLL_USERS,
   COLL_USER_GENERATED_CONTENTS,
   COLL_USER_GENERATED_CONTENTS_REPORTS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   appId,
@@ -207,12 +207,12 @@ export default async (
 
     /* Prepare results */
     const resultsPromise = client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
       .aggregate(pipeline)
       .toArray();
     const countPromise = client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
       .aggregate(countPipeline)
       .toArray();

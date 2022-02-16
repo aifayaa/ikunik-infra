@@ -1,12 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (_userId, profileId, contactListId, appId, {
   limit, skip, sortBy, sortOrder,
 } = {}) => {
-  const {
-    COLL_ARTIST_CONTACT_LIST,
-    DB_NAME,
-  } = process.env;
+  const { COLL_ARTIST_CONTACT_LIST } = mongoCollections;
   const client = await MongoClient.connect();
   try {
     const opts = {};
@@ -58,7 +56,7 @@ export default async (_userId, profileId, contactListId, appId, {
       },
     }]);
     const contactList = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_ARTIST_CONTACT_LIST)
       .aggregate(aggregation).toArray();
     return contactList[0];

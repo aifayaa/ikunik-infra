@@ -1,9 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_USERS,
   COLL_USER_BADGES,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   userBadgeId,

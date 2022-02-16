@@ -1,15 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_SELECTIONS_BACKUP,
-} = process.env;
+const { COLL_SELECTIONS_BACKUP } = mongoCollections;
 
 export default async (selectionId) => {
   const client = await MongoClient.connect();
   try {
     const selection = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_SELECTIONS_BACKUP)
       .findOne({ _id: selectionId });
     if (!selection) throw new Error('Not found');

@@ -1,17 +1,15 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (cartId, userId, appId, selector, options) => {
   let client;
-  const {
-    DB_NAME,
-    COLL_CARTS,
-  } = process.env;
+  const { COLL_CARTS } = mongoCollections;
   selector._id = cartId;
   selector.userId = userId;
   selector.appId = appId;
   try {
     client = await MongoClient.connect();
-    return await client.db(DB_NAME)
+    return await client.db()
       .collection(COLL_CARTS)
       .findOneAndUpdate(
         selector,

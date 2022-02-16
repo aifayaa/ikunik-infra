@@ -1,22 +1,22 @@
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { hashPassword } from './password';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const {
-  DB_NAME,
   COLL_USERS,
   COLL_APPS,
-} = process.env;
+} = mongoCollections;
 
 export const resetPassword = async (rawEmail, appId, token, password, lang) => {
   const email = rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
-    const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
+    const usersCollection = client.db().collection(COLL_USERS);
+    const appsCollection = client.db().collection(COLL_APPS);
     const [user, app] = await Promise.all([
       usersCollection.findOne(
         {

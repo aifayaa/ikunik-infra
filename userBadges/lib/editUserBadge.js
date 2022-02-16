@@ -1,14 +1,16 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_BADGES,
-} = process.env;
+const { COLL_USER_BADGES } = mongoCollections;
 
 export default async (userBadgeId, appId, {
+  access,
+  color = '#FFFFFF',
+  description = '',
+  isDefault,
+  management,
   name,
-  description,
-  color,
-  validationUrl,
+  validationUrl = '',
 }) => {
   const client = await MongoClient.connect();
 
@@ -40,16 +42,14 @@ export default async (userBadgeId, appId, {
     const $set = {
       name,
       updatedAt: new Date(),
+
+      description,
+      access,
+      management,
+      isDefault,
+      color,
+      validationUrl,
     };
-    if (description !== undefined) {
-      $set.description = description;
-    }
-    if (color !== undefined) {
-      $set.color = color;
-    }
-    if (validationUrl !== undefined) {
-      $set.validationUrl = validationUrl;
-    }
 
     await client
       .db()

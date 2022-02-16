@@ -3,11 +3,11 @@
  * THAT LIB TO THE END USER, ONLY USE IN OTHER LIBS
  * * * * * * * * * * * * * * * * * * * * * * * * */
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_APPS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   getProtocol = false,
@@ -20,7 +20,7 @@ export default async (
 
   try {
     return await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_APPS)
       .find({}, { projection })
       .toArray();

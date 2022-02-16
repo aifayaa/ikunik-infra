@@ -1,13 +1,13 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import verifyJwt from './verifyJsonWebToken';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import Random from '../../libs/account_utils/random';
 
 const {
-  DB_NAME,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 export const getUserByOidc = async (identityToken, appId) => {
   const client = await MongoClient.connect();
@@ -24,7 +24,7 @@ export const getUserByOidc = async (identityToken, appId) => {
       throw new Error('missing_sub');
     }
 
-    const db = client.db(DB_NAME);
+    const db = client.db();
 
     /* get user in db */
     const collection = db.collection(COLL_USERS);

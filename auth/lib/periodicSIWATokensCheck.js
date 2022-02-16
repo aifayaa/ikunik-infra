@@ -1,12 +1,16 @@
 import S3 from 'aws-sdk/clients/s3';
 import { JWT, JWK } from 'jose';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  COLL_APPS,
   S3_APPS_RESSOURCES_REGION,
   S3_APPS_RESSOURCES,
 } = process.env;
+
+const {
+  COLL_APPS,
+} = mongoCollections;
 
 /*
  * A new user was added for this file, since this bucket has restricted access.

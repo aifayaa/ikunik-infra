@@ -1,9 +1,10 @@
 import supportedFormats from '../supportedFormats.json';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_PICTURES,
   COLL_VIDEOS,
-} = process.env;
+} = mongoCollections;
 
 export default (contentType, throwError = true) => {
   if (

@@ -1,16 +1,20 @@
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  COLL_PRESS_ARTICLES,
-  COLL_PRESS_NOTIFICATIONS_QUEUE,
-  COLL_PUSH_NOTIFICATIONS,
   NOTIFICATION_STATE_MACHINE_NAME,
   NOTIFICATION_STATE_MACHINE_RESOURCE,
   NOTIFICATION_STATE_MACHINE_ROLE,
   REGION,
   STAGE,
 } = process.env;
+
+const {
+  COLL_PRESS_ARTICLES,
+  COLL_PRESS_NOTIFICATIONS_QUEUE,
+  COLL_PUSH_NOTIFICATIONS,
+} = mongoCollections;
 
 const PROCESS_BATCH_SIZE = 100;
 

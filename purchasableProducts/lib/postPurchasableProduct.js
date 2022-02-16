@@ -1,9 +1,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_PURCHASABLE_PRODUCT,
-} = process.env;
+const { COLL_PURCHASABLE_PRODUCT } = mongoCollections;
 
 export const postPurchasableProduct = async (
   appId,
@@ -37,7 +35,7 @@ export const postPurchasableProduct = async (
   const client = await MongoClient.connect();
 
   try {
-    await client.db(DB_NAME)
+    await client.db()
       .collection(COLL_PURCHASABLE_PRODUCT)
       .insertOne(purchasableProduct);
 

@@ -1,15 +1,15 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_CREDITS,
-} = process.env;
+} = mongoCollections;
 
 export default async (userID, appId) => {
   const client = await MongoClient.connect();
   try {
     const credits = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_CREDITS)
       .findOne({
         userID,

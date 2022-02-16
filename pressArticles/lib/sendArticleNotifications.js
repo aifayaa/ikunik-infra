@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { sendNotificationTo } from './snsNotifications';
 import prepareNotif from './prepareNotifString';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
@@ -9,13 +10,14 @@ const {
   COLL_PRESS_NOTIFICATIONS_QUEUE,
   COLL_PUSH_NOTIFICATIONS,
   COLL_USERS,
-} = process.env;
+} = mongoCollections;
 
 const PROCESS_BATCH_SIZE = 200;
 
 async function userHaveBadgesPermissions(badgeChecker, user, artCatBadges, options) {
+  let checkerResults = BadgeChecker.newEmptyResults();
   const promises = artCatBadges.map(async (toCheckbadges) => {
-    const valid = await badgeChecker.checkBadges(
+    const newResult = await badgeChecker.checkBadges(
       user.badges || [],
       toCheckbadges,
       {
@@ -24,16 +26,12 @@ async function userHaveBadgesPermissions(badgeChecker, user, artCatBadges, optio
       },
     );
 
-    return (valid);
+    checkerResults = checkerResults.merge(newResult);
   });
 
-  const results = await Promise.all(promises);
-  const havePermission = results.reduce((acc, res) => {
-    if (!res) return (false);
-    return (acc);
-  }, true);
+  await Promise.all(promises);
 
-  return (havePermission);
+  return (checkerResults.canNotify);
 }
 
 function getArticleBadges(article) {

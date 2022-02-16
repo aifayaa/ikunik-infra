@@ -1,10 +1,8 @@
 import isEqual from 'lodash/isEqual';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_CONTENT_PERMISSIONS,
-  DB_NAME,
-} = process.env;
+const { COLL_CONTENT_PERMISSIONS } = mongoCollections;
 
 export const setContentPermissions = async (
   appId,
@@ -36,13 +34,13 @@ export const setContentPermissions = async (
 
   try {
     const contentPermissions = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_CONTENT_PERMISSIONS)
       .findOne(findQuery);
 
     if (!contentPermissions) {
       return await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_CONTENT_PERMISSIONS)
         .insertOne(insertData);
     }
@@ -60,7 +58,7 @@ export const setContentPermissions = async (
 
     if (Object.keys(update.$set).length) {
       return await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_CONTENT_PERMISSIONS)
         .updateOne(findQuery, update);
     }

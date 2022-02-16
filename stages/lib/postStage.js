@@ -1,5 +1,6 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (name, addr, appId) => {
   if (typeof name !== 'string') {
@@ -15,8 +16,8 @@ export default async (name, addr, appId) => {
       addr,
     };
     await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_STAGES)
+      .db()
+      .collection(mongoCollections.COLL_STAGES)
       .insertOne(stage);
     return stageId;
   } finally {

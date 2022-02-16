@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import getCollectionFromContentType from './getCollectionFromContentType';
 
 const s3 = new AWS.S3({
@@ -7,12 +8,14 @@ const s3 = new AWS.S3({
 });
 
 const {
-  DB_NAME,
   S3_UPLOAD_BUCKET,
   S3_PICTURES_BUCKET,
   S3_VIDEOS_BUCKET,
-  COLL_PICTURES,
 } = process.env;
+
+const {
+  COLL_PICTURES,
+} = mongoCollections;
 
 export default async (userId, appId, file) => {
   const client = await MongoClient.connect();
@@ -34,7 +37,7 @@ export default async (userId, appId, file) => {
   };
 
   try {
-    await client.db(DB_NAME).collection(collection).deleteOne({ _id: id });
+    await client.db().collection(collection).deleteOne({ _id: id });
 
     if (collection === COLL_PICTURES) {
       const prefixes = ['thumb', 'medium', 'large', 'original'];

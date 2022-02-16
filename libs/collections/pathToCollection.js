@@ -1,8 +1,10 @@
+import mongoCollections from '../mongoCollections.json';
+
 /* Collections from environment */
 const {
   COLL_PRESS_ARTICLES,
   COLL_USER_GENERATED_CONTENTS,
-} = process.env;
+} = mongoCollections;
 
 /* Translate path to collections */
 const translationArray = {

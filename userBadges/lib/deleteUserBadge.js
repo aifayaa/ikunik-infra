@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_USERS,
@@ -6,7 +7,7 @@ const {
   COLL_PRESS_DRAFTS,
   COLL_PRESS_CATEGORIES,
   COLL_USER_BADGES,
-} = process.env;
+} = mongoCollections;
 
 export default async (userBadgeId, appId) => {
   const client = await MongoClient.connect();

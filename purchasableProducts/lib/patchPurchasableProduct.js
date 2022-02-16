@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_PURCHASABLE_PRODUCT,
-} = process.env;
+const { COLL_PURCHASABLE_PRODUCT } = mongoCollections;
 
 export const patchPurchasableProduct = async (
   appId,
@@ -59,7 +57,7 @@ export const patchPurchasableProduct = async (
   const client = await MongoClient.connect();
 
   try {
-    const { matchedCount, modifiedCount } = await client.db(DB_NAME)
+    const { matchedCount, modifiedCount } = await client.db()
       .collection(COLL_PURCHASABLE_PRODUCT)
       .updateOne(
         { _id: productId, appId },

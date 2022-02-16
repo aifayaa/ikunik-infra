@@ -3,6 +3,7 @@
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { checkPassword } from './password';
 import hashLoginToken from './hashLoginToken';
 import Random from '../../libs/account_utils/random';
@@ -10,18 +11,20 @@ import { wordpressLogin } from './backends/wordpressLogin';
 
 const {
   ADMIN_APP,
-  DB_NAME,
+} = process.env;
+
+const {
   COLL_USERS,
   COLL_APPS,
-} = process.env;
+} = mongoCollections;
 
 export const login = async (rawEmail, username, password, appId) => {
   const email = rawEmail && rawEmail.toLowerCase();
   const client = await MongoClient.connect();
 
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
-    const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
+    const usersCollection = client.db().collection(COLL_USERS);
+    const appsCollection = client.db().collection(COLL_APPS);
 
     const app = await appsCollection.findOne(
       { _id: appId },

@@ -1,8 +1,9 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (userId, contentId, appId) => {
   const client = await MongoClient.connect();
-  const db = client.db(process.env.DB_NAME);
+  const db = client.db();
   try {
     const pipeline = [
       {
@@ -16,7 +17,7 @@ export default async (userId, contentId, appId) => {
       },
       {
         $lookup: {
-          from: process.env.COLL_PROJECTS,
+          from: mongoCollections.COLL_PROJECTS,
           localField: 'project_ID',
           foreignField: '_id',
           as: 'project',
@@ -44,8 +45,8 @@ export default async (userId, contentId, appId) => {
       },
     ];
     const [[audioHistory], [videoHistory]] = await Promise.all([
-      db.collection(process.env.COLL_AUDIOS).aggregate(pipeline).toArray(),
-      db.collection(process.env.COLL_VIDEOS).aggregate(pipeline).toArray(),
+      db.collection(mongoCollections.COLL_AUDIOS).aggregate(pipeline).toArray(),
+      db.collection(mongoCollections.COLL_VIDEOS).aggregate(pipeline).toArray(),
     ]);
     const history = audioHistory || videoHistory;
     if (!history) {
@@ -54,7 +55,7 @@ export default async (userId, contentId, appId) => {
     history._id = ObjectID().toString();
     history.userId = userId;
     history.appId = appId;
-    await db.collection(process.env.COLL_USER_HISTORY).insert(history);
+    await db.collection(mongoCollections.COLL_USER_HISTORY).insert(history);
     return true;
   } finally {
     client.close();

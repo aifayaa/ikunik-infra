@@ -1,5 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
+import BadgeChecker from '../../libs/badges/BadgeChecker';
+
+const { ADMIN_APP } = process.env;
 
 const {
   COLL_PICTURES,
@@ -8,8 +12,7 @@ const {
   COLL_PRESS_DRAFTS,
   COLL_USERS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export const getArticles = async (
   categoryId,
@@ -17,16 +20,19 @@ export const getArticles = async (
   limit,
   appId,
   {
-    onlyPublished = true,
-    getPictures = false,
+    checkBadges = true,
     getOrphansArticles = false,
-    showWithHiddenCategories = false,
-    showHiddenOnFeed = false,
-    reversedSort = false,
+    getPictures = false,
     noDateFilter = false,
+    onlyPublished = true,
+    reversedSort = false,
+    showHiddenOnFeed = false,
+    showWithHiddenCategories = false,
+    userId,
   },
 ) => {
   let client;
+  const badgeChecker = new BadgeChecker(appId);
   try {
     client = await MongoClient.connect();
 
@@ -47,7 +53,7 @@ export const getArticles = async (
     }
 
     const categories = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_CATEGORIES)
       .find(categoriesMatch)
       .toArray();
@@ -280,12 +286,12 @@ export const getArticles = async (
 
     const [articles = [], total = 0] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_ARTICLES)
         .aggregate(articlesPipeline)
         .toArray(),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_ARTICLES)
         .find(matchArticles)
         .count(),
@@ -356,8 +362,74 @@ export const getArticles = async (
       return { ...article, category: articleCategory };
     });
 
+    /** Permissions checks */
+    const user = userId
+      ? await client
+        .db()
+        .collection(COLL_USERS)
+        .findOne({ _id: userId })
+      : null;
+
+    if (checkBadges && (!user || user.appId !== ADMIN_APP)) {
+      const userBadges = (user && user.badges) || [];
+
+      const articleRequires = (article, what, requiredElements) => {
+        article.text = null;
+        article.requires = what;
+        article.requiredElements = requiredElements;
+      };
+
+      await badgeChecker.init;
+
+      badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
+
+      articlesWithCategory.forEach((article) => {
+        if (article.badges) {
+          const toRegister = article.badges.list.map(({ id: badgeId }) => (badgeId));
+          badgeChecker.registerBadges(toRegister);
+        }
+
+        if (article.category) {
+          if (article.category.badges) {
+            const toRegister = article.category.badges.list.map(({ id: badgeId }) => (badgeId));
+            badgeChecker.registerBadges(toRegister);
+          }
+        }
+      });
+
+      await badgeChecker.loadBadges();
+
+      const promises = articlesWithCategory.map(async (article, id) => {
+        const opts = {
+          appId,
+          userId,
+          articleId: article._id,
+          categoryId: article.categoryId,
+        };
+        const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
+        let checkerResults = await badgeChecker.checkBadges(
+          userBadges,
+          article.badges,
+          opts,
+        );
+        checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
+          userBadges,
+          categoryBadges,
+          opts,
+        ));
+        if (!checkerResults.canList) {
+          articlesWithCategory[id] = null;
+        } else if (!checkerResults.canRead) {
+          articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
+        }
+      });
+
+      await Promise.all(promises);
+    }
+
     return { articles: articlesWithCategory, total };
   } finally {
+    badgeChecker.close();
     client.close();
   }
 };

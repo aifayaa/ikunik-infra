@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_ARTISTS,
   COLL_LINEUPS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 // TODO optimize by using another function properly for lineupId
 export default async (userId, profileId, lineupId, appId) => {
@@ -52,7 +52,7 @@ export default async (userId, profileId, lineupId, appId) => {
   const client = await MongoClient.connect();
   try {
     let lineups = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_ARTISTS)
       .aggregate(aggregat)
       .toArray();

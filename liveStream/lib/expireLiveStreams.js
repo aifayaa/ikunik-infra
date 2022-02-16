@@ -1,11 +1,10 @@
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_LIVE_STREAM,
-  DB_NAME,
-  IVS_REGION,
-} = process.env;
+const { IVS_REGION } = process.env;
+
+const { COLL_LIVE_STREAM } = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -34,7 +33,7 @@ async function expireLiveStream(dbLiveStream, client) {
   }).promise();
 
   await client
-    .db(DB_NAME)
+    .db()
     .collection(COLL_LIVE_STREAM)
     .updateOne({ _id: dbLiveStream._id }, { $set: { expired: true } });
 }
@@ -46,7 +45,7 @@ export default async () => {
     const promises = [];
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .find({
         provider: 'aws-ivs',

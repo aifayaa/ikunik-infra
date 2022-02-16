@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import * as emailUgcNotifyTemplate from '../../lib/emailUgcNotifyTemplate';
 import * as lib from '../../lib/postUserGeneratedContents';
 import * as pathToCollection from '../../../libs/collections/pathToCollection';
+import mongoCollections from '../../../libs/mongoCollections.json';
 import * as sendEmailToAdmin from '../../lib/sendEmailToAdmin';
 import handler from '../../handlers/postUserGeneratedContents';
 
@@ -38,7 +39,7 @@ describe('handlers - postUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').throws();
-        stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(process.env.COLL_USER_GENERATED_CONTENTS);
+        stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
         stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
         stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
         response = await handler(event);
@@ -63,7 +64,7 @@ describe('handlers - postUserGeneratedContents', () => {
 
     before(async () => {
       stubLib = sandbox.stub(lib, 'default').returns({ _id: 'userGeneratedContentsId' });
-      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(process.env.COLL_USER_GENERATED_CONTENTS);
+      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
       stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
       stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
       response = await handler(event);
@@ -84,7 +85,7 @@ describe('handlers - postUserGeneratedContents', () => {
         type,
         data,
       } = bodyParsed;
-      const parentCollection = process.env.COLL_USER_GENERATED_CONTENTS;
+      const parentCollection = mongoCollections.COLL_USER_GENERATED_CONTENTS;
       const rootParentId = parentId;
       const rootParentCollection = parentCollection;
 

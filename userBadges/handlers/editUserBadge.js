@@ -1,8 +1,8 @@
 import editUserBadge from '../lib/editUserBadge';
+import fieldChecks from '../lib/badgeFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
-import { optionnalUrlRegexp } from '../../libs/regexp/url';
 
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
@@ -20,21 +20,12 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const {
-      name,
-      validationUrl = '',
-    } = bodyParsed;
 
-    if (!name) {
-      throw new Error('mal_formed_request');
-    }
+    Object.keys(fieldChecks).forEach((field) => {
+      const cb = fieldChecks[field];
 
-    if (typeof name !== 'string') {
-      throw new Error('wrong_argument_type');
-    }
-    if (!optionnalUrlRegexp.test(validationUrl)) {
-      throw new Error('invalid_badge_validation_url');
-    }
+      if (!cb(bodyParsed[field])) throw new Error('mal_formed_request');
+    });
 
     const userBadge = await editUserBadge(userBadgeId, appId, bodyParsed);
     return response({ code: 200, body: { userBadge } });

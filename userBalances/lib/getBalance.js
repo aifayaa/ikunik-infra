@@ -1,9 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_BALANCES,
-  DB_NAME,
-} = process.env;
+const { COLL_USER_BALANCES } = mongoCollections;
 
 export const getBalance = async (
   appId,
@@ -22,7 +20,7 @@ export const getBalance = async (
 
   try {
     return await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_BALANCES)
       .findOne(query);
   } finally {
