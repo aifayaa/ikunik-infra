@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (userId, subIds, appId) => {
   if (!subIds) return true;
@@ -7,8 +8,8 @@ export default async (userId, subIds, appId) => {
   const client = await MongoClient.connect();
   try {
     const res = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_USER_SUBSCRIPTIONS)
+      .db()
+      .collection(mongoCollections.COLL_USER_SUBSCRIPTIONS)
       .findOne({
         appId,
         expireAt: { $gt: new Date() },

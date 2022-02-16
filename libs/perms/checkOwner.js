@@ -1,9 +1,5 @@
 import MongoClient from '../mongoClient';
 
-const {
-  DB_NAME,
-} = process.env;
-
 export default async (
   appId,
   objId,
@@ -29,7 +25,7 @@ export default async (
     }
 
     const obj = await client
-      .db(DB_NAME)
+      .db()
       .collection(collectionName)
       .findOne(findObj);
 

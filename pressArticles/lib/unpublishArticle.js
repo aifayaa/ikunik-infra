@@ -1,11 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { cleanPendingArticleNotifications } from './notificationsQueue';
 
 const {
   COLL_PRESS_ARTICLES,
-  DB_NAME,
   COLL_PRESS_DRAFTS,
-} = process.env;
+} = mongoCollections;
 
 export const unpublishArticle = async (userId, appId, articleId) => {
   const client = await MongoClient.connect();
@@ -17,7 +17,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
     const opts = { session };
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .updateOne(
         {
@@ -33,7 +33,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
       );
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_DRAFTS)
       .updateMany(
         {

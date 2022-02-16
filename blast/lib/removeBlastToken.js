@@ -1,11 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_BALANCE_EMAILS,
   COLL_BALANCE_MESSAGES,
   COLL_BALANCE_NOTIFS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 // To avoid getting a warning with lint
 const jsConsole = console;
@@ -26,7 +26,7 @@ export default async (type, profileId, qte, appId) => {
   }
   const client = await MongoClient.connect();
   try {
-    const res = await client.db(DB_NAME).collection(collName)
+    const res = await client.db().collection(collName)
       .updateOne({
         profil_ID: profileId,
         appId,

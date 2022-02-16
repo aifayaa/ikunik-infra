@@ -6,7 +6,7 @@ export default async () => {
   const client = await MongoClient.connect();
   try {
     const tasks = Object.keys(indexes).map((collection) => client
-      .db(process.env.DB_NAME)
+      .db()
       .collection(collection)
       .createIndex(indexes[collection]));
     return Promise.all(tasks);

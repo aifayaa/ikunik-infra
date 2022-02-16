@@ -1,10 +1,8 @@
 /* eslint-disable no-await-in-loop */
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_PICTURES,
-} = process.env;
+const { COLL_PICTURES } = mongoCollections;
 
 // TODO: add a check to user permission to access pictures not published
 export default async (id, appId, { isPublished }) => {
@@ -20,7 +18,7 @@ export default async (id, appId, { isPublished }) => {
     }
 
     client = await MongoClient.connect();
-    return await client.db(DB_NAME)
+    return await client.db()
       .collection(COLL_PICTURES)
       .findOne($find);
   } finally {

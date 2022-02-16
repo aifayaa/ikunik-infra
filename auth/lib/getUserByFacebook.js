@@ -1,5 +1,6 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { getFacebookAppToken } from './getFacebookAppToken';
 import { getFacebookLongLiveToken } from './getFacebookLongLiveToken';
 import { getFacebookUserProfile } from './getFacebookUserProfile';
@@ -7,7 +8,7 @@ import { getFacebookSettings } from './getFacebookSettings';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
-const { DB_NAME, COLL_USERS } = process.env;
+const { COLL_USERS } = mongoCollections;
 
 /* create/get user from facebook accessToken */
 export const getUserByFacebook = async (userToken, appId) => {
@@ -22,7 +23,7 @@ export const getUserByFacebook = async (userToken, appId) => {
   const client = await MongoClient.connect();
   let userId; // will be retrieved from db or set on user created
   try {
-    const collection = await client.db(DB_NAME).collection(COLL_USERS);
+    const collection = await client.db().collection(COLL_USERS);
     const user = await collection.findOne({
       'services.facebook.id': fbUserId,
     });

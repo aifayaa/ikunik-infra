@@ -2,6 +2,7 @@ import path from 'path';
 import AWS from 'aws-sdk';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import uploadStatus from '../uploadStatus.json';
 import getCollectionFromContentType from './getCollectionFromContentType';
 
@@ -10,10 +11,12 @@ const s3 = new AWS.S3({
 });
 
 const {
-  COLL_VIDEOS,
-  DB_NAME,
   S3_UPLOAD_BUCKET,
 } = process.env;
+
+const {
+  COLL_VIDEOS,
+} = mongoCollections;
 
 export default async (userId, appId, files, metadata) => {
   const insertions = {};
@@ -78,7 +81,7 @@ export default async (userId, appId, files, metadata) => {
   try {
     /* eslint-disable */
     for(const collection in insertions) {
-      await client.db(DB_NAME).collection(collection).insertMany(insertions[collection]);
+      await client.db().collection(collection).insertMany(insertions[collection]);
     }
     /* eslint-enable */
   } finally {

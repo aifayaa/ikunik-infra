@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
 
 const {
@@ -8,8 +9,7 @@ const {
   COLL_PRESS_DRAFTS,
   COLL_USERS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   categoryId,
@@ -45,7 +45,7 @@ export default async (
     }
 
     const categories = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_CATEGORIES)
       .find(categoriesMatch)
       .toArray();
@@ -230,12 +230,12 @@ export default async (
 
     const [articles = [], total = 0] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_ARTICLES)
         .aggregate(articlesPipeline)
         .toArray(),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_PRESS_ARTICLES)
         .find(matchArticles)
         .count(),
@@ -251,7 +251,7 @@ export default async (
       // @TODO Group all articles ids to do a single query
       const getDraftsFor = async (article) => {
         const lastDraft = await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_PRESS_DRAFTS)
           .find({ articleId: article._id })
           .sort({ createdAt: -1 })

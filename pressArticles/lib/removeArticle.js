@@ -1,10 +1,10 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_PRESS_DRAFTS,
   COLL_PRESS_ARTICLES,
-} = process.env;
+} = mongoCollections;
 
 export const removeArticle = async (_userId, appId, articleId) => {
   const client = await MongoClient.connect();
@@ -16,7 +16,7 @@ export const removeArticle = async (_userId, appId, articleId) => {
     const opts = { session };
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .deleteOne(
         {
@@ -27,7 +27,7 @@ export const removeArticle = async (_userId, appId, articleId) => {
       );
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_DRAFTS)
       .deleteMany(
         {

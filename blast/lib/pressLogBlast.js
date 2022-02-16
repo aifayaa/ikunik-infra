@@ -1,4 +1,5 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const STATUSES = {
   PENDING: 0,
@@ -10,8 +11,7 @@ const STATUSES = {
 
 const {
   COLL_PRESS_BLASTS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async ({
   appId,
@@ -26,7 +26,7 @@ export default async ({
 }) => {
   const client = await MongoClient.connect();
   const collection = client
-    .db(DB_NAME)
+    .db()
     .collection(COLL_PRESS_BLASTS);
 
   const { insertedId: operationId } = await collection

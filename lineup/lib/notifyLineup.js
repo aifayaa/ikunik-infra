@@ -2,6 +2,7 @@ import CloudWatchEvents from 'aws-sdk/clients/cloudwatchevents';
 import Lambda from 'aws-sdk/clients/lambda';
 import i18n from 'i18n';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import '../locales/fr.json';
 import '../locales/en.json';
 
@@ -27,22 +28,24 @@ const jsConsole = console;
 const {
   BLAST_NOTIF,
   BLAST_TEXT,
+  STAGE,
+  USE_BLAST_TEXT,
+} = process.env;
+
+const {
   COLL_ARTISTS,
   COLL_ARTISTS_FAV,
   COLL_LINEUPS,
   COLL_PUSH_NOTIFICATIONS,
   COLL_STAGES,
   COLL_USERS,
-  DB_NAME,
-  STAGE,
-  USE_BLAST_TEXT,
-} = process.env;
+} = mongoCollections;
 
 export default async (lineupId, appId) => {
   const client = await MongoClient.connect();
   try {
     const toNotify = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LINEUPS)
       .aggregate([
         { $match: { _id: lineupId } },

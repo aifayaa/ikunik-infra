@@ -1,10 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-
-const {
-  COLL_PICTURES,
-  COLL_USERS,
-  DB_NAME,
-} = process.env;
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (userId, appId, {
   avatar,
@@ -18,8 +13,8 @@ export default async (userId, appId, {
 
   try {
     if (avatar) {
-      const picture = await client.db(DB_NAME)
-        .collection(COLL_PICTURES)
+      const picture = await client.db()
+        .collection(mongoCollections.COLL_PICTURES)
         .findOne({ _id: avatar, appId });
       const { fromUserId, thumbUrl } = (picture || {});
       if (!fromUserId || !thumbUrl) {
@@ -33,8 +28,8 @@ export default async (userId, appId, {
     }
 
     const { matchedCount } = await client
-      .db(DB_NAME)
-      .collection(COLL_USERS)
+      .db()
+      .collection(mongoCollections.COLL_USERS)
       .updateOne({
         _id: userId,
         appId,

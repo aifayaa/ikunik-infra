@@ -1,9 +1,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_USER_METRICS,
-} = process.env;
+const { COLL_USER_METRICS } = mongoCollections;
 
 export default async (
   appId,
@@ -44,7 +42,7 @@ export default async (
 
     /* Insert into database and return id along with object structure */
     const _id = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_METRICS)
       .insertOne(userMetrics);
 

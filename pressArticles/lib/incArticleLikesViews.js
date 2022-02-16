@@ -1,6 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const { DB_NAME, COLL_PRESS_ARTICLES } = process.env;
+const { COLL_PRESS_ARTICLES } = mongoCollections;
 
 export const incArticleLikesViews = async (
   appId,
@@ -14,7 +15,7 @@ export const incArticleLikesViews = async (
 
   try {
     const currentArticle = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .findOne({ _id: articleId, appId });
 
@@ -59,7 +60,7 @@ export const incArticleLikesViews = async (
     }
 
     await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .updateOne({ _id: articleId }, { $inc });
   } finally {

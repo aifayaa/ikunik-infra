@@ -1,11 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_PRESS_ARTICLES,
   COLL_USERS,
   COLL_USER_METRICS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (
   pipeline,
@@ -96,7 +96,7 @@ export default async (
     );
 
     const [result] = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_USER_METRICS)
       .aggregate(pipeline)
       .toArray();
@@ -113,7 +113,7 @@ export default async (
         .filter((v) => v);
 
       const usersGeolocations = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USER_METRICS)
         .aggregate([
           {
@@ -145,7 +145,7 @@ export default async (
         .toArray();
 
       const usersArticles = await client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_USER_METRICS)
         .aggregate([
           {

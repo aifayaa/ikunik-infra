@@ -1,10 +1,8 @@
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  DB_NAME,
-  COLL_CREDITS,
-} = process.env;
+const { COLL_CREDITS } = mongoCollections;
 
 // To avoid getting a warning with lint
 const jsConsole = console;
@@ -18,7 +16,7 @@ export default async (userID, appId, amount, opts = {}) => {
 
   const client = await MongoClient.connect();
   try {
-    await client.db(DB_NAME).collection(COLL_CREDITS)
+    await client.db().collection(COLL_CREDITS)
       .findOneAndUpdate({
         userID,
         appId,

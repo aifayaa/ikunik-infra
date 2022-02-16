@@ -1,16 +1,19 @@
 import difference from 'lodash/difference';
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   REGION,
   STAGE,
+} = process.env;
+
+const {
   COLL_AUDIOS,
   COLL_SELECTIONS,
   COLL_MEDIUM_SELECTION_LINKS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -38,7 +41,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
   try {
     checkDocuments(userId, mediaIds);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
-    const selection = await client.db(DB_NAME)
+    const selection = await client.db()
       .collection(COLL_SELECTIONS)
       .findOne({
         _id: selectionId,
@@ -47,7 +50,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
       }, selectionFields);
     if (!selection) throw new Error('selection not exists or not owned');
     const { rootSelectionId } = selection;
-    const rootSelection = !rootSelectionId ? selection : await client.db(DB_NAME)
+    const rootSelection = !rootSelectionId ? selection : await client.db()
       .collection(COLL_SELECTIONS)
       .findOne({
         _id: rootSelectionId,
@@ -55,7 +58,7 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
       }, selectionFields);
     if (!rootSelection) throw new Error('rootSelection not found');
     const { subscriptionIds } = rootSelection;
-    await Promise.all(mediaIds.map((mediumId) => client.db(DB_NAME)
+    await Promise.all(mediaIds.map((mediumId) => client.db()
       .collection(COLL_MEDIUM_SELECTION_LINKS)
       .updateOne(
         {
@@ -69,14 +72,14 @@ export const doLinkMediaToSelection = async (userId, selectionId, mediaIds, appI
     const mediaModifier = { $addToSet: { subscriptionIds: { $each: subscriptionIds } } };
     await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_AUDIOS)
         .updateOne({
           _id: { $in: mediaIds },
           appId,
         }, mediaModifier),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_VIDEOS)
         .updateOne({
           _id: { $in: mediaIds },
@@ -93,7 +96,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
   try {
     checkDocuments(userId, mediaIds, appId);
     const selectionFields = { rootSelectionId: true, subscriptionIds: true };
-    const selection = await client.db(DB_NAME)
+    const selection = await client.db()
       .collection(COLL_SELECTIONS).findOne(
         {
           _id: selectionId,
@@ -104,7 +107,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
       );
     if (!selection) throw new Error('selection not exists or not owned');
     const { rootSelectionId } = selection;
-    const rootSelection = !rootSelectionId ? selection : await client.db(DB_NAME)
+    const rootSelection = !rootSelectionId ? selection : await client.db()
       .collection(COLL_SELECTIONS)
       .findOne({
         _id: rootSelectionId,
@@ -114,7 +117,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
     const { subscriptionIds } = rootSelection;
 
     // Remove link between media and selection
-    await Promise.all(mediaIds.map((mediumId) => client.db(DB_NAME)
+    await Promise.all(mediaIds.map((mediumId) => client.db()
       .collection(COLL_MEDIUM_SELECTION_LINKS)
       .remove({
         selectionId,
@@ -124,7 +127,7 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
 
     // Remove root selection subscription from media
     const remainingLinks = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_MEDIUM_SELECTION_LINKS).aggregate([
         {
           $match: {
@@ -140,14 +143,14 @@ export const doUnlinkMediaFromSelection = async (userId, selectionId, mediaIds, 
     const mediaModifier = { $pull: { subscriptionIds: { $in: subscriptionIds } } };
     await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_AUDIOS)
         .update({
           _id: { $in: mediaIdsToRemove },
           appId,
         }, mediaModifier, { multi: true }),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_VIDEOS)
         .update({
           _id: { $in: mediaIdsToRemove },

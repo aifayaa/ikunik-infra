@@ -1,10 +1,8 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
 
-const {
-  COLL_LIVE_STREAM,
-  DB_NAME,
-} = process.env;
+const { COLL_LIVE_STREAM } = mongoCollections;
 
 export default async (appId, {
   id,
@@ -39,14 +37,14 @@ export default async (appId, {
     ];
 
     let list = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .aggregate(pipeline)
       .toArray();
     list = list.map((item) => (filterOutput(item)));
 
     const count = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LIVE_STREAM)
       .find($match, { projection: { _id: 1 } })
       .count();

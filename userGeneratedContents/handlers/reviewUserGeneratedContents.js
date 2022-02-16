@@ -3,15 +3,14 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const permKeys = [
   'userGeneratedContents_all',
   'userGeneratedContents_moderate',
 ];
 
-const {
-  COLL_USER_GENERATED_CONTENTS,
-} = process.env;
+const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 export default async (event) => {
   const perms = JSON.parse(event.requestContext.authorizer.perms);

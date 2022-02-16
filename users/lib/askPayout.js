@@ -1,6 +1,7 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 import getProfile from './getProfile';
 import getPayouts from './getPayouts';
@@ -51,8 +52,8 @@ export default async (userId, profileId, amount, method, appId) => {
 
   const client = await MongoClient.connect();
   try {
-    await client.db(process.env.DB_NAME)
-      .collection(process.env.COLL_PAYOUTS)
+    await client.db()
+      .collection(mongoCollections.COLL_PAYOUTS)
       .insertOne(payoutData);
     return true;
   } finally {

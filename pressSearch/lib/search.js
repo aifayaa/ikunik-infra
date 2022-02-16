@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from '../../pressArticles/lib/articleFields';
 
 const pictureGroup = {
@@ -114,8 +115,8 @@ const searchArticle = async (
 
 export default async (text, appId, { skip, limit }) => {
   const client = await MongoClient.connect();
-  const { DB_NAME, COLL_PRESS_ARTICLES } = process.env;
-  const collection = client.db(DB_NAME).collection(COLL_PRESS_ARTICLES);
+  const { COLL_PRESS_ARTICLES } = mongoCollections;
+  const collection = client.db().collection(COLL_PRESS_ARTICLES);
   try {
     const [result = {}] = await searchArticle(
       collection,

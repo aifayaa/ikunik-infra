@@ -1,13 +1,14 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const { DB_NAME, COLL_USERS, COLL_APPS } = process.env;
+const { COLL_USERS, COLL_APPS } = mongoCollections;
 
 export const validateEmail = async (email, token, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
-    const appsCollection = client.db(DB_NAME).collection(COLL_APPS);
+    const usersCollection = client.db().collection(COLL_USERS);
+    const appsCollection = client.db().collection(COLL_APPS);
     const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
     if (!app) throw new Error('app_not_found');
 

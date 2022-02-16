@@ -1,11 +1,12 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (categoryId, appId) => {
   const client = await MongoClient.connect();
   try {
     const tickets = await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_TICKETS)
+      .db()
+      .collection(mongoCollections.COLL_TICKETS)
       .countDocuments({
         categoryId,
         appId,

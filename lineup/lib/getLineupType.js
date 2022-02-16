@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
   COLL_ARTISTS,
@@ -6,8 +7,7 @@ const {
   COLL_LINEUPS,
   COLL_PICTURES,
   COLL_STAGES,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export default async (someId, type, appId) => {
   const client = await MongoClient.connect();
@@ -18,7 +18,7 @@ export default async (someId, type, appId) => {
       [type]: someId,
     };
     const lineup = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_LINEUPS)
       .aggregate([
         { $match: selector },

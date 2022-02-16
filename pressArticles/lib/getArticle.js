@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import {
   common,
   admin,
@@ -6,16 +7,16 @@ import {
 } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 
+const { ADMIN_APP } = process.env;
+
 const {
-  ADMIN_APP,
   COLL_CONTENT_PERMISSIONS,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export const getArticle = async (
   id,
@@ -232,7 +233,7 @@ export const getArticle = async (
     }
 
     const articles = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PRESS_ARTICLES)
       .aggregate(pipeline)
       .toArray();
@@ -240,9 +241,10 @@ export const getArticle = async (
     const article = articles[0] || null;
 
     if (article) {
-      const articleRequires = (what) => {
+      const articleRequires = (what, requiredElements) => {
         article.text = null;
         article.requires = what;
+        article.requiredElements = requiredElements;
       };
 
       /* Filter article if purchasable and not paid yet */
@@ -256,7 +258,7 @@ export const getArticle = async (
 
       const user = userId
         ? await client
-          .db(DB_NAME)
+          .db()
           .collection(COLL_USERS)
           .findOne({ _id: userId })
         : null;
@@ -274,7 +276,7 @@ export const getArticle = async (
         if (categoryBadges) {
           badgeChecker.registerBadges(categoryBadges.list.map(({ id: badgeId }) => (badgeId)));
         }
-        badgeChecker.loadBadges();
+        await badgeChecker.loadBadges();
 
         const opts = {
           appId,
@@ -282,18 +284,21 @@ export const getArticle = async (
           articleId: id,
           categoryId: article.categoryId,
         };
-        if (!await badgeChecker.checkBadges(
+        let checkerResults = await badgeChecker.checkBadges(
           userBadges,
           article.badges,
           opts,
-        )) {
-          articleRequires('userBadges');
-        } else if (!await badgeChecker.checkBadges(
+        );
+        checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
           userBadges,
           categoryBadges,
           opts,
-        )) {
-          articleRequires('userBadges');
+        ));
+        if (!checkerResults.canList) {
+          throw new Error('forbidden');
+        }
+        if (!checkerResults.canRead) {
+          articleRequires('userBadges', checkerResults.restrictedBy);
         }
       }
     }

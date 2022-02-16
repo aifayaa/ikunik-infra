@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
 
 const {
@@ -8,8 +9,7 @@ const {
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
   COLL_VIDEOS,
-  DB_NAME,
-} = process.env;
+} = mongoCollections;
 
 export const getPurchasedArticles = async (
   appId,
@@ -265,12 +265,12 @@ export const getPurchasedArticles = async (
 
     const [articles = [], [{ total = 0 }]] = await Promise.all([
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_CONTENT_PERMISSIONS)
         .aggregate(pipeline)
         .toArray(),
       client
-        .db(DB_NAME)
+        .db()
         .collection(COLL_CONTENT_PERMISSIONS)
         .aggregate(countPipeline)
         .toArray(),

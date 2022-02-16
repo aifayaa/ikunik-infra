@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 function makeUsernameRegex(search) {
   let ret = search.split('*');
@@ -60,13 +61,13 @@ export default async (appId, {
 
     const users = await client
       .db()
-      .collection(process.env.COLL_USERS)
+      .collection(mongoCollections.COLL_USERS)
       .aggregate(pipeline)
       .toArray();
 
     const count = await client
       .db()
-      .collection(process.env.COLL_USERS)
+      .collection(mongoCollections.COLL_USERS)
       .find($match)
       .count();
 

@@ -34,6 +34,7 @@ export default async (event) => {
       parentId,
       pathName,
       badges,
+      badgesAllow,
       picture,
     } = parsedBody;
     let { action } = parsedBody;
@@ -54,6 +55,7 @@ export default async (event) => {
       hidden,
       parentId || null,
       badges || [],
+      badgesAllow || 'any',
       action,
     );
 

@@ -2,10 +2,11 @@ import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 import * as getAppsLib from '../../lib/getApps';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const { COLL_USERS, DB_NAME } = process.env;
+const { COLL_USERS } = mongoCollections;
 
 describe('lib - getApps', () => {
   let spyMongo;
@@ -44,7 +45,7 @@ describe('lib - getApps', () => {
   });
 
   it('mongo connection done', () => {
-    sinon.assert.calledWith(spyMongo.db, DB_NAME);
+    sinon.assert.calledWith(spyMongo.db);
     sinon.assert.called(spyMongo.close);
   });
 

@@ -1,6 +1,7 @@
 const common = {
   _id: true,
   actions: true,
+  badges: true,
   categoryId: true,
   createdAt: true,
   likes: true,

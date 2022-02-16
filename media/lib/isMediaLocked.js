@@ -8,8 +8,7 @@ export default async (userId, appId, medium) => {
     };
   }
   const client = await MongoClient.connect();
-  const { DB_NAME } = process.env;
-  const db = client.db(DB_NAME);
+  const db = client.db();
   const mediumId = medium._id;
 
   try {

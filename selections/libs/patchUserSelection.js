@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (selectionId, userId, appId, patch, noCheck) => {
   if (!noCheck) {
@@ -22,8 +23,8 @@ export default async (selectionId, userId, appId, patch, noCheck) => {
   const client = await MongoClient.connect();
   try {
     return await client
-      .db(process.env.DB_NAME)
-      .collection(process.env.COLL_SELECTIONS)
+      .db()
+      .collection(mongoCollections.COLL_SELECTIONS)
       .findOneAndUpdate({
         _id: selectionId,
         userId,

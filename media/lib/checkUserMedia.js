@@ -1,15 +1,16 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  DB_NAME,
   COLL_AUDIOS,
   COLL_VIDEOS,
-} = process.env;
+} = mongoCollections;
+
 export default async (userId, appId, mediaIds) => {
   const client = await MongoClient.connect();
   try {
     const audios = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_AUDIOS)
       .find({
         _id: { $in: mediaIds },
@@ -18,7 +19,7 @@ export default async (userId, appId, mediaIds) => {
       })
       .count();
     const videos = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_VIDEOS)
       .find({
         _id: { $in: mediaIds },

@@ -1,9 +1,82 @@
 import request from 'request-promise-native';
 import MongoClient from '../mongoClient';
+import mongoCollections from '../mongoCollections.json';
 
-const {
-  COLL_USER_BADGES,
-} = process.env;
+const { COLL_USER_BADGES } = mongoCollections;
+
+function BadgeCheckerResults({
+  canList = true,
+  canRead = true,
+  canNotify = true,
+  restrictedBy = [],
+} = {}) {
+  const propConf = {
+    configurable: false,
+    enumerable: true,
+    writable: false,
+  };
+
+  Object.defineProperty(this, 'canList', { ...propConf, value: canList });
+  Object.defineProperty(this, 'canRead', { ...propConf, value: canRead });
+  Object.defineProperty(this, 'canNotify', { ...propConf, value: canNotify });
+  Object.defineProperty(this, 'restrictedBy', { ...propConf, value: restrictedBy });
+}
+
+BadgeCheckerResults.prototype.merge = function merge(otherResults) {
+  const canList = this.canList && otherResults.canList;
+  const canRead = this.canRead && otherResults.canRead;
+  const canNotify = this.canNotify && otherResults.canNotify;
+
+  const badgeIds = {};
+  const restrictedBy = this.restrictedBy.concat(otherResults.restrictedBy).filter((badge) => {
+    if (badgeIds[badge._id]) return (false);
+    badgeIds[badge._id] = true;
+    return (true);
+  });
+
+  return new BadgeCheckerResults({
+    canList,
+    canRead,
+    canNotify,
+    restrictedBy,
+  });
+};
+
+function BadgeCheckerResultsBuilder() {
+  this.canList = true;
+  this.canRead = true;
+  this.canNotify = true;
+
+  this.restrictedBy = [];
+}
+
+BadgeCheckerResultsBuilder.prototype.blockedBy = function blockedBy(badge) {
+  const { access = 'hidden', management = 'private-internal' } = badge;
+
+  if (access === 'teaser') {
+    this.canRead = false;
+    this.canNotify = false;
+  } else if (access === 'notifications') {
+    this.canNotify = false;
+  } else {
+    this.canList = false;
+    this.canRead = false;
+    this.canNotify = false;
+  }
+
+  if (management === 'request' || management === 'public') {
+    this.restrictedBy.push(badge);
+  }
+};
+
+BadgeCheckerResultsBuilder.prototype.getResults = function getResults() {
+  return (new BadgeCheckerResults({
+    canList: this.canList,
+    canRead: this.canRead,
+    canNotify: this.canNotify,
+    restrictedBy: this.restrictedBy,
+  }));
+};
 
 export default function BadgeChecker(appId) {
   if (!(this instanceof BadgeChecker)) {
@@ -22,6 +95,10 @@ export default function BadgeChecker(appId) {
 function checkInitialized(checker) {
   if (checker.init) throw new Error('BadgeChecker not initialized');
 }
+
+BadgeChecker.newEmptyResults = function newEmptyResults() {
+  return (new BadgeCheckerResults());
+};
 
 BadgeChecker.prototype.close = async function close() {
   if (this.init) {
@@ -74,30 +151,39 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
   toCheckbadges,
   options,
 ) {
+  const resultsBuilder = new BadgeCheckerResultsBuilder(this);
   checkInitialized(this);
 
   if (!toCheckbadges) {
-    return (true);
+    return (resultsBuilder.getResults());
   }
   if (toCheckbadges.list.length === 0) {
-    return (true);
+    return (resultsBuilder.getResults());
   }
 
+  const { allow = 'any' } = toCheckbadges;
+
   const userBadgesMap = userBadges.reduce((acc, perm) => {
-    acc[perm.id] = true;
+    if (!perm.requested) {
+      acc[perm.id] = true;
+    }
     return (acc);
   }, {});
-  let valid = false;
 
   await this.loadBadges([].concat(
     Object.keys(userBadgesMap),
     toCheckbadges.list.map(({ id }) => (id)),
   ));
 
+  let allowedAtLeastOnce = false;
+
   const promises = toCheckbadges.list.map(async (perm) => {
     const badge = this.badgesMap[perm.id] || {};
+    let allowedForBadge = false;
 
-    if (badge.validationUrl) {
+    if (userBadgesMap[badge._id]) {
+      allowedForBadge = true;
+    } else if (badge.validationUrl) {
       const replacements = {
         APP_ID: options.appId,
         ARTICLE_ID: options.articleId,
@@ -116,18 +202,24 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
 
       try {
         await request(params);
-        valid = true;
+        allowedForBadge = true;
       } catch (e) {
         /* Do nothing */
       }
     }
 
-    if (userBadgesMap[badge._id]) {
-      valid = true;
+    if (!allowedForBadge) {
+      resultsBuilder.blockedBy(badge);
+    } else {
+      allowedAtLeastOnce = true;
     }
   });
 
   await Promise.all(promises);
 
-  return (valid);
+  if (allow === 'any' && allowedAtLeastOnce) {
+    return (new BadgeCheckerResults());
+  }
+
+  return (resultsBuilder.getResults());
 };

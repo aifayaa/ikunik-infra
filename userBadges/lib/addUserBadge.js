@@ -1,13 +1,15 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_BADGES,
-} = process.env;
+const { COLL_USER_BADGES } = mongoCollections;
 
 export default async (userId, appId, {
-  name,
-  description = '',
+  access,
   color = '#FFFFFF',
+  description = '',
+  isDefault,
+  management,
+  name,
   validationUrl = '',
 }) => {
   const client = await MongoClient.connect();
@@ -29,9 +31,13 @@ export default async (userId, appId, {
       appId,
       createdAt: new Date(),
       authorId: userId,
+
       name,
       description,
       color,
+      access,
+      management,
+      isDefault,
       validationUrl,
     };
 

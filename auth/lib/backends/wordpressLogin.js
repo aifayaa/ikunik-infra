@@ -1,10 +1,11 @@
 import MongoClient from '../../../libs/mongoClient';
+import mongoCollections from '../../../libs/mongoCollections.json';
 import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 import { hashPassword } from '../password';
 
-const { DB_NAME, COLL_USERS } = process.env;
+const { COLL_USERS } = mongoCollections;
 
 export const wordpressLogin = async (username, password, app) => {
   const client = await MongoClient.connect();
@@ -12,7 +13,7 @@ export const wordpressLogin = async (username, password, app) => {
   const appId = app._id;
 
   try {
-    const usersCollection = client.db(DB_NAME).collection(COLL_USERS);
+    const usersCollection = client.db().collection(COLL_USERS);
     let reply;
 
     try {

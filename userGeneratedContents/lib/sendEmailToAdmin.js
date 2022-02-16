@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
 const PERMISSIONS = [
@@ -7,16 +8,15 @@ const PERMISSIONS = [
 ];
 
 const {
-  DB_NAME,
   COLL_USERS,
   COLL_PERM_GROUPS,
-} = process.env;
+} = mongoCollections;
 
 export default async (lang, subject, body, appId) => {
   const client = await MongoClient.connect();
   try {
     const [result] = await client
-      .db(DB_NAME)
+      .db()
       .collection(COLL_PERM_GROUPS)
       .aggregate([
         {
