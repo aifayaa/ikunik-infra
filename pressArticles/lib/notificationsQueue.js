@@ -119,6 +119,8 @@ export const queueArticleNotifications = async (
   articleId,
   draftId,
   notifyAt,
+  notificationContent = null,
+  notificationTitle = null,
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -152,6 +154,8 @@ export const queueArticleNotifications = async (
         endpointId: endpoint._id,
         userId: endpoint.userId,
         notifyAt,
+        notificationContent,
+        notificationTitle,
       });
       queued += 1;
 
