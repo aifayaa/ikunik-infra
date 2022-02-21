@@ -18,9 +18,15 @@ export const sendNotificationTo = ({ title, message, endpoint, extraData = {} },
   const msg = {};
   msg.default = '';
   if (endpoint.Platform === 'APNS') {
+    let alert;
+
+    if (!title) alert = message;
+    else if (!message) alert = title;
+    else alert = `${title}: ${message}`;
+
     msg[endpoint.Platform] = JSON.stringify({
       aps: {
-        alert: `${title}: ${message}`,
+        alert,
         ...extraData,
       },
     });

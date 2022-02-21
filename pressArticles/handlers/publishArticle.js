@@ -15,7 +15,13 @@ export default async (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const { draftId, date, sendNotifications = false } = JSON.parse(event.body);
+    const {
+      draftId,
+      date,
+      sendNotifications = false,
+      notificationContent = null,
+      notificationTitle = null,
+    } = JSON.parse(event.body);
     if (!draftId || !date) {
       throw new Error('mal_formed_request');
     }
@@ -31,6 +37,8 @@ export default async (event) => {
         articleId,
         draftId,
         publicationDate,
+        notificationContent,
+        notificationTitle,
       );
     }
     return response({ code: 200, body: requestResults });
