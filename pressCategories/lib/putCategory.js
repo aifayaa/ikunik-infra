@@ -37,7 +37,7 @@ export default async (
       { projection: { order: 1, parentId: 1 } },
     );
     const { order: previousOrder, parentId: previousParentId } = previousCategoryValues;
-    const hasOrderChanged = previousOrder !== order;
+    const hasOrderChanged = order !== null && previousOrder !== order;
     const hasParentIdChanged = previousParentId !== parentId;
 
     /* maximumOrderValue is the number of categories */
@@ -161,7 +161,6 @@ export default async (
     /* Prepare the category object for database insertion */
     const category = {
       action,
-      color: color || null,
       hidden,
       name,
       parentId: parentId || null,
@@ -171,6 +170,8 @@ export default async (
         allow: badgesAllow || 'any',
       },
     };
+
+    if (color) category.color = color;
 
     if (picture && picture.length) {
       category.picture = picture.pop();
@@ -182,6 +183,8 @@ export default async (
         order || whichMaximumOrderValue,
         whichMaximumOrderValue,
       );
+    } else if (order === null && hasParentIdChanged) {
+      category.order = 0;
     }
 
     /* Inserting into database */
