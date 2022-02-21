@@ -27,15 +27,15 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
-      color,
+      color = null,
       hidden,
       name,
-      order,
+      order = null,
       parentId,
       pathName,
       badges,
       badgesAllow,
-      picture,
+      picture = null,
     } = parsedBody;
     let { action } = parsedBody;
 
