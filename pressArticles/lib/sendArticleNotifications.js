@@ -84,7 +84,12 @@ export const sendArticleNotifications = async (
           foreignField: '_id',
           as: 'user',
         } },
-        { $project: { endpoint: 1, user: 1 } },
+        { $project: {
+          endpoint: 1,
+          user: 1,
+          notificationContent: 1,
+          notificationTitle: 1,
+        } },
       ])
       .toArray();
 
@@ -115,8 +120,8 @@ export const sendArticleNotifications = async (
         appId: article.appId,
       };
       const artCatBadges = getArticleBadges(article);
-      const title = prepareNotif(article.title, 60, false);
-      const message = prepareNotif(article.plainText);
+      let title = prepareNotif(article.title, 60, false);
+      let message = prepareNotif(article.plainText);
 
       await badgeChecker.init;
       if (artCatBadges.length > 0) {
@@ -125,7 +130,12 @@ export const sendArticleNotifications = async (
         await badgeChecker.loadBadges(badgeIds);
       }
 
-      const promises = pendingNotifs.map(async ({ endpoint: [endpoint], user: [user] }) => {
+      const promises = pendingNotifs.map(async ({
+        endpoint: [endpoint],
+        user: [user],
+        notificationContent = null,
+        notificationTitle = null,
+      }) => {
         if (!endpoint) return;
 
         if (artCatBadges.length > 0) {
@@ -145,6 +155,14 @@ export const sendArticleNotifications = async (
             return;
           }
         }
+
+        if (notificationContent || notificationTitle) {
+          title = notificationTitle;
+          message = notificationContent;
+        }
+
+        console.log('LNAX 1', notificationTitle);
+        console.log('LNAX 2', notificationContent);
 
         await new Promise((resolve) => {
           sendNotificationTo({
