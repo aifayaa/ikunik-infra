@@ -3,10 +3,13 @@ import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import { getUserLanguage } from '../../libs/intl/intl';
 
 /** @TODO fix permissions globally, do something, please... */
 const permKey = 'apps_getInfos';
+
+const {
+  INVITE_MAIL_LANG,
+} = process.env;
 
 export default async (event) => {
   const appId = event.pathParameters.id;
@@ -32,13 +35,12 @@ export default async (event) => {
       throw new Error('wrong_argument_type');
     }
 
-    const lang = getUserLanguage(event.headers);
     const results = await inviteAppAdmin(
       appId,
       email.trim(),
       firstname.trim(),
       lastname.trim(),
-      lang,
+      INVITE_MAIL_LANG,
     );
 
     if (results === false) {
