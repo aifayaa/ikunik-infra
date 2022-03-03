@@ -1,18 +1,5 @@
 service: crypto
 
-custom:
-  dev:
-    us-east-1:
-      CRYPTO_API_KEY: '0123456789'
-  preprod:
-    eu-west-3:
-      CRYPTO_API_KEY: '0123456789'
-  prod:
-    us-east-1:
-      CRYPTO_API_KEY: '0123456789'
-    eu-west-3:
-      CRYPTO_API_KEY: '0123456789'
-
 provider:
   name: aws
   runtime: nodejs12.x
@@ -22,7 +9,6 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
-    CRYPTO_API_KEY: '${self:custom.${self:provider.stage}.${self:provider.region}.CRYPTO_API_KEY}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

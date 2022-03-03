@@ -1,13 +1,12 @@
 import request from 'request-promise-native';
 
 const OPENSEA_BASE_URL = 'https://api.opensea.io/api/v1';
+const CRYPTO_API_KEY = '0123456789';
 
-function OpenSeaApi(apiKey) {
+function OpenSeaApi() {
   if (!(this instanceof OpenSeaApi)) {
-    return new OpenSeaApi(apiKey);
+    return new OpenSeaApi();
   }
-
-  this.apiKey = apiKey;
 }
 
 OpenSeaApi.prototype.call = async function call(path, data = null, options = {
@@ -20,7 +19,7 @@ OpenSeaApi.prototype.call = async function call(path, data = null, options = {
     method: (options.method || 'GET'),
     uri,
     headers: {
-      'X-API-KEY': this.apiKey,
+      'X-API-KEY': CRYPTO_API_KEY,
       ...(options.headers || {}),
     },
   };

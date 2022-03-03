@@ -6,10 +6,6 @@ const {
   COLL_NFT_COLLECTIONS,
 } = mongoCollections;
 
-const {
-  CRYPTO_API_KEY,
-} = process.env;
-
 /**
  * A function that runs `exec` until it returns exactly `val`.
  * There is no delay between calls, you can handle that yourself.
@@ -34,7 +30,7 @@ export default async (appId, wallet) => {
   try {
     const db = client.db();
 
-    const osApi = new OpenSeaApi(CRYPTO_API_KEY);
+    const osApi = new OpenSeaApi();
 
     let collectionsList = [];
     const limit = 300;
