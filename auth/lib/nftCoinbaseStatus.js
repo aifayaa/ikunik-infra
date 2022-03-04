@@ -20,13 +20,13 @@ export const nftCoinbaseStatus = async (userId, appId) => {
       throw new Error('session_expired');
     }
 
-    if (user.services.coinbase.expiresAt.getTime() < Date.now()) {
-      throw new Error('session_expired');
-    }
+    // if (user.services.coinbase.expiresAt.getTime() < Date.now()) {
+    //   throw new Error('session_expired');
+    // }
 
     /** @TODO Refresh the session if needed */
 
-    return (true);
+    return (user.services.coinbase.wallets);
   } finally {
     client.close();
   }
