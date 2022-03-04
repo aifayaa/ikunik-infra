@@ -68,9 +68,7 @@ export default async (appId, wallet) => {
 
     await db.collection(COLL_NFT_COLLECTIONS).insertMany(collectionsList);
 
-    const nftColls = await db.collection(COLL_NFT_COLLECTIONS).find({ appId }).toArray();
-
-    return (nftColls);
+    return (collectionsList);
   } finally {
     client.close();
   }
