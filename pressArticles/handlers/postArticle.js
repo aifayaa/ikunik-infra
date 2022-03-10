@@ -41,6 +41,7 @@ export default async (event) => {
     let html;
     let likes;
     let md;
+    let mediaCaptions;
     let pictures;
     let plainText;
     let productId;
@@ -65,6 +66,7 @@ export default async (event) => {
           hideFromFeed,
           likes,
           md = '',
+          mediaCaptions,
           pictures,
           productId,
           summary,
@@ -163,6 +165,7 @@ export default async (event) => {
       html,
       likes,
       md,
+      mediaCaptions,
       pictures,
       plainText,
       price: articlePrices[productId],

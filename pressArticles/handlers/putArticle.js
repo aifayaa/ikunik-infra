@@ -27,6 +27,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed,
       md = '',
+      mediaCaptions,
       pictures,
       productId,
       summary,
@@ -82,6 +83,7 @@ export default async (event) => {
       hideFromFeed: !!hideFromFeed,
       html: mdToHtml(md),
       md,
+      mediaCaptions,
       pictures,
       pinned,
       /**
