@@ -5,6 +5,7 @@ const common = {
   categoryId: true,
   createdAt: true,
   likes: true,
+  mediaCaptions: true,
   permissions: true,
   pinned: true,
   publicationDate: true,

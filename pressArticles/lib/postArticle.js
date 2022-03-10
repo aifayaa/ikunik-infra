@@ -23,6 +23,7 @@ export const postArticle = async ({
   html,
   likes = 0,
   md,
+  mediaCaptions,
   pictures,
   plainText = '',
   price,
@@ -46,6 +47,7 @@ export const postArticle = async ({
     typeof html !== 'string' ||
     typeof pinned !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
+    !(['string', 'undefined'].indexOf(typeof mediaCaptions) + 1) ||
     !(['string', 'undefined'].indexOf(typeof xml) + 1) ||
     !Array.isArray(badges) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
@@ -74,6 +76,7 @@ export const postArticle = async ({
       isPublished: false,
       likes,
       hideFromFeed,
+      mediaCaptions,
       plainText,
       summary,
       text: html,
