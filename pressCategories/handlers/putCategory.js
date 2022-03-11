@@ -36,6 +36,7 @@ export default async (event) => {
       badges,
       badgesAllow,
       picture = null,
+      rssFeedUrl = null,
     } = parsedBody;
     let { action } = parsedBody;
 
@@ -57,6 +58,7 @@ export default async (event) => {
       badges || [],
       badgesAllow || 'any',
       action,
+      rssFeedUrl,
     );
 
     if (results === false) {
