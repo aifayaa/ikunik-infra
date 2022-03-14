@@ -8,6 +8,7 @@
   "image/heif-sequence": true,
   "image/jpeg": true,
   "image/png": true,
+  "image/webp": true,
   "video/avi": true,
   "video/mkv": true,
   "video/mp4": true,

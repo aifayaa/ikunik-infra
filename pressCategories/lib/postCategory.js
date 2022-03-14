@@ -18,6 +18,7 @@ export default async (
   badges,
   badgesAllow,
   action,
+  rssFeedUrl,
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -132,6 +133,7 @@ export default async (
         list: badges,
         allow: badgesAllow || 'any',
       },
+      rssFeedUrl,
     };
 
     const whichMaximumOrderValue = parentId ? maximumOrderValueForParentId : maximumOrderValue;

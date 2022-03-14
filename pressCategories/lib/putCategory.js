@@ -19,6 +19,7 @@ export default async (
   badges,
   badgesAllow,
   action,
+  rssFeedUrl,
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -172,6 +173,7 @@ export default async (
     };
 
     if (color) category.color = color;
+    if (rssFeedUrl !== null) category.rssFeedUrl = rssFeedUrl;
 
     if (picture && picture.length) {
       category.picture = picture.pop();
