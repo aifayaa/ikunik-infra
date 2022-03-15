@@ -136,18 +136,25 @@ export const postArticle = async ({
     await lambda.invoke({
       FunctionName: `purchasableProducts-${process.env.STAGE}-postPurchasableProduct`,
       Payload: JSON.stringify({
-        _id: productId,
-        content: [{
-          id: articleId,
-          collection: 'pressArticle',
-          permissions: { all: true },
-        }],
-        options: {
-          appleProductId: storeProductId,
-          googleProductId: storeProductId,
-        },
-        price,
-        type: 'direct',
+        body: JSON.stringify({
+          _id: productId,
+          contents: [{
+            id: articleId,
+            collection: 'pressArticle',
+            permissions: { all: true },
+          }],
+          options: {
+            appleProductId: storeProductId,
+            googleProductId: storeProductId,
+          },
+          price,
+          type: 'direct',
+        }),
+        requestContext: { authorizer: {
+          appId,
+          perms: '{ "purchasableProducts_post": true }',
+          principalId: userId,
+        } },
       }),
     }).promise();
   }
