@@ -235,6 +235,7 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
   const {
     COLL_APPS,
     COLL_PRESS_ARTICLES,
+    COLL_PRESS_DRAFTS,
     COLL_PICTURES,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
@@ -352,6 +353,31 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
             hideFromFeed: 1,
             pinned: -1,
             publicationDate: -1,
+          },
+          opts: makeOpts('sparse'),
+        },
+      ],
+      [COLL_PRESS_DRAFTS]: [
+        {
+          name: 'crowdaa_drafts_by_articleid',
+          key: {
+            articleId: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_drafts_by_articleid2',
+          key: {
+            articleId: 1,
+            appId: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_drafts_by_ancestor',
+          key: {
+            ancestor: 1,
+            appId: 1,
           },
           opts: makeOpts('sparse'),
         },
