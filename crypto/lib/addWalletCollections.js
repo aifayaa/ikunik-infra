@@ -42,11 +42,15 @@ export default async (appId, wallet) => {
         offset,
       });
 
-      const { collection: collections = [] } = response;
+      let collections;
+      if (response instanceof Array) {
+        collections = response;
+      } else {
+        collections = response.collections;
+      }
 
-      const _id = (new ObjectID()).toString();
       collectionsList = collectionsList.concat(collections.map((collection) => ({
-        _id,
+        _id: (new ObjectID()).toString(),
         appId,
         createdAt: new Date(collection.created_date),
         description: collection.description,
@@ -66,7 +70,9 @@ export default async (appId, wallet) => {
       return (false);
     });
 
-    await db.collection(COLL_NFT_COLLECTIONS).insertMany(collectionsList);
+    if (collectionsList.length > 0) {
+      await db.collection(COLL_NFT_COLLECTIONS).insertMany(collectionsList);
+    }
 
     return (collectionsList);
   } finally {

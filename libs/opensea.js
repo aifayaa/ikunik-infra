@@ -42,6 +42,14 @@ OpenSeaApi.prototype.call = async function call(path, data = null, options = {
 
   const rawResponse = await request(params);
 
+  if (typeof rawResponse === 'string') {
+    try {
+      return (JSON.parse(rawResponse));
+    } catch (e) {
+      /* . */
+    }
+  }
+
   return (rawResponse);
 };
 
