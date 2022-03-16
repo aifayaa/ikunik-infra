@@ -1,7 +1,7 @@
 import request from 'request-promise-native';
 
 const OPENSEA_BASE_URL = 'https://api.opensea.io/api/v1';
-const CRYPTO_API_KEY = '0123456789';
+const CRYPTO_API_KEY = 'f30e7b3983f74fff9317687c324d94b3';
 
 function OpenSeaApi() {
   if (!(this instanceof OpenSeaApi)) {
