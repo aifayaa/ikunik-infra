@@ -1,0 +1,58 @@
+service: crypto
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    $<<:
+      ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  listCollections:
+    handler: handlers/listCollections.default
+    events:
+      - http:
+          path: crypto/collections
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
+  addWalletCollections:
+    handler: handlers/addWalletCollections.default
+    events:
+      - http:
+          path: crypto/collections/wallet
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
+  attachCollectionToBadge:
+    handler: handlers/attachCollectionToBadge.default
+    events:
+      - http:
+          path: nft/collections/{id}/attachBadge
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
+plugins:
+  - serverless-offline
+  - '@cruglobal/serverless-merge-config'
+  - serverless-webpack
+
+package:
+  individually: true

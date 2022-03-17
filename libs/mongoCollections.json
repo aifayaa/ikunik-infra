@@ -16,6 +16,7 @@
   "COLL_CONTENT_PERMISSIONS": "contentPermissions",
   "COLL_CREDITS": "credits",
   "COLL_CREDIT_PACKAGES": "creditPackages",
+  "COLL_NFT_COLLECTIONS": "nftCollections",
   "COLL_DEADLINES": "deadlines",
   "COLL_DEVICES": "devices",
   "COLL_FESTIVALS": "festivals",
