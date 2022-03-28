@@ -16,7 +16,7 @@ export const nftCoinbaseStatus = async (userId, appId) => {
       throw new Error('user_not_found');
     }
 
-    if (!user.services || !user.services.coinbase) {
+    if (!user.crypto || !user.crypto.wallets) {
       throw new Error('session_expired');
     }
 
@@ -26,7 +26,7 @@ export const nftCoinbaseStatus = async (userId, appId) => {
 
     /** @TODO Refresh the session if needed */
 
-    return (user.services.coinbase.wallets);
+    return (user.crypto.wallets);
   } finally {
     client.close();
   }

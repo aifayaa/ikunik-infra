@@ -1,5 +1,18 @@
 service: crypto
 
+custom:
+  dev:
+    us-east-1:
+      METAMASK_LOGIN_DOMAIN: dev-metamask.crowdaa.com
+  preprod:
+    eu-west-3:
+      METAMASK_LOGIN_DOMAIN: preprod-metamask.crowdaa.com
+  prod:
+    us-east-1:
+      METAMASK_LOGIN_DOMAIN: metamask.crowdaa.com
+    eu-west-3:
+      METAMASK_LOGIN_DOMAIN: metamask-fr.crowdaa.com
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -9,6 +22,7 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
+    METAMASK_LOGIN_DOMAIN: '${self:custom.${self:provider.stage}.${self:provider.region}.METAMASK_LOGIN_DOMAIN}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -48,6 +62,39 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
+  checkMetamaskLoginToken:
+    handler: handlers/checkMetamaskLoginToken.default
+    events:
+      - http:
+          path: crypto/metamask/checkLoginToken
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  prepareMetamaskLoginToken:
+    handler: handlers/prepareMetamaskLoginToken.default
+    events:
+      - http:
+          path: crypto/metamask/prepareLogin
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  metamaskLoginToken:
+    handler: handlers/metamaskLoginToken.default
+    events:
+      - http:
+          path: crypto/metamask/loginToken
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
 plugins:
   - serverless-offline

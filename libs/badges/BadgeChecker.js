@@ -260,14 +260,14 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
         }
         if (
           user &&
-          user.services.coinbase &&
-          user.services.coinbase.wallets &&
-          user.services.coinbase.wallets.ETH
+          user.crypto &&
+          user.crypto.wallets &&
+          user.crypto.wallets.ETH
         ) {
           const nftCollection = this.nftCollectionsMap[badge.nftCollectionId];
           let ethId = 0;
           await promiseExecUntilEqualsTo(false, async () => {
-            const wallet = user.services.coinbase.wallets.ETH[ethId];
+            const wallet = user.crypto.wallets.ETH[ethId];
             if (!wallet) return (false);
 
             const response = await osApi.call('/assets', {
