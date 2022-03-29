@@ -16,6 +16,7 @@ import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
 import liveStreamView from './liveStreamView';
 import liveStreamRecordingView from './liveStreamRecordingView';
+import metamaskSendLoginUrlHtml from './metamaskSendLoginUrlHtml';
 
 export default {
   libsEmail: {
@@ -61,6 +62,12 @@ export default {
       title: '[{{stage}}] SIWA periodic renewal summary',
       title_error: '<h4>Failed renewals</h4>',
       title_success: '<h4>Successful renewals</h4>',
+    },
+  },
+  crypto: {
+    metamaskSendLoginUrl: {
+      html: metamaskSendLoginUrlHtml,
+      title: '[{{app.name}}] Metamask linking',
     },
   },
   ugc: {
