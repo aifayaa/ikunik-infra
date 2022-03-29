@@ -18,27 +18,13 @@ export default async (appId, userId, userMetamaskToken, wallet) => {
     });
 
     if (!user) {
-      throw new Error('user_session_not_found');
+      throw new Error('user_metamask_token_not_found');
     }
 
     const action = {
       $unset: { 'services.metamaskLoginToken': '' },
     };
-    if (!user.crypto) {
-      action.$set = {
-        crypto: {
-          wallets: {
-            ETH: [wallet],
-          },
-        },
-      };
-    } else if (!user.crypto.wallets) {
-      action.$set = {
-        'crypto.wallets': {
-          ETH: [wallet],
-        },
-      };
-    } else if (!user.crypto.wallets.ETH) {
+    if (!user.crypto || !user.crypto.wallets || !user.crypto.wallets.ETH) {
       action.$set = { 'crypto.wallets.ETH': [wallet] };
     } else {
       action.$addToSet = { 'crypto.wallets.ETH': wallet };

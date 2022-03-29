@@ -90,11 +90,11 @@ functions:
     events:
       - http:
           path: crypto/metamask/loginToken
-          method: put
+          method: post
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
   - serverless-offline

@@ -105,21 +105,7 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
     console.log('WALLALETZ2', wallets);
 
     const action = {};
-    if (!user.crypto) {
-      action.$set = {
-        crypto: {
-          wallets: {
-            ETH: wallets,
-          },
-        },
-      };
-    } else if (!user.crypto.wallets) {
-      action.$set = {
-        'crypto.wallets': {
-          ETH: wallets,
-        },
-      };
-    } else if (!user.crypto.wallets.ETH) {
+    if (!user.crypto || !user.crypto.wallets || !user.crypto.wallets.ETH) {
       action.$set = { 'crypto.wallets.ETH': wallets };
     } else {
       action.$addToSet = { 'crypto.wallets.ETH': { $each: wallets } };
