@@ -1,5 +1,5 @@
 import response from '../../libs/httpResponses/response';
-import { nftCoinbaseStatus } from '../lib/nftCoinbaseStatus';
+import { nftSessionsStatus } from '../lib/nftSessionsStatus';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 
 export default async (event) => {
@@ -13,10 +13,10 @@ export default async (event) => {
       }
     });
 
-    const sessionOk = await nftCoinbaseStatus(userId, appId);
+    const status = await nftSessionsStatus(userId, appId);
 
     /* get User in db or create new one if not exists */
-    return response({ code: 200, body: { ok: sessionOk } });
+    return response({ code: 200, body: status });
   } catch (e) {
     return response(errorMessage(e));
   }

@@ -55,8 +55,7 @@ export default async (appId, userId, lang) => {
     const link = `https://${METAMASK_LOGIN_DOMAIN}/authenticate?userId=${encodeURIComponent(userId)}&appId=${encodeURIComponent(appId)}&token=${encodeURIComponent(loginToken)}`;
     const title = formatMessage('crypto:metamaskSendLoginUrl.title', { app, link });
     const content = formatMessage('crypto:metamaskSendLoginUrl.html', { app, link });
-    const body = formatMessage('libsEmail:template_customers');
-    const html = formatMessage('libsEmail:template_skeleton', { body, content });
+    const html = formatMessage('libsEmail:template_skeleton', { body: '$t(libsEmail:template_customers)', content });
 
     await sendEmailMailgunHtml(
       'No reply <support@crowdaa.com>',

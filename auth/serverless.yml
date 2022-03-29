@@ -156,11 +156,11 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
-  nftCoinbaseStatus:
-    handler: handlers/nftCoinbaseStatus.default
+  nftSessionsStatus:
+    handler: handlers/nftSessionsStatus.default
     events:
       - http:
-          path: auth/nft/coinbaseStatus
+          path: auth/nft/sessionsStatus
           method: get
           cors: true
           authorizer:

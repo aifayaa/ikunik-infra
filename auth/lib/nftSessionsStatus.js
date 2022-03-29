@@ -5,7 +5,7 @@ const {
   COLL_USERS,
 } = mongoCollections;
 
-export const nftCoinbaseStatus = async (userId, appId) => {
+export const nftSessionsStatus = async (userId, appId) => {
   const client = await MongoClient.connect();
 
   try {
@@ -16,17 +16,12 @@ export const nftCoinbaseStatus = async (userId, appId) => {
       throw new Error('user_not_found');
     }
 
-    if (!user.crypto || !user.crypto.wallets) {
-      throw new Error('session_expired');
-    }
-
-    // if (user.services.coinbase.expiresAt.getTime() < Date.now()) {
-    //   throw new Error('session_expired');
-    // }
-
-    /** @TODO Refresh the session if needed */
-
-    return (user.crypto.wallets);
+    return ({
+      wallets: (user.crypto && user.crypto.wallets) || [],
+      coinbase: !!user.services.coinbase,
+      metamask: !!user.services.metamask,
+      metamaskPending: !!user.services.metamaskLoginToken,
+    });
   } finally {
     client.close();
   }

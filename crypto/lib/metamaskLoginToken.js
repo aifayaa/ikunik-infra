@@ -25,8 +25,12 @@ export default async (appId, userId, userMetamaskToken, wallet) => {
       $unset: { 'services.metamaskLoginToken': '' },
     };
     if (!user.crypto || !user.crypto.wallets || !user.crypto.wallets.ETH) {
-      action.$set = { 'crypto.wallets.ETH': [wallet] };
+      action.$set = {
+        'crypto.wallets.ETH': [wallet],
+        'services.metamask': { connectedAt: new Date() },
+      };
     } else {
+      action.$set = { 'services.metamask': { connectedAt: new Date() } };
       action.$addToSet = { 'crypto.wallets.ETH': wallet };
     }
 
