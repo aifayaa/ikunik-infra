@@ -191,7 +191,7 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
   toCheckbadges,
   options,
 ) {
-  const resultsBuilder = new BadgeCheckerResultsBuilder(this);
+  const resultsBuilder = new BadgeCheckerResultsBuilder();
   checkInitialized(this);
 
   if (!toCheckbadges) {

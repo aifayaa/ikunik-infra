@@ -20,15 +20,7 @@ export default async (appId, userId) => {
       .collection(COLL_USER_BADGES)
       .find({
         appId,
-        $or: [
-          {
-            management: { $in: ['request', 'public'] },
-          },
-          {
-            management: 'private-visible',
-            _id: { $in: userBadges.map(({ id }) => (id)) },
-          },
-        ],
+        management: { $in: ['request', 'public', 'private-visible'] },
       })
       .toArray();
 
@@ -52,7 +44,7 @@ export default async (appId, userId) => {
       await badgeChecker.loadBadges();
     }
 
-    const filteredBadges = await Promise.all(allBadges.map(async ({
+    let filteredBadges = await Promise.all(allBadges.map(async ({
       _id,
       name,
       description,
@@ -85,13 +77,20 @@ export default async (appId, userId) => {
           opts,
         );
 
-        if (checkerResults.restrictedBy.length === 0) {
+        if (checkerResults.canRead) {
           ret.owned = true;
         }
       }
 
       return (ret);
     }));
+
+    filteredBadges = filteredBadges.filter((badge) => {
+      if (!badge.owned && badge.management === 'private-visible') {
+        return (false);
+      }
+      return (true);
+    });
 
     return (filteredBadges);
   } finally {
