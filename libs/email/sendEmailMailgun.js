@@ -1,3 +1,4 @@
+import MailComposer from 'nodemailer/lib/mail-composer';
 import Mailgun from 'mailgun-js';
 
 const {
@@ -28,6 +29,35 @@ export function sendEmailMailgunTemplate(from, to, subject, template, vars = {},
     mailgun.messages().send(data, (error, body) => {
       if (error) reject(error);
       else resolve(body);
+    });
+  });
+}
+
+export function sendEmailMailgunHtml(from, to, subject, body, extra = {}) {
+  return new Promise((resolve, reject) => {
+    const mail = new MailComposer({
+      subject,
+      html: body,
+      from,
+      to,
+      ...extra,
+    });
+
+    mail.compile().build((error, message) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      const dataToSend = {
+        message: message.toString('ascii'),
+        to,
+      };
+
+      mailgun.messages().sendMime(dataToSend, (err) => {
+        if (err) return reject(err);
+        return resolve(true);
+      });
     });
   });
 }

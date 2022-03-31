@@ -15,6 +15,7 @@ import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
 import liveStreamView from './liveStreamView';
 import liveStreamRecordingView from './liveStreamRecordingView';
+import metamaskSendLoginUrlHtml from './metamaskSendLoginUrlHtml';
 
 export default {
   libsEmail: {
@@ -50,6 +51,12 @@ export default {
     password_changed_email: {
       html: passwordChangedEmailHtml,
       title: 'Mot de passe changé',
+    },
+  },
+  crypto: {
+    metamaskSendLoginUrl: {
+      html: metamaskSendLoginUrlHtml,
+      title: '[{{app.name}}] Liaison à Metamask',
     },
   },
   ugc: {

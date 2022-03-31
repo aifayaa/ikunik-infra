@@ -104,13 +104,17 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
     wallets = wallets.map(({ address }) => (address));
     console.log('WALLALETZ2', wallets);
 
-    await usersCollection.updateOne({ _id: userId, appId }, {
-      $set: {
-        'services.coinbase.wallets': {
-          ETH: wallets,
-        },
-      },
-    });
+    const action = {};
+    if (!user.crypto || !user.crypto.wallets || !user.crypto.wallets.ETH) {
+      action.$set = { 'crypto.wallets.ETH': wallets };
+    } else {
+      action.$addToSet = { 'crypto.wallets.ETH': { $each: wallets } };
+    }
+
+    await client.db().collection(COLL_USERS).updateOne({
+      appId,
+      _id: userId,
+    }, action);
 
     return ({
       ok: true,
