@@ -1,5 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import BadgeChecker from '../../libs/badges/BadgeChecker';
 
 const {
   COLL_USERS,
@@ -8,6 +9,7 @@ const {
 
 export default async (appId, userId) => {
   const client = await MongoClient.connect();
+  const badgeChecker = new BadgeChecker(appId);
 
   try {
     const user = await client.db().collection(COLL_USERS).findOne({ _id: userId, appId });
@@ -44,7 +46,13 @@ export default async (appId, userId) => {
       return (acc);
     }, {});
 
-    const filteredBadges = allBadges.map(({
+    if (user.crypto) {
+      await badgeChecker.init;
+      badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
+      await badgeChecker.loadBadges();
+    }
+
+    const filteredBadges = await Promise.all(allBadges.map(async ({
       _id,
       name,
       description,
@@ -59,18 +67,35 @@ export default async (appId, userId) => {
         management,
       };
 
-      if (ownedBadges[_id]) {
-        ret.owned = true;
-      }
       if (requestedBadges[_id]) {
         ret.requested = true;
       }
+      if (ownedBadges[_id]) {
+        ret.owned = true;
+      } else if (user.crypto) {
+        const opts = {
+          appId,
+          userId,
+          articleId: null,
+          categoryId: null,
+        };
+        const checkerResults = await badgeChecker.checkBadges(
+          userBadges,
+          { allow: 'all', list: [{ id: _id }] },
+          opts,
+        );
+
+        if (checkerResults.restrictedBy.length === 0) {
+          ret.owned = true;
+        }
+      }
 
       return (ret);
-    });
+    }));
 
     return (filteredBadges);
   } finally {
+    badgeChecker.close();
     client.close();
   }
 };
