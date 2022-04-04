@@ -5,6 +5,15 @@ import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const { COLL_FORMS } = mongoCollections;
 
+// const CORP_EMAIL_JIMMY = 'jimmy@crowdaa.com';
+const CORP_EMAIL_ANTHONY = 'anthony@crowdaa.com';
+const CORP_EMAIL_ERIC = 'eric.eloy@crowdaa.com';
+const CORP_EMAIL_LUC = 'luc@crowdaa.com';
+const CORP_EMAIL_OB = 'ob@crowdaa.com';
+const CORP_EMAIL_SARAH = 'sarah@crowdaa.com';
+const CORP_EMAIL_SUPPORT = 'support@crowdaa.com';
+const CORP_EMAIL_VIGILE = 'vigile@crowdaa.com';
+
 export default async (data = {}) => {
   const client = await MongoClient.connect();
 
@@ -30,24 +39,39 @@ export default async (data = {}) => {
     await intlInit(lang);
 
     await sendEmailMailgunTemplate(
-      'No reply <support@crowdaa.com>',
+      `No reply <${CORP_EMAIL_SUPPORT}>`,
       'support@crowdaa.com',
       formatMessage('forms:postFormRegisterEmail.title'),
       `send_register_crowdaa_team_${lang}`,
       data,
       {
-        cc: 'ob@crowdaa.com, vigile@crowdaa.com, eric.eloy@crowdaa.com',
+        cc: [
+          CORP_EMAIL_ANTHONY,
+          CORP_EMAIL_ERIC,
+          CORP_EMAIL_LUC,
+          CORP_EMAIL_OB,
+          CORP_EMAIL_SARAH,
+          CORP_EMAIL_VIGILE,
+        ].join(', '),
       },
     );
 
     await sendEmailMailgunTemplate(
-      'No reply <support@crowdaa.com>',
+      `No reply <${CORP_EMAIL_SUPPORT}>`,
       data.email,
       formatMessage('forms:postFormRegisterEmail.title'),
       `send_register_crowdaa_owner_${lang}`,
       data,
       {
-        bcc: 'support@crowdaa.com, ob@crowdaa.com, vigile@crowdaa.com, eric.eloy@crowdaa.com',
+        bcc: [
+          CORP_EMAIL_ANTHONY,
+          CORP_EMAIL_ERIC,
+          CORP_EMAIL_LUC,
+          CORP_EMAIL_OB,
+          CORP_EMAIL_SARAH,
+          CORP_EMAIL_SUPPORT,
+          CORP_EMAIL_VIGILE,
+        ].join(', '),
       },
     );
 

@@ -5,10 +5,13 @@ import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const { COLL_FORMS } = mongoCollections;
 
+// const CORP_EMAIL_JIMMY = 'jimmy@crowdaa.com';
+const CORP_EMAIL_ANTHONY = 'anthony@crowdaa.com';
 const CORP_EMAIL_CONTACT = 'contact@crowdaa.com';
 const CORP_EMAIL_ERIC = 'eric.eloy@crowdaa.com';
-// const CORP_EMAIL_JIMMY = 'jimmy@crowdaa.com';
+const CORP_EMAIL_LUC = 'luc@crowdaa.com';
 const CORP_EMAIL_OB = 'ob@crowdaa.com';
+const CORP_EMAIL_SARAH = 'sarah@crowdaa.com';
 const CORP_EMAIL_SUPPORT = 'support@crowdaa.com';
 const CORP_EMAIL_VIGILE = 'vigile@crowdaa.com';
 
@@ -56,7 +59,14 @@ export default async (data = {}) => {
       template: `send_register_crowdaa_team_${lang}`,
       data: { ...data },
       extra: {
-        cc: [CORP_EMAIL_OB, CORP_EMAIL_VIGILE, CORP_EMAIL_ERIC].join(', '),
+        cc: [
+          CORP_EMAIL_ANTHONY,
+          CORP_EMAIL_ERIC,
+          CORP_EMAIL_LUC,
+          CORP_EMAIL_OB,
+          CORP_EMAIL_SARAH,
+          CORP_EMAIL_VIGILE,
+        ].join(', '),
       },
 
       lang,
@@ -80,7 +90,15 @@ export default async (data = {}) => {
       template: `send_register_crowdaa_owner_${lang}`,
       data: { ...data },
       extra: {
-        bcc: [CORP_EMAIL_SUPPORT, CORP_EMAIL_OB, CORP_EMAIL_VIGILE, CORP_EMAIL_ERIC].join(', '),
+        bcc: [
+          CORP_EMAIL_ANTHONY,
+          CORP_EMAIL_ERIC,
+          CORP_EMAIL_LUC,
+          CORP_EMAIL_OB,
+          CORP_EMAIL_SARAH,
+          CORP_EMAIL_SUPPORT,
+          CORP_EMAIL_VIGILE,
+        ].join(', '),
       },
 
       lang,
