@@ -11,10 +11,12 @@ export default async (event) => {
       authorizationCode,
       identityToken,
       fullName,
+      email,
     } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
     const tokenInfo = await getUserByApple(authorizationCode, identityToken, appId, {
       fullName,
+      email,
     });
 
     /* get User in db or create new one if not exists */
