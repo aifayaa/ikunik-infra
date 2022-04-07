@@ -275,6 +275,21 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  getArticleModals:
+      handler: handlers/getArticleModals.default
+      events:
+        - http:
+            path: press/articles/{id}/modals
+            method: get
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   removeArticle:
       handler: handlers/removeArticle.default
       events:
