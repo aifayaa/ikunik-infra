@@ -14,6 +14,7 @@ const {
 
 export const getUserByApple = async (authorizationCode, _identityToken, appId, {
   fullName,
+  email: userEmail,
 } = {}) => {
   // TODO:verify identityToken => https://developer.apple.com/documentation/signinwithapplerestapi/verifying_a_user
 
@@ -72,11 +73,12 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
     const user = await collection.findOne({
       'services.apple.userId': sub,
       appId,
-    }, { projection: { _id: true } });
+    }, { projection: { _id: true, 'profile.email': true } });
     const token = generateToken();
     const hash = hashToken(token);
     const date = new Date();
 
+    const finalEmail = userEmail || email;
     let userId;
     /* if user exist, update apple service */
     if (user) {
@@ -97,6 +99,9 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
           },
         },
       };
+      if ((!user.profile || !user.profile.email) && finalEmail) {
+        patch.$set['profile.email'] = finalEmail;
+      }
       await collection.updateOne({ _id: userId }, patch);
     } else {
       /* create new user */
@@ -104,7 +109,8 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
         username: fullName.nickname ||
         (fullName.givenName || fullName.familyName)
           ? `${fullName.givenName} ${fullName.familyName}`
-          : email.split('@')[0],
+          : finalEmail.split('@')[0],
+        email: finalEmail,
       };
 
       userId = Random.id();
