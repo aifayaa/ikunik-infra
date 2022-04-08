@@ -33,6 +33,7 @@ export default async (event) => {
     } = event.queryStringParameters || {};
 
     let actions;
+    let authorName;
     let badges;
     let badgesAllow;
     let categoryId;
@@ -59,6 +60,7 @@ export default async (event) => {
       case 'application/json': {
         ({
           actions,
+          authorName,
           badges,
           badgesAllow,
           categoryId,
@@ -156,6 +158,7 @@ export default async (event) => {
     const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
       actions,
+      authorName,
       appId,
       badges: badges || [],
       badgesAllow: badgesAllow || 'any',

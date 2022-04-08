@@ -14,6 +14,7 @@ const lambda = new Lambda({
 
 export const postArticle = async ({
   actions,
+  authorName,
   appId,
   badges = [],
   badgesAllow = 'any',
@@ -65,6 +66,7 @@ export const postArticle = async ({
     const article = {
       _id: articleId,
       actions,
+      authorName,
       appId,
       badges: {
         list: badges.map((id) => ({ id })),

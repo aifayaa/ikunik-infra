@@ -21,6 +21,7 @@ export default async (event) => {
     const bodyParsed = JSON.parse(event.body);
     const {
       articleId,
+      authorName,
       badges,
       badgesAllow,
       categoryId,
@@ -76,6 +77,7 @@ export default async (event) => {
       actions,
       appId,
       articleId,
+      authorName,
       badges: badges || [],
       badgesAllow: badgesAllow || 'any',
       categoryId,
