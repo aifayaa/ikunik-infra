@@ -16,6 +16,7 @@ const common = {
   thumbnailDisplayMethod: true,
   title: true,
   user: true,
+  authorName: true,
   videoPlayMode: true,
   views: true,
 };

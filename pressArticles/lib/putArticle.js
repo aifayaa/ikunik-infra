@@ -7,6 +7,7 @@ const { COLL_PRESS_DRAFTS } = mongoCollections;
 
 export const putArticle = async ({
   actions,
+  authorName,
   appId,
   articleId,
   badges = [],
@@ -63,6 +64,7 @@ export const putArticle = async ({
     const draft = {
       _id: draftId,
       actions,
+      authorName: authorName || currentArticle.authorName,
       ancestor: currentArticle._id,
       appId,
       articleId,
