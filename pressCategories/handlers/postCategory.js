@@ -20,14 +20,15 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
+      badges,
+      badgesAllow,
       color,
+      forcedAuthor,
       hidden,
       name,
       order,
       parentId,
       pathName,
-      badges,
-      badgesAllow,
       picture,
       rssFeedUrl,
     } = parsedBody;
@@ -38,20 +39,21 @@ export default async (event) => {
       action = `/pdf/${encodeURIComponent(action.substring(5))}`;
     }
 
-    const results = await postCategory(
-      appId,
-      name,
-      pathName,
-      color,
-      picture,
-      order,
-      hidden,
-      parentId || null,
-      badges || [],
-      badgesAllow || 'any',
+    const results = await postCategory({
       action,
+      appId,
+      badges: badges || [],
+      badgesAllow: badgesAllow || 'any',
+      color,
+      forcedAuthor: forcedAuthor || null,
+      hidden,
+      name,
+      order,
+      parentId: parentId || null,
+      pathName,
+      picture,
       rssFeedUrl,
-    );
+    });
     return response({ code: 200, body: results });
   } catch (e) {
     return response(errorMessage(e));

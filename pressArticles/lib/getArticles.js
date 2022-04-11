@@ -359,6 +359,9 @@ export const getArticles = async (
       const articleCategory = categories.find(
         (category) => category._id === article.categoryId,
       );
+      if (articleCategory && articleCategory.forcedAuthor) {
+        article.authorName = articleCategory.forcedAuthor;
+      }
       return { ...article, category: articleCategory };
     });
 
