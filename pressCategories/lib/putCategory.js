@@ -6,21 +6,22 @@ const { SAFE_ORDER_NUMBER } = process.env;
 const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
-export default async (
+export default async ({
+  action,
   appId,
-  categoryId,
-  name,
-  pathName,
-  color,
-  picture,
-  order,
-  hidden,
-  parentId,
   badges,
   badgesAllow,
-  action,
+  categoryId,
+  color,
+  forcedAuthor,
+  hidden,
+  name,
+  order,
+  parentId,
+  pathName,
+  picture,
   rssFeedUrl,
-) => {
+}) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
@@ -174,6 +175,7 @@ export default async (
 
     if (color) category.color = color;
     if (rssFeedUrl !== null) category.rssFeedUrl = rssFeedUrl;
+    if (forcedAuthor !== null) category.forcedAuthor = forcedAuthor;
 
     if (picture && picture.length) {
       category.picture = picture.pop();
