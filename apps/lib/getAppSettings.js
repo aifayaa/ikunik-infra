@@ -29,6 +29,7 @@ export default async (appId, allSettings = false) => {
       settings: {
         public: application.settings.public,
       },
+      public: application.public || {},
     };
 
     return results;

@@ -6,20 +6,21 @@ const { SAFE_ORDER_NUMBER } = process.env;
 const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
-export default async (
+export default async ({
+  action,
   appId,
-  name,
-  pathName,
-  color,
-  picture,
-  order,
-  hidden,
-  parentId,
   badges,
   badgesAllow,
-  action,
+  color,
+  forcedAuthor,
+  hidden,
+  name,
+  order,
+  parentId,
+  pathName,
+  picture,
   rssFeedUrl,
-) => {
+}) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
@@ -135,6 +136,10 @@ export default async (
       },
       rssFeedUrl,
     };
+
+    if (forcedAuthor !== null) {
+      category.forcedAuthor = forcedAuthor;
+    }
 
     const whichMaximumOrderValue = parentId ? maximumOrderValueForParentId : maximumOrderValue;
     category.order = Math.min(

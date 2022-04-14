@@ -241,6 +241,10 @@ export const getArticle = async (
     const article = articles[0] || null;
 
     if (article) {
+      if (article.category && article.category.forcedAuthor) {
+        article.authorName = article.category.forcedAuthor;
+      }
+
       const articleRequires = (what, requiredElements) => {
         article.text = null;
         article.requires = what;

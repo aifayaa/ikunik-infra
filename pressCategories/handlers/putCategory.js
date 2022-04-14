@@ -27,14 +27,15 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
+      badges,
+      badgesAllow,
       color = null,
+      forcedAuthor = null,
       hidden,
       name,
       order = null,
       parentId,
       pathName,
-      badges,
-      badgesAllow,
       picture = null,
       rssFeedUrl = null,
     } = parsedBody;
@@ -45,21 +46,22 @@ export default async (event) => {
       action = `/pdf/${encodeURIComponent(action.substring(5))}`;
     }
 
-    const results = await putCategory(
-      appId,
-      categoryId,
-      name,
-      pathName,
-      color,
-      picture,
-      order,
-      hidden,
-      parentId || null,
-      badges || [],
-      badgesAllow || 'any',
+    const results = await putCategory({
       action,
+      appId,
+      badges: badges || [],
+      badgesAllow: badgesAllow || 'any',
+      categoryId,
+      color,
+      forcedAuthor,
+      hidden,
+      name,
+      order,
+      parentId: parentId || null,
+      pathName,
+      picture,
       rssFeedUrl,
-    );
+    });
 
     if (results === false) {
       return response({ code: 404, message: 'category_not_found' });
