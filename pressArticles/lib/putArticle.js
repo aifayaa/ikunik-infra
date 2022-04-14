@@ -13,6 +13,7 @@ export const putArticle = async ({
   badges = [],
   badgesAllow = 'any',
   categoryId,
+  displayOptions,
   feedPicture,
   hideFromFeed,
   html,
@@ -98,6 +99,14 @@ export const putArticle = async ({
     if (feedPicture) {
       draft.feedPicture = feedPicture;
     }
+    const currentDisplayOptions = currentArticle.displayOptions || {};
+    draft.displayOptions = {};
+    Object.keys(currentDisplayOptions).forEach((opt) => {
+      draft.displayOptions[opt] = currentDisplayOptions[opt];
+    });
+    Object.keys(displayOptions).forEach((opt) => {
+      draft.displayOptions[opt] = displayOptions[opt];
+    });
 
     await client.db().collection(COLL_PRESS_DRAFTS).insertOne(draft);
 
