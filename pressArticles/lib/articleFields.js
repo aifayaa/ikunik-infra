@@ -4,6 +4,7 @@ const common = {
   badges: true,
   categoryId: true,
   createdAt: true,
+  displayOptions: true,
   likes: true,
   mediaCaptions: true,
   permissions: true,
