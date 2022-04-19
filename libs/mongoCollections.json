@@ -37,6 +37,7 @@
   "COLL_PRESS_BLASTS": "pressBlasts",
   "COLL_PRESS_CATEGORIES": "pressCategories",
   "COLL_PRESS_DRAFTS": "pressDrafts",
+  "COLL_PRESS_MODALS": "pressModals",
   "COLL_PRESS_NOTIFICATIONS_QUEUE": "pressNotificationsQueue",
   "COLL_PROFILES": "profil",
   "COLL_PROJECTS": "Project",
