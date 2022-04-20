@@ -56,7 +56,7 @@ export default async (data = {}) => {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
       to: `${CORP_EMAIL_SUPPORT}`,
       title: formatMessage('forms:postFormRegisterEmail.title'),
-      template: `send_register_crowdaa_team_${lang}`,
+      template: `affiliate_crowdaa_register_fr${lang}`,
       data: { ...data },
       extra: {
         cc: [
@@ -68,7 +68,6 @@ export default async (data = {}) => {
           CORP_EMAIL_VIGILE,
         ].join(', '),
       },
-
       lang,
     };
 
@@ -87,7 +86,7 @@ export default async (data = {}) => {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
       to: (data.email && data.email.trim()) || CORP_EMAIL_CONTACT,
       title: formatMessage('forms:postFormRegisterEmail.title'),
-      template: `send_register_crowdaa_owner_${lang}`,
+      template: `affiliate_register_${lang}`,
       data: { ...data },
       extra: {
         bcc: [
@@ -100,7 +99,6 @@ export default async (data = {}) => {
           CORP_EMAIL_VIGILE,
         ].join(', '),
       },
-
       lang,
     };
 
