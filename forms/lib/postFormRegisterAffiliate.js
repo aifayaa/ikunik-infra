@@ -56,7 +56,7 @@ export default async (data = {}) => {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
       to: `${CORP_EMAIL_SUPPORT}`,
       title: formatMessage('forms:postFormRegisterEmail.title'),
-      template: `affiliate_crowdaa_register_fr${lang}`,
+      template: `affiliate_crowdaa_register_${lang}`,
       data: { ...data },
       extra: {
         cc: [
