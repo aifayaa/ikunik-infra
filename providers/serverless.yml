@@ -2,6 +2,7 @@ service: providers
 
 custom:
   prod:
+    CPME92_URL: 'https://www.cpme92.fr'
     CPME_CRED_PASS: '25969'
     CPME_CRED_USER: 'vigile@crowdaa.com'
     CPME_PATH_AUTH: '/ressources_adherents/access&return=RETURN_PATH_BASE64'
@@ -26,6 +27,7 @@ provider:
     CPME_CRED_USER: '${self:custom.${self:provider.stage}.CPME_CRED_USER, "NONE"}'
     CPME_PATH_AUTH: '${self:custom.${self:provider.stage}.CPME_PATH_AUTH, "NONE"}'
     CPME_URL: '${self:custom.${self:provider.stage}.CPME_URL, "NONE"}'
+    CPME92_URL: '${self:custom.${self:provider.stage}.CPME92_URL, "NONE"}'
     LEQUOTIDIEN_APP_ID: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_APP_ID, "NONE"}'
     LEQUOTIDIEN_AWS_KEY: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_KEY, "NONE"}'
     LEQUOTIDIEN_AWS_REGION: '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_REGION, "NONE"}'
@@ -43,6 +45,14 @@ functions:
     events:
       - http:
           path: providers/CPME/websitePage
+          method: get
+          cors: true
+
+  provCPME92GetWebsitePage:
+    handler: handlers/CPME92/getWebsitePage.default
+    events:
+      - http:
+          path: providers/CPME92/websitePage
           method: get
           cors: true
 
