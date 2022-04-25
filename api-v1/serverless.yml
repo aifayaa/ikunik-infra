@@ -30,11 +30,15 @@ plugins:
   - serverless-plugin-bind-deployment-id
   - serverless-domain-manager
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   mongoDB:
     dev:
       us-east-1: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev

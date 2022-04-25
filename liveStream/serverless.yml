@@ -1,6 +1,9 @@
 service: liveStream
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   dev:
     us-east-1:
       IVS_REGION: us-east-1
@@ -195,4 +198,5 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
   - serverless-export-env
