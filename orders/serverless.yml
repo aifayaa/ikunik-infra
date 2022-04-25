@@ -57,11 +57,15 @@ functions:
 plugins:
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   STRIPE_API_KEY:
     dev: sk_test_wbtCudjJImb2OKWdxR1HvoTr
     preprod: sk_test_wbtCudjJImb2OKWdxR1HvoTr

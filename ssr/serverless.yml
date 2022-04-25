@@ -68,11 +68,15 @@ plugins:
   - serverless-domain-manager
   - serverless-export-env
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   domains:
     dev:
       us-east-1: dev-ssr.aws.crowdaa.com
