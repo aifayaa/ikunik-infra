@@ -52,6 +52,12 @@ plugins:
   - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
 
 package:
   individually: true

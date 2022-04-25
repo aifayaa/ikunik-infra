@@ -1,6 +1,9 @@
 service: providers
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   prod:
     CPME92_URL: 'https://www.cpme92.fr'
     CPME_CRED_PASS: '25969'
@@ -83,6 +86,7 @@ plugins:
   - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true

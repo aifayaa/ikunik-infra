@@ -110,9 +110,13 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env
   - serverless-webpack
+  - serverless-prune-plugin
 
 # sharp package need to be include to work properly
 custom:
+  prune:
+    automatic: true
+    number: 3
   webpack:
     includeModules:
       forceInclude:

@@ -1,6 +1,9 @@
 service: pressArticles
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   dev:
     us-east-1:
       NOTIFICATION_STATE_MACHINE_NAME: DevSendArticleNotifications
@@ -309,6 +312,7 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
   - serverless-export-env
 
 package:

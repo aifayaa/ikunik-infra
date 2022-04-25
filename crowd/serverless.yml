@@ -140,11 +140,15 @@ functions:
 plugins:
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   IntegrationRequestParameters:
     integration.request.header.x-api-key: method.request.header.x-api-key
     integration.request.querystring.articleId: method.request.querystring.articleId

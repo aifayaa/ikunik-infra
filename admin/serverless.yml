@@ -24,6 +24,12 @@ functions:
 plugins:
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
 
 package:
   individually: true

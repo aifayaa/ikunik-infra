@@ -183,6 +183,12 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env
   - serverless-webpack
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
 
 package:
   individually: true
