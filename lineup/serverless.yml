@@ -197,11 +197,15 @@ functions:
 plugins:
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   blast:
     text:
       dev: blast-dev-blastText

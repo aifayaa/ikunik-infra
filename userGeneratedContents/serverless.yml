@@ -1,6 +1,9 @@
 service: userGeneratedContents
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   dev:
     us-east-1:
       REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
@@ -203,6 +206,7 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-offline
   - serverless-webpack
+  - serverless-prune-plugin
   - serverless-export-env
 
 package:

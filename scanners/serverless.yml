@@ -99,6 +99,9 @@ functions:
                 Authorization: true
 
 custom:
+  prune:
+    automatic: true
+    number: 3
   MAILGUN_API_KEY:
     dev: key-ee8f3c350f56cbe4002b9c00cce04769
     preprod: key-ee8f3c350f56cbe4002b9c00cce04769
@@ -112,6 +115,7 @@ plugins:
   - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
+  - serverless-prune-plugin
 
 package:
   individually: true
