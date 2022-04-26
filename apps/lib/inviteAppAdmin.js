@@ -17,6 +17,16 @@ const {
   COLL_USERS,
 } = mongoCollections;
 
+const BCC_EMAILS_BASE = [
+  'vigile@crowdaa.com',
+  'ob@crowdaa.com',
+  'eric.eloy@crowdaa.com',
+];
+
+const BCC_EMAILS_EN = [
+  'jimmy@crowdaa.com',
+];
+
 function sendNewAccountPassword(app, email, lang, {
   firstname,
   password,
@@ -26,6 +36,10 @@ function sendNewAccountPassword(app, email, lang, {
   const subject = formatMessage('apps:invite_app_admin_email_title', { appName: app.name });
 
   const template = app.builds ? `send_dashboard_access_${lang}` : `welcome_preview_${lang}`;
+
+  let bcc = BCC_EMAILS_BASE.slice();
+  if (lang === 'en') bcc = bcc.concat(BCC_EMAILS_EN);
+  bcc = bcc.join(', ');
 
   return (sendEmailMailgunTemplate(
     'No reply <support@crowdaa.com>',
@@ -42,7 +56,7 @@ function sendNewAccountPassword(app, email, lang, {
       authUrl: `${REACT_APP_AUTH_URL}/password-forgot?skipPhoneRegister=true&redirect_uri=${REACT_APP_PRESS_SERVICE_URL}/${app._id}/home`,
     },
     {
-      bcc: 'vigile@crowdaa.com, ob@crowdaa.com, eric.eloy@crowdaa.com',
+      bcc,
     },
   ));
 }
