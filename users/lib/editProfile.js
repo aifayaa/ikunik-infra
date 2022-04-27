@@ -1,35 +1,31 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
+const { COLL_PICTURES, COLL_USERS } = mongoCollections;
+
 export default async (userId, appId, {
-  avatar,
   username,
+  avatar: avatarId,
 }) => {
   const $set = {
     'profile.username': `${username}`,
   };
-
   const client = await MongoClient.connect();
+  const db = client.db();
 
   try {
-    if (avatar) {
-      const picture = await client.db()
-        .collection(mongoCollections.COLL_PICTURES)
-        .findOne({ _id: avatar, appId });
-      const { fromUserId, thumbUrl } = (picture || {});
-      if (!fromUserId || !thumbUrl) {
-        throw new Error('picture_not_found');
+    if (avatarId) {
+      const avatarObj = await db.collection(COLL_PICTURES).findOne({ _id: avatarId, appId });
+      if (!avatarObj || !avatarObj.mediumUrl) {
+        throw new Error('missing_avatar');
       }
-      if (fromUserId !== userId) {
-        throw new Error('forbidden');
-      }
-      $set['profile.avatar'] = thumbUrl;
-      $set['profile.avatarId'] = avatar;
+
+      $set['profile.avatarId'] = avatarId;
+      $set['profile.avatar'] = avatarObj.mediumUrl;
     }
 
-    const { matchedCount } = await client
-      .db()
-      .collection(mongoCollections.COLL_USERS)
+    const { matchedCount } = await db
+      .collection(COLL_USERS)
       .updateOne({
         _id: userId,
         appId,
