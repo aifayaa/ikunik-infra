@@ -6,7 +6,7 @@ import { formatMessage, intlInit } from '../../libs/intl/intl';
 const { COLL_FORMS } = mongoCollections;
 
 const CORP_EMAIL_ANTHONY = 'anthony@crowdaa.com';
-const CORP_EMAIL_DJOTHI = 'djothi@croawdaa.com';
+const CORP_EMAIL_DJOTHI = 'djothi@crowdaa.com';
 const CORP_EMAIL_ERIC = 'eric.eloy@crowdaa.com';
 const CORP_EMAIL_JIMMY = 'jimmy@crowdaa.com';
 const CORP_EMAIL_LUC = 'luc@crowdaa.com';
