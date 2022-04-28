@@ -8,6 +8,7 @@ const { COLL_FORMS } = mongoCollections;
 // const CORP_EMAIL_JIMMY = 'jimmy@crowdaa.com';
 const CORP_EMAIL_ANTHONY = 'anthony@crowdaa.com';
 const CORP_EMAIL_CONTACT = 'contact@crowdaa.com';
+const CORP_EMAIL_DJOTHI = 'djothi@croawdaa.com';
 const CORP_EMAIL_ERIC = 'eric.eloy@crowdaa.com';
 const CORP_EMAIL_LUC = 'luc@crowdaa.com';
 const CORP_EMAIL_OB = 'ob@crowdaa.com';
@@ -15,17 +16,16 @@ const CORP_EMAIL_SARAH = 'sarah@crowdaa.com';
 const CORP_EMAIL_SUPPORT = 'support@crowdaa.com';
 const CORP_EMAIL_VIGILE = 'vigile@crowdaa.com';
 
-function manageDistributors(/* mailData */) {
-  // const { distributor = '' } = mailData.data;
-  // if (mailData.lang === 'en') {
-  //   if (mailData.extra.bcc) {
-  //     mailData.extra.bcc = `${mailData.extra.bcc}, ${CORP_EMAIL_JIMMY}`;
-  //   } else {
-  //     mailData.extra.bcc = CORP_EMAIL_JIMMY;
-  //   }
-  // } else if (distributor.match(/Icone Technologies/i)) {
-  //   /* . */
-  // }
+function manageDistributors(mailData) {
+  if (mailData.lang === 'fr') {
+    if (mailData.extra.bcc) {
+      mailData.extra.bcc = `${mailData.extra.bcc}, ${CORP_EMAIL_DJOTHI}`;
+    } else if (mailData.extra.cc) {
+      mailData.extra.cc = `${mailData.extra.cc}, ${CORP_EMAIL_DJOTHI}`;
+    } else {
+      mailData.extra.bcc = CORP_EMAIL_DJOTHI;
+    }
+  }
 }
 
 export default async (data = {}) => {
