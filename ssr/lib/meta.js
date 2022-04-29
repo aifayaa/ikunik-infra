@@ -27,6 +27,8 @@ export default (
     <meta property="al:ios:app_name" content="${iosAppName}" />
   ` : '';
   return `
+<html>
+  <head>
     ${fbAppId ? `<meta property="fb:app_id" content="${fbAppId}" />` : ''}\
     <meta name="twitter:card" content="summary"></meta>\
     <meta property="og:title" content="${title}" />\
@@ -38,5 +40,9 @@ export default (
     <meta property="og:type" content="website" />\
     ${iosMeta}\
     ${androidMeta}\
+  </head>
+  <body>
+  </body>
+</html>
   `;
 };
