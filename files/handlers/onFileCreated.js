@@ -1,11 +1,13 @@
 import AWS from 'aws-sdk/';
 import managePicture from '../lib/managePicture';
 import manageVideo from '../lib/manageVideo';
+import manageDocument from '../lib/manageDocument';
 import response from '../../libs/httpResponses/response';
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
+  COLL_DOCUMENTS,
   COLL_PICTURES,
   COLL_VIDEOS,
 } = mongoCollections;
@@ -38,6 +40,8 @@ export default async (event) => {
       await managePicture(bucket, object, file);
     } else if (collection === COLL_VIDEOS) {
       await manageVideo(bucket, object, fileHead);
+    } else if (collection === COLL_DOCUMENTS) {
+      await manageDocument(bucket, object, fileHead);
     }
 
     return response({ code: 200, body: 'ok' });

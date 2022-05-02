@@ -5,9 +5,8 @@ import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
 
 const {
-  REGION,
+  CDN_DOMAIN_NAME,
   S3_PICTURES_BUCKET,
-  S3_VIDEOS_BUCKET,
 } = process.env;
 
 const {
@@ -121,8 +120,8 @@ export default async (event) => {
       return response({ code: 500, body: `${e}` });
     } finally {
       // this should be done in a better way ..
-      const thumbUrl = `https://${S3_PICTURES_BUCKET}.s3.amazonaws.com/${thumbFilename}`;
-      const url = `https://s3.${REGION}.amazonaws.com/${S3_VIDEOS_BUCKET}/${outputKeyPrefix}master.m3u8`;
+      const thumbUrl = `https://${CDN_DOMAIN_NAME}/${thumbFilename}`;
+      const url = `https://${CDN_DOMAIN_NAME}/${outputKeyPrefix}master.m3u8`;
       const videoDoc = {
         filename: name,
         isPublished: true,

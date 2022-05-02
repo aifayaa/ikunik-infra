@@ -2,6 +2,7 @@ import supportedFormats from '../supportedFormats.json';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
+  COLL_DOCUMENTS,
   COLL_PICTURES,
   COLL_VIDEOS,
 } = mongoCollections;
@@ -23,6 +24,9 @@ export default (contentType, throwError = true) => {
   }
   if (contentType.indexOf('video/') + 1) {
     return COLL_VIDEOS;
+  }
+  if (contentType.indexOf('application/pdf') + 1) {
+    return COLL_DOCUMENTS;
   }
 
   if (throwError) {
