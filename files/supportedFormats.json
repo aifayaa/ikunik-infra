@@ -1,4 +1,5 @@
 {
+  "application/pdf": true,
   "image/avif": true,
   "image/avif-sequence": true,
   "image/gif": true,

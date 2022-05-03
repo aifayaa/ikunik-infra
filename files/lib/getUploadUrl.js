@@ -15,8 +15,19 @@ const {
 } = process.env;
 
 const {
+  COLL_DOCUMENTS,
+  COLL_PICTURES,
   COLL_VIDEOS,
 } = mongoCollections;
+
+function getDirPrefixFromCollection(collection) {
+  switch (collection) {
+    case COLL_VIDEOS: return 'VideoStorage/';
+    case COLL_DOCUMENTS: return 'Documents/';
+    case COLL_PICTURES: return 'Pictures/';
+    default: return '';
+  }
+}
 
 export default async (userId, appId, files, metadata) => {
   const insertions = {};
@@ -33,7 +44,7 @@ export default async (userId, appId, files, metadata) => {
 
     /* Preparing s3 parameters to get an upload link */
     const fileExtension = path.extname(name);
-    const dirPrefix = collection === COLL_VIDEOS ? 'VideoStorage/' : '';
+    const dirPrefix = getDirPrefixFromCollection(collection);
     const key = `${dirPrefix}${uuidv4()}${fileExtension}`;
     const id = uuidv4();
     const s3Params = {
@@ -59,6 +70,8 @@ export default async (userId, appId, files, metadata) => {
       appId,
       isPublished: false,
       status: uploadStatus.UPLOADING,
+      sourceKey: key,
+      name: path.basename(name),
     };
 
     if (collection === COLL_VIDEOS) {
