@@ -31,6 +31,11 @@ provider:
       ${file(../env.yml)}
     REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}'
     REACT_APP_API_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -190,6 +195,23 @@ functions:
     events:
       - http:
           path: userGeneratedContents/{id}/review
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  notifyUGC:
+    handler: handlers/notifyUserGeneratedContents.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/notify
           method: patch
           cors: true
           authorizer:

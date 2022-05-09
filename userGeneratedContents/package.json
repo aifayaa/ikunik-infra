@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
+    "aws-sdk": "^2.1129.0",
     "mongodb": "^3.5.0",
     "source-map-support": "^0.5.16",
     "uuid": "^3.4.0"

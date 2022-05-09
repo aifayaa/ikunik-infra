@@ -10,6 +10,7 @@
   "COLL_BANNERS": "banners",
   "COLL_BILLING": "billing",
   "COLL_BLASTS": "blasts",
+  "COLL_BLAST_NOTIFICATIONS_QUEUE": "blastNotificationsQueue",
   "COLL_CARTS": "carts",
   "COLL_CONTACTS": "contacts",
   "COLL_CONTENT_BY_USER_METRIC": "contentByUserMetric",
