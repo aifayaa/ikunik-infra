@@ -1,126 +1,29 @@
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
+import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import prepareNotif from './prepareNotifString';
 
 const {
-  NOTIFICATION_STATE_MACHINE_NAME,
-  NOTIFICATION_STATE_MACHINE_RESOURCE,
-  NOTIFICATION_STATE_MACHINE_ROLE,
   REGION,
   STAGE,
 } = process.env;
 
 const {
   COLL_PRESS_ARTICLES,
-  COLL_PRESS_NOTIFICATIONS_QUEUE,
-  COLL_PUSH_NOTIFICATIONS,
 } = mongoCollections;
 
-const PROCESS_BATCH_SIZE = 100;
-
-const createArticleNotificationSender = async (
-  appId,
-  articleId,
-  draftId,
-  notifyAt,
-  delay,
-) => {
-  const stepfunctions = new StepFunctions({
-    region: REGION,
-  });
-  const stateMachineParams = {
-    name: NOTIFICATION_STATE_MACHINE_NAME,
-    roleArn: NOTIFICATION_STATE_MACHINE_ROLE,
-    type: 'STANDARD',
-    definition: JSON.stringify({
-      Comment: 'Delayed broadcasting of notification',
-      StartAt: 'Delay',
-      States: {
-        Delay: {
-          Type: 'Wait',
-          SecondsPath: '$.delay',
-          Next: 'callLambda',
-        },
-        callLambda: {
-          Type: 'Task',
-          Resource: 'arn:aws:states:::lambda:invoke',
-          Parameters: {
-            FunctionName: NOTIFICATION_STATE_MACHINE_RESOURCE,
-            'Payload.$': '$',
-          },
-          Retry: [
-            {
-              ErrorEquals: [
-                'Lambda.ServiceException',
-                'Lambda.AWSLambdaException',
-                'Lambda.SdkClientException',
-              ],
-              IntervalSeconds: 2,
-              MaxAttempts: 6,
-              BackoffRate: 2,
-            },
-          ],
-          Next: 'Choice',
-          ResultPath: '$.lastExec',
-        },
-        Choice: {
-          Type: 'Choice',
-          Choices: [
-            {
-              Variable: '$.lastExec.Payload.retry',
-              BooleanEquals: true,
-              Next: 'callLambda',
-            },
-          ],
-          Default: 'Success',
-        },
-        Success: {
-          Type: 'Succeed',
-        },
-      },
-    }, null, 2), /** < Formatting because it can be read on the amazon web interface */
-  };
-
-  const { stateMachineArn } = await stepfunctions.createStateMachine(stateMachineParams).promise();
-
-  const execParams = {
-    stateMachineArn,
-    name: `${STAGE}-${draftId}-${Date.now()}-${notifyAt.getTime()}`,
-    input: JSON.stringify({
-      appId,
-      articleId,
-      draftId,
-      notifyAt: notifyAt.toISOString(),
-      delay,
-    }),
-  };
-
-  const { executionArn } = await stepfunctions.startExecution(execParams).promise();
-
-  const client = await MongoClient.connect();
-  await client
-    .db()
-    .collection(COLL_PRESS_ARTICLES)
-    .updateOne(
-      {
-        _id: articleId,
-        appId,
-      }, {
-        $set: {
-          pendingNotificationAwsArnId: executionArn,
-        },
-      },
-    );
-  await client.close();
-};
+const lambda = new Lambda({
+  region: REGION,
+});
 
 export const queueArticleNotifications = async (
   appId,
   articleId,
   draftId,
   notifyAt,
-  notificationContent = null,
-  notificationTitle = null,
+  content = null,
+  title = null,
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -134,51 +37,47 @@ export const queueArticleNotifications = async (
       notifyAt = new Date();
     }
 
-    const dbPushNotifications = client.db().collection(COLL_PUSH_NOTIFICATIONS);
-    const dbPressNotifQueue = client.db().collection(COLL_PRESS_NOTIFICATIONS_QUEUE);
-
-    const endpoints = dbPushNotifications.find(
-      { appId },
-      { projection: { _id: 1, Platform: 1, EndpointArn: 1, userId: 1 } },
-    ).batchSize(PROCESS_BATCH_SIZE);
-
-    const promises = [];
-    let insertBatches = [];
-    let queued = 0;
-
-    await endpoints.forEach((endpoint) => {
-      insertBatches.push({
-        appId,
-        articleId,
-        draftId,
-        endpointId: endpoint._id,
-        userId: endpoint.userId,
-        notifyAt,
-        notificationContent,
-        notificationTitle,
-      });
-      queued += 1;
-
-      if (insertBatches.length >= PROCESS_BATCH_SIZE) {
-        promises.push(dbPressNotifQueue.insertMany(insertBatches));
-        insertBatches = [];
-      }
+    const article = await client.db().collection(COLL_PRESS_ARTICLES).findOne({
+      _id: articleId,
+      appId,
     });
 
-    if (insertBatches.length > 0) {
-      promises.push(dbPressNotifQueue.insertMany(insertBatches));
-      insertBatches = [];
+    if (!title && !content) {
+      content = content || prepareNotif(article.plainText);
+      title = title || prepareNotif(article.title, 60, false);
     }
 
-    await Promise.all(promises);
+    const response = await lambda.invoke({
+      FunctionName: `blast-${STAGE}-queueNotifications`,
+      Payload: JSON.stringify({
+        appId,
+        notifyAt,
+        type: 'pressArticle',
+        data: {
+          articleId,
+          draftId,
+          content,
+          title,
+        },
+      }),
+    }).promise();
+    const { queueId } = JSON.parse(response.Payload);
 
-    if (queued === 0) return;
-
-    let delay = notifyAt.getTime() - Date.now();
-    if (delay < 0) delay = 0;
-    delay = (delay / 1000) | 0;
-
-    await createArticleNotificationSender(appId, articleId, draftId, notifyAt, delay);
+    if (queueId) {
+      await client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateOne(
+          {
+            _id: articleId,
+            appId,
+          }, {
+            $set: {
+              pendingNotificationQueueId: queueId,
+            },
+          },
+        );
+    }
   } finally {
     await client.close();
   }
@@ -224,12 +123,28 @@ export const cleanPendingArticleNotifications = async (
             },
           },
         );
-    }
+    } else if (article.pendingNotificationQueueId) {
+      await lambda.invoke({
+        FunctionName: `blast-${STAGE}-unqueueNotifications`,
+        Payload: JSON.stringify({
+          appId: article.appId,
+          queueId: article.pendingNotificationQueueId,
+        }),
+      }).promise();
 
-    await client.db().collection(COLL_PRESS_NOTIFICATIONS_QUEUE).deleteMany({
-      appId: article.appId,
-      articleId,
-    });
+      await client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateOne(
+          {
+            _id: articleId,
+          }, {
+            $unset: {
+              pendingNotificationQueueId: '',
+            },
+          },
+        );
+    }
   } finally {
     await client.close();
   }

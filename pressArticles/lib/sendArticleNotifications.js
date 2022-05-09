@@ -161,9 +161,6 @@ export const sendArticleNotifications = async (
           message = notificationContent;
         }
 
-        console.log('LNAX 1', notificationTitle);
-        console.log('LNAX 2', notificationContent);
-
         await new Promise((resolve) => {
           sendNotificationTo({
             title,

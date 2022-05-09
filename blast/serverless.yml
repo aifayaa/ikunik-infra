@@ -1,5 +1,25 @@
 service: blast
 
+custom:
+  prune:
+    automatic: true
+    number: 3
+  dev:
+    us-east-1:
+      NOTIFICATION_STATE_MACHINE_NAME: DevSendNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevUsSendNotifications-role
+  preprod:
+    eu-west-3:
+      NOTIFICATION_STATE_MACHINE_NAME: PreprodSendNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodFrSendNotifications-role
+  prod:
+    us-east-1:
+      NOTIFICATION_STATE_MACHINE_NAME: ProdSendNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdUsSendNotifications-role
+    eu-west-3:
+      NOTIFICATION_STATE_MACHINE_NAME: ProdSendNotifications
+      NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrSendNotifications-role
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -11,6 +31,19 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
+    - Effect: Allow
+      Action:
+        - states:CreateStateMachine
+        - states:StartExecution
+      Resource: "arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}"
+    - Effect: Allow
+      Action:
+        - iam:PassRole
+      Resource: "${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}"
+    - Effect: Allow
+      Action:
+        - states:StopExecution
+      Resource: "arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*"
   environment:
     $<<: 
       - ${file(../env.yml)}
@@ -33,6 +66,13 @@ functions:
   removeBlastToken:
     handler: handlers/removeBlastToken.default
 
+  sendNotifications:
+    handler: handlers/sendNotifications.default
+  queueNotifications:
+    handler: handlers/queueNotifications.default
+  unqueueNotifications:
+    handler: handlers/unqueueNotifications.default
+
   getBlasts:
     handler: handlers/getBlasts.default
     events:
@@ -53,11 +93,6 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
   - serverless-prune-plugin
-
-custom:
-  prune:
-    automatic: true
-    number: 3
 
 package:
   individually: true
