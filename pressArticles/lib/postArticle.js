@@ -23,6 +23,7 @@ export const postArticle = async ({
   feedPicture,
   hideFromFeed,
   html,
+  isWebview = false,
   likes = 0,
   md,
   mediaCaptions,
@@ -48,6 +49,7 @@ export const postArticle = async ({
     typeof views !== 'number' ||
     typeof html !== 'string' ||
     typeof pinned !== 'boolean' ||
+    typeof isWebview !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
     !(['string', 'undefined'].indexOf(typeof mediaCaptions) + 1) ||
     !(['string', 'undefined'].indexOf(typeof xml) + 1) ||
@@ -67,8 +69,8 @@ export const postArticle = async ({
     const article = {
       _id: articleId,
       actions,
-      authorName,
       appId,
+      authorName,
       badges: {
         list: badges.map((id) => ({ id })),
         allow: badgesAllow,
@@ -77,10 +79,12 @@ export const postArticle = async ({
       createdAt: new Date(),
       displayOptions,
       draftId,
-      isPublished: false,
-      likes,
       hideFromFeed,
+      isPublished: false,
+      isWebview,
+      likes,
       mediaCaptions,
+      pinned,
       plainText,
       summary,
       text: html,
@@ -89,7 +93,6 @@ export const postArticle = async ({
       userId,
       videoPlayMode,
       views,
-      pinned,
     };
 
     if (storeProductId) {

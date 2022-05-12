@@ -1,10 +1,12 @@
 const common = {
   _id: true,
   actions: true,
+  authorName: true,
   badges: true,
   categoryId: true,
   createdAt: true,
   displayOptions: true,
+  isWebview: true,
   likes: true,
   mediaCaptions: true,
   permissions: true,
@@ -17,7 +19,6 @@ const common = {
   thumbnailDisplayMethod: true,
   title: true,
   user: true,
-  authorName: true,
   videoPlayMode: true,
   views: true,
 };

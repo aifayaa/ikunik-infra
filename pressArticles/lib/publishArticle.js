@@ -36,9 +36,11 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       displayOptions,
       feedPicture,
       hideFromFeed,
+      isWebview,
       md,
       mediaCaptions,
       pictures,
+      pinned,
       plainText,
       productId,
       storeProductId,
@@ -48,7 +50,6 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       title,
       videoPlayMode,
       videos,
-      pinned,
     } = draft;
 
     const $set = {
@@ -56,14 +57,16 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       authorName,
       badges: badges || ({ list: [], allow: 'any' }),
       categoryId,
-      draftId: _id,
       displayOptions: displayOptions || {},
+      draftId: _id,
       feedPicture: feedPicture || undefined,
       hideFromFeed,
       isPublished: true,
+      isWebview,
       md,
       mediaCaptions,
       pictures: (typeof pictures !== 'undefined' && pictures.length) ? pictures : undefined,
+      pinned,
       plainText,
       productId,
       publicationDate,
@@ -74,7 +77,6 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       thumbnailDisplayMethod,
       title,
       videoPlayMode,
-      pinned,
       videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
     };
 
