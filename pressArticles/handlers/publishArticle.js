@@ -21,6 +21,7 @@ export default async (event) => {
       sendNotifications = false,
       notificationContent = null,
       notificationTitle = null,
+      notificationDate = null,
     } = JSON.parse(event.body);
     if (!draftId || !date) {
       throw new Error('mal_formed_request');
@@ -36,7 +37,7 @@ export default async (event) => {
         appId,
         articleId,
         draftId,
-        publicationDate,
+        notificationDate || publicationDate,
         notificationContent,
         notificationTitle,
       );
