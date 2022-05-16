@@ -263,7 +263,7 @@ export const getPurchasedArticles = async (
 
     countPipeline = countPipeline.concat([{ $count: 'total' }]);
 
-    const [articles = [], [{ total = 0 }]] = await Promise.all([
+    const [articles = [], [{ total = 0 } = {}]] = await Promise.all([
       client
         .db()
         .collection(COLL_CONTENT_PERMISSIONS)
