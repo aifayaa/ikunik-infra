@@ -25,9 +25,10 @@ export const getArticles = async (
     getPictures = false,
     noDateFilter = false,
     onlyPublished = true,
-    reversedSort = false,
+    reversedFlow = false,
     showHiddenOnFeed = false,
     showWithHiddenCategories = false,
+    startDate = null,
     userId,
   },
 ) => {
@@ -112,10 +113,15 @@ export const getArticles = async (
     let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
-      if (reversedSort) {
+      if (reversedFlow) {
         sortArticles = { pinned: -1, publicationDate: 1 };
         matchArticles.isPublished = true;
         if (!noDateFilter) {
+          let from = startDate ? new Date(startDate) : new Date();
+          if (!from.toJSON()) {
+            from = new Date();
+          }
+
           matchArticles.$or = [
             {
               publicationDate: {
@@ -124,7 +130,7 @@ export const getArticles = async (
             },
             {
               publicationDate: {
-                $gte: new Date(),
+                $gte: from,
               },
             },
           ];
