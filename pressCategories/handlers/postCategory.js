@@ -30,6 +30,8 @@ export default async (event) => {
       parentId,
       pathName,
       picture,
+      reversedFlow,
+      reversedFlowStart,
       rssFeedUrl,
     } = parsedBody;
     let { action } = parsedBody;
@@ -52,6 +54,8 @@ export default async (event) => {
       parentId: parentId || null,
       pathName,
       picture,
+      reversedFlow: reversedFlow || false,
+      reversedFlowStart: reversedFlowStart || 0,
       rssFeedUrl,
     });
     return response({ code: 200, body: results });

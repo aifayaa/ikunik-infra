@@ -37,6 +37,8 @@ export default async (event) => {
       parentId,
       pathName,
       picture = null,
+      reversedFlow = null,
+      reversedFlowStart = null,
       rssFeedUrl = null,
     } = parsedBody;
     let { action } = parsedBody;
@@ -60,6 +62,8 @@ export default async (event) => {
       parentId: parentId || null,
       pathName,
       picture,
+      reversedFlow,
+      reversedFlowStart,
       rssFeedUrl,
     });
 
