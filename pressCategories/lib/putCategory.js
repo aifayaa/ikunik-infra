@@ -20,6 +20,8 @@ export default async ({
   parentId,
   pathName,
   picture,
+  reversedFlow,
+  reversedFlowStart,
   rssFeedUrl,
 }) => {
   /* Mongo client */
@@ -176,6 +178,8 @@ export default async ({
     if (color) category.color = color;
     if (rssFeedUrl !== null) category.rssFeedUrl = rssFeedUrl;
     if (forcedAuthor !== null) category.forcedAuthor = forcedAuthor;
+    if (reversedFlow !== null) category.reversedFlow = reversedFlow;
+    if (reversedFlowStart !== null) category.reversedFlowStart = reversedFlowStart;
 
     if (picture && picture.length) {
       category.picture = picture.pop();
