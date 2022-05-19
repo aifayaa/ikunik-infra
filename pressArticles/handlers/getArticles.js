@@ -7,10 +7,11 @@ export default async (event) => {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const {
       category,
-      start,
       limit,
-      reversedSort,
       noDateFilter,
+      reversedFlow,
+      start,
+      startDate,
     } = event.queryStringParameters || {};
 
     const checkBadges = !!resource.match(/^\/press\/articles\/v2/);
@@ -21,11 +22,12 @@ export default async (event) => {
       limit,
       appId,
       {
-        getPictures: true,
-        reversedSort: (reversedSort === 'true'),
-        noDateFilter: (noDateFilter === 'true'),
-        userId,
         checkBadges,
+        getPictures: true,
+        noDateFilter: (noDateFilter === 'true'),
+        reversedFlow: (reversedFlow === 'true'),
+        startDate,
+        userId,
       },
     );
     return response({ code: 200, body: results });

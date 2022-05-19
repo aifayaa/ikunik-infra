@@ -19,6 +19,8 @@ export default async ({
   parentId,
   pathName,
   picture,
+  reversedFlow,
+  reversedFlowStart,
   rssFeedUrl,
 }) => {
   /* Mongo client */
@@ -134,6 +136,8 @@ export default async ({
         list: badges,
         allow: badgesAllow || 'any',
       },
+      reversedFlow,
+      reversedFlowStart,
       rssFeedUrl,
     };
 
