@@ -59,7 +59,7 @@ export default {
       html: siwaPeriodicRenewalHtml,
       list_line_error: '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}<br><b>Reason</b>: {{reason}}',
       list_line_success: '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}',
-      title: '[{{stage}}] SIWA periodic renewal summary',
+      title: '[{{stage}}/{{region}}] SIWA periodic renewal summary',
       title_error: '<h4>Failed renewals</h4>',
       title_success: '<h4>Successful renewals</h4>',
     },
