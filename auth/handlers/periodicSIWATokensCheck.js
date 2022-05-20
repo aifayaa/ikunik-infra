@@ -39,7 +39,7 @@ export default async () => {
   }
 
   if (toMail.length > 0) {
-    const subject = formatMessage('auth:siwa_periodic_renewal.title', { stage: process.env.STAGE });
+    const subject = formatMessage('auth:siwa_periodic_renewal.title', { stage: process.env.STAGE, region: process.env.REGION });
     const html = formatMessage('auth:siwa_periodic_renewal.html', { mailContent: toMail });
 
     /* Let it fail, what else could we do anyway? */
