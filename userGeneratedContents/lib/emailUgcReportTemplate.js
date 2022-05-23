@@ -57,13 +57,25 @@ export default async (userId, appId, ugcId, reason, details, lang) => {
             },
           },
           {
+            $lookup: {
+              from: COLL_USERS,
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'author',
+            },
+          },
+          {
+            $unwind: '$author',
+          },
+          {
             $project: {
+              author: 1,
               data: 1,
-              type: 1,
               dataPictures: 1,
               dataVideos: 1,
               rootParentCollection: 1,
               rootParentId: 1,
+              type: 1,
             },
           },
         ])
@@ -99,7 +111,7 @@ export default async (userId, appId, ugcId, reason, details, lang) => {
         username: user.profile.username,
         appName: app.name,
         ugc,
-        user,
+        author: ugc.author || { profile: {} },
         ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
         reason,
         details,

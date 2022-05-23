@@ -7,6 +7,8 @@ import newUgcArticleEmailHtml from './newUgcArticleEmailHtml';
 import newUgcCommentEmailHtml from './newUgcCommentEmailHtml';
 import reportedUgcArticleEmailHtml from './reportedUgcArticleEmailHtml';
 import reportedUgcCommentEmailHtml from './reportedUgcCommentEmailHtml';
+import reportedUgcUserArticleEmailHtml from './reportedUgcUserArticleEmailHtml';
+import reportedUgcUserCommentEmailHtml from './reportedUgcUserCommentEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
 import emailTemplateCustomers from './emailTemplateCustomers';
 import emailTemplateInternal from './emailTemplateInternal';
@@ -79,6 +81,14 @@ export default {
     reported_ugc_comment_email: {
       html: reportedUgcCommentEmailHtml,
       title: '[{{- appName}}] Un utilisateur a reporté un commentaire sur l\'article {{- ugc.rootParent.title}}',
+    },
+    reported_ugc_user_article_email: {
+      html: reportedUgcUserArticleEmailHtml,
+      title: '[{{- appName}}] Un utilisateur a reporté un autre utilisateur sur un article nommé {{- ugc.data.title}}',
+    },
+    reported_ugc_user_comment_email: {
+      html: reportedUgcUserCommentEmailHtml,
+      title: '[{{- appName}}] Un utilisateur a reporté un autre utilisateur sur un commentaire sur l\'article {{- ugc.rootParent.title}}',
     },
     ugc_user_data_email: {
       article: ugcDataArticleEmailHtml,
