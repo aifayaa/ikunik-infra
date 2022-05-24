@@ -62,6 +62,7 @@
   "COLL_USER_BALANCES": "userBalances",
   "COLL_USER_GENERATED_CONTENTS": "userGeneratedContents",
   "COLL_USER_GENERATED_CONTENTS_REPORTS": "ugcReports",
+  "COLL_USER_GENERATED_CONTENTS_USER_REPORTS": "ugcUserReports",
   "COLL_USER_HISTORY": "userHistory",
   "COLL_USER_METRICS": "userMetrics",
   "COLL_USER_SUBSCRIPTIONS": "userSubscriptions",
