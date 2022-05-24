@@ -173,6 +173,21 @@ functions:
               headers:
                 Authorization: true
 
+  reportUGCUser:
+    handler: handlers/reportUserGeneratedContentUser.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/reportUser
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getReports:
     handler: handlers/getUserGeneratedContentReports.default
     events:
