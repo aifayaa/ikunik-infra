@@ -1,7 +1,7 @@
 export default `
 <ul>
   <li><strong>Titre :</strong> {{ugc.data.title}}</li>
-  <li><strong>Auteur :</strong> {{user.profile.username}}</li>
+  <li><strong>Auteur :</strong> {{author.profile.username}}</li>
   <li>
     <strong>{{- mediaType}} :</strong><br>
     <a href="{{ugc.mediaPictureUrl}}">
@@ -14,5 +14,5 @@ export default `
       {{ugc.data.content}}
     </q>
   </li>
-</ul>
+</ul> 
 `;

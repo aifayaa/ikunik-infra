@@ -15,7 +15,7 @@ const {
   COLL_VIDEOS,
 } = mongoCollections;
 
-export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) => {
+export default async (userId, appId, ugcId, reason, details, lang) => {
   const client = await MongoClient.connect();
   const db = client.db();
   try {
@@ -105,20 +105,20 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
 
     intlInit(lang);
 
-    const editionType = (isEdition ? formatMessage('ugc:edition_type_edited') : formatMessage('ugc:edition_type_posted'));
     return {
-      body: formatMessage(`ugc:new_ugc_${ugc.type}_email.html`, {
-        editionType,
+      body: formatMessage(`ugc:reported_ugc_user_${ugc.type}_email.html`, {
         userId: user._id,
         username: user.profile.username,
         appName: app.name,
-        ugcModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation?contentId=${ugcId}`,
-        ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
-        author: ugc.author || { profile: {} },
         ugc,
+        author: ugc.author || { profile: {} },
+        ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
+        reason,
+        details,
         mediaType,
+        ugcModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation?contentId=${ugcId}&userId=${ugc.userId}`,
       }),
-      subject: formatMessage(`ugc:new_ugc_${ugc.type}_email.title`, { editionType, appName: app.name, ugc, user }),
+      subject: formatMessage(`ugc:reported_ugc_user_${ugc.type}_email.title`, { appName: app.name, ugc, user }),
     };
   } finally {
     client.close();
