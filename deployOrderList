@@ -6,6 +6,7 @@ auth
 maintenance
 ssr
 
+blockedContents
 forms
 audios
 authorize
