@@ -114,7 +114,7 @@ export const getArticles = async (
     /* If option is set, returns only published articles */
     if (onlyPublished) {
       if (reversedFlow) {
-        sortArticles = { pinned: -1, publicationDate: 1 };
+        sortArticles = { pinned: -1, publicationDate: 1, createdAt: 1 };
         matchArticles.isPublished = true;
         if (!noDateFilter) {
           let from = startDate ? new Date(startDate) : new Date();
@@ -136,7 +136,7 @@ export const getArticles = async (
           ];
         }
       } else {
-        sortArticles = { pinned: -1, publicationDate: -1 };
+        sortArticles = { pinned: -1, publicationDate: -1, createdAt: -1 };
         matchArticles.isPublished = true;
         if (!noDateFilter) {
           matchArticles.$or = [
