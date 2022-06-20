@@ -47,6 +47,7 @@ export const wordpressLogin = async (username, password, app) => {
       user_email: userEmail,
       user_nicename: userNicename,
       user_display_name: userDisplayName,
+      autologin_token: autoLoginToken,
     } = reply;
 
     const selector = { appId, username };
@@ -86,32 +87,48 @@ export const wordpressLogin = async (username, password, app) => {
         },
       };
 
+      if (autoLoginToken) {
+        user.services.wordpress.autoLoginToken = autoLoginToken;
+      }
+
       await usersCollection.insertOne(user);
     } else {
+      const update = {
+        $set: {
+          'services.wordpress.userEmail': userEmail,
+          'services.wordpress.userNicename': userNicename,
+          'services.wordpress.userDisplayName': userDisplayName,
+          'services.password': {
+            bcrypt: hashedPassword,
+          },
+        },
+        $addToSet: {
+          'services.resume.loginTokens': loginToken,
+        },
+      };
+      if (autoLoginToken) {
+        update.$set['services.wordpress.autoLoginToken'] = autoLoginToken;
+      } else if (
+        user.services &&
+        user.services.wordpress &&
+        user.services.wordpress.autoLoginToken
+      ) {
+        update.$unset['services.wordpress.autoLoginToken'] = '';
+      }
+
       await usersCollection.updateOne(
         {
           _id: user._id,
           appId,
         },
-        {
-          $set: {
-            'services.wordpress.userEmail': userEmail,
-            'services.wordpress.userNicename': userNicename,
-            'services.wordpress.userDisplayName': userDisplayName,
-            'services.password': {
-              bcrypt: hashedPassword,
-            },
-          },
-          $addToSet: {
-            'services.resume.loginTokens': loginToken,
-          },
-        },
+        update,
       );
     }
 
     return {
       userId: user._id,
       authToken: token,
+      autoLoginToken,
     };
   } finally {
     client.close();
