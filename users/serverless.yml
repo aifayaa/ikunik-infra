@@ -240,6 +240,21 @@ functions:
               paths:
                 id: true
 
+  delete:
+    handler: handlers/deleteUser.default
+    events:
+      - http:
+          path: users/{id}
+          method: delete
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   isBlastable:
     handler: handlers/isBlastable.default
     events:
