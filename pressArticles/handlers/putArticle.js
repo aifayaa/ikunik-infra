@@ -30,6 +30,8 @@ export default async (event) => {
       hideFromFeed,
       md = '',
       mediaCaptions,
+      pdfs = [],
+      pdfsOpenButton = '',
       pictures,
       productId,
       summary,
@@ -88,6 +90,8 @@ export default async (event) => {
       html: mdToHtml(md),
       md,
       mediaCaptions,
+      pdfs,
+      pdfsOpenButton,
       pictures,
       pinned,
       /**
