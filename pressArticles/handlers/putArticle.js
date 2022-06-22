@@ -31,6 +31,8 @@ export default async (event) => {
       isWebview,
       md = '',
       mediaCaptions,
+      pdfs = [],
+      pdfsOpenButton = '',
       pictures,
       pinned,
       productId,
@@ -93,6 +95,8 @@ export default async (event) => {
       isWebview: !!isWebview,
       md,
       mediaCaptions,
+      pdfs,
+      pdfsOpenButton,
       pictures,
       pinned,
       /**

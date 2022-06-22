@@ -9,6 +9,8 @@ const common = {
   isWebview: true,
   likes: true,
   mediaCaptions: true,
+  pdfs: true,
+  pdfsOpenButton: true,
   permissions: true,
   pinned: true,
   publicationDate: true,

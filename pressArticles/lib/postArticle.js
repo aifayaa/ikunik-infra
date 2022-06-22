@@ -27,6 +27,8 @@ export const postArticle = async ({
   likes = 0,
   md,
   mediaCaptions,
+  pdfs = [],
+  pdfsOpenButton = '',
   pictures,
   plainText = '',
   price,
@@ -52,8 +54,10 @@ export const postArticle = async ({
     typeof isWebview !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
     !(['string', 'undefined'].indexOf(typeof mediaCaptions) + 1) ||
+    !(['string', 'undefined'].indexOf(typeof pdfsOpenButton) + 1) ||
     !(['string', 'undefined'].indexOf(typeof xml) + 1) ||
     !Array.isArray(badges) ||
+    !Array.isArray(pdfs) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
     (feedPicture && typeof feedPicture !== 'string')
   ) {
@@ -85,6 +89,8 @@ export const postArticle = async ({
       likes,
       mediaCaptions,
       pinned,
+      pdfs,
+      pdfsOpenButton,
       plainText,
       summary,
       text: html,
