@@ -44,6 +44,8 @@ export default async (event) => {
     let likes;
     let md;
     let mediaCaptions;
+    let pdfs;
+    let pdfsOpenButton;
     let pictures;
     let plainText;
     let productId;
@@ -71,6 +73,8 @@ export default async (event) => {
           likes,
           md = '',
           mediaCaptions,
+          pdfs = [],
+          pdfsOpenButton = '',
           pictures,
           productId,
           summary,
@@ -172,6 +176,8 @@ export default async (event) => {
       likes,
       md,
       mediaCaptions,
+      pdfs,
+      pdfsOpenButton,
       pictures,
       plainText,
       price: articlePrices[productId],
