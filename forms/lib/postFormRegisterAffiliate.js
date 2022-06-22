@@ -11,7 +11,9 @@ const CORP_EMAIL_CONTACT = 'contact@crowdaa.com';
 const CORP_EMAIL_DJOTHI = 'djothi@crowdaa.com';
 const CORP_EMAIL_ERIC = 'eric.eloy@crowdaa.com';
 const CORP_EMAIL_LUC = 'luc@crowdaa.com';
+const CORP_EMAIL_MILOS = 'milos@crowdaa.com';
 const CORP_EMAIL_OB = 'ob@crowdaa.com';
+const CORP_EMAIL_SAAD = 'saad@crowdaa.com';
 const CORP_EMAIL_SARAH = 'sarah@crowdaa.com';
 const CORP_EMAIL_SUPPORT = 'support@crowdaa.com';
 const CORP_EMAIL_VIGILE = 'vigile@crowdaa.com';
@@ -63,7 +65,9 @@ export default async (data = {}) => {
           CORP_EMAIL_ANTHONY,
           CORP_EMAIL_ERIC,
           CORP_EMAIL_LUC,
+          CORP_EMAIL_MILOS,
           CORP_EMAIL_OB,
+          CORP_EMAIL_SAAD,
           CORP_EMAIL_SARAH,
           CORP_EMAIL_VIGILE,
         ].join(', '),
@@ -93,7 +97,9 @@ export default async (data = {}) => {
           CORP_EMAIL_ANTHONY,
           CORP_EMAIL_ERIC,
           CORP_EMAIL_LUC,
+          CORP_EMAIL_MILOS,
           CORP_EMAIL_OB,
+          CORP_EMAIL_SAAD,
           CORP_EMAIL_SARAH,
           CORP_EMAIL_SUPPORT,
           CORP_EMAIL_VIGILE,
