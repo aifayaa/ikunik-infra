@@ -41,6 +41,7 @@ export default async (event) => {
     let feedPicture;
     let hideFromFeed;
     let html;
+    let isWebview;
     let likes;
     let md;
     let mediaCaptions;
@@ -70,6 +71,7 @@ export default async (event) => {
           displayOptions,
           feedPicture,
           hideFromFeed,
+          isWebview,
           likes,
           md = '',
           mediaCaptions,
@@ -91,8 +93,13 @@ export default async (event) => {
          * - https://github.com/stiang/remove-markdown/issues/35
          * - https://stackoverflow.com/questions/2407870/javascript-regex-hangs-using-v8
          */
-        plainText = removeMd(md.replace(/(\s{4})\s*/g, '$1'));
-        html = mdToHtml(md);
+        if (isWebview) {
+          plainText = md;
+          html = md;
+        } else {
+          plainText = removeMd(md.replace(/(\s{4})\s*/g, '$1'));
+          html = mdToHtml(md);
+        }
         break;
       }
       case 'application/xml': {
@@ -173,6 +180,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
+      isWebview: !!isWebview,
       likes,
       md,
       mediaCaptions,
