@@ -7,9 +7,9 @@ const { COLL_PRESS_DRAFTS } = mongoCollections;
 
 export const putArticle = async ({
   actions,
-  authorName,
   appId,
   articleId,
+  authorName,
   badges = [],
   badgesAllow = 'any',
   categoryId,
@@ -17,11 +17,13 @@ export const putArticle = async ({
   feedPicture,
   hideFromFeed,
   html,
+  isWebview,
   md,
   mediaCaptions,
   pdfs,
   pdfsOpenButton,
   pictures,
+  pinned = false,
   plainText = '',
   price,
   productId: storeProductId,
@@ -31,7 +33,6 @@ export const putArticle = async ({
   userId,
   videoPlayMode = 'autoplay+fullscreen',
   videos,
-  pinned = false,
 }) => {
   if (
     typeof title !== 'string' ||
@@ -41,6 +42,7 @@ export const putArticle = async ({
     typeof html !== 'string' ||
     typeof md !== 'string' ||
     typeof pinned !== 'boolean' ||
+    typeof isWebview !== 'boolean' ||
     !Array.isArray(badges) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
     (feedPicture && typeof feedPicture !== 'string')
@@ -67,32 +69,33 @@ export const putArticle = async ({
     const draft = {
       _id: draftId,
       actions,
-      authorName: authorName || currentArticle.authorName,
       ancestor: currentArticle._id,
       appId,
       articleId,
+      authorName: authorName || currentArticle.authorName,
       badges: {
         list: badges.map((id) => ({ id })),
         allow: badgesAllow,
       },
       categoryId,
       createdAt: new Date(),
-      isPublished: false,
       hideFromFeed,
+      isPublished: false,
+      isWebview,
       md,
       mediaCaptions,
+      pinned,
       pdfs,
       pdfsOpenButton,
       plainText,
-      storeProductId,
       productId,
+      storeProductId,
       summary,
       text: html,
       thumbnailDisplayMethod,
       title,
       userId,
       videoPlayMode,
-      pinned,
     };
     if (videos) {
       draft.videos = videos;

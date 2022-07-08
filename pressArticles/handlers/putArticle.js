@@ -28,18 +28,19 @@ export default async (event) => {
       displayOptions,
       feedPicture,
       hideFromFeed,
+      isWebview,
       md = '',
       mediaCaptions,
       pdfs = [],
       pdfsOpenButton = '',
       pictures,
+      pinned,
       productId,
       summary,
       thumbnailDisplayMethod,
       title,
       videoPlayMode,
       videos,
-      pinned,
     } = bodyParsed;
     let {
       actions,
@@ -75,6 +76,9 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
+    const html = isWebview ? md : mdToHtml(md);
+    const plainText = isWebview ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
+
     const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
       actions,
@@ -87,7 +91,8 @@ export default async (event) => {
       displayOptions: displayOptions || {},
       feedPicture,
       hideFromFeed: !!hideFromFeed,
-      html: mdToHtml(md),
+      html,
+      isWebview: !!isWebview,
       md,
       mediaCaptions,
       pdfs,
@@ -100,7 +105,7 @@ export default async (event) => {
        * - https://github.com/stiang/remove-markdown/issues/35
        * - https://stackoverflow.com/questions/2407870/javascript-regex-hangs-using-v8
        */
-      plainText: removeMd(md.replace(/(\s{4})\s*/g, '$1')),
+      plainText,
       price: articlePrices[productId],
       productId,
       summary,

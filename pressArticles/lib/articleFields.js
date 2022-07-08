@@ -6,6 +6,7 @@ const common = {
   categoryId: true,
   createdAt: true,
   displayOptions: true,
+  isWebview: true,
   likes: true,
   mediaCaptions: true,
   pdfs: true,
