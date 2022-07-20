@@ -41,6 +41,17 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           cors: true
 
+  postFormRegisterIntegrator:
+    handler: handlers/postFormRegisterIntegrator.default
+    events:
+      - http:
+          path: forms/integrator
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          cors: true
+
   editFormRegister:
     handler: handlers/editFormRegister.default
     events:
