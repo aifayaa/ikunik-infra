@@ -3,9 +3,11 @@ import iap from 'in-app-purchase';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { addBalance } from '../../userBalances/lib/addBalance';
+import { setBalance } from '../../userBalances/lib/setBalance';
 import { addPurchaseHistory } from '../lib/addPurchaseHistory';
 import response from '../../libs/httpResponses/response';
 import articlePrices from '../../pressArticles/articlePrices.json';
+import badgePrices from '../../userBadges/badgePrices.json';
 
 const { STAGE } = process.env;
 
@@ -102,14 +104,28 @@ export default async (event) => {
     // get only last part of productId (com.crowdaa.press.article_01 => article_01)
     const productId = purchaseData.productId.split('.').pop();
 
-    const price = articlePrices[productId];
-    // @TODO : checks if price is defined ?
+    if (articlePrices[productId]) {
+      const price = articlePrices[productId];
+      // @TODO : checks if price is defined ?
 
-    await addBalance(appId, userId, parseFloat(price));
-    await addPurchaseHistory({ appId, userId, productId, bodyParsed, purchaseData });
+      await addBalance(appId, userId, parseFloat(price));
+      await addPurchaseHistory({ appId, userId, productId, bodyParsed, purchaseData });
 
-    const responseBody = { ok: true, data: validatedData };
-    return response({ code: 200, body: responseBody });
+      const responseBody = { ok: true, data: validatedData };
+      return response({ code: 200, body: responseBody });
+    }
+
+    if (badgePrices[productId]) {
+      const price = badgePrices[productId];
+
+      await setBalance(appId, userId, price, { type: productId });
+      await addPurchaseHistory({ appId, userId, productId, bodyParsed, purchaseData });
+
+      const responseBody = { ok: true, data: validatedData };
+      return response({ code: 200, body: responseBody });
+    }
+
+    return response({ code: 500, message: 'unknown_product_id' });
   } catch (e) {
     if (typeof e === 'string') {
       try {
