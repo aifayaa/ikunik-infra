@@ -65,7 +65,7 @@ export default async (data = {}) => {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
       to: `${CORP_EMAIL_SUPPORT}`,
       title: formatMessage('forms:postFormRegisterEmail.title'),
-      template: `send_register_crowdaa_team_${lang}`,
+      template: `send_register_integrator_crowdaa_team_${lang}`,
       data: { ...data },
       extra: {
         cc: [
@@ -97,7 +97,7 @@ export default async (data = {}) => {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
       to: data.email,
       title: formatMessage('forms:postFormRegisterEmail.title'),
-      template: `send_register_crowdaa_owner_${lang}`,
+      template: `send_register_integrator_${lang}`,
       data: { ...data },
       extra: {
         bcc: [
