@@ -1,5 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import badgePrices from '../badgePrices.json';
+import { manageBadgeProduct } from './manageBadgeProduct';
 
 const { COLL_USER_BADGES } = mongoCollections;
 
@@ -10,8 +12,9 @@ export default async (userBadgeId, appId, {
   isDefault,
   management,
   name,
+  productId: storeProductId,
   validationUrl = '',
-}) => {
+}, { userId }) => {
   const client = await MongoClient.connect();
 
   try {
@@ -28,6 +31,17 @@ export default async (userBadgeId, appId, {
       throw new Error('content_not_found');
     }
 
+    if (storeProductId) {
+      const existingPriceBadge = await client
+        .db()
+        .collection(COLL_USER_BADGES)
+        .findOne({ _id: { $ne: userBadgeId }, appId, storeProductId });
+
+      if (existingPriceBadge) {
+        throw new Error('duplicate_user_badge_iap_product');
+      }
+    }
+
     if (userBadgeObj.name !== name) {
       const existingObj = await client
         .db()
@@ -39,15 +53,26 @@ export default async (userBadgeId, appId, {
       }
     }
 
+    const price = badgePrices[storeProductId];
+    const productId = await manageBadgeProduct(
+      appId,
+      userId,
+      userBadgeObj,
+      price,
+      storeProductId,
+    );
+
     const $set = {
       name,
       updatedAt: new Date(),
 
-      description,
       access,
-      management,
-      isDefault,
       color,
+      description,
+      isDefault,
+      management,
+      productId,
+      storeProductId,
       validationUrl,
     };
 

@@ -431,6 +431,8 @@ export const getArticles = async (
         } else if (!checkerResults.canRead) {
           articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
         }
+
+        articlesWithCategory[id].paidBadges = checkerResults.paidBadges;
       });
 
       await Promise.all(promises);
