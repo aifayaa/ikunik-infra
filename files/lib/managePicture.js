@@ -175,10 +175,7 @@ export default async (bucket, object, file) => {
       const params = resParams[i];
       const pictureName = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
       let { name: decodedName } = path.parse(pictureName);
-      const fileExtension = path.extname(decodedName);
-      if (fileExtension) {
-        decodedName = decodedName.replace(fileExtension, '.jpeg');
-      }
+      decodedName = `${decodedName}.jpeg`;
       const oKey = `pictures/${params.prefix}-${decodedName}`;
       const results = await resizeAndUpload(
         file,
