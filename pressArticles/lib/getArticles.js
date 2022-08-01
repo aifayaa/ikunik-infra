@@ -426,13 +426,14 @@ export const getArticles = async (
           categoryBadges,
           opts,
         ));
+
+        articlesWithCategory[id].paidBadges = checkerResults.paidBadges;
+
         if (!checkerResults.canList) {
           articlesWithCategory[id] = null;
         } else if (!checkerResults.canRead) {
           articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
         }
-
-        articlesWithCategory[id].paidBadges = checkerResults.paidBadges;
       });
 
       await Promise.all(promises);
