@@ -42,6 +42,7 @@ export default async (event) => {
     const googleApiData = get(appInfo, 'builds.android.googleApiData');
     const applePassword = get(appInfo, 'settings.iap.appleSecret');
     const googleLicenceKey = get(appInfo, 'settings.iap.googleLicenceKey');
+    const googleSubscriptionCredentials = get(appInfo, 'settings.iap.googleSubscriptionCredentials');
     const receiptRaw = get(bodyParsed, 'transaction.receipt');
     const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
     const googleReceipt = receiptRaw && JSON.parse(receiptRaw);
@@ -83,6 +84,13 @@ export default async (event) => {
         clientEmail,
         privateKey,
       };
+    }
+
+    if (googleSubscriptionCredentials) {
+      iapConfiguration.googleClientID = googleSubscriptionCredentials.googleClientID;
+      iapConfiguration.googleClientSecret = googleSubscriptionCredentials.googleClientSecret;
+      iapConfiguration.googleAccToken = googleSubscriptionCredentials.googleAccToken;
+      iapConfiguration.googleRefToken = googleSubscriptionCredentials.googleRefToken;
     }
 
     iap.config(iapConfiguration);
