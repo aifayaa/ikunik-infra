@@ -50,6 +50,7 @@ export default async (appId, userId) => {
       description,
       color,
       management,
+      storeProductId,
     }) => {
       const ret = {
         _id,
@@ -57,6 +58,7 @@ export default async (appId, userId) => {
         description,
         color,
         management,
+        storeProductId,
       };
 
       if (requestedBadges[_id]) {

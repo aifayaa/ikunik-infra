@@ -298,6 +298,7 @@ export const getArticle = async (
           categoryBadges,
           opts,
         ));
+        article.paidBadges = checkerResults.paidBadges;
         if (!checkerResults.canList) {
           throw new Error('forbidden');
         }

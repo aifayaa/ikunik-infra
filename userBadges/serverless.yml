@@ -157,6 +157,36 @@ functions:
               paths:
                 id: true
 
+  badgePurchase:
+    handler: handlers/badgePurchase.default
+    events:
+      - http:
+          path: userBadges/{id}/purchase
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
+  badgeCancelledPurchase:
+    handler: handlers/badgeCancelledPurchase.default
+    events:
+      - http:
+          path: userBadges/{id}/cancelledPurchase
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-offline
   - serverless-webpack
