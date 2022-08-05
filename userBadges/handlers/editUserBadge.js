@@ -6,7 +6,7 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const userBadgeId = event.pathParameters.id;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
@@ -27,7 +27,7 @@ export default async (event) => {
       if (!cb(bodyParsed[field])) throw new Error('mal_formed_request');
     });
 
-    const userBadge = await editUserBadge(userBadgeId, appId, bodyParsed);
+    const userBadge = await editUserBadge(userBadgeId, appId, bodyParsed, { userId });
     return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));

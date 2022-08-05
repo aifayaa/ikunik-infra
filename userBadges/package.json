@@ -7,7 +7,10 @@
   "scripts": {
     "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000"
   },
-  "dependencies": {},
+  "dependencies": {
+    "aws-sdk": "^2.749.0",
+    "uuid": "^3.4.0"
+  },
   "devDependencies": {
     "aws-sdk-mock": "^5.0.0",
     "chai": "^4.2.0",

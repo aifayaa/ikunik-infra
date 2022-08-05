@@ -33,6 +33,7 @@ stages
 tokenPackages
 users
 userMetrics
+userBalances
 providers
 
 artists

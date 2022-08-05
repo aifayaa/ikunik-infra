@@ -32,6 +32,7 @@ function BadgeCheckerResults({
   canRead = true,
   canNotify = true,
   restrictedBy = [],
+  paidBadges = [],
 } = {}) {
   const propConf = {
     configurable: false,
@@ -43,6 +44,7 @@ function BadgeCheckerResults({
   Object.defineProperty(this, 'canRead', { ...propConf, value: canRead });
   Object.defineProperty(this, 'canNotify', { ...propConf, value: canNotify });
   Object.defineProperty(this, 'restrictedBy', { ...propConf, value: restrictedBy });
+  Object.defineProperty(this, 'paidBadges', { ...propConf, value: paidBadges });
 }
 
 BadgeCheckerResults.prototype.merge = function merge(otherResults) {
@@ -50,8 +52,15 @@ BadgeCheckerResults.prototype.merge = function merge(otherResults) {
   const canRead = this.canRead && otherResults.canRead;
   const canNotify = this.canNotify && otherResults.canNotify;
 
-  const badgeIds = {};
+  let badgeIds = {};
   const restrictedBy = this.restrictedBy.concat(otherResults.restrictedBy).filter((badge) => {
+    if (badgeIds[badge._id]) return (false);
+    badgeIds[badge._id] = true;
+    return (true);
+  });
+
+  badgeIds = {};
+  const paidBadges = this.paidBadges.concat(otherResults.paidBadges).filter((badge) => {
     if (badgeIds[badge._id]) return (false);
     badgeIds[badge._id] = true;
     return (true);
@@ -62,6 +71,7 @@ BadgeCheckerResults.prototype.merge = function merge(otherResults) {
     canRead,
     canNotify,
     restrictedBy,
+    paidBadges,
   });
 };
 
@@ -71,10 +81,33 @@ function BadgeCheckerResultsBuilder() {
   this.canNotify = true;
 
   this.restrictedBy = [];
+  /* Include all badges that have a subscription price and are visible to the users.
+   * It needs to be returned because ownership checks can only be done on the client side... */
+  this.paidBadges = [];
 }
 
+BadgeCheckerResultsBuilder.prototype.notBlockedBy = function notBlockedBy(badge) {
+  const {
+    management = 'private-internal',
+    productId = null,
+  } = badge;
+
+  if (
+    management === 'request' ||
+    management === 'public' ||
+    management === 'private-visible'
+  ) {
+    if (productId) {
+      this.paidBadges.push(badge);
+    }
+  }
+};
+
 BadgeCheckerResultsBuilder.prototype.blockedBy = function blockedBy(badge) {
-  const { access = 'hidden', management = 'private-internal' } = badge;
+  const {
+    access = 'hidden',
+    management = 'private-internal',
+  } = badge;
 
   if (access === 'teaser') {
     this.canRead = false;
@@ -98,6 +131,7 @@ BadgeCheckerResultsBuilder.prototype.getResults = function getResults() {
     canRead: this.canRead,
     canNotify: this.canNotify,
     restrictedBy: this.restrictedBy,
+    paidBadges: this.paidBadges,
   }));
 };
 
@@ -294,6 +328,7 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
     if (!allowedForBadge) {
       resultsBuilder.blockedBy(badge);
     } else {
+      resultsBuilder.notBlockedBy(badge);
       allowedAtLeastOnce = true;
     }
   });
@@ -301,7 +336,9 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
   await Promise.all(promises);
 
   if (allow === 'any' && allowedAtLeastOnce) {
-    return (new BadgeCheckerResults());
+    return (new BadgeCheckerResults({
+      paidBadges: resultsBuilder.getResults().paidBadges,
+    }));
   }
 
   return (resultsBuilder.getResults());
