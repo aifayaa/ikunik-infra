@@ -35,7 +35,9 @@ export default async (appId, userId, userBadgeId) => {
       const actions = {};
 
       if (!user.badges) {
-        actions.$set = [{ id: userBadgeId }];
+        actions.$set = {
+          badges: [{ id: userBadgeId }],
+        };
       } else {
         actions.$addToSet = {
           badges: { id: userBadgeId },
