@@ -3,6 +3,7 @@ import badgePrices from '../badgePrices.json';
 import response from '../../libs/httpResponses/response';
 import { setBalance } from '../../userBalances/lib/setBalance';
 import getBadge from '../lib/getUserBadge';
+import notifyPurchaseBackend from '../lib/notifyPurchaseBackend';
 import { getBalance } from '../../userBalances/lib/getBalance';
 import { setContentPermissions } from '../../contentPermissions/lib/setContentPermissions';
 import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
@@ -11,7 +12,11 @@ const { COLL_USER_BADGES } = mongoCollections;
 
 export default async (event) => {
   const badgeId = event.pathParameters.id;
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    loginToken,
+    principalId: userId,
+  } = event.requestContext.authorizer;
 
   try {
     const badge = await getBadge(badgeId, appId);
@@ -42,6 +47,8 @@ export default async (event) => {
     });
 
     await toggleUserBadgeToUser(badgeId, appId, { action: 'add', userId });
+
+    await notifyPurchaseBackend(badgeId, userId, appId, loginToken);
 
     return response({ code: 200, body: results });
   } catch (e) {
