@@ -40,6 +40,7 @@ export default async (badgeId, userId, appId, loginToken) => {
       if (!loginTokenObj || !loginTokenObj.wpToken) {
         // eslint-disable-next-line no-console
         console.error(`Could not find a login token for user ${userId}/${appId}`, loginTokenObj);
+        return;
       }
 
       try {
@@ -57,6 +58,7 @@ export default async (badgeId, userId, appId, loginToken) => {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(`Error calling purchase WP API for ${userId}/${appId}/${badgeId}`, e);
+        return;
       }
     }
   } finally {
