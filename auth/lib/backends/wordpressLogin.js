@@ -67,7 +67,7 @@ async function managePermsDifferences({
   }
 }
 
-async function setUserPermissions(client, user, permissions) {
+export async function setUserPermissions(client, user, permissions) {
   const extPurchasesCollection = client.db().collection(COLL_EXTERNAL_PURCHASES);
 
   const ownedBadges = permissions.ownedBadges || [];
