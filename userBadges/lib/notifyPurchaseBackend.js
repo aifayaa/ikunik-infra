@@ -48,7 +48,7 @@ export default async (badgeId, userId, appId, loginToken) => {
 
         await wpApi.call(
           'POST',
-          '/crowdaa-sync/v1/users/subscribe',
+          app.backend.sync.subscriptions,
           {
             badgeId,
             when: parseInt(Date.now() / 1000, 10),
