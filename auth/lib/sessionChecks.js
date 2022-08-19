@@ -68,7 +68,7 @@ export default async (userId, appId, loginToken) => {
         );
 
         if (response && response.success) {
-          if (response.token !== loginTokenObj.wpToken) {
+          if (response.token && response.token !== loginTokenObj.wpToken) {
             await client
               .db()
               .collection(COLL_USERS)
