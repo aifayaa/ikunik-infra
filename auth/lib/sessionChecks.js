@@ -9,6 +9,8 @@ const {
   COLL_USERS,
 } = mongoCollections;
 
+const SEVEN_DAYS_IN_MS = 7 * 86400 * 1000;
+
 export default async (userId, appId, loginToken) => {
   const client = await MongoClient.connect();
 
@@ -60,12 +62,14 @@ export default async (userId, appId, loginToken) => {
       const wpApi = new WordpressAPI(app);
 
       try {
-        const response = await wpApi.call(
+        let response = await wpApi.call(
           'GET',
           '/crowdaa-sync/v1/session/checks',
           null,
           { headers: { Authorization: `Bearer ${loginTokenObj.wpToken}` } },
         );
+
+        response = JSON.parse(response);
 
         if (response && response.success) {
           if (response.token && response.token !== loginTokenObj.wpToken) {
@@ -79,7 +83,7 @@ export default async (userId, appId, loginToken) => {
               }, { $set: {
                 'services.resume.loginTokens.$.when': new Date(),
                 'services.resume.loginTokens.$.wpToken': response.token,
-                'services.resume.loginTokens.$.expiresAt': Date.now() + 7 * 86400 * 1000,
+                'services.resume.loginTokens.$.expiresAt': Date.now() + SEVEN_DAYS_IN_MS,
               } });
           }
 
