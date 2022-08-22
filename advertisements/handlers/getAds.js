@@ -1,0 +1,68 @@
+import getAds from '../lib/getAds';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const allowedPerms = ['pressArticles_all'];
+
+const stringToBool = (str) => (str === 'true');
+
+export default async (event) => {
+  const { appId } = event.requestContext.authorizer;
+  const perms = JSON.parse(event.requestContext.authorizer.perms);
+
+  try {
+    const params = (event.queryStringParameters || {});
+    const isAdmin = checkPerms(allowedPerms, perms);
+
+    const filters = {};
+
+    const {
+      start = 0,
+      limit = 25,
+      location = null,
+    } = params;
+
+    filters.start = parseInt(start, 10);
+    filters.limit = parseInt(limit, 10);
+    if (location !== null) filters.location = location;
+
+    if (isAdmin) {
+      const {
+        active = null,
+        campaignId = null,
+        isActiveNow = null,
+      } = params;
+
+      if (active !== null) filters.active = stringToBool(active);
+      if (campaignId !== null) filters.campaignId = campaignId;
+      if (isActiveNow !== null) filters.isActiveNow = stringToBool(isActiveNow);
+    } else {
+      filters.isActiveNow = true;
+    }
+
+    let list = await getAds(appId, filters);
+
+    if (!isAdmin) {
+      list = list.map(({
+        _id,
+        media,
+        mediaType,
+        url,
+        location: loc,
+        locationOpts,
+      }) => ({
+        _id,
+        media,
+        mediaType,
+        url,
+        location: loc,
+        locationOpts,
+      }));
+    }
+
+    return response({ code: 200, body: { list } });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
+  }
+};
