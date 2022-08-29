@@ -11,6 +11,7 @@ const { ADMIN_APP } = process.env;
 
 const {
   COLL_CONTENT_PERMISSIONS,
+  COLL_EXTERNAL_PURCHASES,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
@@ -250,6 +251,22 @@ export const getArticle = async (
         article.requires = what;
         article.requiredElements = requiredElements;
       };
+
+      if (userId) {
+        const extPurchases = await client
+          .db()
+          .collection(COLL_EXTERNAL_PURCHASES)
+          .findOne({
+            appId,
+            collection: COLL_PRESS_ARTICLES,
+            userId,
+            itemId: article._id,
+          });
+
+        if (extPurchases) {
+          return (article);
+        }
+      }
 
       /* Filter article if purchasable and not paid yet */
       const cp = article.permissions;

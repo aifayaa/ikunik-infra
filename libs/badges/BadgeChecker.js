@@ -4,6 +4,7 @@ import { OpenSeaApi } from '../opensea';
 import mongoCollections from '../mongoCollections.json';
 
 const {
+  COLL_EXTERNAL_PURCHASES,
   COLL_NFT_COLLECTIONS,
   COLL_USERS,
   COLL_USER_BADGES,
@@ -145,6 +146,7 @@ export default function BadgeChecker(appId) {
     this.init = false;
     this.registeredBadgeIds = {};
     this.badgesMap = {};
+    this.extPurchasesMap = {};
     this.nftCollectionsMap = {};
     this.appId = appId;
   })();
@@ -220,6 +222,48 @@ BadgeChecker.prototype.loadBadges = async function loadBadges(moreBadgeIds = nul
   }
 };
 
+// Both a getter and a setter (when set is not null)
+BadgeChecker.prototype.extPurchaseVal = function extPurchaseVal(userId, badgeId, set = null) {
+  if (set !== null) {
+    this.extPurchasesMap[`${userId}|${badgeId}`] = set;
+  }
+
+  return (this.extPurchasesMap[`${userId}|${badgeId}`]);
+};
+
+BadgeChecker.prototype.loadExtPerms = async function loadExtPerms(userId) {
+  checkInitialized(this);
+
+  const badgesIds = Object.keys(this.badgesMap).filter((id) => {
+    if (this.extPurchaseVal(userId, id)) {
+      return (false);
+    }
+
+    return (true);
+  });
+
+  const extPurchases = await this.client
+    .db()
+    .collection(COLL_EXTERNAL_PURCHASES)
+    .find({
+      appId: this.appId,
+      collection: COLL_USER_BADGES,
+      userId,
+      itemId: { $in: badgesIds },
+    })
+    .toArray();
+
+  extPurchases.forEach(({ itemId }) => {
+    this.extPurchaseVal(userId, itemId, true);
+  });
+
+  badgesIds.forEach((badgeId) => {
+    if (typeof this.extPurchaseVal(userId, badgeId) !== 'boolean') {
+      this.extPurchaseVal(userId, badgeId, false);
+    }
+  });
+};
+
 BadgeChecker.prototype.checkBadges = async function checkBadges(
   userBadges,
   toCheckbadges,
@@ -249,6 +293,10 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
     toCheckbadges.list.map(({ id }) => (id)),
   ));
 
+  if (options.userId) {
+    await this.loadExtPerms(options.userId);
+  }
+
   let allowedAtLeastOnce = false;
   let user = null;
 
@@ -257,6 +305,8 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
     let allowedForBadge = false;
 
     if (userBadgesMap[badge._id]) {
+      allowedForBadge = true;
+    } else if (options.userId && this.extPurchaseVal(options.userId, badge._id)) {
       allowedForBadge = true;
     } else if (badge.validationUrl) {
       const replacements = {

@@ -1,4 +1,5 @@
 {
+  "COLL_ADVERTISEMENTS": "advertisements",
   "COLL_APPS": "apps",
   "COLL_ARTISTS": "artists",
   "COLL_ARTISTS_FAV": "artistsFav",
@@ -22,6 +23,7 @@
   "COLL_DELETED_ELEMENTS": "deletedElements",
   "COLL_DEVICES": "devices",
   "COLL_DOCUMENTS": "documents",
+  "COLL_EXTERNAL_PURCHASES": "externalPurchases",
   "COLL_FESTIVALS": "festivals",
   "COLL_FORMS": "forms",
   "COLL_GENRES": "genres",
