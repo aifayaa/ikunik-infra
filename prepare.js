@@ -12,7 +12,6 @@ const AVAILABLE_STAGES_REGIONS = [
   'awaxDev:eu-west-1',
   'awax:eu-west-1',
 ];
-const { CI_FIRST_DEPLOY } = process.env;
 
 if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
   const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS
@@ -23,7 +22,7 @@ if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
   console.log('  EXTRA is a comma-separated list of extra operations to do. It may contain :');
   console.log('    - remove : Checks and removes database indexes that we did not list in this script');
   console.log('    - verbose : Display extra information about what is being done');
-  console.log('    - dry : Don\'t run any database operation');
+  console.log('    - dry : Don\'t run any database write operation except creating collections that are not found');
   console.log('    - force : Force creation/update of existing indexes');
   process.exit(1);
 }
@@ -122,16 +121,7 @@ const {
 async function processCollection(db, collName, indexSchemas) {
   const logger = makeLogger(`Collection ${collName}`);
 
-  if (CI_FIRST_DEPLOY === 'true') {
-    try {
-      logger.verbose(`Attempting to create collection ${collName}`);
-      if (!EXTRA.dry) {
-        await db.createCollection(collName);
-      }
-    } catch (e) {
-      logger.verbose(`Collection creation failed for ${collName}, maybe it already exists?`);
-    }
-  }
+  await db.createCollection(collName);
 
   const collection = db.collection(collName);
   const collIndexes = await collection.indexes();
@@ -234,9 +224,10 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
 
   const {
     COLL_APPS,
+    COLL_EXTERNAL_PURCHASES,
+    COLL_PICTURES,
     COLL_PRESS_ARTICLES,
     COLL_PRESS_DRAFTS,
-    COLL_PICTURES,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
     COLL_USER_METRICS,
@@ -418,6 +409,28 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
           name: 'profil_ID_1_project_ID_1',
           key: { profil_ID: 1, project_ID: 1 },
           opts: makeOpts({ background: true }),
+        },
+      ],
+      [COLL_EXTERNAL_PURCHASES]: [
+        {
+          name: 'crowdaa_extPurchases_lookup',
+          key: {
+            appId: 1,
+            collection: 1,
+            userId: 1,
+            itemId: 1,
+          },
+          opts: makeOpts('unique'),
+        },
+        {
+          name: 'crowdaa_extPurchases_auth_insert',
+          key: {
+            appId: 1,
+            collection: 1,
+            source: 1,
+            userId: 1,
+          },
+          opts: makeOpts(),
         },
       ],
     };

@@ -5,7 +5,116 @@ import Random from '../../../libs/account_utils/random';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 import { hashPassword } from '../password';
 
-const { COLL_USERS } = mongoCollections;
+const {
+  COLL_EXTERNAL_PURCHASES,
+  COLL_PRESS_ARTICLES,
+  COLL_USERS,
+  COLL_USER_BADGES,
+} = mongoCollections;
+
+const listsContentEquals = (a, b) => {
+  if (a.length !== b.length) return (false);
+
+  const hashedA = a.reduce((acc, val) => {
+    acc[val] = true;
+    return (acc);
+  }, {});
+
+  return (b.every((obj) => (!!hashedA[obj])));
+};
+
+async function managePermsDifferences({
+  appId,
+  collection,
+  dbElements,
+  extPurchasesCollection,
+  newIds,
+  userId,
+}) {
+  const toAdd = []; // IDs of articles
+  const toRemove = []; // IDs of externalPurchases
+
+  const oldIndexed = dbElements.reduce((acc, itm) => {
+    acc[itm.itemId] = itm._id;
+    return (acc);
+  }, {});
+  const newIndexed = newIds.reduce((acc, itm) => {
+    acc[itm] = true;
+    return (acc);
+  }, {});
+
+  Object.keys(oldIndexed).forEach((id) => {
+    if (!newIndexed[id]) toRemove.push(oldIndexed[id]);
+  });
+  Object.keys(newIndexed).forEach((id) => {
+    if (!oldIndexed[id]) toAdd.push(id);
+  });
+
+  if (toRemove.length > 0) {
+    await extPurchasesCollection.deleteMany({
+      _id: { $in: toRemove },
+    });
+  }
+
+  if (toAdd.length > 0) {
+    await extPurchasesCollection.insertMany(toAdd.map((id) => ({
+      appId,
+      collection,
+      itemId: id,
+      source: 'wordpress',
+      userId,
+    })));
+  }
+}
+
+export async function setUserPermissions(client, user, permissions) {
+  const extPurchasesCollection = client.db().collection(COLL_EXTERNAL_PURCHASES);
+
+  const ownedBadges = permissions.ownedBadges || [];
+  const ownedArticles = permissions.ownedArticles || [];
+
+  // Badges
+  const userBadges = await extPurchasesCollection.find({
+    appId: user.appId,
+    collection: COLL_USER_BADGES,
+    source: 'wordpress',
+    userId: user._id,
+  }).toArray();
+
+  const userBadgesIds = userBadges.map(({ itemId }) => (itemId));
+
+  if (!listsContentEquals(userBadgesIds, ownedBadges)) {
+    await managePermsDifferences({
+      appId: user.appId,
+      collection: COLL_USER_BADGES,
+      dbElements: userBadges,
+      extPurchasesCollection,
+      newIds: ownedBadges,
+      userId: user._id,
+    });
+  }
+
+  // Articles
+  const purchases = await extPurchasesCollection.find({
+    appId: user.appId,
+    source: 'wordpress',
+    collection: COLL_PRESS_ARTICLES,
+    userId: user._id,
+  }).toArray();
+
+  const purchasesIds = purchases.map(({ itemId }) => (itemId));
+
+  if (!listsContentEquals(purchasesIds, ownedArticles)) {
+    await managePermsDifferences({
+      appId: user.appId,
+      collection: COLL_PRESS_ARTICLES,
+      dbElements: purchases,
+      extPurchasesCollection,
+      newIds: ownedArticles,
+      userId: user._id,
+    });
+  }
+}
 
 export const wordpressLogin = async (username, password, app) => {
   const client = await MongoClient.connect();
@@ -48,9 +157,10 @@ export const wordpressLogin = async (username, password, app) => {
       user_nicename: userNicename,
       user_display_name: userDisplayName,
       autologin_token: autoLoginToken,
+      permissions,
     } = reply;
 
-    const selector = { appId, username };
+    const selector = { appId, 'profile.email': userEmail };
     let user = await usersCollection.findOne(selector);
     const token = Random.secret();
 
@@ -66,7 +176,7 @@ export const wordpressLogin = async (username, password, app) => {
       user = {
         _id: Random.id(),
         createdAt: new Date(),
-        username,
+        username: userDisplayName || userNicename || username,
         services: {
           wordpress: {
             userEmail,
@@ -85,6 +195,9 @@ export const wordpressLogin = async (username, password, app) => {
           username: userDisplayName || userNicename || username,
           email: userEmail,
         },
+        emails: [{
+          address: userEmail,
+        }],
       };
 
       if (autoLoginToken) {
@@ -123,6 +236,10 @@ export const wordpressLogin = async (username, password, app) => {
         },
         update,
       );
+    }
+
+    if (permissions) {
+      await setUserPermissions(client, user, permissions);
     }
 
     return {

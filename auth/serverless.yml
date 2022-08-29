@@ -178,6 +178,17 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  sessionChecks:
+    handler: handlers/sessionChecks.default
+    events:
+      - http:
+          path: auth/sessionChecks
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
 plugins:
   - serverless-offline
   - '@cruglobal/serverless-merge-config'
