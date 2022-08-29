@@ -6,6 +6,7 @@ import BadgeChecker from '../../libs/badges/BadgeChecker';
 const { ADMIN_APP } = process.env;
 
 const {
+  COLL_EXTERNAL_PURCHASES,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
@@ -374,12 +375,14 @@ export const getArticles = async (
         .count(),
     ]);
 
+    let extPurchases = null;
     // Get drafts of articles
     if (articles.length > 0) {
+      const articlesIds = articles.map((a) => (a._id));
       const draftPipeline = [
         {
           $match: {
-            articleId: { $in: articles.map((a) => (a._id)) },
+            articleId: { $in: articlesIds },
           },
         },
         {
@@ -416,11 +419,31 @@ export const getArticles = async (
           },
         },
       ];
-      const drafts = await client
-        .db()
-        .collection(COLL_PRESS_DRAFTS)
-        .aggregate(draftPipeline)
-        .toArray();
+      let drafts;
+      [drafts, extPurchases] = await Promise.all([
+        client
+          .db()
+          .collection(COLL_PRESS_DRAFTS)
+          .aggregate(draftPipeline)
+          .toArray(),
+        userId
+          ? client
+            .db()
+            .collection(COLL_EXTERNAL_PURCHASES)
+            .find({
+              appId,
+              collection: COLL_PRESS_ARTICLES,
+              userId,
+              itemId: { $in: articlesIds },
+            })
+            .toArray()
+          : [],
+      ]);
+
+      extPurchases = extPurchases.reduce((acc, itm) => {
+        acc[itm.itemId] = itm;
+        return (acc);
+      }, {});
 
       const articlesMap = articles.reduce((acc, art) => {
         acc[art._id] = art;
@@ -480,30 +503,32 @@ export const getArticles = async (
       await badgeChecker.loadBadges();
 
       const promises = articlesWithCategory.map(async (article, id) => {
-        const opts = {
-          appId,
-          userId,
-          articleId: article._id,
-          categoryId: article.categoryId,
-        };
-        const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
-        let checkerResults = await badgeChecker.checkBadges(
-          userBadges,
-          article.badges,
-          opts,
-        );
-        checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
-          userBadges,
-          categoryBadges,
-          opts,
-        ));
+        if (!extPurchases[article._id]) {
+          const opts = {
+            appId,
+            userId,
+            articleId: article._id,
+            categoryId: article.categoryId,
+          };
+          const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
+          let checkerResults = await badgeChecker.checkBadges(
+            userBadges,
+            article.badges,
+            opts,
+          );
+          checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
+            userBadges,
+            categoryBadges,
+            opts,
+          ));
 
-        articlesWithCategory[id].paidBadges = checkerResults.paidBadges;
+          articlesWithCategory[id].paidBadges = checkerResults.paidBadges;
 
-        if (!checkerResults.canList) {
-          articlesWithCategory[id] = null;
-        } else if (!checkerResults.canRead) {
-          articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
+          if (!checkerResults.canList) {
+            articlesWithCategory[id] = null;
+          } else if (!checkerResults.canRead) {
+            articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
+          }
         }
       });
 

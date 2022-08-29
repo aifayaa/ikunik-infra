@@ -35,6 +35,10 @@ WordpressAPI.prototype.call = async function call(method, path, data, options = 
     params.json = data;
   }
 
+  if (options.headers) {
+    params.headers = options.headers;
+  }
+
   const rawResponse = await request(params);
 
   return (rawResponse);

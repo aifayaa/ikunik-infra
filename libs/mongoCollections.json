@@ -1,4 +1,5 @@
 {
+  "COLL_ADVERTISEMENTS": "advertisements",
   "COLL_APPS": "apps",
   "COLL_ARTISTS": "artists",
   "COLL_ARTISTS_FAV": "artistsFav",
@@ -20,6 +21,8 @@
   "COLL_DEADLINES": "deadlines",
   "COLL_DELETED_ELEMENTS": "deletedElements",
   "COLL_DEVICES": "devices",
+  "COLL_DOCUMENTS": "documents",
+  "COLL_EXTERNAL_PURCHASES": "externalPurchases",
   "COLL_FESTIVALS": "festivals",
   "COLL_FORMS": "forms",
   "COLL_GENRES": "genres",
@@ -32,7 +35,6 @@
   "COLL_NFT_COLLECTIONS": "nftCollections",
   "COLL_PACKAGE_PURCHASES": "purchasesPackages",
   "COLL_PAYOUTS": "payouts",
-  "COLL_DOCUMENTS": "documents",
   "COLL_PERM_GROUPS": "permGroups",
   "COLL_PHONES": "phoneCollection",
   "COLL_PICTURES": "pictures",
