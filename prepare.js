@@ -227,6 +227,7 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
     COLL_EXTERNAL_PURCHASES,
     COLL_PICTURES,
     COLL_PRESS_ARTICLES,
+    COLL_PRESS_CATEGORIES,
     COLL_PRESS_DRAFTS,
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
@@ -324,6 +325,10 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
       ],
       [COLL_APPS]: [
         { name: 'crowdaa_app_preview_key', key: { 'settings.previewKey': 1 }, opts: makeOpts('unique', 'sparse') },
+      ],
+      [COLL_PRESS_CATEGORIES]: [
+        { name: 'crowdaa_categories_appid', key: { appId: 1 }, opts: makeOpts() },
+        { name: 'crowdaa_categories_hidden', key: { appId: 1, hidden: 1 }, opts: makeOpts() },
       ],
       [COLL_PRESS_ARTICLES]: [
         {
