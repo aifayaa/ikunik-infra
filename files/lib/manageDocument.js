@@ -68,8 +68,8 @@ export default async (bucket, object, fileHead) => {
     };
     const file = await s3.getObject(params).promise();
 
-    const pictureName = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
-    const { name: decodedName } = path.parse(pictureName);
+    const documentName = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
+    const { base: decodedName } = path.parse(documentName);
     const destKey = `documents/${decodedName}`;
     await s3.putObject({
       ACL: 'public-read',
