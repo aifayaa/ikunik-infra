@@ -1,4 +1,4 @@
-import supportedFormats from '../supportedFormats.json';
+import supportedFormatsExtensions from '../supportedFormatsExtensions.json';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
@@ -8,10 +8,7 @@ const {
 } = mongoCollections;
 
 export default (contentType, throwError = true) => {
-  if (
-    typeof supportedFormats[contentType] === 'undefined' ||
-    !supportedFormats[contentType]
-  ) {
+  if (!supportedFormatsExtensions[contentType]) {
     if (throwError) {
       throw new Error(`${contentType} not handled`);
     } else {
