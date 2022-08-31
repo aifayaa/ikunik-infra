@@ -5,6 +5,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import uploadStatus from '../uploadStatus.json';
 import getCollectionFromContentType from './getCollectionFromContentType';
+import supportedFormatsExtensions from '../supportedFormatsExtensions.json';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -43,7 +44,7 @@ export default async (userId, appId, files, metadata) => {
     const collection = getCollectionFromContentType(type);
 
     /* Preparing s3 parameters to get an upload link */
-    const fileExtension = path.extname(name);
+    const fileExtension = path.extname(name) || supportedFormatsExtensions[type] || '';
     const dirPrefix = getDirPrefixFromCollection(collection);
     const key = `${dirPrefix}${uuidv4()}${fileExtension}`;
     const id = uuidv4();

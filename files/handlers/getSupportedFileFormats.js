@@ -1,5 +1,10 @@
 import response from '../../libs/httpResponses/response';
-import supportedFormats from '../supportedFormats.json';
+import supportedFormatsExtensions from '../supportedFormatsExtensions.json';
+
+const supportedFormats = Object.keys(supportedFormatsExtensions).reduce((acc, k) => {
+  acc[k] = true;
+  return (acc);
+}, {});
 
 export default () => new Promise((resolve) => resolve(response({
   body: supportedFormats,
