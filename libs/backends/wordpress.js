@@ -25,7 +25,12 @@ WordpressAPI.prototype.call = async function call(method, path, data, options = 
   const params = {
     method,
     uri,
+    headers: {},
   };
+
+  if (this.app.backend.apiKey) {
+    params.headers['X-Crowdaa-Api-Key'] = this.app.backend.apiKey;
+  }
 
   if (options.body === 'form') {
     params.form = data;
@@ -36,7 +41,10 @@ WordpressAPI.prototype.call = async function call(method, path, data, options = 
   }
 
   if (options.headers) {
-    params.headers = options.headers;
+    params.headers = {
+      ...params.headers,
+      ...options.headers,
+    };
   }
 
   const rawResponse = await request(params);
