@@ -1,7 +1,9 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { syncUserBadges } from '../../libs/wordpress/wordpressApiSync';
 
 const {
+  COLL_APPS,
   COLL_USERS,
   COLL_USER_BADGES,
 } = mongoCollections;
@@ -10,6 +12,7 @@ export default async (appId, userId, userBadgeId) => {
   const client = await MongoClient.connect();
 
   try {
+    const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
     const user = await client.db().collection(COLL_USERS).findOne({ _id: userId, appId });
     const userBadges = user.badges || [];
 
@@ -17,6 +20,10 @@ export default async (appId, userId, userBadgeId) => {
       .db()
       .collection(COLL_USER_BADGES)
       .findOne({ _id: userBadgeId, appId });
+
+    if (!app) {
+      throw new Error('app_not_found');
+    }
 
     if (!badge) {
       throw new Error('content_not_found');
@@ -35,6 +42,7 @@ export default async (appId, userId, userBadgeId) => {
       const actions = {};
 
       if (!user.badges) {
+        user.badges = [];
         actions.$set = {
           badges: [{ id: userBadgeId }],
         };
@@ -44,10 +52,16 @@ export default async (appId, userId, userBadgeId) => {
         };
       }
 
+      user.badges.push({ id: userBadgeId });
+
       await client.db().collection(COLL_USERS).updateOne(
         { _id: userId, appId },
         actions,
       );
+
+      if (app.backend && app.backend.type === 'wordpress') {
+        await syncUserBadges(user);
+      }
     }
   } finally {
     client.close();
