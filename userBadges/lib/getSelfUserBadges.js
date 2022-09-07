@@ -3,6 +3,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 
 const {
+  COLL_EXTERNAL_PURCHASES,
   COLL_USERS,
   COLL_USER_BADGES,
 } = mongoCollections;
@@ -23,6 +24,21 @@ export default async (appId, userId) => {
         management: { $in: ['request', 'public', 'private-visible'] },
       })
       .toArray();
+
+    let externalPurchases = await client
+      .db()
+      .collection(COLL_EXTERNAL_PURCHASES)
+      .find({
+        appId: user.appId,
+        collection: COLL_USER_BADGES,
+        userId: user._id,
+      }, { projection: { itemId: 1 } })
+      .toArray();
+
+    externalPurchases = externalPurchases.reduce((acc, itm) => {
+      acc[itm.itemId] = true;
+      return (acc);
+    }, {});
 
     const ownedBadges = userBadges.reduce((acc, itm) => {
       if (!itm.requested) {
@@ -82,6 +98,9 @@ export default async (appId, userId) => {
         if (checkerResults.canRead) {
           ret.owned = true;
         }
+      } else if (externalPurchases[_id]) {
+        ret.owned = true;
+        ret.externallyOwned = true;
       }
 
       return (ret);
