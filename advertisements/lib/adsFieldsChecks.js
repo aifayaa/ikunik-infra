@@ -1,6 +1,6 @@
 const isNonEmptyString = (val) => (typeof val === 'string' && val.length > 0);
 const isNonNegativeNumber = (val) => (typeof val === 'number' && val >= 0);
-const isValidDate = (val) => (val && !Number.isNaN((new Date(val)).getFullYear()));
+const isValidDate = (val) => (typeof val === 'string' && !Number.isNaN((new Date(val)).getFullYear()));
 
 export const createFieldChecks = {
   campaignId(val) {
@@ -49,10 +49,15 @@ export const createFieldChecks = {
     if (typeof maxClicks !== 'number' && maxClicks !== undefined) return (false);
     if (typeof maxClicks === 'number' && maxClicks < 0) return (false);
 
-    if (!notBefore && notBefore !== null && notBefore !== undefined) return (false);
-    if (notBefore && Number.isNaN((new Date(notBefore)).getFullYear())) return (false);
-    if (!notAfter && notAfter !== null && notAfter !== undefined) return (false);
-    if (notAfter && Number.isNaN((new Date(notAfter)).getFullYear())) return (false);
+    if (typeof notBefore !== 'string') return (false);
+    if (typeof notAfter !== 'string') return (false);
+
+    const notBeforeDate = new Date(notBefore);
+    const notAfterDate = new Date(notAfter);
+
+    if (Number.isNaN(notBeforeDate.getFullYear())) return (false);
+    if (Number.isNaN(notAfterDate.getFullYear())) return (false);
+    if (notBeforeDate.toISOString() >= notAfterDate.toISOString()) return (false);
 
     return (true);
   },
