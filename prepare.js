@@ -223,6 +223,7 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
   const client = await MongoClient.connect(mongoUrl);
 
   const {
+    COLL_ADVERTISEMENTS,
     COLL_APPS,
     COLL_EXTERNAL_PURCHASES,
     COLL_PICTURES,
@@ -434,6 +435,21 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
             collection: 1,
             source: 1,
             userId: 1,
+          },
+          opts: makeOpts(),
+        },
+      ],
+      [COLL_ADVERTISEMENTS]: [
+        {
+          name: 'crowdaa_adverts_lookup',
+          key: {
+            appId: 1,
+            location: 1,
+            active: 1,
+            'limits.notAfter': 1,
+            'limits.notBefore': 1,
+            'remaining.clicks': 1,
+            'remaining.displays': 1,
           },
           opts: makeOpts(),
         },
