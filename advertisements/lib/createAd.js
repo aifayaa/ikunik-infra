@@ -13,8 +13,8 @@ export default async (appId, userId, {
   limits: {
     maxDisplays = 0,
     maxClicks = 0,
-    notBefore = null,
-    notAfter = null,
+    notBefore,
+    notAfter,
   } = {},
   counters: {
     displays = 0,
@@ -40,8 +40,8 @@ export default async (appId, userId, {
       limits: {
         maxDisplays,
         maxClicks,
-        notBefore: notBefore && new Date(notBefore),
-        notAfter: notAfter && new Date(notAfter),
+        notBefore: new Date(notBefore),
+        notAfter: new Date(notAfter),
       },
       counters: {
         displays,
