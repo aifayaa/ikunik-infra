@@ -7,6 +7,13 @@ export default async (adId, appId, userId, toSet) => {
   const client = await MongoClient.connect();
 
   try {
+    if (toSet.limits) {
+      toSet.limits.notBefore = new Date(toSet.limits.notBefore);
+      toSet.limits.notAfter = new Date(toSet.limits.notAfter);
+    }
+    if (toSet['limits.notBefore']) toSet['limits.notBefore'] = new Date(toSet['limits.notBefore']);
+    if (toSet['limits.notAfter']) toSet['limits.notAfter'] = new Date(toSet['limits.notAfter']);
+
     await client
       .db()
       .collection(COLL_ADVERTISEMENTS)
