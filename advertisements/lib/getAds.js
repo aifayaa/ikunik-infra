@@ -31,25 +31,19 @@ export default async (appId, {
     if (isActiveNow !== null) {
       if (isActiveNow) {
         query.active = true;
+        query.$and = [
+          { 'limits.notAfter': { $gte: new Date() } },
+          { 'limits.notBefore': { $lte: new Date() } },
+        ];
         query['remaining.clicks'] = { $gt: 0 };
         query['remaining.displays'] = { $gt: 0 };
-        query.$and = [
-          { $or: [
-            { 'limits.notBefore': null },
-            { 'limits.notBefore': { $lte: new Date() } },
-          ] },
-          { $or: [
-            { 'limits.notAfter': null },
-            { 'limits.notAfter': { $gte: new Date() } },
-          ] },
-        ];
       } else {
         query.$or = [
           { active: false },
+          { 'limits.notAfter': { $lt: new Date() } },
+          { 'limits.notBefore': { $gt: new Date() } },
           { 'remaining.clicks': { $gt: 0 } },
           { 'remaining.displays': { $gt: 0 } },
-          { 'limits.notBefore': { $gt: new Date() } },
-          { 'limits.notAfter': { $lt: new Date() } },
         ];
       }
     }
