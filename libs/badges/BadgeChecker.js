@@ -308,6 +308,7 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
       allowedForBadge = true;
     } else if (options.userId && this.extPurchaseVal(options.userId, badge._id)) {
       allowedForBadge = true;
+      badge.externallyOwned = true;
     } else if (badge.validationUrl) {
       const replacements = {
         APP_ID: options.appId,
