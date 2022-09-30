@@ -52,6 +52,20 @@ WordpressAPI.prototype.call = async function call(method, path, data, options = 
   return (rawResponse);
 };
 
+WordpressAPI.prototype.authCall = async function authCall(method, path, bearer, data, options = {
+  body: 'json',
+}) {
+  const finalOptions = { ...options };
+
+  if (!finalOptions.headers) finalOptions.headers = {};
+
+  finalOptions.headers.Authorization = `Bearer ${bearer}`;
+
+  const response = await this.call(method, path, data, finalOptions);
+
+  return (response);
+};
+
 export {
   WordpressAPI,
 };
