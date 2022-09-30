@@ -2,7 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { WordpressAPI } from '../../libs/backends/wordpress';
 import hashLoginToken from '../../account/lib/hashLoginToken';
-import { setUserPermissions } from './backends/wordpressLogin';
+import { setUserPermissions, setUserBadges } from './backends/wordpressLogin';
 
 const {
   COLL_APPS,
@@ -62,11 +62,11 @@ export default async (userId, appId, loginToken) => {
       const wpApi = new WordpressAPI(app);
 
       try {
-        let response = await wpApi.call(
+        let response = await wpApi.authCall(
           'GET',
           '/crowdaa-sync/v1/session/checks',
+          loginTokenObj.wpToken,
           null,
-          { headers: { Authorization: `Bearer ${loginTokenObj.wpToken}` } },
         );
 
         response = JSON.parse(response);
@@ -87,8 +87,19 @@ export default async (userId, appId, loginToken) => {
               } });
           }
 
+          if (response.user_badges) {
+            await setUserBadges(client, user, response.user_badges);
+          }
+
           if (response.permissions) {
             await setUserPermissions(client, user, response.permissions);
+          }
+
+          if (response.user_id && response.user_id !== user.services.wordpress.userId) {
+            await client.db().collection(COLL_USERS).updateOne(
+              { _id: userId, appId },
+              { $set: { 'services.wordpress.userId': response.user_id } },
+            );
           }
         }
       } catch (e) {

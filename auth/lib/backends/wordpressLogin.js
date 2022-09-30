@@ -3,6 +3,7 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
+import { syncUserBadges } from '../../../libs/wordpress/wordpressApiSync';
 import { hashPassword } from '../password';
 
 const {
@@ -67,6 +68,29 @@ async function managePermsDifferences({
   }
 }
 
+export async function setUserBadges(client, user, badgeIds) {
+  const existingBadges = await client
+    .db()
+    .collection(COLL_USER_BADGES)
+    .find({ _id: { $in: badgeIds } }, { projection: { _id: 1 } })
+    .toArray();
+
+  const existingBadgesIds = existingBadges.map(({ _id }) => (_id));
+
+  const userBadgesIds = (user.badges || []).map(({ id }) => (id));
+
+  if (!listsContentEquals(existingBadgesIds, userBadgesIds)) {
+    const badges = existingBadges.map(({ _id }) => ({ id: _id }));
+    await client
+      .db()
+      .collection(COLL_USERS)
+      .updateOne(
+        { _id: user._id },
+        { $set: { badges } },
+      );
+  }
+}
+
 export async function setUserPermissions(client, user, permissions) {
   const extPurchasesCollection = client.db().collection(COLL_EXTERNAL_PURCHASES);
 
@@ -116,7 +140,7 @@ export async function setUserPermissions(client, user, permissions) {
   }
 }
 
-export const wordpressLogin = async (username, password, app) => {
+export const wordpressLogin = async (username, password, app, fromRegister = false) => {
   const client = await MongoClient.connect();
   const wpApi = new WordpressAPI(app);
   const appId = app._id;
@@ -153,6 +177,7 @@ export const wordpressLogin = async (username, password, app) => {
 
     const {
       token: wpToken,
+      user_id: wpUserId,
       user_email: userEmail,
       user_nicename: userNicename,
       user_display_name: userDisplayName,
@@ -163,6 +188,13 @@ export const wordpressLogin = async (username, password, app) => {
     const selector = { appId, 'profile.email': userEmail };
     let user = await usersCollection.findOne(selector);
     const token = Random.secret();
+    let badges = null;
+    if (fromRegister) {
+      badges = (await client.db().collection(COLL_USER_BADGES)
+        .find({ appId, isDefault: true })
+        .toArray())
+        .map((badge) => ({ id: badge._id }));
+    }
 
     const loginToken = {
       hashedToken: hashLoginToken(token),
@@ -182,6 +214,7 @@ export const wordpressLogin = async (username, password, app) => {
             userEmail,
             userNicename,
             userDisplayName,
+            userId: wpUserId,
           },
           resume: {
             loginTokens: [loginToken],
@@ -203,6 +236,8 @@ export const wordpressLogin = async (username, password, app) => {
       if (autoLoginToken) {
         user.services.wordpress.autoLoginToken = autoLoginToken;
       }
+
+      if (badges) user.badges = badges;
 
       await usersCollection.insertOne(user);
     } else {
@@ -226,7 +261,19 @@ export const wordpressLogin = async (username, password, app) => {
         user.services.wordpress &&
         user.services.wordpress.autoLoginToken
       ) {
+        if (!update.$unset) update.$unset = {};
         update.$unset['services.wordpress.autoLoginToken'] = '';
+      }
+
+      if (badges) {
+        update.$set.badges = badges;
+        user.badges = badges;
+      }
+
+      if (user.services && user.services.wordpress) {
+        if (wpUserId && wpUserId !== user.services.wordpress.userId) {
+          update.$set['services.wordpress.userId'] = wpUserId;
+        }
       }
 
       await usersCollection.updateOne(
@@ -240,6 +287,10 @@ export const wordpressLogin = async (username, password, app) => {
 
     if (permissions) {
       await setUserPermissions(client, user, permissions);
+    }
+
+    if (fromRegister && badges && badges.length > 0) {
+      await syncUserBadges(user);
     }
 
     return {
