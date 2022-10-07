@@ -108,6 +108,7 @@ export const queueNotifications = async (
   notifyAt,
   type,
   data = {},
+  { only = null },
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -142,15 +143,21 @@ export const queueNotifications = async (
     let queued = 0;
 
     await endpoints.forEach((endpoint) => {
-      insertBatches.push({
-        appId,
-        endpointId: endpoint._id,
-        notifyAt,
-        queueId,
-        root: false,
-        userId: endpoint.userId,
-      });
-      queued += 1;
+      if (
+        !only ||
+        (only === 'users' && endpoint.userId) ||
+        (only === 'devices' && !endpoint.userId)
+      ) {
+        insertBatches.push({
+          appId,
+          endpointId: endpoint._id,
+          notifyAt,
+          queueId,
+          root: false,
+          userId: endpoint.userId,
+        });
+        queued += 1;
+      }
 
       if (insertBatches.length >= PROCESS_BATCH_SIZE) {
         promises.push(dbBlastNotifQueue.insertMany(insertBatches));

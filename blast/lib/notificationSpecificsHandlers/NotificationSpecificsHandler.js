@@ -1,5 +1,12 @@
 import PressArticleHandler from './PressArticleHandler';
 import UGCHandler from './UGCHandler';
+import ChatMessageHandler from './ChatMessageHandler';
+
+const handlers = {
+  pressArticle: PressArticleHandler,
+  userArticle: UGCHandler,
+  'chat-message': ChatMessageHandler,
+};
 
 function NotificationSpecificsHandler(client, appId, rootNotifQueue) {
   if (!(this instanceof NotificationSpecificsHandler)) {
@@ -11,15 +18,11 @@ function NotificationSpecificsHandler(client, appId, rootNotifQueue) {
   this.rootNotifQueue = rootNotifQueue;
   this.queueData = rootNotifQueue.data;
 
-  if (rootNotifQueue.type === 'pressArticle') {
-    PressArticleHandler.call(this);
-    Object.keys(PressArticleHandler.prototype).forEach((name) => {
-      this[name] = PressArticleHandler.prototype[name];
-    });
-  } else if (rootNotifQueue.type === 'userArticle') {
-    UGCHandler.call(this);
-    Object.keys(UGCHandler.prototype).forEach((name) => {
-      this[name] = UGCHandler.prototype[name];
+  const handler = handlers[rootNotifQueue.type];
+  if (handler) {
+    handler.call(this);
+    Object.keys(handler.prototype).forEach((name) => {
+      this[name] = handler.prototype[name];
     });
   }
 }

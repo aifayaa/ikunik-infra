@@ -17,7 +17,6 @@ export const sendNotifications = async (
   queueId,
 ) => {
   const client = await MongoClient.connect();
-
   try {
     const queueCollection = client.db().collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
     const $match = { appId, queueId: new ObjectID(queueId), root: false };
@@ -72,9 +71,7 @@ export const sendNotifications = async (
 
           const {
             canNotify = true,
-            content = '',
-            extraData = {},
-            title = '',
+            data: notificationData = {},
           } = await notifSpecificsHandler.processOne({
             data,
             user,
@@ -87,10 +84,8 @@ export const sendNotifications = async (
 
           await new Promise((resolve) => {
             sendNotificationTo({
-              title,
-              content,
+              ...notificationData,
               endpoint,
-              extraData,
             }, (error/* , res */) => {
               if (!error) sent += 1;
               else failed += 1;
