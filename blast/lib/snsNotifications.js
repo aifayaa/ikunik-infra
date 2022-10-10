@@ -14,35 +14,45 @@ const sns = new SNS({
   },
 });
 
-export const sendNotificationTo = ({
-  title,
-  content: message,
-  endpoint,
-  extraData = {},
-}, cb) => {
+export const sendNotificationTo = (data, cb) => {
+  const {
+    isText = false,
+    endpoint,
+  } = data;
   const msg = {};
-  msg.default = '';
-  if (endpoint.Platform === 'APNS') {
-    let alert;
+  if (isText) {
+    const {
+      title = '',
+      content: message = '',
+      extraData = {},
+    } = data;
+    msg.default = '';
+    if (endpoint.Platform === 'APNS') {
+      let alert;
 
-    if (!title) alert = message;
-    else if (!message) alert = title;
-    else alert = `${title}: ${message}`;
+      if (!title) alert = message;
+      else if (!message) alert = title;
+      else alert = `${title}: ${message}`;
 
-    msg[endpoint.Platform] = JSON.stringify({
-      aps: {
-        alert,
-        ...extraData,
-      },
-    });
+      msg[endpoint.Platform] = JSON.stringify({
+        aps: {
+          alert,
+          sound: 'default',
+          ...extraData,
+        },
+      });
+    } else {
+      msg[endpoint.Platform] = JSON.stringify({
+        data: {
+          message,
+          title,
+          ...extraData,
+        },
+      });
+    }
   } else {
-    msg[endpoint.Platform] = JSON.stringify({
-      data: {
-        message,
-        title,
-        ...extraData,
-      },
-    });
+    cb(new Error('No notification type defined, notification not sent'));
+    return (null);
   }
   const params = {
     Message: JSON.stringify(msg),

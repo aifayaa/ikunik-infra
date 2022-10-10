@@ -114,9 +114,12 @@ PressArticleHandler.prototype.processOne = async function processOne({ user }) {
 
   return ({
     canNotify: true,
-    title,
-    content,
-    extraData: { articleId: this.queueData.articleId },
+    data: {
+      isText: true,
+      title,
+      content,
+      extraData: { articleId: this.queueData.articleId },
+    },
   });
 };
 
