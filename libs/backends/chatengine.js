@@ -2,6 +2,8 @@ import request from 'request-promise-native';
 
 const BASE_URL = 'https://api.chatengine.io';
 
+// See documentation here : https://rest.chatengine.io/
+
 function ChatEngineAPI(app) {
   if (!(this instanceof ChatEngineAPI)) {
     return new ChatEngineAPI(app);
@@ -29,12 +31,14 @@ ChatEngineAPI.prototype.call = async function call(method, path, data, options =
     },
   };
 
-  if (options.body === 'form') {
-    params.form = data;
-  } else if (options.body === 'raw') {
-    params.body = data;
-  } else if (options.body === 'json') {
-    params.json = data;
+  if (data !== undefined) {
+    if (options.body === 'form') {
+      params.form = data;
+    } else if (options.body === 'raw') {
+      params.body = data;
+    } else if (options.body === 'json') {
+      params.json = data;
+    }
   }
 
   if (options.headers) {
@@ -45,6 +49,13 @@ ChatEngineAPI.prototype.call = async function call(method, path, data, options =
   }
 
   const rawResponse = await request(params);
+
+  try {
+    const jsonResponse = JSON.parse(rawResponse);
+    return (jsonResponse);
+  } catch (e) {
+    /* do nothing */
+  }
 
   return (rawResponse);
 };

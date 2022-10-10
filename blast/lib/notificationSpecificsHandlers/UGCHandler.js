@@ -32,9 +32,12 @@ UGCHandler.prototype.processOne = function processOne() {
 
   return ({
     canNotify: true,
-    title,
-    content,
-    extraData: { userArticleId: this.queueData.ugcId },
+    data: {
+      isText: true,
+      title,
+      content,
+      extraData: { userArticleId: this.queueData.ugcId },
+    },
   });
 };
 

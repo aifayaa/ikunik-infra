@@ -6,9 +6,10 @@ export default async (event) => {
       appId,
       notifyAt,
       type,
+      only = null,
       data = {},
     } = event;
-    const queueId = await queueNotifications(appId, notifyAt, type, data);
+    const queueId = await queueNotifications(appId, notifyAt, type, data, { only });
     return ({ queueId });
   } catch (e) {
     return ({});
