@@ -18,6 +18,7 @@ export default async (userId, appId, {
   management,
   name,
   productId: storeProductId,
+  subscriptionUrl = '',
   validationUrl = '',
 }) => {
   const client = await MongoClient.connect();
@@ -57,6 +58,7 @@ export default async (userId, appId, {
       isDefault,
       management,
       name,
+      subscriptionUrl,
       validationUrl,
     };
 
