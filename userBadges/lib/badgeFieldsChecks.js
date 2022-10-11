@@ -25,6 +25,9 @@ export default {
   isDefault(val) {
     return (typeof val === 'boolean');
   },
+  subscriptionUrl(val) {
+    return (!!optionnalUrlRegexp.test(val || ''));
+  },
   validationUrl(val) {
     return (!!optionnalUrlRegexp.test(val || ''));
   },
