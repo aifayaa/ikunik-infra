@@ -67,6 +67,7 @@ export default async (appId, userId) => {
       color,
       management,
       storeProductId,
+      subscriptionUrl,
     }) => {
       const ret = {
         _id,
@@ -75,6 +76,7 @@ export default async (appId, userId) => {
         color,
         management,
         storeProductId,
+        subscriptionUrl,
       };
 
       if (requestedBadges[_id]) {

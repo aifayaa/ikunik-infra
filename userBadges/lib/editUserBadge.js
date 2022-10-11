@@ -13,6 +13,7 @@ export default async (userBadgeId, appId, {
   management,
   name,
   productId: storeProductId,
+  subscriptionUrl = null,
   validationUrl = '',
 }, { userId }) => {
   const client = await MongoClient.connect();
@@ -75,6 +76,10 @@ export default async (userBadgeId, appId, {
       storeProductId,
       validationUrl,
     };
+
+    if (subscriptionUrl !== null) {
+      $set.subscriptionUrl = subscriptionUrl;
+    }
 
     await client
       .db()
