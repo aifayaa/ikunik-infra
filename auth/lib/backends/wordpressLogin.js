@@ -185,7 +185,13 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
       permissions,
     } = reply;
 
-    const selector = { appId, 'profile.email': userEmail };
+    const selector = {
+      appId,
+      $or: [
+        { 'profile.email': userEmail },
+        { 'emails.address': userEmail },
+      ],
+    };
     let user = await usersCollection.findOne(selector);
     const token = Random.secret();
     let badges = null;
