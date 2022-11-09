@@ -2,7 +2,7 @@ service: admin
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs16.x
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
