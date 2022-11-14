@@ -44,7 +44,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
     "sax": "^1.2.4",
-    "sharp": "^0.24.1",
+    "sharp": "^0.31.2",
     "shortid": "^2.2.15",
     "showdown": "^1.9.1",
     "source-map-support": "^0.5.16",
