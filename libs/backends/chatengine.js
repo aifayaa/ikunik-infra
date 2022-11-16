@@ -19,9 +19,7 @@ function ChatEngineAPI(app) {
   this.credentials = app.credentials.chatengine;
 }
 
-ChatEngineAPI.prototype.call = async function call(method, path, data, options = {
-  body: 'json',
-}) {
+ChatEngineAPI.prototype.call = async function call(method, path, data, options = {}) {
   const uri = `${BASE_URL}${path}`;
   const params = {
     method,
@@ -36,7 +34,7 @@ ChatEngineAPI.prototype.call = async function call(method, path, data, options =
       params.form = data;
     } else if (options.body === 'raw') {
       params.body = data;
-    } else if (options.body === 'json') {
+    } else if (options.body === 'json' || !options.body) {
       params.json = data;
     }
   }
