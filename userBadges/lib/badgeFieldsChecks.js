@@ -5,6 +5,7 @@ export default {
     switch (val) {
       case 'hidden':
       case 'teaser':
+      case 'preview':
       case 'notifications':
         return (true);
       default:
