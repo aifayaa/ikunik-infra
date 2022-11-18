@@ -1,4 +1,4 @@
-FROM amazonlinux
+FROM amazonlinux:1
 
 # node
 RUN yum -y groupinstall 'Development Tools'

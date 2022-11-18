@@ -11,7 +11,7 @@ package:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs12.x
   stage: ${opt:stage, "dev"}
   memorySize: 1536
   timeout: 30
