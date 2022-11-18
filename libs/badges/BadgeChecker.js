@@ -30,6 +30,7 @@ export function promiseExecUntilEqualsTo(val, exec) {
 
 function BadgeCheckerResults({
   canList = true,
+  canPreview = true,
   canRead = true,
   canNotify = true,
   restrictedBy = [],
@@ -43,6 +44,7 @@ function BadgeCheckerResults({
 
   Object.defineProperty(this, 'canList', { ...propConf, value: canList });
   Object.defineProperty(this, 'canRead', { ...propConf, value: canRead });
+  Object.defineProperty(this, 'canPreview', { ...propConf, value: canPreview });
   Object.defineProperty(this, 'canNotify', { ...propConf, value: canNotify });
   Object.defineProperty(this, 'restrictedBy', { ...propConf, value: restrictedBy });
   Object.defineProperty(this, 'paidBadges', { ...propConf, value: paidBadges });
@@ -50,6 +52,7 @@ function BadgeCheckerResults({
 
 BadgeCheckerResults.prototype.merge = function merge(otherResults) {
   const canList = this.canList && otherResults.canList;
+  const canPreview = this.canPreview && otherResults.canPreview;
   const canRead = this.canRead && otherResults.canRead;
   const canNotify = this.canNotify && otherResults.canNotify;
 
@@ -69,6 +72,7 @@ BadgeCheckerResults.prototype.merge = function merge(otherResults) {
 
   return new BadgeCheckerResults({
     canList,
+    canPreview,
     canRead,
     canNotify,
     restrictedBy,
@@ -78,6 +82,7 @@ BadgeCheckerResults.prototype.merge = function merge(otherResults) {
 
 function BadgeCheckerResultsBuilder() {
   this.canList = true;
+  this.canPreview = true;
   this.canRead = true;
   this.canNotify = true;
 
@@ -111,14 +116,19 @@ BadgeCheckerResultsBuilder.prototype.blockedBy = function blockedBy(badge) {
   } = badge;
 
   if (access === 'teaser') {
-    this.canRead = false;
     this.canNotify = false;
+    this.canPreview = false;
+    this.canRead = false;
+  } else if (access === 'preview') {
+    this.canNotify = false;
+    this.canRead = false;
   } else if (access === 'notifications') {
     this.canNotify = false;
   } else {
     this.canList = false;
-    this.canRead = false;
     this.canNotify = false;
+    this.canPreview = false;
+    this.canRead = false;
   }
 
   if (management === 'request' || management === 'public') {
@@ -129,6 +139,7 @@ BadgeCheckerResultsBuilder.prototype.blockedBy = function blockedBy(badge) {
 BadgeCheckerResultsBuilder.prototype.getResults = function getResults() {
   return (new BadgeCheckerResults({
     canList: this.canList,
+    canPreview: this.canPreview,
     canRead: this.canRead,
     canNotify: this.canNotify,
     restrictedBy: this.restrictedBy,
