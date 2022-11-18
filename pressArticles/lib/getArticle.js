@@ -10,6 +10,7 @@ import BadgeChecker from '../../libs/badges/BadgeChecker';
 const { ADMIN_APP } = process.env;
 
 const {
+  COLL_APPS,
   COLL_CONTENT_PERMISSIONS,
   COLL_EXTERNAL_PURCHASES,
   COLL_PICTURES,
@@ -246,8 +247,31 @@ export const getArticle = async (
         article.authorName = article.category.forcedAuthor;
       }
 
-      const articleRequires = (what, requiredElements) => {
-        article.text = null;
+      const app = await client
+        .db()
+        .collection(COLL_APPS)
+        .findOne({ _id: appId }, { projection: {
+          'settings.press.articles.previewLength': 1,
+        } });
+
+      let previewLength = 180;
+      if (
+        app &&
+        app.settings &&
+        app.settings.press &&
+        app.settings.press.articles &&
+        app.settings.press.articles.previewLength
+      ) {
+        previewLength = app.settings.press.articles.previewLength;
+      }
+
+      const articleRequires = (what, requiredElements, { preview = false } = {}) => {
+        if (preview && article.text) {
+          article.text = article.text.substr(0, previewLength);
+        } else {
+          article.text = null;
+        }
+        article.isPreview = preview;
         article.requires = what;
         article.requiredElements = requiredElements;
       };
@@ -320,7 +344,11 @@ export const getArticle = async (
           throw new Error('forbidden');
         }
         if (!checkerResults.canRead) {
-          articleRequires('userBadges', checkerResults.restrictedBy);
+          articleRequires(
+            'userBadges',
+            checkerResults.restrictedBy,
+            { preview: checkerResults.canPreview },
+          );
         }
       }
     }

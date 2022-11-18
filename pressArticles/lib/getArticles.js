@@ -6,6 +6,7 @@ import BadgeChecker from '../../libs/badges/BadgeChecker';
 const { ADMIN_APP } = process.env;
 
 const {
+  COLL_APPS,
   COLL_EXTERNAL_PURCHASES,
   COLL_PICTURES,
   COLL_PRESS_ARTICLES,
@@ -476,8 +477,31 @@ export const getArticles = async (
     if (checkBadges && (!user || user.appId !== ADMIN_APP)) {
       const userBadges = (user && user.badges) || [];
 
-      const articleRequires = (article, what, requiredElements) => {
-        article.text = null;
+      const app = await client
+        .db()
+        .collection(COLL_APPS)
+        .findOne({ _id: appId }, { projection: {
+          'settings.press.articles.previewLength': 1,
+        } });
+
+      let previewLength = 180;
+      if (
+        app &&
+        app.settings &&
+        app.settings.press &&
+        app.settings.press.articles &&
+        app.settings.press.articles.previewLength
+      ) {
+        previewLength = app.settings.press.articles.previewLength;
+      }
+
+      const articleRequires = (article, what, requiredElements, { preview = false } = {}) => {
+        if (preview && article.text) {
+          article.text = article.text.substr(0, previewLength);
+        } else {
+          article.text = null;
+        }
+        article.isPreview = preview;
         article.requires = what;
         article.requiredElements = requiredElements;
       };
@@ -527,7 +551,12 @@ export const getArticles = async (
           if (!checkerResults.canList) {
             articlesWithCategory[id] = null;
           } else if (!checkerResults.canRead) {
-            articleRequires(articlesWithCategory[id], 'userBadges', checkerResults.restrictedBy);
+            articleRequires(
+              articlesWithCategory[id],
+              'userBadges',
+              checkerResults.restrictedBy,
+              { preview: checkerResults.canPreview },
+            );
           }
         }
       });
