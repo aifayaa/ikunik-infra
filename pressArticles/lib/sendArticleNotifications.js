@@ -52,6 +52,14 @@ function getArticleBadges(article) {
     badges.push(article.category.badges);
   }
 
+  if (article.categories) {
+    article.categories.forEach((category) => {
+      if (category.badges && category.badges.list.length > 0) {
+        badges.push(category.badges);
+      }
+    });
+  }
+
   return (badges);
 }
 
@@ -102,6 +110,12 @@ export const sendArticleNotifications = async (
       } },
       { $lookup: {
         from: COLL_PRESS_CATEGORIES,
+        localField: 'categoriesId',
+        foreignField: '_id',
+        as: 'categories',
+      } },
+      { $lookup: {
+        from: COLL_PRESS_CATEGORIES,
         localField: 'categoryId',
         foreignField: '_id',
         as: 'category',
@@ -117,6 +131,7 @@ export const sendArticleNotifications = async (
       const checkerOptions = {
         articleId: article._id,
         categoryId: article.categoryId,
+        categoriesId: (article.categoriesId || []).join(','),
         appId: article.appId,
       };
       const artCatBadges = getArticleBadges(article);

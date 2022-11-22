@@ -104,12 +104,20 @@ export const getArticles = async (
     }
 
     if (getOrphansArticles) {
-      matchArticles.$or = [
-        { categoryId: null },
-        { categoryId: { $in: categoriesIds } },
-      ];
+      matchArticles.$and.push({
+        $or: [
+          { categoryId: null },
+          { categoryId: { $in: categoriesIds } },
+          { categoriesId: { $in: categoriesIds } },
+        ],
+      });
     } else {
-      matchArticles.categoryId = { $in: categoriesIds };
+      matchArticles.$and.push({
+        $or: [
+          { categoryId: { $in: categoriesIds } },
+          { categoriesId: { $in: categoriesIds } },
+        ],
+      });
     }
 
     let sortArticles = { pinned: -1, createdAt: -1 };
@@ -124,35 +132,39 @@ export const getArticles = async (
             from = new Date();
           }
 
-          matchArticles.$or = [
-            {
-              publicationDate: {
-                $exists: false,
+          matchArticles.$and.push({
+            $or: [
+              {
+                publicationDate: {
+                  $exists: false,
+                },
               },
-            },
-            {
-              publicationDate: {
-                $gte: from,
+              {
+                publicationDate: {
+                  $gte: from,
+                },
               },
-            },
-          ];
+            ],
+          });
         }
       } else {
         sortArticles = { pinned: -1, publicationDate: -1, createdAt: -1 };
         matchArticles.isPublished = true;
         if (!noDateFilter) {
-          matchArticles.$or = [
-            {
-              publicationDate: {
-                $exists: false,
+          matchArticles.$and.push({
+            $or: [
+              {
+                publicationDate: {
+                  $exists: false,
+                },
               },
-            },
-            {
-              publicationDate: {
-                $lte: new Date(),
+              {
+                publicationDate: {
+                  $lte: new Date(),
+                },
               },
-            },
-          ];
+            ],
+          });
         }
       }
     }
@@ -162,6 +174,14 @@ export const getArticles = async (
       { $sort: sortArticles },
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
+      {
+        $lookup: {
+          from: COLL_PRESS_CATEGORIES,
+          localField: 'categoriesId',
+          foreignField: '_id',
+          as: 'categories',
+        },
+      },
       {
         $lookup: {
           from: COLL_USERS,
@@ -205,6 +225,7 @@ export const getArticles = async (
           res[key] = { $first: `$${key}` };
           return res;
         }, {}),
+        categories: { $first: '$categories' },
         pictures: { $push: '$pictures' },
         videos: { $first: '$videos' },
         feedPicture: { $first: '$feedPicture' },
@@ -256,6 +277,7 @@ export const getArticles = async (
           res[key] = { $first: `$${key}` };
           return res;
         }, {}),
+        categories: { $first: '$categories' },
         pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
         feedPicture: { $first: '$feedPicture' },
@@ -388,7 +410,9 @@ export const getArticles = async (
     const articlesWithCategory = articles.map((article) => {
       const articleCategory = categories.find(
         (category) => category._id === article.categoryId,
-      );
+      ) || (article.categories && article.categories.find(
+        (category) => category._id === article.categoryId,
+      ));
       if (articleCategory && articleCategory.forcedAuthor) {
         article.authorName = articleCategory.forcedAuthor;
       }
@@ -451,6 +475,14 @@ export const getArticles = async (
             badgeChecker.registerBadges(toRegister);
           }
         }
+        if (article.categories) {
+          article.categories.forEach((category) => {
+            if (category.badges) {
+              const toRegister = category.badges.list.map(({ id: badgeId }) => (badgeId));
+              badgeChecker.registerBadges(toRegister);
+            }
+          });
+        }
       });
 
       await badgeChecker.loadBadges();
@@ -462,18 +494,30 @@ export const getArticles = async (
             userId,
             articleId: article._id,
             categoryId: article.categoryId,
+            categoriesId: article.categoriesId,
           };
-          const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
+          const { categories: artCategories = [] } = article;
+          const categoriesBadges = (artCategories && artCategories.reduce((acc, { badges }) => {
+            if (badges) {
+              const list = badges.list.map((badge) => (badge.id));
+              badgeChecker.registerBadges(list);
+              acc.push(badges);
+            }
+            return (acc);
+          }, [])) || [];
           let checkerResults = await badgeChecker.checkBadges(
             userBadges,
             article.badges,
             opts,
           );
-          checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
-            userBadges,
-            categoryBadges,
-            opts,
-          ));
+          const promises2 = categoriesBadges.map(async (categoryBadges) => {
+            checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
+              userBadges,
+              categoryBadges,
+              opts,
+            ));
+          });
+          await Promise.all(promises2);
 
           articlesWithCategory[id].paidBadges = checkerResults.paidBadges;
 
