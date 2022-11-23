@@ -469,12 +469,6 @@ export const getArticles = async (
           badgeChecker.registerBadges(toRegister);
         }
 
-        if (article.category) {
-          if (article.category.badges) {
-            const toRegister = article.category.badges.list.map(({ id: badgeId }) => (badgeId));
-            badgeChecker.registerBadges(toRegister);
-          }
-        }
         if (article.categories) {
           article.categories.forEach((category) => {
             if (category.badges) {
@@ -482,6 +476,11 @@ export const getArticles = async (
               badgeChecker.registerBadges(toRegister);
             }
           });
+        } else if (article.category) {
+          if (article.category.badges) {
+            const toRegister = article.category.badges.list.map(({ id: badgeId }) => (badgeId));
+            badgeChecker.registerBadges(toRegister);
+          }
         }
       });
 

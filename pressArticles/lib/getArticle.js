@@ -330,12 +330,12 @@ export const getArticle = async (
           badgeChecker.registerBadges(article.badges.list.map(({ id: badgeId }) => (badgeId)));
         }
 
-        const { categories = [] } = article;
-        const categoriesBadges = (categories && categories.reduce((acc, { badges }) => {
-          if (badges) {
-            const list = badges.list.map((badge) => (badge.id));
+        const { categories = [article.category] } = article;
+        const categoriesBadges = (categories && categories.reduce((acc, category) => {
+          if (category && category.badges) {
+            const list = category.badges.list.map((badge) => (badge.id));
             badgeChecker.registerBadges(list);
-            acc.push(badges);
+            acc.push(category.badges);
           }
           return (acc);
         }, [])) || [];
