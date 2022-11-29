@@ -12,6 +12,7 @@ export const putArticle = async ({
   authorName,
   badges = [],
   badgesAllow = 'any',
+  categoriesId,
   categoryId,
   displayOptions,
   feedPicture,
@@ -37,7 +38,8 @@ export const putArticle = async ({
   if (
     typeof title !== 'string' ||
     typeof articleId !== 'string' ||
-    typeof categoryId !== 'string' ||
+    (typeof categoryId !== 'string' && !Array.isArray(categoriesId)) ||
+    (Array.isArray(categoriesId) && categoriesId.length === 0) ||
     typeof summary !== 'string' ||
     typeof html !== 'string' ||
     typeof md !== 'string' ||
@@ -66,6 +68,11 @@ export const putArticle = async ({
       storeProductId,
     );
 
+    if (categoryId && Array.isArray(categoriesId) && !categoriesId.indexOf(categoryId)) {
+      categoriesId.unshift(categoryId);
+    }
+    if (!categoryId) [categoryId] = categoriesId;
+    if (!categoriesId) categoriesId = [categoryId];
     const draft = {
       _id: draftId,
       actions,
@@ -77,6 +84,7 @@ export const putArticle = async ({
         list: badges.map((id) => ({ id })),
         allow: badgesAllow,
       },
+      categoriesId,
       categoryId,
       createdAt: new Date(),
       hideFromFeed,

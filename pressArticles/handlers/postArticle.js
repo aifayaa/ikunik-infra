@@ -36,6 +36,7 @@ export default async (event) => {
     let authorName;
     let badges;
     let badgesAllow;
+    let categoriesId;
     let categoryId;
     let displayOptions;
     let feedPicture;
@@ -67,6 +68,7 @@ export default async (event) => {
           authorName,
           badges,
           badgesAllow,
+          categoriesId,
           categoryId,
           displayOptions,
           feedPicture,
@@ -138,7 +140,7 @@ export default async (event) => {
 
     categoryId = forceCategoryId || categoryId;
     if (
-      !categoryId ||
+      (!categoryId && !categoriesId) ||
       !title ||
       !summary ||
       !html ||
@@ -175,6 +177,7 @@ export default async (event) => {
       appId,
       badges: badges || [],
       badgesAllow: badgesAllow || 'any',
+      categoriesId,
       categoryId,
       displayOptions: displayOptions || {},
       feedPicture,

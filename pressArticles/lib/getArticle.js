@@ -69,6 +69,14 @@ export const getArticle = async (
       },
       {
         $lookup: {
+          from: COLL_PRESS_CATEGORIES,
+          localField: 'categoriesId',
+          foreignField: '_id',
+          as: 'categories',
+        },
+      },
+      {
+        $lookup: {
           from: COLL_USERS,
           localField: 'userId',
           foreignField: '_id',
@@ -146,6 +154,7 @@ export const getArticle = async (
         ),
         badges: { $first: '$badges' },
         category: { $first: '$category' },
+        categories: { $first: '$categories' },
         pictures: { $push: '$pictures' },
         videos: { $first: '$videos' },
         feedPicture: { $first: '$feedPicture' },
@@ -202,6 +211,7 @@ export const getArticle = async (
         ),
         badges: { $first: '$badges' },
         category: { $first: '$category' },
+        categories: { $first: '$categories' },
         pictures: { $first: '$pictures' },
         videos: { $push: '$videos' },
         feedPicture: { $first: '$feedPicture' },
@@ -243,8 +253,12 @@ export const getArticle = async (
     const article = articles[0] || null;
 
     if (article) {
-      if (article.category && article.category.forcedAuthor) {
-        article.authorName = article.category.forcedAuthor;
+      if (article.categories) {
+        article.categories.forEach(({ forcedAuthor }) => {
+          if (forcedAuthor) {
+            article.authorName = forcedAuthor;
+          }
+        });
       }
 
       const app = await client
@@ -317,16 +331,23 @@ export const getArticle = async (
         if (article.badges) {
           badgeChecker.registerBadges(article.badges.list.map(({ id: badgeId }) => (badgeId)));
         }
-        const categoryBadges = (article.category && article.category.badges) || { allow: 'any', list: [] };
-        if (categoryBadges) {
-          badgeChecker.registerBadges(categoryBadges.list.map(({ id: badgeId }) => (badgeId)));
-        }
+
+        const { categories = [article.category] } = article;
+        const categoriesBadges = (categories && categories.reduce((acc, category) => {
+          if (category && category.badges) {
+            const list = category.badges.list.map((badge) => (badge.id));
+            badgeChecker.registerBadges(list);
+            acc.push(category.badges);
+          }
+          return (acc);
+        }, [])) || [];
         await badgeChecker.loadBadges();
 
         const opts = {
           appId,
           userId,
           articleId: id,
+          categoriesId: (article.categoriesId || []).join(','),
           categoryId: article.categoryId,
         };
         let checkerResults = await badgeChecker.checkBadges(
@@ -334,11 +355,14 @@ export const getArticle = async (
           article.badges,
           opts,
         );
-        checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
-          userBadges,
-          categoryBadges,
-          opts,
-        ));
+        const promises = categoriesBadges.map(async (categoryBadges) => {
+          checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
+            userBadges,
+            categoryBadges,
+            opts,
+          ));
+        });
+        await Promise.all(promises);
         article.paidBadges = checkerResults.paidBadges;
         if (!checkerResults.canList) {
           throw new Error('forbidden');

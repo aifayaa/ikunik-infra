@@ -3,6 +3,7 @@ const common = {
   actions: true,
   authorName: true,
   badges: true,
+  categoriesId: true,
   categoryId: true,
   createdAt: true,
   displayOptions: true,

@@ -43,6 +43,13 @@ function getArticleBadges(article) {
   ) {
     badges.push(article.category.badges);
   }
+  if (article.categories) {
+    article.categories.forEach((category) => {
+      if (category.badges && category.badges.list.length > 0) {
+        badges.push(category.badges);
+      }
+    });
+  }
 
   return (badges);
 }
