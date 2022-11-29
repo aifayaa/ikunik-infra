@@ -24,6 +24,7 @@ export default async (event) => {
       authorName,
       badges,
       badgesAllow,
+      categoriesId,
       categoryId,
       displayOptions,
       feedPicture,
@@ -52,7 +53,7 @@ export default async (event) => {
 
     if (
       !articleId ||
-      !categoryId ||
+      (!categoryId && !categoriesId) ||
       !title ||
       !summary ||
       !md ||
@@ -87,6 +88,7 @@ export default async (event) => {
       authorName,
       badges: badges || [],
       badgesAllow: badgesAllow || 'any',
+      categoriesId,
       categoryId,
       displayOptions: displayOptions || {},
       feedPicture,

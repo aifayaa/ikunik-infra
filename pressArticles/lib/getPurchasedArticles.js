@@ -29,20 +29,29 @@ export const getPurchasedArticles = async (
     const $match = {
       appId,
       /* Find only articles not trashed or trashed undefined */
-      $or: [
+      $and: [
         {
-          trashed: {
-            $exists: false,
-          },
-        },
-        {
-          trashed: false,
+          $or: [
+            {
+              trashed: {
+                $exists: false,
+              },
+            },
+            {
+              trashed: false,
+            },
+          ],
         },
       ],
     };
 
     if (categoryId) {
-      $match.categoryId = categoryId;
+      $match.$and.push({
+        $or: [
+          { categoryId },
+          { categoriesId: categoryId },
+        ],
+      });
     }
 
     let $sort = { createdAt: -1 };
@@ -117,6 +126,14 @@ export const getPurchasedArticles = async (
       { $sort },
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
+      {
+        $lookup: {
+          from: COLL_PRESS_CATEGORIES,
+          localField: 'categoriesId',
+          foreignField: '_id',
+          as: 'categories',
+        },
+      },
       {
         $lookup: {
           from: COLL_PRESS_CATEGORIES,

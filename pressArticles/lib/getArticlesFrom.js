@@ -72,9 +72,13 @@ export default async (
       matchArticles.$or = [
         { categoryId: null },
         { categoryId: { $in: categoriesIds } },
+        { categoriesId: { $in: categoriesIds } },
       ];
     } else {
-      matchArticles.categoryId = { $in: categoriesIds };
+      matchArticles.$or = [
+        { categoryId: { $in: categoriesIds } },
+        { categoriesId: { $in: categoriesIds } },
+      ];
     }
 
     let sortArticles;
@@ -97,6 +101,14 @@ export default async (
 
     if (getAuthors) {
       articlesPipeline = articlesPipeline.concat([
+        {
+          $lookup: {
+            from: COLL_PRESS_CATEGORIES,
+            localField: 'categoriesId',
+            foreignField: '_id',
+            as: 'categories',
+          },
+        },
         {
           $lookup: {
             from: COLL_USERS,

@@ -325,6 +325,7 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
         APP_ID: options.appId,
         ARTICLE_ID: options.articleId,
         CATEGORY_ID: options.categoryId,
+        CATEGORIES_ID: options.categoriesId,
         USER_ID: options.userId,
       };
       const uri = badge.validationUrl.replace(
