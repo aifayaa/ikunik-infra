@@ -18,6 +18,7 @@ export const postArticle = async ({
   appId,
   badges = [],
   badgesAllow = 'any',
+  categoriesId,
   categoryId,
   displayOptions,
   feedPicture,
@@ -45,7 +46,8 @@ export const postArticle = async ({
 }) => {
   if (
     typeof title !== 'string' ||
-    typeof categoryId !== 'string' ||
+    (typeof categoryId !== 'string' && !Array.isArray(categoriesId)) ||
+    (Array.isArray(categoriesId) && categoriesId.length === 0) ||
     typeof likes !== 'number' ||
     typeof summary !== 'string' ||
     typeof views !== 'number' ||
@@ -64,6 +66,11 @@ export const postArticle = async ({
     throw new Error('bad arguments');
   }
 
+  if (categoryId && Array.isArray(categoriesId) && !categoriesId.indexOf(categoryId)) {
+    categoriesId.unshift(categoryId);
+  }
+  if (!categoryId) [categoryId] = categoriesId;
+  if (!categoriesId) categoriesId = [categoryId];
   const articleId = uuidv4();
   const draftId = uuidv4();
   const productId = uuidv4();
@@ -79,6 +86,7 @@ export const postArticle = async ({
         list: badges.map((id) => ({ id })),
         allow: badgesAllow,
       },
+      categoriesId,
       categoryId,
       createdAt: new Date(),
       displayOptions,

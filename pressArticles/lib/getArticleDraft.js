@@ -35,6 +35,14 @@ export const getArticleDraft = async (articleId, appId) => {
             preserveNullAndEmptyArrays: true,
           },
         },
+        {
+          $lookup: {
+            from: COLL_PRESS_CATEGORIES,
+            localField: 'categoriesId',
+            foreignField: '_id',
+            as: 'categories',
+          },
+        },
       ])
       .toArray();
     const article = articles[0];
