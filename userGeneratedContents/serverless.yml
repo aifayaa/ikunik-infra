@@ -4,6 +4,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   dev:
     us-east-1:
       REACT_APP_PRESS_SERVICE_URL: https://dev-blog.crowdaa.com
@@ -241,7 +243,7 @@ functions:
 
 plugins:
   - '@cruglobal/serverless-merge-config'
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
   - serverless-export-env

@@ -144,7 +144,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
 
@@ -155,6 +155,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   MAILGUN_API_KEY:
     dev: key-ee8f3c350f56cbe4002b9c00cce04769
     preprod: key-ee8f3c350f56cbe4002b9c00cce04769

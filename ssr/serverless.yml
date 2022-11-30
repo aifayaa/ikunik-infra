@@ -63,7 +63,7 @@ functions:
                 appName: false
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-domain-manager
   - serverless-export-env
@@ -77,6 +77,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   domains:
     dev:
       us-east-1: dev-ssr.aws.crowdaa.com

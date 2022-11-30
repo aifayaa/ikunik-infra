@@ -26,7 +26,7 @@ functions:
           cors: true
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-plugin-bind-deployment-id
   - serverless-domain-manager
   - serverless-webpack
@@ -39,6 +39,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   mongoDB:
     dev:
       us-east-1: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev

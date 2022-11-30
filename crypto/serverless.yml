@@ -4,6 +4,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   dev:
     us-east-1:
       METAMASK_LOGIN_DOMAIN: dev-metamask.crowdaa.com
@@ -100,7 +102,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
   - serverless-prune-plugin

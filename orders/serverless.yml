@@ -55,7 +55,7 @@ functions:
                 Authorization: true
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
 
@@ -66,6 +66,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   STRIPE_API_KEY:
     dev: sk_test_wbtCudjJImb2OKWdxR1HvoTr
     preprod: sk_test_wbtCudjJImb2OKWdxR1HvoTr

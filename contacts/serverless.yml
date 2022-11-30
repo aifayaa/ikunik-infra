@@ -61,7 +61,7 @@ functions:
                 type: false
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
 
@@ -69,6 +69,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
 
 package:
   individually: true

@@ -190,7 +190,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env
   - serverless-webpack
@@ -200,6 +200,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
 
 package:
   individually: true

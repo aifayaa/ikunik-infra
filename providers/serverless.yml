@@ -4,6 +4,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   prod:
     CPME92_URL: 'https://www.cpme92.fr'
     CPME_CRED_PASS: '25969'
@@ -83,7 +85,7 @@ functions:
           cors: true
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
   - serverless-prune-plugin
