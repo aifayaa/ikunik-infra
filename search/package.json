@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa search API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "true"
+  },
   "dependencies": {
     "lodash": "^4.17.15"
   },

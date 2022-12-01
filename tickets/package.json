@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa tickets API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "true"
+  },
   "dependencies": {
     "mailgun-js": "^0.22.0",
     "moment": "^2.24.0",

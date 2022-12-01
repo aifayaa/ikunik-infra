@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa genre API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "true"
+  },
   "dependencies": {},
   "devDependencies": {
     "serverless": "^2.72.3",

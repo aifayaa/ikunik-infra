@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa media API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "true"
+  },
   "dependencies": {
     "aws-sdk": "^2.749.0"
   },
