@@ -25,6 +25,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
   stage: ${opt:stage, "dev"}
   memorySize: 2048
   timeout: 300

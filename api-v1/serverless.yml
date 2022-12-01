@@ -11,6 +11,7 @@ provider:
   name: aws
   stage: ${opt:stage, "dev"}
   runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
   memorySize: 128
   timeout: 30
   region: ${opt:region, "us-east-1"}
