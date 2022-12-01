@@ -3,6 +3,7 @@ service: credits
 provider:
   name: aws
   runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -68,7 +69,7 @@ functions:
     handler: handlers/removeCredits.default
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
 
@@ -76,6 +77,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
 
 package:
   individually: true

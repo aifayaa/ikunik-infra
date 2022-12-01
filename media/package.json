@@ -4,11 +4,14 @@
   "private": true,
   "description": "Crowdaa media API.",
   "main": "handler.js",
+  "scripts": {
+    "test": "true"
+  },
   "dependencies": {
     "aws-sdk": "^2.749.0"
   },
   "devDependencies": {
-    "serverless": "^1.61.2",
+    "serverless": "^2.72.3",
     "serverless-webpack": "^5.3.3",
     "webpack": "^4.41.5"
   },

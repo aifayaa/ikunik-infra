@@ -2,7 +2,7 @@ FROM amazonlinux:1
 
 # node
 RUN yum -y groupinstall 'Development Tools'
-RUN curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -
+RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum -y install nodejs npm python27
 
 # sharp

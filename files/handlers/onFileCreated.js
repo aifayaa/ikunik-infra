@@ -46,6 +46,7 @@ export default async (event) => {
 
     return response({ code: 200, body: 'ok' });
   } catch (e) {
+    console.log('Error', e);
     return response({ code: 500, message: e.message });
   }
 };

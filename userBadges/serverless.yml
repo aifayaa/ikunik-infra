@@ -3,6 +3,7 @@ service: userBadges
 provider:
   name: aws
   runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
   stage: ${opt:stage, "dev"}
   region: ${opt:region, "us-east-1"}
   memorySize: 128
@@ -188,7 +189,7 @@ functions:
                 id: true
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
   - serverless-export-env
@@ -197,6 +198,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
 
 package:
   individually: true

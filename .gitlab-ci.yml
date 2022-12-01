@@ -9,7 +9,7 @@ stages:
   - deployApiDoc
 
 createRelease:
-  image: node:12
+  image: node:16
   stage: createRelease
   allow_failure: true
   before_script:
@@ -40,7 +40,7 @@ createRelease:
       when: manual
 
 preparePreprodDatabase:
-  image: node:12
+  image: node:16
   stage: prepareDatabase
   variables:
     OPERATION: prod_to_preprod
@@ -70,7 +70,7 @@ preparePreprodDatabase:
       when: manual
 
 eslint:
-  image: node:12
+  image: node:16
   stage: lint
   before_script:
     - |
@@ -98,7 +98,7 @@ eslint:
     - if: ($CI_COMMIT_BRANCH =~ /^release\/.*/ || $CI_COMMIT_BRANCH == "dev") && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to |^Merge branch '(master|release\/.*)' into '?dev'?$/i
 
 test:
-  image: node:12
+  image: node:16
   stage: test
   before_script:
     - npm i
@@ -118,7 +118,7 @@ test:
     - if: ($CI_COMMIT_BRANCH =~ /^release\/.*/ || $CI_COMMIT_BRANCH == "dev") && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to |^Merge branch '(master|release\/.*)' into '?dev'?$/i
 
 incrementVersion:
-  image: node:12
+  image: node:16
   stage: incrementVersion
   before_script:
     - apt update -yq && apt install -yqq openssh-client git
@@ -227,7 +227,7 @@ pushProdFrToAWS:
     - if: $CI_COMMIT_TAG =~ /^release-.*/
 
 buildDevApiDoc:
-  image: node:12
+  image: node:16
   stage: buildApiDoc
   before_script:
     - npm i
@@ -264,7 +264,7 @@ deployDevApiDoc:
         - swagger/**/*
 
 buildPreprodApiDoc:
-  image: node:12
+  image: node:16
   stage: buildApiDoc
   before_script:
     - npm i
@@ -301,7 +301,7 @@ deployPreprodApiDoc:
         - swagger/**/*
 
 buildProdApiDoc:
-  image: node:12
+  image: node:16
   stage: buildApiDoc
   before_script:
     - npm i

@@ -1,6 +1,6 @@
 #!/bin/bash
 
 rm -rf node_modules
-npm i
+npm i --unsafe-perm
 
 serverless deploy --stage "$STAGE" --region "$REGION"

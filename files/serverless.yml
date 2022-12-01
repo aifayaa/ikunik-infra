@@ -62,7 +62,7 @@ functions:
                 Authorization: true
   deleteFile:
     handler: handlers/deleteFile.default
-    events:
+    evvents:
       - http:
           path: files
           method: delete
@@ -106,7 +106,7 @@ functions:
       - sns: video-stream-${self:provider.stage}-error
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-export-env
   - serverless-webpack
@@ -117,6 +117,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   webpack:
     includeModules:
       forceInclude:

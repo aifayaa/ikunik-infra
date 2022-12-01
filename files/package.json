@@ -10,12 +10,12 @@
   "dependencies": {
     "aws-sdk": "^2.749.0",
     "heic-decode": "^1.1.2",
-    "sharp": "^0.24.1",
+    "sharp": "^0.31.2",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
-    "serverless": "^1.61.2",
+    "serverless": "^2.72.3",
     "serverless-export-env": "^1.4.0",
     "serverless-offline": "^6.8.0",
     "serverless-webpack": "^5.3.3",
