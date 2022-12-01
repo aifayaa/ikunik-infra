@@ -23,7 +23,7 @@ export default async (event) => {
     return ({
       statusCode: 500,
       body: `<!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
   <head>
