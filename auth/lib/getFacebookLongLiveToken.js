@@ -12,7 +12,8 @@ export const getFacebookLongLiveToken = async (
   {
     appId = FACEBOOK_CLIENT_ID,
     appSecret = FACEBOOK_CLIENT_SECRET,
-  } = {}) => {
+  } = {},
+) => {
   // get a long live token
   const longLifeTokenResp = await request.get({
     url:
