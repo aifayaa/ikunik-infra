@@ -16,7 +16,7 @@ const prevClients = {};
 
 const { connect } = MongoClient;
 // set parameters for MongoDb connect
-MongoClient.connect = async function connectOverload(mongoURL, opts, cb) {
+MongoClient.connect = async function connectMethodOverload(mongoURL, opts, cb) {
   const connectArgs = JSON.stringify([mongoURL, opts]);
   if (prevClients[connectArgs] && prevClients[connectArgs].isConnected()) {
     return (prevClients[connectArgs]);
