@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa server-side rendering",
   "main": "handler.js",
+  "scripts": {
+    "test": "true"
+  },
   "dependencies": {
     "lodash": "^4.17.15",
     "source-map-support": "^0.5.16"
