@@ -71,9 +71,11 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
   - serverless-prune-plugin
