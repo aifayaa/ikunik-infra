@@ -4,6 +4,8 @@ custom:
   prune:
     automatic: true
     number: 3
+  serverless-disable-request-validators:
+    action: delete
   dev:
     us-east-1:
       METAMASK_LOGIN_DOMAIN: dev-metamask.crowdaa.com
@@ -19,6 +21,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -100,7 +103,7 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
 plugins:
-  - serverless-offline
+  - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
   - serverless-prune-plugin
