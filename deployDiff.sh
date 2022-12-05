@@ -25,6 +25,20 @@ doCreateDomain() {
   doServerless create_domain
 }
 
+doServerlessDomain() {
+  fullDeploy="$1"
+  if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
+  doServerless deploy
+}
+
+doAwaitBackgroundTasks() {
+  jobs > /dev/null
+  while [ $(jobs | wc -l) -gt 0 ]; do
+    jobs > /dev/null
+    sleep 1
+  done
+}
+
 doDeploy() {
   fullDeploy="$1"
   for folder in $(<$folders)
@@ -33,20 +47,14 @@ doDeploy() {
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      ssr)
-        if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
-        doServerless deploy;;
-      api-v1)
-        if [ "$fullDeploy" = 'full' ]; then
-          doCreateDomain;
-          # Since April 2022, api-v1 does not deploy on prod/fr (only!).
-          # So we don't deploy it again...
-          # The error is : An error occurred: ApiGatewayMethodGet - Template error: RootResourceId attribute of API Gateway RestAPI 6koicomg10 doesn't exist.
-          # Don't delete this API, it deletes everything else!
-          doServerless deploy;
-        fi;;
-      *) doServerless deploy;;
+      ssr) doServerlessDomain "$fullDeploy" &;;
+      api-v1) doServerlessDomain "$fullDeploy" &;;
+      *) doServerless deploy &;;
     esac
+
+    if grep -qFe '  Outputs:' serverless.yml; then
+      doAwaitBackgroundTasks
+    fi
     cd ..
   done
 }

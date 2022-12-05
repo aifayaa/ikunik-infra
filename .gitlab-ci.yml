@@ -178,6 +178,21 @@ pushDevToAWS:
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
 
+pushDevToAWS:
+  image: python:latest
+  stage: push
+  variables:
+    S3_BUCKET_NAME: "crowdaa-ci/ms/dev/in"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq zip
+  script:
+    - pip install awscli
+    - cp deployOrderList folderList
+    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
+    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "maxime/feat/testingFasterDeployments"
+
 pushPreprodToAWS:
   image: python:latest
   stage: push
