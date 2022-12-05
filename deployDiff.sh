@@ -57,7 +57,7 @@ doDeploy() {
       *) doServerless deploy 2>&1 | addLogs "$folder" &;;
     esac
 
-    if grep -qFe '  Outputs:' serverless.yml; then
+    if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
       doAwaitBackgroundTasks 0
     else
       doAwaitBackgroundTasks 10
