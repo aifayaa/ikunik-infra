@@ -10,8 +10,7 @@ if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
   exit 1
 fi
 
-exitCode=0
-pids=()
+errorsFile="$PWD/errors.txt"
 folders="folderList"
 doFullDeploy="$CI_FIRST_DEPLOY"
 
@@ -19,6 +18,11 @@ set -e
 
 addLogs() {
   sed -e "s/^/$1: /"
+}
+
+handleError() {
+  folder="$1"
+  echo "$folder" >> "$errorsFile"
 }
 
 doServerless() {
@@ -48,21 +52,16 @@ doAwaitBackgroundTasks() {
 
 doDeploy() {
   fullDeploy="$1"
+  pids=""
+
   for folder in $(<$folders)
   do
     echo "___________ Deploying $folder on $STAGE / $REGION ___________"
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      ssr)
-        doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &
-        pids+=("$!");;
-      api-v1)
-        doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &
-        pids+=("$!");;
-      *)
-        doServerless deploy 2>&1 | addLogs "$folder" &
-        pids+=("$!");;
+      api-v1|ssr) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" || handleError "$folder" &;;
+      *) doServerless deploy 2>&1 | addLogs "$folder" || handleError "$folder" &;;
     esac
 
     if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
@@ -74,15 +73,6 @@ doDeploy() {
   done
 
   doAwaitBackgroundTasks 0
-
-  while [ ${#pids[@]} -gt 0 ]; do
-    wait "${pids[0]}"
-    code=$?
-    unset pids[0]
-    if [ "$code" -ne 0 ]; then
-      exitCode=1
-    fi
-  done
 }
 
 test '!' -d 'node_modules' && npm i && npm run install || true
@@ -110,4 +100,7 @@ else
   doDeploy
 fi
 
-exit $exitCode
+if [ -f "$errorsFile" ]; then
+  errors=$(cat "$errorsFile")
+  echo "Errors encountered when deploying, with modules :" $errors
+fi
