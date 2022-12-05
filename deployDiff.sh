@@ -15,6 +15,10 @@ doFullDeploy="$CI_FIRST_DEPLOY"
 
 set -e
 
+addLogs() {
+  sed -e "s/^/$1: /"
+}
+
 doServerless() {
   command="$1"
   npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" --region "$REGION"
@@ -27,13 +31,14 @@ doCreateDomain() {
 
 doServerlessDomain() {
   fullDeploy="$1"
-  if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
+  if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi
   doServerless deploy
 }
 
 doAwaitBackgroundTasks() {
+  maxJobs="$1"
   jobs > /dev/null
-  while [ $(jobs | wc -l) -gt 0 ]; do
+  while [ $(jobs | wc -l) -gt "$maxJobs" ]; do
     jobs > /dev/null
     sleep 1
   done
@@ -47,16 +52,20 @@ doDeploy() {
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      ssr) doServerlessDomain "$fullDeploy" &;;
-      api-v1) doServerlessDomain "$fullDeploy" &;;
-      *) doServerless deploy &;;
+      ssr) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &;;
+      api-v1) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &;;
+      *) doServerless deploy 2>&1 | addLogs "$folder" &;;
     esac
 
     if grep -qFe '  Outputs:' serverless.yml; then
-      doAwaitBackgroundTasks
+      doAwaitBackgroundTasks 0
+    else
+      doAwaitBackgroundTasks 10
     fi
     cd ..
   done
+
+  doAwaitBackgroundTasks 0
 }
 
 test '!' -d 'node_modules' && npm i && npm run install || true
