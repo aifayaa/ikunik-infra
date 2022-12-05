@@ -15,6 +15,10 @@ doFullDeploy="$CI_FIRST_DEPLOY"
 
 set -e
 
+addLogs() {
+  sed -e "s/^/$1: /"
+}
+
 doServerless() {
   command="$1"
   npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" --region "$REGION"
@@ -25,6 +29,21 @@ doCreateDomain() {
   doServerless create_domain
 }
 
+doServerlessDomain() {
+  fullDeploy="$1"
+  if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi
+  doServerless deploy
+}
+
+doAwaitBackgroundTasks() {
+  maxJobs="$1"
+  jobs > /dev/null
+  while [ $(jobs | wc -l) -gt "$maxJobs" ]; do
+    jobs > /dev/null
+    sleep 1
+  done
+}
+
 doDeploy() {
   fullDeploy="$1"
   for folder in $(<$folders)
@@ -33,22 +52,20 @@ doDeploy() {
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      ssr)
-        if [ "$fullDeploy" = 'full' ]; then doCreateDomain; fi;
-        doServerless deploy;;
-      api-v1)
-        if [ "$fullDeploy" = 'full' ]; then
-          doCreateDomain;
-          # Since April 2022, api-v1 does not deploy on prod/fr (only!).
-          # So we don't deploy it again...
-          # The error is : An error occurred: ApiGatewayMethodGet - Template error: RootResourceId attribute of API Gateway RestAPI 6koicomg10 doesn't exist.
-          # Don't delete this API, it deletes everything else!
-          doServerless deploy;
-        fi;;
-      *) doServerless deploy;;
+      ssr) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &;;
+      api-v1) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &;;
+      *) doServerless deploy 2>&1 | addLogs "$folder" &;;
     esac
+
+    if grep -qFe '  Outputs:' serverless.yml; then
+      doAwaitBackgroundTasks 0
+    else
+      doAwaitBackgroundTasks 10
+    fi
     cd ..
   done
+
+  doAwaitBackgroundTasks 0
 }
 
 test '!' -d 'node_modules' && npm i && npm run install || true
