@@ -10,6 +10,8 @@ if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
   exit 1
 fi
 
+exitCode=0
+pids=()
 folders="folderList"
 doFullDeploy="$CI_FIRST_DEPLOY"
 
@@ -52,9 +54,15 @@ doDeploy() {
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      ssr) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &;;
-      api-v1) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &;;
-      *) doServerless deploy 2>&1 | addLogs "$folder" &;;
+      ssr)
+        doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &
+        pids+=("$!");;
+      api-v1)
+        doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" &
+        pids+=("$!");;
+      *)
+        doServerless deploy 2>&1 | addLogs "$folder" &
+        pids+=("$!");;
     esac
 
     if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
@@ -66,6 +74,15 @@ doDeploy() {
   done
 
   doAwaitBackgroundTasks 0
+
+  while [ ${#pids[@]} -gt 0 ]; do
+    wait "${pids[0]}"
+    code=$?
+    unset pids[0]
+    if [ "$code" -ne 0 ]; then
+      exitCode=1
+    fi
+  done
 }
 
 test '!' -d 'node_modules' && npm i && npm run install || true
@@ -93,3 +110,4 @@ else
   doDeploy
 fi
 
+exit $exitCode
