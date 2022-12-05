@@ -21,7 +21,7 @@ addLogs() {
 
 doServerless() {
   command="$1"
-  npx --node-arg=--max-old-space-size=2000 serverless "$command" --stage "$STAGE" --region "$REGION"
+  npx serverless "$command" --stage "$STAGE" --region "$REGION"
 }
 
 doCreateDomain() {
