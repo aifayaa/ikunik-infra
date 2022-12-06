@@ -15,30 +15,6 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  ticket:
-    handler: handlers/ticket.handleArtist
-    events:
-      - http:
-          path: /ticket/artists/{id}
-          method: get
-          request:
-            parameters:
-              querystrings:
-                redirect_url: false
-                appName: false
-
-  selection:
-    handler: handlers/selection.default
-    events:
-      - http:
-          path: /selections/{id}
-          method: get
-          request:
-            parameters:
-              querystrings:
-                redirect_url: false
-                appName: false
-
   article:
     handler: handlers/article.default
     events:
