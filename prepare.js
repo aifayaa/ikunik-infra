@@ -328,7 +328,6 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
         { name: 'crowdaa_app_preview_key', key: { 'settings.previewKey': 1 }, opts: makeOpts('unique', 'sparse') },
       ],
       [COLL_PRESS_CATEGORIES]: [
-        { name: 'crowdaa_categories_appid', key: { appId: 1 }, opts: makeOpts() },
         { name: 'crowdaa_categories_hidden', key: { appId: 1, hidden: 1 }, opts: makeOpts() },
       ],
       [COLL_PRESS_ARTICLES]: [
@@ -346,8 +345,9 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
           key: {
             appId: 1,
             trashed: 1,
-            categoryId: 1,
             hideFromFeed: 1,
+            categoryId: 1,
+            categoriesId: 1,
             pinned: -1,
             publicationDate: -1,
           },
@@ -357,13 +357,6 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
       [COLL_PRESS_DRAFTS]: [
         {
           name: 'crowdaa_drafts_by_articleid',
-          key: {
-            articleId: 1,
-          },
-          opts: makeOpts(),
-        },
-        {
-          name: 'crowdaa_drafts_by_articleid2',
           key: {
             articleId: 1,
             appId: 1,
@@ -377,6 +370,14 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
             appId: 1,
           },
           opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_drafts_dashboard',
+          key: {
+            articleId: 1,
+            createdAt: -1,
+          },
+          opts: makeOpts(),
         },
       ],
       [COLL_USER_METRICS]: [
