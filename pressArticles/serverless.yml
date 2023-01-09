@@ -8,20 +8,24 @@ custom:
     action: delete
   dev:
     us-east-1:
+      REACT_APP_SSR_URL: dev-ssr.aws.crowdaa.com
       NOTIFICATION_STATE_MACHINE_NAME: DevSendArticleNotifications
       NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-DevUsSendArticleNotifications-role
       NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-dev-sendArticleNotifications
   preprod:
     eu-west-3:
+      REACT_APP_SSR_URL: preprod-ssr.aws.crowdaa.com
       NOTIFICATION_STATE_MACHINE_NAME: PreprodSendArticleNotifications
       NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodFrSendArticleNotifications-role
       NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-preprod-sendArticleNotifications
   prod:
     us-east-1:
+      REACT_APP_SSR_URL: ssr.aws.crowdaa.com
       NOTIFICATION_STATE_MACHINE_NAME: ProdSendArticleNotifications
       NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdUsSendArticleNotifications-role
       NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications
     eu-west-3:
+      REACT_APP_SSR_URL: ssr-fr.aws.crowdaa.com
       NOTIFICATION_STATE_MACHINE_NAME: ProdSendArticleNotifications
       NOTIFICATION_STATE_MACHINE_ROLE: arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrSendArticleNotifications-role
       NOTIFICATION_STATE_MACHINE_RESOURCE: arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications
@@ -36,6 +40,7 @@ provider:
   environment:
     $<<:
       ${file(../env.yml)}
+    REACT_APP_SSR_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_SSR_URL}'
     NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}'
     NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}'
     NOTIFICATION_STATE_MACHINE_RESOURCE: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_RESOURCE}'

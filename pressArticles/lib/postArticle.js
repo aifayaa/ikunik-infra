@@ -1,5 +1,6 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
+import createArticleShareUrl from './createArticleShareUrl';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -77,6 +78,8 @@ export const postArticle = async ({
   let session;
   const client = await MongoClient.connect();
   try {
+    const shareUrl = await createArticleShareUrl(appId, articleId);
+
     const article = {
       _id: articleId,
       actions,
@@ -108,6 +111,10 @@ export const postArticle = async ({
       videoPlayMode,
       views,
     };
+
+    if (shareUrl) {
+      article.shareUrl = shareUrl;
+    }
 
     if (storeProductId) {
       article.productId = productId;

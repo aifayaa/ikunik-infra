@@ -16,6 +16,7 @@ const common = {
   pinned: true,
   publicationDate: true,
   publishedBy: true,
+  shareUrl: true,
   storeProductId: true,
   summary: true,
   text: true,
