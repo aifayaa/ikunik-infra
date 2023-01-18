@@ -16,7 +16,7 @@ describe('lib - publishArticle', () => {
   describe('Case article contain pictures', () => {
     const response = { articleId: 'articleId', draftId: 'draftId', pictures: ['pic1', 'pic2'] };
     before(() => {
-      spyMongo = spyMongoMethods(response);
+      spyMongo = spyMongoMethods(response, {});
       const fakeClient = {
         db: spyMongo.db,
         close: spyMongo.close,

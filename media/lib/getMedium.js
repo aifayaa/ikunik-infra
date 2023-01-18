@@ -1,4 +1,3 @@
-import Lambda from 'aws-sdk/clients/lambda';
 import { URL } from 'url';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -7,19 +6,10 @@ import generateSignedURL from '../../libs/aws/generateSignedURL';
 import isMediaLocked from './isMediaLocked';
 
 const {
-  STAGE,
-  REGION,
-} = process.env;
-
-const {
   COLL_AUDIOS,
   COLL_PICTURES,
   COLL_VIDEOS,
 } = mongoCollections;
-
-const lambda = new Lambda({
-  region: REGION,
-});
 
 export default async (userId, appId, mediumType, mediumId) => {
   const client = await MongoClient.connect();
@@ -77,17 +67,6 @@ export default async (userId, appId, mediumType, mediumId) => {
       );
     }
 
-    const params = {
-      FunctionName: `subscriptions-${STAGE}-isUserSubscribed`,
-      Payload: JSON.stringify({ userId, subIds: medium.subscriptionIds, appId }),
-    };
-    const { Payload } = await lambda.invoke(params).promise();
-    const { body } = JSON.parse(Payload);
-    if (!JSON.parse(body)) {
-      delete medium.url;
-      delete medium.video480Url;
-      medium.isLocked = true;
-    }
     const { state } = await isMediaLocked(userId, appId, medium);
     // medium.isLocked = isLocked; TO NOT imply mobile diff
     medium.lockState = state;
