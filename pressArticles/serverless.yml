@@ -226,6 +226,21 @@ functions:
               headers:
                 Authorization: true
 
+  renderArticle:
+      handler: handlers/renderArticle.default
+      events:
+        - http:
+            path: admin/press/renderArticle
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   unpublishArticle:
       handler: handlers/unpublishArticle.default
       events:
