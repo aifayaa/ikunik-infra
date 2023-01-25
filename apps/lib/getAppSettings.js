@@ -29,8 +29,19 @@ export default async (appId, allSettings = false) => {
       settings: {
         public: application.settings.public,
       },
+      builds: {},
       public: application.public || {},
     };
+
+    if (application.builds && application.builds.preview) {
+      if (application.builds.preview.buildDoneAt) {
+        results.builds.preview = {
+          buildStartAt: application.builds.preview.buildStartAt,
+          buildDoneAt: application.builds.preview.buildDoneAt,
+          state: application.builds.preview.state,
+        };
+      }
+    }
 
     return results;
   } finally {
