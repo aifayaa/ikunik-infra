@@ -241,6 +241,36 @@ functions:
               headers:
                 Authorization: true
 
+  generateContent:
+      handler: handlers/generateContent.default
+      events:
+        - http:
+            path: admin/press/articles/generate
+            method: put
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  generatedContentStatus:
+      handler: handlers/generatedContentStatus.default
+      events:
+        - http:
+            path: admin/press/articles/generated/{id}
+            method: get
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   unpublishArticle:
       handler: handlers/unpublishArticle.default
       events:

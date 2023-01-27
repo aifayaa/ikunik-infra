@@ -1,5 +1,6 @@
 {
   "COLL_ADVERTISEMENTS": "advertisements",
+  "COLL_AI_QUERIES": "aiQueries",
   "COLL_APPS": "apps",
   "COLL_ARTISTS": "artists",
   "COLL_ARTISTS_FAV": "artistsFav",
