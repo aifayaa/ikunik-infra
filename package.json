@@ -1,6 +1,6 @@
 {
   "name": "crowdaa-microservices",
-  "version": "1.57.0",
+  "version": "1.58.0",
   "private": true,
   "description": "Crowdaa AWS microservices implemented via serverless.",
   "main": "index.js",
@@ -36,6 +36,7 @@
     "mongo-round": "^1.0.0",
     "mongodb": "3.5.3",
     "nodemailer": "^6.4.14",
+    "openai": "^3.1.0",
     "p-queue": "^6.6.2",
     "phone": "^2.4.15",
     "promise-pool-executor": "^1.1.1",

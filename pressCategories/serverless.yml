@@ -10,7 +10,6 @@ provider:
   environment:
     $<<:
       - ${file(../env.yml)}
-      - ${file(./.env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

@@ -115,4 +115,18 @@ export default {
       title: 'Crowdaa || Summary of your account creation',
     },
   },
+  pressArticles: {
+    generateContent: {
+      generic: {
+        title: 'Write a short article title about the following subject : {{- userPrompt}}',
+        article: 'Write an article in Markdown with the following title : {%title%}',
+        articlePicture: '{%title%}',
+      },
+      custom: {
+        title: 'Write a short article title about the following subject : {{- userPrompt}}',
+        article: 'Write an article in Markdown about the following subject : {{- userPrompt}}',
+        articlePicture: '{{- userPrompt}}',
+      },
+    },
+  },
 };
