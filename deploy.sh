@@ -56,6 +56,7 @@ runSlsDeployFor 'ssr'
 
 # + authorizer
 runSlsDeployFor 'blockedContents'
+runSlsDeployFor 'ai'
 runSlsDeployFor 'forms'
 test "x$ALL" = "xALL" && runSlsDeployFor 'audios'
 runSlsDeployFor 'authorize'
