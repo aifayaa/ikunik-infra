@@ -196,6 +196,21 @@ functions:
               paths:
                 id: true
 
+  finalizeProfile:
+    handler: handlers/finalizeProfile.default
+    events:
+      - http:
+          path: users/{id}/finalizeProfile
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   getHistory:
     handler: handlers/getHistory.default
     events:
