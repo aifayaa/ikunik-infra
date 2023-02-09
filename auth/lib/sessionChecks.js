@@ -101,6 +101,13 @@ export default async (userId, appId, loginToken) => {
               { $set: { 'services.wordpress.userId': response.user_id } },
             );
           }
+
+          if (response.autologin_token) {
+            await client.db().collection(COLL_USERS).updateOne(
+              { _id: userId, appId },
+              { $set: { 'services.wordpress.autoLoginToken': response.autologin_token } },
+            );
+          }
         }
       } catch (e) {
         // eslint-disable-next-line no-console
