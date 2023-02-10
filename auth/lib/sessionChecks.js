@@ -15,20 +15,21 @@ export default async (userId, appId, loginToken) => {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({
-        _id: appId,
-      });
-
-    const user = await client
-      .db()
-      .collection(COLL_USERS)
-      .findOne({
-        _id: userId,
-        appId,
-      });
+    const [app, user] = await Promise.all([
+      client
+        .db()
+        .collection(COLL_APPS)
+        .findOne({
+          _id: appId,
+        }),
+      client
+        .db()
+        .collection(COLL_USERS)
+        .findOne({
+          _id: userId,
+          appId,
+        }),
+    ]);
 
     if (!app) {
       throw new Error('app_not_found');
@@ -72,19 +73,29 @@ export default async (userId, appId, loginToken) => {
         response = JSON.parse(response);
 
         if (response && response.success) {
+          const userWhere = { _id: userId, appId };
+          const user$set = {};
+
           if (response.token && response.token !== loginTokenObj.wpToken) {
-            await client
-              .db()
-              .collection(COLL_USERS)
-              .updateOne({
-                _id: userId,
-                appId,
-                'services.resume.loginTokens.hashedToken': hashedToken,
-              }, { $set: {
-                'services.resume.loginTokens.$.when': new Date(),
-                'services.resume.loginTokens.$.wpToken': response.token,
-                'services.resume.loginTokens.$.expiresAt': Date.now() + SEVEN_DAYS_IN_MS,
-              } });
+            userWhere['services.resume.loginTokens.hashedToken'] = hashedToken;
+            user$set['services.resume.loginTokens.$.when'] = new Date();
+            user$set['services.resume.loginTokens.$.wpToken'] = response.token;
+            user$set['services.resume.loginTokens.$.expiresAt'] = Date.now() + SEVEN_DAYS_IN_MS;
+          }
+
+          if (response.user_id && response.user_id !== user.services.wordpress.userId) {
+            user$set['services.wordpress.userId'] = response.user_id;
+          }
+
+          if (response.autologin_token) {
+            user$set['services.wordpress.autoLoginToken'] = response.autologin_token;
+          }
+
+          if (Object.keys(user$set).length > 0) {
+            await client.db().collection(COLL_USERS).updateOne(
+              userWhere,
+              { $set: user$set },
+            );
           }
 
           if (response.user_badges) {
@@ -93,20 +104,6 @@ export default async (userId, appId, loginToken) => {
 
           if (response.permissions) {
             await setUserPermissions(client, user, response.permissions);
-          }
-
-          if (response.user_id && response.user_id !== user.services.wordpress.userId) {
-            await client.db().collection(COLL_USERS).updateOne(
-              { _id: userId, appId },
-              { $set: { 'services.wordpress.userId': response.user_id } },
-            );
-          }
-
-          if (response.autologin_token) {
-            await client.db().collection(COLL_USERS).updateOne(
-              { _id: userId, appId },
-              { $set: { 'services.wordpress.autoLoginToken': response.autologin_token } },
-            );
           }
         }
       } catch (e) {
