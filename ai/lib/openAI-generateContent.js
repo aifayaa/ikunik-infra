@@ -255,6 +255,8 @@ export default async function generateContent(queryId) {
         endQuery,
       );
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('API Error?!', e);
       if (e.response) {
         dbQuery.error = {
           status: e.response.status,
@@ -267,7 +269,7 @@ export default async function generateContent(queryId) {
       }
       await dbQueriesColl.updateOne(
         { _id: dbQuery._id },
-        { $set: { error: dbQuery.error }, processingEndTime: new Date() },
+        { $set: { error: dbQuery.error, processingEndTime: new Date() } },
       );
     }
 
