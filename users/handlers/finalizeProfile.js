@@ -1,5 +1,6 @@
-import { finalizeProfile, finalizeBadge } from '../lib/finalizeProfile';
+import { finalizeProfile, finalizeBadge, finalizedUser } from '../lib/finalizeProfile';
 import response from '../../libs/httpResponses/response';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
@@ -29,6 +30,9 @@ export default async (event) => {
     if (badge !== null) {
       results.badge = await finalizeBadge(userId, appId, badge);
     }
+
+    const lang = getUserLanguage(event.headers);
+    await finalizedUser(userId, appId, lang);
 
     return response({ code: 200, body: results });
   } catch (e) {

@@ -11,7 +11,7 @@ const {
 export default async (
   userBadgeId,
   appId,
-  { action = 'add', userId },
+  { action = 'add', userId, adminUserId },
 ) => {
   const client = await MongoClient.connect();
 
@@ -20,10 +20,6 @@ export default async (
 
     if (!app) {
       throw new Error('app_not_found');
-    }
-
-    if (action !== 'add' && action !== 'remove') {
-      action = 'add';
     }
 
     if (action === 'add') {
@@ -43,6 +39,8 @@ export default async (
         { _id: userId, appId },
         { $addToSet: { badges: {
           id: userBadgeObj._id,
+          addedAt: new Date(),
+          addedBy: adminUserId,
         } } },
       );
     } else if (action === 'remove') {
@@ -52,6 +50,26 @@ export default async (
           id: userBadgeId,
         } } },
       );
+    } else if (action === 'validate') {
+      await client.db().collection(COLL_USERS).updateOne(
+        { _id: userId, appId, 'badges.id': userBadgeId },
+        { $set: {
+          'badges.$.status': 'validated',
+          'badges.$.validatedAt': new Date(),
+          'badges.$.validatedBy': adminUserId,
+        } },
+      );
+    } else if (action === 'reject') {
+      await client.db().collection(COLL_USERS).updateOne(
+        { _id: userId, appId, 'badges.id': userBadgeId },
+        { $set: {
+          'badges.$.status': 'rejected',
+          'badges.$.rejectedAt': new Date(),
+          'badges.$.rejectedBy': adminUserId,
+        } },
+      );
+    } else {
+      return ({ success: false });
     }
 
     if (app.backend && app.backend.type === 'wordpress') {

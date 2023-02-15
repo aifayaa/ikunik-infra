@@ -1,24 +1,25 @@
 import addressConfirmationEmailHtml from './addressConfirmationEmailHtml';
-import forgotPasswordEmailHtml from './forgotPasswordEmailHtml';
-import passwordResetEmailHtml from './passwordResetEmailHtml';
-import passwordChangedEmailHtml from './passwordChangedEmailHtml';
-import siwaPeriodicRenewalHtml from './siwaPeriodicRenewalHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
-import newUgcArticleEmailHtml from './newUgcArticleEmailHtml';
-import newUgcCommentEmailHtml from './newUgcCommentEmailHtml';
-import reportedUgcArticleEmailHtml from './reportedUgcArticleEmailHtml';
-import reportedUgcCommentEmailHtml from './reportedUgcCommentEmailHtml';
-import reportedUgcUserArticleEmailHtml from './reportedUgcUserArticleEmailHtml';
-import reportedUgcUserCommentEmailHtml from './reportedUgcUserCommentEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
 import emailTemplateCustomers from './emailTemplateCustomers';
 import emailTemplateInternal from './emailTemplateInternal';
 import emailTemplateSkeleton from './emailTemplateSkeleton';
+import forgotPasswordEmailHtml from './forgotPasswordEmailHtml';
+import liveStreamRecordingView from './liveStreamRecordingView';
+import liveStreamView from './liveStreamView';
+import metamaskSendLoginUrlHtml from './metamaskSendLoginUrlHtml';
+import newUgcArticleEmailHtml from './newUgcArticleEmailHtml';
+import newUgcCommentEmailHtml from './newUgcCommentEmailHtml';
+import passwordChangedEmailHtml from './passwordChangedEmailHtml';
+import passwordResetEmailHtml from './passwordResetEmailHtml';
+import reportedUgcArticleEmailHtml from './reportedUgcArticleEmailHtml';
+import reportedUgcCommentEmailHtml from './reportedUgcCommentEmailHtml';
+import reportedUgcUserArticleEmailHtml from './reportedUgcUserArticleEmailHtml';
+import reportedUgcUserCommentEmailHtml from './reportedUgcUserCommentEmailHtml';
+import siwaPeriodicRenewalHtml from './siwaPeriodicRenewalHtml';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
-import liveStreamView from './liveStreamView';
-import liveStreamRecordingView from './liveStreamRecordingView';
-import metamaskSendLoginUrlHtml from './metamaskSendLoginUrlHtml';
+import usersFinalizedProfileHtml from './usersFinalizedProfileHtml';
 
 export default {
   libsEmail: {
@@ -127,6 +128,12 @@ export default {
         article: 'Write an article in Markdown about the following subject : {{- userPrompt}}',
         articlePicture: '{{- userPrompt}}',
       },
+    },
+  },
+  users: {
+    finalized_profile: {
+      title: '[{{- appName}}] The user {{- username}} finalized his profile',
+      html: usersFinalizedProfileHtml,
     },
   },
 };

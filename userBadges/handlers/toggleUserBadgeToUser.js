@@ -8,6 +8,7 @@ export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const userBadgeId = event.pathParameters.id;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const adminUserId = event.requestContext.authorizer.principalId;
 
   try {
     if (!checkPerms(allowedPerms, perms)) {
@@ -31,7 +32,7 @@ export default async (event) => {
     const userBadge = await toggleUserBadgeToUser(
       userBadgeId,
       appId,
-      { action, userId },
+      { action, userId, adminUserId },
     );
     return response({ code: 200, body: { userBadge } });
   } catch (e) {
