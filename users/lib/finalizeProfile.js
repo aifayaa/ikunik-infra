@@ -60,9 +60,12 @@ export async function finalizeProfile(userId, appId, newProfileFields) {
       user.profile[field] = newProfileFields[field];
     });
 
-    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set: {
-      profile: user.profile,
-    } });
+    const $set = Object.keys(user.profile).reduce((acc, key) => {
+      acc[`profile.${key}`] = user.profile[key];
+      return (acc);
+    }, {});
+
+    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set });
 
     return (true);
   } finally {
