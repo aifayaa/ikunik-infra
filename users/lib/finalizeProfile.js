@@ -40,6 +40,39 @@ async function getUserAndApp(userId, appId, { db }) {
   return ({ app, user });
 }
 
+export async function finalizeInternalProfile(userId, appId, newProfileFields) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    const { user, app } = await getUserAndApp(userId, appId, { db });
+    const { internalProfileFields } = app.settings;
+
+    if (!user.internalProfile) {
+      user.internalProfile = {};
+    }
+
+    internalProfileFields.forEach(({ field, optionnal }) => {
+      if (!optionnal && !newProfileFields[field]) {
+        throw new Error('mal_formed_request');
+      }
+
+      user.internalProfile[field] = newProfileFields[field];
+    });
+
+    const $set = Object.keys(user.internalProfile).reduce((acc, key) => {
+      acc[`internalProfile.${key}`] = user.internalProfile[key];
+      return (acc);
+    }, {});
+
+    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set });
+
+    return (true);
+  } finally {
+    client.close();
+  }
+}
+
 export async function finalizeProfile(userId, appId, newProfileFields) {
   const client = await MongoClient.connect();
   const db = client.db();

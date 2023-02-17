@@ -1,4 +1,9 @@
-import { finalizeProfile, finalizeBadge, finalizedUser } from '../lib/finalizeProfile';
+import {
+  finalizeBadge,
+  finalizeInternalProfile,
+  finalizeProfile,
+  finalizedUser,
+} from '../lib/finalizeProfile';
 import response from '../../libs/httpResponses/response';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -12,8 +17,9 @@ export default async (event) => {
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
+    const isAdmin = checkPerms(allowedPerms, perms);
     // Only restricting to self for now, should allow admin users later
-    if (userId !== urlUserId && !checkPerms(allowedPerms, perms)) {
+    if (userId !== urlUserId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
@@ -23,11 +29,15 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
     const {
-      profile = null,
       badge = null,
+      internalProfile = null,
+      profile = null,
     } = bodyParsed;
 
     const results = {};
+    if (internalProfile !== null && isAdmin) {
+      results.internalProfile = await finalizeInternalProfile(urlUserId, appId, internalProfile);
+    }
     if (profile !== null) {
       results.profile = await finalizeProfile(urlUserId, appId, profile);
     }
@@ -35,7 +45,7 @@ export default async (event) => {
       results.badge = await finalizeBadge(urlUserId, appId, badge);
     }
 
-    if (!checkPerms(allowedPerms, perms)) {
+    if (!isAdmin) {
       const lang = getUserLanguage(event.headers);
       await finalizedUser(urlUserId, appId, lang);
     }
