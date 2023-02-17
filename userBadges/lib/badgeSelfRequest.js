@@ -121,7 +121,7 @@ export default async (appId, userId, userBadgeId, { lang }) => {
     const userBadgesHash = userBadges.reduce((acc, itm) => {
       acc[itm.id] = true;
       return (acc);
-    }, { owned: {}, requested: {} });
+    }, {});
 
     if (!userBadgesHash[userBadgeId]) {
       const actions = {};
