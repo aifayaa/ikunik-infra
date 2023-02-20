@@ -2,6 +2,7 @@ import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
+import { getUserLanguage } from '../../libs/intl/intl';
 
 const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
@@ -29,10 +30,11 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
+    const lang = getUserLanguage(event.headers);
     const userBadge = await toggleUserBadgeToUser(
       userBadgeId,
       appId,
-      { action, userId, adminUserId },
+      { action, userId, adminUserId, lang },
     );
     return response({ code: 200, body: { userBadge } });
   } catch (e) {

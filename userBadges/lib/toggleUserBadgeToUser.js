@@ -1,6 +1,8 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { syncUserBadges } from '../../libs/wordpress/wordpressApiSync';
+import { intlInit, formatMessage } from '../../libs/intl/intl';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
 const {
   COLL_APPS,
@@ -8,10 +10,40 @@ const {
   COLL_USER_BADGES,
 } = mongoCollections;
 
+export async function notifyUserOfRequestResults(userId, appId, lang, badgeId, adminDecision) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+  const user = await db.collection(COLL_USERS).findOne({ _id: userId, appId });
+  const badge = await db.collection(COLL_USER_BADGES).findOne({ _id: badgeId, appId });
+  const userEmail = user.profile.email || user.emails[0].address;
+
+  intlInit(lang);
+
+  const body = formatMessage(`userBadges:badge_request_${adminDecision}.html`, {
+    appName: app.name,
+    badgeName: badge.name,
+    username: user.profile.username,
+  });
+  const subject = formatMessage(`userBadges:badge_request_${adminDecision}.title`, {
+    appName: app.name,
+    badgeName: badge.name,
+  });
+
+  try {
+    await sendEmailTemplate(lang, 'customers', userEmail, subject, body);
+  } catch (e) {
+    // Best effort
+    // eslint-disable-next-line no-console
+    console.error(e);
+  }
+}
+
 export default async (
   userBadgeId,
   appId,
-  { action = 'add', userId, adminUserId },
+  { action = 'add', userId, adminUserId, lang },
 ) => {
   const client = await MongoClient.connect();
 
@@ -59,6 +91,7 @@ export default async (
           'badges.$.validatedBy': adminUserId,
         } },
       );
+      await notifyUserOfRequestResults(userId, appId, lang, userBadgeId, 'validated');
     } else if (action === 'reject') {
       await client.db().collection(COLL_USERS).updateOne(
         { _id: userId, appId, 'badges.id': userBadgeId },
@@ -68,6 +101,7 @@ export default async (
           'badges.$.rejectedBy': adminUserId,
         } },
       );
+      await notifyUserOfRequestResults(userId, appId, lang, userBadgeId, 'rejected');
     } else {
       return ({ success: false });
     }

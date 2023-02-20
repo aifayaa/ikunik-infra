@@ -19,6 +19,9 @@ import reportedUgcUserCommentEmailHtml from './reportedUgcUserCommentEmailHtml';
 import siwaPeriodicRenewalHtml from './siwaPeriodicRenewalHtml';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
+import userBadgeRequestHtml from './userBadgeRequestHtml';
+import userBadgeRequestRejectedHtml from './userBadgeRequestRejectedHtml';
+import userBadgeRequestValidatedHtml from './userBadgeRequestValidatedHtml';
 import usersFinalizedProfileHtml from './usersFinalizedProfileHtml';
 
 export default {
@@ -128,6 +131,20 @@ export default {
         article: 'Write an article in Markdown about the following subject : {{- userPrompt}}',
         articlePicture: '{{- userPrompt}}',
       },
+    },
+  },
+  userBadges: {
+    user_badge_request: {
+      title: '[{{- appName}}] User {{- username}} requested access to the permission {{- badgeName}}',
+      html: userBadgeRequestHtml,
+    },
+    badge_request_validated: {
+      title: '[{{- appName}}] Your permission request to {{- badgeName}} was accepted',
+      html: userBadgeRequestValidatedHtml,
+    },
+    badge_request_rejected: {
+      title: '[{{- appName}}] Your permission request to {{- badgeName}} was rejected',
+      html: userBadgeRequestRejectedHtml,
     },
   },
   users: {

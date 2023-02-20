@@ -19,6 +19,8 @@ import reportedUgcUserCommentEmailHtml from './reportedUgcUserCommentEmailHtml';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
 import userBadgeRequestHtml from './userBadgeRequestHtml';
+import userBadgeRequestRejectedHtml from './userBadgeRequestRejectedHtml';
+import userBadgeRequestValidatedHtml from './userBadgeRequestValidatedHtml';
 import usersFinalizedProfileHtml from './usersFinalizedProfileHtml';
 
 export default {
@@ -122,8 +124,16 @@ export default {
   },
   userBadges: {
     user_badge_request: {
-      title: '[{{- appName}}] L\'utilisateur {{- username}} a demandé l\'accès au badge {{- badgeName}}',
+      title: '[{{- appName}}] L\'utilisateur {{- username}} a demandé l\'accès à la permission {{- badgeName}}',
       html: userBadgeRequestHtml,
+    },
+    badge_request_validated: {
+      title: '[{{- appName}}] Votre demande d\'accès à la permission {{- badgeName}} a été acceptée',
+      html: userBadgeRequestValidatedHtml,
+    },
+    badge_request_rejected: {
+      title: '[{{- appName}}] Votre demande d\'accès à la permission {{- badgeName}} a été refusée',
+      html: userBadgeRequestRejectedHtml,
     },
   },
   users: {
