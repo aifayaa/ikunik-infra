@@ -41,18 +41,20 @@ export default async (appId, userId, userBadgeId) => {
     if (!ownedBadges[userBadgeId]) {
       const actions = {};
 
+      const newBadge = { id: userBadgeId };
+
       if (!user.badges) {
         user.badges = [];
         actions.$set = {
-          badges: [{ id: userBadgeId }],
+          badges: [newBadge],
         };
       } else {
         actions.$addToSet = {
-          badges: { id: userBadgeId },
+          badges: newBadge,
         };
       }
 
-      user.badges.push({ id: userBadgeId });
+      user.badges.push(newBadge);
 
       await client.db().collection(COLL_USERS).updateOne(
         { _id: userId, appId },
