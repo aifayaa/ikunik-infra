@@ -249,6 +249,7 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
     } else {
       const update = {
         $set: {
+          'profile.email': userEmail,
           'services.wordpress.userEmail': userEmail,
           'services.wordpress.userNicename': userNicename,
           'services.wordpress.userDisplayName': userDisplayName,

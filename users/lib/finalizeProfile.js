@@ -1,0 +1,231 @@
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+import { intlInit, formatMessage } from '../../libs/intl/intl';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
+
+const {
+  REACT_APP_CROWD_SERVICE_URL,
+} = process.env;
+
+const {
+  COLL_APPS,
+  COLL_PERM_GROUPS,
+  COLL_USERS,
+  COLL_USER_BADGES,
+} = mongoCollections;
+
+const PERMISSIONS = [
+  'userGeneratedContents_notify',
+  'userGeneratedContents_notify_email',
+];
+
+async function getUserAndApp(userId, appId, { db }) {
+  const user = await db.collection(COLL_USERS).findOne({ _id: userId, appId });
+
+  if (!user) {
+    throw new Error('user_not_found');
+  }
+
+  const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+
+  if (
+    !app ||
+    !app.settings ||
+    !app.settings.public ||
+    !app.settings.public.requiresUserInput
+  ) {
+    throw new Error('app_not_found');
+  }
+
+  return ({ app, user });
+}
+
+export async function finalizeInternalProfile(userId, appId, newProfileFields) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    const { user, app } = await getUserAndApp(userId, appId, { db });
+    const { internalProfileFields } = app.settings;
+
+    if (!user.internalProfile) {
+      user.internalProfile = {};
+    }
+
+    internalProfileFields.forEach(({ field, optionnal }) => {
+      if (!optionnal && !newProfileFields[field]) {
+        throw new Error('mal_formed_request');
+      }
+
+      user.internalProfile[field] = newProfileFields[field];
+    });
+
+    const $set = Object.keys(user.internalProfile).reduce((acc, key) => {
+      acc[`internalProfile.${key}`] = user.internalProfile[key];
+      return (acc);
+    }, {});
+
+    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set });
+
+    return (true);
+  } finally {
+    client.close();
+  }
+}
+
+export async function finalizeProfile(userId, appId, newProfileFields) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    const { user, app } = await getUserAndApp(userId, appId, { db });
+    const { profile: requiredProfileFields } = app.settings.public.requiresUserInput;
+
+    if (!user.profile) {
+      user.profile = {};
+    }
+
+    requiredProfileFields.forEach(({ field, optionnal }) => {
+      if (!optionnal && !newProfileFields[field]) {
+        throw new Error('mal_formed_request');
+      }
+
+      user.profile[field] = newProfileFields[field];
+    });
+
+    const $set = Object.keys(user.profile).reduce((acc, key) => {
+      acc[`profile.${key}`] = user.profile[key];
+      return (acc);
+    }, {});
+
+    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set });
+
+    return (true);
+  } finally {
+    client.close();
+  }
+}
+
+export async function finalizeBadge(userId, appId, badgeId) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    const { user, app } = await getUserAndApp(userId, appId, { db });
+    const { badges: requiredBadges } = app.settings.public.requiresUserInput;
+
+    const appBadges = await db.collection(COLL_USER_BADGES).find({ appId, management: { $in: ['request', 'public'] } }).toArray();
+    const appBadgesHash = appBadges.reduce((acc, badge) => {
+      acc[badge._id] = badge;
+      return (acc);
+    }, {});
+
+    if (!user.badges) {
+      user.badges = [];
+    }
+
+    const badge = appBadgesHash[badgeId];
+    if (!badge || requiredBadges.indexOf(badgeId) < 0) {
+      throw new Error('mal_formed_request');
+    }
+
+    const insBadge = {
+      id: badgeId,
+    };
+
+    if (badge.management === 'request') {
+      insBadge.status = 'requested';
+      insBadge.requestedAt = new Date();
+    }
+
+    user.badges.push(insBadge);
+
+    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set: {
+      badges: user.badges,
+    } });
+
+    return (true);
+  } finally {
+    client.close();
+  }
+}
+
+export async function finalizedUser(userId, appId, lang) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+  const user = await db.collection(COLL_USERS).findOne({ _id: userId, appId });
+
+  intlInit(lang);
+
+  const body = formatMessage('users:finalized_profile.html', {
+    appName: app.name,
+    userEmail: user.profile.email || user.emails[0].address,
+    userId: user._id,
+    username: user.profile.username,
+    usersUrl: `${REACT_APP_CROWD_SERVICE_URL}/${appId}/users`,
+  });
+  const subject = formatMessage('users:finalized_profile.title', { appName: app.name, username: user.profile.username });
+  const [result] = await db
+    .collection(COLL_PERM_GROUPS)
+    .aggregate([
+      {
+        $match: {
+          appId: app._id,
+          $or: PERMISSIONS.map((perm) => ({ [`perms.${perm}`]: true })),
+        },
+      },
+      {
+        $lookup: {
+          from: COLL_USERS,
+          localField: '_id',
+          foreignField: 'permGroupIds',
+          as: 'users',
+        },
+      },
+      {
+        $unwind: {
+          path: '$users',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $replaceRoot: { newRoot: '$users' },
+      },
+      {
+        $project: {
+          'emails.address': true,
+        },
+      },
+      {
+        $unwind: {
+          path: '$emails',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: '$emails.address',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          emails: { $push: '$_id' },
+        },
+      },
+    ]).toArray();
+  const { emails = [] } = result || {};
+  const promises = emails.map((email) => {
+    /* in case of error, ignore it, just try with best effort */
+    try {
+      return sendEmailTemplate(lang, 'clients', email, subject, body);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  });
+
+  await Promise.allSettled(promises);
+}

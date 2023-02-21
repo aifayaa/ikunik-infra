@@ -1,6 +1,7 @@
 import pick from 'lodash/pick';
 import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
+import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
@@ -27,6 +28,7 @@ export default async (event) => {
       'previewForAdmin',
     ]);
     results.perms = perms;
+    results.allBadges = await getSelfUserBadges(appId, userId);
 
     /* Check terms of services */
     const termsOfServices = await getTos(appId, false, { outdated: false, required: true });

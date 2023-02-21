@@ -41,14 +41,21 @@ export default async (appId, userId) => {
     }, {});
 
     const ownedBadges = userBadges.reduce((acc, itm) => {
-      if (!itm.requested) {
+      if (!itm.status || itm.status === 'validated') {
         acc[itm.id] = true;
       }
       return (acc);
     }, {});
 
     const requestedBadges = userBadges.reduce((acc, itm) => {
-      if (itm.requested) {
+      if (itm.status === 'requested') {
+        acc[itm.id] = true;
+      }
+      return (acc);
+    }, {});
+
+    const rejectedBadges = userBadges.reduce((acc, itm) => {
+      if (itm.status === 'rejected') {
         acc[itm.id] = true;
       }
       return (acc);
@@ -81,6 +88,9 @@ export default async (appId, userId) => {
 
       if (requestedBadges[_id]) {
         ret.requested = true;
+      }
+      if (rejectedBadges[_id]) {
+        ret.rejected = true;
       }
       if (ownedBadges[_id]) {
         ret.owned = true;

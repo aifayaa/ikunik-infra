@@ -1,5 +1,23 @@
 service: users
 
+custom:
+  prune:
+    automatic: true
+    number: 3
+  serverless-disable-request-validators:
+    action: delete
+  dev:
+    us-east-1:
+      REACT_APP_CROWD_SERVICE_URL: https://dev-crowd.crowdaa.com
+  preprod:
+    eu-west-3:
+      REACT_APP_CROWD_SERVICE_URL: https://preprod-crowd.crowdaa.com
+  prod:
+    us-east-1:
+      REACT_APP_CROWD_SERVICE_URL: https://crowd.crowdaa.com
+    eu-west-3:
+      REACT_APP_CROWD_SERVICE_URL: https://crowd-fr.crowdaa.com
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -13,7 +31,10 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource: "*"
-  environment: ${file(../env.yml)}
+  environment:
+    $<<:
+      ${file(../env.yml)}
+    REACT_APP_CROWD_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_CROWD_SERVICE_URL}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -196,6 +217,21 @@ functions:
               paths:
                 id: true
 
+  finalizeProfile:
+    handler: handlers/finalizeProfile.default
+    events:
+      - http:
+          path: users/{id}/finalizeProfile
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   getHistory:
     handler: handlers/getHistory.default
     events:
@@ -361,17 +397,11 @@ functions:
                 id: true
 
 plugins:
+  - '@cruglobal/serverless-merge-config'
   - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
   - serverless-export-env
-
-custom:
-  prune:
-    automatic: true
-    number: 3
-  serverless-disable-request-validators:
-    action: delete
 
 package:
   individually: true

@@ -13,6 +13,8 @@ export default async (event) => {
 
     const {
       limit,
+      onlyPendingBadges,
+      onlyRejectedBadges,
       search,
       sortBy,
       sortOrder,
@@ -21,6 +23,8 @@ export default async (event) => {
     } = event.queryStringParameters || {};
     const results = await searchUser(appId, {
       limit,
+      onlyPendingBadges: (onlyPendingBadges === 'true'),
+      onlyRejectedBadges: (onlyRejectedBadges === 'true'),
       search,
       sortBy,
       sortOrder,
