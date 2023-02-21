@@ -13,6 +13,8 @@ function makeUsernameRegex(search) {
 
 export default async (appId, {
   limit = 10,
+  onlyPendingBadges = false,
+  onlyRejectedBadges = false,
   search = null,
   sortBy,
   sortOrder,
@@ -29,10 +31,17 @@ export default async (appId, {
 
     if (userId) {
       $match._id = userId;
-    } else if (search) {
+    }
+    if (search) {
       $match['profile.username'] = {
         $regex: makeUsernameRegex(search),
       };
+    }
+    if (onlyPendingBadges) {
+      $match['badges.status'] = 'requested';
+    }
+    if (onlyRejectedBadges) {
+      $match['badges.status'] = 'rejected';
     }
 
     if (start && typeof start !== 'number') {

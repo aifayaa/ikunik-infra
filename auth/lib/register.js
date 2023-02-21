@@ -99,6 +99,7 @@ export const register = async (
           firstname,
           lastname,
           username,
+          email,
         },
         badges,
       };
