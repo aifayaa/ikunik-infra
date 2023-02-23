@@ -48,6 +48,17 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           cors: true
 
+  getAd:
+    handler: handlers/getAd.default
+    events:
+      - http:
+          path: advertisements/{id}
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+
   getAds:
     handler: handlers/getAds.default
     events:

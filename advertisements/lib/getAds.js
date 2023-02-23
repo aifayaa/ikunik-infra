@@ -18,7 +18,7 @@ export default async (appId, {
       appId,
     };
     const options = {
-      sort: [['createdAt', 1]],
+      sort: [['createdAt', -1]],
     };
 
     if (active !== null) query.active = active;
@@ -52,7 +52,13 @@ export default async (appId, {
       .find(query, options)
       .toArray();
 
-    return (adsList);
+    const adsCount = await client
+      .db()
+      .collection(COLL_ADVERTISEMENTS)
+      .find(query)
+      .count();
+
+    return ({ list: adsList, count: adsCount });
   } finally {
     client.close();
   }
