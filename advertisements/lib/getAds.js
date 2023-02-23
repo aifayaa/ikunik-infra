@@ -18,7 +18,7 @@ export default async (appId, {
       appId,
     };
     const options = {
-      sort: [['createdAt', 1]],
+      sort: [['createdAt', -1]],
     };
 
     if (active !== null) query.active = active;
