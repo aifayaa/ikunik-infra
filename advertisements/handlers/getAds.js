@@ -41,7 +41,9 @@ export default async (event) => {
       filters.isActiveNow = true;
     }
 
-    let list = await getAds(appId, filters);
+    const ads = await getAds(appId, filters);
+    const { count } = ads;
+    let { list } = ads;
 
     if (!isAdmin) {
       list = list.map(({
@@ -61,7 +63,7 @@ export default async (event) => {
       }));
     }
 
-    return response({ code: 200, body: { list } });
+    return response({ code: 200, body: { list, count } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
