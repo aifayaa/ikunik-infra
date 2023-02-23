@@ -4,7 +4,7 @@ const isValidDate = (val) => (typeof val === 'string' && !Number.isNaN((new Date
 
 export const createFieldChecks = {
   campaignId(val) {
-    return (isNonEmptyString(val) || val === null);
+    return (typeof val === 'string');
   },
   media: isNonEmptyString,
   mediaType(val) {
