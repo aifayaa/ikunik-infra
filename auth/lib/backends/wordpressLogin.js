@@ -178,12 +178,14 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
     const {
       token: wpToken,
       user_id: wpUserId,
-      user_email: userEmail,
+      user_email: rawUserEmail,
       user_nicename: userNicename,
       user_display_name: userDisplayName,
       autologin_token: autoLoginToken,
       permissions,
     } = reply;
+
+    const userEmail = rawUserEmail.toLowerCase();
 
     const selector = {
       appId,
