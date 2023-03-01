@@ -125,7 +125,7 @@ export async function finalizeBadge(userId, appId, badgeId) {
     }
 
     const badge = appBadgesHash[badgeId];
-    if (!badge || requiredBadges.indexOf(badgeId) < 0) {
+    if (!badge || requiredBadges.ids.indexOf(badgeId) < 0) {
       throw new Error('mal_formed_request');
     }
 
