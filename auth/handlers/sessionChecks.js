@@ -10,9 +10,13 @@ export default async (event) => {
       principalId: userId,
     } = event.requestContext.authorizer;
 
-    await sessionChecks(userId, appId, loginToken && JSON.parse(loginToken));
+    const data = await sessionChecks(userId, appId, loginToken && JSON.parse(loginToken));
 
-    return response({ code: 200, body: { status: 'success' } });
+    if (data) {
+      return response({ code: 200, body: { success: true, data } });
+    }
+
+    return response({ code: 200, body: { success: false } });
   } catch (e) {
     return response(errorMessage(e));
   }
