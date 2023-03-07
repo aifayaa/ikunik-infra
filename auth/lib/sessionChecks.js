@@ -13,6 +13,7 @@ const SEVEN_DAYS_IN_MS = 7 * 86400 * 1000;
 
 export default async (userId, appId, loginToken) => {
   const client = await MongoClient.connect();
+  const returnData = {};
 
   try {
     const [app, user] = await Promise.all([
@@ -52,11 +53,11 @@ export default async (userId, appId, loginToken) => {
         hashedToken,
         'user.services.resume.loginTokens': user.services.resume.loginTokens,
       });
-      return;
+      return (false);
     }
 
     if (!app.backend) {
-      return;
+      return (returnData);
     }
 
     if (app.backend.type === 'wordpress' && loginTokenObj.backend === 'wordpress') {
@@ -89,6 +90,7 @@ export default async (userId, appId, loginToken) => {
 
           if (response.autologin_token) {
             user$set['services.wordpress.autoLoginToken'] = response.autologin_token;
+            returnData.autoLoginToken = response.autologin_token;
           }
 
           if (Object.keys(user$set).length > 0) {
@@ -114,4 +116,6 @@ export default async (userId, appId, loginToken) => {
   } finally {
     client.close();
   }
+
+  return (returnData);
 };
