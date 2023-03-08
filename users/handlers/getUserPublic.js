@@ -5,7 +5,7 @@ import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 
-const allowedPerms = ['users_get_any'];
+const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -16,7 +16,7 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
-    const results = pick(await doGetUser(userId, appId), [
+    const results = pick(await doGetUser(urlId, appId), [
       'country',
       'createdAt',
       'emails',
@@ -28,7 +28,11 @@ export default async (event) => {
       'previewForAdmin',
     ]);
     results.perms = perms;
-    results.allBadges = await getSelfUserBadges(appId, userId);
+    try {
+      results.allBadges = await getSelfUserBadges(appId, urlId);
+    } catch (e) {
+      results.allBadges = [];
+    }
 
     /* Check terms of services */
     const termsOfServices = await getTos(appId, false, { outdated: false, required: true });
@@ -47,6 +51,7 @@ export default async (event) => {
     }
     return response({ code: 200, body: results });
   } catch (e) {
+    console.log('EUH', e);
     return response({ code: 500, message: e.message });
   }
 };
