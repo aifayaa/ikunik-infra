@@ -6,6 +6,10 @@ const {
   COLL_APPS,
 } = mongoCollections;
 
+const {
+  REACT_APP_SSR_URL,
+} = process.env;
+
 export default async function createArticleShareUrl(appId, articleId, previousShareUrl = null) {
   const client = await MongoClient.connect();
 
@@ -20,7 +24,7 @@ export default async function createArticleShareUrl(appId, articleId, previousSh
     /* Mostly for tests, it shoud never happen otherwise */
     if (!app) return (false);
 
-    const internalShareUrl = `${process.env.REACT_APP_SSR_URL}/articles/${articleId}?redirect_url=${app.protocol}://goto/articles/${articleId}&appName=${encodeURI(app.name)}`;
+    const internalShareUrl = `https://${REACT_APP_SSR_URL}/articles/${articleId}?redirect_url=${app.protocol}://goto/articles/${articleId}&appName=${encodeURI(app.name)}`;
     let shareUrl = internalShareUrl;
 
     if (previousShareUrl && previousShareUrl !== internalShareUrl) {
