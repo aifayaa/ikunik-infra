@@ -28,6 +28,7 @@
     "jose": "^2.0.3",
     "js-yaml": "^3.14.0",
     "json-loader": "^0.5.7",
+    "jsonata": "^2.0.2",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.7.0",
     "lodash": "^4.17.15",
