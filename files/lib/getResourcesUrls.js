@@ -84,9 +84,10 @@ export default async (appId, {
 
         if (action === 'put') {
           s3Params.Expires = 1200;
+          s3Params.ContentType = 'image/png';
           urls[type][format] = s3.getSignedUrl('putObject', s3Params);
         } else if (action === 'get') {
-          s3Params.Expires = 2400;
+          s3Params.Expires = 3600;
           urls[type][format] = s3.getSignedUrl('getObject', s3Params);
         }
       });

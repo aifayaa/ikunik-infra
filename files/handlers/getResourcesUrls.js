@@ -25,31 +25,23 @@ export default async (event) => {
 
     if (!resourceTypes) {
       resourceTypes = undefined;
-    } else if (resourceTypes instanceof Array) {
-      if (resourceTypes.length === 0) {
-        throw new Error('mal_formed_request');
-      }
+    } else if (typeof resourceTypes === 'string') {
+      resourceTypes = resourceTypes.split(',');
       resourceTypes.forEach((item) => {
         if (allResourceTypes.indexOf(item) < 0) {
           throw new Error('mal_formed_request');
         }
       });
-    } else if (allResourceTypes.indexOf(resourceTypes) < 0) {
-      throw new Error('mal_formed_request');
     }
     if (!resourceFormats) {
       resourceFormats = undefined;
-    } else if (resourceFormats instanceof Array) {
-      if (resourceFormats.length === 0) {
-        throw new Error('mal_formed_request');
-      }
+    } else if (typeof resourceFormats === 'string') {
+      resourceFormats = resourceFormats.split(',');
       resourceFormats.forEach((item) => {
         if (allResourceFormats.indexOf(item) < 0) {
           throw new Error('mal_formed_request');
         }
       });
-    } else if (allResourceFormats.indexOf(resourceFormats) < 0) {
-      throw new Error('mal_formed_request');
     }
 
     const body = await getResourcesUrls(appId, {
