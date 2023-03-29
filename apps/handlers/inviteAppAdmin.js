@@ -37,7 +37,7 @@ export default async (event) => {
 
     const results = await inviteAppAdmin(
       appId,
-      email.trim(),
+      email.trim().toLowerCase(),
       firstname.trim(),
       lastname.trim(),
       INVITE_MAIL_LANG,

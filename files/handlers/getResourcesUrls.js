@@ -1,0 +1,56 @@
+import getResourcesUrls, { allResourceTypes, allResourceFormats, allActions } from '../lib/getResourcesUrls';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const allowedPerms = ['pressArticles_all'];
+
+export default async (event) => {
+  const { action } = event.pathParameters;
+  const { appId } = event.requestContext.authorizer;
+  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  let {
+    resourceTypes,
+    resourceFormats,
+  } = event.queryStringParameters || {};
+
+  try {
+    if (!checkPerms(allowedPerms, perms)) {
+      throw new Error('access_forbidden');
+    }
+
+    if (!action || allActions.indexOf(action) < 0) {
+      throw new Error('mal_formed_request');
+    }
+
+    if (!resourceTypes) {
+      resourceTypes = undefined;
+    } else if (typeof resourceTypes === 'string') {
+      resourceTypes = resourceTypes.split(',');
+      resourceTypes.forEach((item) => {
+        if (allResourceTypes.indexOf(item) < 0) {
+          throw new Error('mal_formed_request');
+        }
+      });
+    }
+    if (!resourceFormats) {
+      resourceFormats = undefined;
+    } else if (typeof resourceFormats === 'string') {
+      resourceFormats = resourceFormats.split(',');
+      resourceFormats.forEach((item) => {
+        if (allResourceFormats.indexOf(item) < 0) {
+          throw new Error('mal_formed_request');
+        }
+      });
+    }
+
+    const body = await getResourcesUrls(appId, {
+      action,
+      resourceTypes,
+      resourceFormats,
+    });
+    return response({ code: 200, body });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
+  }
+};

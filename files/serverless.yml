@@ -28,6 +28,13 @@ provider:
       Action:
         - 's3:*'
       Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
+    - Effect: Allow
+      Action:
+        - 's3:GetObject'
+        - 's3:PutObject'
+      Resource:
+        - 'arn:aws:s3:::${self:provider.environment.S3_RESOURCES_BUCKET}/*'
+        - 'arn:aws:s3:::${self:provider.environment.S3_PUBLIC_RESOURCES_BUCKET}/*'
     - Effect: 'Allow'
       Action:
         - elastictranscoder:CreateJob
@@ -39,6 +46,8 @@ provider:
     S3_UPLOAD_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_UPLOAD_BUCKET}
     S3_PICTURES_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_PICTURES_BUCKET}
     S3_VIDEOS_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_VIDEOS_BUCKET}
+    S3_RESOURCES_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_RESOURCES_BUCKET}
+    S3_PUBLIC_RESOURCES_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_PUBLIC_RESOURCES_BUCKET}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -60,6 +69,7 @@ functions:
             parameters:
               headers:
                 Authorization: true
+
   deleteFile:
     handler: handlers/deleteFile.default
     evvents:
@@ -104,6 +114,21 @@ functions:
     handler: handlers/onVideoEncodeError.default
     events:
       - sns: video-stream-${self:provider.stage}-error
+
+  getResourcesUrls:
+    handler: handlers/getResourcesUrls.default
+    events:
+      - http:
+          path: files/resources/{action}
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-disable-request-validators
