@@ -67,7 +67,7 @@ doDeploy() {
     if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
       doAwaitBackgroundTasks 0
     else
-      doAwaitBackgroundTasks 10
+      doAwaitBackgroundTasks 5
     fi
     cd ..
   done
