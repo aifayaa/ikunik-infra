@@ -65,7 +65,7 @@ export default `
           document.body.innerText = ts.redir;
 
           loadVideoJs(function() {
-            document.body.innerText = '';
+            document.body.innerHTML = '';
             document.body.setAttribute('class', 'is-video');
 
             const video = document.createElement('video');
@@ -124,7 +124,7 @@ export default `
             i++;
           }
 
-          document.body.innerHTML = ts.start + '<br />' + text;
+          document.body.innerHTML = '<span class="timer">' + ts.start + '<br />' + text + '</span>';
           setTimeout(checkTime, 1000);
         }
       }
@@ -134,19 +134,39 @@ export default `
       }
     </script>
     <style type="text/css">
-      body {
-        text-align: center;
-        vertical-align: middle;
-        font-size: 2em;
-        font-weight: bold;
-        padding: 10px 20px;
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      html {
         height: 100%;
         width: 100%;
+        box-sizing: border-box;
+      }
+
+      body {
+        text-align: center;
+        line-height: 100vh;
+        font-size: 1.5em;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        color: black;
+        background-color: white;
+      }
+
+      span.timer {
+        line-height: initial;
+        display: inline-block;
+        vertical-align: middle;
       }
 
       body.is-video {
         padding: 0 !important;
         margin: 0 !important;
+        line-height: auto;
       }
     </style>
   </head>
