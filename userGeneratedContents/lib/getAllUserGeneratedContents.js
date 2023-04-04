@@ -74,7 +74,6 @@ export default async (
         /* pre moderation case */
         { moderated: false, reviewed: true },
         /* post moderation cases */
-        { moderated: { $exists: false }, reviewed: false },
         { moderated: { $exists: false }, reviewed: { $exists: false } },
       ];
     }
