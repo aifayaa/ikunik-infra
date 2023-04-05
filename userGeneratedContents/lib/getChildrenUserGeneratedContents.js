@@ -16,7 +16,6 @@ export default async (appId, parentId, parentCollection, start, limit, fetchAll 
         /* pre moderation case */
         { moderated: false, reviewed: true },
         /* post moderation cases */
-        { moderated: { $exists: false }, reviewed: false },
         { moderated: { $exists: false }, reviewed: { $exists: false } },
       ],
     };
