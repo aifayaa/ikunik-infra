@@ -159,6 +159,23 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  getArticleShareUrl:
+    handler: handlers/getArticleShareUrl.default
+    events:
+      - http:
+          path: press/articles/{id}/shareUrl
+          method: get
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   getArticleDraft:
     handler: handlers/getArticleDraft.default
     events:
