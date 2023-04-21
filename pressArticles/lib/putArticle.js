@@ -1,5 +1,4 @@
 import uuidv4 from 'uuid/v4';
-import createArticleShareUrl from './createArticleShareUrl';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { manageArticleProduct } from './manageArticleProduct';
@@ -75,7 +74,6 @@ export const putArticle = async ({
     if (!categoryId) [categoryId] = categoriesId;
     if (!categoriesId) categoriesId = [categoryId];
 
-    const shareUrl = await createArticleShareUrl(appId, articleId);
     const draft = {
       _id: draftId,
       actions,
@@ -108,9 +106,6 @@ export const putArticle = async ({
       userId,
       videoPlayMode,
     };
-    if (shareUrl) {
-      draft.shareUrl = shareUrl;
-    }
     if (videos) {
       draft.videos = videos;
     }

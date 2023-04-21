@@ -46,6 +46,17 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  getAppPerms:
+    handler: handlers/getAppPerms.default
+    events:
+      - http:
+          path: apps/perms
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   getAppSettings:
     handler: handlers/getAppSettings.default
     events:

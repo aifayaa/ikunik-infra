@@ -1,4 +1,3 @@
-import createArticleShareUrl from './createArticleShareUrl';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -16,24 +15,15 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     session.startTransaction();
     const opts = { session };
 
-    const [draft, article] = await Promise.all([
-      client
-        .db()
-        .collection(COLL_PRESS_DRAFTS)
-        .findOne({
-          articleId,
-          _id: draftId,
-          appId,
-        }, opts),
-      client
-        .db()
-        .collection(COLL_PRESS_ARTICLES)
-        .findOne({
-          _id: articleId,
-          appId,
-        }, { ...opts, projection: { shareUrl: 1 } }),
-    ]);
-    if (!draft || !article) {
+    const draft = await client
+      .db()
+      .collection(COLL_PRESS_DRAFTS)
+      .findOne({
+        articleId,
+        _id: draftId,
+        appId,
+      }, opts);
+    if (!draft) {
       throw new Error('Not found');
     }
 
@@ -56,7 +46,6 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       pinned,
       plainText,
       productId,
-      shareUrl,
       storeProductId,
       summary,
       text,
@@ -65,8 +54,6 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       videoPlayMode,
       videos,
     } = draft;
-
-    const newShareUrl = await createArticleShareUrl(appId, articleId, shareUrl);
 
     const $set = {
       actions,
@@ -98,10 +85,6 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       videoPlayMode,
       videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
     };
-
-    if (newShareUrl || shareUrl) {
-      $set.shareUrl = newShareUrl || shareUrl;
-    }
 
     if (!$set.videos && !$set.pictures) {
       throw new Error('Unable to publish article without pictures or videos');

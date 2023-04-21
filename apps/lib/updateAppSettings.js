@@ -27,18 +27,16 @@ function objGet(obj, keys, dft) {
 }
 
 const allowedSettings = [
-  'press.moderationRequired',
-  'press.env.tabOrder',
   'press.env.articleFromCommunityDateFormat',
   'press.env.articleFromFeedDateFormat',
   'press.env.categoryArticleDateFormat',
-  'press.env.feedArticleDateFormat',
-  'press.env.communityArticleDateFormat',
   'press.env.communityArticleCommentsEnabled',
+  'press.env.communityArticleDateFormat',
   'press.env.communityArticleShareEnabled',
   'press.env.displayArticleAuthor',
   'press.env.displayArticleLikesViews',
   'press.env.feedArticleCommentsEnabled',
+  'press.env.feedArticleDateFormat',
   'press.env.feedArticleShareEnabled',
   'press.env.geolocation',
   'press.env.loginArticleRequired',
@@ -47,6 +45,9 @@ const allowedSettings = [
   'press.env.phoneRegisterRequired',
   'press.env.signInWithApple',
   'press.env.signInWithFacebook',
+  'press.env.startTab',
+  'press.env.tabOrder',
+  'press.moderationRequired',
 ];
 
 export default async (appId, settings) => {
