@@ -13,6 +13,7 @@
   "COLL_BILLING": "billing",
   "COLL_BLASTS": "blasts",
   "COLL_BLAST_NOTIFICATIONS_QUEUE": "blastNotificationsQueue",
+  "COLL_BLOCKED_CONTENTS": "blockedContents",
   "COLL_CARTS": "carts",
   "COLL_CHATENGINE_ROOM_USERS": "chatengineRoomUsers",
   "COLL_CONTACTS": "contacts",
