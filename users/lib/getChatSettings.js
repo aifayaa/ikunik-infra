@@ -77,8 +77,8 @@ export default async (userId, appId) => {
       const {
         firstname,
         lastname,
-        username,
       } = user.profile;
+      const username = user.profile.username.trim();
       const password = Random.secret(31);
       await api.call('POST', '/users/', {
         username,
