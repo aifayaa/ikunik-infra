@@ -20,7 +20,7 @@ const searchArticle = async (
   { keepEmptyCategory = false, noTrashed = true },
 ) => {
   const $match = {
-    title: { $regex: new RegExp(text, 'gi') },
+    $text: { $search: text },
     appId,
     isPublished: true,
   };

@@ -83,6 +83,27 @@ function isStrictEqual(o1, o2) {
   return (JSON.stringify(o1) === JSON.stringify(o2));
 }
 
+function filterTextKeys(opts) {
+  const ret = { ...opts };
+  const keys = Object.keys(ret).filter((k) => {
+    if (ret[k] === 'text') return (true);
+    return (false);
+  });
+
+  if (keys.length === 0) {
+    return (ret);
+  }
+
+  keys.forEach((key) => { delete ret[key]; });
+
+  // eslint-disable-next-line no-underscore-dangle
+  ret._fts = 'text';
+  // eslint-disable-next-line no-underscore-dangle
+  ret._ftsx = 1;
+
+  return (ret);
+}
+
 if (EXTRA) {
   EXTRA = EXTRA.split(',').map((v) => v.trim()).reduce((result, item) => {
     result[item] = true;
@@ -133,8 +154,9 @@ async function processCollection(db, collName, indexSchemas) {
 
       if (!isStrictEqual(collIndexes[j].key, { _id: 1 })) {
         for (let i = 0; i < indexSchemas.length; i += 1) {
+          const filteredTextKeys = filterTextKeys(indexSchemas[i].key);
           if (
-            isStrictEqual(indexSchemas[i].key, collIndexes[j].key) &&
+            isStrictEqual(filteredTextKeys, collIndexes[j].key) &&
             objInclude(indexSchemas[i].opts, collIndexes[j])
           ) {
             exists = true;
@@ -164,10 +186,11 @@ async function processCollection(db, collName, indexSchemas) {
   for (let i = 0; i < indexSchemas.length; i += 1) {
     let found = false;
     const cleanedOptions = omitBy(indexSchemas[i].opts, isUndefined);
+    const filteredTextKeys = filterTextKeys(indexSchemas[i].key);
 
     for (let j = 0; j < collIndexes.length; j += 1) {
       if (
-        isStrictEqual(indexSchemas[i].key, collIndexes[j].key) &&
+        isStrictEqual(filteredTextKeys, collIndexes[j].key) &&
         objInclude(indexSchemas[i].opts, collIndexes[j])
       ) {
         found = collIndexes[j];
@@ -176,7 +199,7 @@ async function processCollection(db, collName, indexSchemas) {
     }
 
     if (found && found.name !== indexSchemas[i].name) {
-      logger.verbose('Renaming index', indexSchemas[i].key, cleanedOptions);
+      logger.verbose('Renaming index', filteredTextKeys, cleanedOptions);
       if (!EXTRA.dry) {
         promises.push(collection.dropIndex(found.name).then(() => collection.createIndex(
           indexSchemas[i].key,
@@ -339,6 +362,16 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
             categoryId: 1,
           },
           opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_articles_search_text',
+          key: {
+            appId: 1,
+            isPublished: 1,
+            title: 'text',
+            md: 'text',
+          },
+          opts: makeOpts(),
         },
         {
           name: 'crowdaa_articles_search_public',
