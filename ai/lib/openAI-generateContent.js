@@ -150,10 +150,12 @@ async function processText(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
     extraArgs = {},
   } = queryPart;
 
+  const badlyEncodedPrompt = prompt.split(/[^a-z0-9-]+/g);
+
   const response = await openai.createCompletion({
     model: 'text-davinci-003',
     temperature: 0.6,
-    max_tokens: 4000,
+    max_tokens: 4000 - (badlyEncodedPrompt.length * 3),
     prompt,
     ...extraArgs,
   });

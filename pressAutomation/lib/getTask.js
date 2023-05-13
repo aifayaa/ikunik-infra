@@ -1,0 +1,19 @@
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_PRESS_AUTOMATION_TASKS } = mongoCollections;
+
+export default async (taskId, appId) => {
+  const client = await MongoClient.connect();
+
+  try {
+    const taskObj = await client
+      .db()
+      .collection(COLL_PRESS_AUTOMATION_TASKS)
+      .findOne({ _id: taskId, appId });
+
+    return (taskObj);
+  } finally {
+    client.close();
+  }
+};

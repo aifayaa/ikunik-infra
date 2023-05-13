@@ -1,0 +1,129 @@
+service: pressAutomation
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
+  stage: ${opt:stage, "dev"}
+  region: ${opt:region, "us-east-1"}
+  memorySize: 128
+  timeout: 30
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /admin/press: ${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  getTasks:
+    handler: handlers/getTasks.default
+    events:
+      - http:
+          path: admin/press/automation/tasks
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  runTask:
+    handler: handlers/runTask.default
+    events:
+      - http:
+          path: admin/press/automation/task/{id}/run
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getTask:
+    handler: handlers/getTask.default
+    events:
+      - http:
+          path: admin/press/automation/task/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  createTask:
+    handler: handlers/createTask.default
+    events:
+      - http:
+          path: admin/press/automation/task
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  updateTask:
+    handler: handlers/updateTask.default
+    events:
+      - http:
+          path: admin/press/automation/task/{id}
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  deleteTask:
+    handler: handlers/deleteTask.default
+    events:
+      - http:
+          path: admin/press/automation/task/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+plugins:
+  - serverless-disable-request-validators
+  - serverless-webpack
+  - serverless-prune-plugin
+  - serverless-export-env
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  serverless-disable-request-validators:
+    action: delete
+
+package:
+  individually: true
