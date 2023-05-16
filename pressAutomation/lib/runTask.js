@@ -20,6 +20,14 @@ const {
 //   { field: 'articlePicture', type: 'picture' },
 // ];
 
+function zeroPad(str) {
+  str = `${str}`;
+  while (str.length < 3) {
+    str = `0${str}`;
+  }
+  return (str);
+}
+
 export default async function generateContent(taskId, { appId, userId }) {
   const client = await MongoClient.connect();
   const newsDataIo = new NewsDataIO();
@@ -40,6 +48,9 @@ export default async function generateContent(taskId, { appId, userId }) {
     if (taskObj.query) {
       newsDataQuery.q = taskObj.query;
     }
+
+    newsDataQuery.category = 'sports';
+    newsDataQuery.country = 'us';
 
     const response = await newsDataIo.getNews(newsDataQuery);
 
@@ -62,23 +73,34 @@ export default async function generateContent(taskId, { appId, userId }) {
     const newsTitles = selectedNews.map(({ title }) => (title));
     const newsContents = selectedNews.map(({ content }) => (content.substr(0, 1000)));
 
+    const contentQueries = [];
+
+    newsContents.forEach((news, id) => {
+      contentQueries.push({
+        field: `article${zeroPad(id + 1)}`,
+        prompt: `Briefly summarize this article in markdown format : ${news}`,
+        type: 'text',
+      });
+    });
+
     const query = {
       appId,
       userId,
       parts: [
         {
           field: 'title',
-          prompt: `Briefly summarize these ${newsTitles.length} news titles : ${newsTitles.join(', ')}`,
-          type: 'text',
+          prompt: `15th may news summary about sports in ${taskObj.query}`,
+          type: 'copy',
         },
         {
-          field: 'article',
-          prompt: `Briefly summarize these ${newsContents.length} news articles : ${newsContents.join('\n\n')}`,
+          field: 'article0',
+          prompt: `Briefly summarize these ${newsTitles.length} news titles, one per line : ${newsTitles.join(', ')}`,
           type: 'text',
         },
+        ...contentQueries,
         {
           field: 'articlePicture',
-          prompt: taskObj.query ? `Create a news feed picture to illustrate "${taskObj.query}"` : 'Create a news feed illustrating picture',
+          prompt: 'Sports',
           type: 'picture',
         },
       ],

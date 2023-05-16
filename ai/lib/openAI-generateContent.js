@@ -140,6 +140,24 @@ async function processPicture(dbQuery, queryPartId, queryPart, { dbQueriesColl }
   return (queryPart.response);
 }
 
+async function processCopy(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
+  const {
+    _id,
+  } = dbQuery;
+
+  await dbQueriesColl.updateOne(
+    { _id },
+    {
+      $set: {
+        [`parts.${queryPartId}.response`]: queryPart.prompt,
+      },
+      $unset: {
+        error: '',
+      },
+    },
+  );
+}
+
 async function processText(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
   const {
     _id,
@@ -239,6 +257,8 @@ export default async function generateContent(queryId) {
 
       if (type === queryTypes.TEXT) {
         results[field] = await processText(dbQuery, queryPartId, part, { dbQueriesColl });
+      } else if (type === queryTypes.COPY) {
+        results[field] = await processCopy(dbQuery, queryPartId, part, { dbQueriesColl });
       } else if (type === queryTypes.PICTURE) {
         results[field] = await processPicture(dbQuery, queryPartId, part, { dbQueriesColl });
       }
