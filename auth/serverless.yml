@@ -190,6 +190,17 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
+  samlACSCallback:
+    handler: handlers/samlACSCallback.default
+    events:
+      - http:
+          path: auth/saml/acscallback
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
 plugins:
   - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'

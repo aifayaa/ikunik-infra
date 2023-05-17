@@ -1,6 +1,8 @@
 import AWS from 'aws-sdk';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
+import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -14,6 +16,9 @@ const {
 const {
   COLL_APPS,
 } = mongoCollections;
+
+const LANG = 'en';
+const MAIL_TO = 'prod@crowdaa.com';
 
 export const resourceFormatToPath = {
   icon: { path: 'icon.png', basename: 'icon.png' },
@@ -94,6 +99,30 @@ export default async (appId, {
     });
 
     returnResources.action = action;
+
+    if (action === 'put') {
+      intlInit(LANG);
+
+      const subject = formatMessage('files:requested_resource_upload_url.title', {
+        appName: app.name,
+        region: process.env.REGION,
+        stage: process.env.STAGE,
+      });
+
+      const resources = [];
+      Object.keys(urls).forEach((type) => {
+        Object.keys(urls[type]).forEach((format) => {
+          resources.push(`<li>${type} / ${format}</li>`);
+        });
+      });
+
+      const html = formatMessage('files:requested_resource_upload_url.html', {
+        appName: app.name,
+        resources: resources.join('\n'),
+      });
+
+      await sendEmailTemplate(LANG, 'internal', MAIL_TO, subject, html);
+    }
 
     /* Return the document ID and the upload url */
     return (returnResources);
