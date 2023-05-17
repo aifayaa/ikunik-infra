@@ -31,12 +31,13 @@ export default async (hashedToken, appId) => {
       conds,
       { projection: {
         _id: 1,
-        'services.resume.loginTokens.$': 1,
+        'services.resume.loginTokens': 1,
       } },
     );
 
     if (user && user.services.resume && user.services.resume.loginTokens) {
-      const [dbToken] = user.services.resume.loginTokens;
+      const dbToken = user.services.resume.loginTokens
+        .find(({ hashedToken: x }) => (x === hashedToken));
       if (dbToken && dbToken.backend === 'wordpress') {
         if (dbToken.expiresAt <= Date.now()) {
           await usersCollection.updateOne(
