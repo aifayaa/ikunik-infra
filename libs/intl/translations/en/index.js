@@ -19,6 +19,8 @@ import reportedUgcUserCommentEmailHtml from './reportedUgcUserCommentEmailHtml';
 import siwaPeriodicRenewalHtml from './siwaPeriodicRenewalHtml';
 import ugcDataArticleEmailHtml from './ugcDataArticleEmailHtml';
 import ugcDataCommentEmailHtml from './ugcDataCommentEmailHtml';
+import updatedAppSettingsHtml from './updatedAppSettingsHtml';
+import requestedResourceUploadUrlHtml from './requestedResourceUploadUrlHtml';
 import userBadgeRequestHtml from './userBadgeRequestHtml';
 import userBadgeRequestRejectedHtml from './userBadgeRequestRejectedHtml';
 import userBadgeRequestValidatedHtml from './userBadgeRequestValidatedHtml';
@@ -38,6 +40,10 @@ export default {
     app_preview_email: {
       html: appPreviewEmailHtml,
       title: 'App {{- appName}} preview',
+    },
+    updated_app_settings: {
+      html: updatedAppSettingsHtml,
+      title: '[{{stage}}/{{region}}] App settings changed for {{- appName}}',
     },
     app_preview_sms: 'Hey! Here\'s the link to test your app {{- sanatizedAppName}} : {{- url}}, enjoy it!',
     invite_app_admin_email_title: 'Crowdaa || Your dashboard {{- appName}}',
@@ -151,6 +157,12 @@ export default {
     finalized_profile: {
       title: '[{{- appName}}] The user {{- username}} finalized his profile',
       html: usersFinalizedProfileHtml,
+    },
+  },
+  files: {
+    requested_resource_upload_url: {
+      html: requestedResourceUploadUrlHtml,
+      title: '[{{stage}}/{{region}}] Resource upload for {{- appName}}',
     },
   },
 };
