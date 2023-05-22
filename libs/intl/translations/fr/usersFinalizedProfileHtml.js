@@ -8,6 +8,7 @@ export default `
   <li>ID utilisateur : <strong>{{userId}}</strong></li>
   <li>Nom d'utilisateur : <strong>{{username}}</strong></li>
   <li>Email utilisateur : <strong>{{userEmail}}</strong></li>
+  {{- extraFields}}
 </ul>
 <p>
   La liste des utilisateurs peut être consultée sur :<br>
