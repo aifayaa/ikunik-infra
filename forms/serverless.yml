@@ -31,6 +31,18 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
           cors: true
 
+  # 20230526 : Temporary API for the vivatech event
+  postFormRegisterVivatech:
+    handler: handlers/postFormRegisterVivatech.default
+    events:
+      - http:
+          path: forms/vivatech
+          method: post
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          cors: true
+
   postFormRegisterAffiliate:
     handler: handlers/postFormRegisterAffiliate.default
     events:
