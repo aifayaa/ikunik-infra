@@ -50,6 +50,7 @@ const allowedSettings = [
   'press.env.phoneRegisterRequired',
   'press.env.signInWithApple',
   'press.env.signInWithFacebook',
+  'press.env.signInWithSAML',
   'press.env.startTab',
   'press.env.tabOrder',
   'press.moderationRequired',
