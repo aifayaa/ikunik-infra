@@ -21,7 +21,7 @@ export default async (data = {}) => {
     const form = {
       _id: new ObjectID().toString(),
       createdAt: new Date(),
-      type: 'register',
+      type: 'vivatech',
       processed: false,
       data,
     };
