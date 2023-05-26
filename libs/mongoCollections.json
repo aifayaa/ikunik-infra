@@ -53,6 +53,7 @@
   "COLL_PURCHASABLE_PRODUCT": "purchasableProducts",
   "COLL_PURCHASES": "purchases",
   "COLL_PUSH_NOTIFICATIONS": "pushNotifications",
+  "COLL_SAML_LOGINS": "samlLogins",
   "COLL_SCANNERS": "scanners",
   "COLL_SELECTIONS": "selection",
   "COLL_SELECTIONS_BACKUP": "_backup_selections",
