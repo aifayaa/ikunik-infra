@@ -190,6 +190,17 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
+  samlLogin:
+    handler: handlers/samlLogin.default
+    events:
+      - http:
+          path: auth/saml/login/{key}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
   samlACSCallback:
     handler: handlers/samlACSCallback.default
     events:
