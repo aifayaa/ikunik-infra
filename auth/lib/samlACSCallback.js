@@ -145,7 +145,7 @@ export default async (samlLoginId, key, loginXmlData) => {
       throw new Error('Multiple users found for these parameters');
     }
 
-    await postLoginChecks({ userId }, app, users.length === 0 ? 'register' : 'login');
+    await postLoginChecks({ userId }, app, 'saml-login');
 
     const token = Random.secret();
     await client
