@@ -9,7 +9,7 @@ const {
   COLL_USERS,
 } = mongoCollections;
 
-const SEVEN_DAYS_IN_MS = 7 * 86400 * 1000;
+const ONE_YEAR_IN_MS = 365 * 86400 * 1000;
 
 export default async (userId, appId, loginToken) => {
   const client = await MongoClient.connect();
@@ -81,7 +81,7 @@ export default async (userId, appId, loginToken) => {
             userWhere['services.resume.loginTokens.hashedToken'] = hashedToken;
             user$set['services.resume.loginTokens.$.when'] = new Date();
             user$set['services.resume.loginTokens.$.wpToken'] = response.token;
-            user$set['services.resume.loginTokens.$.expiresAt'] = Date.now() + SEVEN_DAYS_IN_MS;
+            user$set['services.resume.loginTokens.$.expiresAt'] = Date.now() + ONE_YEAR_IN_MS;
           }
 
           if (response.user_id && response.user_id !== user.services.wordpress.userId) {
