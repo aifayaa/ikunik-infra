@@ -209,7 +209,7 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
       when: new Date(),
       backend: 'wordpress',
       wpToken,
-      expiresAt: Date.now() + 7 * 86400 * 1000,
+      expiresAt: Date.now() + 365 * 86400 * 1000,
     };
     const hashedPassword = await hashPassword(password);
     if (!user) {

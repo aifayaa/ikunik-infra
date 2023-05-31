@@ -4,6 +4,7 @@ import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';
 import mongoCollections from '../../libs/mongoCollections.json';
 import postLoginChecks from './postLoginChecks';
+import { WordpressAPI } from '../../libs/backends/wordpress';
 
 const {
   COLL_APPS,
@@ -145,9 +146,37 @@ export default async (samlLoginId, key, loginXmlData) => {
       throw new Error('Multiple users found for these parameters');
     }
 
-    await postLoginChecks({ userId }, app, users.length === 0 ? 'register' : 'login');
+    await postLoginChecks({ userId }, app, 'saml-login');
 
     const token = Random.secret();
+    let dbLoginToken;
+    if (!app.settings.saml.comptexpert) {
+      const dbUser = await client
+        .db()
+        .collection(COLL_USERS)
+        .findOne({
+          _id: userId,
+        });
+      const wpApi = new WordpressAPI(app);
+      const reply = await wpApi.call('POST', '/crowdaa-sync/v1/comptexpert/samlLoginFromAPI', {
+        profile: dbUser.profile,
+      });
+
+      const wpToken = reply.token;
+      dbLoginToken = {
+        hashedToken: hashLoginToken(token),
+        when: new Date(),
+        backend: 'wordpress',
+        wpToken,
+        expiresAt: Date.now() + 365 * 86400 * 1000,
+      };
+    } else {
+      dbLoginToken = {
+        hashedToken: hashLoginToken(token),
+        when: new Date(),
+      };
+    }
+
     await client
       .db()
       .collection(COLL_USERS)
@@ -156,10 +185,7 @@ export default async (samlLoginId, key, loginXmlData) => {
         appId,
       }, {
         $push: {
-          'services.resume.loginTokens': {
-            hashedToken: hashLoginToken(token),
-            when: new Date(),
-          },
+          'services.resume.loginTokens': dbLoginToken,
         },
       });
 
