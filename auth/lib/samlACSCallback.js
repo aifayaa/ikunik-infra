@@ -148,18 +148,19 @@ export default async (samlLoginId, key, loginXmlData) => {
 
     await postLoginChecks({ userId }, app, 'saml-login');
 
+    user = await client
+      .db()
+      .collection(COLL_USERS)
+      .findOne({
+        _id: userId,
+      });
+
     const token = Random.secret();
     let dbLoginToken;
-    if (!app.settings.saml.comptexpert) {
-      const dbUser = await client
-        .db()
-        .collection(COLL_USERS)
-        .findOne({
-          _id: userId,
-        });
+    if (app.settings.saml.comptexpert) {
       const wpApi = new WordpressAPI(app);
       const reply = await wpApi.call('POST', '/crowdaa-sync/v1/comptexpert/samlLoginFromAPI', {
-        profile: dbUser.profile,
+        profile: user.profile,
       });
 
       const wpToken = reply.token;
@@ -194,6 +195,7 @@ export default async (samlLoginId, key, loginXmlData) => {
       successRetVal = new URL(loginParameters.onSuccessUrl);
       successRetVal.searchParams.append('userId', userId);
       successRetVal.searchParams.append('username', user.username);
+      successRetVal.searchParams.append('profileUsername', user.profile.username);
       successRetVal.searchParams.append('authToken', token);
       successRetVal.searchParams.append('authType', 'saml');
       successRetVal.searchParams.append('autoLoginToken', (
