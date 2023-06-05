@@ -159,13 +159,33 @@ export async function finalizedUser(userId, appId, lang) {
 
   intlInit(lang);
 
-  const body = formatMessage('users:finalized_profile.html', {
+  const bodyParams = {
     appName: app.name,
     userEmail: user.profile.email || user.emails[0].address,
     userId: user._id,
     username: user.profile.username,
     usersUrl: `${REACT_APP_CROWD_SERVICE_URL}/${appId}/users`,
-  });
+    extraFields: '',
+  };
+
+  if (
+    app &&
+    app.settings &&
+    app.settings.public &&
+    app.settings.public.requiresUserInput &&
+    app.settings.public.requiresUserInput.profile
+  ) {
+    const { profile: requiredProfileFields } = app.settings.public.requiresUserInput;
+    const extraFieldsArray = requiredProfileFields.map(({ field, name }) => {
+      const value = user.profile[field];
+      const encValue = formatMessage('general:var', { var: value });
+      const encName = formatMessage('general:var', { var: name });
+      return (`<li>${encName} : <strong>${encValue}</strong></li>`);
+    });
+    bodyParams.extraFields = extraFieldsArray.join('\n');
+  }
+
+  const body = formatMessage('users:finalized_profile.html', bodyParams);
   const subject = formatMessage('users:finalized_profile.title', { appName: app.name, username: user.profile.username });
   const [result] = await db
     .collection(COLL_PERM_GROUPS)

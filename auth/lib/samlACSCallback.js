@@ -161,6 +161,7 @@ export default async (samlLoginId, key, loginXmlData) => {
       const wpApi = new WordpressAPI(app);
       const reply = await wpApi.call('POST', '/crowdaa-sync/v1/comptexpert/samlLoginFromAPI', {
         profile: user.profile,
+        badges: (user.badges || []).map(({ id }) => (id)),
       });
 
       const wpToken = reply.token;

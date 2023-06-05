@@ -35,6 +35,7 @@ export default {
   },
   general: {
     the_date_at_time: 'the {{dd}}/{{mm}}/{{yyyy}} at {{HH}}:{{MM}}',
+    var: '{{var}}',
   },
   apps: {
     app_preview_email: {

@@ -32,6 +32,7 @@ export default {
   },
   general: {
     the_date_at_time: 'le {{dd}}/{{mm}}/{{yyyy}} à {{HH}}:{{MM}}',
+    var: '{{var}}',
   },
   apps: {
     app_preview_email: {
