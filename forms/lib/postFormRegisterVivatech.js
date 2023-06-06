@@ -28,7 +28,7 @@ export default async (data = {}) => {
 
     await dbForm.insertOne(form);
 
-    const lang = ((['fr', 'en'].indexOf(data.region) >= 0) ? data.region : 'en');
+    const lang = 'fr';
 
     await intlInit(lang);
 
