@@ -39,12 +39,17 @@ export default async (
         expiresAt: now,
       };
 
-      const { insertedId } = await client
-        .db()
-        .collection(COLL_COUNTERS)
-        .insertOne(counter);
+      try {
+        const { insertedId } = await client
+          .db()
+          .collection(COLL_COUNTERS)
+          .insertOne(counter);
 
-      counter._id = insertedId;
+        counter._id = insertedId;
+      } catch (e) {
+        // May fail because of a duplicate key. Don't worry, it's updating behind the scene :-)
+        return (initialValue);
+      }
     }
 
     if (counter.expiresAt <= now) {
