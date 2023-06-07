@@ -1,6 +1,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
+import { getArticleCommentsCount } from './getArticleCounts';
 
 const {
   COLL_PICTURES,
@@ -282,6 +283,14 @@ export default async (
       );
       return { ...article, category: articleCategory };
     });
+
+    const promises3 = articlesWithCategory.map(async (article) => {
+      if (article) {
+        article.commentsCount = await getArticleCommentsCount(appId, article._id);
+      }
+    });
+
+    await Promise.all(promises3);
 
     return { articles: articlesWithCategory, total };
   } finally {

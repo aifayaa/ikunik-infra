@@ -39,6 +39,7 @@ const allowedSettings = [
   'press.env.communityArticleDateFormat',
   'press.env.communityArticleShareEnabled',
   'press.env.displayArticleAuthor',
+  'press.env.displayArticleComments',
   'press.env.displayArticleLikesViews',
   'press.env.feedArticleCommentsEnabled',
   'press.env.feedArticleDateFormat',

@@ -6,6 +6,7 @@ import {
   server,
 } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
+import { getArticleCommentsCount } from './getArticleCounts';
 
 const { ADMIN_APP } = process.env;
 
@@ -376,6 +377,8 @@ export const getArticle = async (
         }
       }
     }
+
+    article.commentsCount = await getArticleCommentsCount(appId, article._id);
 
     return article;
   } finally {
