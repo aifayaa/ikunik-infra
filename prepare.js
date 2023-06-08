@@ -248,6 +248,7 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
   const {
     COLL_ADVERTISEMENTS,
     COLL_APPS,
+    COLL_COUNTERS,
     COLL_EXTERNAL_PURCHASES,
     COLL_PICTURES,
     COLL_PRESS_ARTICLES,
@@ -486,6 +487,17 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
             'remaining.displays': 1,
           },
           opts: makeOpts(),
+        },
+      ],
+      [COLL_COUNTERS]: [
+        {
+          name: 'crowdaa_counters_key',
+          key: {
+            appId: 1,
+            type: 1,
+            name: 1,
+          },
+          opts: makeOpts('unique'),
         },
       ],
     };

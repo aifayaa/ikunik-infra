@@ -19,6 +19,7 @@
   "COLL_CONTACTS": "contacts",
   "COLL_CONTENT_BY_USER_METRIC": "contentByUserMetric",
   "COLL_CONTENT_PERMISSIONS": "contentPermissions",
+  "COLL_COUNTERS": "counters",
   "COLL_CREDITS": "credits",
   "COLL_CREDIT_PACKAGES": "creditPackages",
   "COLL_DEADLINES": "deadlines",

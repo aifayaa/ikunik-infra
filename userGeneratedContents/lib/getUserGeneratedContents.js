@@ -1,5 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { getUGCArticleCommentsCount } from './getUGCCounts';
 
 const {
   COLL_USERS,
@@ -79,11 +80,21 @@ export default async (appId, userGeneratedContentsId, {
       $project,
     });
 
-    return await client
+    const ugcs = await client
       .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
       .aggregate(pipeline)
       .toArray();
+
+    const promises = ugcs.map(async (ugc) => {
+      if (ugc && ugc.type === 'article') {
+        ugc.commentsCount = await getUGCArticleCommentsCount(appId, ugc._id);
+      }
+    });
+
+    await Promise.all(promises);
+
+    return (ugcs);
   } finally {
     client.close();
   }
