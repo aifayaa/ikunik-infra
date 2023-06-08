@@ -2,6 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
+import { getArticleCommentsCount } from './getArticleCounts';
 
 const { ADMIN_APP } = process.env;
 
@@ -606,6 +607,14 @@ export const getArticles = async (
 
       await Promise.all(promises);
     }
+
+    const promises3 = articlesWithCategory.map(async (article) => {
+      if (article) {
+        article.commentsCount = await getArticleCommentsCount(appId, article._id);
+      }
+    });
+
+    await Promise.all(promises3);
 
     return { articles: articlesWithCategory, total };
   } finally {

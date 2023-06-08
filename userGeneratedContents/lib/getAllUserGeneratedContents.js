@@ -1,5 +1,6 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { getUGCArticleCommentsCount } from './getUGCCounts';
 
 const {
   COLL_PICTURES,
@@ -228,6 +229,14 @@ export default async (
         countPromise,
       ]);
     }
+
+    const promises = results.map(async (ugc) => {
+      if (ugc && ugc.type === 'article') {
+        ugc.commentsCount = await getUGCArticleCommentsCount(appId, ugc._id);
+      }
+    });
+
+    await Promise.all(promises);
 
     return { items: results, totalCount: total };
   } finally {
