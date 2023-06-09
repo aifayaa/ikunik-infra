@@ -8,6 +8,18 @@ const {
 
 const boolEq = (a, b) => (!!a === !!b);
 
+/**
+ * Modals are managed by hand for now. Example structure :
+{
+  _id: 'abc-def-ghi',
+  appId : '123-456-789',
+  loggedIn : false, // Optionnal, evaluated as a boolean anyway
+  zindex : 10,
+  maxDisplayCount: 42, // Optionnal
+  articleId: '1234-5678', // Optionnal
+  html: '<p>some html code here</p>',
+}
+ */
 export const getArticleModals = async (
   articleId,
   appId,
@@ -41,9 +53,19 @@ export const getArticleModals = async (
       }
 
       return (true);
-    }).map(({ _id, html, zindex }) => ({ _id, html, zindex }));
+    }).map(({
+      _id,
+      html,
+      maxDisplayCount = null,
+      zindex,
+    }) => ({
+      _id,
+      html,
+      maxDisplayCount,
+      zindex,
+    }));
 
-    return modals;
+    return (modals);
   } finally {
     client.close();
   }
