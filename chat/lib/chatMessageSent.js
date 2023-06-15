@@ -64,6 +64,7 @@ export default async (userId, appId, {
           'credentials.chatengine': { $exists: true },
         }, { projection: {
           'credentials.chatengine': 1,
+          'settings.press': 1,
         } }),
       db.collection(COLL_USERS)
         .findOne({
@@ -83,6 +84,11 @@ export default async (userId, appId, {
 
     if (!app) throw new Error('app_not_found');
     if (!user) throw new Error('user_not_found');
+
+    const { chatNotificationsEnabled = true } = app.settings.press || {};
+    if (!chatNotificationsEnabled) {
+      return;
+    }
 
     let roomUsersId = null;
     if (roomUsers && roomUsers.updatedAt.getTime() + CHATENGINE_ROOM_UPDATE_INTERVAL > Date.now()) {

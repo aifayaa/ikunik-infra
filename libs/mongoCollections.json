@@ -44,6 +44,7 @@
   "COLL_PHONES": "phoneCollection",
   "COLL_PICTURES": "pictures",
   "COLL_PRESS_ARTICLES": "pressArticles",
+  "COLL_PRESS_BANNERS": "pressBanners",
   "COLL_PRESS_BLASTS": "pressBlasts",
   "COLL_PRESS_CATEGORIES": "pressCategories",
   "COLL_PRESS_DRAFTS": "pressDrafts",
