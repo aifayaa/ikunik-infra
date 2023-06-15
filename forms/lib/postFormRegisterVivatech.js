@@ -57,15 +57,10 @@ export default async (data = {}) => {
 
     mailData = {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
-      to: data.email,
+      to: CORP_EMAIL_ERIC,
       title: formatMessage('forms:postFormRegisterEmail.title'),
       template: 'send_register_crowdaa_owner_vivatech',
       data: { ...data },
-      extra: {
-        bcc: [
-          CORP_EMAIL_ERIC,
-        ].join(', '),
-      },
       lang,
     };
 

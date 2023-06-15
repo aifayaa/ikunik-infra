@@ -229,6 +229,21 @@ functions:
               headers:
                 Authorization: true
 
+  getAppModals:
+      handler: handlers/getAppModals.default
+      events:
+        - http:
+            path: apps/modals
+            method: get
+            cors: true
+            authorizer:
+              type: CUSTOM
+              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getAppTos:
       handler: handlers/getAppTos.default
       events:

@@ -2,7 +2,6 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
-  COLL_PRESS_ARTICLES,
   COLL_PRESS_MODALS,
 } = mongoCollections;
 
@@ -22,8 +21,7 @@ const boolEq = (a, b) => (!!a === !!b);
   video: 'abcd-efgh-ijkl', // Needed it html is not set, ID of video object
 }
  */
-export const getArticleModals = async (
-  articleId,
+export const getAppModals = async (
   appId,
   {
     userId = null,
@@ -31,15 +29,6 @@ export const getArticleModals = async (
 ) => {
   const client = await MongoClient.connect();
   try {
-    const article = await client
-      .db()
-      .collection(COLL_PRESS_ARTICLES)
-      .findOne({ _id: articleId, appId });
-
-    if (!article) {
-      throw new Error('article_not_found');
-    }
-
     const dbModals = await client
       .db()
       .collection(COLL_PRESS_MODALS)
@@ -47,22 +36,19 @@ export const getArticleModals = async (
       .toArray();
 
     const modals = dbModals.filter((modal) => {
-      if (typeof modal.type === 'string' && modal.type !== 'article') {
+      if (modal.type !== 'app') {
         return (false);
       }
       if (typeof modal.loggedIn === 'boolean') {
         return (boolEq(modal.loggedIn, userId));
-      }
-      if (typeof modal.articleId === 'string') {
-        return (modal.articleId === articleId);
       }
 
       return (true);
     }).map(({
       _id,
       html,
-      maxDisplayCount = null,
       video,
+      maxDisplayCount = null,
       zindex,
     }) => ({
       _id,
