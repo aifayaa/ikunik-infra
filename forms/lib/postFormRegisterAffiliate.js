@@ -7,7 +7,6 @@ const { COLL_FORMS } = mongoCollections;
 
 // const CORP_EMAIL_JIMMY = 'jimmy@crowdaa.com';
 const CORP_EMAIL_ANTHONY = 'anthony@crowdaa.com';
-const CORP_EMAIL_CONTACT = 'contact@crowdaa.com';
 const CORP_EMAIL_DJOTHI = 'djothi@crowdaa.com';
 const CORP_EMAIL_ERIC = 'eric.eloy@crowdaa.com';
 const CORP_EMAIL_LUC = 'luc@crowdaa.com';
@@ -88,7 +87,7 @@ export default async (data = {}) => {
 
     mailData = {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
-      to: (data.email && data.email.trim()) || CORP_EMAIL_CONTACT,
+      to: CORP_EMAIL_SUPPORT,
       title: formatMessage('forms:postFormRegisterEmail.title'),
       template: `affiliate_register_${lang}`,
       data: { ...data },

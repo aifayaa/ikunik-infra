@@ -95,7 +95,7 @@ export default async (data = {}) => {
 
     mailData = {
       from: `No reply <${CORP_EMAIL_SUPPORT}>`,
-      to: data.email,
+      to: CORP_EMAIL_SUPPORT,
       title: formatMessage('forms:postFormRegisterEmail.title'),
       template: `send_register_crowdaa_owner_${lang}`,
       data: { ...data },
@@ -108,7 +108,6 @@ export default async (data = {}) => {
           CORP_EMAIL_OB,
           CORP_EMAIL_SAAD,
           CORP_EMAIL_SARAH,
-          CORP_EMAIL_SUPPORT,
           CORP_EMAIL_VIGILE,
         ].join(', '),
       },

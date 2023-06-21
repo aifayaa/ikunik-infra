@@ -45,6 +45,7 @@ export default async (appId, allSettings = false) => {
           buildStartAt: application.builds.preview.buildStartAt,
           buildDoneAt: application.builds.preview.buildDoneAt,
           state: application.builds.preview.state,
+          customLogoUrl: application.builds.preview.customLogoUrl,
         };
       }
     }
