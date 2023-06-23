@@ -156,7 +156,7 @@ export default async (samlLoginId, key, loginXmlData) => {
       });
 
     const token = Random.secret();
-    let dbLoginToken;
+    const dbUpdates = {};
     if (app.settings.saml.comptexpert) {
       const wpApi = new WordpressAPI(app);
       const reply = await wpApi.call('POST', '/crowdaa-sync/v1/comptexpert/samlLoginFromAPI', {
@@ -165,18 +165,27 @@ export default async (samlLoginId, key, loginXmlData) => {
       });
 
       const wpToken = reply.token;
-      dbLoginToken = {
+      const dbLoginToken = {
         hashedToken: hashLoginToken(token),
         when: new Date(),
         backend: 'wordpress',
         wpToken,
         expiresAt: Date.now() + 365 * 86400 * 1000,
       };
+      dbUpdates.$push = { 'services.resume.loginTokens': dbLoginToken };
+      dbUpdates.$set = { 'services.wordpress.userId': reply.user_id };
+      if (reply.autologin_token) {
+        dbUpdates.$set['services.wordpress.autoLoginToken'] = reply.autologin_token;
+        user.services.wordpress = {
+          autoLoginToken: reply.autologin_token,
+        };
+      }
     } else {
-      dbLoginToken = {
+      const dbLoginToken = {
         hashedToken: hashLoginToken(token),
         when: new Date(),
       };
+      dbUpdates.$push = { 'services.resume.loginTokens': dbLoginToken };
     }
 
     await client
@@ -185,11 +194,7 @@ export default async (samlLoginId, key, loginXmlData) => {
       .updateOne({
         _id: userId,
         appId,
-      }, {
-        $push: {
-          'services.resume.loginTokens': dbLoginToken,
-        },
-      });
+      }, dbUpdates);
 
     let successRetVal;
     try {
