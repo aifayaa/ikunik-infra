@@ -257,6 +257,7 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
     COLL_PUSH_NOTIFICATIONS,
     COLL_USERS,
     COLL_USER_METRICS,
+    COLL_USER_REACTIONS,
   } = mongoCollections;
 
   try {
@@ -496,6 +497,21 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
             appId: 1,
             type: 1,
             name: 1,
+          },
+          opts: makeOpts('unique'),
+        },
+      ],
+      [COLL_USER_REACTIONS]: [
+        {
+          name: 'crowdaa_user_reactions_key',
+          key: {
+            appId: 1,
+            targetCollection: 1,
+            targetId: 1,
+            userId: 1,
+            reactionType: 1,
+            reactionName: 1,
+            reactionAt: 1,
           },
           opts: makeOpts('unique'),
         },

@@ -17,6 +17,11 @@ provider:
 functions:
   updateDBCounter:
     handler: handlers/updateDBCounter.default
+    timeout: 600
+
+  updateDBCounters:
+    handler: handlers/updateDBCounters.default
+    timeout: 600
 
 plugins:
   - serverless-disable-request-validators
