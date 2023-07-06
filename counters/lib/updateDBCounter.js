@@ -42,23 +42,22 @@ export default async ({
       .aggregate(pipeline)
       .toArray();
 
-    if (result && typeof result[outputField] === 'number') {
-      await client
-        .db()
-        .collection(COLL_COUNTERS)
-        .updateOne({
-          _id,
-        }, {
-          $unset: {
-            updatingAt: '',
-            updateToken: '',
-          },
-          $set: {
-            expiresAt: new Date(Date.now() + expiresDelay),
-            value: result[outputField],
-          },
-        });
-    }
+    const value = (result && typeof result[outputField] === 'number' && result[outputField]) || 0;
+    await client
+      .db()
+      .collection(COLL_COUNTERS)
+      .updateOne({
+        _id,
+      }, {
+        $unset: {
+          updatingAt: '',
+          updateToken: '',
+        },
+        $set: {
+          expiresAt: new Date(Date.now() + expiresDelay),
+          value,
+        },
+      });
   } finally {
     client.close();
   }
