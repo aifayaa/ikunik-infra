@@ -8,14 +8,14 @@ export default async (event) => {
     appId,
     principalId: userId,
   } = event.requestContext.authorizer;
-  const { reactions: reactionsToReturn } = event.queryStringParameters || {};
+  const { types: reactionsToReturn } = event.queryStringParameters || {};
 
   try {
     const reactions = await pressArticleGetReactions(
       appId,
       articleId,
       userId,
-      reactionsToReturn,
+      reactionsToReturn ? reactionsToReturn.split(',') : [],
     );
     return response({ code: 200, body: reactions });
   } catch (e) {
