@@ -4,11 +4,19 @@ import pressArticleGetReactions from '../lib/pressArticleGetReactions';
 
 export default async (event) => {
   const articleId = event.pathParameters.id;
-  const { appId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+  } = event.requestContext.authorizer;
   const { reactions: reactionsToReturn } = event.queryStringParameters || {};
 
   try {
-    const reactions = await pressArticleGetReactions(appId, articleId, reactionsToReturn);
+    const reactions = await pressArticleGetReactions(
+      appId,
+      articleId,
+      userId,
+      reactionsToReturn,
+    );
     return response({ code: 200, body: reactions });
   } catch (e) {
     return response(errorMessage(e));

@@ -16,11 +16,16 @@ const defaultReactions = [
   'love',
   'insightful',
   'funny',
-  '@total',
-  '@views',
+  '#total',
+  '#views',
 ];
 
-export default async function pressArticleGetReactions(appId, articleId, reactionsToReturn) {
+export default async function pressArticleGetReactions(
+  appId,
+  articleId,
+  userId,
+  reactionsToReturn,
+) {
   const client = await MongoClient.connect();
   try {
     const app = await client
@@ -50,7 +55,7 @@ export default async function pressArticleGetReactions(appId, articleId, reactio
                     targetCollection: COLL_PRESS_ARTICLES,
                     targetId: articleId,
                     reactionType: 'reaction',
-                    reactionName: `reaction-${reactionName}`,
+                    reactionName,
                   },
                 },
                 {
@@ -61,10 +66,10 @@ export default async function pressArticleGetReactions(appId, articleId, reactio
             },
           };
 
-          if (reactionName === '@views') {
+          if (reactionName === '#views') {
             acc[reactionName].updateQuery.pipeline[0].$match.reactionType = 'views';
             acc[reactionName].updateQuery.pipeline[0].$match.reactionName = 'views';
-          } else if (reactionName === '@total') {
+          } else if (reactionName === '#total') {
             delete acc[reactionName].updateQuery.pipeline[0].$match.reactionName;
           }
 
@@ -73,9 +78,29 @@ export default async function pressArticleGetReactions(appId, articleId, reactio
         {},
       );
 
-    const counters = await getDBCounters(queries, { appId });
+    const ret = {};
+    ret.counters = await getDBCounters(queries, { appId });
 
-    return (counters);
+    if (userId) {
+      const userReactions = await client
+        .db()
+        .collection(COLL_USER_REACTIONS)
+        .find({
+          appId,
+          targetCollection: COLL_PRESS_ARTICLES,
+          targetId: articleId,
+          userId,
+          reactionType: 'reaction',
+        })
+        .toArray();
+
+      ret.self = userReactions.reduce((acc, { reactionName }) => {
+        acc.push(reactionName);
+        return (acc);
+      }, []);
+    }
+
+    return (ret);
   } finally {
     client.close();
   }

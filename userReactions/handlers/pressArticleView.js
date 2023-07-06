@@ -8,9 +8,10 @@ export default async (event) => {
     appId,
     principalId: userId,
   } = event.requestContext.authorizer;
+  const { deviceId } = event.queryStringParameters || {};
 
   try {
-    const ok = await pressArticleView(appId, articleId, userId);
+    const ok = await pressArticleView(appId, articleId, userId || deviceId);
     return response({ code: 200, body: ok });
   } catch (e) {
     return response(errorMessage(e));
