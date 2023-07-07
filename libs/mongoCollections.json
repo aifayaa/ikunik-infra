@@ -74,6 +74,7 @@
   "COLL_USER_GENERATED_CONTENTS_USER_REPORTS": "ugcUserReports",
   "COLL_USER_HISTORY": "userHistory",
   "COLL_USER_METRICS": "userMetrics",
+  "COLL_USER_REACTIONS": "userReactions",
   "COLL_USER_SUBSCRIPTIONS": "userSubscriptions",
   "COLL_VIDEOS": "video",
   "COLL_VIEWS": "views",
