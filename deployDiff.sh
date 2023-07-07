@@ -60,8 +60,8 @@ doDeploy() {
     cd "$folder"
     case "$folder" in
       libs) echo 'libs folder skipped';;
-      api-v1|ssr) doServerlessDomain "$fullDeploy" 2>&1 | addLogs "$folder" || handleError "$folder" &;;
-      *) doServerless deploy 2>&1 | addLogs "$folder" || handleError "$folder" &;;
+      api-v1|ssr) (doServerlessDomain "$fullDeploy" 2>&1 || handleError "$folder") | addLogs "$folder" &;;
+      *) (doServerless deploy 2>&1 || handleError "$folder") | addLogs "$folder" &;;
     esac
 
     if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
