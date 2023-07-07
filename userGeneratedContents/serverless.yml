@@ -251,3 +251,18 @@ plugins:
 
 package:
   individually: true
+
+resources:
+  Outputs:
+    RestApiRootResourceUGCId:
+      Description: Api Gateway ugc ID
+      Value:
+        Ref: ApiGatewayResourceUsergeneratedcontents
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceUGCId
+    RestApiRootResourceUGCItemId:
+      Description: Api Gateway ugcItemIdVar ID
+      Value:
+        Ref: ApiGatewayResourceUsergeneratedcontentsIdVar
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceUGCItemId
