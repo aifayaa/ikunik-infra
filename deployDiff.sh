@@ -103,4 +103,5 @@ fi
 if [ -f "$errorsFile" ]; then
   errors=$(cat "$errorsFile")
   echo "Errors encountered when deploying, with modules :" $errors
+  exit 1
 fi
