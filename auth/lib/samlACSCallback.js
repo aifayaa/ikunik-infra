@@ -96,7 +96,9 @@ export default async (samlLoginId, key, loginXmlData) => {
 
     let userId;
     let user;
+    let newUser = null;
     if (users.length === 0) {
+      newUser = true;
       userId = Random.id();
 
       const badges = (await client.db().collection(COLL_USER_BADGES)
@@ -132,6 +134,7 @@ export default async (samlLoginId, key, loginXmlData) => {
           _id: userId,
         }, { $set: userFields });
     } else if (users.length === 1) {
+      newUser = false;
       [user] = users;
       userId = user._id;
       await client
@@ -162,6 +165,7 @@ export default async (samlLoginId, key, loginXmlData) => {
       const reply = await wpApi.call('POST', '/crowdaa-sync/v1/comptexpert/samlLoginFromAPI', {
         profile: user.profile,
         badges: (user.badges || []).map(({ id }) => (id)),
+        isNewUser: newUser,
       });
 
       const wpToken = reply.token;
