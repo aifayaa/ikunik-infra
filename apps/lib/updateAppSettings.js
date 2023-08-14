@@ -35,6 +35,7 @@ const allowedSettings = [
   'press.chatNotificationsEnabled',
   'press.env.articleFromCommunityDateFormat',
   'press.env.articleFromFeedDateFormat',
+  'press.env.biometrics',
   'press.env.categoryArticleDateFormat',
   'press.env.communityArticleCommentsEnabled',
   'press.env.communityArticleDateFormat',
