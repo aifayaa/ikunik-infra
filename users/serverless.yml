@@ -52,6 +52,17 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
           cors: true
 
+  exportUsers:
+    handler: handlers/exportUsers.default
+    events:
+      - http:
+          path: users/export
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+
   addAppId:
     handler: handlers/addAppId.default
     events:
