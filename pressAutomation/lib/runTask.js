@@ -2,7 +2,7 @@ import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 // import { formatMessage, intlInit } from '../../libs/intl/intl';
-import { intlInit } from '../../libs/intl/intl';
+import { intlInit, formatMessage } from '../../libs/intl/intl';
 import { NewsDataIO } from '../../libs/backends/newsdata-io';
 
 const lambda = new Lambda({
@@ -28,6 +28,15 @@ function zeroPad(str) {
   return (str);
 }
 
+function getDate() {
+  const date = new Date();
+  const day = formatMessage(`general:dayOfMonth.${date.getDate()}`);
+
+  const dayAndMonth = formatMessage(`general:dayAndMonth.${date.getMonth()}`, { day });
+
+  return (dayAndMonth);
+}
+
 export default async function generateContent(taskId, { appId, userId }) {
   const client = await MongoClient.connect();
   const newsDataIo = new NewsDataIO();
@@ -44,13 +53,18 @@ export default async function generateContent(taskId, { appId, userId }) {
 
     const newsDataQuery = {
       language: taskObj.lang,
+      timeframe: 48,
     };
     if (taskObj.query) {
-      newsDataQuery.q = taskObj.query;
+      if (taskObj.action === 'summarize') {
+        newsDataQuery.q = taskObj.query;
+      } else { /* reword */
+        newsDataQuery.qInTitle = taskObj.query;
+      }
     }
 
-    newsDataQuery.category = 'sports';
-    newsDataQuery.country = 'us';
+    if (taskObj.country) newsDataQuery.country = taskObj.country;
+    if (taskObj.newsCategory) newsDataQuery.category = taskObj.newsCategory;
 
     const response = await newsDataIo.getNews(newsDataQuery);
 
@@ -73,50 +87,77 @@ export default async function generateContent(taskId, { appId, userId }) {
     const newsTitles = selectedNews.map(({ title }) => (title));
     const newsContents = selectedNews.map(({ content }) => (content.substr(0, 1000)));
 
-    const contentQueries = [];
+    const { customPrompts = {} } = taskObj;
 
-    newsContents.forEach((news, id) => {
-      contentQueries.push({
-        field: `article${zeroPad(id + 1)}`,
-        prompt: `Briefly summarize this article in markdown format : ${news}`,
-        type: 'text',
+    const customFormatMessage = (key, langKey, vars) => {
+      if (!customPrompts[key]) return (formatMessage(langKey, vars));
+
+      const template = customPrompts[key];
+
+      const output = template.replace(/{{([^}]+)}}/g, (match, word) => {
+        if (vars[word]) return (vars[word]);
+        return (match);
       });
-    });
 
-    const query = {
-      appId,
-      userId,
-      parts: [
-        {
-          field: 'title',
-          prompt: `15th may news summary about sports in ${taskObj.query}`,
-          type: 'copy',
-        },
-        {
-          field: 'article0',
-          prompt: `Briefly summarize these ${newsTitles.length} news titles, one per line : ${newsTitles.join(', ')}`,
-          type: 'text',
-        },
-        ...contentQueries,
-        {
-          field: 'articlePicture',
-          prompt: 'Sports',
-          type: 'picture',
-        },
-      ],
-      // parts: fieldsList.map(({ field, type }) => {
-      //   const tsKey = userPrompts[field] ? 'custom' : 'generic';
-      //   const aiPrompt = formatMessage(`pressAutomation:generateContent.${tsKey}.${field}`, {
-      //     userPrompt: (userPrompts && userPrompts[field]) || '',
-      //   });
-
-      //   return ({
-      //     field,
-      //     prompt: aiPrompt,
-      //     type,
-      //   });
-      // }),
+      return (output);
     };
+
+    let query;
+    if (taskObj.action === 'summarize') {
+      const contentQueries = newsContents.map((news, id) => ({
+        field: `article${zeroPad(id + 1)}`,
+        prompt: customFormatMessage('summarizeContent', 'pressAutomation:runTask.summary.singleSummary', { news }),
+        type: 'text',
+      }));
+
+      query = {
+        appId,
+        userId,
+        parts: [
+          {
+            field: 'title',
+            prompt: customFormatMessage('summarizeTitle', 'pressAutomation:runTask.summary.title', { date: getDate(), category: (taskObj.newsCategory || taskObj.query) }),
+            type: 'copy',
+          },
+          {
+            field: `article${zeroPad(0)}`,
+            prompt: customFormatMessage('summarizeContentShort', 'pressAutomation:runTask.summary.globalSummary', { count: newsTitles.length, newsTitles: newsTitles.join(', ') }),
+            type: 'text',
+          },
+          ...contentQueries,
+          {
+            field: 'articlePicture',
+            prompt: (customPrompts.picture || taskObj.newsCategory || taskObj.query),
+            type: 'picture',
+          },
+        ],
+      };
+    } else { /* reword */
+      const titlesParts = newsTitles.map((title, id) => ({
+        field: `title${zeroPad(id)}`,
+        prompt: customFormatMessage('rewordTitle', 'pressAutomation:runTask.reword.title', { title }),
+        type: 'text',
+      }));
+      const contentsParts = newsContents.map((news, id) => ({
+        field: `article${zeroPad(id)}`,
+        prompt: customFormatMessage('rewordContent', 'pressAutomation:runTask.reword.news', { news }),
+        type: 'text',
+      }));
+      const picturesParts = newsTitles.map((_, id) => ({
+        field: `articlePicture${zeroPad(id)}`,
+        prompt: (customPrompts.picture || taskObj.newsCategory || taskObj.query),
+        type: 'picture',
+      }));
+      query = {
+        appId,
+        userId,
+        parts: [
+          ...titlesParts,
+          ...contentsParts,
+          ...picturesParts,
+        ],
+      };
+    }
 
     const insertResult = await client
       .db()
