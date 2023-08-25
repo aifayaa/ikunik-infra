@@ -29,8 +29,8 @@ export default async (appId, userId, {
 
       name,
       query,
-      startDateTime,
-      endDateTime,
+      startDateTime: new Date(startDateTime),
+      endDateTime: endDateTime ? new Date(endDateTime) : null,
       categories,
       newsCategory,
       country,

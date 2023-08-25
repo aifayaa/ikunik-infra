@@ -1,15 +1,50 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { intlInit } from '../../libs/intl/intl';
 import { NewsDataIO } from '../../libs/backends/newsdata-io';
 
 const {
   COLL_PRESS_AUTOMATION_TASKS,
 } = mongoCollections;
 
-export default async function generateContent(taskId, { appId }) {
-  const client = await MongoClient.connect();
+export async function getTaskNewsFromTask(taskObj) {
   const newsDataIo = new NewsDataIO();
+
+  const newsDataQuery = {
+    language: taskObj.lang,
+    timeframe: 48,
+  };
+  if (taskObj.query) {
+    if (taskObj.action === 'summarize') {
+      newsDataQuery.q = taskObj.query;
+    } else { /* reword */
+      newsDataQuery.qInTitle = taskObj.query;
+    }
+  }
+
+  if (taskObj.country) newsDataQuery.country = taskObj.country;
+  if (taskObj.newsCategory) newsDataQuery.category = taskObj.newsCategory;
+
+  const response = await newsDataIo.getNews(newsDataQuery);
+
+  const selectedNews = [];
+
+  response.results.forEach((news) => {
+    if (news.title && news.content) {
+      selectedNews.push(news);
+    }
+  });
+
+  if (selectedNews.length > taskObj.articlesCount) {
+    selectedNews.splice(taskObj.articlesCount);
+  } else if (selectedNews.length === 0) {
+    throw new Error('no_news_found');
+  }
+
+  return (selectedNews);
+}
+
+export default async function getTaskNews(taskId, { appId }) {
+  const client = await MongoClient.connect();
 
   try {
     const taskObj = await client
@@ -21,38 +56,9 @@ export default async function generateContent(taskId, { appId }) {
       throw new Error('content_not_found');
     }
 
-    const newsDataQuery = {
-      language: taskObj.lang,
-    };
-    if (taskObj.query) {
-      newsDataQuery.q = taskObj.query;
-    }
+    const taskNews = await getTaskNewsFromTask(taskObj);
 
-    newsDataQuery.category = 'sports';
-    newsDataQuery.country = 'us';
-
-    const response = await newsDataIo.getNews(newsDataQuery);
-
-    intlInit(taskObj.lang);
-
-    const selectedNews = [];
-
-    response.results.forEach((news) => {
-      if (news.title && news.content) {
-        selectedNews.push({
-          title: news.title,
-          content: news.content,
-        });
-      }
-    });
-
-    if (selectedNews.length > taskObj.articlesCount) {
-      selectedNews.splice(taskObj.articlesCount);
-    } else if (selectedNews.length === 0) {
-      throw new Error('no_news_found');
-    }
-
-    return (selectedNews);
+    return (taskNews);
   } finally {
     await client.close();
   }

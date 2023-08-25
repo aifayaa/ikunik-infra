@@ -3,15 +3,18 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_AUTOMATION_TASKS } = mongoCollections;
 
-export default async (adId, appId, userId, toSet) => {
+export default async (taskId, appId, userId, toSet) => {
   const client = await MongoClient.connect();
 
   try {
+    if (toSet.startDateTime) toSet.startDateTime = new Date(toSet.startDateTime);
+    if (toSet.endDateTime) toSet.endDateTime = new Date(toSet.endDateTime);
+
     await client
       .db()
       .collection(COLL_PRESS_AUTOMATION_TASKS)
       .updateOne({
-        _id: adId,
+        _id: taskId,
         appId,
       }, { $set: {
         ...toSet,
@@ -23,7 +26,7 @@ export default async (adId, appId, userId, toSet) => {
       .db()
       .collection(COLL_PRESS_AUTOMATION_TASKS)
       .findOne({
-        _id: adId,
+        _id: taskId,
         appId,
       });
 

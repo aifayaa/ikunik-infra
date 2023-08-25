@@ -1,9 +1,9 @@
 import Lambda from 'aws-sdk/clients/lambda';
+import { getTaskNewsFromTask } from './getTaskNews';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 // import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
-import { NewsDataIO } from '../../libs/backends/newsdata-io';
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -39,7 +39,6 @@ function getDate() {
 
 export default async function generateContent(taskId, { appId, userId }) {
   const client = await MongoClient.connect();
-  const newsDataIo = new NewsDataIO();
 
   try {
     const taskObj = await client
@@ -51,38 +50,9 @@ export default async function generateContent(taskId, { appId, userId }) {
       throw new Error('content_not_found');
     }
 
-    const newsDataQuery = {
-      language: taskObj.lang,
-      timeframe: 48,
-    };
-    if (taskObj.query) {
-      if (taskObj.action === 'summarize') {
-        newsDataQuery.q = taskObj.query;
-      } else { /* reword */
-        newsDataQuery.qInTitle = taskObj.query;
-      }
-    }
-
-    if (taskObj.country) newsDataQuery.country = taskObj.country;
-    if (taskObj.newsCategory) newsDataQuery.category = taskObj.newsCategory;
-
-    const response = await newsDataIo.getNews(newsDataQuery);
+    const selectedNews = await getTaskNewsFromTask(taskObj);
 
     intlInit(taskObj.lang);
-
-    const selectedNews = [];
-
-    response.results.forEach((news) => {
-      if (news.title && news.content) {
-        selectedNews.push(news);
-      }
-    });
-
-    if (selectedNews.length > taskObj.articlesCount) {
-      selectedNews.splice(taskObj.articlesCount);
-    } else if (selectedNews.length === 0) {
-      throw new Error('no_news_found');
-    }
 
     const newsTitles = selectedNews.map(({ title }) => (title));
     const newsContents = selectedNews.map(({ content }) => (content.substr(0, 1000)));

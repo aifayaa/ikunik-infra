@@ -22,6 +22,14 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  tasksRunner:
+    handler: handlers/tasksRunner.default
+    timeout: 600
+
+  singleTaskRunner:
+    handler: handlers/singleTaskRunner.default
+    timeout: 600
+
   getTasks:
     handler: handlers/getTasks.default
     events:
