@@ -82,31 +82,36 @@ async function createArticles(taskObj, generatedContent) {
       pictureId: articlePicture,
       title,
     }, { appId, userId });
-  } else { /* reword */
-    const parts = [];
 
-    Object.keys(generatedContent).forEach((key) => {
-      const match = key.match(/^(article|title|articlePicture)([0-9]+)$/);
-      if (match) {
-        const id = parseInt(match[2], 10);
-        if (!parts[id]) parts[id] = {};
-        parts[id][match[1]] = generatedContent[key];
-      }
-    });
-
-    const promises = [];
-    parts.forEach((itm) => {
-      promises.push(postArticle({
-        autoPublish,
-        categoriesId: categories,
-        md: itm.article,
-        pictureId: itm.articlePicture,
-        title: itm.title,
-      }, { appId, userId }));
-    });
-
-    await Promise.all(promises);
+    return (1);
   }
+
+  /* reword */
+  const parts = [];
+
+  Object.keys(generatedContent).forEach((key) => {
+    const match = key.match(/^(article|title|articlePicture)([0-9]+)$/);
+    if (match) {
+      const id = parseInt(match[2], 10);
+      if (!parts[id]) parts[id] = {};
+      parts[id][match[1]] = generatedContent[key];
+    }
+  });
+
+  const promises = [];
+  parts.forEach((itm) => {
+    promises.push(postArticle({
+      autoPublish,
+      categoriesId: categories,
+      md: itm.article,
+      pictureId: itm.articlePicture,
+      title: itm.title,
+    }, { appId, userId }));
+  });
+
+  await Promise.all(promises);
+
+  return (promises.count);
 }
 
 export default async (taskId) => {
@@ -118,42 +123,102 @@ export default async (taskId) => {
       .collection(COLL_PRESS_AUTOMATION_TASKS)
       .findOne({ _id: taskId });
 
-    if (!taskObj) return;
+    if (!taskObj) throw new Error('content_not_found');
 
-    const aiQueryId = await runTask(taskId, {
-      appId: taskObj.appId,
-      userId: (taskObj.updatedBy || taskObj.createdBy),
-    });
+    await client
+      .db()
+      .collection(COLL_PRESS_AUTOMATION_TASKS)
+      .updateOne({ _id: taskId }, {
+        $set: {
+          lastExecution: {
+            at: new Date(),
+            status: 'running',
+          },
+        },
+      });
+
+    let aiQueryId;
+    try {
+      aiQueryId = await runTask(taskId, {
+        appId: taskObj.appId,
+        userId: (taskObj.updatedBy || taskObj.createdBy),
+      });
+    } catch (e) {
+      await client
+        .db()
+        .collection(COLL_PRESS_AUTOMATION_TASKS)
+        .updateOne({ _id: taskId }, {
+          $set: {
+            lastExecution: {
+              at: new Date(),
+              status: 'failed',
+              message: e.message,
+            },
+          },
+        });
+
+      throw e;
+    }
 
     await client
       .db()
       .collection(COLL_PRESS_AUTOMATION_TASKS)
       .updateOne({ _id: taskObj._id }, { $set: { autoAIQueryId: aiQueryId } });
 
-    const generationResults = await new Promise((resolve, reject) => {
-      const checks = async () => {
-        const query = await client
-          .db()
-          .collection(COLL_AI_QUERIES)
-          .findOne({ _id: aiQueryId });
+    try {
+      const generationResults = await new Promise((resolve, reject) => {
+        const checks = async () => {
+          const query = await client
+            .db()
+            .collection(COLL_AI_QUERIES)
+            .findOne({ _id: aiQueryId });
 
-        if (query.error) {
-          reject(new Error(query.error.message || query.error));
-        } else if (query.processingEndTime) {
-          const result = query.parts.reduce((acc, itm) => {
-            acc[itm.field] = itm.response;
-            return (acc);
-          }, {});
-          resolve(result);
-        } else {
-          setTimeout(checks, 5000);
-        }
-      };
+          if (query.error) {
+            reject(new Error(query.error.message || query.error));
+          } else if (query.processingEndTime) {
+            const result = query.parts.reduce((acc, itm) => {
+              acc[itm.field] = itm.response;
+              return (acc);
+            }, {});
+            resolve(result);
+          } else {
+            setTimeout(checks, 5000);
+          }
+        };
 
-      setTimeout(checks, 5000);
-    });
+        setTimeout(checks, 5000);
+      });
 
-    await createArticles(taskObj, generationResults);
+      const creationCount = await createArticles(taskObj, generationResults);
+
+      await client
+        .db()
+        .collection(COLL_PRESS_AUTOMATION_TASKS)
+        .updateOne({ _id: taskId }, {
+          $set: {
+            lastExecution: {
+              at: new Date(),
+              status: 'success',
+              message: `Generated ${creationCount} articles`,
+            },
+          },
+        });
+    } catch (e) {
+      await client
+        .db()
+        .collection(COLL_PRESS_AUTOMATION_TASKS)
+        .updateOne({ _id: taskId }, {
+          $set: {
+            lastExecution: {
+              at: new Date(),
+              status: 'failed',
+              message: e.message,
+            },
+          },
+        });
+
+      throw e;
+    }
   } finally {
     client.close();
   }

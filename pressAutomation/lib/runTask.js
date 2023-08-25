@@ -37,7 +37,7 @@ function getDate() {
   return (dayAndMonth);
 }
 
-export default async function generateContent(taskId, { appId, userId }) {
+export default async function runTask(taskId, { appId, userId }) {
   const client = await MongoClient.connect();
 
   try {
