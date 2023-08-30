@@ -1,13 +1,21 @@
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
+import QRCode from 'qrcode';
+import fs from 'fs';
+import Lambda from 'aws-sdk/clients/lambda';
 
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';
 
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
+
 const {
   COLL_APPS,
+  COLL_PICTURES,
   COLL_USERS,
   COLL_USER_BADGES,
 } = mongoCollections;
@@ -48,6 +56,72 @@ async function runRequest(method, uri, options = {}) {
 
   return (rawResponse);
 }
+
+async function callGetUploadUrlLambda(userId, appId, fileSize) {
+  const lambdaResponse = await lambda.invoke({
+    FunctionName: `files-${process.env.STAGE}-getUploadUrl`,
+    Payload: JSON.stringify({
+      requestContext: {
+        authorizer: {
+          appId,
+          principalId: userId,
+        },
+      },
+      body: JSON.stringify({
+        files: [{
+          name: 'ai_picture.webp',
+          type: 'image/webp',
+          size: fileSize,
+        }],
+        metadata: {},
+      }),
+    }),
+  }).promise();
+
+  const { Payload } = lambdaResponse;
+  const { statusCode, body } = JSON.parse(Payload);
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`Media upload URL generation error : ${body}`);
+  }
+  const [{ id, url }] = JSON.parse(body);
+  return ({ id, url });
+}
+
+function uploadWebpHttps(fileBuffer, url) {
+  return (new Promise((resolve, reject) => {
+    const options = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'image/webp',
+        'Content-Length': fileBuffer.length,
+      },
+    };
+    const req = https.request(url, options, (res) => {
+      res.on('error', reject);
+      res.on('data', () => {});
+      res.on('end', resolve);
+    });
+
+    req.on('error', reject);
+    req.end(fileBuffer);
+  }));
+}
+
+// const TOKENURL = {
+//   method: 'POST',
+//   url: 'https://url/...',
+//   headers: {
+//     Authorization: `Basic ${Buffer.from('login:pass').toString('base64')}`,
+//     'Content-Type': 'application/x-www-form-urlencoded',
+//   },
+// };
+
+// TODO:
+// - Set in DB
+// - Define final callback URL
+// - Set avatar/qrcode
+// - Code for app
+// - Test
 
 export default async (appId, urlArgs) => {
   const client = await MongoClient.connect();
@@ -163,6 +237,39 @@ export default async (appId, urlArgs) => {
         },
       });
     }
+
+    await QRCode.toFile(
+      'avatar.png',
+      qrCodeContent,
+      { width: 256 },
+    );
+
+    const fileStats = await fs.promises.stat('avatar.png');
+
+    const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size);
+
+    await uploadWebpHttps(fs.createReadStream('avatar.png'), uploadParams.url);
+
+    const avatarUrl = await new Promise((resolve) => {
+      const checkAgain = async () => {
+        const picture = await client.db().collection(COLL_PICTURES).findOne({
+          _id: uploadParams.id,
+        });
+
+        if (picture.mediumUrl) resolve(picture.mediumUrl);
+        else setTimeout(checkAgain, 500);
+      };
+
+      checkAgain();
+    });
+    await client.db().collection(COLL_USERS).updateOne({
+      _id: user._id,
+      appId,
+      username,
+    }, {
+      'profile.avatar': avatarUrl,
+      'profile.avatarId': uploadParams.id,
+    });
 
     const successRetUrl = new URL('https://crowdaa.com/api/oauth/callback/success');
     successRetUrl.searchParams.append('userId', user._id);

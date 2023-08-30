@@ -214,6 +214,11 @@ functions:
 
   oauthCallback:
     handler: handlers/oauthCallback.default
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - lambda:InvokeFunction
+        Resource: "*"
     events:
       - http:
           path: auth/oauth/{id}/callback
