@@ -212,6 +212,21 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  oauthCallback:
+    handler: handlers/oauthCallback.default
+    events:
+      - http:
+          path: auth/oauth/{id}/callback
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
 plugins:
   - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
