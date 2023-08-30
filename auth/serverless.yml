@@ -11,6 +11,11 @@ provider:
     $<<: 
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -214,11 +219,6 @@ functions:
 
   oauthCallback:
     handler: handlers/oauthCallback.default
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - lambda:InvokeFunction
-        Resource: "*"
     events:
       - http:
           path: auth/oauth/{id}/callback

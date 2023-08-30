@@ -10,6 +10,8 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';
 
+const SUCCESS_URL = 'https://crowdaa.com/api/oauth/callback/success';
+
 const lambda = new Lambda({
   region: process.env.REGION,
 });
@@ -55,6 +57,13 @@ async function runRequest(method, uri, options = {}) {
 
   const rawResponse = await request(params);
 
+  try {
+    const parsed = JSON.parse(rawResponse);
+    return (parsed);
+  } catch (e) {
+    /* do nothing */
+  }
+
   return (rawResponse);
 }
 
@@ -88,13 +97,13 @@ async function callGetUploadUrlLambda(userId, appId, fileSize, fileName, fileTyp
   return ({ id, url });
 }
 
-function uploadPngHttps(fileBuffer, url) {
+function uploadPngHttps(fileStream, fileSize, url) {
   return (new Promise((resolve, reject) => {
     const options = {
       method: 'PUT',
       headers: {
         'Content-Type': 'image/png',
-        'Content-Length': fileBuffer.length,
+        'Content-Length': fileSize,
       },
     };
     const req = https.request(url, options, (res) => {
@@ -104,7 +113,7 @@ function uploadPngHttps(fileBuffer, url) {
     });
 
     req.on('error', reject);
-    req.end(fileBuffer);
+    fileStream.pipe(req);
   }));
 }
 
@@ -128,7 +137,7 @@ export default async (appId, urlArgs) => {
     const { code } = urlArgs;
     const { tokenUrl } = app.settings.oauth;
 
-    const response1 = await runRequest(tokenUrl.method, tokenUrl.url, {
+    const response = await runRequest(tokenUrl.method, tokenUrl.url, {
       headers: tokenUrl.headers,
       data: {
         grant_type: 'authorization_code',
@@ -136,11 +145,11 @@ export default async (appId, urlArgs) => {
       },
     });
 
-    if (!response1.id_token) {
+    if (!response.id_token) {
       throw new Error('Missing variable : id_token');
     }
 
-    const jwtToken = response1.id_token;
+    const jwtToken = response.id_token;
 
     const {
       /* iss, */
@@ -224,16 +233,16 @@ export default async (appId, urlArgs) => {
     }
 
     await QRCode.toFile(
-      'avatar.png',
+      '/tmp/avatar.png',
       qrCodeContent,
       { width: 256 },
     );
 
-    const fileStats = await fs.promises.stat('avatar.png');
+    const fileStats = await fs.promises.stat('/tmp/avatar.png');
 
     const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size, 'avatar.png', 'image/png');
 
-    await uploadPngHttps(fs.createReadStream('avatar.png'), uploadParams.url);
+    await uploadPngHttps(fs.createReadStream('/tmp/avatar.png'), fileStats.size, uploadParams.url);
 
     const avatarUrl = await new Promise((resolve) => {
       const checkAgain = async () => {
@@ -252,11 +261,13 @@ export default async (appId, urlArgs) => {
       appId,
       username,
     }, {
-      'profile.avatar': avatarUrl,
-      'profile.avatarId': uploadParams.id,
+      $set: {
+        'profile.avatar': avatarUrl,
+        'profile.avatarId': uploadParams.id,
+      },
     });
 
-    const successRetUrl = new URL('https://crowdaa.com/api/oauth/callback/success');
+    const successRetUrl = new URL(SUCCESS_URL);
     successRetUrl.searchParams.append('userId', user._id);
     successRetUrl.searchParams.append('username', user.username);
     successRetUrl.searchParams.append('profileUsername', user.profile.username);
