@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 import QRCode from 'qrcode';
 import fs from 'fs';
+import https from 'https';
 import Lambda from 'aws-sdk/clients/lambda';
 
 import MongoClient from '../../libs/mongoClient';
@@ -106,22 +107,6 @@ function uploadWebpHttps(fileBuffer, url) {
     req.end(fileBuffer);
   }));
 }
-
-// const TOKENURL = {
-//   method: 'POST',
-//   url: 'https://url/...',
-//   headers: {
-//     Authorization: `Basic ${Buffer.from('login:pass').toString('base64')}`,
-//     'Content-Type': 'application/x-www-form-urlencoded',
-//   },
-// };
-
-// TODO:
-// - Set in DB
-// - Define final callback URL
-// - Set avatar/qrcode
-// - Code for app
-// - Test
 
 export default async (appId, urlArgs) => {
   const client = await MongoClient.connect();
