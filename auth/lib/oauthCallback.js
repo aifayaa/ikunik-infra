@@ -58,7 +58,7 @@ async function runRequest(method, uri, options = {}) {
   return (rawResponse);
 }
 
-async function callGetUploadUrlLambda(userId, appId, fileSize) {
+async function callGetUploadUrlLambda(userId, appId, fileSize, fileName, fileType) {
   const lambdaResponse = await lambda.invoke({
     FunctionName: `files-${process.env.STAGE}-getUploadUrl`,
     Payload: JSON.stringify({
@@ -70,8 +70,8 @@ async function callGetUploadUrlLambda(userId, appId, fileSize) {
       },
       body: JSON.stringify({
         files: [{
-          name: 'ai_picture.webp',
-          type: 'image/webp',
+          name: fileName,
+          type: fileType,
           size: fileSize,
         }],
         metadata: {},
@@ -88,12 +88,12 @@ async function callGetUploadUrlLambda(userId, appId, fileSize) {
   return ({ id, url });
 }
 
-function uploadWebpHttps(fileBuffer, url) {
+function uploadPngHttps(fileBuffer, url) {
   return (new Promise((resolve, reject) => {
     const options = {
       method: 'PUT',
       headers: {
-        'Content-Type': 'image/webp',
+        'Content-Type': 'image/png',
         'Content-Length': fileBuffer.length,
       },
     };
@@ -231,9 +231,9 @@ export default async (appId, urlArgs) => {
 
     const fileStats = await fs.promises.stat('avatar.png');
 
-    const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size);
+    const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size, 'avatar.png', 'image/png');
 
-    await uploadWebpHttps(fs.createReadStream('avatar.png'), uploadParams.url);
+    await uploadPngHttps(fs.createReadStream('avatar.png'), uploadParams.url);
 
     const avatarUrl = await new Promise((resolve) => {
       const checkAgain = async () => {
