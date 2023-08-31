@@ -1,18 +1,12 @@
 import response from '../../libs/httpResponses/response';
-import samlACSCallback from '../lib/samlACSCallback';
+import oauthCallback from '../lib/oauthCallback';
 
 export default async (event) => {
   try {
-    const {
-      _id,
-      key,
-    } = event.queryStringParameters;
-    const { body } = event;
-    const parsedBody = new URLSearchParams(body);
-    const xmlBuffer = Buffer.from(parsedBody.get('SAMLResponse'), 'base64');
-    const xmlData = xmlBuffer.toString('utf8');
+    const appId = event.pathParameters.id;
+    const urlArgs = event.queryStringParameters || {};
 
-    const retVal = await samlACSCallback(_id, key, xmlData);
+    const retVal = await oauthCallback(appId, urlArgs);
 
     if (typeof retVal === 'string') {
       return response({
@@ -26,17 +20,20 @@ export default async (event) => {
 
     return response({ code: 200, body: retVal });
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('ERROR', e);
+
     return response({
-      code: 500,
+      code: 200,
       body: `<!DOCTYPE html>
-<html lang="en">
+  <html lang="en">
   <head>
     <meta charset="utf-8">
   <head>
   <body style="padding: 30px; text-align: center;">
-    Server error : ${e.message}
+    Error : ${e}
   </body>
-</html>`,
+  </html>`,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
       },
