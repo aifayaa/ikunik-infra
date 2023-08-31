@@ -30,6 +30,10 @@ export default async (appId, allSettings = false) => {
       return false;
     }
 
+    const oauth = application.settings.oauth
+      ? { url: application.settings.oauth.url }
+      : null;
+
     if (allSettings) {
       return {
         chatengine: application.settings.chatengine,
@@ -37,6 +41,7 @@ export default async (appId, allSettings = false) => {
         playlistManagementUrl: application.settings.playlistManagementUrl,
         press: application.settings.press,
         public: application.settings.public,
+        oauth,
       };
     }
 
@@ -49,6 +54,7 @@ export default async (appId, allSettings = false) => {
             reactions: objGet(application, 'settings.press.env.reactions', defaultReactions.join(',')),
           },
         },
+        oauth,
       },
       builds: {},
       public: application.public || {},
