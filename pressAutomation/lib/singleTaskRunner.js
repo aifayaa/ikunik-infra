@@ -13,6 +13,7 @@ const {
 } = mongoCollections;
 
 async function postArticle({
+  autoNotify,
   autoPublish,
   categoriesId,
   md,
@@ -42,7 +43,7 @@ async function postArticle({
       headers: {
         'content-type': 'application/json',
       },
-      queryStringParameters: { autoPublish: `${autoPublish}` },
+      queryStringParameters: { autoPublish: `${autoPublish}`, sendNotifications: `${autoNotify}` },
       title,
       requestContext: {
         authorizer: {
@@ -58,7 +59,12 @@ async function postArticle({
 }
 
 async function createArticles(taskObj, generatedContent) {
-  const { autoPublish, categories, action } = taskObj;
+  const {
+    action,
+    autoNotify,
+    autoPublish,
+    categories,
+  } = taskObj;
   const userId = (taskObj.updatedBy || taskObj.createdBy);
   const { appId } = taskObj;
 
@@ -76,6 +82,7 @@ async function createArticles(taskObj, generatedContent) {
       articleParts.push(generatedContent[key]);
     });
     await postArticle({
+      autoNotify,
       autoPublish,
       categoriesId: categories,
       md: articleParts.join('\n\n'),
@@ -101,6 +108,7 @@ async function createArticles(taskObj, generatedContent) {
   const promises = [];
   parts.forEach((itm) => {
     promises.push(postArticle({
+      autoNotify,
       autoPublish,
       categoriesId: categories,
       md: itm.article,

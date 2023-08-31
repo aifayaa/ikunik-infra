@@ -211,6 +211,9 @@ export const createFieldChecks = {
   autoPublish(val) {
     return (typeof val === 'boolean' || val === undefined);
   },
+  autoNotify(val) {
+    return (typeof val === 'boolean' || val === undefined);
+  },
   categories(val) {
     if (!Array.isArray(val)) return (false);
     if (val.length === 0) return (false);
