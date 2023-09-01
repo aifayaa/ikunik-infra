@@ -9,6 +9,12 @@ export default async (taskId, appId, userId, toSet) => {
   try {
     if (toSet.startDateTime) toSet.startDateTime = new Date(toSet.startDateTime);
     if (toSet.endDateTime) toSet.endDateTime = new Date(toSet.endDateTime);
+    const { customPrompts = {} } = toSet;
+    const customPromptsKeys = Object.keys(customPrompts).reduce((acc, key) => {
+      acc[`customPrompts.${key}`] = customPrompts[key];
+      return (acc);
+    }, {});
+    delete toSet.customPrompts;
 
     await client
       .db()
@@ -18,6 +24,7 @@ export default async (taskId, appId, userId, toSet) => {
         appId,
       }, { $set: {
         ...toSet,
+        ...customPromptsKeys,
         updatedAt: new Date(),
         updatedBy: userId,
       } });

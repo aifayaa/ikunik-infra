@@ -16,6 +16,7 @@ export default async (appId, userId, {
   autoPublish = true,
   autoNotify = true,
   recurrence,
+  customPrompts = {},
   lang = 'en',
   active = true,
 }) => {
@@ -40,6 +41,7 @@ export default async (appId, userId, {
       autoPublish,
       autoNotify,
       recurrence,
+      customPrompts,
       lang,
       active,
     };
