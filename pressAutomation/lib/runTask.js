@@ -14,6 +14,8 @@ const {
   COLL_PRESS_AUTOMATION_TASKS,
 } = mongoCollections;
 
+const DEFAULT_PICTURE_URL = 'https://preprod-blog.crowdaa.com/static/media/crowdaaLogo200px.757aeff6.png';
+
 // const fieldsList = [
 //   { field: 'title', type: 'text' },
 //   { field: 'article', type: 'text' },
@@ -55,7 +57,8 @@ export default async function runTask(taskId, { appId, userId }) {
     intlInit(taskObj.lang);
 
     const newsTitles = selectedNews.map(({ title }) => (title));
-    const newsContents = selectedNews.map(({ content }) => (content.substr(0, 1000)));
+    const newsContents = selectedNews.map(({ content }) => (content.substr(0, 2000)));
+    const newsPictures = selectedNews.map(({ image_url: imgUrl }) => (imgUrl || ''));
 
     const { customPrompts = {} } = taskObj;
 
@@ -95,10 +98,15 @@ export default async function runTask(taskId, { appId, userId }) {
             type: 'text',
           },
           ...contentQueries,
+          // {
+          //   field: 'articlePicture',
+          //   prompt: (customPrompts.picture || taskObj.newsCategory || taskObj.query),
+          //   type: 'picture',
+          // },
           {
             field: 'articlePicture',
-            prompt: (customPrompts.picture || taskObj.newsCategory || taskObj.query),
-            type: 'picture',
+            prompt: JSON.stringify([].concat(newsPictures, DEFAULT_PICTURE_URL)),
+            type: 'imagesToIdDownload',
           },
         ],
       };
@@ -113,10 +121,15 @@ export default async function runTask(taskId, { appId, userId }) {
         prompt: customFormatMessage('rewordContent', 'pressAutomation:runTask.reword.news', { news }),
         type: 'text',
       }));
-      const picturesParts = newsTitles.map((_, id) => ({
+      // const picturesParts = newsTitles.map((_, id) => ({
+      //   field: `articlePicture${zeroPad(id)}`,
+      //   prompt: (customPrompts.picture || taskObj.newsCategory || taskObj.query),
+      //   type: 'picture',
+      // }));
+      const picturesParts = newsPictures.map((_, id) => ({
         field: `articlePicture${zeroPad(id)}`,
-        prompt: (customPrompts.picture || taskObj.newsCategory || taskObj.query),
-        type: 'picture',
+        prompt: JSON.stringify([newsPictures[id] || DEFAULT_PICTURE_URL]),
+        type: 'imagesToIdDownload',
       }));
       query = {
         appId,

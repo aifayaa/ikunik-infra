@@ -198,6 +198,11 @@ export const createFieldChecks = {
     return (isNonEmptyString(val) || val === null);
   },
   articlesCount: isStrictlyPositiveInteger,
+  fetchNewsSince: (val) => {
+    if (!isInteger(val)) return (false);
+    if (val < 1 || val > 48) return (false);
+    return (true);
+  },
   action(val) {
     return ([
       'reword',

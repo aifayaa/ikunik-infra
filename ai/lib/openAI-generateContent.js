@@ -199,6 +199,58 @@ async function processText(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
   return (queryPart.response);
 }
 
+async function processImagesToIdDownload(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
+  const {
+    prompt,
+  } = queryPart;
+  const imagesURLs = JSON.parse(prompt);
+  const {
+    _id,
+    userId,
+    appId,
+  } = dbQuery;
+
+  await new Promise((resolve, reject) => {
+    let lastError = null;
+
+    async function tryNextURL() {
+      const url = imagesURLs.shift();
+
+      if (!url) {
+        reject(lastError);
+        return;
+      }
+
+      try {
+        const fileBuffer = await downloadWebpHttps(url);
+
+        const uploadParams = await callGetUploadUrlLambda(userId, appId, fileBuffer.length);
+
+        await uploadWebpHttps(fileBuffer, uploadParams.url);
+
+        queryPart.response = uploadParams.id;
+        await dbQueriesColl.updateOne(
+          { _id },
+          {
+            $set: {
+              [`parts.${queryPartId}.response`]: queryPart.response,
+            },
+          },
+        );
+
+        resolve();
+      } catch (e) {
+        /* Skip error and try next URL */
+        lastError = e;
+
+        tryNextURL();
+      }
+    }
+
+    tryNextURL();
+  });
+}
+
 /**
  * A function that runs `exec` on each element of the `data` array until the end of it or an error.
  * `exec` is called like with map() : `exec(data[i], i, data)`
@@ -261,6 +313,13 @@ export default async function generateContent(queryId) {
         results[field] = await processCopy(dbQuery, queryPartId, part, { dbQueriesColl });
       } else if (type === queryTypes.PICTURE) {
         results[field] = await processPicture(dbQuery, queryPartId, part, { dbQueriesColl });
+      } else if (type === queryTypes.IMAGES_TO_ID_DOWNLOAD) {
+        results[field] = await processImagesToIdDownload(
+          dbQuery,
+          queryPartId,
+          part,
+          { dbQueriesColl },
+        );
       }
     };
 

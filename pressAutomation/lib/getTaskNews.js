@@ -11,14 +11,15 @@ export async function getTaskNewsFromTask(taskObj) {
 
   const newsDataQuery = {
     language: taskObj.lang,
-    timeframe: 48,
+    timeframe: taskObj.fetchNewsSince || 48,
   };
   if (taskObj.query) {
-    if (taskObj.action === 'summarize') {
-      newsDataQuery.q = taskObj.query;
-    } else { /* reword */
-      newsDataQuery.qInTitle = taskObj.query;
-    }
+    // if (taskObj.action === 'summarize') {
+    //   newsDataQuery.q = taskObj.query;
+    // } else { /* reword */
+    //   newsDataQuery.qInTitle = taskObj.query;
+    // }
+    newsDataQuery.q = taskObj.query;
   }
 
   if (taskObj.country) newsDataQuery.country = taskObj.country;
