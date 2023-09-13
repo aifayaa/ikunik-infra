@@ -140,6 +140,24 @@ async function processPicture(dbQuery, queryPartId, queryPart, { dbQueriesColl }
   return (queryPart.response);
 }
 
+async function processCopy(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
+  const {
+    _id,
+  } = dbQuery;
+
+  await dbQueriesColl.updateOne(
+    { _id },
+    {
+      $set: {
+        [`parts.${queryPartId}.response`]: queryPart.prompt,
+      },
+      $unset: {
+        error: '',
+      },
+    },
+  );
+}
+
 async function processText(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
   const {
     _id,
@@ -150,10 +168,12 @@ async function processText(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
     extraArgs = {},
   } = queryPart;
 
+  const badlyEncodedPrompt = prompt.split(/[^a-z0-9-]+/g);
+
   const response = await openai.createCompletion({
     model: 'text-davinci-003',
     temperature: 0.6,
-    max_tokens: 4000,
+    max_tokens: 4000 - (badlyEncodedPrompt.length * 3),
     prompt,
     ...extraArgs,
   });
@@ -177,6 +197,58 @@ async function processText(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
   }
 
   return (queryPart.response);
+}
+
+async function processImagesToIdDownload(dbQuery, queryPartId, queryPart, { dbQueriesColl }) {
+  const {
+    prompt,
+  } = queryPart;
+  const imagesURLs = JSON.parse(prompt);
+  const {
+    _id,
+    userId,
+    appId,
+  } = dbQuery;
+
+  await new Promise((resolve, reject) => {
+    let lastError = null;
+
+    async function tryNextURL() {
+      const url = imagesURLs.shift();
+
+      if (!url) {
+        reject(lastError);
+        return;
+      }
+
+      try {
+        const fileBuffer = await downloadWebpHttps(url);
+
+        const uploadParams = await callGetUploadUrlLambda(userId, appId, fileBuffer.length);
+
+        await uploadWebpHttps(fileBuffer, uploadParams.url);
+
+        queryPart.response = uploadParams.id;
+        await dbQueriesColl.updateOne(
+          { _id },
+          {
+            $set: {
+              [`parts.${queryPartId}.response`]: queryPart.response,
+            },
+          },
+        );
+
+        resolve();
+      } catch (e) {
+        /* Skip error and try next URL */
+        lastError = e;
+
+        tryNextURL();
+      }
+    }
+
+    tryNextURL();
+  });
 }
 
 /**
@@ -237,8 +309,17 @@ export default async function generateContent(queryId) {
 
       if (type === queryTypes.TEXT) {
         results[field] = await processText(dbQuery, queryPartId, part, { dbQueriesColl });
+      } else if (type === queryTypes.COPY) {
+        results[field] = await processCopy(dbQuery, queryPartId, part, { dbQueriesColl });
       } else if (type === queryTypes.PICTURE) {
         results[field] = await processPicture(dbQuery, queryPartId, part, { dbQueriesColl });
+      } else if (type === queryTypes.IMAGES_TO_ID_DOWNLOAD) {
+        results[field] = await processImagesToIdDownload(
+          dbQuery,
+          queryPartId,
+          part,
+          { dbQueriesColl },
+        );
       }
     };
 

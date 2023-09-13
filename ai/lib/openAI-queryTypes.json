@@ -1,4 +1,6 @@
 {
   "TEXT": "text",
-  "PICTURE": "picture"
+  "COPY": "copy",
+  "PICTURE": "picture",
+  "IMAGES_TO_ID_DOWNLOAD": "imagesToIdDownload"
 }
