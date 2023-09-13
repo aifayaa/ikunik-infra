@@ -1,0 +1,19 @@
+{
+  "name": "press-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa Artificial Intelligence API.",
+  "main": "handler.js",
+  "dependencies": {
+    "aws-sdk": "^2.749.0"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.0.1",
+    "esm": "^3.2.25",
+    "serverless": "^2.72.3",
+    "serverless-webpack": "^5.3.3",
+    "webpack": "^4.41.5"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}
