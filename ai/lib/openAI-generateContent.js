@@ -216,8 +216,13 @@ async function processImagesToIdDownload(dbQuery, queryPartId, queryPart, { dbQu
     async function tryNextURL() {
       const url = imagesURLs.shift();
 
+      if (url === undefined) {
+        reject(lastError || new Error('No URL found'));
+        return;
+      }
+
       if (!url) {
-        reject(lastError);
+        setTimeout(tryNextURL, 0);
         return;
       }
 
@@ -243,7 +248,7 @@ async function processImagesToIdDownload(dbQuery, queryPartId, queryPart, { dbQu
         /* Skip error and try next URL */
         lastError = e;
 
-        tryNextURL();
+        setTimeout(tryNextURL, 0);
       }
     }
 
@@ -337,7 +342,7 @@ export default async function generateContent(queryId) {
       );
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error('API Error?!', e);
+      console.error('API Error :', e);
       if (e.response) {
         dbQuery.error = {
           status: e.response.status,
