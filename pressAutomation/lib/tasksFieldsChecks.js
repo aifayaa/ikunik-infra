@@ -198,6 +198,20 @@ export const createFieldChecks = {
     return (isNonEmptyString(val) || val === null);
   },
   articlesCount: isStrictlyPositiveInteger,
+  nextArticles: (val) => {
+    if (!Array.isArray(val)) return (false);
+
+    const invalid = val.find((x) => {
+      if (!x.title) return (true);
+      if (!x.content) return (true);
+      if (!x.pictureId) return (true);
+      return (false);
+    });
+
+    if (invalid !== undefined) return (false);
+
+    return (true);
+  },
   fetchNewsSince: (val) => {
     if (!isInteger(val)) return (false);
     if (val < 1 || val > 48) return (false);
