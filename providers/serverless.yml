@@ -85,6 +85,81 @@ functions:
           method: get
           cors: true
 
+  provGhantyGetCoupons:
+    handler: handlers/ghanty/getCoupons.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/coupons
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+  provGhantyGetProfile:
+    handler: handlers/ghanty/getProfile.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/profile
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+  provGhantyGetProposals:
+    handler: handlers/ghanty/getProposals.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/proposals
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+  provGhantyGetTransactions:
+    handler: handlers/ghanty/getTransactions.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/transactions
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+  provGhantyUseProposal:
+    handler: handlers/ghanty/useProposal.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/proposal
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
 plugins:
   - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
