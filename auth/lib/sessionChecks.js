@@ -66,7 +66,7 @@ export default async (userId, appId, loginToken) => {
       try {
         let response = await wpApi.authCall(
           'GET',
-          '/crowdaa-sync/v1/session/checks',
+          `/crowdaa-sync/v1/session/checks?x=${`${Date.now()}-${Math.random()}`}`,
           loginTokenObj.wpToken,
           null,
         );
