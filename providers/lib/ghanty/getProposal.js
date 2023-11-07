@@ -11,9 +11,6 @@ export default async (
   appId,
   userId,
   proposalId,
-  {
-    offerId,
-  },
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -28,12 +25,7 @@ export default async (
     const fidApi = new MyFidApi(app);
     await fidApi.renewTokenIfNeeded(client);
 
-    const response = await fidApi.call(`/users/${user.username}/proposals/${proposalId}/offers`, {
-      method: 'POST',
-      body: {
-        id: offerId,
-      },
-    });
+    const response = await fidApi.call(`/users/${user.username}/proposal/${proposalId}/offers`);
 
     return (response);
   } finally {

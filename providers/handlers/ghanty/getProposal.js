@@ -1,4 +1,4 @@
-import useProposal from '../../lib/ghanty/useProposal';
+import getProposal from '../../lib/ghanty/getProposal';
 import errorMessage from '../../../libs/httpResponses/errorMessage';
 import response from '../../../libs/httpResponses/response';
 
@@ -11,13 +11,7 @@ export default async (event) => {
       throw new Error('forbidden');
     }
 
-    if (!event.body) {
-      throw new Error('mal_formed_request');
-    }
-
-    const bodyParsed = JSON.parse(event.body);
-
-    const body = await useProposal(appId, userId, proposalId, bodyParsed);
+    const body = await getProposal(appId, userId, proposalId);
     return response({ code: 200, body });
   } catch (e) {
     return response(errorMessage({ message: e.message }));

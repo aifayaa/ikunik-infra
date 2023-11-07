@@ -115,21 +115,6 @@ functions:
               paths:
                 pdfId: true
 
-  provGhantyGetProposals:
-    handler: handlers/ghanty/getProposals.default
-    events:
-      - http:
-          path: providers/ghanty/myfid/proposals
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
-          request:
-            parameters:
-              paths:
-                pdfId: true
-
   provGhantyGetTransactions:
     handler: handlers/ghanty/getTransactions.default
     events:
@@ -145,11 +130,41 @@ functions:
               paths:
                 pdfId: true
 
+  provGhantyGetProposals:
+    handler: handlers/ghanty/getProposals.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/proposals
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
+  provGhantyGetProposal:
+    handler: handlers/ghanty/getProposal.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/proposal/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                pdfId: true
+
   provGhantyUseProposal:
     handler: handlers/ghanty/useProposal.default
     events:
       - http:
-          path: providers/ghanty/myfid/proposal
+          path: providers/ghanty/myfid/proposal/{id}
           method: put
           cors: true
           authorizer:
