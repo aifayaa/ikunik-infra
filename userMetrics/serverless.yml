@@ -65,7 +65,7 @@ functions:
           cors: true
           authorizer:
             type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
           request:
             parameters:
               paths:
