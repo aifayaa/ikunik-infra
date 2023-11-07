@@ -91,6 +91,21 @@ functions:
               headers:
                 Authorization: true
 
+  sendBlastUsersPush:
+    handler: handlers/sendBlastUsersPush.default
+    events:
+      - http:
+          path: blast/users/push
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
 plugins:
   - serverless-disable-request-validators
   - '@cruglobal/serverless-merge-config'
