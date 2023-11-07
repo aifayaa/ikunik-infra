@@ -100,8 +100,8 @@ export async function setUserPermissions(client, user, permissions) {
   // Badges
   const userBadges = await extPurchasesCollection.find({
     appId: user.appId,
-    collection: COLL_USER_BADGES,
     source: 'wordpress',
+    collection: COLL_USER_BADGES,
     userId: user._id,
   }).toArray();
 
