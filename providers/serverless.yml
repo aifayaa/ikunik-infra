@@ -95,10 +95,6 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
-          request:
-            parameters:
-              paths:
-                pdfId: true
 
   provGhantyGetProfile:
     handler: handlers/ghanty/getProfile.default
@@ -110,10 +106,6 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
-          request:
-            parameters:
-              paths:
-                pdfId: true
 
   provGhantyGetTransactions:
     handler: handlers/ghanty/getTransactions.default
@@ -125,10 +117,6 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
-          request:
-            parameters:
-              paths:
-                pdfId: true
 
   provGhantyGetProposals:
     handler: handlers/ghanty/getProposals.default
@@ -140,10 +128,6 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
-          request:
-            parameters:
-              paths:
-                pdfId: true
 
   provGhantyGetProposal:
     handler: handlers/ghanty/getProposal.default
@@ -158,7 +142,7 @@ functions:
           request:
             parameters:
               paths:
-                pdfId: true
+                id: true
 
   provGhantyUseProposal:
     handler: handlers/ghanty/useProposal.default
@@ -173,7 +157,29 @@ functions:
           request:
             parameters:
               paths:
-                pdfId: true
+                id: true
+
+  provGhantyGetPersonalData:
+    handler: handlers/ghanty/getPersonalData.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/personaldata
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  provGhantyUpdatePersonalData:
+    handler: handlers/ghanty/updatePersonalData.default
+    events:
+      - http:
+          path: providers/ghanty/myfid/personaldata
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
 plugins:
   - serverless-disable-request-validators
