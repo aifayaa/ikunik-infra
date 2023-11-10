@@ -39,7 +39,7 @@ export default async (
     }
     statuses = statuses.join(',');
 
-    const response = await fidApi.call(`/users/${user.username}/coupons?statuses=${statuses}&pageSize=${pageSize}&pageNumber=${page + 1}`);
+    const response = await fidApi.call(`/users/${user.username}/coupons?statuses=${statuses}&pageSize=${pageSize}&pageNumber=${page}`);
 
     return (response);
   } finally {

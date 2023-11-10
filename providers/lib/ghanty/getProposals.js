@@ -28,7 +28,7 @@ export default async (
     const pageSize = parseInt(options.pageSize || '20', 10);
     const page = parseInt(options.page || '0', 10) + 1;
 
-    const response = await fidApi.call(`/users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page + 1}`);
+    const response = await fidApi.call(`/users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page}`);
 
     return (response);
   } finally {
