@@ -16,8 +16,8 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
 
-    const body = await updatePersonalData(appId, userId, bodyParsed);
-    return response({ code: 200, body });
+    await updatePersonalData(appId, userId, bodyParsed);
+    return response({ code: 200, body: { ok: true } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
