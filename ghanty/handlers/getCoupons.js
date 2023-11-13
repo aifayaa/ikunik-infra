@@ -1,6 +1,6 @@
-import getProposals from '../../lib/ghanty/getProposals';
-import errorMessage from '../../../libs/httpResponses/errorMessage';
-import response from '../../../libs/httpResponses/response';
+import getCoupons from '../lib/getCoupons';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -11,7 +11,7 @@ export default async (event) => {
       throw new Error('forbidden');
     }
 
-    const body = await getProposals(appId, userId, queryString);
+    const body = await getCoupons(appId, userId, queryString);
     return response({ code: 200, body });
   } catch (e) {
     return response(errorMessage({ message: e.message }));

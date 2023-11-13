@@ -1,6 +1,6 @@
-import useProposal from '../../lib/ghanty/useProposal';
-import errorMessage from '../../../libs/httpResponses/errorMessage';
-import response from '../../../libs/httpResponses/response';
+import useProposal from '../lib/useProposal';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;

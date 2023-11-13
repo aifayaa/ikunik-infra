@@ -1,6 +1,6 @@
-import getTransactions from '../../lib/ghanty/getTransactions';
-import errorMessage from '../../../libs/httpResponses/errorMessage';
-import response from '../../../libs/httpResponses/response';
+import getTransactions from '../lib/getTransactions';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;

@@ -1,0 +1,121 @@
+service: ghanty
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  lambdaHashingVersion: "20201221"
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  provGhantyGetCoupons:
+    handler: handlers/getCoupons.default
+    events:
+      - http:
+          path: ghanty/myfid/coupons
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  provGhantyGetProfile:
+    handler: handlers/getProfile.default
+    events:
+      - http:
+          path: ghanty/myfid/profile
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  provGhantyGetTransactions:
+    handler: handlers/getTransactions.default
+    events:
+      - http:
+          path: ghanty/myfid/transactions
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  provGhantyGetProposals:
+    handler: handlers/getProposals.default
+    events:
+      - http:
+          path: ghanty/myfid/proposals
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  provGhantyGetProposal:
+    handler: handlers/getProposal.default
+    events:
+      - http:
+          path: ghanty/myfid/proposal/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  provGhantyUseProposal:
+    handler: handlers/useProposal.default
+    events:
+      - http:
+          path: ghanty/myfid/proposal/{id}
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  provGhantyGetPersonalData:
+    handler: handlers/getPersonalData.default
+    events:
+      - http:
+          path: ghanty/myfid/personaldata
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  provGhantyUpdatePersonalData:
+    handler: handlers/updatePersonalData.default
+    events:
+      - http:
+          path: ghanty/myfid/personaldata
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+plugins:
+  - serverless-disable-request-validators
+  - '@cruglobal/serverless-merge-config'
+  - serverless-webpack
+  - serverless-prune-plugin
+
+package:
+  individually: true

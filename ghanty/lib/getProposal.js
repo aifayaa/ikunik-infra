@@ -1,6 +1,6 @@
-import MongoClient from '../../../libs/mongoClient';
-import mongoCollections from '../../../libs/mongoCollections.json';
-import { MyFidApi } from '../../../libs/backends/ghanty-myfid';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 
 const {
   COLL_APPS,

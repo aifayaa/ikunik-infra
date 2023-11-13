@@ -1,6 +1,6 @@
-import MongoClient from '../../../libs/mongoClient';
-import mongoCollections from '../../../libs/mongoCollections.json';
-import { MyFidApi } from '../../../libs/backends/ghanty-myfid';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 
 const {
   COLL_APPS,
@@ -28,7 +28,7 @@ export default async (
     const pageSize = parseInt(options.pageSize || '20', 10);
     const page = parseInt(options.page || '0', 10) + 1;
 
-    const response = await fidApi.call(`/users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page}`);
+    const response = await fidApi.call(`/users/${user.username}/transactions?pageSize=${pageSize}&pageNumber=${page}`);
 
     return (response);
   } finally {
