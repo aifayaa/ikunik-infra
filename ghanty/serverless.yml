@@ -22,7 +22,7 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  provGhantyGetCoupons:
+  ghantyGetCoupons:
     handler: handlers/getCoupons.default
     events:
       - http:
@@ -33,7 +33,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
-  provGhantyGetProfile:
+  ghantyGetProfile:
     handler: handlers/getProfile.default
     events:
       - http:
@@ -44,7 +44,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
-  provGhantyGetTransactions:
+  ghantyGetTransactions:
     handler: handlers/getTransactions.default
     events:
       - http:
@@ -55,7 +55,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
-  provGhantyGetProposals:
+  ghantyGetProposals:
     handler: handlers/getProposals.default
     events:
       - http:
@@ -66,7 +66,7 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
-  provGhantyGetProposal:
+  ghantyGetProposal:
     handler: handlers/getProposal.default
     events:
       - http:
@@ -81,7 +81,7 @@ functions:
               paths:
                 id: true
 
-  provGhantyUseProposal:
+  ghantyUseProposal:
     handler: handlers/useProposal.default
     events:
       - http:
@@ -96,7 +96,7 @@ functions:
               paths:
                 id: true
 
-  provGhantyGetPersonalData:
+  ghantyGetPersonalData:
     handler: handlers/getPersonalData.default
     events:
       - http:
@@ -107,12 +107,34 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
-  provGhantyUpdatePersonalData:
+  ghantyUpdatePersonalData:
     handler: handlers/updatePersonalData.default
     events:
       - http:
           path: ghanty/myfid/personaldata
           method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  ghantyGetMalls:
+    handler: handlers/getMalls.default
+    events:
+      - http:
+          path: ghanty/myfid/malls
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  ghantyGetBrands:
+    handler: handlers/getBrands.default
+    events:
+      - http:
+          path: ghanty/myfid/brands
+          method: get
           cors: true
           authorizer:
             type: CUSTOM
