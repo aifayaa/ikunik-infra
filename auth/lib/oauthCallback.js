@@ -232,40 +232,42 @@ export default async (appId, urlArgs) => {
       });
     }
 
-    await QRCode.toFile(
-      '/tmp/avatar.png',
-      qrCodeContent,
-      { width: 256 },
-    );
+    if (!user || user.services.oauth.qrCodeContent !== qrCodeContent) {
+      await QRCode.toFile(
+        '/tmp/avatar.png',
+        qrCodeContent,
+        { width: 256 },
+      );
 
-    const fileStats = await fs.promises.stat('/tmp/avatar.png');
+      const fileStats = await fs.promises.stat('/tmp/avatar.png');
 
-    const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size, 'avatar.png', 'image/png');
+      const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size, 'avatar.png', 'image/png');
 
-    await uploadPngHttps(fs.createReadStream('/tmp/avatar.png'), fileStats.size, uploadParams.url);
+      await uploadPngHttps(fs.createReadStream('/tmp/avatar.png'), fileStats.size, uploadParams.url);
 
-    const avatarUrl = await new Promise((resolve) => {
-      const checkAgain = async () => {
-        const picture = await client.db().collection(COLL_PICTURES).findOne({
-          _id: uploadParams.id,
-        });
+      const avatarUrl = await new Promise((resolve) => {
+        const checkAgain = async () => {
+          const picture = await client.db().collection(COLL_PICTURES).findOne({
+            _id: uploadParams.id,
+          });
 
-        if (picture.mediumUrl) resolve(picture.mediumUrl);
-        else setTimeout(checkAgain, 500);
-      };
+          if (picture.mediumUrl) resolve(picture.mediumUrl);
+          else setTimeout(checkAgain, 500);
+        };
 
-      checkAgain();
-    });
-    await client.db().collection(COLL_USERS).updateOne({
-      _id: user._id,
-      appId,
-      username,
-    }, {
-      $set: {
-        'profile.avatar': avatarUrl,
-        'profile.avatarId': uploadParams.id,
-      },
-    });
+        checkAgain();
+      });
+      await client.db().collection(COLL_USERS).updateOne({
+        _id: user._id,
+        appId,
+        username,
+      }, {
+        $set: {
+          'profile.avatar': avatarUrl,
+          'profile.avatarId': uploadParams.id,
+        },
+      });
+    }
 
     const successRetUrl = new URL(SUCCESS_URL);
     successRetUrl.searchParams.append('userId', user._id);
