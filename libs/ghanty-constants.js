@@ -1,6 +1,6 @@
 export const COUPONS_STATUSES_CLIENT_MAP = {
-  pending: 'enabled',
-  active: 'disabled',
+  disabled: 'disabled',
+  enabled: 'enabled',
   expired: 'expired',
   locked: 'locked',
 };
