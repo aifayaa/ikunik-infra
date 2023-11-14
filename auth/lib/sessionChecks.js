@@ -60,7 +60,7 @@ export default async (userId, appId, loginToken) => {
       return (returnData);
     }
 
-    if (app.backend.type === 'wordpress' && loginTokenObj.backend === 'wordpress') {
+    if (app.backend.type === 'wordpress' && loginTokenObj.backend === 'wordpress' && user.services.wordpress) {
       const wpApi = new WordpressAPI(app);
 
       try {
