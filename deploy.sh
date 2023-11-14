@@ -84,6 +84,7 @@ test "x$ALL" = "xALL" && runSlsDeployFor 'tokenPackages'
 runSlsDeployFor 'users'
 runSlsDeployFor 'userMetrics'
 runSlsDeployFor 'providers'
+runSlsDeployFor 'ghanty'
 
 # + users root api id
 test "x$ALL" = "xALL" && runSlsDeployFor 'artists'
