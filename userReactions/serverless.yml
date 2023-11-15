@@ -71,6 +71,37 @@ functions:
               paths:
                 id: true
 
+  ugcGetReactions:
+    handler: handlers/ugcGetReactions.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/reactions
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  ugcReact:
+    handler: handlers/ugcReact.default
+    events:
+      - http:
+          path: userGeneratedContents/{id}/reactions/{reaction}
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              paths:
+                id: true
+                reaction: true
+
 plugins:
   - serverless-disable-request-validators
   - serverless-webpack
