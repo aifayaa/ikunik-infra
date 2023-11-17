@@ -9,16 +9,16 @@ const permKeys = [
 ];
 
 export default async (event) => {
-  const parentId = event.pathParameters.id;
+  const rootParentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
   const { start, limit } = event.queryStringParameters || {};
   let { all: fetchAll } = event.queryStringParameters || {};
 
   /* Get collection from resource path */
-  const parentCollection = pathToCollection(event.requestContext.resourcePath);
+  const rootParentCollection = pathToCollection(event.requestContext.resourcePath);
 
   try {
-    if (!parentId || !parentCollection) {
+    if (!rootParentId || !rootParentCollection) {
       throw new Error('Missing arguments');
     }
 
@@ -31,8 +31,8 @@ export default async (event) => {
     }
 
     [
-      parentId,
-      parentCollection,
+      rootParentId,
+      rootParentCollection,
     ].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('Wrong argument type');
@@ -51,8 +51,8 @@ export default async (event) => {
 
     const results = await getChildrenUserGeneratedContents(
       appId,
-      parentId,
-      parentCollection,
+      rootParentId,
+      rootParentCollection,
       start,
       limit,
       fetchAll,

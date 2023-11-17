@@ -7,7 +7,14 @@ const {
   COLL_USER_GENERATED_CONTENTS,
 } = mongoCollections;
 
-export default async (appId, parentId, parentCollection, start, limit, fetchAll = false) => {
+export default async (
+  appId,
+  rootParentId,
+  rootParentCollection,
+  start,
+  limit,
+  fetchAll = false,
+) => {
   let client;
   try {
     client = await MongoClient.connect();
@@ -24,8 +31,8 @@ export default async (appId, parentId, parentCollection, start, limit, fetchAll 
     const pipeline = [
       {
         $match: {
-          parentId,
-          parentCollection,
+          rootParentId,
+          rootParentCollection,
           trashed: false,
           appId,
           ...(fetchAll ? {} : moderatedContentFilter),
