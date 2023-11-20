@@ -1,4 +1,3 @@
-import hashLoginToken from '../../account/lib/hashLoginToken';
 import { WordpressAPI } from '../../libs/backends/wordpress';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -52,10 +51,10 @@ function havePendingBadges(user) {
   return (false);
 }
 
-export default async function getBanners(appId, {
+export default async function getPressModals(appId, {
   type = null,
   articleId = null,
-}, { userId, loginToken }) {
+}, { userId, loginTokenObj }) {
   const client = await MongoClient.connect();
 
   try {
@@ -113,6 +112,7 @@ export default async function getBanners(appId, {
       const systemikRhModals = {
         lessThan30days: {
           _id: 'systemikrh-modal-lessThan30days',
+          type: 'app',
           zindex: 10,
           html: `<div class="mobile-modal-1 mobile-modal-whitefg" style="background: #fff3cd; color: #E4A11B ;">
   <h2 style="margin: 0; text-align:center">Votre adhésion expire dans moins dde 30 jours !</h2>
@@ -127,6 +127,8 @@ export default async function getBanners(appId, {
         },
         expired: {
           _id: 'systemikrh-modal-expired',
+          type: 'app',
+          appId: '0a65572c-c6fc-4687-9411-d31929e60dd9',
           zindex: 10,
           html: `<div class="mobile-modal-1 mobile-modal-whitefg" style="background: #f8d7da; color: #8e2f38;">
   <h2 style="margin: 0; text-align:center">Votre adhésion a expirée !</h2>
@@ -145,21 +147,16 @@ export default async function getBanners(appId, {
 
       const wpApi = new WordpressAPI(app);
 
-      if (!loginToken) return (modals);
-      const hashedToken = hashLoginToken(loginToken);
-      const loginTokenObj = dbUser.services.resume.loginTokens.find(
-        (itm) => (itm.hashedToken === hashedToken),
-      );
-
       if (!loginTokenObj) return (modals);
 
       try {
-        const response = await wpApi.authCall(
+        let response = await wpApi.authCall(
           'GET',
           '/crowdaa-sync/v1/systemikrh/userStatus',
           loginTokenObj.wpToken,
           null,
         );
+        response = JSON.parse(response);
         if (!response || !response.status || !systemikRhModals[response.status]) {
           return (modals);
         }
