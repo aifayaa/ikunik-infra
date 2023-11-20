@@ -1,7 +1,10 @@
+import hashLoginToken from '../../account/lib/hashLoginToken';
+import { WordpressAPI } from '../../libs/backends/wordpress';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
+  COLL_APPS,
   COLL_PRESS_MODALS,
   COLL_USERS,
 } = mongoCollections;
@@ -52,7 +55,7 @@ function havePendingBadges(user) {
 export default async function getBanners(appId, {
   type = null,
   articleId = null,
-}, { userId }) {
+}, { userId, loginToken }) {
   const client = await MongoClient.connect();
 
   try {
@@ -105,6 +108,70 @@ export default async function getBanners(appId, {
         return (acc);
       }, {})
     ));
+
+    if (appId === '77408f0a-ef4a-4339-8827-25ed684e5a26') {
+      const systemikRhModals = {
+        lessThan30days: {
+          _id: 'systemikrh-modal-lessThan30days',
+          zindex: 10,
+          html: `<div class="mobile-modal-1 mobile-modal-whitefg" style="background: #fff3cd; color: #E4A11B ;">
+  <h2 style="margin: 0; text-align:center">Votre adhésion expire dans moins dde 30 jours !</h2>
+  <h3 style="margin: 5%; text-align:center">Cliquez sur le bouton ci-dessous pour la renouveler.</h3>
+
+
+
+  <div style="text-align: right;">
+    <a href="https://systemik-rh.fr/adhesion/" style="display: inline-block; padding: 1em 1em; background-color: #00968f; border-radius: 5px; width: auto; height: 2em; line-height: 1.2em; font-weight: bold; color:white; font-size:1.2em">Renouveler</a>
+  </div>
+</div>`,
+        },
+        expired: {
+          _id: 'systemikrh-modal-expired',
+          zindex: 10,
+          html: `<div class="mobile-modal-1 mobile-modal-whitefg" style="background: #f8d7da; color: #8e2f38;">
+  <h2 style="margin: 0; text-align:center">Votre adhésion a expirée !</h2>
+  <h3 style="margin: 5%; text-align:center">Cliquez sur le bouton ci-dessous pour la renouveler.</h3>
+
+  <div style="text-align: right;">
+    <a href="https://systemik-rh.fr/adhesion/" style="display: inline-block; padding: 1em 1em; background-color: #00968f; border-radius: 5px; width: auto; height: 2em; line-height: 1.2em; font-weight: bold; color:white; font-size:1.2em">Renouveler</a>
+  </div>
+</div>`,
+        },
+      };
+
+      const app = await client.db().collection(COLL_APPS).findOne({
+        _id: appId,
+      });
+
+      const wpApi = new WordpressAPI(app);
+
+      if (!loginToken) return (modals);
+      const hashedToken = hashLoginToken(loginToken);
+      const loginTokenObj = dbUser.services.resume.loginTokens.find(
+        (itm) => (itm.hashedToken === hashedToken),
+      );
+
+      if (!loginTokenObj) return (modals);
+
+      try {
+        const response = await wpApi.authCall(
+          'GET',
+          '/crowdaa-sync/v1/systemikrh/userStatus',
+          loginTokenObj.wpToken,
+          null,
+        );
+        if (!response || !response.status || !systemikRhModals[response.status]) {
+          return (modals);
+        }
+
+        return ([
+          ...modals,
+          systemikRhModals[response.status],
+        ]);
+      } catch (e) {
+        /* Ignore error */
+      }
+    }
 
     return (modals);
   } finally {
