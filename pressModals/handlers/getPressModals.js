@@ -10,10 +10,9 @@ export default async (event) => {
       principalId: userId,
     } = event.requestContext.authorizer;
     const searchParams = event.queryStringParameters || {};
-
     const modals = await getPressModals(appId, searchParams, {
       userId,
-      loginToken: loginToken && JSON.parse(loginToken),
+      loginTokenObj: loginToken && JSON.parse(loginToken),
     });
 
     return response({ code: 200, body: modals });
