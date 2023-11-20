@@ -1,7 +1,10 @@
+import hashLoginToken from '../../account/lib/hashLoginToken';
+import { WordpressAPI } from '../../libs/backends/wordpress';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
+  COLL_APPS,
   COLL_PRESS_MODALS,
   COLL_USERS,
 } = mongoCollections;
@@ -52,7 +55,7 @@ function havePendingBadges(user) {
 export default async function getBanners(appId, {
   type = null,
   articleId = null,
-}, { userId }) {
+}, { userId, loginToken }) {
   const client = await MongoClient.connect();
 
   try {
@@ -105,6 +108,58 @@ export default async function getBanners(appId, {
         return (acc);
       }, {})
     ));
+
+    if (appId === '77408f0a-ef4a-4339-8827-25ed684e5a26') {
+      const systemikRhModals = {
+        lessThan30days: {
+          _id: 'systemikrh-modal-lessThan30days',
+          appId: '0a65572c-c6fc-4687-9411-d31929e60dd9',
+          loggedIn: false,
+          zindex: 10,
+          html: "<div class=\"mobile-modal-1 mobile-modal-whitefg\" style=\"background: radial-gradient(#103057, #041936); color: white;\">\n  <h2 style=\"margin: 0\">DEVENEZ MEMBRE PREMIUM</h2>\n  <h3 style=\"margin: 0\">de BASEBALL TV FRANCE</h3>\n\n  <ul>\n    <li><b>Liker</b> les articles qui vous plaisent</li>\n    <li><b>Commenter et partager</b> sur les articles et lives</li>\n    <li><b>Publier</b> vos propres articles sur la communauté</li>\n    <li><b>Profiter</b> d'avantages et cadeaux lors des événements <b>BASEBALL TV FRANCE</b></li>\n  </ul>\n\n  <div style=\"text-align: right;\">\n    <Login style=\"display: inline-block; padding: 0 1em; background-color: rgb(208, 17, 24); border-radius: 1.5em; width: auto; height: 2em; line-height: 1em; font-weight: bold;\">S'INSCRIRE</Login>\n  </div>\n</div>\n",
+        },
+        expired: {
+          _id: 'systemikrh-modal-expired',
+          appId: '0a65572c-c6fc-4687-9411-d31929e60dd9',
+          loggedIn: false,
+          zindex: 10,
+          html: "<div class=\"mobile-modal-1 mobile-modal-whitefg\" style=\"background: radial-gradient(#103057, #041936); color: white;\">\n  <h2 style=\"margin: 0\">DEVENEZ MEMBRE PREMIUM</h2>\n  <h3 style=\"margin: 0\">de BASEBALL TV FRANCE</h3>\n\n  <ul>\n    <li><b>Liker</b> les articles qui vous plaisent</li>\n    <li><b>Commenter et partager</b> sur les articles et lives</li>\n    <li><b>Publier</b> vos propres articles sur la communauté</li>\n    <li><b>Profiter</b> d'avantages et cadeaux lors des événements <b>BASEBALL TV FRANCE</b></li>\n  </ul>\n\n  <div style=\"text-align: right;\">\n    <Login style=\"display: inline-block; padding: 0 1em; background-color: rgb(208, 17, 24); border-radius: 1.5em; width: auto; height: 2em; line-height: 1em; font-weight: bold;\">S'INSCRIRE</Login>\n  </div>\n</div>\n",
+        },
+      };
+
+      const app = await client.db().collection(COLL_APPS).findOne({
+        _id: appId,
+      });
+
+      const wpApi = new WordpressAPI(app);
+
+      if (!loginToken) return (modals);
+      const hashedToken = hashLoginToken(loginToken);
+      const loginTokenObj = dbUser.services.resume.loginTokens.find(
+        (itm) => (itm.hashedToken === hashedToken),
+      );
+
+      if (!loginTokenObj) return (modals);
+
+      try {
+        const response = await wpApi.authCall(
+          'GET',
+          '/crowdaa-sync/v1/systemikrh/userStatus',
+          loginTokenObj.wpToken,
+          null,
+        );
+        if (!response || !response.status || !systemikRhModals[response.status]) {
+          return (modals);
+        }
+
+        return ([
+          ...modals,
+          systemikRhModals[response.status],
+        ]);
+      } catch (e) {
+        /* Ignore error */
+      }
+    }
 
     return (modals);
   } finally {
