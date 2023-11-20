@@ -6,11 +6,15 @@ export default async (event) => {
   try {
     const {
       appId,
+      loginToken,
       principalId: userId,
     } = event.requestContext.authorizer;
     const searchParams = event.queryStringParameters || {};
 
-    const modals = await getPressModals(appId, searchParams, { userId });
+    const modals = await getPressModals(appId, searchParams, {
+      userId,
+      loginToken: loginToken && JSON.parse(loginToken),
+    });
 
     return response({ code: 200, body: modals });
   } catch (e) {
