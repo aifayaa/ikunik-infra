@@ -114,14 +114,12 @@ export default async function getPressModals(appId, {
           _id: 'systemikrh-modal-lessThan30days',
           type: 'app',
           zindex: 10,
-          html: `<div class="mobile-modal-1 mobile-modal-whitefg" style="background: #fff3cd; color: #E4A11B ;">
-  <h2 style="margin: 0; text-align:center">Votre adhésion expire dans moins dde 30 jours !</h2>
+          html: `<div class="mobile-modal-1" style="background: #fff3cd; color: #E4A11B !important;">
+  <h2 style="margin: 0; text-align:center">Votre adhésion expire dans moins de 30 jours !</h2>
   <h3 style="margin: 5%; text-align:center">Cliquez sur le bouton ci-dessous pour la renouveler.</h3>
 
-
-
   <div style="text-align: right;">
-    <a href="https://systemik-rh.fr/adhesion/" style="display: inline-block; padding: 1em 1em; background-color: #00968f; border-radius: 5px; width: auto; height: 2em; line-height: 1.2em; font-weight: bold; color:white; font-size:1.2em">Renouveler</a>
+    <a href="https://systemik-rh.fr/adhesion/" style="display: inline-block; padding: 0 1em; background-color: #00968f; border-radius: 5px; width: auto; height: 2em; line-height: 1.2em; font-weight: bold; color:white !important; font-size:1.2em">Renouveler</a>
   </div>
 </div>`,
         },
@@ -130,12 +128,12 @@ export default async function getPressModals(appId, {
           type: 'app',
           appId: '0a65572c-c6fc-4687-9411-d31929e60dd9',
           zindex: 10,
-          html: `<div class="mobile-modal-1 mobile-modal-whitefg" style="background: #f8d7da; color: #8e2f38;">
+          html: `<div class="mobile-modal-1 " style="background: #f8d7da; color: #8e2f38 !important;">
   <h2 style="margin: 0; text-align:center">Votre adhésion a expirée !</h2>
   <h3 style="margin: 5%; text-align:center">Cliquez sur le bouton ci-dessous pour la renouveler.</h3>
 
   <div style="text-align: right;">
-    <a href="https://systemik-rh.fr/adhesion/" style="display: inline-block; padding: 1em 1em; background-color: #00968f; border-radius: 5px; width: auto; height: 2em; line-height: 1.2em; font-weight: bold; color:white; font-size:1.2em">Renouveler</a>
+    <a href="https://systemik-rh.fr/adhesion/" style="display: inline-block; padding: 0 1em; background-color: #00968f; border-radius: 5px; width: auto; height: 2em; line-height: 1.2em; font-weight: bold; color:white !important; font-size:1.2em">Renouveler</a>
   </div>
 </div>`,
         },
