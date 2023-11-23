@@ -377,6 +377,21 @@ functions:
               paths:
                 id: true
 
+  editUserSettings:
+    handler: handlers/editUserSettings.default
+    events:
+      - http:
+          path: users/{id}/settings
+          method: put
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
+
   editProfile:
     handler: handlers/editProfile.default
     events:
