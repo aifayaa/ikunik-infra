@@ -6,6 +6,7 @@ import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import { getUserLanguage } from '../../libs/intl/intl';
 import mongoCollections from '../../libs/mongoCollections.json';
+import sendNewUGCPushNotifications from '../lib/sendPushNotifications';
 
 /* Collections from environment */
 const {
@@ -38,6 +39,7 @@ export default async (event) => {
       data,
       parentId,
       parentType,
+      replyTo,
       rootParentType,
       type,
     } = bodyParsed;
@@ -129,6 +131,21 @@ export default async (event) => {
     );
 
     const lang = getUserLanguage(event.headers);
+
+    try {
+      await sendNewUGCPushNotifications({
+        appId,
+        parentCollection,
+        parentId,
+        replyTo,
+        rootParentCollection,
+        rootParentId,
+        userId,
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log('Error when sending push notifications', e);
+    }
 
     /*
       try to send email to appAdmin
