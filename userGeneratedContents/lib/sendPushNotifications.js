@@ -2,6 +2,7 @@ import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from 'mongodb/lib/mongo_client';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
+import { formatMessage, intlInit } from '../../libs/intl/intl';
 
 const { REGION, STAGE } = process.env;
 
@@ -56,8 +57,9 @@ async function sendNotificationFor({
 }
 
 export default async function sendNewUGCPushNotifications({
-  appId,
   // parentCollection,
+  appId,
+  lang,
   parentId,
   replyTo,
   rootParentCollection,
@@ -67,6 +69,9 @@ export default async function sendNewUGCPushNotifications({
   const client = await MongoClient.connect();
 
   try {
+    intlInit(lang);
+
+    const sentTo = [];
     let rootUgc = null;
     const fromUser = await client
       .db()
@@ -86,12 +91,13 @@ export default async function sendNewUGCPushNotifications({
       if (rootUgc && rootUgc.userId !== userId) {
         await sendNotificationFor({
           appId,
-          content: `L'utilisateur ${fromUser.profile.username} a commenté votre publication`,
+          content: formatMessage('ugc:ugc_post_replied_push.text', { username: fromUser.profile.username }),
           extraData: { userArticleId: rootParentCollection },
           notifSettingsField: 'ugc_post_replies',
-          title: 'Nouveau commentaire',
+          title: formatMessage('ugc:ugc_post_replied_push.title'),
           userId: rootUgc.userId,
         }, client);
+        sentTo.push(rootUgc.userId);
       }
     }
 
@@ -103,7 +109,7 @@ export default async function sendNewUGCPushNotifications({
           _id: replyTo || parentId,
           appId,
         });
-      if (ugc && ugc.userId !== userId) {
+      if (ugc && ugc.userId !== userId && sentTo.indexOf(ugc.userId) < 0) {
         const extraData = (
           rootParentCollection === COLL_USER_GENERATED_CONTENTS
             ? { userArticleId: rootParentCollection }
@@ -111,12 +117,13 @@ export default async function sendNewUGCPushNotifications({
         );
         await sendNotificationFor({
           appId,
-          content: `L'utilisateur ${fromUser.profile.username} a répondu à votre commentaire`,
+          content: formatMessage('ugc:ugc_comment_replied_push.text', { username: fromUser.profile.username }),
           extraData,
           notifSettingsField: 'ugc_comment_replies',
-          title: 'Nouvelle réponse',
+          title: formatMessage('ugc:ugc_comment_replied_push.title'),
           userId: ugc.userId,
         }, client);
+        sentTo.push(ugc.userId);
       }
     }
   } finally {

@@ -135,6 +135,7 @@ export default async (event) => {
     try {
       await sendNewUGCPushNotifications({
         appId,
+        lang,
         parentCollection,
         parentId,
         replyTo,
