@@ -36,7 +36,7 @@ async function sendNotificationFor({
   const canSend = objGet(toUser, ['settings', 'notifications', notifSettingsField], true);
 
   if (!toUser || !canSend) {
-    return;
+    return (false);
   }
 
   await lambda.invoke({
@@ -54,6 +54,8 @@ async function sendNotificationFor({
       },
     }),
   }).promise();
+
+  return (true);
 }
 
 export default async function sendNewUGCPushNotifications({
@@ -89,7 +91,7 @@ export default async function sendNewUGCPushNotifications({
           appId,
         });
       if (rootUgc && rootUgc.userId !== userId) {
-        await sendNotificationFor({
+        const sent = await sendNotificationFor({
           appId,
           content: formatMessage('ugc:ugc_post_replied_push.text', { username: fromUser.profile.username }),
           extraData: { userArticleId: rootParentCollection },
@@ -97,7 +99,9 @@ export default async function sendNewUGCPushNotifications({
           title: formatMessage('ugc:ugc_post_replied_push.title'),
           userId: rootUgc.userId,
         }, client);
-        sentTo.push(rootUgc.userId);
+        if (sent) {
+          sentTo.push(rootUgc.userId);
+        }
       }
     }
 
@@ -115,7 +119,7 @@ export default async function sendNewUGCPushNotifications({
             ? { userArticleId: rootParentCollection }
             : { articleId: rootParentCollection }
         );
-        await sendNotificationFor({
+        const sent = await sendNotificationFor({
           appId,
           content: formatMessage('ugc:ugc_comment_replied_push.text', { username: fromUser.profile.username }),
           extraData,
@@ -123,7 +127,9 @@ export default async function sendNewUGCPushNotifications({
           title: formatMessage('ugc:ugc_comment_replied_push.title'),
           userId: ugc.userId,
         }, client);
-        sentTo.push(ugc.userId);
+        if (sent) {
+          sentTo.push(ugc.userId);
+        }
       }
     }
   } finally {
