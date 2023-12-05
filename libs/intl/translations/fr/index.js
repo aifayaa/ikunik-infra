@@ -146,6 +146,14 @@ export default {
       article: ugcDataArticleEmailHtml,
       comment: ugcDataCommentEmailHtml,
     },
+    ugc_post_replied_push: {
+      text: 'L\'utilisateur {{- username}} a commenté votre publication',
+      title: 'Nouveau commentaire',
+    },
+    ugc_comment_replied_push: {
+      text: 'L\'utilisateur {{- username}} a répondu à votre commentaire',
+      title: 'Nouvelle réponse',
+    },
   },
   liveStream: {
     view_stream_html_page: liveStreamView,

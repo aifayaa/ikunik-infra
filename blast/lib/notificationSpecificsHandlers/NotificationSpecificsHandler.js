@@ -1,11 +1,13 @@
 import PressArticleHandler from './PressArticleHandler';
 import UGCHandler from './UGCHandler';
 import ChatMessageHandler from './ChatMessageHandler';
+import UsersDirectPushHandler from './UsersDirectPushHandler';
 
 const handlers = {
   pressArticle: PressArticleHandler,
   userArticle: UGCHandler,
   'chat-message': ChatMessageHandler,
+  usersDirectPush: UsersDirectPushHandler,
 };
 
 function NotificationSpecificsHandler(client, appId, rootNotifQueue) {

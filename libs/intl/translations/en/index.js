@@ -163,6 +163,14 @@ export default {
       article: ugcDataArticleEmailHtml,
       comment: ugcDataCommentEmailHtml,
     },
+    ugc_post_replied_push: {
+      text: 'User {{- username}} commented your post',
+      title: 'New comment',
+    },
+    ugc_comment_replied_push: {
+      text: 'User {{- username}} replied to your comment',
+      title: 'New response',
+    },
   },
   liveStream: {
     view_stream_html_page: liveStreamView,
