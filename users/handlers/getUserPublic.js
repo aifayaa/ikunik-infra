@@ -26,6 +26,7 @@ export default async (event) => {
       'username',
       'optIn',
       'previewForAdmin',
+      'settings',
     ]);
     results.perms = perms;
     try {
@@ -51,7 +52,6 @@ export default async (event) => {
     }
     return response({ code: 200, body: results });
   } catch (e) {
-    console.log('EUH', e);
     return response({ code: 500, message: e.message });
   }
 };

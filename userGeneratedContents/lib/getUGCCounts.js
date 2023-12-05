@@ -29,3 +29,30 @@ export const getUGCArticleCommentsCount = async (appId, ugcId) => {
 
   return (counter);
 };
+
+export const getUGCCommentsCount = async (appId, ugcId) => {
+  const counter = await getDBCounter(appId, 'userGeneratedContent-comments', ugcId, {
+    collection: COLL_USER_GENERATED_CONTENTS,
+    pipeline: [
+      {
+        $match: {
+          appId,
+          parentCollection: COLL_USER_GENERATED_CONTENTS,
+          parentId: ugcId,
+          type: 'comment',
+          trashed: false,
+          $or: [
+            { moderated: false, reviewed: true },
+            { moderated: { $exists: false }, reviewed: { $exists: false } },
+          ],
+        },
+      },
+      {
+        $count: 'total',
+      },
+    ],
+    outputField: 'total',
+  });
+
+  return (counter);
+};

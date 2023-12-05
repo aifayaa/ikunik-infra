@@ -5,6 +5,14 @@ import postUserGeneratedContents from '../lib/postUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import { getUserLanguage } from '../../libs/intl/intl';
+import mongoCollections from '../../libs/mongoCollections.json';
+import sendNewUGCPushNotifications from '../lib/sendPushNotifications';
+
+/* Collections from environment */
+const {
+  COLL_PRESS_ARTICLES,
+  COLL_USER_GENERATED_CONTENTS,
+} = mongoCollections;
 
 export default async (event) => {
   const {
@@ -19,6 +27,7 @@ export default async (event) => {
 
   /* Get collection from resource path */
   let parentCollection = pathToCollection(resourcePath);
+  let rootParentCollection = '';
 
   try {
     if (!event.body) {
@@ -27,18 +36,38 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
     const {
-      parentId,
-      type,
       data,
+      parentId,
+      parentType,
+      replyTo,
+      rootParentType,
+      type,
     } = bodyParsed;
 
     if (!parentId) {
       parentCollection = '';
+    } else {
+      if (parentType) {
+        if (parentType === 'article') {
+          parentCollection = COLL_PRESS_ARTICLES;
+        } else {
+          parentCollection = COLL_USER_GENERATED_CONTENTS;
+        }
+      }
+      if (rootParentType) {
+        if (rootParentType === 'article') {
+          rootParentCollection = COLL_PRESS_ARTICLES;
+        } else {
+          rootParentCollection = COLL_USER_GENERATED_CONTENTS;
+        }
+      }
     }
 
     /* If unspecified, use the same as parent for the rootParent */
     const rootParentId = bodyParsed.rootParentId || parentId;
-    const rootParentCollection = bodyParsed.rootParentCollection || parentCollection;
+    if (!rootParentCollection) {
+      rootParentCollection = parentCollection;
+    }
 
     if (!type || !data) {
       throw new Error('missing_arguments');
@@ -94,14 +123,30 @@ export default async (event) => {
       appId,
       parentId,
       parentCollection,
-      rootParentId || parentId,
-      rootParentCollection || parentCollection,
+      rootParentId,
+      rootParentCollection,
       userId,
       type,
       data,
     );
 
     const lang = getUserLanguage(event.headers);
+
+    try {
+      await sendNewUGCPushNotifications({
+        appId,
+        lang,
+        parentCollection,
+        parentId,
+        replyTo,
+        rootParentCollection,
+        rootParentId,
+        userId,
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log('Error when sending push notifications', e);
+    }
 
     /*
       try to send email to appAdmin

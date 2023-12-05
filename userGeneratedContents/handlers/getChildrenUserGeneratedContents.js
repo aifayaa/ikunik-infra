@@ -11,7 +11,7 @@ const permKeys = [
 export default async (event) => {
   const parentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
-  const { start, limit } = event.queryStringParameters || {};
+  const { start, limit, children = 'false' } = event.queryStringParameters || {};
   let { all: fetchAll } = event.queryStringParameters || {};
 
   /* Get collection from resource path */
@@ -55,6 +55,7 @@ export default async (event) => {
       parentCollection,
       start,
       limit,
+      children === 'true',
       fetchAll,
     );
     return response({ code: 200, body: results });
