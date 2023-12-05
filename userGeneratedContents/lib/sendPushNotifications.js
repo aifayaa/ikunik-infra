@@ -94,7 +94,7 @@ export default async function sendNewUGCPushNotifications({
         const sent = await sendNotificationFor({
           appId,
           content: formatMessage('ugc:ugc_post_replied_push.text', { username: fromUser.profile.username }),
-          extraData: { userArticleId: rootParentCollection },
+          extraData: { userArticleId: rootParentId },
           notifSettingsField: 'ugc_post_replies',
           title: formatMessage('ugc:ugc_post_replied_push.title'),
           userId: rootUgc.userId,
@@ -116,8 +116,8 @@ export default async function sendNewUGCPushNotifications({
       if (ugc && ugc.userId !== userId && sentTo.indexOf(ugc.userId) < 0) {
         const extraData = (
           rootParentCollection === COLL_USER_GENERATED_CONTENTS
-            ? { userArticleId: rootParentCollection }
-            : { articleId: rootParentCollection }
+            ? { userArticleId: rootParentId }
+            : { articleId: rootParentId }
         );
         const sent = await sendNotificationFor({
           appId,
