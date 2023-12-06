@@ -1,19 +1,11 @@
 import MongoClient from '../../libs/mongoClient';
+import defaultReactions from '../../libs/defaultReactions';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
 
 const {
   COLL_APPS,
 } = mongoCollections;
-
-const defaultReactions = [
-  'like',
-  'celebrate',
-  'support',
-  'love',
-  'insightful',
-  'funny',
-];
 
 export default async (appId, allSettings = false) => {
   let client;
@@ -50,9 +42,7 @@ export default async (appId, allSettings = false) => {
       settings: {
         public: application.settings.public,
         press: {
-          env: {
-            reactions: objGet(application, 'settings.press.env.reactions', defaultReactions.join(',')),
-          },
+          reactions: objGet(application, 'settings.press.reactions', defaultReactions),
         },
         oauth,
       },
