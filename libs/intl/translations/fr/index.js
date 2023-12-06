@@ -154,6 +154,14 @@ export default {
       text: 'L\'utilisateur {{- username}} a répondu à votre commentaire',
       title: 'Nouvelle réponse',
     },
+    ugc_post_reacted_push: {
+      text: 'L\'utilisateur {{- username}} a réagi à votre publication',
+      title: 'Nouvelle réaction',
+    },
+    ugc_comment_reacted_push: {
+      text: 'L\'utilisateur {{- username}} a réagi à à votre commentaire',
+      title: 'Nouvelle réaction',
+    },
   },
   liveStream: {
     view_stream_html_page: liveStreamView,

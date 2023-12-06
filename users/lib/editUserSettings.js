@@ -10,7 +10,9 @@ function isBool(x) {
 }
 
 export const allowedSettingsChecks = {
+  'notifications.ugc_comment_reactions': isBool,
   'notifications.ugc_comment_replies': isBool,
+  'notifications.ugc_post_reactions': isBool,
   'notifications.ugc_post_replies': isBool,
 };
 
