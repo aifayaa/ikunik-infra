@@ -171,6 +171,14 @@ export default {
       text: 'User {{- username}} replied to your comment',
       title: 'New response',
     },
+    ugc_post_reacted_push: {
+      text: 'User {{- username}} reacted to your post',
+      title: 'New reaction',
+    },
+    ugc_comment_reacted_push: {
+      text: 'User {{- username}} reacted to your comment',
+      title: 'New reaction',
+    },
   },
   liveStream: {
     view_stream_html_page: liveStreamView,
