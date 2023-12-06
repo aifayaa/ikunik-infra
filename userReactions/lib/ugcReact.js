@@ -8,6 +8,7 @@ import { formatMessage, intlInit } from '../../libs/intl/intl';
 const { REGION, STAGE } = process.env;
 
 const {
+  COLL_PRESS_ARTICLES,
   COLL_USERS,
   COLL_USER_GENERATED_CONTENTS,
 } = mongoCollections;
@@ -88,11 +89,15 @@ export default async function ugcReact(appId, ugcId, userId, reaction, { lang })
           }),
       ]);
       if (rootUgc && rootUgc.userId !== userId) {
-        const extraData = (
-          rootUgc.rootParentCollection === COLL_USER_GENERATED_CONTENTS
-            ? { userArticleId: rootUgc.rootParentId }
-            : { articleId: rootUgc.rootParentId }
-        );
+        const extraData = {};
+
+        if (!rootUgc.parentCollection) {
+          extraData.userArticleId = rootUgc._id;
+        } else if (rootUgc.rootParentCollection === COLL_PRESS_ARTICLES) {
+          extraData.articleId = rootUgc.rootParentId;
+        } else {
+          extraData.userArticleId = rootUgc.rootParentId;
+        }
 
         if (!rootUgc.parentCollection) {
           await sendNotificationFor({
