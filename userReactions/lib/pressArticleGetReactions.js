@@ -29,7 +29,7 @@ export default async function pressArticleGetReactions(
       .collection(COLL_APPS)
       .findOne({ _id: appId });
 
-    const appReactions = objGet(app, 'settings.press.reactions', defaultReactions).map(({ key }) => (key)).concat(extraReactions);
+    const appReactions = objGet(app, 'settings.press.articlesReactions', defaultReactions).map(({ key }) => (key)).concat(extraReactions);
     if (!reactionsToReturn || reactionsToReturn.length === 0) {
       reactionsToReturn = defaultReactionsList;
     }
