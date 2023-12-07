@@ -29,7 +29,7 @@ export default async function ugcGetReactions(
       .collection(COLL_APPS)
       .findOne({ _id: appId });
 
-    const appReactions = objGet(app, 'settings.press.commentsReactions', defaultReactions).map(({ key }) => (key)).concat(extraReactions);
+    const appReactions = objGet(app, 'settings.press.reactions.comments', defaultReactions).map(({ key }) => (key)).concat(extraReactions);
     if (!reactionsToReturn || reactionsToReturn.length === 0) {
       reactionsToReturn = defaultReactionsList;
     }

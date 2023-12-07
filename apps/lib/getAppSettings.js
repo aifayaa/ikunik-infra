@@ -42,8 +42,10 @@ export default async (appId, allSettings = false) => {
       settings: {
         public: application.settings.public,
         press: {
-          articlesReactions: objGet(application, 'settings.press.articlesReactions', defaultReactions),
-          commentsReactions: objGet(application, 'settings.press.commentsReactions', defaultReactions),
+          reactions: {
+            articles: objGet(application, 'settings.press.reactions.articles', defaultReactions),
+            comments: objGet(application, 'settings.press.reactions.comments', defaultReactions),
+          },
         },
         oauth,
       },
