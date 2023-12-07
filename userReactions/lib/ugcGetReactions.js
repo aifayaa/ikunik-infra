@@ -1,4 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
+import defaultReactions from '../../libs/defaultReactions';
 import getDBCounters from '../../counters/lib/getDBCounters';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
@@ -9,15 +10,11 @@ const {
   COLL_USER_REACTIONS,
 } = mongoCollections;
 
-const defaultReactions = [
-  'like',
-  'celebrate',
-  'support',
-  'love',
-  'insightful',
-  'funny',
+const extraReactions = [
   '#total',
+  '#views',
 ];
+const defaultReactionsList = defaultReactions.map(({ key }) => (key)).concat(extraReactions);
 
 export default async function ugcGetReactions(
   appId,
@@ -32,9 +29,9 @@ export default async function ugcGetReactions(
       .collection(COLL_APPS)
       .findOne({ _id: appId });
 
-    const appReactions = objGet(app, 'settings.press.env.reactions', defaultReactions);
+    const appReactions = objGet(app, 'settings.press.reactions.comments', defaultReactions).map(({ key }) => (key)).concat(extraReactions);
     if (!reactionsToReturn || reactionsToReturn.length === 0) {
-      reactionsToReturn = defaultReactions;
+      reactionsToReturn = defaultReactionsList;
     }
 
     const queries = reactionsToReturn
