@@ -48,18 +48,20 @@ export default async (event) => {
     if (!isAdmin) {
       list = list.map(({
         _id,
+        format,
+        location: loc,
+        locationOpts,
         media,
         mediaType,
         url,
-        location: loc,
-        locationOpts,
       }) => ({
         _id,
+        format,
+        location: loc,
+        locationOpts,
         media,
         mediaType,
         url,
-        location: loc,
-        locationOpts,
       }));
     }
 

@@ -30,6 +30,19 @@ export const createFieldChecks = {
         return (false);
     }
   },
+  format(val) {
+    if (val === null || val === undefined) {
+      return (true);
+    }
+
+    switch (val) {
+      case 'article':
+      case 'banner':
+        return (true);
+      default:
+        return (false);
+    }
+  },
   locationOpts(val) {
     return (typeof val === 'string');
   },
