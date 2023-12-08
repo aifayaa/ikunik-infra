@@ -5,10 +5,11 @@ const { COLL_ADVERTISEMENTS } = mongoCollections;
 
 export default async (appId, userId, {
   campaignId = null,
+  format,
+  location = 'article',
   media,
   mediaType,
   url,
-  location = 'article',
   locationOpts = '',
   limits: {
     maxDisplays = 0,
@@ -32,6 +33,7 @@ export default async (appId, userId, {
       createdBy: userId,
 
       campaignId,
+      format,
       media,
       mediaType,
       url,
