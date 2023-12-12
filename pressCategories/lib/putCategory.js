@@ -15,6 +15,7 @@ export default async ({
   color,
   forcedAuthor,
   hidden,
+  isEvent,
   name,
   order,
   parentId,
@@ -166,6 +167,7 @@ export default async ({
     const category = {
       action,
       hidden,
+      isEvent,
       name,
       parentId: parentId || null,
       pathName,
