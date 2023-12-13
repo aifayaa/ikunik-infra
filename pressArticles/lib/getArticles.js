@@ -24,6 +24,7 @@ export const getArticles = async (
   appId,
   {
     checkBadges = true,
+    eventsInterval: [eventsStart, eventsEnd] = [null, null],
     getOrphansArticles = false,
     getPictures = false,
     noDateFilter = false,
@@ -117,6 +118,35 @@ export const getArticles = async (
         $or: [
           { categoryId: { $in: categoriesIds } },
           { categoriesId: { $in: categoriesIds } },
+        ],
+      });
+    }
+
+    if (eventsStart && eventsEnd) {
+      matchArticles.$and.push({
+        eventStartDate: { $exists: true },
+        eventEndDate: { $exists: true },
+      });
+      matchArticles.$and.push({
+        $or: [
+          {
+            $and: [
+              { eventStartDate: { $gte: eventsStart } },
+              { eventStartDate: { $lte: eventsEnd } },
+            ],
+          },
+          {
+            $and: [
+              { eventEndDate: { $gte: eventsStart } },
+              { eventEndDate: { $lte: eventsEnd } },
+            ],
+          },
+          {
+            $and: [
+              { eventStartDate: { $lte: eventsStart } },
+              { eventEndDate: { $gte: eventsEnd } },
+            ],
+          },
         ],
       });
     }
