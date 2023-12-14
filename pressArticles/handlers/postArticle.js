@@ -39,6 +39,8 @@ export default async (event) => {
     let categoriesId;
     let categoryId;
     let displayOptions;
+    let eventEndDate;
+    let eventStartDate;
     let feedPicture;
     let hideFromFeed;
     let html;
@@ -71,6 +73,8 @@ export default async (event) => {
           categoriesId,
           categoryId,
           displayOptions,
+          eventEndDate,
+          eventStartDate,
           feedPicture,
           hideFromFeed,
           isWebview,
@@ -180,6 +184,8 @@ export default async (event) => {
       categoriesId,
       categoryId,
       displayOptions: displayOptions || {},
+      eventEndDate: new Date(eventEndDate || Date.now()),
+      eventStartDate: new Date(eventStartDate || Date.now()),
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
