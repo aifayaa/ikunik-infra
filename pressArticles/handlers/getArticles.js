@@ -9,12 +9,28 @@ export default async (event) => {
       category,
       limit,
       noDateFilter,
+      noPictures,
       reversedFlow,
       start,
       startDate,
     } = event.queryStringParameters || {};
+    let { eventsInterval } = event.queryStringParameters || {};
 
     const checkBadges = !!resource.match(/^\/press\/articles\/v2/);
+
+    if (eventsInterval) {
+      eventsInterval = eventsInterval.split(',').map((dateStr) => (new Date(dateStr)));
+      if (eventsInterval.length !== 2) {
+        throw new Error('mal_formed_request');
+      }
+      eventsInterval.forEach((date) => {
+        if (Number.isNaN(date.getTime())) {
+          throw new Error('mal_formed_request');
+        }
+      });
+    } else {
+      eventsInterval = [null, null];
+    }
 
     const results = await getArticles(
       category,
@@ -23,7 +39,8 @@ export default async (event) => {
       appId,
       {
         checkBadges,
-        getPictures: true,
+        eventsInterval,
+        getPictures: (noPictures !== 'true'),
         noDateFilter: (noDateFilter === 'true'),
         reversedFlow: (reversedFlow === 'true'),
         startDate,

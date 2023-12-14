@@ -7,6 +7,8 @@ const common = {
   categoryId: true,
   createdAt: true,
   displayOptions: true,
+  eventEndDate: true,
+  eventStartDate: true,
   isWebview: true,
   likes: true,
   mediaCaptions: true,
