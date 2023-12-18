@@ -29,7 +29,7 @@ functions:
     handler: handlers/createPoll.default
     events:
       - http:
-          path: admin/polls/
+          path: admin/press/polls/
           method: post
           cors: true
           authorizer:
@@ -44,7 +44,7 @@ functions:
     handler: handlers/updatePoll.default
     events:
       - http:
-          path: admin/polls/{id}
+          path: admin/press/polls/{id}
           method: put
           cors: true
           authorizer:
@@ -59,7 +59,7 @@ functions:
     handler: handlers/deletePoll.default
     events:
       - http:
-          path: admin/polls/{id}
+          path: admin/press/polls/{id}
           method: delete
           cors: true
           authorizer:
@@ -74,7 +74,7 @@ functions:
     handler: handlers/getPolls.default
     events:
       - http:
-          path: admin/polls/
+          path: admin/press/polls/
           method: get
           cors: true
           authorizer:
@@ -85,7 +85,7 @@ functions:
               headers:
                 Authorization: true
       - http:
-          path: polls/
+          path: press/polls/
           method: get
           cors: true
           authorizer:
@@ -96,7 +96,7 @@ functions:
     handler: handlers/getPoll.default
     events:
       - http:
-          path: admin/polls/{id}
+          path: admin/press/polls/{id}
           method: get
           cors: true
           authorizer:
@@ -107,7 +107,7 @@ functions:
               headers:
                 Authorization: true
       - http:
-          path: polls/{id}
+          path: press/polls/{id}
           method: get
           cors: true
           authorizer:
@@ -118,7 +118,7 @@ functions:
     handler: handlers/vote.default
     events:
       - http:
-          path: polls/{id}/vote
+          path: press/polls/{id}/vote
           method: put
           cors: true
           authorizer:
@@ -142,8 +142,14 @@ package:
 resources:
   Outputs:
     RestApiRootResourcePressPollsId:
-      Description: Api Gateway pressPollsIdVar ID
+      Description: Api Gateway pressPolls ID
       Value:
-        Ref: ApiGatewayResourcePressPollsIdVar
+        Ref: ApiGatewayResourcePressPolls
       Export:
         Name: ${self:service}:${self:provider.stage}:RestApiRootResourcePressPollsId
+    RestApiRootResourceAdminPressPollsId:
+      Description: Api Gateway pressPolls ID
+      Value:
+        Ref: ApiGatewayResourceAdminPressPolls
+      Export:
+        Name: ${self:service}:${self:provider.stage}:RestApiRootResourceAdminPressPollsId
