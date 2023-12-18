@@ -6,6 +6,7 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const allowedPerms = ['pressArticles_all'];
 
 export default async (event) => {
+  const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
@@ -18,33 +19,37 @@ export default async (event) => {
     const {
       start = 0,
       limit = 25,
-      search,
     } = params;
 
     filters.start = parseInt(start, 10);
     filters.limit = parseInt(limit, 10);
+    filters.userId = userId;
 
     if (isAdmin) {
-      if (search) filters.search = search;
+      if (params.search) filters.search = params.search;
+    } else if (params.deviceId) {
+      filters.deviceId = params.deviceId;
     }
 
-    const polls = await getPolls(appId, filters);
+    const polls = await getPolls(appId, filters, isAdmin);
     const { count } = polls;
     let { list } = polls;
 
     if (!isAdmin) {
       const publicFields = [
         '_id',
-        'title',
-        'description',
-        'options',
-        'startDate',
-        'endDate',
-        'requires',
-        'multipleChoices',
-        'displayResults',
+        'allVotes',
         'canUpdate',
+        'description',
+        'displayResults',
+        'endDate',
+        'multipleChoices',
+        'myVotes',
+        'options',
         'publishedAt',
+        'requires',
+        'startDate',
+        'title',
       ];
 
       list = list.map((item) => (publicFields.reduce((acc, key) => {

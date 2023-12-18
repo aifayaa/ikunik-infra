@@ -106,13 +106,6 @@ functions:
             parameters:
               headers:
                 Authorization: true
-      - http:
-          path: press/polls/{id}
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
 
   vote:
     handler: handlers/vote.default
