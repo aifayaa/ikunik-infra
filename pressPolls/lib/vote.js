@@ -1,0 +1,72 @@
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_PRESS_POLLS, COLL_PRESS_POLLS_VOTES } = mongoCollections;
+
+export default async (pollId, appId, userId, deviceId, votes) => {
+  const client = await MongoClient.connect();
+
+  try {
+    const poll = await client
+      .db()
+      .collection(COLL_PRESS_POLLS)
+      .findOne({
+        _id: pollId,
+        appId,
+      });
+
+    if (!poll) {
+      throw new Error('content_not_found');
+    }
+
+    if (poll.requires === 'auth' && !userId) {
+      throw new Error('access_forbidden');
+    } else if (poll.requires === 'anon' && !deviceId) {
+      throw new Error('access_forbidden');
+    } else if (poll.require === 'none' && !userId && !deviceId) {
+      throw new Error('access_forbidden');
+    }
+
+    const voted = await client
+      .db()
+      .collection(COLL_PRESS_POLLS_VOTES)
+      .findOne({
+        appId,
+        pollId,
+        $or: [
+          { userId },
+          { deviceId },
+        ],
+      });
+
+    if (!voted) {
+      await client
+        .db()
+        .collection(COLL_PRESS_POLLS_VOTES)
+        .insertOne({
+          appId,
+          pollId,
+          userId,
+          deviceId,
+          votes,
+        });
+    } else if (poll.canUpdate) {
+      await client
+        .db()
+        .collection(COLL_PRESS_POLLS_VOTES)
+        .updateOne({
+          _id: voted._id,
+        }, {
+          $set: {
+            votes,
+          },
+        });
+    } else {
+      return (false);
+    }
+
+    return (true);
+  } finally {
+    client.close();
+  }
+};

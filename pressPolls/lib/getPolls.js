@@ -1,0 +1,52 @@
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_PRESS_POLLS } = mongoCollections;
+
+// Taken from https://stackoverflow.com/a/6969486
+function escapeRegex(str) {
+  return (str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+}
+
+export default async (appId, {
+  limit = null,
+  search = null,
+  start = null,
+}) => {
+  const client = await MongoClient.connect();
+
+  try {
+    const query = {
+      appId,
+    };
+    const options = {
+      sort: [['createdAt', -1]],
+    };
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: escapeRegex(search) } },
+        { description: { $regex: escapeRegex(search) } },
+      ];
+    }
+
+    if (start !== null) options.skip = start;
+    if (limit !== null) options.limit = limit;
+
+    const pollsList = await client
+      .db()
+      .collection(COLL_PRESS_POLLS)
+      .find(query, options)
+      .toArray();
+
+    const pollsCount = await client
+      .db()
+      .collection(COLL_PRESS_POLLS)
+      .find(query)
+      .count();
+
+    return ({ list: pollsList, count: pollsCount });
+  } finally {
+    client.close();
+  }
+};
