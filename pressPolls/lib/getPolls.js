@@ -71,7 +71,7 @@ export default async (appId, {
   start = null,
   deviceId = null,
   userId = null,
-}) => {
+}, isAdmin) => {
   const client = await MongoClient.connect();
 
   try {
@@ -104,12 +104,14 @@ export default async (appId, {
       .find(query)
       .count();
 
-    const promises = pollsList.map(async (poll, arrayId) => {
-      const pollCounters = await fetchPollCounters(poll, { appId, client, deviceId, userId });
-      pollsList[arrayId].votes = pollCounters;
-    });
+    if (!isAdmin) {
+      const promises = pollsList.map(async (poll, arrayId) => {
+        const pollCounters = await fetchPollCounters(poll, { appId, client, deviceId, userId });
+        pollsList[arrayId].votes = pollCounters;
+      });
 
-    await Promise.all(promises);
+      await Promise.all(promises);
+    }
 
     return ({ list: pollsList, count: pollsCount });
   } finally {
