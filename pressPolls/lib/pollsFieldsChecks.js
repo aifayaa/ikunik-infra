@@ -28,7 +28,7 @@ export const createFieldChecks = {
   description: isString,
   startDate: isValidDate,
   endDate: isValidDate,
-  options: (val) => {
+  options(val) {
     if (!(val instanceof Array)) {
       return (false);
     }
