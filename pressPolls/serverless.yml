@@ -45,7 +45,7 @@ functions:
     events:
       - http:
           path: admin/press/polls/{id}
-          method: put
+          method: patch
           cors: true
           authorizer:
             type: CUSTOM
