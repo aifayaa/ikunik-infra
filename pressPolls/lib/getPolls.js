@@ -79,7 +79,7 @@ export default async (appId, {
       appId,
     };
     const options = {
-      sort: [[isAdmin ? 'createdAt' : 'publishedAt', -1]],
+      sort: [['createdAt', -1]],
     };
 
     if (search) {

@@ -46,7 +46,6 @@ export default async (event) => {
         'multipleChoices',
         'myVotes',
         'options',
-        'publishedAt',
         'requires',
         'startDate',
         'title',

@@ -79,10 +79,6 @@ export const createFieldChecks = {
   canUpdate(val) {
     return (typeof val === 'boolean');
   },
-  publishedAt(val) {
-    if (val === null) return (true);
-    return (isValidDate(val));
-  },
   active(val) {
     return (typeof val === 'boolean');
   },
