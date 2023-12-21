@@ -1,4 +1,4 @@
-import MongoClient from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_POLLS, COLL_PRESS_POLLS_VOTES } = mongoCollections;
@@ -11,7 +11,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
       .db()
       .collection(COLL_PRESS_POLLS)
       .findOne({
-        _id: pollId,
+        _id: new ObjectID(pollId),
         appId,
       });
 
@@ -32,7 +32,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
       .collection(COLL_PRESS_POLLS_VOTES)
       .findOne({
         appId,
-        pollId,
+        pollId: new ObjectID(pollId),
         $or: [
           { userId },
           { deviceId },
@@ -45,7 +45,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
         .collection(COLL_PRESS_POLLS_VOTES)
         .insertOne({
           appId,
-          pollId,
+          pollId: new ObjectID(pollId),
           userId,
           deviceId,
           votes,

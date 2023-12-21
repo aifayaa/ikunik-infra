@@ -1,6 +1,5 @@
 const isString = (val) => (typeof val === 'string');
 const isNonEmptyString = (val) => (typeof val === 'string' && val.length > 0);
-const isNumber = (val) => (typeof val === 'number');
 const isValidDate = (val) => (typeof val === 'string' && !Number.isNaN((new Date(val)).getFullYear()));
 
 const checkBadgesList = (val) => {
@@ -35,7 +34,7 @@ export const createFieldChecks = {
 
     const good = val.every((item) => {
       const keysLength = Object.keys(item).length;
-      if (keysLength !== 3) {
+      if (keysLength !== 2) {
         return (false);
       }
 
@@ -43,9 +42,6 @@ export const createFieldChecks = {
         return (false);
       }
       if (!isNonEmptyString(item.text)) {
-        return (false);
-      }
-      if (!isNumber(item.initialValue)) {
         return (false);
       }
 
@@ -68,7 +64,7 @@ export const createFieldChecks = {
     if (!checkBadgesList(val.list)) {
       return (false);
     }
-    if (checkBadgesAllow(val.allow)) {
+    if (!checkBadgesAllow(val.allow)) {
       return (false);
     }
 
