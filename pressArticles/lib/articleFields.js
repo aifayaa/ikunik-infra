@@ -9,6 +9,7 @@ const common = {
   displayOptions: true,
   eventEndDate: true,
   eventStartDate: true,
+  isPoll: true,
   isWebview: true,
   likes: true,
   mediaCaptions: true,

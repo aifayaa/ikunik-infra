@@ -31,6 +31,7 @@ export default async (event) => {
       eventStartDate,
       feedPicture,
       hideFromFeed,
+      isPoll,
       isWebview,
       md = '',
       mediaCaptions,
@@ -79,8 +80,8 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
-    const html = isWebview ? md : mdToHtml(md);
-    const plainText = isWebview ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
+    const html = isWebview || isPoll ? md : mdToHtml(md);
+    const plainText = isWebview || isPoll ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
 
     const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
@@ -98,6 +99,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
+      isPoll: !!isPoll,
       isWebview: !!isWebview,
       md,
       mediaCaptions,

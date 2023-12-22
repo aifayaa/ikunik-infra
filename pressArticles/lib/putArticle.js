@@ -20,6 +20,7 @@ export const putArticle = async ({
   feedPicture,
   hideFromFeed,
   html,
+  isPoll,
   isWebview,
   md,
   mediaCaptions,
@@ -46,6 +47,7 @@ export const putArticle = async ({
     typeof html !== 'string' ||
     typeof md !== 'string' ||
     typeof pinned !== 'boolean' ||
+    typeof isPoll !== 'boolean' ||
     typeof isWebview !== 'boolean' ||
     !Array.isArray(badges) ||
     (!Array.isArray(pictures) && !Array.isArray(videos)) ||
@@ -94,6 +96,7 @@ export const putArticle = async ({
       eventStartDate,
       hideFromFeed,
       isPublished: false,
+      isPoll,
       isWebview,
       md,
       mediaCaptions,
