@@ -6,7 +6,6 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 const allowedPerms = ['pressArticles_all'];
 
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
@@ -23,28 +22,23 @@ export default async (event) => {
 
     filters.start = parseInt(start, 10);
     filters.limit = parseInt(limit, 10);
-    filters.userId = userId;
 
     if (isAdmin) {
       if (params.search) filters.search = params.search;
-    } else if (params.deviceId) {
-      filters.deviceId = params.deviceId;
     }
 
-    const polls = await getPolls(appId, filters, isAdmin);
+    const polls = await getPolls(appId, filters);
     const { count } = polls;
     let { list } = polls;
 
     if (!isAdmin) {
       const publicFields = [
         '_id',
-        'allVotes',
         'canUpdate',
         'description',
         'displayResults',
         'endDate',
         'multipleChoices',
-        'myVotes',
         'options',
         'requires',
         'startDate',

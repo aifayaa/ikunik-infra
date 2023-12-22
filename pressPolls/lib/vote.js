@@ -1,4 +1,4 @@
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_POLLS, COLL_PRESS_POLLS_VOTES } = mongoCollections;
@@ -11,7 +11,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
       .db()
       .collection(COLL_PRESS_POLLS)
       .findOne({
-        _id: new ObjectID(pollId),
+        _id: pollId,
         appId,
       });
 
@@ -20,8 +20,6 @@ export default async (pollId, appId, userId, deviceId, votes) => {
     }
 
     if (poll.requires === 'auth' && !userId) {
-      throw new Error('access_forbidden');
-    } else if (poll.requires === 'anon' && !deviceId) {
       throw new Error('access_forbidden');
     } else if (poll.require === 'none' && !userId && !deviceId) {
       throw new Error('access_forbidden');
@@ -32,7 +30,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
       .collection(COLL_PRESS_POLLS_VOTES)
       .findOne({
         appId,
-        pollId: new ObjectID(pollId),
+        pollId,
         $or: [
           { userId },
           { deviceId },
@@ -45,7 +43,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
         .collection(COLL_PRESS_POLLS_VOTES)
         .insertOne({
           appId,
-          pollId: new ObjectID(pollId),
+          pollId,
           userId,
           deviceId,
           votes,

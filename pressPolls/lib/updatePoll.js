@@ -1,4 +1,4 @@
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_POLLS } = mongoCollections;
@@ -11,7 +11,7 @@ export default async (pollId, appId, userId, toSet) => {
       .db()
       .collection(COLL_PRESS_POLLS)
       .updateOne({
-        _id: new ObjectID(pollId),
+        _id: pollId,
         appId,
       }, { $set: {
         ...toSet,
@@ -23,7 +23,7 @@ export default async (pollId, appId, userId, toSet) => {
       .db()
       .collection(COLL_PRESS_POLLS)
       .findOne({
-        _id: new ObjectID(pollId),
+        _id: pollId,
         appId,
       });
 

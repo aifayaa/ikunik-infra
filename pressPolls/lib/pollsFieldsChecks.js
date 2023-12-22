@@ -51,7 +51,7 @@ export const createFieldChecks = {
     return (good);
   },
   requires(val) {
-    return (['auth', 'anon', 'none'].indexOf(val) >= 0);
+    return (['auth', 'none'].indexOf(val) >= 0);
   },
   badges(val) {
     if (typeof val !== 'object') {

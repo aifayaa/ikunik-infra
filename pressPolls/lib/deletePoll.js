@@ -1,4 +1,4 @@
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_POLLS, COLL_PRESS_POLLS_VOTES } = mongoCollections;
@@ -11,7 +11,7 @@ export default async (pollId, appId) => {
       .db()
       .collection(COLL_PRESS_POLLS)
       .findOne({
-        _id: new ObjectID(pollId),
+        _id: pollId,
         appId,
       });
 
@@ -20,7 +20,7 @@ export default async (pollId, appId) => {
         .db()
         .collection(COLL_PRESS_POLLS)
         .deleteOne({
-          _id: new ObjectID(pollId),
+          _id: pollId,
           appId,
         });
 
@@ -28,7 +28,7 @@ export default async (pollId, appId) => {
         .db()
         .collection(COLL_PRESS_POLLS_VOTES)
         .deleteMany({
-          pollId: new ObjectID(pollId),
+          pollId,
           appId,
         });
     } else {
