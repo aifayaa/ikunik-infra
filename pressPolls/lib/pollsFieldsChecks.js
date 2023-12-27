@@ -2,26 +2,6 @@ const isString = (val) => (typeof val === 'string');
 const isNonEmptyString = (val) => (typeof val === 'string' && val.length > 0);
 const isValidDate = (val) => (typeof val === 'string' && !Number.isNaN((new Date(val)).getFullYear()));
 
-const checkBadgesList = (val) => {
-  if (!(val instanceof Array)) {
-    return (false);
-  }
-
-  const good = val.every((item) => {
-    if (!isNonEmptyString(item.id)) {
-      return (false);
-    }
-
-    return (true);
-  });
-
-  return (good);
-};
-
-const checkBadgesAllow = (val) => (
-  ['all', 'any'].indexOf(val) >= 0
-);
-
 export const createFieldChecks = {
   title: isNonEmptyString,
   description: isString,
@@ -53,23 +33,6 @@ export const createFieldChecks = {
   requires(val) {
     return (['auth', 'none'].indexOf(val) >= 0);
   },
-  badges(val) {
-    if (typeof val !== 'object') {
-      return (false);
-    }
-
-    if (Object.keys(val).length !== 2) {
-      return (false);
-    }
-    if (!checkBadgesList(val.list)) {
-      return (false);
-    }
-    if (!checkBadgesAllow(val.allow)) {
-      return (false);
-    }
-
-    return (true);
-  },
   multipleChoices(val) {
     return (typeof val === 'boolean');
   },
@@ -86,6 +49,4 @@ export const createFieldChecks = {
 
 export const updateFieldChecks = {
   ...createFieldChecks,
-  'badges.list': checkBadgesList,
-  'badges.allow': checkBadgesAllow,
 };
