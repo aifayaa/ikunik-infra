@@ -59,7 +59,7 @@ preparePreprodDatabase:
     - 'test -f /.dockerenv && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - git config --global user.email "bot@crowdaa.com"
     - git config --global user.name "Crowdaa Bot"
-    - git clone --depth 1 --branch master git@gitlab.com:crowdaa/crowdaa_utils.git crowdaa_utils
+    - git clone --depth 1 --branch master git@gitlab.aws.crowdaa.com:crowdaa/crowdaa_utils.git crowdaa_utils
     - cd crowdaa_utils/js
     - npm i
     - cd ../..
