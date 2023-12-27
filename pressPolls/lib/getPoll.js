@@ -41,16 +41,25 @@ async function fetchPollCounters(poll, { appId, client, deviceId, userId }) {
   ret.allVotes = await getDBCounters(queries, { appId });
 
   if (deviceId || userId) {
+    const deviceUserMatch = {};
+    if (deviceId && userId) {
+      deviceUserMatch.$or = [
+        { userId },
+        { deviceId },
+      ];
+    } else if (deviceId) {
+      deviceUserMatch.deviceId = deviceId;
+    } else if (userId) {
+      deviceUserMatch.userId = userId;
+    }
+
     const myVotes = await client
       .db()
       .collection(COLL_PRESS_POLLS_VOTES)
       .findOne({
         appId,
         pollId: poll._id,
-        $or: [
-          { userId },
-          { deviceId },
-        ],
+        ...deviceUserMatch,
       });
     if (myVotes) {
       ret.myVotes = myVotes.votes;

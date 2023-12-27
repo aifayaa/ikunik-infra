@@ -25,16 +25,25 @@ export default async (pollId, appId, userId, deviceId, votes) => {
       throw new Error('access_forbidden');
     }
 
+    const deviceUserMatch = {};
+    if (deviceId && userId) {
+      deviceUserMatch.$or = [
+        { userId },
+        { deviceId },
+      ];
+    } else if (deviceId) {
+      deviceUserMatch.deviceId = deviceId;
+    } else if (userId) {
+      deviceUserMatch.userId = userId;
+    }
+
     const voted = await client
       .db()
       .collection(COLL_PRESS_POLLS_VOTES)
       .findOne({
         appId,
         pollId,
-        $or: [
-          { userId },
-          { deviceId },
-        ],
+        ...deviceUserMatch,
       });
 
     if (!voted) {
@@ -56,6 +65,8 @@ export default async (pollId, appId, userId, deviceId, votes) => {
           _id: voted._id,
         }, {
           $set: {
+            userId,
+            deviceId,
             votes,
           },
         });
