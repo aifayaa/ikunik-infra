@@ -169,6 +169,7 @@ pushDevToAWS:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - git pull
     - git diff --dirstat=files,0 origin/dev^ -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
@@ -187,6 +188,7 @@ pushPreprodToAWS:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - git pull
     - git diff --dirstat=files,0 origin/master -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
