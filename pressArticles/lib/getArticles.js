@@ -211,7 +211,49 @@ export const getArticles = async (
     let sortArticles = { pinned: -1, createdAt: -1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
-      if (reversedFlow) {
+      if (eventsStart || eventsEnd) {
+        sortArticles = { pinned: -1, eventStartDate: 1, createdAt: 1 };
+        matchArticles.isPublished = true;
+
+        if (!noDateFilter) {
+          if (reversedFlow) {
+            let from = startDate ? new Date(startDate) : new Date();
+            if (!from.toJSON()) {
+              from = new Date();
+            }
+
+            matchArticles.$and.push({
+              $or: [
+                {
+                  publicationDate: {
+                    $exists: false,
+                  },
+                },
+                {
+                  publicationDate: {
+                    $gte: from,
+                  },
+                },
+              ],
+            });
+          } else {
+            matchArticles.$and.push({
+              $or: [
+                {
+                  publicationDate: {
+                    $exists: false,
+                  },
+                },
+                {
+                  publicationDate: {
+                    $lte: new Date(),
+                  },
+                },
+              ],
+            });
+          }
+        }
+      } else if (reversedFlow) {
         sortArticles = { pinned: -1, publicationDate: 1, createdAt: 1 };
         matchArticles.isPublished = true;
         if (!noDateFilter) {
