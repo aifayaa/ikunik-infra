@@ -388,6 +388,19 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
           },
           opts: makeOpts('sparse'),
         },
+        {
+          name: 'crowdaa_articles_search_public2',
+          key: {
+            appId: 1,
+            trashed: 1,
+            hideFromFeed: 1,
+            categoryId: 1,
+            categoriesId: 1,
+            pinned: -1,
+            eventStartDate: -1,
+          },
+          opts: makeOpts('sparse'),
+        },
       ],
       [COLL_PRESS_DRAFTS]: [
         {
