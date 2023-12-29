@@ -16,6 +16,7 @@ export const getPurchasedArticles = async (
   userId,
   {
     categoryId = null,
+    deviceId = null,
     getPictures = true,
     limit,
     onlyPublished = true,
@@ -77,11 +78,25 @@ export const getPurchasedArticles = async (
       ];
     }
 
+    const userDeviceMatch = {};
+    if (userId && deviceId) {
+      userDeviceMatch.$or = [
+        { userId },
+        { deviceId },
+      ];
+    } else if (userId) {
+      userDeviceMatch.userId = userId;
+    } else if (deviceId) {
+      userDeviceMatch.deviceId = deviceId;
+    } else {
+      throw new Error('missing_userid_and_deviceid');
+    }
+
     let countPipeline = [
       {
         $match: {
           contentCollection: COLL_PRESS_ARTICLES,
-          userId,
+          ...userDeviceMatch,
           $and: [
             {
               $or: [

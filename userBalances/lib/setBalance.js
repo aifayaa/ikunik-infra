@@ -6,6 +6,7 @@ const { COLL_USER_BALANCES } = mongoCollections;
 export const setBalance = async (
   appId,
   userId,
+  deviceId,
   amount,
   {
     type = 'coin',
@@ -14,14 +15,26 @@ export const setBalance = async (
   const findQuery = {
     appId,
     type,
-    userId,
   };
   const insertData = {
     amount,
     appId,
     type,
     userId,
+    deviceId,
   };
+  if (userId && deviceId) {
+    findQuery.$or = [
+      { userId },
+      { deviceId },
+    ];
+  } else if (userId) {
+    findQuery.userId = userId;
+  } else if (deviceId) {
+    findQuery.deviceId = deviceId;
+  } else {
+    throw new Error('missing_userid_and_deviceid');
+  }
 
   const client = await MongoClient.connect();
 
