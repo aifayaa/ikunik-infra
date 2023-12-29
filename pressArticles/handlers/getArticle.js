@@ -12,11 +12,13 @@ export default async (event) => {
       perms,
       principalId: userId,
     } = event.requestContext.authorizer;
+    const { deviceId = null } = (event.queryStringParameters || {});
 
     const permissions = JSON.parse(perms);
     const publishedOnly = !checkPerms(permKey, permissions);
 
     const results = await getArticle(articleId, appId, {
+      deviceId,
       getPictures: true,
       publishedOnly,
       userId,

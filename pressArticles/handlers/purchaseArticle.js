@@ -14,7 +14,7 @@ export default async (event) => {
   const { deviceId = null } = (event.queryStringParameters || {});
 
   try {
-    const article = await getArticle(articleId, appId);
+    const article = await getArticle(articleId, appId, { userId, deviceId });
 
     if (!article) {
       throw new Error('article_not_found');

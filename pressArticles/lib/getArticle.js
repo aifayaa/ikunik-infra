@@ -18,6 +18,7 @@ const {
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   COLL_USERS,
+  COLL_USER_BADGES,
   COLL_VIDEOS,
 } = mongoCollections;
 
@@ -25,6 +26,7 @@ export const getArticle = async (
   id,
   appId,
   {
+    deviceId = null,
     getPictures = false,
     isServer = false,
     publishedOnly = false,
@@ -109,7 +111,19 @@ export const getArticle = async (
       },
     ];
 
-    if (userId) {
+    if (userId || deviceId) {
+      const iapLookupUserPipeline = {};
+      if (userId && deviceId) {
+        iapLookupUserPipeline.$or = [
+          { $eq: ['$userId', userId] },
+          { $eq: ['$deviceId', deviceId] },
+        ];
+      } else if (userId) {
+        iapLookupUserPipeline.$eq = ['$userId', userId];
+      } else if (deviceId) {
+        iapLookupUserPipeline.$eq = ['$deviceId', deviceId];
+      }
+
       pipeline = pipeline.concat([
         {
           $lookup: {
@@ -125,7 +139,7 @@ export const getArticle = async (
                   { $ne: ['$$articleProductId', null] },
                   { $eq: ['$contentId', '$$articleId'] },
                   { $eq: ['$contentCollection', COLL_PRESS_ARTICLES] },
-                  { $eq: ['$userId', userId] },
+                  iapLookupUserPipeline,
                 ],
               },
             } }],
@@ -323,8 +337,38 @@ export const getArticle = async (
           .findOne({ _id: userId })
         : null;
 
-      if (!isServer && (!user || user.appId !== ADMIN_APP)) {
+      if (!isServer && (!user || user.appId !== ADMIN_APP || deviceId)) {
         const userBadges = (user && user.badges) || [];
+        if (deviceId) {
+          const allIAPBadges = await await client
+            .db()
+            .collection(COLL_USER_BADGES)
+            .find({
+              appId,
+              storeProductId: { $ne: null },
+            })
+            .toArray();
+          const iapBadgesIds = allIAPBadges.map(({ _id }) => (_id));
+
+          if (iapBadgesIds.length > 0) {
+            const purchasedBadges = await client
+              .db()
+              .collection(COLL_CONTENT_PERMISSIONS)
+              .find({
+                deviceId,
+                productId: { $ne: null },
+                contentId: { $in: iapBadgesIds },
+                contentCollection: COLL_PRESS_ARTICLES,
+              })
+              .toArray();
+
+            purchasedBadges.forEach((purchase) => {
+              userBadges.push({
+                id: purchase.contentId,
+              });
+            });
+          }
+        }
 
         await badgeChecker.init;
 
