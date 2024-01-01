@@ -338,7 +338,7 @@ export const getArticle = async (
         : null;
 
       if (!isServer && (!user || user.appId !== ADMIN_APP || deviceId)) {
-        const userBadges = (user && user.badges) || [];
+        const userBadges = [...((user && user.badges) || [])];
         if (deviceId) {
           const allIAPBadges = await await client
             .db()
@@ -356,9 +356,12 @@ export const getArticle = async (
               .collection(COLL_CONTENT_PERMISSIONS)
               .find({
                 deviceId,
-                productId: { $ne: null },
                 contentId: { $in: iapBadgesIds },
-                contentCollection: COLL_PRESS_ARTICLES,
+                contentCollection: COLL_USER_BADGES,
+                $or: [
+                  { 'permissions.all': true },
+                  { 'permissions.read': true },
+                ],
               })
               .toArray();
 
