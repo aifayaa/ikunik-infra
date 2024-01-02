@@ -33,6 +33,9 @@ describe('handlers - validatePurchase', () => {
         principalId: 'userId',
       },
     },
+    queryStringParameters: {
+      deviceId: 'deviceId',
+    },
     body: JSON.stringify({ transaction: {} }),
   };
 
@@ -246,12 +249,14 @@ describe('handlers - validatePurchase', () => {
 
       it('should return 200', async () => {
         const { appId, principalId: userId } = baseEvent.requestContext.authorizer;
+        const { deviceId } = baseEvent.queryStringParameters;
         const response = await handler(appleEvent);
         const price = parseFloat(articlePrices.article_05);
         sinon.assert.calledWith(
           stubLibAddBalance,
           appId,
           userId,
+          deviceId,
           price,
         );
         expect(response.statusCode).to.eq(200);
@@ -308,12 +313,14 @@ describe('handlers - validatePurchase', () => {
 
       it('test', async () => {
         const { appId, principalId: userId } = baseEvent.requestContext.authorizer;
+        const { deviceId } = baseEvent.queryStringParameters;
         const response = await handler(googleEvent);
         const price = parseFloat(articlePrices.article_05);
         sinon.assert.calledWith(
           stubLibAddBalance,
           appId,
           userId,
+          deviceId,
           price,
         );
         expect(response.statusCode).to.eq(200);
