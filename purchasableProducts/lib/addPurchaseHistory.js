@@ -6,6 +6,7 @@ const { COLL_PURCHASES } = mongoCollections;
 export const addPurchaseHistory = async ({
   appId,
   bodyParsed,
+  deviceId,
   productId,
   purchaseData,
   userId,
@@ -14,8 +15,9 @@ export const addPurchaseHistory = async ({
   // Maybe we shouln't store those fields ?
   const insertData = {
     appId,
-    request: JSON.stringify(bodyParsed),
+    deviceId,
     productId,
+    request: JSON.stringify(bodyParsed),
     response: JSON.stringify(purchaseData),
     userId,
   };

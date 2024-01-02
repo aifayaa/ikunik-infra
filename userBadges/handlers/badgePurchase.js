@@ -17,6 +17,7 @@ export default async (event) => {
     loginToken,
     principalId: userId,
   } = event.requestContext.authorizer;
+  const { deviceId = null } = (event.queryStringParameters || {});
 
   try {
     const badge = await getBadge(badgeId, appId);
@@ -31,20 +32,35 @@ export default async (event) => {
       throw new Error('product_not_found');
     }
 
-    const balance = await getBalance(appId, userId, { type: badge.storeProductId });
+    const balance = await getBalance(appId, userId, deviceId, { type: badge.storeProductId });
 
     if (!balance || price > balance.amount) {
       throw new Error('not_enough_wealth');
     }
 
-    const operationStatus = await setBalance(appId, userId, 0, { type: badge.storeProductId });
+    const operationStatus = await setBalance(
+      appId,
+      userId,
+      deviceId,
+      0,
+      {
+        type: badge.storeProductId,
+      },
+    );
     if (!operationStatus) {
       throw new Error('balance_update_failed');
     }
 
-    const results = await setContentPermissions(appId, userId, badgeId, COLL_USER_BADGES, {
-      permissions: { all: false, read: true, write: false },
-    });
+    const results = await setContentPermissions(
+      appId,
+      userId,
+      deviceId,
+      badgeId,
+      COLL_USER_BADGES,
+      {
+        permissions: { all: false, read: true, write: false },
+      },
+    );
 
     await toggleUserBadgeToUser(badgeId, appId, { action: 'add', userId });
 

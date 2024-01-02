@@ -15,6 +15,7 @@ const { COLL_APPS } = mongoCollections;
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
+  const { deviceId = null } = (event.queryStringParameters || {});
 
   const client = await MongoClient.connect();
   try {
@@ -116,8 +117,8 @@ export default async (event) => {
       const price = articlePrices[productId];
       // @TODO : checks if price is defined ?
 
-      await addBalance(appId, userId, parseFloat(price));
-      await addPurchaseHistory({ appId, userId, productId, bodyParsed, purchaseData });
+      await addBalance(appId, userId, deviceId, parseFloat(price));
+      await addPurchaseHistory({ appId, userId, deviceId, productId, bodyParsed, purchaseData });
 
       const responseBody = { ok: true, data: validatedData };
       return response({ code: 200, body: responseBody });
@@ -126,8 +127,8 @@ export default async (event) => {
     if (badgePrices[productId]) {
       const price = badgePrices[productId];
 
-      await setBalance(appId, userId, price, { type: productId });
-      await addPurchaseHistory({ appId, userId, productId, bodyParsed, purchaseData });
+      await setBalance(appId, userId, deviceId, price, { type: productId });
+      await addPurchaseHistory({ appId, userId, deviceId, productId, bodyParsed, purchaseData });
 
       const responseBody = { ok: true, data: validatedData };
       return response({ code: 200, body: responseBody });
