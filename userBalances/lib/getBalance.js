@@ -11,19 +11,20 @@ export const getBalance = async (
     type = 'coin',
   } = {},
 ) => {
-  const query = {
+  const findQuery = {
     appId,
     type,
   };
   if (userId && deviceId) {
-    query.$or = [
+    findQuery.$or = [
       { userId },
-      { deviceId },
+      { deviceId, userId: null },
     ];
   } else if (userId) {
-    query.userId = userId;
+    findQuery.userId = userId;
   } else if (deviceId) {
-    query.deviceId = deviceId;
+    findQuery.deviceId = deviceId;
+    findQuery.userId = null;
   } else {
     throw new Error('missing_userid_and_deviceid');
   }
@@ -34,7 +35,7 @@ export const getBalance = async (
     return await client
       .db()
       .collection(COLL_USER_BALANCES)
-      .findOne(query);
+      .findOne(findQuery);
   } finally {
     client.close();
   }

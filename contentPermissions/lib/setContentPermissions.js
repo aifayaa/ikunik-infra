@@ -33,12 +33,13 @@ export const setContentPermissions = async (
   if (userId && deviceId) {
     findQuery.$or = [
       { userId },
-      { deviceId },
+      { deviceId, userId: null },
     ];
   } else if (userId) {
     findQuery.userId = userId;
   } else if (deviceId) {
     findQuery.deviceId = deviceId;
+    findQuery.userId = null;
   } else {
     throw new Error('missing_userid_and_deviceid');
   }
