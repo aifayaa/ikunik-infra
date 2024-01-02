@@ -6,15 +6,28 @@ const { COLL_USER_BALANCES } = mongoCollections;
 export const getBalance = async (
   appId,
   userId,
+  deviceId,
   {
     type = 'coin',
   } = {},
 ) => {
-  const query = {
+  const findQuery = {
     appId,
     type,
-    userId,
   };
+  if (userId && deviceId) {
+    findQuery.$or = [
+      { userId },
+      { deviceId, userId: null },
+    ];
+  } else if (userId) {
+    findQuery.userId = userId;
+  } else if (deviceId) {
+    findQuery.deviceId = deviceId;
+    findQuery.userId = null;
+  } else {
+    throw new Error('missing_userid_and_deviceid');
+  }
 
   const client = await MongoClient.connect();
 
@@ -22,7 +35,7 @@ export const getBalance = async (
     return await client
       .db()
       .collection(COLL_USER_BALANCES)
-      .findOne(query);
+      .findOne(findQuery);
   } finally {
     client.close();
   }

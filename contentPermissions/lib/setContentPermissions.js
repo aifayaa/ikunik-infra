@@ -7,6 +7,7 @@ const { COLL_CONTENT_PERMISSIONS } = mongoCollections;
 export const setContentPermissions = async (
   appId,
   userId,
+  deviceId,
   contentId,
   contentCollection,
   options = {},
@@ -19,7 +20,6 @@ export const setContentPermissions = async (
   const findQuery = {
     contentCollection,
     contentId,
-    userId,
   };
   const insertData = {
     contentCollection,
@@ -28,7 +28,21 @@ export const setContentPermissions = async (
     expiresAt,
     permissions,
     userId,
+    deviceId,
   };
+  if (userId && deviceId) {
+    findQuery.$or = [
+      { userId },
+      { deviceId, userId: null },
+    ];
+  } else if (userId) {
+    findQuery.userId = userId;
+  } else if (deviceId) {
+    findQuery.deviceId = deviceId;
+    findQuery.userId = null;
+  } else {
+    throw new Error('missing_userid_and_deviceid');
+  }
 
   const client = await MongoClient.connect();
 
@@ -60,7 +74,7 @@ export const setContentPermissions = async (
       return await client
         .db()
         .collection(COLL_CONTENT_PERMISSIONS)
-        .updateOne(findQuery, update);
+        .updateOne({ _id: contentPermissions._id }, update);
     }
 
     return insertData;

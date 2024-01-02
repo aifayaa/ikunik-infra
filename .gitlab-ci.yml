@@ -129,6 +129,8 @@ incrementVersion:
     - git config --global user.email "bot@crowdaa.com"
     - git config --global user.name "Crowdaa Bot"
   script:
+    - git checkout "$CI_COMMIT_BRANCH"
+    - git pull
     - |
       case "$CI_COMMIT_TITLE" in
         "Merge branch 'release/"*)
@@ -137,19 +139,20 @@ incrementVersion:
           export NEW_VERSION=$(npm version patch --no-git-tag-version);;
       esac
     - git add package*.json
-    - git checkout master
     - git commit --allow-empty -m "Auto-upgrade version to $NEW_VERSION"
     - SSH_REPOSITORY_URL=$(echo "${CI_REPOSITORY_URL}" | sed -e 's|https\?://gitlab-ci-token:.*@|ssh://git@|g')
     - git remote set-url origin "$SSH_REPOSITORY_URL"
     - git fetch
     - git push origin master
     - git checkout dev
+    - git pull
     - git merge --no-ff master
     - git push origin dev
     - |
       releases=$(git branch -a --no-merged origin/master | awk '{ print $1 }' | grep '^remotes/origin/release/' | sed -e 's~^remotes/origin/~~')
       for release in $releases; do
         git checkout "$release"
+        git pull
         git merge --no-ff master
         git push origin "$release"
       done
