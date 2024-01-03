@@ -44,6 +44,7 @@ export default async (event) => {
     let feedPicture;
     let hideFromFeed;
     let html;
+    let isPoll;
     let isWebview;
     let likes;
     let md;
@@ -77,6 +78,7 @@ export default async (event) => {
           eventStartDate,
           feedPicture,
           hideFromFeed,
+          isPoll,
           isWebview,
           likes,
           md = '',
@@ -99,7 +101,7 @@ export default async (event) => {
          * - https://github.com/stiang/remove-markdown/issues/35
          * - https://stackoverflow.com/questions/2407870/javascript-regex-hangs-using-v8
          */
-        if (isWebview) {
+        if (isWebview || isPoll) {
           plainText = md;
           html = md;
         } else {
@@ -189,6 +191,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
+      isPoll: !!isPoll,
       isWebview: !!isWebview,
       likes,
       md,

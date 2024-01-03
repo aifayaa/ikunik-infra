@@ -216,6 +216,13 @@ export default {
       },
     },
   },
+  pressPolls: {
+    export: {
+      col_name: 'Username',
+      col_uid: 'User ID',
+      col_device: 'Device ID',
+    },
+  },
   userBadges: {
     user_badge_request: {
       title: '[{{- appName}}] User {{- username}} requested access to the permission {{- badgeName}}',
