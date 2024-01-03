@@ -49,7 +49,7 @@ export function pollResultsToCsv(pollResults) {
     if (vote.user) {
       if (vote.user.profile) {
         if (vote.user.profile.firstname || vote.user.profile.lastname) {
-          line.push(`${vote.user.profile.firstname} ${vote.user.profile.lastname}`);
+          line.push((`${vote.user.profile.firstname || ''} ${vote.user.profile.lastname || ''}`).trim());
         } else if (vote.user.profile.username) {
           line.push(vote.user.profile.username);
         } else if (vote.user.profile.email) {
