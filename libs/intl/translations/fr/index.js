@@ -199,6 +199,13 @@ export default {
       },
     },
   },
+  pressPolls: {
+    export: {
+      col_name: 'Utilisateur',
+      col_uid: 'ID utilisateur',
+      col_device: 'ID périphérique',
+    },
+  },
   userBadges: {
     user_badge_request: {
       title: '[{{- appName}}] L\'utilisateur {{- username}} a demandé l\'accès à la permission {{- badgeName}}',

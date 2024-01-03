@@ -59,7 +59,7 @@ preparePreprodDatabase:
     - 'test -f /.dockerenv && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - git config --global user.email "bot@crowdaa.com"
     - git config --global user.name "Crowdaa Bot"
-    - git clone --depth 1 --branch master git@gitlab.com:crowdaa/crowdaa_utils.git crowdaa_utils
+    - git clone --depth 1 --branch master git@gitlab.aws.crowdaa.com:crowdaa/crowdaa_utils.git crowdaa_utils
     - cd crowdaa_utils/js
     - npm i
     - cd ../..
@@ -172,6 +172,7 @@ pushDevToAWS:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - git fetch
     - git diff --dirstat=files,0 origin/dev^ -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList
@@ -190,6 +191,7 @@ pushPreprodToAWS:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - git fetch
     - git diff --dirstat=files,0 origin/master -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
     - rm -f diffList

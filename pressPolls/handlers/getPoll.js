@@ -1,0 +1,45 @@
+import getPoll from '../lib/getPoll';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
+import { checkPerms } from '../../libs/perms/checkPerms';
+
+const allowedPerms = ['pressArticles_all'];
+export default async (event) => {
+  const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
+  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const pollId = event.pathParameters.id;
+  const params = (event.queryStringParameters || {});
+
+  try {
+    const isAdmin = checkPerms(allowedPerms, perms);
+
+    let poll = await getPoll(pollId, appId, { userId, deviceId: params.deviceId });
+
+    if (!isAdmin) {
+      const publicFields = [
+        '_id',
+        'allVotes',
+        'canUpdate',
+        'description',
+        'displayResults',
+        'endDate',
+        'multipleChoices',
+        'myVotes',
+        'options',
+        'requires',
+        'startDate',
+        'title',
+      ];
+
+      poll = publicFields.reduce((acc, key) => {
+        acc[key] = poll[key];
+        return (acc);
+      }, {});
+    }
+
+    return response({ code: 200, body: poll });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
+  }
+};
