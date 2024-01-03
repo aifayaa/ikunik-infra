@@ -7,7 +7,7 @@ const {
   COLL_PRESS_POLLS_VOTES,
 } = mongoCollections;
 
-async function fetchPollCounters(poll, { appId, client, deviceId, userId }) {
+export async function fetchPollCounters(poll, { appId, client, deviceId, userId }) {
   const { options } = poll;
 
   const queries = options
