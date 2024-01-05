@@ -14,7 +14,7 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
-    const deleteRefs = await deleteUser(userId, appId);
+    const deleteRefs = await deleteUser(urlId, appId);
     return response({ code: 200, body: deleteRefs });
   } catch (e) {
     return response({ code: 500, message: e.message });
