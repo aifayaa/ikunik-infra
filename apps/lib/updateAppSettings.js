@@ -55,6 +55,7 @@ const allowedSettings = [
   'press.env.registerWithCrowdaa',
   'press.env.signInWithApple',
   'press.env.signInWithCrowdaa',
+  'press.env.displayPopularCategories',
   'press.env.signInWithFacebook',
   'press.env.signInWithSAML',
   'press.env.startTab',
