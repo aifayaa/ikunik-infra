@@ -15,6 +15,17 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  getPictures:
+    handler: handlers/getPictures.default
+    events:
+      - http:
+          path: pictures
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
   getPicture:
     handler: handlers/getPicture.default
     events:
