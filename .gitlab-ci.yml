@@ -158,8 +158,8 @@ incrementVersion:
       done
   artifacts:
     paths:
-      - "package.json"
-      - "package-lock.json"
+      - 'package.json'
+      - 'package-lock.json'
   rules:
     - if: $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_TITLE !~ /^Auto-upgrade version to /i
 
@@ -167,7 +167,7 @@ pushDevToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: "crowdaa-ci/ms/dev/in"
+    S3_BUCKET_NAME: 'crowdaa-ci/ms/dev/in'
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
@@ -186,7 +186,7 @@ pushDevToPreprodAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: "crowdaa-ci-fr/ms/preprod/in"
+    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/preprod/in'
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
@@ -202,7 +202,7 @@ pushPreprodToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: "crowdaa-ci-fr/ms/preprod/in"
+    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/preprod/in'
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
@@ -221,7 +221,7 @@ pushProdUsToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: "crowdaa-ci/ms/prod/in"
+    S3_BUCKET_NAME: 'crowdaa-ci/ms/prod/in'
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
@@ -236,7 +236,7 @@ pushProdFrToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: "crowdaa-ci-fr/ms/prod/in"
+    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/prod/in'
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
@@ -260,7 +260,7 @@ buildDevApiDoc:
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       changes:
-        - "*/swagger/*"
+        - '*/swagger/*'
         - swagger/**/*
   artifacts:
     expire_in: 1 hrs
@@ -271,7 +271,7 @@ deployDevApiDoc:
   image: python:latest
   stage: deployApiDoc
   variables:
-    S3_BUCKET_NAME: "dev-api.crowdaa.com"
+    S3_BUCKET_NAME: 'dev-api.crowdaa.com'
   before_script:
     - pip install awscli
   script:
@@ -281,7 +281,7 @@ deployDevApiDoc:
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       changes:
-        - "*/swagger/*"
+        - '*/swagger/*'
         - swagger/**/*
 
 buildPreprodApiDoc:
@@ -297,7 +297,7 @@ buildPreprodApiDoc:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
       changes:
-        - "*/swagger/*"
+        - '*/swagger/*'
         - swagger/**/*
   artifacts:
     expire_in: 1 hrs
@@ -308,7 +308,7 @@ deployPreprodApiDoc:
   image: python:latest
   stage: deployApiDoc
   variables:
-    S3_BUCKET_NAME: "preprod-api.crowdaa.com"
+    S3_BUCKET_NAME: 'preprod-api.crowdaa.com'
   before_script:
     - pip install awscli
   script:
@@ -318,7 +318,7 @@ deployPreprodApiDoc:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
       changes:
-        - "*/swagger/*"
+        - '*/swagger/*'
         - swagger/**/*
 
 buildProdApiDoc:
@@ -334,7 +334,7 @@ buildProdApiDoc:
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-.*/
       changes:
-        - "*/swagger/*"
+        - '*/swagger/*'
         - swagger/**/*
   artifacts:
     expire_in: 1 hrs
@@ -345,7 +345,7 @@ deployProdApiDoc:
   image: python:latest
   stage: deployApiDoc
   variables:
-    S3_BUCKET_NAME: "api.crowdaa.com"
+    S3_BUCKET_NAME: 'api.crowdaa.com'
   before_script:
     - pip install awscli
   script:
@@ -355,5 +355,5 @@ deployProdApiDoc:
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-.*/
       changes:
-        - "*/swagger/*"
+        - '*/swagger/*'
         - swagger/**/*
