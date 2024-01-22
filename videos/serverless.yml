@@ -15,6 +15,17 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  getVideos:
+    handler: handlers/getVideos.default
+    events:
+      - http:
+          path: videos
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
   getVideoThumbLocation:
     handler: handlers/getVideoThumbLocation.default
     events:
