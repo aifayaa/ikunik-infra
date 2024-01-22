@@ -15,6 +15,17 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  getDocuments:
+    handler: handlers/getDocuments.default
+    events:
+      - http:
+          path: documents
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+
   getDocument:
     handler: handlers/getDocument.default
     events:
