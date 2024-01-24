@@ -23,6 +23,7 @@ export default async (event) => {
     }
 
     const results = await getCategories(appId, true, {
+      checkBadges: false,
       fetchMaxOrder,
       limit: -1,
       parentId,
