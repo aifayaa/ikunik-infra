@@ -3,12 +3,15 @@ import getProfile from '../lib/getProfile';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const { pathParameters, requestContext } = event;
-  const { appId, principalId: userId } = requestContext.authorizer;
-  const { id } = pathParameters;
+  const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
+  const urlId = event.pathParameters.id;
+  if (userId !== urlId) {
+    return response({ code: 403, message: 'Forbidden' });
+  }
 
   try {
-    if (userId !== id) {
+    if (userId !== urlId) {
       return response({ code: 403, message: 'Forbidden' });
     }
     const results = await getProfile(userId, appId);

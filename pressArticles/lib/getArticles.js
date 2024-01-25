@@ -17,69 +17,12 @@ const {
   COLL_VIDEOS,
 } = mongoCollections;
 
-const getDraftLookupArray = (appId) => [
-  {
-    $lookup: {
-      from: COLL_PRESS_DRAFTS,
-      as: 'draft',
-      let: {
-        articleId: '$_id',
-      },
-      pipeline: [
-        {
-          $match: {
-            appId,
-            $expr: {
-              /* Can probably add more expr in here to lighten the request more */
-              $eq: ['$articleId', '$$articleId'],
-            },
-          },
-        },
-        {
-          $sort: {
-            createdAt: -1,
-          },
-        },
-        {
-          $group: {
-            _id: '$articleId',
-            createdAt: { $first: '$createdAt' },
-            title: { $first: '$title' },
-          },
-        },
-      ],
-    },
-  },
-  {
-    $unwind: {
-      path: '$draft',
-      preserveNullAndEmptyArrays: true,
-    },
-  },
-];
-
-const getSortArticlesArray = (onlyPublished, admin) => {
-  let $sort = { pinned: -1, createdAt: -1 };
-  if (admin) {
-    $sort = {
-      pinned: -1,
-      isPublished: 1,
-      sortPublicationDate: -1,
-      'draft.createdAt': -1,
-    };
-  } else if (onlyPublished) {
-    $sort = { pinned: -1, publicationDate: -1 };
-  }
-  return [{ $sort }];
-};
-
 export const getArticles = async (
   categoryId,
   start,
   limit,
   appId,
   {
-    admin = false,
     getPictures = false,
     checkBadges = true,
     eventsInterval: [eventsStart, eventsEnd] = [null, null],
@@ -302,21 +245,6 @@ export const getArticles = async (
     let articlesPipeline = [
       { $match: matchArticles },
       { $sort: sortArticles },
-      {
-        $addFields: {
-          sortPublicationDate: {
-            $cond: {
-              if: {
-                $eq: ['$isPublished', true],
-              },
-              then: '$publicationDate',
-              else: 0,
-            },
-          },
-        },
-      },
-      ...getDraftLookupArray(appId),
-      ...getSortArticlesArray(onlyPublished, admin),
       { $skip: parseInt(start, 10) || 0 },
       { $limit: parseInt(limit, 10) || 10 },
       {
@@ -454,9 +382,10 @@ export const getArticles = async (
         },
       ]);
     }
-
     /* Group stage could break sorting, ensure all is well sorted */
-    articlesPipeline.push(...getSortArticlesArray(onlyPublished, admin));
+    articlesPipeline.push({
+      $sort: sortArticles,
+    });
 
     const [articles = [], total = 0] = await Promise.all([
       client

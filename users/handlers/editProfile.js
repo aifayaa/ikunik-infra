@@ -3,13 +3,13 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const { pathParameters, requestContext } = event;
-  const { appId, principalId: userId } = requestContext.authorizer;
-  const { id } = pathParameters;
+  const userId = event.requestContext.authorizer.principalId;
+  const { appId } = event.requestContext.authorizer;
+  const urlId = event.pathParameters.id;
 
   try {
     // Only restricting to self for now, should allow admin users later
-    if (userId !== id) {
+    if (userId !== urlId) {
       throw new Error('forbidden');
     }
 
@@ -19,7 +19,6 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
     const {
-      avatar,
       username,
     } = bodyParsed;
 
@@ -33,10 +32,6 @@ export default async (event) => {
 
     if (username.length < 2) {
       throw new Error('username too short');
-    }
-
-    if (avatar && typeof avatar !== 'string') {
-      throw new Error('wrong_argument_type');
     }
 
     const results = await editProfile(userId, appId, bodyParsed);
