@@ -12,6 +12,7 @@ const common = {
   isPoll: true,
   isWebview: true,
   likes: true,
+  md: true,
   mediaCaptions: true,
   pdfs: true,
   pdfsOpenButton: true,

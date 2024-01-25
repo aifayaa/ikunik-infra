@@ -13,7 +13,15 @@ const {
 export default async (
   appId,
   showHidden = false,
-  { start, limit, countOnly = false, fetchMaxOrder = false, parentId = false, userId = null },
+  {
+    checkBadges = true,
+    countOnly = false,
+    fetchMaxOrder = false,
+    limit,
+    parentId = false,
+    start,
+    userId = null,
+  },
 ) => {
   const client = await MongoClient.connect();
   const badgeChecker = new BadgeChecker(appId);
@@ -103,7 +111,7 @@ export default async (
         .findOne({ _id: userId })
       : null;
 
-    if (!user || user.appId !== ADMIN_APP) {
+    if (checkBadges && (!user || user.appId !== ADMIN_APP)) {
       const userBadges = (user && user.badges) || [];
 
       await badgeChecker.init;

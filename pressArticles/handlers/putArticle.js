@@ -1,10 +1,15 @@
 import removeMd from 'remove-markdown';
+
+import checkActions from '../lib/checks/checkActions';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
+import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
-import checkActions from '../lib/checks/checkActions';
+import { queueArticleNotifications } from '../lib/notificationsQueue';
+
 import articlePrices from '../articlePrices.json';
+import { getArticle } from '../lib/getArticle';
 
 const permKey = 'pressArticles_all';
 
@@ -18,6 +23,11 @@ export default async (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
+    const {
+      autoPublish,
+      sendNotifications = false,
+    } = event.queryStringParameters || {};
+
     const bodyParsed = JSON.parse(event.body);
     const {
       articleId,
@@ -123,6 +133,27 @@ export default async (event) => {
       videoPlayMode,
       videos,
     });
+
+    if (autoPublish === 'true') {
+      const article = await getArticle(articleId, appId, { isServer: true });
+      await publishArticle(
+        userId,
+        appId,
+        results.articleId,
+        results.draftId,
+        article.publicationDate || new Date(),
+      );
+      results.published = true;
+      if (sendNotifications === 'true') {
+        await queueArticleNotifications(
+          appId,
+          results.articleId,
+          results.draftId,
+          new Date(),
+        );
+        results.notificationSent = true;
+      }
+    }
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });

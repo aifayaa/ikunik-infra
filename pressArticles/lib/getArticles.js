@@ -23,10 +23,10 @@ export const getArticles = async (
   limit,
   appId,
   {
+    getPictures = false,
     checkBadges = true,
     eventsInterval: [eventsStart, eventsEnd] = [null, null],
     getOrphansArticles = false,
-    getPictures = false,
     noDateFilter = false,
     onlyPublished = true,
     reversedFlow = false,

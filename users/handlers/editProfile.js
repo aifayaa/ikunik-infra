@@ -1,4 +1,5 @@
 import editProfile from '../lib/editProfile';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
@@ -9,7 +10,7 @@ export default async (event) => {
   try {
     // Only restricting to self for now, should allow admin users later
     if (userId !== urlId) {
-      throw new Error('Forbidden');
+      throw new Error('forbidden');
     }
 
     if (!event.body) {
@@ -36,11 +37,6 @@ export default async (event) => {
     const results = await editProfile(userId, appId, bodyParsed);
     return response({ code: 200, body: { updated: results } });
   } catch (e) {
-    let code = 500;
-    switch (e.message) {
-      case 'Forbidden': code = 403; break;
-      default: code = 500; break;
-    }
-    return response({ code, message: e.message });
+    return response(errorMessage(e));
   }
 };

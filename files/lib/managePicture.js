@@ -77,6 +77,7 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   const { data: resizeBuffer, info } = await Sharp(body, options)
     .rotate()
     .resize(resizeOpts)
+    .flatten({ background: { r: 255, g: 255, b: 255 } })
     .toFormat('jpeg')
     .toBuffer({ resolveWithObject: true });
 

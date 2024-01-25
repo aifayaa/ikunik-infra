@@ -62,7 +62,7 @@ describe('handlers - editProfile', () => {
     it('should return 403', async () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(403);
-      expect(JSON.parse(response.body).message).to.eq('Forbidden');
+      expect(JSON.parse(response.body).message).to.eq('forbidden');
     });
 
     after(() => {
@@ -106,7 +106,7 @@ describe('handlers - editProfile', () => {
         username: 2,
       });
       const response = await handler(event);
-      expect(response.statusCode).to.eq(500);
+      expect(response.statusCode).to.eq(400);
     });
 
     it('event.body.username is too short', async () => {
