@@ -13,7 +13,6 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
     const results = await getArticles(category, start, limit, appId, {
-      admin: true,
       getOrphansArticles: (!category),
       onlyPublished: false,
       showHiddenOnFeed: true,
