@@ -167,6 +167,7 @@ export default async (appId, urlArgs) => {
       avatar,
     } = jwt.decode(jwtToken);
 
+    let newUser = false;
     let user = await client
       .db()
       .collection(COLL_USERS)
@@ -183,6 +184,7 @@ export default async (appId, urlArgs) => {
         .toArray())
         .map((badge) => ({ id: badge._id }));
 
+      newUser = true;
       user = {
         _id: Random.id(),
         createdAt: new Date(),
@@ -210,6 +212,10 @@ export default async (appId, urlArgs) => {
         badges,
       };
 
+      if (avatar) {
+        user.profile.avatar = `https://${decodeURIComponent(avatar)}`;
+      }
+
       await client.db().collection(COLL_USERS).insertOne(user);
     } else {
       await client.db().collection(COLL_USERS).updateOne({
@@ -218,9 +224,9 @@ export default async (appId, urlArgs) => {
         username,
       }, {
         $set: {
-          'services.oauth.exp': exp,
           'services.oauth.authTime': authTime,
           'services.oauth.avatar': avatar,
+          'services.oauth.exp': exp,
           'services.oauth.qrCodeContent': qrCodeContent,
         },
         $addToSet: {
@@ -232,7 +238,7 @@ export default async (appId, urlArgs) => {
       });
     }
 
-    if (!user || user.services.oauth.qrCodeContent !== qrCodeContent) {
+    if (newUser || user.services.oauth.qrCodeContent !== qrCodeContent) {
       await QRCode.toFile(
         '/tmp/avatar.png',
         qrCodeContent,
@@ -263,8 +269,8 @@ export default async (appId, urlArgs) => {
         username,
       }, {
         $set: {
-          'profile.avatar': avatarUrl,
-          'profile.avatarId': uploadParams.id,
+          'profile.qrcodeImage': avatarUrl,
+          'profile.qrcodeImageId': uploadParams.id,
         },
       });
     }
