@@ -88,6 +88,13 @@ export default async (inputUsername, inputPassword, appId) => {
 
     await metricsTimer.save(client);
 
+    if (response.error || response.error_description) {
+      throw new Error(`${response.error}: ${response.error_description}`);
+    }
+    if (!response.access_token) {
+      throw new Error('missing_access_token');
+    }
+
     const jwtToken = response.access_token;
 
     const {

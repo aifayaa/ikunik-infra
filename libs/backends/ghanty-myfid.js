@@ -117,7 +117,9 @@ MyFidApi.prototype.userLogin = async function userLogin(username, password) {
   const params = {
     method: 'POST',
     uri,
-    headers: {},
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   };
 
   const body = new URLSearchParams();
