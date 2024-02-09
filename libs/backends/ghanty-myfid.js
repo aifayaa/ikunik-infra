@@ -112,6 +112,33 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
   return (response);
 };
 
+MyFidApi.prototype.userLogin = async function userLogin(username, password) {
+  const uri = this.myfidbackend.userLoginUrl;
+  const params = {
+    method: 'POST',
+    uri,
+    headers: {},
+  };
+
+  const body = new URLSearchParams();
+  Object.keys(this.myfidbackend.userLoginBody).forEach((key) => {
+    body.append(key, this.myfidbackend.userLoginBody[key]);
+  });
+
+  body.append('username', username);
+  body.append('password', password);
+
+  params.body = body.toString();
+
+  let response = await request(params);
+
+  if (typeof response === 'string') {
+    response = JSON.parse(response);
+  }
+
+  return (response);
+};
+
 export {
   MyFidApi,
 };
