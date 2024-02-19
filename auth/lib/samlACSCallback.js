@@ -4,6 +4,7 @@ import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';
 import mongoCollections from '../../libs/mongoCollections.json';
 import postLoginChecks from './postLoginChecks';
+import postLoginChecksv2 from './postLoginChecksv2';
 import { WordpressAPI } from '../../libs/backends/wordpress';
 
 const {
@@ -149,7 +150,11 @@ export default async (samlLoginId, key, loginXmlData) => {
       throw new Error('Multiple users found for these parameters');
     }
 
-    await postLoginChecks({ userId }, app, 'saml-login');
+    if (appId === '5452b03b-700d-42ab-9e87-aa95df1d5f3b') {
+      await postLoginChecksv2({ userId }, app, 'saml-login');
+    } else {
+      await postLoginChecks({ userId }, app, 'saml-login');
+    }
 
     user = await client
       .db()
