@@ -453,6 +453,22 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
           },
           opts: makeOpts('sparse'),
         },
+        {
+          name: 'crowdaa_userMetrics_query_mau1',
+          key: {
+            appId: 1,
+            createdAt: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_userMetrics_query_mau2',
+          key: {
+            appId: 1,
+            updatedAt: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
       ],
       [COLL_PICTURES]: [
         {

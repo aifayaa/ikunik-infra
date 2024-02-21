@@ -37,7 +37,7 @@ export default async (
             deviceId,
             userId: null,
           },
-          { $set: { userId } },
+          { $set: { userId, modifiedAt: new Date() } },
         ),
     ]);
 

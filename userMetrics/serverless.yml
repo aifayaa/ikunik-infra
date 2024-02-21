@@ -41,6 +41,21 @@ functions:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
+  getMAU:
+    handler: handlers/getMAU.default
+    events:
+      - http:
+          path: userMetrics/monthlyActiveUsers
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              paths:
+                id: true
+
   getUserMetrics:
     handler: handlers/getUserMetrics.default
     events:
