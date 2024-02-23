@@ -17,8 +17,8 @@ export default async (appId) => {
     }
     const fidApi = new MyFidApi(app);
     metricsTimer.start();
-    await fidApi.renewTokenIfNeeded(client);
-    metricsTimer.print('renewTokenIfNeeded');
+    await fidApi.renewAPITokenIfNeeded(client);
+    metricsTimer.print('renewAPITokenIfNeeded');
 
     metricsTimer.start();
     const response = await fidApi.call('/malls');
