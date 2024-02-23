@@ -1,0 +1,20 @@
+import resetPassword from '../lib/resetPassword';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
+
+export default async (event) => {
+  const { appId } = event.requestContext.authorizer;
+
+  try {
+    if (!event.body) {
+      throw new Error('mal_formed_request');
+    }
+
+    const bodyParsed = JSON.parse(event.body);
+
+    const res = await resetPassword(appId, bodyParsed);
+    return response({ code: 200, body: { ok: true, response: res } });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
+  }
+};

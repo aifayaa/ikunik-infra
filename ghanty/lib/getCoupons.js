@@ -27,8 +27,8 @@ export default async (
     }
     const fidApi = new MyFidApi(app);
     metricsTimer.start();
-    await fidApi.renewTokenIfNeeded(client);
-    metricsTimer.print('renewTokenIfNeeded');
+    await fidApi.renewAPITokenIfNeeded(client);
+    metricsTimer.print('renewAPITokenIfNeeded');
 
     const pageSize = parseInt(options.pageSize || '20', 10);
     const page = parseInt(options.page || '0', 10) + 1;
