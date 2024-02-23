@@ -2,7 +2,6 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import MetricsTimer from './metricsTimer';
-import login from './login';
 
 const {
   COLL_APPS,
@@ -61,14 +60,11 @@ export default async (
 
     await metricsTimer.save(client);
 
-    let loginResp = null;
-    try {
-      loginResp = await login(email, password, appId);
-    } catch (e) {
-      loginResp = { error: `${e}` };
+    if (registerResp.status !== 'success') {
+      throw new Error(registerResp.message);
     }
 
-    return ({ register: registerResp, login: loginResp });
+    return (registerResp);
   } finally {
     client.close();
   }
