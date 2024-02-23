@@ -14,7 +14,8 @@ export default async (event) => {
 
     const { email, username = null, password, profile = {} } = JSON.parse(event.body);
 
-    if (!typeCheck('[String]', [email, username, password])) throw new Error('wrong_argument_type');
+    if (!typeCheck('[String]', [email, password])) throw new Error('wrong_argument_type');
+    if (!typeCheck('[Object]', [profile])) throw new Error('wrong_argument_type');
     if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
 
     const { userId } = await adminRegister({
