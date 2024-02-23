@@ -14,7 +14,7 @@ export const crowdaaRegister = async (
   rawEmail,
   password,
   app,
-  { firstname, lastname } = {},
+  profile = {},
 ) => {
   const client = await MongoClient.connect();
   const { _id: appId } = app;
@@ -70,8 +70,7 @@ export const crowdaaRegister = async (
         },
         appId,
         profile: {
-          firstname,
-          lastname,
+          ...profile,
           username,
           email,
         },
