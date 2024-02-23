@@ -147,8 +147,8 @@ export default async (inputUsername, inputPassword, appId) => {
           },
           {
             $set: {
-              'services.oauth.loginAt': new Date(),
-              'services.oauth.qrCodeContent': qrCodeContent,
+              'services.ghantyLogin.loginAt': new Date(),
+              'services.ghantyLogin.qrCodeContent': qrCodeContent,
             },
             $addToSet: {
               'services.resume.loginTokens': {
@@ -160,7 +160,7 @@ export default async (inputUsername, inputPassword, appId) => {
         );
     }
 
-    if (newUser || user.services.oauth.qrCodeContent !== qrCodeContent) {
+    if (newUser || user.services.ghantyLogin.qrCodeContent !== qrCodeContent) {
       await QRCode.toFile('/tmp/qrcode.png', qrCodeContent, { width: 256 });
 
       const fileStats = await fs.promises.stat('/tmp/qrcode.png');
