@@ -2,6 +2,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import MetricsTimer from './metricsTimer';
+import deleteUser from '../../users/lib/deleteUser';
 
 const {
   COLL_APPS,
@@ -11,7 +12,6 @@ const {
 export default async (
   appId,
   userId,
-  proposalId,
 ) => {
   const client = await MongoClient.connect();
   const metricsTimer = new MetricsTimer(__filename.replace(/.*\//, ''));
@@ -26,16 +26,41 @@ export default async (
     }
     const fidApi = new MyFidApi(app);
     metricsTimer.start();
-    await fidApi.renewAPITokenIfNeeded(client);
-    metricsTimer.print('renewAPITokenIfNeeded');
+    await fidApi.renewLoginTokenIfNeeded(client);
+    metricsTimer.print('renewLoginTokenIfNeeded');
 
-    metricsTimer.start();
-    const response = await fidApi.call(`/users/${user.username}/proposal/${proposalId}/offers`);
-    metricsTimer.print('GET proposal', { proposalId, username: user.username });
+    // metricsTimer.start();
+    // const response = await fidApi.call(`/...`, {
+    //   method: 'POST',
+    //   body: {
+    //     addressCity,
+    //     addressCountry,
+    //     addressLine1,
+    //     addressLine2,
+    //     addressPostalCode,
+    //     allowEmail,
+    //     allowSms,
+    //     birthday,
+    //     civility,
+    //     email,
+    //     favoriteBrand1,
+    //     favoriteBrand2,
+    //     favoriteBrand3,
+    //     favoriteShopArea,
+    //     firstname,
+    //     idClient,
+    //     lastname,
+    //     mobilePhone,
+    //   },
+    // });
+    // metricsTimer.print('POST ...', { data? });
+
+    await deleteUser(userId, appId);
 
     await metricsTimer.save(client);
 
-    return (response);
+    // return (response);
+    return (true);
   } finally {
     client.close();
   }
