@@ -33,8 +33,8 @@ MyFidApi.prototype.isApiLoggedIn = function isApiLoggedIn() {
 MyFidApi.prototype.isLoginLoggedIn = function isLoginLoggedIn() {
   const aBitLaterDate = new Date(Date.now() + 30 * 1000);
   if (
-    !this.myfidbackend.loginAccessToken.value ||
-    this.myfidbackend.loginAccessToken.expires <= aBitLaterDate
+    !this.myfidbackend.accountApiAccessToken.value ||
+    this.myfidbackend.accountApiAccessToken.expires <= aBitLaterDate
   ) {
     return (false);
   }
@@ -89,15 +89,15 @@ MyFidApi.prototype.renewLoginTokenIfNeeded = async function renewLoginTokenIfNee
   }
 
   const body = new URLSearchParams();
-  if (this.myfidbackend.loginAccessBody) {
-    Object.keys(this.myfidbackend.loginAccessBody).forEach((key) => {
-      body.append(key, this.myfidbackend.loginAccessBody[key]);
+  if (this.myfidbackend.accountApiAccessBody) {
+    Object.keys(this.myfidbackend.accountApiAccessBody).forEach((key) => {
+      body.append(key, this.myfidbackend.accountApiAccessBody[key]);
     });
   }
 
   const params = {
     method: 'POST',
-    url: this.myfidbackend.loginAccessUrl,
+    url: `${this.myfidbackend.accountApiUrl}/moserver/token`,
     body: body.toString(),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -116,12 +116,12 @@ MyFidApi.prototype.renewLoginTokenIfNeeded = async function renewLoginTokenIfNee
     access_token: value,
   } = response;
 
-  this.myfidbackend.loginAccessToken.value = value;
-  this.myfidbackend.loginAccessToken.expires = new Date(Date.now() + expiresIn * 1000);
-  this.myfidbackend.loginAccessToken.tokenType = tokenType;
+  this.myfidbackend.accountApiAccessToken.value = value;
+  this.myfidbackend.accountApiAccessToken.expires = new Date(Date.now() + expiresIn * 1000);
+  this.myfidbackend.accountApiAccessToken.tokenType = tokenType;
 
   await client.db().collection(COLL_APPS).updateOne({ _id: this.app._id }, { $set: {
-    'settings.myfidbackend.loginAccessToken': this.myfidbackend.loginAccessToken,
+    'settings.myfidbackend.accountApiAccessToken': this.myfidbackend.accountApiAccessToken,
   } });
 
   return (true);
@@ -168,8 +168,49 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
   return (response);
 };
 
+MyFidApi.prototype.authAPICall = async function authAPICall(path, options = {}) {
+  const {
+    body = null,
+    bodyFormat = 'json',
+    headers = {},
+    method = 'GET',
+  } = options;
+
+  const uri = `${this.myfidbackend.accountApiUrl}${path}`;
+  const params = {
+    method,
+    uri,
+    headers: {},
+  };
+
+  if (this.myfidbackend.accountApiAccessToken.value) {
+    params.headers.Authorization = `${this.myfidbackend.accountApiAccessToken.tokenType} ${this.myfidbackend.accountApiAccessToken.value}`;
+  }
+
+  if (bodyFormat === 'form') {
+    params.form = body;
+  } else if (bodyFormat === 'raw') {
+    params.body = body;
+  } else {
+    params.json = body;
+  }
+
+  params.headers = {
+    ...params.headers,
+    ...headers,
+  };
+
+  let response = await request(params);
+
+  if (typeof response === 'string') {
+    response = JSON.parse(response);
+  }
+
+  return (response);
+};
+
 MyFidApi.prototype.checkUser = async function checkUser(username, password) {
-  const uri = this.myfidbackend.checkUserUrl;
+  const uri = `${this.myfidbackend.accountApiUrl}/cartefid/v1/check-user`;
   const params = {
     method: 'POST',
     uri,
@@ -178,8 +219,8 @@ MyFidApi.prototype.checkUser = async function checkUser(username, password) {
     },
   };
 
-  if (this.myfidbackend.loginAccessToken.value) {
-    params.headers.Authorization = `${this.myfidbackend.loginAccessToken.tokenType} ${this.myfidbackend.loginAccessToken.value}`;
+  if (this.myfidbackend.accountApiAccessToken.value) {
+    params.headers.Authorization = `${this.myfidbackend.accountApiAccessToken.tokenType} ${this.myfidbackend.accountApiAccessToken.value}`;
   }
 
   const body = new URLSearchParams();

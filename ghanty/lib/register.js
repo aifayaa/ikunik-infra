@@ -36,11 +36,11 @@ export default async (
     }
     const fidApi = new MyFidApi(app);
     metricsTimer.start();
-    await fidApi.renewAPITokenIfNeeded(client);
-    metricsTimer.print('renewAPITokenIfNeeded');
+    await fidApi.renewLoginTokenIfNeeded(client);
+    metricsTimer.print('renewLoginTokenIfNeeded');
 
     metricsTimer.start();
-    const registerResp = await fidApi.call('/register', {
+    const registerResp = await fidApi.authAPICall('/cartefid/v1/register', {
       method: 'POST',
       body: {
         'new-password': password,

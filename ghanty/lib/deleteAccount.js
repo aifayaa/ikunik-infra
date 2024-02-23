@@ -26,8 +26,8 @@ export default async (
     }
     const fidApi = new MyFidApi(app);
     metricsTimer.start();
-    await fidApi.renewAPITokenIfNeeded(client);
-    metricsTimer.print('renewAPITokenIfNeeded');
+    await fidApi.renewLoginTokenIfNeeded(client);
+    metricsTimer.print('renewLoginTokenIfNeeded');
 
     // metricsTimer.start();
     // const response = await fidApi.call(`/...`, {
