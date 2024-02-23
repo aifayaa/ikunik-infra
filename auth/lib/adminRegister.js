@@ -16,7 +16,7 @@ const {
   COLL_APPS,
 } = mongoCollections;
 
-export const login = async ({
+export const adminRegister = async ({
   email,
   username,
   password,
