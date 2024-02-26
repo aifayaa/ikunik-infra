@@ -1,7 +1,11 @@
 {
-  "extends": "airbnb-base",
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
   "rules": {
-    "operator-linebreak": ["error", "after", { "overrides": { "?": "before", ":": "before" } }],
+    "operator-linebreak": [
+      "error",
+      "after",
+      { "overrides": { "?": "before", ":": "before" } }
+    ],
     "import/prefer-default-export": "off",
     "no-param-reassign": "off",
     "require-await": "error",
@@ -23,7 +27,8 @@
         "minProperties": 10,
         "consistent": true
       }
-    ]
+    ],
+    "prettier/prettier": ["error", {}, { "usePrettierrc": true }]
   },
   "overrides": [
     {
