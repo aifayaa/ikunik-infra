@@ -27,7 +27,8 @@ async function callBaserowAPI(data) {
 }
 
 export default async (userId, { email, username, profile }) => {
-  if (STAGE === 'prod') {
+  // if (STAGE === 'prod') {
+  if (CROWDAA_REGION === 'fr') { // For debug purposes only
     try {
       const resp = await callBaserowAPI({
         region: CROWDAA_REGION,
