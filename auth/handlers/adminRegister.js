@@ -18,14 +18,14 @@ export default async (event) => {
     if (!typeCheck('[Object]', [profile])) throw new Error('wrong_argument_type');
     if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
 
-    const { userId } = await adminRegister({
+    const ret = await adminRegister({
       email,
       username: username || uuidv4(),
       password,
       profile,
     });
 
-    return response({ code: 200, body: { status: 'success', data: { _id: userId } } });
+    return response({ code: 200, body: ret });
   } catch (e) {
     return response(errorMessage(e));
   }
