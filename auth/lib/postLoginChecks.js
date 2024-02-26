@@ -7,6 +7,20 @@ const {
   COLL_USERS,
 } = mongoCollections;
 
+function promiseExecUntilTrue(exec) {
+  return (new Promise((resolve, reject) => {
+    const process = (ret) => {
+      if (ret === true) {
+        resolve();
+      } else {
+        exec().then(process).catch(reject);
+      }
+    };
+
+    process();
+  }));
+}
+
 function objGet(obj, keys, dft) {
   let keysArray = keys;
   let ret = obj;
@@ -38,20 +52,28 @@ export default async function postLoginChecks(ret, app, checksOn) {
     const usersCollection = client.db().collection(COLL_USERS);
 
     if (app.settings.userDataCollection) {
-      const user = await usersCollection.findOne({ _id: userId, appId: app._id });
-      const lookupData = { user, app };
+      const userDataCollection = [...app.settings.userDataCollection];
 
-      const autoReplaceUserKeys = (string) => {
-        const replaced = string.replace(/{{([^}|]+)(?:\|([^}|]+))?}}/g, (_wholematch, key, dftVal) => {
-          if (!dftVal) dftVal = '';
-          const replacement = objGet(lookupData, key, dftVal);
-          return (replacement);
-        });
+      await promiseExecUntilTrue(async () => {
+        if (userDataCollection.length === 0) {
+          return (true);
+        }
 
-        return (replaced);
-      };
+        const collectSettings = userDataCollection.shift();
 
-      const promises = app.settings.userDataCollection.map(async (collectSettings) => {
+        const user = await usersCollection.findOne({ _id: userId, appId: app._id });
+        const lookupData = { user, app };
+
+        const autoReplaceUserKeys = (string) => {
+          const replaced = string.replace(/{{([^}|]+)(?:\|([^}|]+))?}}/g, (_wholematch, key, dftVal) => {
+            if (!dftVal) dftVal = '';
+            const replacement = objGet(lookupData, key, dftVal);
+            return (replacement);
+          });
+
+          return (replaced);
+        };
+
         const {
           extraRequestFields = null,
           headers = {},
@@ -62,8 +84,8 @@ export default async function postLoginChecks(ret, app, checksOn) {
           on = {},
         } = collectSettings;
 
-        if (typeof on[checksOn] === 'boolean' && !on[checksOn]) {
-          return;
+        if (!on[checksOn]) {
+          return (false);
         }
 
         const queryParams = {
@@ -88,7 +110,7 @@ export default async function postLoginChecks(ret, app, checksOn) {
         let response = null;
         try {
           const rawResponse = await request(queryParams);
-          if (!rawResponse) return;
+          if (!rawResponse) return (false);
           response = (typeof rawResponse === 'string' ? JSON.parse(rawResponse) : rawResponse);
         } catch (e) {
           if (e.statusCode !== 404) {
@@ -96,7 +118,7 @@ export default async function postLoginChecks(ret, app, checksOn) {
             // eslint-disable-next-line no-console
             console.error('postLoginChecks() error on query', queryParams, ':', e);
           }
-          return;
+          return (false);
         }
 
         const dbOps = {};
@@ -141,9 +163,9 @@ export default async function postLoginChecks(ret, app, checksOn) {
             appId: app._id,
           }, dbOps);
         }
-      });
 
-      await Promise.allSettled(promises);
+        return (false);
+      });
     }
   } catch (e) {
     // eslint-disable-next-line no-console
