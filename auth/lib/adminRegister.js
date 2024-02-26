@@ -6,6 +6,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { crowdaaLogin } from './backends/crowdaaLogin';
 import { crowdaaRegister } from './backends/crowdaaRegister';
+import syncAdminLoginBaserow from './backends/syncAdminLoginBaserow';
 import postLoginChecks from './postLoginChecks';
 
 const {
@@ -35,6 +36,12 @@ export const adminRegister = async ({
     const ret = await crowdaaLogin(username, email, password, app);
 
     await postLoginChecks(ret, app, 'admin-register');
+
+    await syncAdminLoginBaserow(ret.userId, {
+      email,
+      username,
+      profile,
+    }, client);
 
     return (ret);
   } finally {
