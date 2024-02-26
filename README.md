@@ -1,5 +1,13 @@
 # Crowdaa Microservices
 
+# Development environment
+
+Install the following plugin in VSCode:
+| Extension name | Extension identifier |
+| ------ | ------ |
+| Prettier - Code formatter | esbenp.prettier-vscode |
+| ESLint | dbaeumer.vscode-eslint |
+
 ## Setup
 
 Just run `npm i`. It will install all dependancies in the current directory and then link `node_modules` to each sub-directories.
