@@ -28,22 +28,27 @@ async function callBaserowAPI(data) {
 
 export default async (userId, { email, username, profile }) => {
   // if (STAGE === 'prod') {
-  if (CROWDAA_REGION === 'fr') { // For debug purposes only
-    try {
-      const resp = await callBaserowAPI({
-        region: CROWDAA_REGION,
-        stage: STAGE,
-        userId,
-        email,
-        username,
-        profile,
-      });
+  // if (CROWDAA_REGION === 'fr') { // For debug purposes only
+  try {
+    const resp = await callBaserowAPI({
+      region: CROWDAA_REGION,
+      stage: STAGE,
+      userId,
+      email,
+      username,
+      profile,
+    });
 
-      // eslint-disable-next-line no-console
-      console.log('DEBUG Baserow API response', resp);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log('DEBUG Baserow API response error', e, 'for :', { userId, email, username, profile });
-    }
+    // eslint-disable-next-line no-console
+    console.log('DEBUG Baserow API response', resp);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log('DEBUG Baserow API response error', e, 'for :', {
+      userId,
+      email,
+      username,
+      profile,
+    });
   }
+  // }
 };
