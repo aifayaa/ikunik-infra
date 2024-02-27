@@ -40,10 +40,6 @@ export default async (event) => {
 
     const appsResults = await getApps(userId, { sortBy, sortOrder });
 
-    if (appsResults.length === 0) {
-      return response({ code: 404, message: 'crowdaa_no_apps_permissions' });
-    }
-
     return response({
       code: 200,
       body: { items: appsResults, totalCount: appsResults.length },
