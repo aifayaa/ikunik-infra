@@ -18,7 +18,7 @@ export default async (
     parentId = false,
     start,
     userId = null,
-  }
+  } = {}
 ) => {
   const client = await MongoClient.connect();
   const badgeChecker = new BadgeChecker(appId);
