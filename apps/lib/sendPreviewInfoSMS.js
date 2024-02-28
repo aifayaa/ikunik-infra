@@ -1,12 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import SNS from 'aws-sdk/clients/sns';
 import getAppInfos from './getAppInfos';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
-const {
-  SNS_KEY_ID,
-  SNS_REGION,
-  SNS_SECRET,
-} = process.env;
+const { SNS_KEY_ID, SNS_REGION, SNS_SECRET } = process.env;
 
 export const sendPreviewInfoSMS = async (appId, phone, lang) => {
   const { key, name = 'Crowdaa', protocol } = await getAppInfos(appId);
@@ -23,7 +20,10 @@ export const sendPreviewInfoSMS = async (appId, phone, lang) => {
     },
   });
 
-  const text = formatMessage('apps:app_preview_sms', { appName: sanatizedAppName, url });
+  const text = formatMessage('apps:app_preview_sms', {
+    appName: sanatizedAppName,
+    url,
+  });
   const params = {
     Message: text,
     MessageStructure: 'string',

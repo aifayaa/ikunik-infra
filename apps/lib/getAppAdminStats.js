@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import getMAU from '../../userMetrics/lib/getMAU';
@@ -22,7 +23,7 @@ const BUILDS_KEYS = [
 ];
 
 const BUILDS_PROJECTION = BUILDS_PLATFORMS.reduce((acc, platform) => {
-  BUILDS_KEYS.map((bkey) => {
+  BUILDS_KEYS.forEach((bkey) => {
     acc[`builds.${platform}.${bkey}`] = 1;
   });
 

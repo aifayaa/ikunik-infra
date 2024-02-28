@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
@@ -5,17 +6,10 @@ import { register } from '../../auth/lib/register';
 import Random from '../../libs/account_utils/random';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
-const {
-  ADMIN_APP,
-  REACT_APP_PRESS_SERVICE_URL,
-  REACT_APP_AUTH_URL,
-} = process.env;
+const { ADMIN_APP, REACT_APP_PRESS_SERVICE_URL, REACT_APP_AUTH_URL } =
+  process.env;
 
-const {
-  COLL_APPS,
-  COLL_PERM_GROUPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS } = mongoCollections;
 
 const BCC_EMAILS_BASE = [
   'vigile@crowdaa.com',
@@ -23,30 +17,29 @@ const BCC_EMAILS_BASE = [
   'eric.eloy@crowdaa.com',
 ];
 
-const BCC_EMAILS_EN = [
-  'jimmy@crowdaa.com',
-];
+const BCC_EMAILS_EN = ['jimmy@crowdaa.com'];
 
-function sendNewAccountPassword(app, email, lang, {
-  firstname,
-  password,
-}) {
+function sendNewAccountPassword(app, email, lang, { firstname, password }) {
   intlInit(lang);
 
-  const subject = formatMessage('apps:invite_app_admin_email_title', { appName: app.name });
+  const subject = formatMessage('apps:invite_app_admin_email_title', {
+    appName: app.name,
+  });
 
   let template;
   if (lang === 'en') {
     template = 'send_dashboard_access_en';
   } else {
-    template = app.builds ? `send_dashboard_access_${lang}` : `welcome_preview_${lang}`;
+    template = app.builds
+      ? `send_dashboard_access_${lang}`
+      : `welcome_preview_${lang}`;
   }
 
   let bcc = BCC_EMAILS_BASE.slice();
   if (lang === 'en') bcc = bcc.concat(BCC_EMAILS_EN);
   bcc = bcc.join(', ');
 
-  return (sendEmailMailgunTemplate(
+  return sendEmailMailgunTemplate(
     'No reply <support@crowdaa.com>',
     email,
     subject,
@@ -62,15 +55,11 @@ function sendNewAccountPassword(app, email, lang, {
     },
     {
       bcc,
-    },
-  ));
+    }
+  );
 }
 
-async function addUserToAppPermGroups(
-  client,
-  userId,
-  appPermGroupIds,
-) {
+async function addUserToAppPermGroups(client, userId, appPermGroupIds) {
   const db = client.db();
 
   const permGroupIds = {
@@ -83,7 +72,7 @@ async function addUserToAppPermGroups(
       $addToSet: {
         permGroupIds,
       },
-    },
+    }
   );
 }
 
@@ -93,9 +82,7 @@ export default async (
   firstname,
   lastname,
   lang,
-  {
-    groups = ['admins', 'moderators', 'crowd_managers'],
-  } = {},
+  { groups = ['admins', 'moderators', 'crowd_managers'] } = {}
 ) => {
   const client = await MongoClient.connect();
   const inviteResult = {
@@ -116,18 +103,22 @@ export default async (
     }
 
     const [permGroupsResults, usersResults] = await Promise.all([
-      Promise.all(groups.map((group) => (
-        db.collection(COLL_PERM_GROUPS).findOne({
-          appId,
-          name: { $regex: new RegExp(`.*_${group}$`) },
-        })
-      ))),
+      Promise.all(
+        groups.map((group) =>
+          db.collection(COLL_PERM_GROUPS).findOne({
+            appId,
+            name: { $regex: new RegExp(`.*_${group}$`) },
+          })
+        )
+      ),
       db.collection(COLL_USERS).findOne({
         appId: ADMIN_APP,
         'emails.address': email,
       }),
     ]);
-    const permGroupIds = permGroupsResults.filter((pg) => (pg)).map((result) => (result._id));
+    const permGroupIds = permGroupsResults
+      .filter((pg) => pg)
+      .map((result) => result._id);
     if (permGroupIds.length === 0) {
       throw new Error('app_configuration_error');
     }
@@ -135,13 +126,10 @@ export default async (
       userId = usersResults._id;
     } else {
       password = Random.secret(12);
-      const newUser = await register(
-        email,
-        email,
-        password,
-        ADMIN_APP,
-        { firstname, lastname },
-      );
+      const newUser = await register(email, email, password, ADMIN_APP, {
+        firstname,
+        lastname,
+      });
       userId = newUser.userId;
       inviteResult.userCreated = true;
     }
@@ -149,12 +137,7 @@ export default async (
     await addUserToAppPermGroups(client, userId, permGroupIds);
 
     try {
-      await sendNewAccountPassword(
-        app,
-        email,
-        lang,
-        { firstname, password },
-      );
+      await sendNewAccountPassword(app, email, lang, { firstname, password });
       inviteResult.invitationSent = true;
     } catch (e) {
       inviteResult.invitationSent = false;
@@ -165,5 +148,5 @@ export default async (
     client.close();
   }
 
-  return (inviteResult);
+  return inviteResult;
 };

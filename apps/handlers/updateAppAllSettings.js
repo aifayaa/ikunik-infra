@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import updateAppSettings from '../lib/updateAppSettings';
 import getPerms from '../../libs/perms/getPerms';
 import errorMessage from '../../libs/httpResponses/errorMessage';

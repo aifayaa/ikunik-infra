@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAppInfos from './getAppInfos';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
@@ -9,11 +10,16 @@ export const sendPreviewInfoEmail = async (appId, email, lang) => {
   intlInit(lang);
 
   /* Prepare data for email */
-  const subject = formatMessage('apps:app_preview_email.title', { appName: sanatizedAppName });
+  const subject = formatMessage('apps:app_preview_email.title', {
+    appName: sanatizedAppName,
+  });
   const url = `${protocol}://appPreview/${key}`;
 
   /* send token by email to user */
-  const html = formatMessage('apps:app_preview_email.html', { appName: sanatizedAppName, url });
+  const html = formatMessage('apps:app_preview_email.html', {
+    appName: sanatizedAppName,
+    url,
+  });
 
   return sendEmailTemplate(lang, 'clients', email, subject, html);
 };

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
@@ -22,13 +23,13 @@ function objGet(obj, keys, dft) {
       const key = keysArray.shift();
       ret = ret[key];
     } catch (e) {
-      return (dft);
+      return dft;
     }
   }
 
-  if (ret === undefined) return (dft);
+  if (ret === undefined) return dft;
 
-  return (ret);
+  return ret;
 }
 
 const allowedSettings = [
@@ -71,10 +72,7 @@ export default async (appId, settings) => {
     const changed = {};
     let setOnce = false;
 
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({ _id: appId });
+    const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
 
     allowedSettings.forEach((key) => {
       const val = objGet(settings, key, null);
@@ -83,7 +81,8 @@ export default async (appId, settings) => {
         setOnce = true;
         const prevVal = objGet(app.settings, key, null);
         if (prevVal !== val) {
-          changed[`settings.${key}`] = `${JSON.stringify(prevVal)} -> ${JSON.stringify(val)}`;
+          changed[`settings.${key}`] =
+            `${JSON.stringify(prevVal)} -> ${JSON.stringify(val)}`;
         }
       }
     });
@@ -92,10 +91,7 @@ export default async (appId, settings) => {
       await client
         .db()
         .collection(COLL_APPS)
-        .updateOne(
-          { _id: appId },
-          { $set },
-        );
+        .updateOne({ _id: appId }, { $set });
 
       intlInit(LANG);
 
@@ -118,7 +114,7 @@ export default async (appId, settings) => {
       await sendEmailTemplate(LANG, 'internal', MAIL_TO, subject, html);
     }
 
-    return ($set);
+    return $set;
   } finally {
     client.close();
   }

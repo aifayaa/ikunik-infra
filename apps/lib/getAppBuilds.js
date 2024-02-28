@@ -1,9 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export default async (appId) => {
   const client = await MongoClient.connect();
@@ -25,7 +24,7 @@ export default async (appId) => {
             'builds.android.platform': 1,
             'builds.android.deployed': 1,
           },
-        },
+        }
       );
 
     if (!app) {

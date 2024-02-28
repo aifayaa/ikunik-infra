@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import inviteAppAdmin from '../lib/inviteAppAdmin';
 import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';
@@ -7,9 +8,7 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 /** @TODO fix permissions globally, do something, please... */
 const permKey = 'apps_getInfos';
 
-const {
-  INVITE_MAIL_LANG,
-} = process.env;
+const { INVITE_MAIL_LANG } = process.env;
 
 export default async (event) => {
   const appId = event.pathParameters.id;
@@ -21,17 +20,18 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const {
-      email,
-      firstname,
-      lastname,
-    } = JSON.parse(event.body);
+    const { email, firstname, lastname } = JSON.parse(event.body);
 
     if (!email || typeof email !== 'string' || email.indexOf('@') < 0) {
       throw new Error('wrong_argument_type');
     }
 
-    if (!firstname || typeof firstname !== 'string' || !lastname || typeof lastname !== 'string') {
+    if (
+      !firstname ||
+      typeof firstname !== 'string' ||
+      !lastname ||
+      typeof lastname !== 'string'
+    ) {
       throw new Error('wrong_argument_type');
     }
 
@@ -40,7 +40,7 @@ export default async (event) => {
       email.trim().toLowerCase(),
       firstname.trim(),
       lastname.trim(),
-      INVITE_MAIL_LANG,
+      INVITE_MAIL_LANG
     );
 
     if (results === false) {
