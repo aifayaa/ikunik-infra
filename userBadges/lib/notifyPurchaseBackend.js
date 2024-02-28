@@ -56,7 +56,6 @@ export default async (badgeId, userId, appId, loginToken) => {
           `Error calling purchase WP API for ${userId}/${appId}/${badgeId}`,
           e
         );
-        return;
       }
     }
   } finally {
