@@ -398,7 +398,9 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
             }
 
             ethId += 1;
-            await new Promise((resolve) => setTimeout(resolve, 200));
+            await new Promise((resolve) => {
+              setTimeout(resolve, 200);
+            });
             return true;
           });
         }
