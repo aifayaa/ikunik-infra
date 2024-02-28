@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, after, beforeEach, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
@@ -22,15 +23,18 @@ describe('lib - changePassword', () => {
     const lang = 'en';
     const oldPassword = 'oldPassword';
     const password = 'newPassword';
-    const oldPasswordHash = '$2a$10$t1W.Sc6x.tX1Ga6GWHvluuGTGLFzL8Xew663LCy94wMla9FSvcuOe';
+    const oldPasswordHash =
+      '$2a$10$t1W.Sc6x.tX1Ga6GWHvluuGTGLFzL8Xew663LCy94wMla9FSvcuOe';
 
     beforeEach(() => {
       spyMongo = spyMongoMethods({
         _id: userId,
         appId,
-        emails: [{
-          address: email,
-        }],
+        emails: [
+          {
+            address: email,
+          },
+        ],
         services: {
           password: {
             bcrypt: oldPasswordHash,
@@ -63,9 +67,15 @@ describe('lib - changePassword', () => {
         _id: userId,
         appId,
       });
-      expect(spyMongo.updateOne.args[0][1]).to.have.nested.property('$set.services\\.resume\\.loginTokens');
-      expect(spyMongo.updateOne.args[0][1]).to.have.nested.property('$set.services\\.password\\.bcrypt');
-      expect(spyMongo.updateOne.args[0][1].$set['services.password.bcrypt']).to.match(/^\$/);
+      expect(spyMongo.updateOne.args[0][1]).to.have.nested.property(
+        '$set.services\\.resume\\.loginTokens'
+      );
+      expect(spyMongo.updateOne.args[0][1]).to.have.nested.property(
+        '$set.services\\.password\\.bcrypt'
+      );
+      expect(
+        spyMongo.updateOne.args[0][1].$set['services.password.bcrypt']
+      ).to.match(/^\$/);
     });
 
     it('should send an email to the user', async () => {
@@ -113,7 +123,9 @@ describe('lib - changePassword', () => {
         try {
           await changePassword(userId, oldPassword, password, appId, lang);
         } catch (error) {
-          expect(error).to.be.an('error').and.to.have.property('message', 'user_not_found');
+          expect(error)
+            .to.be.an('error')
+            .and.to.have.property('message', 'user_not_found');
         }
       });
     });
@@ -121,9 +133,11 @@ describe('lib - changePassword', () => {
     describe('2/4', () => {
       before(() => {
         spyMongo = spyMongoMethods({
-          emails: [{
-            address: false,
-          }],
+          emails: [
+            {
+              address: false,
+            },
+          ],
         });
         const fakeClient = {
           db: spyMongo.db,
@@ -141,7 +155,9 @@ describe('lib - changePassword', () => {
         try {
           await changePassword(userId, oldPassword, password, appId, lang);
         } catch (error) {
-          expect(error).to.be.an('error').and.to.have.property('message', 'user_not_found');
+          expect(error)
+            .to.be.an('error')
+            .and.to.have.property('message', 'user_not_found');
         }
       });
     });
@@ -149,9 +165,11 @@ describe('lib - changePassword', () => {
     describe('3/4', () => {
       before(() => {
         spyMongo = spyMongoMethods({
-          emails: [{
-            address: email,
-          }],
+          emails: [
+            {
+              address: email,
+            },
+          ],
           services: {
             password: {
               bcrypt: false,
@@ -174,7 +192,9 @@ describe('lib - changePassword', () => {
         try {
           await changePassword(userId, oldPassword, password, appId, lang);
         } catch (error) {
-          expect(error).to.be.an('error').and.to.have.property('message', 'user_not_found');
+          expect(error)
+            .to.be.an('error')
+            .and.to.have.property('message', 'user_not_found');
         }
       });
     });
@@ -182,9 +202,11 @@ describe('lib - changePassword', () => {
     describe('4/4', () => {
       before(() => {
         spyMongo = spyMongoMethods({
-          emails: [{
-            address: email,
-          }],
+          emails: [
+            {
+              address: email,
+            },
+          ],
           services: {
             password: {
               bcrypt: badPasswordHash,
@@ -207,7 +229,9 @@ describe('lib - changePassword', () => {
         try {
           await changePassword(userId, oldPassword, password, appId, lang);
         } catch (error) {
-          expect(error).to.be.an('error').and.to.have.property('message', 'incorrect_password');
+          expect(error)
+            .to.be.an('error')
+            .and.to.have.property('message', 'incorrect_password');
         }
       });
     });

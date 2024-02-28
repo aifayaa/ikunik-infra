@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -21,21 +22,19 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const {
-      action,
-      userId,
-    } = bodyParsed;
+    const { action, userId } = bodyParsed;
 
     if (!userBadgeId || !userId) {
       throw new Error('mal_formed_request');
     }
 
     const lang = getUserLanguage(event.headers);
-    const userBadge = await toggleUserBadgeToUser(
-      userBadgeId,
-      appId,
-      { action, userId, adminUserId, lang },
-    );
+    const userBadge = await toggleUserBadgeToUser(userBadgeId, appId, {
+      action,
+      userId,
+      adminUserId,
+      lang,
+    });
     return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));

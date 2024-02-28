@@ -1,10 +1,7 @@
+/* eslint-disable import/no-relative-packages */
 import SNS from 'aws-sdk/clients/sns';
 
-const {
-  SNS_KEY_ID,
-  SNS_REGION,
-  SNS_SECRET,
-} = process.env;
+const { SNS_KEY_ID, SNS_REGION, SNS_SECRET } = process.env;
 
 const sns = new SNS({
   region: SNS_REGION,
@@ -15,17 +12,10 @@ const sns = new SNS({
 });
 
 export const sendNotificationTo = (data, cb) => {
-  const {
-    isText = false,
-    endpoint,
-  } = data;
+  const { isText = false, endpoint } = data;
   const msg = {};
   if (isText) {
-    const {
-      title = '',
-      content: message = '',
-      extraData = {},
-    } = data;
+    const { title = '', content: message = '', extraData = {} } = data;
     msg.default = '';
     if (endpoint.Platform === 'APNS') {
       let alert;
@@ -52,7 +42,7 @@ export const sendNotificationTo = (data, cb) => {
     }
   } else {
     cb(new Error('No notification type defined, notification not sent'));
-    return (null);
+    return null;
   }
   const params = {
     Message: JSON.stringify(msg),

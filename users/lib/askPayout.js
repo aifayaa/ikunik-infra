@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import validator from 'validator';
 import MongoClient from '../../libs/mongoClient';
@@ -16,11 +17,13 @@ export default async (userId, profileId, amount, method, appId) => {
   const payouts = await getPayouts(userId, profileId, appId);
   const purchases = await getPurchases(userId, profileId, appId);
   const maxDemand = purchases.total - payouts.totalBaseAmount;
-  if (!validator.isInt(amount, {
-    min: process.env.MINIMUM_PAYOUT,
-    allow_leading_zeroes: false,
-    max: maxDemand,
-  })) {
+  if (
+    !validator.isInt(amount, {
+      min: process.env.MINIMUM_PAYOUT,
+      allow_leading_zeroes: false,
+      max: maxDemand,
+    })
+  ) {
     throw new Error('Wrong amount');
   }
   const profile = await getProfile(userId);
@@ -36,7 +39,9 @@ export default async (userId, profileId, amount, method, appId) => {
   }
   const feesPercentage = JSON.parse(res.body).globalAvgFees / 100;
   const fees = Number(Math.round(feesPercentage * amount));
-  const crowdaa = Number(Math.round(process.env.CROWDAA_FEES * (amount - fees)));
+  const crowdaa = Number(
+    Math.round(process.env.CROWDAA_FEES * (amount - fees))
+  );
   const payoutData = {
     method,
     userId,
@@ -44,7 +49,7 @@ export default async (userId, profileId, amount, method, appId) => {
     crowdaa,
     date: new Date(),
     baseAmount: Number(amount),
-    income: Number((amount - fees - crowdaa)),
+    income: Number(amount - fees - crowdaa),
     receiver: await getPaymentInfoByMethod(userId, method, profile),
     state: 'pending',
     profileId: profile._id,
@@ -52,7 +57,8 @@ export default async (userId, profileId, amount, method, appId) => {
 
   const client = await MongoClient.connect();
   try {
-    await client.db()
+    await client
+      .db()
       .collection(mongoCollections.COLL_PAYOUTS)
       .insertOne(payoutData);
     return true;

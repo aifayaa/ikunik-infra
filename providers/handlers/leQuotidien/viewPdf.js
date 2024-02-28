@@ -1,10 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import viewPdf from '../../lib/leQuotidien/viewPdf';
 import response from '../../../libs/httpResponses/response';
 import errorMessage from '../../../libs/httpResponses/errorMessage';
 
-const {
-  LEQUOTIDIEN_APP_ID,
-} = process.env;
+const { LEQUOTIDIEN_APP_ID } = process.env;
 
 export default async (event) => {
   try {
@@ -26,7 +25,7 @@ export default async (event) => {
       loginToken,
     });
 
-    return ({
+    return {
       statusCode: 302,
       body: '',
       headers: {
@@ -34,7 +33,7 @@ export default async (event) => {
         // 'Access-Control-Allow-Credentials': true,
         Location: pdfUrl,
       },
-    });
+    };
   } catch (e) {
     return response(errorMessage(e));
   }

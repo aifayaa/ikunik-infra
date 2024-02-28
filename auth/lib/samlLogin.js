@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import crypto from 'crypto';
 import saml2 from 'saml2-js';
 import request from 'request-promise-native';
@@ -5,14 +6,9 @@ import xmlParser from 'fast-xml-parser';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_SAML_LOGINS,
-} = mongoCollections;
+const { COLL_APPS, COLL_SAML_LOGINS } = mongoCollections;
 
-const {
-  REACT_APP_API_URL,
-} = process.env;
+const { REACT_APP_API_URL } = process.env;
 
 const samlDataCache = {};
 
@@ -20,12 +16,9 @@ export default async (apiKey, loginParameters) => {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({
-        key: apiKey,
-      });
+    const app = await client.db().collection(COLL_APPS).findOne({
+      key: apiKey,
+    });
 
     if (
       !apiKey ||
@@ -42,27 +35,32 @@ export default async (apiKey, loginParameters) => {
     const { idpConfig, spConfig } = app.settings.saml;
 
     if (!samlDataCache[appId]) {
-      const xmlData = idpConfig.metadataXml || await request.get({
-        url: idpConfig.metadataUrl,
-      });
+      const xmlData =
+        idpConfig.metadataXml ||
+        (await request.get({
+          url: idpConfig.metadataUrl,
+        }));
       const parsed = xmlParser.parse(xmlData, { ignoreAttributes: false });
-      const certificates = parsed.EntityDescriptor.IDPSSODescriptor.KeyDescriptor.map((kd) => (
-        kd['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate']
-      ));
-      const logoutLocation = parsed
-        .EntityDescriptor
-        .IDPSSODescriptor
-        .SingleLogoutService['https://identification-rec.experts-comptables.org/cas/idp/profile/SAML2/POST/SLO'];
-      const locations = parsed
-        .EntityDescriptor
-        .IDPSSODescriptor
-        .SingleSignOnService
-        .filter((ssos) => {
-          if (ssos['@_Binding'] === 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
-            return (true);
+      const certificates =
+        parsed.EntityDescriptor.IDPSSODescriptor.KeyDescriptor.map(
+          (kd) => kd['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate']
+        );
+      const logoutLocation =
+        parsed.EntityDescriptor.IDPSSODescriptor.SingleLogoutService[
+          'https://identification-rec.experts-comptables.org/cas/idp/profile/SAML2/POST/SLO'
+        ];
+      const locations =
+        parsed.EntityDescriptor.IDPSSODescriptor.SingleSignOnService.filter(
+          (ssos) => {
+            if (
+              ssos['@_Binding'] ===
+              'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+            ) {
+              return true;
+            }
+            return false;
           }
-          return (false);
-        });
+        );
       const loginLocation = locations[0]['@_Location'];
 
       samlDataCache[appId] = {
@@ -72,11 +70,8 @@ export default async (apiKey, loginParameters) => {
       };
     }
 
-    const {
-      certificates,
-      loginLocation,
-      logoutLocation,
-    } = samlDataCache[appId];
+    const { certificates, loginLocation, logoutLocation } =
+      samlDataCache[appId];
 
     // Little cleanup before each login, to avoid spam issues & database clogging
     await client
@@ -85,7 +80,7 @@ export default async (apiKey, loginParameters) => {
       .deleteMany({ expiresAt: { $lt: new Date() } });
     const newSamlLoginData = {
       appId,
-      expiresAt: new Date(Date.now() + (1 * 24 * 60 * 60 * 1000)),
+      expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
       key: crypto.randomBytes(16).toString('hex'),
       loginParameters,
     };
@@ -101,11 +96,16 @@ export default async (apiKey, loginParameters) => {
 
     const spOptions = {
       entity_id: spConfig.entityId,
-      private_key: spConfig.privateKey || 'some key content here, does not matter',
-      certificate: spConfig.certificate || 'some cert content here, does not matter',
+      private_key:
+        spConfig.privateKey || 'some key content here, does not matter',
+      certificate:
+        spConfig.certificate || 'some cert content here, does not matter',
       assert_endpoint: endpointUrl.toString(),
       force_authn: true,
-      auth_context: { comparison: 'exact', class_refs: ['urn:oasis:names:tc:SAML:1.0:am:password'] },
+      auth_context: {
+        comparison: 'exact',
+        class_refs: ['urn:oasis:names:tc:SAML:1.0:am:password'],
+      },
       nameid_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
       sign_get_request: false,
       allow_unencrypted_assertion: true,
@@ -122,13 +122,17 @@ export default async (apiKey, loginParameters) => {
     const idp = new saml2.IdentityProvider(idpOptions);
 
     const url = await new Promise((resolve, reject) => {
-      sp.create_login_request_url(idp, {}, (err, loginUrl /* , requestId */) => {
-        if (err) reject(err);
-        else resolve(loginUrl);
-      });
+      sp.create_login_request_url(
+        idp,
+        {},
+        (err, loginUrl /* , requestId */) => {
+          if (err) reject(err);
+          else resolve(loginUrl);
+        }
+      );
     });
 
-    return (url);
+    return url;
   } finally {
     client.close();
   }

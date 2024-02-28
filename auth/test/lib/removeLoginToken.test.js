@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
@@ -18,15 +19,17 @@ describe('lib - getFacebookUserProfile', () => {
   describe('request success', () => {
     let resp;
     before(async () => {
-      stubRequestGet = sandbox.stub(request, 'get').returns(JSON.stringify({
-        id: 'myFbUserId',
-        name: 'myName',
-        email: 'myEmail',
-        link: 'myLink',
-        first_name: 'myFirstName',
-        last_name: 'myLastName',
-        gender: 'myGender',
-      }));
+      stubRequestGet = sandbox.stub(request, 'get').returns(
+        JSON.stringify({
+          id: 'myFbUserId',
+          name: 'myName',
+          email: 'myEmail',
+          link: 'myLink',
+          first_name: 'myFirstName',
+          last_name: 'myLastName',
+          gender: 'myGender',
+        })
+      );
       resp = await getFacebookUserProfile('myFbUserId', 'myToken');
     });
 
@@ -34,10 +37,7 @@ describe('lib - getFacebookUserProfile', () => {
       const args = stubRequestGet.args[0];
       const { search, pathname } = url.parse(args[0].url);
       const parsed = queryString.parse(search);
-      expect(parsed).to.have.any.keys(
-        'access_token',
-        'fields',
-      );
+      expect(parsed).to.have.any.keys('access_token', 'fields');
       expect(parsed).to.includes({
         access_token: 'myToken',
       });
@@ -60,16 +60,18 @@ describe('lib - getFacebookUserProfile', () => {
     let resp = {};
     let error;
     before(async () => {
-      stubRequestGet = sandbox.stub(request, 'get').returns(JSON.stringify({
-        id: 'myFbUserId',
-        name: 'myName',
-        email: 5, // wrong type
-        link: 'myLink',
-        // first_name: 'myFirstName',
-        last_name: 'myLastName',
-        gender: 'myGender',
-        not_required_field: 'iWasReturnedAgainstMyWill',
-      }));
+      stubRequestGet = sandbox.stub(request, 'get').returns(
+        JSON.stringify({
+          id: 'myFbUserId',
+          name: 'myName',
+          email: 5, // wrong type
+          link: 'myLink',
+          // first_name: 'myFirstName',
+          last_name: 'myLastName',
+          gender: 'myGender',
+          not_required_field: 'iWasReturnedAgainstMyWill',
+        })
+      );
       try {
         resp = await getFacebookUserProfile('myFbUserId', 'myToken');
       } catch (e) {

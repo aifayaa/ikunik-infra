@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import vote from '../lib/vote';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -21,7 +22,13 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
-    const voted = await vote(pollId, appId, userId, bodyParsed.deviceId, bodyParsed.votes);
+    const voted = await vote(
+      pollId,
+      appId,
+      userId,
+      bodyParsed.deviceId,
+      bodyParsed.votes
+    );
     return response({ code: 200, body: { voted } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));

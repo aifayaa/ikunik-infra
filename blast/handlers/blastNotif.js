@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import queue from 'async/queue';
 import blastNotif from '../lib/blastNotif';
 import getBalanceForBlast from '../lib/getBalanceForBlast';
@@ -33,7 +34,12 @@ export default async ({ title, endpoints, message, opts = {} }) => {
     await sendNotifications.drain();
     await logBlast('notification', message, `${successfulBlast}`, opts);
     if (profileId) {
-      await removeBlastToken('notification', profileId, `${successfulBlast}`, appId);
+      await removeBlastToken(
+        'notification',
+        profileId,
+        `${successfulBlast}`,
+        appId
+      );
     }
 
     return response({ code: 200, body: results });

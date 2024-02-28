@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import mongoCollections from '../../../libs/mongoCollections.json';
 import hashLoginToken from '../hashLoginToken';
@@ -14,14 +15,14 @@ const {
 } = mongoCollections;
 
 const listsContentEquals = (a, b) => {
-  if (a.length !== b.length) return (false);
+  if (a.length !== b.length) return false;
 
   const hashedA = a.reduce((acc, val) => {
     acc[val] = true;
-    return (acc);
+    return acc;
   }, {});
 
-  return (b.every((obj) => (!!hashedA[obj])));
+  return b.every((obj) => !!hashedA[obj]);
 };
 
 async function managePermsDifferences({
@@ -37,11 +38,11 @@ async function managePermsDifferences({
 
   const oldIndexed = dbElements.reduce((acc, itm) => {
     acc[itm.itemId] = itm._id;
-    return (acc);
+    return acc;
   }, {});
   const newIndexed = newIds.reduce((acc, itm) => {
     acc[itm] = true;
-    return (acc);
+    return acc;
   }, {});
 
   Object.keys(oldIndexed).forEach((id) => {
@@ -58,13 +59,15 @@ async function managePermsDifferences({
   }
 
   if (toAdd.length > 0) {
-    await extPurchasesCollection.insertMany(toAdd.map((id) => ({
-      appId,
-      collection,
-      itemId: id,
-      source: 'wordpress',
-      userId,
-    })));
+    await extPurchasesCollection.insertMany(
+      toAdd.map((id) => ({
+        appId,
+        collection,
+        itemId: id,
+        source: 'wordpress',
+        userId,
+      }))
+    );
   }
 }
 
@@ -75,37 +78,38 @@ export async function setUserBadges(client, user, badgeIds) {
     .find({ _id: { $in: badgeIds } }, { projection: { _id: 1 } })
     .toArray();
 
-  const existingBadgesIds = existingBadges.map(({ _id }) => (_id));
+  const existingBadgesIds = existingBadges.map(({ _id }) => _id);
 
-  const userBadgesIds = (user.badges || []).map(({ id }) => (id));
+  const userBadgesIds = (user.badges || []).map(({ id }) => id);
 
   if (!listsContentEquals(existingBadgesIds, userBadgesIds)) {
     const badges = existingBadges.map(({ _id }) => ({ id: _id }));
     await client
       .db()
       .collection(COLL_USERS)
-      .updateOne(
-        { _id: user._id },
-        { $set: { badges } },
-      );
+      .updateOne({ _id: user._id }, { $set: { badges } });
   }
 }
 
 export async function setUserPermissions(client, user, permissions) {
-  const extPurchasesCollection = client.db().collection(COLL_EXTERNAL_PURCHASES);
+  const extPurchasesCollection = client
+    .db()
+    .collection(COLL_EXTERNAL_PURCHASES);
 
   const ownedBadges = permissions.ownedBadges || [];
   const ownedArticles = permissions.ownedArticles || [];
 
   // Badges
-  const userBadges = await extPurchasesCollection.find({
-    appId: user.appId,
-    source: 'wordpress',
-    collection: COLL_USER_BADGES,
-    userId: user._id,
-  }).toArray();
+  const userBadges = await extPurchasesCollection
+    .find({
+      appId: user.appId,
+      source: 'wordpress',
+      collection: COLL_USER_BADGES,
+      userId: user._id,
+    })
+    .toArray();
 
-  const userBadgesIds = userBadges.map(({ itemId }) => (itemId));
+  const userBadgesIds = userBadges.map(({ itemId }) => itemId);
 
   if (!listsContentEquals(userBadgesIds, ownedBadges)) {
     await managePermsDifferences({
@@ -119,14 +123,16 @@ export async function setUserPermissions(client, user, permissions) {
   }
 
   // Articles
-  const purchases = await extPurchasesCollection.find({
-    appId: user.appId,
-    source: 'wordpress',
-    collection: COLL_PRESS_ARTICLES,
-    userId: user._id,
-  }).toArray();
+  const purchases = await extPurchasesCollection
+    .find({
+      appId: user.appId,
+      source: 'wordpress',
+      collection: COLL_PRESS_ARTICLES,
+      userId: user._id,
+    })
+    .toArray();
 
-  const purchasesIds = purchases.map(({ itemId }) => (itemId));
+  const purchasesIds = purchases.map(({ itemId }) => itemId);
 
   if (!listsContentEquals(purchasesIds, ownedArticles)) {
     await managePermsDifferences({
@@ -140,7 +146,12 @@ export async function setUserPermissions(client, user, permissions) {
   }
 }
 
-export const wordpressLogin = async (username, password, app, fromRegister = false) => {
+export const wordpressLogin = async (
+  username,
+  password,
+  app,
+  fromRegister = false
+) => {
   const client = await MongoClient.connect();
   const wpApi = new WordpressAPI(app);
   const appId = app._id;
@@ -189,19 +200,19 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
 
     const selector = {
       appId,
-      $or: [
-        { 'profile.email': userEmail },
-        { 'emails.address': userEmail },
-      ],
+      $or: [{ 'profile.email': userEmail }, { 'emails.address': userEmail }],
     };
     let user = await usersCollection.findOne(selector);
     const token = Random.secret();
     let badges = null;
     if (fromRegister) {
-      badges = (await client.db().collection(COLL_USER_BADGES)
-        .find({ appId, isDefault: true })
-        .toArray())
-        .map((badge) => ({ id: badge._id }));
+      badges = (
+        await client
+          .db()
+          .collection(COLL_USER_BADGES)
+          .find({ appId, isDefault: true })
+          .toArray()
+      ).map((badge) => ({ id: badge._id }));
     }
 
     const loginToken = {
@@ -236,9 +247,11 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
           username: userDisplayName || userNicename || username,
           email: userEmail,
         },
-        emails: [{
-          address: userEmail,
-        }],
+        emails: [
+          {
+            address: userEmail,
+          },
+        ],
       };
 
       if (autoLoginToken) {
@@ -290,7 +303,7 @@ export const wordpressLogin = async (username, password, app, fromRegister = fal
           _id: user._id,
           appId,
         },
-        update,
+        update
       );
     }
 

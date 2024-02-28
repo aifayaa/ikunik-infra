@@ -1,11 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getUGCCommentsCount } from './getUGCCounts';
 
-const {
-  COLL_USERS,
-  COLL_USER_GENERATED_CONTENTS,
-} = mongoCollections;
+const { COLL_USERS, COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 function buildPipeline({
   appId,
@@ -53,44 +51,48 @@ function buildPipeline({
     });
   }
 
-  pipeline.push({
-    $lookup: {
-      from: COLL_USERS,
-      localField: 'userId',
-      foreignField: '_id',
-      as: 'user',
-    },
-  }, {
-    $unwind: {
-      path: '$user',
-      preserveNullAndEmptyArrays: true,
-    },
-  }, {
-    $project: {
-      data: 1,
-      parentCollection: 1,
-      parentId: 1,
-      rootParentCollection: 1,
-      rootParentId: 1,
-      type: 1,
-      user: {
-        firstname: 1,
-        isUserPicture: 1,
-        lastname: 1,
-        profile: {
-          avatar: 1,
-          isUserPicture: 1,
-          userPictureData: 1,
-          username: 1,
-        },
-        status: 1,
-        username: 1,
-        _id: 1,
+  pipeline.push(
+    {
+      $lookup: {
+        from: COLL_USERS,
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user',
       },
     },
-  });
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        data: 1,
+        parentCollection: 1,
+        parentId: 1,
+        rootParentCollection: 1,
+        rootParentId: 1,
+        type: 1,
+        user: {
+          firstname: 1,
+          isUserPicture: 1,
+          lastname: 1,
+          profile: {
+            avatar: 1,
+            isUserPicture: 1,
+            userPictureData: 1,
+            username: 1,
+          },
+          status: 1,
+          username: 1,
+          _id: 1,
+        },
+      },
+    }
+  );
 
-  return (pipeline);
+  return pipeline;
 }
 
 export default async (
@@ -100,7 +102,7 @@ export default async (
   start,
   limit,
   children = false,
-  fetchAll = false,
+  fetchAll = false
 ) => {
   let client;
   try {
@@ -144,7 +146,7 @@ export default async (
 
     await Promise.all(promises);
 
-    return (ugcs);
+    return ugcs;
   } finally {
     client.close();
   }

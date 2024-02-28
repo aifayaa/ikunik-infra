@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import authorizeUser from '../lib/authorizeUser';
 import generatePolicy from '../lib/generatePolicy';
 import hashLoginToken from '../lib/hashLoginToken';

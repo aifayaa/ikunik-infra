@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   A user requested access for a permission

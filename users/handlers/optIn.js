@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import doOptIn from '../lib/optIn';
 import response from '../../libs/httpResponses/response';
 
@@ -13,9 +14,7 @@ export default async (event) => {
   }
 
   try {
-    const {
-      optIn = [],
-    } = JSON.parse(event.body);
+    const { optIn = [] } = JSON.parse(event.body);
 
     if (typeof optIn !== 'object' || !optIn.length) {
       throw new Error('wrong_argument_type');

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import createPoll from '../lib/createPoll';
 import { createFieldChecks } from '../lib/pollsFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -9,17 +10,23 @@ export const validateEmail = async (email, token, appId) => {
   try {
     const usersCollection = client.db().collection(COLL_USERS);
     const appsCollection = client.db().collection(COLL_APPS);
-    const app = await appsCollection.findOne({ _id: appId }, { projection: { _id: true } });
+    const app = await appsCollection.findOne(
+      { _id: appId },
+      { projection: { _id: true } }
+    );
     if (!app) throw new Error('app_not_found');
 
-    const user = await usersCollection.findOne({
-      appId,
-      'emails.address': email,
-    }, {
-      projection: {
-        'emails.$': 1,
+    const user = await usersCollection.findOne(
+      {
+        appId,
+        'emails.address': email,
       },
-    });
+      {
+        projection: {
+          'emails.$': 1,
+        },
+      }
+    );
 
     if (!user) {
       throw new Error('email_not_found');
@@ -27,17 +34,20 @@ export const validateEmail = async (email, token, appId) => {
       throw new Error('invalid_email_token');
     }
 
-    await usersCollection.updateOne({
-      _id: user._id,
-      'emails.address': email,
-    }, {
-      $set: {
-        'emails.$.verified': true,
+    await usersCollection.updateOne(
+      {
+        _id: user._id,
+        'emails.address': email,
       },
-      $unset: {
-        'emails.$.token': '',
-      },
-    });
+      {
+        $set: {
+          'emails.$.verified': true,
+        },
+        $unset: {
+          'emails.$.token': '',
+        },
+      }
+    );
   } finally {
     client.close();
   }

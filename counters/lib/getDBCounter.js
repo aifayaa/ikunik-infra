@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -19,7 +20,7 @@ export default async (
   type,
   name,
   updateQuery,
-  { initialValue = 0, expiresDelay = 60000 } = {},
+  { initialValue = 0, expiresDelay = 60000 } = {}
 ) => {
   const client = await MongoClient.connect();
 
@@ -48,37 +49,39 @@ export default async (
         counter._id = insertedId;
       } catch (e) {
         // May fail because of a duplicate key. Don't worry, it's updating behind the scene :-)
-        return (initialValue);
+        return initialValue;
       }
     }
 
     if (counter.expiresAt <= now) {
       const updatesExpires = new Date(Date.now() - UPDATE_EXPIRES_DELAY);
       if (!counter.updatingAt || counter.updatingAt <= updatesExpires) {
-        const updateToken = (new ObjectID()).toString();
+        const updateToken = new ObjectID().toString();
         await client
           .db()
           .collection(COLL_COUNTERS)
           .updateOne(
             { _id: counter._id },
-            { $set: { updatingAt: new Date(), updateToken } },
+            { $set: { updatingAt: new Date(), updateToken } }
           );
-        await lambda.invokeAsync({
-          FunctionName: `counters-${process.env.STAGE}-updateDBCounter`,
-          InvokeArgs: JSON.stringify({
-            _id: counter._id,
-            appId,
-            type,
-            name,
-            updateQuery,
-            expiresDelay,
-            updateToken,
-          }),
-        }).promise();
+        await lambda
+          .invokeAsync({
+            FunctionName: `counters-${process.env.STAGE}-updateDBCounter`,
+            InvokeArgs: JSON.stringify({
+              _id: counter._id,
+              appId,
+              type,
+              name,
+              updateQuery,
+              expiresDelay,
+              updateToken,
+            }),
+          })
+          .promise();
       }
     }
 
-    return (counter.value);
+    return counter.value;
   } finally {
     client.close();
   }

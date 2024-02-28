@@ -1,16 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import updateDBCounter from '../lib/updateDBCounter';
 import { ObjectID } from '../../libs/mongoClient';
 
 export default async (event) => {
-  const {
-    _id,
-    appId,
-    type,
-    name,
-    updateQuery,
-    expiresDelay,
-    updateToken,
-  } = event;
+  const { _id, appId, type, name, updateQuery, expiresDelay, updateToken } =
+    event;
 
   try {
     await updateDBCounter({
@@ -23,10 +17,10 @@ export default async (event) => {
       updateToken,
     });
 
-    return ({ ok: true });
+    return { ok: true };
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error('Caught error :', e);
-    return ({ ok: false });
+    return { ok: false };
   }
 };

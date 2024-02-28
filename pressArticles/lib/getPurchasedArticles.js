@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
@@ -21,7 +22,7 @@ export const getPurchasedArticles = async (
     limit,
     onlyPublished = true,
     start,
-  },
+  }
 ) => {
   let client;
   try {
@@ -48,10 +49,7 @@ export const getPurchasedArticles = async (
 
     if (categoryId) {
       $match.$and.push({
-        $or: [
-          { categoryId },
-          { categoriesId: categoryId },
-        ],
+        $or: [{ categoryId }, { categoriesId: categoryId }],
       });
     }
 
@@ -80,10 +78,7 @@ export const getPurchasedArticles = async (
 
     const userDeviceMatch = {};
     if (userId && deviceId) {
-      userDeviceMatch.$or = [
-        { userId },
-        { deviceId, userId: null },
-      ];
+      userDeviceMatch.$or = [{ userId }, { deviceId, userId: null }];
     } else if (userId) {
       userDeviceMatch.userId = userId;
     } else if (deviceId) {
@@ -106,10 +101,7 @@ export const getPurchasedArticles = async (
               ],
             },
             {
-              $or: [
-                { 'permissions.read': true },
-                { 'permissions.all': true },
-              ],
+              $or: [{ 'permissions.read': true }, { 'permissions.all': true }],
             },
           ],
         },
@@ -186,7 +178,8 @@ export const getPurchasedArticles = async (
           },
         },
       },
-      { /*
+      {
+        /*
           some users have base 64 pictures in profile,
           we remove those fields to avoid big trafic load
         */

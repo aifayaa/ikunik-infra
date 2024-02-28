@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import {
   finalizeBadge,
   finalizeInternalProfile,
@@ -28,15 +29,15 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const {
-      badge = null,
-      internalProfile = null,
-      profile = null,
-    } = bodyParsed;
+    const { badge = null, internalProfile = null, profile = null } = bodyParsed;
 
     const results = {};
     if (internalProfile !== null && isAdmin) {
-      results.internalProfile = await finalizeInternalProfile(urlUserId, appId, internalProfile);
+      results.internalProfile = await finalizeInternalProfile(
+        urlUserId,
+        appId,
+        internalProfile
+      );
     }
     if (profile !== null) {
       results.profile = await finalizeProfile(urlUserId, appId, profile);
@@ -54,8 +55,12 @@ export default async (event) => {
   } catch (e) {
     let code = 500;
     switch (e.message) {
-      case 'Forbidden': code = 403; break;
-      default: code = 500; break;
+      case 'Forbidden':
+        code = 403;
+        break;
+      default:
+        code = 500;
+        break;
     }
     return response({ code, message: e.message });
   }

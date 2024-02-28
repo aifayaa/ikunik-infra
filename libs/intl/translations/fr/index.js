@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import addressConfirmationEmailHtml from './addressConfirmationEmailHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
@@ -86,13 +87,15 @@ export default {
       html: appPreviewEmailHtml,
       title: 'Prévisualisation de {{- appName}}',
     },
-    app_preview_sms: 'Salut! Voila le lien pour tester votre application {{- sanatizedAppName}} : {{- url}}, bonne découverte!',
-    invite_app_admin_email_title: 'Crowdaa || Votre tableau de bord {{- appName}}',
+    app_preview_sms:
+      'Salut! Voila le lien pour tester votre application {{- sanatizedAppName}} : {{- url}}, bonne découverte!',
+    invite_app_admin_email_title:
+      'Crowdaa || Votre tableau de bord {{- appName}}',
   },
   auth: {
     address_confirmation_email: {
       html: addressConfirmationEmailHtml,
-      title: 'Confirmation d\'adresse email',
+      title: "Confirmation d'adresse email",
     },
     forgot_password_email: {
       html: forgotPasswordEmailHtml,
@@ -120,46 +123,52 @@ export default {
     media_type_video: 'Vidéo',
     new_ugc_article_email: {
       html: newUgcArticleEmailHtml,
-      title: '[{{- appName}}] Un nouvel article utilisateur a été {{editionType}} avec le titre {{- ugc.data.title}}',
+      title:
+        '[{{- appName}}] Un nouvel article utilisateur a été {{editionType}} avec le titre {{- ugc.data.title}}',
     },
     new_ugc_comment_email: {
       html: newUgcCommentEmailHtml,
-      title: '[{{- appName}}] Un nouveau commentaire utilisateur a été {{editionType}} sur l\'article {{- ugc.rootParent.title}}',
+      title:
+        "[{{- appName}}] Un nouveau commentaire utilisateur a été {{editionType}} sur l'article {{- ugc.rootParent.title}}",
     },
     reported_ugc_article_email: {
       html: reportedUgcArticleEmailHtml,
-      title: '[{{- appName}}] Un utilisateur a reporté un article nommé {{- ugc.data.title}}',
+      title:
+        '[{{- appName}}] Un utilisateur a reporté un article nommé {{- ugc.data.title}}',
     },
     reported_ugc_comment_email: {
       html: reportedUgcCommentEmailHtml,
-      title: '[{{- appName}}] Un utilisateur a reporté un commentaire sur l\'article {{- ugc.rootParent.title}}',
+      title:
+        "[{{- appName}}] Un utilisateur a reporté un commentaire sur l'article {{- ugc.rootParent.title}}",
     },
     reported_ugc_user_article_email: {
       html: reportedUgcUserArticleEmailHtml,
-      title: '[{{- appName}}] Un utilisateur a reporté un autre utilisateur sur un article nommé {{- ugc.data.title}}',
+      title:
+        '[{{- appName}}] Un utilisateur a reporté un autre utilisateur sur un article nommé {{- ugc.data.title}}',
     },
     reported_ugc_user_comment_email: {
       html: reportedUgcUserCommentEmailHtml,
-      title: '[{{- appName}}] Un utilisateur a reporté un autre utilisateur sur un commentaire sur l\'article {{- ugc.rootParent.title}}',
+      title:
+        "[{{- appName}}] Un utilisateur a reporté un autre utilisateur sur un commentaire sur l'article {{- ugc.rootParent.title}}",
     },
     ugc_user_data_email: {
       article: ugcDataArticleEmailHtml,
       comment: ugcDataCommentEmailHtml,
     },
     ugc_post_replied_push: {
-      text: 'L\'utilisateur {{- username}} a commenté votre publication',
+      text: "L'utilisateur {{- username}} a commenté votre publication",
       title: 'Nouveau commentaire',
     },
     ugc_comment_replied_push: {
-      text: 'L\'utilisateur {{- username}} a répondu à votre commentaire',
+      text: "L'utilisateur {{- username}} a répondu à votre commentaire",
       title: 'Nouvelle réponse',
     },
     ugc_post_reacted_push: {
-      text: 'L\'utilisateur {{- username}} a réagi à votre publication',
+      text: "L'utilisateur {{- username}} a réagi à votre publication",
       title: 'Nouvelle réaction',
     },
     ugc_comment_reacted_push: {
-      text: 'L\'utilisateur {{- username}} a réagi à à votre commentaire',
+      text: "L'utilisateur {{- username}} a réagi à à votre commentaire",
       title: 'Nouvelle réaction',
     },
   },
@@ -175,13 +184,16 @@ export default {
   pressArticles: {
     generateContent: {
       generic: {
-        title: 'Écris un titre d\'article court sur le sujet suivant : {{- userPrompt}}',
+        title:
+          "Écris un titre d'article court sur le sujet suivant : {{- userPrompt}}",
         article: 'Écris un article en markdown dont le titre est : {%title%}',
         articlePicture: '{%title%}',
       },
       custom: {
-        title: 'Écris un titre d\'article court sur le sujet suivant : {{- userPrompt}}',
-        article: 'Écris un article en markdown sur le sujet suivant : {{- userPrompt}}',
+        title:
+          "Écris un titre d'article court sur le sujet suivant : {{- userPrompt}}",
+        article:
+          'Écris un article en markdown sur le sujet suivant : {{- userPrompt}}',
         articlePicture: '{{- userPrompt}}',
       },
     },
@@ -189,13 +201,15 @@ export default {
   pressAutomation: {
     runTask: {
       summary: {
-        globalSummary: 'Résume brièvement ces {{- count}} titres d\'actualités, une par ligne : {{- newsTitles}}',
-        singleSummary: 'Résume brièvement cet article au format markdown : {{- news}}',
+        globalSummary:
+          "Résume brièvement ces {{- count}} titres d'actualités, une par ligne : {{- newsTitles}}",
+        singleSummary:
+          'Résume brièvement cet article au format markdown : {{- news}}',
         title: 'Actualités du {{- date}} dans {{- category}}',
       },
       reword: {
-        title: 'Reformule ce titre d\'article d\'actualité : {{- title}}',
-        news: 'Reformule cet article d\'actualité au format markdown : {{- news}}',
+        title: "Reformule ce titre d'article d'actualité : {{- title}}",
+        news: "Reformule cet article d'actualité au format markdown : {{- news}}",
       },
     },
   },
@@ -208,21 +222,25 @@ export default {
   },
   userBadges: {
     user_badge_request: {
-      title: '[{{- appName}}] L\'utilisateur {{- username}} a demandé l\'accès à la permission {{- badgeName}}',
+      title:
+        "[{{- appName}}] L'utilisateur {{- username}} a demandé l'accès à la permission {{- badgeName}}",
       html: userBadgeRequestHtml,
     },
     badge_request_validated: {
-      title: '[{{- appName}}] Votre demande d\'accès à la permission {{- badgeName}} a été acceptée',
+      title:
+        "[{{- appName}}] Votre demande d'accès à la permission {{- badgeName}} a été acceptée",
       html: userBadgeRequestValidatedHtml,
     },
     badge_request_rejected: {
-      title: '[{{- appName}}] Votre demande d\'accès à la permission {{- badgeName}} a été refusée',
+      title:
+        "[{{- appName}}] Votre demande d'accès à la permission {{- badgeName}} a été refusée",
       html: userBadgeRequestRejectedHtml,
     },
   },
   users: {
     finalized_profile: {
-      title: '[{{- appName}}] L\'utilisateur {{- username}} a finalisé son inscription',
+      title:
+        "[{{- appName}}] L'utilisateur {{- username}} a finalisé son inscription",
       html: usersFinalizedProfileHtml,
     },
   },

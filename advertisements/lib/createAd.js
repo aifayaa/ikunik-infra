@@ -1,28 +1,25 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_ADVERTISEMENTS } = mongoCollections;
 
-export default async (appId, userId, {
-  campaignId = null,
-  format,
-  location = 'article',
-  media,
-  mediaType,
-  url,
-  locationOpts = '',
-  limits: {
-    maxDisplays = 0,
-    maxClicks = 0,
-    notBefore,
-    notAfter,
-  } = {},
-  counters: {
-    displays = 0,
-    clicks = 0,
-  } = {},
-  active = true,
-}) => {
+export default async (
+  appId,
+  userId,
+  {
+    campaignId = null,
+    format,
+    location = 'article',
+    media,
+    mediaType,
+    url,
+    locationOpts = '',
+    limits: { maxDisplays = 0, maxClicks = 0, notBefore, notAfter } = {},
+    counters: { displays = 0, clicks = 0 } = {},
+    active = true,
+  }
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -56,12 +53,9 @@ export default async (appId, userId, {
       active,
     };
 
-    await client
-      .db()
-      .collection(COLL_ADVERTISEMENTS)
-      .insertOne(newAdObj);
+    await client.db().collection(COLL_ADVERTISEMENTS).insertOne(newAdObj);
 
-    return (newAdObj);
+    return newAdObj;
   } finally {
     client.close();
   }

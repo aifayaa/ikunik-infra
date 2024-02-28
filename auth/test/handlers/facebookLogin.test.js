@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -43,7 +44,9 @@ describe('handlers - facebookLogin', () => {
     describe('invalid_token', () => {
       let response;
       before(async () => {
-        stubLib = sandbox.stub(lib, 'getUserByFacebook').throws(new Error('invalid_token'));
+        stubLib = sandbox
+          .stub(lib, 'getUserByFacebook')
+          .throws(new Error('invalid_token'));
         response = await handler(event);
       });
       it('should return 401', () => {

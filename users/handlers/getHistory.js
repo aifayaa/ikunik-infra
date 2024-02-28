@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getHistory from '../lib/getHistory';
 import response from '../../libs/httpResponses/response';
 

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import getEndpoints from '../lib/getEndpoints';
 import response from '../../libs/httpResponses/response';

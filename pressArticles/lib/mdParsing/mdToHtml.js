@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import showdown from 'showdown';
 
 const converter = new showdown.Converter({

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { getArticleDraft } from '../lib/getArticleDraft';
 import response from '../../libs/httpResponses/response';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
@@ -26,7 +27,7 @@ export default async (
     onlyPublished = true,
     showHiddenOnFeed = false,
     showWithHiddenCategories = false,
-  },
+  }
 ) => {
   let client;
   try {
@@ -53,9 +54,10 @@ export default async (
 
     const categoriesIds = categories
       .filter(
-        (category) => showWithHiddenCategories ||
+        (category) =>
+          showWithHiddenCategories ||
           category.hidden === undefined ||
-          category.hidden === showWithHiddenCategories,
+          category.hidden === showWithHiddenCategories
       )
       .map((category) => category._id);
 
@@ -247,11 +249,7 @@ export default async (
         .collection(COLL_PRESS_ARTICLES)
         .aggregate(articlesPipeline)
         .toArray(),
-      client
-        .db()
-        .collection(COLL_PRESS_ARTICLES)
-        .find(matchArticles)
-        .count(),
+      client.db().collection(COLL_PRESS_ARTICLES).find(matchArticles).count(),
     ]);
 
     if (!getDrafts) {
@@ -273,20 +271,23 @@ export default async (
         return { ...article, draft: lastDraft[0] || {} };
       };
       articlesWithDraft = await Promise.all(
-        articles.map((article) => getDraftsFor(article)),
+        articles.map((article) => getDraftsFor(article))
       );
     }
 
     const articlesWithCategory = articlesWithDraft.map((article) => {
       const articleCategory = categories.find(
-        (category) => category._id === article.categoryId,
+        (category) => category._id === article.categoryId
       );
       return { ...article, category: articleCategory };
     });
 
     const promises3 = articlesWithCategory.map(async (article) => {
       if (article) {
-        article.commentsCount = await getArticleCommentsCount(appId, article._id);
+        article.commentsCount = await getArticleCommentsCount(
+          appId,
+          article._id
+        );
       }
     });
 

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -25,7 +26,11 @@ export default async (profileId, type, appId) => {
   }
   const projection = { _id: 0 };
   projection[`${type}`] = {
-    $cond: { if: { $gt: [`$${type}.balance`, 0] }, then: `$${type}.balance`, else: 0 },
+    $cond: {
+      if: { $gt: [`$${type}.balance`, 0] },
+      then: `$${type}.balance`,
+      else: 0,
+    },
   };
   const defaultValue = {};
   defaultValue[type] = 0;

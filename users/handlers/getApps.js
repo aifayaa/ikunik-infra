@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getApps from '../lib/getApps';

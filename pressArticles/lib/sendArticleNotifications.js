@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendNotificationTo } from './snsNotifications';
@@ -14,7 +15,12 @@ const {
 
 const PROCESS_BATCH_SIZE = 200;
 
-async function userHaveBadgesPermissions(badgeChecker, user, artCatBadges, options) {
+async function userHaveBadgesPermissions(
+  badgeChecker,
+  user,
+  artCatBadges,
+  options
+) {
   let checkerResults = BadgeChecker.newEmptyResults();
   const promises = artCatBadges.map(async (toCheckbadges) => {
     const newResult = await badgeChecker.checkBadges(
@@ -23,7 +29,7 @@ async function userHaveBadgesPermissions(badgeChecker, user, artCatBadges, optio
       {
         userId: user._id,
         ...options,
-      },
+      }
     );
 
     checkerResults = checkerResults.merge(newResult);
@@ -31,16 +37,13 @@ async function userHaveBadgesPermissions(badgeChecker, user, artCatBadges, optio
 
   await Promise.all(promises);
 
-  return (checkerResults.canNotify);
+  return checkerResults.canNotify;
 }
 
 function getArticleBadges(article) {
   const badges = [];
 
-  if (
-    article.badges &&
-    article.badges.list.length > 0
-  ) {
+  if (article.badges && article.badges.list.length > 0) {
     badges.push(article.badges);
   }
 
@@ -60,14 +63,14 @@ function getArticleBadges(article) {
     });
   }
 
-  return (badges);
+  return badges;
 }
 
 export const sendArticleNotifications = async (
   appId,
   articleId,
   draftId,
-  notifyAt,
+  notifyAt
 ) => {
   const client = await MongoClient.connect();
   const badgeChecker = new BadgeChecker(appId);
@@ -80,53 +83,69 @@ export const sendArticleNotifications = async (
       .aggregate([
         { $match },
         { $limit: PROCESS_BATCH_SIZE },
-        { $lookup: {
-          from: COLL_PUSH_NOTIFICATIONS,
-          localField: 'endpointId',
-          foreignField: '_id',
-          as: 'endpoint',
-        } },
-        { $lookup: {
-          from: COLL_USERS,
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-        } },
-        { $project: {
-          endpoint: 1,
-          user: 1,
-          notificationContent: 1,
-          notificationTitle: 1,
-        } },
+        {
+          $lookup: {
+            from: COLL_PUSH_NOTIFICATIONS,
+            localField: 'endpointId',
+            foreignField: '_id',
+            as: 'endpoint',
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_USERS,
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $project: {
+            endpoint: 1,
+            user: 1,
+            notificationContent: 1,
+            notificationTitle: 1,
+          },
+        },
       ])
       .toArray();
 
-    const [article] = await client.db().collection(COLL_PRESS_ARTICLES).aggregate([
-      { $match: {
-        _id: articleId,
-        draftId,
-        isPublished: true,
-        trashed: { $ne: true },
-      } },
-      { $lookup: {
-        from: COLL_PRESS_CATEGORIES,
-        localField: 'categoriesId',
-        foreignField: '_id',
-        as: 'categories',
-      } },
-      { $lookup: {
-        from: COLL_PRESS_CATEGORIES,
-        localField: 'categoryId',
-        foreignField: '_id',
-        as: 'category',
-      } },
-      { $unwind: '$category' },
-    ]).toArray();
+    const [article] = await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .aggregate([
+        {
+          $match: {
+            _id: articleId,
+            draftId,
+            isPublished: true,
+            trashed: { $ne: true },
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_PRESS_CATEGORIES,
+            localField: 'categoriesId',
+            foreignField: '_id',
+            as: 'categories',
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_PRESS_CATEGORIES,
+            localField: 'categoryId',
+            foreignField: '_id',
+            as: 'category',
+          },
+        },
+        { $unwind: '$category' },
+      ])
+      .toArray();
 
     let sent = 0;
     let skipped = 0;
     let failed = 0;
-    const retry = !!((pendingNotifs.length === PROCESS_BATCH_SIZE) && article);
+    const retry = !!(pendingNotifs.length === PROCESS_BATCH_SIZE && article);
     if (article) {
       const checkerOptions = {
         articleId: article._id,
@@ -141,61 +160,73 @@ export const sendArticleNotifications = async (
       await badgeChecker.init;
       if (artCatBadges.length > 0) {
         const badgeIds = [];
-        artCatBadges.forEach(({ list }) => { list.forEach(({ id }) => { badgeIds.push(id); }); });
+        artCatBadges.forEach(({ list }) => {
+          list.forEach(({ id }) => {
+            badgeIds.push(id);
+          });
+        });
         await badgeChecker.loadBadges(badgeIds);
       }
 
-      const promises = pendingNotifs.map(async ({
-        endpoint: [endpoint],
-        user: [user],
-        notificationContent = null,
-        notificationTitle = null,
-      }) => {
-        if (!endpoint) return;
+      const promises = pendingNotifs.map(
+        async ({
+          endpoint: [endpoint],
+          user: [user],
+          notificationContent = null,
+          notificationTitle = null,
+        }) => {
+          if (!endpoint) return;
 
-        if (artCatBadges.length > 0) {
-          if (!user) {
-            skipped += 1;
-            return;
+          if (artCatBadges.length > 0) {
+            if (!user) {
+              skipped += 1;
+              return;
+            }
+
+            const canSendNotification = await userHaveBadgesPermissions(
+              badgeChecker,
+              user,
+              artCatBadges,
+              checkerOptions
+            );
+            if (!canSendNotification) {
+              skipped += 1;
+              return;
+            }
           }
 
-          const canSendNotification = await userHaveBadgesPermissions(
-            badgeChecker,
-            user,
-            artCatBadges,
-            checkerOptions,
-          );
-          if (!canSendNotification) {
-            skipped += 1;
-            return;
+          if (notificationContent || notificationTitle) {
+            title = notificationTitle;
+            message = notificationContent;
           }
-        }
 
-        if (notificationContent || notificationTitle) {
-          title = notificationTitle;
-          message = notificationContent;
-        }
-
-        await new Promise((resolve) => {
-          sendNotificationTo({
-            title,
-            message,
-            endpoint,
-            extraData: { articleId },
-          }, (error/* , res */) => {
-            if (!error) sent += 1;
-            else failed += 1;
-            resolve();
+          await new Promise((resolve) => {
+            sendNotificationTo(
+              {
+                title,
+                message,
+                endpoint,
+                extraData: { articleId },
+              },
+              (error /* , res */) => {
+                if (!error) sent += 1;
+                else failed += 1;
+                resolve();
+              }
+            );
           });
-        });
-      });
+        }
+      );
       await Promise.all(promises);
 
       if (!retry) {
-        await client.db().collection(COLL_PRESS_ARTICLES).updateOne(
-          { _id: articleId },
-          { $unset: { pendingNotificationAwsArnId: '' } },
-        );
+        await client
+          .db()
+          .collection(COLL_PRESS_ARTICLES)
+          .updateOne(
+            { _id: articleId },
+            { $unset: { pendingNotificationAwsArnId: '' } }
+          );
       }
     }
 
@@ -209,7 +240,7 @@ export const sendArticleNotifications = async (
         .db()
         .collection(COLL_PRESS_NOTIFICATIONS_QUEUE)
         .deleteMany({
-          _id: { $in: pendingNotifs.map(({ _id }) => (_id)) },
+          _id: { $in: pendingNotifs.map(({ _id }) => _id) },
         });
     }
 
@@ -218,14 +249,14 @@ export const sendArticleNotifications = async (
      *       to remove, even from other apps, maybe?
      */
 
-    return ({
+    return {
       requested: PROCESS_BATCH_SIZE,
       received: pendingNotifs.length,
       sent,
       failed,
       skipped,
       retry,
-    });
+    };
   } finally {
     await badgeChecker.close();
     await client.close();

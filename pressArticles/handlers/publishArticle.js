@@ -1,6 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
-import { queueArticleNotifications, cleanPendingArticleNotifications } from '../lib/notificationsQueue';
+import {
+  queueArticleNotifications,
+  cleanPendingArticleNotifications,
+} from '../lib/notificationsQueue';
 import { publishArticle } from '../lib/publishArticle';
 
 const permKey = 'pressArticles_all';
@@ -29,7 +33,13 @@ export default async (event) => {
     const publicationDate = new Date(date);
     const userId = event.requestContext.authorizer.principalId;
     const articleId = event.pathParameters.id;
-    const results = await publishArticle(userId, appId, articleId, draftId, publicationDate);
+    const results = await publishArticle(
+      userId,
+      appId,
+      articleId,
+      draftId,
+      publicationDate
+    );
     const requestResults = { results };
     await cleanPendingArticleNotifications(articleId);
     if (sendNotifications) {
@@ -39,7 +49,7 @@ export default async (event) => {
         draftId,
         notificationDate || publicationDate,
         notificationContent,
-        notificationTitle,
+        notificationTitle
       );
     }
     return response({ code: 200, body: requestResults });

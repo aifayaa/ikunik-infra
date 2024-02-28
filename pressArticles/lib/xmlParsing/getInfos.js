@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import xmlParser from 'fast-xml-parser';
 import get from 'lodash/get';
 import each from 'lodash/each';

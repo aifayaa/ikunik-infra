@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getUGCArticleCommentsCount } from './getUGCCounts';
@@ -27,7 +28,7 @@ export default async (
     sortBy,
     sortOrder = 'desc',
     trashed = false,
-  } = {},
+  } = {}
 ) => {
   let client;
   try {
@@ -197,7 +198,7 @@ export default async (
               _id: 1,
             },
           },
-        },
+        }
       );
     }
 

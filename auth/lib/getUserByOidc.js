@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import verifyJwt from './verifyJsonWebToken';
@@ -5,20 +6,16 @@ import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import Random from '../../libs/account_utils/random';
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export const getUserByOidc = async (identityToken, appId) => {
   const client = await MongoClient.connect();
   try {
     // TODO: verify identityToken
-    const decodedIdToken = await verifyJwt(identityToken, appId, { mongoClient: client });
-    const {
-      sub,
-      given_name: givenName,
-      name,
-    } = decodedIdToken;
+    const decodedIdToken = await verifyJwt(identityToken, appId, {
+      mongoClient: client,
+    });
+    const { sub, given_name: givenName, name } = decodedIdToken;
 
     if (!sub) {
       throw new Error('missing_sub');
@@ -28,10 +25,13 @@ export const getUserByOidc = async (identityToken, appId) => {
 
     /* get user in db */
     const collection = db.collection(COLL_USERS);
-    const user = await collection.findOne({
-      'services.openIdConnect.sub': sub,
-      appId,
-    }, { projection: { _id: true } });
+    const user = await collection.findOne(
+      {
+        'services.openIdConnect.sub': sub,
+        appId,
+      },
+      { projection: { _id: true } }
+    );
     const token = generateToken();
     const hash = hashToken(token);
     const date = new Date();
@@ -71,10 +71,12 @@ export const getUserByOidc = async (identityToken, appId) => {
             sub,
           },
           resume: {
-            loginTokens: [{
-              hashedToken: hash,
-              when: date.toISOString(),
-            }],
+            loginTokens: [
+              {
+                hashedToken: hash,
+                when: date.toISOString(),
+              },
+            ],
           },
         },
         appId,

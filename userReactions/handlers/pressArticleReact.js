@@ -1,13 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import pressArticleReact from '../lib/pressArticleReact';
 
 export default async (event) => {
   const { id: articleId, reaction } = event.pathParameters;
-  const {
-    appId,
-    principalId: userId,
-  } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
     const ok = await pressArticleReact(appId, articleId, userId, reaction);

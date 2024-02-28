@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -30,26 +31,32 @@ export default async (appId, liveStreamId) => {
     if (!dbLiveStream.expired) {
       // Prevent future reconnections
       try {
-        await ivs.deleteStreamKey({
-          arn: dbLiveStream.aws.streamKeyArn,
-        }).promise();
+        await ivs
+          .deleteStreamKey({
+            arn: dbLiveStream.aws.streamKeyArn,
+          })
+          .promise();
       } catch (e) {
         /* Even if that fails, we shall be able to delete the stream, it will delete the key too */
       }
 
       try {
         // Stop current streams if any, to allow deletion
-        await ivs.stopStream({
-          arn: dbLiveStream.aws.arn,
-        }).promise();
+        await ivs
+          .stopStream({
+            arn: dbLiveStream.aws.arn,
+          })
+          .promise();
       } catch (e) {
         /* Do nothing, it was probably stopped... */
       }
 
       // Delete streaming channel
-      await ivs.deleteChannel({
-        arn: dbLiveStream.aws.arn,
-      }).promise();
+      await ivs
+        .deleteChannel({
+          arn: dbLiveStream.aws.arn,
+        })
+        .promise();
     }
 
     await client
@@ -57,7 +64,7 @@ export default async (appId, liveStreamId) => {
       .collection(COLL_LIVE_STREAM)
       .deleteOne({ _id: liveStreamId });
 
-    return (true);
+    return true;
   } finally {
     client.close();
   }

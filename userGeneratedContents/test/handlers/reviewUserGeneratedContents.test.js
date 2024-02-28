@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -29,7 +30,9 @@ describe('handlers - reviewUserGeneratedContents', () => {
   describe('no perms', () => {
     let response;
     before(async () => {
-      stubOwner = sandbox.stub(checkOwner, 'default').returns({ results: {}, error: 'forbidden_user' });
+      stubOwner = sandbox
+        .stub(checkOwner, 'default')
+        .returns({ results: {}, error: 'forbidden_user' });
       stubLib = sandbox.stub(lib, 'default').returns(true);
       response = await handler(event);
     });
@@ -48,7 +51,9 @@ describe('handlers - reviewUserGeneratedContents', () => {
     describe('missing valid', () => {
       let response;
       before(async () => {
-        stubOwner = sandbox.stub(checkOwner, 'default').returns({ results: {}, error: '' });
+        stubOwner = sandbox
+          .stub(checkOwner, 'default')
+          .returns({ results: {}, error: '' });
         stubLib = sandbox.stub(lib, 'default').returns(true);
         const finalEvent = { ...event };
         finalEvent.body = JSON.stringify({});
@@ -68,13 +73,17 @@ describe('handlers - reviewUserGeneratedContents', () => {
     describe('any', () => {
       let response;
       before(async () => {
-        stubOwner = sandbox.stub(checkOwner, 'default').returns({ results: {}, error: '' });
+        stubOwner = sandbox
+          .stub(checkOwner, 'default')
+          .returns({ results: {}, error: '' });
         stubLib = sandbox.stub(lib, 'default').throws();
         response = await handler(event);
       });
 
       it('should call checkPerms with safeExec option', () => {
-        const { args: [,,,,, callOptions] } = stubOwner.getCall(0);
+        const {
+          args: [, , , , , callOptions],
+        } = stubOwner.getCall(0);
         expect(callOptions.safeExec).to.be.true;
       });
 
@@ -93,7 +102,9 @@ describe('handlers - reviewUserGeneratedContents', () => {
       let response;
 
       before(async () => {
-        stubOwner = sandbox.stub(checkOwner, 'default').returns({ results: {}, error: '' });
+        stubOwner = sandbox
+          .stub(checkOwner, 'default')
+          .returns({ results: {}, error: '' });
         stubLib = sandbox.stub(lib, 'default').returns(true);
         response = await handler(event);
       });
@@ -103,20 +114,11 @@ describe('handlers - reviewUserGeneratedContents', () => {
       });
 
       it('should call lib with right args', () => {
-        const {
-          principalId,
-          appId,
-        } = event.requestContext.authorizer;
+        const { principalId, appId } = event.requestContext.authorizer;
         const bodyParsed = JSON.parse(event.body);
 
         sinon.assert.calledOnce(stubOwner);
-        sinon.assert.calledWith(
-          stubLib,
-          appId,
-          principalId,
-          {},
-          bodyParsed,
-        );
+        sinon.assert.calledWith(stubLib, appId, principalId, {}, bodyParsed);
       });
 
       after(() => {

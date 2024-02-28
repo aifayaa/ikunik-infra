@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -14,15 +15,12 @@ const lambda = new Lambda({
  * This function shall only be called internally, not through API directly.
  * When called, the calling serverless module should be able to execute lambdas.
  */
-export default async (
-  countersSettings,
-  commonSettings,
-) => {
+export default async (countersSettings, commonSettings) => {
   const client = await MongoClient.connect();
 
   try {
     const now = new Date();
-    const updateToken = (new ObjectID()).toString();
+    const updateToken = new ObjectID().toString();
     const updatesExpires = new Date(Date.now() - UPDATE_EXPIRES_DELAY);
 
     const pendingUpdates = [];
@@ -93,17 +91,19 @@ export default async (
         .db()
         .collection(COLL_COUNTERS)
         .updateMany(
-          { _id: { $in: pendingUpdates.map(({ _id }) => (_id)) } },
-          { $set: { updatingAt: new Date(), updateToken } },
+          { _id: { $in: pendingUpdates.map(({ _id }) => _id) } },
+          { $set: { updatingAt: new Date(), updateToken } }
         );
 
-      await lambda.invokeAsync({
-        FunctionName: `counters-${process.env.STAGE}-updateDBCounters`,
-        InvokeArgs: JSON.stringify(pendingUpdates),
-      }).promise();
+      await lambda
+        .invokeAsync({
+          FunctionName: `counters-${process.env.STAGE}-updateDBCounters`,
+          InvokeArgs: JSON.stringify(pendingUpdates),
+        })
+        .promise();
     }
 
-    return (results);
+    return results;
   } finally {
     client.close();
   }

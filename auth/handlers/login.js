@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { login } from '../lib/login';
@@ -15,8 +16,10 @@ export default async (event) => {
     }
 
     if (
-      !typeCheck('[Maybe String]', [email, username]) || !typeCheck('String', password)
-    ) throw new Error('wrong_argument_type');
+      !typeCheck('[Maybe String]', [email, username]) ||
+      !typeCheck('String', password)
+    )
+      throw new Error('wrong_argument_type');
 
     const { appId } = event.requestContext.authorizer;
     const result = await login(email, username, password, appId);

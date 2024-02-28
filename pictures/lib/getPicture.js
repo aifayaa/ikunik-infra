@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable no-await-in-loop */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -18,9 +19,7 @@ export default async (id, appId, { isPublished }) => {
     }
 
     client = await MongoClient.connect();
-    return await client.db()
-      .collection(COLL_PICTURES)
-      .findOne($find);
+    return await client.db().collection(COLL_PICTURES).findOne($find);
   } finally {
     client.close();
   }

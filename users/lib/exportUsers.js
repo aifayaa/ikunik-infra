@@ -1,12 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 
 const COMMA = ',';
 const QUOTE = '"';
@@ -14,32 +11,33 @@ const QUOTE_REGEX = new RegExp(QUOTE, 'g');
 const TOQUOTE_REGEX = /[^a-zA-Z0-9+.@ _[\]{}()-]/;
 
 function escapeField(field) {
-  if (!field || typeof field !== 'string') return ('');
+  if (!field || typeof field !== 'string') return '';
   if (field.match(TOQUOTE_REGEX)) {
     const escaped = field.replace(QUOTE_REGEX, `${QUOTE}${QUOTE}`);
-    return (`${QUOTE}${escaped}${QUOTE}`);
+    return `${QUOTE}${escaped}${QUOTE}`;
   }
-  return (field);
+  return field;
 }
 
 function formatCSVLine(fields) {
-  return (`${fields.map(escapeField).join(COMMA)}\n`);
+  return `${fields.map(escapeField).join(COMMA)}\n`;
 }
 
 export default async (appId, { fields, wholeProfile, ownedBadges }) => {
   const client = await MongoClient.connect();
   try {
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
-    const userBadges = await client.db().collection(COLL_USER_BADGES).find({ appId }).toArray();
+    const userBadges = await client
+      .db()
+      .collection(COLL_USER_BADGES)
+      .find({ appId })
+      .toArray();
     const badgesMap = userBadges.reduce((acc, itm) => {
       acc[itm._id] = itm;
-      return (acc);
+      return acc;
     }, {});
 
-    const usersCursor = client
-      .db()
-      .collection(COLL_USERS)
-      .find({ appId });
+    const usersCursor = client.db().collection(COLL_USERS).find({ appId });
 
     if (wholeProfile) {
       const profileFields = {};
@@ -76,9 +74,7 @@ export default async (appId, { fields, wholeProfile, ownedBadges }) => {
         lookupObject.ownedBadges = [];
         badges.forEach(({ id, status = 'validated' }) => {
           if (badgesMap[id] && status === 'validated') {
-            lookupObject.ownedBadges.push(
-              badgesMap[id].name,
-            );
+            lookupObject.ownedBadges.push(badgesMap[id].name);
           }
         });
         lookupObject.ownedBadges = lookupObject.ownedBadges.join(', ');
@@ -86,12 +82,12 @@ export default async (appId, { fields, wholeProfile, ownedBadges }) => {
 
       const toPrint = fields.map((field) => {
         const value = objGet(lookupObject, field, false);
-        return (value || '');
+        return value || '';
       });
       ret = `${ret}${formatCSVLine(toPrint)}`;
     });
 
-    return (ret);
+    return ret;
   } finally {
     client.close();
   }

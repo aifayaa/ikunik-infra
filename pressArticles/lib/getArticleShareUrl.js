@@ -1,20 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import callTLY from '../../libs/backends/t.ly';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_PRESS_ARTICLES,
-} = mongoCollections;
+const { COLL_APPS, COLL_PRESS_ARTICLES } = mongoCollections;
 
-const {
-  REACT_APP_SSR_URL,
-} = process.env;
+const { REACT_APP_SSR_URL } = process.env;
 
-export const getArticleShareUrl = async (
-  articleId,
-  appId,
-) => {
+export const getArticleShareUrl = async (articleId, appId) => {
   const client = await MongoClient.connect();
   try {
     const [article, app] = await Promise.all([
@@ -25,9 +18,12 @@ export const getArticleShareUrl = async (
       client
         .db()
         .collection(COLL_APPS)
-        .findOne({
-          _id: appId,
-        }, { projection: { protocol: 1, name: 1 } }),
+        .findOne(
+          {
+            _id: appId,
+          },
+          { projection: { protocol: 1, name: 1 } }
+        ),
     ]);
 
     /* Mostly for tests, it shoud never happen otherwise */
@@ -41,7 +37,7 @@ export const getArticleShareUrl = async (
     const internalShareUrl = `https://${REACT_APP_SSR_URL}/articles/${articleId}?redirect_url=${app.protocol}://goto/articles/${articleId}&appName=${encodeURI(app.name)}`;
 
     if (article.shareUrl && article.shareUrl !== internalShareUrl) {
-      return (article.shareUrl);
+      return article.shareUrl;
     }
 
     let shareUrl = internalShareUrl;
@@ -60,10 +56,13 @@ export const getArticleShareUrl = async (
       }
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.warn(`Error when requesting t.ly share for article ${articleId} (app ${app._id}) :`, e);
+      console.warn(
+        `Error when requesting t.ly share for article ${articleId} (app ${app._id}) :`,
+        e
+      );
     }
 
-    return (shareUrl);
+    return shareUrl;
   } finally {
     client.close();
   }

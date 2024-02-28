@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -33,8 +34,12 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         const finalEvent = { ...event };
         finalEvent.body = null;
         response = await handler(finalEvent);
@@ -58,8 +63,12 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         const finalEvent = { ...event };
         finalEvent.body = JSON.stringify({});
         response = await handler(finalEvent);
@@ -83,8 +92,12 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         const finalEvent = { ...event };
         finalEvent.body = JSON.stringify({ reason: 1, details: 'details' });
         response = await handler(finalEvent);
@@ -108,10 +121,17 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         const finalEvent = { ...event };
-        finalEvent.body = JSON.stringify({ reason: 'inappropriate', details: 1 });
+        finalEvent.body = JSON.stringify({
+          reason: 'inappropriate',
+          details: 1,
+        });
         response = await handler(finalEvent);
       });
 
@@ -133,10 +153,17 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         const finalEvent = { ...event };
-        finalEvent.body = JSON.stringify({ reason: 'reason', details: 'details' });
+        finalEvent.body = JSON.stringify({
+          reason: 'reason',
+          details: 'details',
+        });
         response = await handler(finalEvent);
       });
 
@@ -157,9 +184,15 @@ describe('handlers - reportUserGeneratedContents', () => {
     describe('ugc_not_found', () => {
       let response;
       before(async () => {
-        stubLib = sandbox.stub(lib, 'default').throws(new Error('ugc_not_found'));
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubLib = sandbox
+          .stub(lib, 'default')
+          .throws(new Error('ugc_not_found'));
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -181,8 +214,12 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').throws();
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -206,7 +243,9 @@ describe('handlers - reportUserGeneratedContents', () => {
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
         stubEmailTemplate = sandbox.stub(emailTemplate, 'default').throws();
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -227,7 +266,9 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
         stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').throws();
         response = await handler(event);
       });
@@ -244,8 +285,12 @@ describe('handlers - reportUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -255,15 +300,9 @@ describe('handlers - reportUserGeneratedContents', () => {
 
       it('should call lib with right args', () => {
         const { id } = event.pathParameters;
-        const {
-          principalId,
-          appId,
-        } = event.requestContext.authorizer;
+        const { principalId, appId } = event.requestContext.authorizer;
         const bodyParsed = JSON.parse(event.body);
-        const {
-          details,
-          reason,
-        } = bodyParsed;
+        const { details, reason } = bodyParsed;
 
         sinon.assert.calledWith(
           stubLib,
@@ -271,15 +310,12 @@ describe('handlers - reportUserGeneratedContents', () => {
           principalId,
           id,
           reason,
-          details,
+          details
         );
       });
 
       it('should call emailTemplate with right args', () => {
-        const {
-          principalId: userId,
-          appId,
-        } = event.requestContext.authorizer;
+        const { principalId: userId, appId } = event.requestContext.authorizer;
         expect(stubEmailTemplate.calledOnce).to.be.true;
         sinon.assert.calledWith(
           stubEmailTemplate,
@@ -287,21 +323,14 @@ describe('handlers - reportUserGeneratedContents', () => {
           appId,
           'userGeneratedContentsId',
           'inappropriate',
-          'details',
+          'details'
         );
       });
 
       it('should call send email with right args', () => {
-        const {
-          appId,
-        } = event.requestContext.authorizer;
+        const { appId } = event.requestContext.authorizer;
         expect(stubSendEmail.calledOnce).to.be.true;
-        sinon.assert.calledWith(
-          stubSendEmail,
-          'subject',
-          'body',
-          appId,
-        );
+        sinon.assert.calledWith(stubSendEmail, 'subject', 'body', appId);
       });
 
       after(() => {

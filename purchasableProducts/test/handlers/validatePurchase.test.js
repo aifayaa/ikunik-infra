@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -20,10 +21,12 @@ describe('handlers - validatePurchase', () => {
 
   const mongoResponse = {
     builds: { android: { googleApiData: 'googleApiData' } },
-    settings: { iap: {
-      appleSecret: 'appleSecret',
-      googleLicenceKey: 'googleLicenceKey',
-    } },
+    settings: {
+      iap: {
+        appleSecret: 'appleSecret',
+        googleLicenceKey: 'googleLicenceKey',
+      },
+    },
   };
 
   const baseEvent = {
@@ -39,15 +42,18 @@ describe('handlers - validatePurchase', () => {
     body: JSON.stringify({ transaction: {} }),
   };
 
-  const appleEvent = { ...baseEvent,
+  const appleEvent = {
+    ...baseEvent,
     body: JSON.stringify({
       transaction: {
         appStoreReceipt: 'appStoreReceipt',
         type: 'ios-appstore',
       },
-    }) };
+    }),
+  };
 
-  const googleEvent = { ...baseEvent,
+  const googleEvent = {
+    ...baseEvent,
     body: JSON.stringify({
       transaction: {
         receipt: JSON.stringify({
@@ -57,7 +63,8 @@ describe('handlers - validatePurchase', () => {
           type: 'android-playstore',
         }),
       },
-    }) };
+    }),
+  };
 
   const sandbox = sinon.createSandbox();
 
@@ -85,7 +92,10 @@ describe('handlers - validatePurchase', () => {
 
     it('should be called with the good args', () => {
       sinon.assert.calledWith(spyMongo.collection, COLL_APPS);
-      sinon.assert.calledWith(spyMongo.findOne, spyMongo.findOne.getCall(0).args[0]);
+      sinon.assert.calledWith(
+        spyMongo.findOne,
+        spyMongo.findOne.getCall(0).args[0]
+      );
     });
 
     after(() => {
@@ -225,7 +235,9 @@ describe('handlers - validatePurchase', () => {
         const response = await handler(appleEvent);
         const { message } = JSON.parse(response.body);
         expect(response.statusCode).to.equal(500);
-        expect(message).to.equal('The data in the receipt-data property was malformed.');
+        expect(message).to.equal(
+          'The data in the receipt-data property was malformed.'
+        );
       });
 
       after(() => {
@@ -242,13 +254,16 @@ describe('handlers - validatePurchase', () => {
           close: spyMongo.close,
         };
         stubMongo = sinon.stub(MongoClient, 'connect').returns(fakeClient);
-        stubLibAddBalance = sandbox.stub(addBalanceLib, 'addBalance').returns(true);
+        stubLibAddBalance = sandbox
+          .stub(addBalanceLib, 'addBalance')
+          .returns(true);
         sandbox.stub(iap, 'validate').returns([]);
         sandbox.stub(iap, 'getPurchaseData').returns([{ productId }]);
       });
 
       it('should return 200', async () => {
-        const { appId, principalId: userId } = baseEvent.requestContext.authorizer;
+        const { appId, principalId: userId } =
+          baseEvent.requestContext.authorizer;
         const { deviceId } = baseEvent.queryStringParameters;
         const response = await handler(appleEvent);
         const price = parseFloat(articlePrices.article_05);
@@ -257,7 +272,7 @@ describe('handlers - validatePurchase', () => {
           appId,
           userId,
           deviceId,
-          price,
+          price
         );
         expect(response.statusCode).to.eq(200);
         expect(JSON.parse(response.body)).to.eql({ ok: true, data: [] });
@@ -289,7 +304,9 @@ describe('handlers - validatePurchase', () => {
         const response = await handler(googleEvent);
         const { message } = JSON.parse(response.body);
         expect(response.statusCode).to.equal(500);
-        expect(message).to.equal('The data in the receipt-data property was malformed.');
+        expect(message).to.equal(
+          'The data in the receipt-data property was malformed.'
+        );
       });
 
       after(() => {
@@ -306,13 +323,16 @@ describe('handlers - validatePurchase', () => {
           close: spyMongo.close,
         };
         stubMongo = sinon.stub(MongoClient, 'connect').returns(fakeClient);
-        stubLibAddBalance = sandbox.stub(addBalanceLib, 'addBalance').returns(true);
+        stubLibAddBalance = sandbox
+          .stub(addBalanceLib, 'addBalance')
+          .returns(true);
         sandbox.stub(iap, 'validate').returns([]);
         sandbox.stub(iap, 'getPurchaseData').returns([{ productId }]);
       });
 
       it('test', async () => {
-        const { appId, principalId: userId } = baseEvent.requestContext.authorizer;
+        const { appId, principalId: userId } =
+          baseEvent.requestContext.authorizer;
         const { deviceId } = baseEvent.queryStringParameters;
         const response = await handler(googleEvent);
         const price = parseFloat(articlePrices.article_05);
@@ -321,7 +341,7 @@ describe('handlers - validatePurchase', () => {
           appId,
           userId,
           deviceId,
-          price,
+          price
         );
         expect(response.statusCode).to.eq(200);
         expect(JSON.parse(response.body)).to.eql({ ok: true, data: [] });

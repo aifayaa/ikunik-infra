@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getUserGeneratedContents from '../lib/getUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -7,18 +8,16 @@ const permKeys = [
   'userGeneratedContents_moderate',
 ];
 
-const isBooleanStringOrUndefined = (val) => typeof val === 'undefined' ||
-  !!(['true', 'false'].indexOf(val) + 1);
+const isBooleanStringOrUndefined = (val) =>
+  typeof val === 'undefined' || !!(['true', 'false'].indexOf(val) + 1);
 
 export default async (event) => {
   const userGeneratedContentsId = event.pathParameters.id;
   const { appId, perms: rawPerms } = event.requestContext.authorizer;
 
   try {
-    const {
-      moderator = undefined,
-      trashed = undefined,
-    } = event.queryStringParameters || {};
+    const { moderator = undefined, trashed = undefined } =
+      event.queryStringParameters || {};
 
     if (
       !isBooleanStringOrUndefined(moderator) ||
@@ -28,14 +27,13 @@ export default async (event) => {
     }
 
     // Moderator only allowed parameters
-    if (
-      typeof moderator !== 'undefined' ||
-      typeof trashed !== 'undefined'
-    ) {
+    if (typeof moderator !== 'undefined' || typeof trashed !== 'undefined') {
       const perms = JSON.parse(rawPerms);
       const isModerator = checkPerms(permKeys, perms);
       if (!isModerator) {
-        const error = new Error('Unauthorized: this operation require moderator level rights');
+        const error = new Error(
+          'Unauthorized: this operation require moderator level rights'
+        );
         error.code = 401;
         throw error;
       }
@@ -47,7 +45,7 @@ export default async (event) => {
       {
         moderator,
         trashed,
-      },
+      }
     );
     return response({ code: 200, body: results });
   } catch (e) {

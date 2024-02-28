@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 import { wordpressLogin } from './wordpressLogin';
@@ -39,7 +40,7 @@ export const wordpressRegister = async (username, email, password, app) => {
       throw new Error('invalid_credentials');
     }
 
-    return (await wordpressLogin(username, password, app));
+    return await wordpressLogin(username, password, app);
   } finally {
     client.close();
   }

@@ -1,12 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import samlACSCallback from '../lib/samlACSCallback';
 
 export default async (event) => {
   try {
-    const {
-      _id,
-      key,
-    } = event.queryStringParameters;
+    const { _id, key } = event.queryStringParameters;
     const { body } = event;
     const parsedBody = new URLSearchParams(body);
     const xmlBuffer = Buffer.from(parsedBody.get('SAMLResponse'), 'base64');

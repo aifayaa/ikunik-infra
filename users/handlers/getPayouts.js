@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getPayouts from '../lib/getPayouts';
 import response from '../../libs/httpResponses/response';
 

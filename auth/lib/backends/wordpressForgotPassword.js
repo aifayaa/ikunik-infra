@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 
@@ -9,9 +10,13 @@ export const wordpressForgotPassword = async (email, app) => {
     let reply;
 
     try {
-      reply = await wpApi.call('POST', '/crowdaa-sync/v1/users/forgotpassword', {
-        email,
-      });
+      reply = await wpApi.call(
+        'POST',
+        '/crowdaa-sync/v1/users/forgotpassword',
+        {
+          email,
+        }
+      );
     } catch (e) {
       if (!e.response) {
         throw new Error('backend_network_error');

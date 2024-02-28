@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -6,10 +7,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
  * so we will have their environment and not ours. */
 import stateMachineVars from '../env.notificationStateMachine.json';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
 const {
   NOTIFICATION_STATE_MACHINE_NAME,
@@ -17,19 +15,12 @@ const {
   NOTIFICATION_STATE_MACHINE_ROLE,
 } = stateMachineVars[STAGE][REGION];
 
-const {
-  COLL_BLAST_NOTIFICATIONS_QUEUE,
-  COLL_PUSH_NOTIFICATIONS,
-} = mongoCollections;
+const { COLL_BLAST_NOTIFICATIONS_QUEUE, COLL_PUSH_NOTIFICATIONS } =
+  mongoCollections;
 
 const PROCESS_BATCH_SIZE = 100;
 
-const createNotificationSender = async (
-  appId,
-  queueId,
-  notifyAt,
-  delay,
-) => {
+const createNotificationSender = async (appId, queueId, notifyAt, delay) => {
   const stepfunctions = new StepFunctions({
     region: REGION,
   });
@@ -37,56 +28,62 @@ const createNotificationSender = async (
     name: NOTIFICATION_STATE_MACHINE_NAME,
     roleArn: NOTIFICATION_STATE_MACHINE_ROLE,
     type: 'STANDARD',
-    definition: JSON.stringify({
-      Comment: 'Delayed broadcasting of notification',
-      StartAt: 'Delay',
-      States: {
-        Delay: {
-          Type: 'Wait',
-          SecondsPath: '$.delay',
-          Next: 'callLambda',
-        },
-        callLambda: {
-          Type: 'Task',
-          Resource: 'arn:aws:states:::lambda:invoke',
-          Parameters: {
-            FunctionName: NOTIFICATION_STATE_MACHINE_RESOURCE,
-            'Payload.$': '$',
+    definition: JSON.stringify(
+      {
+        Comment: 'Delayed broadcasting of notification',
+        StartAt: 'Delay',
+        States: {
+          Delay: {
+            Type: 'Wait',
+            SecondsPath: '$.delay',
+            Next: 'callLambda',
           },
-          Retry: [
-            {
-              ErrorEquals: [
-                'Lambda.ServiceException',
-                'Lambda.AWSLambdaException',
-                'Lambda.SdkClientException',
-              ],
-              IntervalSeconds: 2,
-              MaxAttempts: 6,
-              BackoffRate: 2,
+          callLambda: {
+            Type: 'Task',
+            Resource: 'arn:aws:states:::lambda:invoke',
+            Parameters: {
+              FunctionName: NOTIFICATION_STATE_MACHINE_RESOURCE,
+              'Payload.$': '$',
             },
-          ],
-          Next: 'Choice',
-          ResultPath: '$.lastExec',
-        },
-        Choice: {
-          Type: 'Choice',
-          Choices: [
-            {
-              Variable: '$.lastExec.Payload.retry',
-              BooleanEquals: true,
-              Next: 'callLambda',
-            },
-          ],
-          Default: 'Success',
-        },
-        Success: {
-          Type: 'Succeed',
+            Retry: [
+              {
+                ErrorEquals: [
+                  'Lambda.ServiceException',
+                  'Lambda.AWSLambdaException',
+                  'Lambda.SdkClientException',
+                ],
+                IntervalSeconds: 2,
+                MaxAttempts: 6,
+                BackoffRate: 2,
+              },
+            ],
+            Next: 'Choice',
+            ResultPath: '$.lastExec',
+          },
+          Choice: {
+            Type: 'Choice',
+            Choices: [
+              {
+                Variable: '$.lastExec.Payload.retry',
+                BooleanEquals: true,
+                Next: 'callLambda',
+              },
+            ],
+            Default: 'Success',
+          },
+          Success: {
+            Type: 'Succeed',
+          },
         },
       },
-    }, null, 2), /** < Formatting because it can be read on the amazon web interface */
+      null,
+      2
+    ) /** < Formatting because it can be read on the amazon web interface */,
   };
 
-  const { stateMachineArn } = await stepfunctions.createStateMachine(stateMachineParams).promise();
+  const { stateMachineArn } = await stepfunctions
+    .createStateMachine(stateMachineParams)
+    .promise();
 
   const execParams = {
     stateMachineArn,
@@ -98,9 +95,11 @@ const createNotificationSender = async (
     }),
   };
 
-  const { executionArn } = await stepfunctions.startExecution(execParams).promise();
+  const { executionArn } = await stepfunctions
+    .startExecution(execParams)
+    .promise();
 
-  return (executionArn);
+  return executionArn;
 };
 
 export const queueNotifications = async (
@@ -108,7 +107,7 @@ export const queueNotifications = async (
   notifyAt,
   type,
   data = {},
-  { only = null },
+  { only = null } = {}
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -123,7 +122,9 @@ export const queueNotifications = async (
     }
 
     const dbPushNotifications = client.db().collection(COLL_PUSH_NOTIFICATIONS);
-    const dbBlastNotifQueue = client.db().collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
+    const dbBlastNotifQueue = client
+      .db()
+      .collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
 
     const { insertedId: queueId } = await dbBlastNotifQueue.insertOne({
       appId,
@@ -133,10 +134,12 @@ export const queueNotifications = async (
       type,
     });
 
-    const endpoints = dbPushNotifications.find(
-      { appId },
-      { projection: { _id: 1, Platform: 1, EndpointArn: 1, userId: 1 } },
-    ).batchSize(PROCESS_BATCH_SIZE);
+    const endpoints = dbPushNotifications
+      .find(
+        { appId },
+        { projection: { _id: 1, Platform: 1, EndpointArn: 1, userId: 1 } }
+      )
+      .batchSize(PROCESS_BATCH_SIZE);
 
     const promises = [];
     let insertBatches = [];
@@ -176,33 +179,37 @@ export const queueNotifications = async (
       await dbBlastNotifQueue.deleteOne({
         _id: queueId,
       });
-      return (null);
+      return null;
     }
 
     let delay = notifyAt.getTime() - Date.now();
     if (delay < 0) delay = 0;
     delay = (delay / 1000) | 0;
 
-    const executionArn = await createNotificationSender(appId, queueId, notifyAt, delay);
+    const executionArn = await createNotificationSender(
+      appId,
+      queueId,
+      notifyAt,
+      delay
+    );
 
     await dbBlastNotifQueue.updateOne(
       { _id: queueId, appId },
-      { $set: { executionArn } },
+      { $set: { executionArn } }
     );
 
-    return (queueId);
+    return queueId;
   } finally {
     await client.close();
   }
 };
 
-export const unqueueNotifications = async (
-  appId,
-  queueId,
-) => {
+export const unqueueNotifications = async (appId, queueId) => {
   const client = await MongoClient.connect();
   try {
-    const dbBlastNotifQueue = client.db().collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
+    const dbBlastNotifQueue = client
+      .db()
+      .collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
     const queueItem = await dbBlastNotifQueue.findOne({ _id: queueId, appId });
 
     if (queueItem.root && queueItem.executionArn) {
@@ -210,9 +217,11 @@ export const unqueueNotifications = async (
         region: REGION,
       });
       try {
-        await stepfunctions.stopExecution({
-          executionArn: queueItem.executionArn,
-        }).promise();
+        await stepfunctions
+          .stopExecution({
+            executionArn: queueItem.executionArn,
+          })
+          .promise();
       } finally {
         /**
          * We don't need to investigate further, other cases are
@@ -229,7 +238,8 @@ export const unqueueNotifications = async (
     }
 
     await dbBlastNotifQueue.deleteOne({
-      _id: queueId, appId,
+      _id: queueId,
+      appId,
     });
   } finally {
     await client.close();

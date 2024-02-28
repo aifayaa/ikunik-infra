@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -7,10 +8,7 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import { unpublishArticle } from '../../lib/unpublishArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  COLL_PRESS_ARTICLES,
-  COLL_PRESS_DRAFTS,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;
 
 describe('lib - unpublishArticle', () => {
   let spyMongo;
@@ -28,11 +26,7 @@ describe('lib - unpublishArticle', () => {
   });
 
   it('should return articleId', async () => {
-    const res = await unpublishArticle(
-      'userID',
-      'crowdaa_app_id',
-      'articleId',
-    );
+    const res = await unpublishArticle('userID', 'crowdaa_app_id', 'articleId');
     expect(res).to.deep.eq(response);
     expect(res).to.be.a('object');
     expect(res.articleId).to.be.a('string');
@@ -54,7 +48,7 @@ describe('lib - unpublishArticle', () => {
       spyMongo.updateOne,
       spyMongo.updateOne.getCall(0).args[0],
       spyMongo.updateOne.getCall(0).args[1],
-      spyMongo.updateOne.getCall(0).args[2],
+      spyMongo.updateOne.getCall(0).args[2]
     );
   });
 
@@ -64,7 +58,7 @@ describe('lib - unpublishArticle', () => {
       spyMongo.updateMany,
       spyMongo.updateMany.getCall(0).args[0],
       spyMongo.updateMany.getCall(0).args[1],
-      spyMongo.updateMany.getCall(0).args[2],
+      spyMongo.updateMany.getCall(0).args[2]
     );
   });
 

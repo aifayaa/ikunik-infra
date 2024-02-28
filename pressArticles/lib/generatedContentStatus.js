@@ -1,9 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_AI_QUERIES,
-} = mongoCollections;
+const { COLL_AI_QUERIES } = mongoCollections;
 
 export async function generatedContentStatus(queryId, { appId, userId }) {
   const client = await MongoClient.connect();
@@ -19,34 +18,37 @@ export async function generatedContentStatus(queryId, { appId, userId }) {
     }
 
     if (query.error) {
-      return ({
+      return {
         started: true,
         ended: false,
         error: query.error,
-      });
+      };
     }
     if (query.processingEndTime) {
-      const generatedContent = query.parts.reduce((acc, { field, response }) => {
-        acc[field] = response;
-        return (acc);
-      }, {});
-      return ({
+      const generatedContent = query.parts.reduce(
+        (acc, { field, response }) => {
+          acc[field] = response;
+          return acc;
+        },
+        {}
+      );
+      return {
         started: true,
         ended: true,
         generatedContent,
-      });
+      };
     }
     if (query.processingStartTime) {
-      return ({
+      return {
         started: true,
         ended: false,
-      });
+      };
     }
 
-    return ({
+    return {
       started: false,
       ended: false,
-    });
+    };
   } finally {
     client.close();
   }

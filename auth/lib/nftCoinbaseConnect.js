@@ -1,13 +1,14 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
-const CROWDAA_COINBASE_OAUTH_CLIENT_ID = '470acbfd6bce7a7f0c0f96a3a196935d7305d28e97ba756a1be18376916e7100';
-const CROWDAA_COINBASE_OAUTH_CLIENT_SECRET = 'fb4217a0fec91e4ea2638aaf95e3f1fc09634b0b7cd94e020b8715126adbbce1';
+const CROWDAA_COINBASE_OAUTH_CLIENT_ID =
+  '470acbfd6bce7a7f0c0f96a3a196935d7305d28e97ba756a1be18376916e7100';
+const CROWDAA_COINBASE_OAUTH_CLIENT_SECRET =
+  'fb4217a0fec91e4ea2638aaf95e3f1fc09634b0b7cd94e020b8715126adbbce1';
 const CROWDAA_COINBASE_OAUTH_REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 const CROWDAA_COINBASE_API_VERSION_HEADER = {
   'CB-VERSION': '2022-02-18',
@@ -49,16 +50,19 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
       scope,
     } = response;
 
-    await usersCollection.updateOne({ _id: userId, appId }, {
-      $set: {
-        'services.coinbase': {
-          accessToken,
-          expiresAt: new Date(Date.now() + expiresIn * 1000),
-          refreshToken,
-          scope,
+    await usersCollection.updateOne(
+      { _id: userId, appId },
+      {
+        $set: {
+          'services.coinbase': {
+            accessToken,
+            expiresAt: new Date(Date.now() + expiresIn * 1000),
+            refreshToken,
+            scope,
+          },
         },
-      },
-    });
+      }
+    );
 
     params = {
       method: 'GET',
@@ -101,7 +105,7 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
     await Promise.all(promises);
 
     console.log('WALALETZ', wallets);
-    wallets = wallets.map(({ address }) => (address));
+    wallets = wallets.map(({ address }) => address);
     console.log('WALLALETZ2', wallets);
 
     const action = {};
@@ -111,15 +115,18 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
       action.$addToSet = { 'crypto.wallets.ETH': { $each: wallets } };
     }
 
-    await client.db().collection(COLL_USERS).updateOne({
-      appId,
-      _id: userId,
-    }, action);
+    await client.db().collection(COLL_USERS).updateOne(
+      {
+        appId,
+        _id: userId,
+      },
+      action
+    );
 
-    return ({
+    return {
       ok: true,
       expiresIn,
-    });
+    };
   } finally {
     client.close();
   }

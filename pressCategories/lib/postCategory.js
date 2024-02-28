@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
@@ -97,10 +98,14 @@ export default async ({
     }
 
     if (badges.length > 0) {
-      const allPerms = await client.db().collection(COLL_USER_BADGES).find().toArray();
+      const allPerms = await client
+        .db()
+        .collection(COLL_USER_BADGES)
+        .find()
+        .toArray();
       const allPermsMap = allPerms.reduce((acc, perm) => {
         acc[perm._id] = perm;
-        return (acc);
+        return acc;
       }, {});
 
       badges = badges.map((p) => {
@@ -109,9 +114,9 @@ export default async ({
           throw new Error('invalid_permission');
         }
 
-        return ({
+        return {
           id: p,
-        });
+        };
       });
     }
 
@@ -147,10 +152,12 @@ export default async ({
       category.forcedAuthor = forcedAuthor;
     }
 
-    const whichMaximumOrderValue = parentId ? maximumOrderValueForParentId : maximumOrderValue;
+    const whichMaximumOrderValue = parentId
+      ? maximumOrderValueForParentId
+      : maximumOrderValue;
     category.order = Math.min(
       order || whichMaximumOrderValue,
-      whichMaximumOrderValue,
+      whichMaximumOrderValue
     );
 
     /* Inserting into database */

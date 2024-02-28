@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
@@ -32,7 +33,7 @@ describe('lib - getFacebookAppToken', () => {
       expect(parsed).to.have.any.keys(
         'client_id',
         'client_secret',
-        'grant_type',
+        'grant_type'
       );
     });
     it('should return result', () => {

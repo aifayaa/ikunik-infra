@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { validateEmail } from '../lib/validateEmail';
@@ -11,7 +12,8 @@ export default async (event) => {
 
     const { email, token, appId: inputAppId } = JSON.parse(event.body);
 
-    if (!typeCheck('[String]', [email, token])) throw new Error('wrong_argument_type');
+    if (!typeCheck('[String]', [email, token]))
+      throw new Error('wrong_argument_type');
 
     const { appId } = event.requestContext.authorizer;
     await validateEmail(email, token, inputAppId || appId);

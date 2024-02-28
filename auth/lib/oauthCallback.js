@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 import QRCode from 'qrcode';
@@ -16,12 +17,8 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-const {
-  COLL_APPS,
-  COLL_PICTURES,
-  COLL_USERS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_APPS, COLL_PICTURES, COLL_USERS, COLL_USER_BADGES } =
+  mongoCollections;
 
 async function runRequest(method, uri, options = {}) {
   const params = {
@@ -30,10 +27,7 @@ async function runRequest(method, uri, options = {}) {
     headers: options.headers || {},
   };
 
-  const {
-    body = 'urlenc',
-    data = {},
-  } = options;
+  const { body = 'urlenc', data = {} } = options;
   if (body === 'form') {
     params.form = data;
   } else if (body === 'urlenc') {
@@ -59,34 +53,44 @@ async function runRequest(method, uri, options = {}) {
 
   try {
     const parsed = JSON.parse(rawResponse);
-    return (parsed);
+    return parsed;
   } catch (e) {
     /* do nothing */
   }
 
-  return (rawResponse);
+  return rawResponse;
 }
 
-async function callGetUploadUrlLambda(userId, appId, fileSize, fileName, fileType) {
-  const lambdaResponse = await lambda.invoke({
-    FunctionName: `files-${process.env.STAGE}-getUploadUrl`,
-    Payload: JSON.stringify({
-      requestContext: {
-        authorizer: {
-          appId,
-          principalId: userId,
+async function callGetUploadUrlLambda(
+  userId,
+  appId,
+  fileSize,
+  fileName,
+  fileType
+) {
+  const lambdaResponse = await lambda
+    .invoke({
+      FunctionName: `files-${process.env.STAGE}-getUploadUrl`,
+      Payload: JSON.stringify({
+        requestContext: {
+          authorizer: {
+            appId,
+            principalId: userId,
+          },
         },
-      },
-      body: JSON.stringify({
-        files: [{
-          name: fileName,
-          type: fileType,
-          size: fileSize,
-        }],
-        metadata: {},
+        body: JSON.stringify({
+          files: [
+            {
+              name: fileName,
+              type: fileType,
+              size: fileSize,
+            },
+          ],
+          metadata: {},
+        }),
       }),
-    }),
-  }).promise();
+    })
+    .promise();
 
   const { Payload } = lambdaResponse;
   const { statusCode, body } = JSON.parse(Payload);
@@ -94,11 +98,11 @@ async function callGetUploadUrlLambda(userId, appId, fileSize, fileName, fileTyp
     throw new Error(`Media upload URL generation error : ${body}`);
   }
   const [{ id, url }] = JSON.parse(body);
-  return ({ id, url });
+  return { id, url };
 }
 
 function uploadPngHttps(fileStream, fileSize, url) {
-  return (new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const options = {
       method: 'PUT',
       headers: {
@@ -114,25 +118,23 @@ function uploadPngHttps(fileStream, fileSize, url) {
 
     req.on('error', reject);
     fileStream.pipe(req);
-  }));
+  });
 }
 
 export default async (appId, urlArgs) => {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({
-        _id: appId,
-      });
+    const app = await client.db().collection(COLL_APPS).findOne({
+      _id: appId,
+    });
 
     if (!app || !app.settings || !app.settings.oauth) {
       throw new Error('app_not_found');
     }
 
-    if (appId !== '2d33cf6c-bbc9-490e-bcfd-06eafd5a07ed') throw new Error('not_implemented!');
+    if (appId !== '2d33cf6c-bbc9-490e-bcfd-06eafd5a07ed')
+      throw new Error('not_implemented!');
 
     const { code } = urlArgs;
     const { tokenUrl } = app.settings.oauth;
@@ -168,21 +170,19 @@ export default async (appId, urlArgs) => {
     } = jwt.decode(jwtToken);
 
     let newUser = false;
-    let user = await client
-      .db()
-      .collection(COLL_USERS)
-      .findOne({
-        username,
-      });
+    let user = await client.db().collection(COLL_USERS).findOne({
+      username,
+    });
 
     const token = Random.secret();
     if (!user) {
-      const badges = (await client
-        .db()
-        .collection(COLL_USER_BADGES)
-        .find({ appId, isDefault: true })
-        .toArray())
-        .map((badge) => ({ id: badge._id }));
+      const badges = (
+        await client
+          .db()
+          .collection(COLL_USER_BADGES)
+          .find({ appId, isDefault: true })
+          .toArray()
+      ).map((badge) => ({ id: badge._id }));
 
       newUser = true;
       user = {
@@ -197,10 +197,12 @@ export default async (appId, urlArgs) => {
             qrCodeContent,
           },
           resume: {
-            loginTokens: [{
-              hashedToken: hashLoginToken(token),
-              when: new Date(),
-            }],
+            loginTokens: [
+              {
+                hashedToken: hashLoginToken(token),
+                when: new Date(),
+              },
+            ],
           },
         },
         appId,
@@ -218,38 +220,50 @@ export default async (appId, urlArgs) => {
 
       await client.db().collection(COLL_USERS).insertOne(user);
     } else {
-      await client.db().collection(COLL_USERS).updateOne({
-        _id: user._id,
-        appId,
-        username,
-      }, {
-        $set: {
-          'services.oauth.authTime': authTime,
-          'services.oauth.avatar': avatar,
-          'services.oauth.exp': exp,
-          'services.oauth.qrCodeContent': qrCodeContent,
-        },
-        $addToSet: {
-          'services.resume.loginTokens': {
-            hashedToken: hashLoginToken(token),
-            when: new Date(),
+      await client
+        .db()
+        .collection(COLL_USERS)
+        .updateOne(
+          {
+            _id: user._id,
+            appId,
+            username,
           },
-        },
-      });
+          {
+            $set: {
+              'services.oauth.authTime': authTime,
+              'services.oauth.avatar': avatar,
+              'services.oauth.exp': exp,
+              'services.oauth.qrCodeContent': qrCodeContent,
+            },
+            $addToSet: {
+              'services.resume.loginTokens': {
+                hashedToken: hashLoginToken(token),
+                when: new Date(),
+              },
+            },
+          }
+        );
     }
 
     if (newUser || user.services.oauth.qrCodeContent !== qrCodeContent) {
-      await QRCode.toFile(
-        '/tmp/avatar.png',
-        qrCodeContent,
-        { width: 256 },
-      );
+      await QRCode.toFile('/tmp/avatar.png', qrCodeContent, { width: 256 });
 
       const fileStats = await fs.promises.stat('/tmp/avatar.png');
 
-      const uploadParams = await callGetUploadUrlLambda(user._id, appId, fileStats.size, 'avatar.png', 'image/png');
+      const uploadParams = await callGetUploadUrlLambda(
+        user._id,
+        appId,
+        fileStats.size,
+        'avatar.png',
+        'image/png'
+      );
 
-      await uploadPngHttps(fs.createReadStream('/tmp/avatar.png'), fileStats.size, uploadParams.url);
+      await uploadPngHttps(
+        fs.createReadStream('/tmp/avatar.png'),
+        fileStats.size,
+        uploadParams.url
+      );
 
       const avatarUrl = await new Promise((resolve) => {
         const checkAgain = async () => {
@@ -263,16 +277,22 @@ export default async (appId, urlArgs) => {
 
         checkAgain();
       });
-      await client.db().collection(COLL_USERS).updateOne({
-        _id: user._id,
-        appId,
-        username,
-      }, {
-        $set: {
-          'profile.qrcodeImage': avatarUrl,
-          'profile.qrcodeImageId': uploadParams.id,
-        },
-      });
+      await client
+        .db()
+        .collection(COLL_USERS)
+        .updateOne(
+          {
+            _id: user._id,
+            appId,
+            username,
+          },
+          {
+            $set: {
+              'profile.qrcodeImage': avatarUrl,
+              'profile.qrcodeImageId': uploadParams.id,
+            },
+          }
+        );
     }
 
     const successRetUrl = new URL(SUCCESS_URL);
@@ -281,12 +301,12 @@ export default async (appId, urlArgs) => {
     successRetUrl.searchParams.append('profileUsername', user.profile.username);
     successRetUrl.searchParams.append('authToken', token);
     successRetUrl.searchParams.append('authType', 'oauth');
-    successRetUrl.searchParams.append('autoLoginToken', (
-      user.services.wordpress &&
-      user.services.wordpress.autoLoginToken
-    ));
+    successRetUrl.searchParams.append(
+      'autoLoginToken',
+      user.services.wordpress && user.services.wordpress.autoLoginToken
+    );
 
-    return (successRetUrl.toString());
+    return successRetUrl.toString();
   } finally {
     client.close();
   }

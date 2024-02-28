@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -9,14 +10,10 @@ export const patchPurchasableProduct = async (
   productId,
   {
     contents = [],
-    options: {
-      expiresIn,
-      appleProductId,
-      googleProductId,
-    } = {},
+    options: { expiresIn, appleProductId, googleProductId } = {},
     price,
     type,
-  },
+  }
 ) => {
   const $set = {};
 
@@ -57,12 +54,10 @@ export const patchPurchasableProduct = async (
   const client = await MongoClient.connect();
 
   try {
-    const { matchedCount, modifiedCount } = await client.db()
+    const { matchedCount, modifiedCount } = await client
+      .db()
       .collection(COLL_PURCHASABLE_PRODUCT)
-      .updateOne(
-        { _id: productId, appId },
-        { $set },
-      );
+      .updateOne({ _id: productId, appId }, { $set });
 
     return { matchedCount, modifiedCount };
   } finally {

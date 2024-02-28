@@ -1,20 +1,15 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PRESS_POLLS,
-} = mongoCollections;
+const { COLL_PRESS_POLLS } = mongoCollections;
 
 // Taken from https://stackoverflow.com/a/6969486
 function escapeRegex(str) {
-  return (str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export default async (appId, {
-  limit = null,
-  search = null,
-  start = null,
-}) => {
+export default async (appId, { limit = null, search = null, start = null }) => {
   const client = await MongoClient.connect();
 
   try {
@@ -47,7 +42,7 @@ export default async (appId, {
       .find(query)
       .count();
 
-    return ({ list: pollsList, count: pollsCount });
+    return { list: pollsList, count: pollsCount };
   } finally {
     client.close();
   }

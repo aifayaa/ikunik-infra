@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -279,17 +280,9 @@ describe('handlers - postUserMetrics', () => {
 
       // TODO: FIX TEST
       it.skip('should call lib with right args', () => {
-        const {
-          principalId,
-          appId,
-        } = event.requestContext.authorizer;
+        const { principalId, appId } = event.requestContext.authorizer;
         const bodyParsed = JSON.parse(event.body);
-        const {
-          type,
-          contentId,
-          contentCollection,
-          data,
-        } = bodyParsed;
+        const { type, contentId, contentCollection, data } = bodyParsed;
         sinon.assert.calledWith(
           stubLib,
           appId,
@@ -297,7 +290,7 @@ describe('handlers - postUserMetrics', () => {
           type,
           contentId,
           contentCollection,
-          data,
+          data
         );
       });
 

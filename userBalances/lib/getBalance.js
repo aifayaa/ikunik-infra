@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -7,19 +8,14 @@ export const getBalance = async (
   appId,
   userId,
   deviceId,
-  {
-    type = 'coin',
-  } = {},
+  { type = 'coin' } = {}
 ) => {
   const findQuery = {
     appId,
     type,
   };
   if (userId && deviceId) {
-    findQuery.$or = [
-      { userId },
-      { deviceId, userId: null },
-    ];
+    findQuery.$or = [{ userId }, { deviceId, userId: null }];
   } else if (userId) {
     findQuery.userId = userId;
   } else if (deviceId) {
@@ -32,10 +28,7 @@ export const getBalance = async (
   const client = await MongoClient.connect();
 
   try {
-    return await client
-      .db()
-      .collection(COLL_USER_BALANCES)
-      .findOne(findQuery);
+    return await client.db().collection(COLL_USER_BALANCES).findOne(findQuery);
   } finally {
     client.close();
   }

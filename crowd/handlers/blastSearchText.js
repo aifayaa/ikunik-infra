@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import phone from 'phone';
 import queue from 'async/queue';
@@ -5,10 +6,7 @@ import buildPipeline from '../lib/pipelines/crowdPipeline';
 import response from '../../libs/httpResponses/response';
 import search from '../lib/search';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
 const lambda = new Lambda({
   region: REGION,
@@ -22,17 +20,34 @@ const jsConsole = console;
 export default async (event) => {
   try {
     /* Some base variables */
-    const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
+    const {
+      principalId: userId,
+      appId,
+      profileId,
+    } = event.requestContext.authorizer;
     const { message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasText: true });
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
+    const pipeline = buildPipeline(
+      userId,
+      appId,
+      event.queryStringParameters || {}
+    );
 
     /* whole queueing system to process batch of mongo queries */
     let phones = [];
-    const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await search([...pipeline], queryStringParameters || {});
-      phones = phones.concat(localResults.crowd.map((fan) => phone(fan.user.profile.phone)[0])
-        .filter((phoneNumber) => phoneNumber));
+    const paginatorCallback = async (
+      { queryStringParameters },
+      doneCallback
+    ) => {
+      const localResults = await search(
+        [...pipeline],
+        queryStringParameters || {}
+      );
+      phones = phones.concat(
+        localResults.crowd
+          .map((fan) => phone(fan.user.profile.phone)[0])
+          .filter((phoneNumber) => phoneNumber)
+      );
       doneCallback();
     };
     const searchAndBlast = queue(paginatorCallback, 20);
@@ -47,7 +62,7 @@ export default async (event) => {
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
         };
         searchAndBlast.push({ queryStringParameters: localQS });
-      })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
+      })(i + 1, limit - i * MAXIMUM_DATA_FETCHED_PER_PAGE);
     }
 
     await searchAndBlast.drain();

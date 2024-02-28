@@ -35,7 +35,7 @@ runNpmCustomDeployFor() {
   cd ..
 }
 
-if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then
+if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ]; then
   usage
   exit 1
 fi

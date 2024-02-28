@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAd from '../lib/getAd';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import response from '../../libs/httpResponses/response';
 import getAppFromName from '../lib/getAppFromName';
@@ -9,25 +10,25 @@ import redirect from '../lib/redirect';
 export default async (event) => {
   try {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
-    const { appName } = (event.queryStringParameters || {});
+    const { appName } = event.queryStringParameters || {};
     const userAgent = event.headers['User-Agent'];
-    const {
-      _id: appId,
-      builds,
-      credentials,
-    } = await getAppFromName(appName);
+    const { _id: appId, builds, credentials } = await getAppFromName(appName);
     const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
     }
     const articleId = event.pathParameters.id;
-    const article = await getArticle(articleId, appId, { getPictures: true, isServer: true });
+    const article = await getArticle(articleId, appId, {
+      getPictures: true,
+      isServer: true,
+    });
     if (!article) {
       throw new Error('article_not_found');
     }
     const picture = article.pictures[0] || {};
     const video = article.videos[0] || {};
-    const previewUrl = (picture && picture.mediumUrl) || (video && video.thumbUrl) || '';
+    const previewUrl =
+      (picture && picture.mediumUrl) || (video && video.thumbUrl) || '';
     const options = {
       height: picture.mediumHeight,
       width: picture.mediumWidth,
@@ -42,9 +43,14 @@ export default async (event) => {
       article.title,
       prepareNotifString(article.plainText, 120),
       previewUrl,
-      options,
+      options
     );
-    return response({ code: 200, body, raw: true, headers: { 'Content-Type': 'text/html' } });
+    return response({
+      code: 200,
+      body,
+      raw: true,
+      headers: { 'Content-Type': 'text/html' },
+    });
   } catch (e) {
     let code;
     switch (e.message) {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import getCollectionFromContentType from './getCollectionFromContentType';
 

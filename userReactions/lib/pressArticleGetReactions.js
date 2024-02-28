@@ -1,78 +1,77 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import defaultReactions from '../../libs/defaultReactions';
 import getDBCounters from '../../counters/lib/getDBCounters';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
 
-const {
-  COLL_APPS,
-  COLL_PRESS_ARTICLES,
-  COLL_USER_REACTIONS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PRESS_ARTICLES, COLL_USER_REACTIONS } =
+  mongoCollections;
 
-const extraReactions = [
-  '#total',
-  '#views',
-];
-const defaultReactionsList = defaultReactions.map(({ key }) => (key)).concat(extraReactions);
+const extraReactions = ['#total', '#views'];
+const defaultReactionsList = defaultReactions
+  .map(({ key }) => key)
+  .concat(extraReactions);
 
 export default async function pressArticleGetReactions(
   appId,
   articleId,
   userId,
-  reactionsToReturn,
+  reactionsToReturn
 ) {
   const client = await MongoClient.connect();
   try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({ _id: appId });
+    const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
 
-    const appReactions = objGet(app, 'settings.press.reactions.articles', defaultReactions).map(({ key }) => (key)).concat(extraReactions);
+    const appReactions = objGet(
+      app,
+      'settings.press.reactions.articles',
+      defaultReactions
+    )
+      .map(({ key }) => key)
+      .concat(extraReactions);
     if (!reactionsToReturn || reactionsToReturn.length === 0) {
       reactionsToReturn = defaultReactionsList;
     }
 
     const queries = reactionsToReturn
-      .filter((reaction) => (appReactions.indexOf(reaction) >= 0))
-      .reduce(
-        (acc, reactionName) => {
-          acc[reactionName] = {
-            appId,
-            type: `pressArticle-reaction-${reactionName}`,
-            name: articleId,
-            updateQuery: {
-              collection: COLL_USER_REACTIONS,
-              pipeline: [
-                {
-                  $match: {
-                    appId,
-                    targetCollection: COLL_PRESS_ARTICLES,
-                    targetId: articleId,
-                    reactionType: 'reaction',
-                    reactionName,
-                  },
+      .filter((reaction) => appReactions.indexOf(reaction) >= 0)
+      .reduce((acc, reactionName) => {
+        acc[reactionName] = {
+          appId,
+          type: `pressArticle-reaction-${reactionName}`,
+          name: articleId,
+          updateQuery: {
+            collection: COLL_USER_REACTIONS,
+            pipeline: [
+              {
+                $match: {
+                  appId,
+                  targetCollection: COLL_PRESS_ARTICLES,
+                  targetId: articleId,
+                  reactionType: 'reaction',
+                  reactionName,
                 },
-                {
-                  $count: 'total',
-                },
-              ],
-              outputField: 'total',
-            },
-          };
+              },
+              {
+                $count: 'total',
+              },
+            ],
+            outputField: 'total',
+          },
+        };
 
-          if (reactionName === '#views') {
-            acc[reactionName].updateQuery.pipeline[0].$match.reactionType = 'views';
-            acc[reactionName].updateQuery.pipeline[0].$match.reactionName = 'views';
-          } else if (reactionName === '#total') {
-            delete acc[reactionName].updateQuery.pipeline[0].$match.reactionName;
-          }
+        if (reactionName === '#views') {
+          acc[reactionName].updateQuery.pipeline[0].$match.reactionType =
+            'views';
+          acc[reactionName].updateQuery.pipeline[0].$match.reactionName =
+            'views';
+        } else if (reactionName === '#total') {
+          delete acc[reactionName].updateQuery.pipeline[0].$match.reactionName;
+        }
 
-          return (acc);
-        },
-        {},
-      );
+        return acc;
+      }, {});
 
     const ret = {};
     ret.counters = await getDBCounters(queries, { appId });
@@ -92,11 +91,11 @@ export default async function pressArticleGetReactions(
 
       ret.self = userReactions.reduce((acc, { reactionName }) => {
         acc.push(reactionName);
-        return (acc);
+        return acc;
       }, []);
     }
 
-    return (ret);
+    return ret;
   } finally {
     client.close();
   }

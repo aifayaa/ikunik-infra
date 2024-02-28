@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getUserBadge from '../lib/getUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';

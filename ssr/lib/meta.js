@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default (
   title,
   description,
@@ -11,21 +12,31 @@ export default (
     iosAppName,
     iosAppStoreId,
     fbAppId,
-  },
+  }
 ) => {
-  const heightText = height ? `<meta property="og:image:height" content="${height}" />` : '';
-  const widthText = width ? `<meta property="og:image:width" content="${width}" />` : '';
+  const heightText = height
+    ? `<meta property="og:image:height" content="${height}" />`
+    : '';
+  const widthText = width
+    ? `<meta property="og:image:width" content="${width}" />`
+    : '';
   const imageUrl = encodeURI(image);
-  const androidMeta = (url && androidAppName && androidPackageId) ? `
+  const androidMeta =
+    url && androidAppName && androidPackageId
+      ? `
     <meta property="al:android:url" content="${url}" />\
     <meta property="al:android:package" content="c${androidPackageId}" />\
     <meta property="al:android:app_name" content="${androidAppName}" />\
-  ` : '';
-  const iosMeta = (url && iosAppName && iosAppStoreId) ? `
+  `
+      : '';
+  const iosMeta =
+    url && iosAppName && iosAppStoreId
+      ? `
     <meta property="al:ios:url" content="${url}" />
     <meta property="al:ios:app_store_id" content="${iosAppStoreId}" />
     <meta property="al:ios:app_name" content="${iosAppName}" />
-  ` : '';
+  `
+      : '';
   return `
 <html>
   <head>

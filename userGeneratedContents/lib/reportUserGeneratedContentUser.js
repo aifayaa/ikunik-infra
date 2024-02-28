@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -7,13 +8,7 @@ const {
   COLL_USER_GENERATED_CONTENTS_USER_REPORTS,
 } = mongoCollections;
 
-export default async (
-  appId,
-  userId,
-  ugcId,
-  reason,
-  details,
-) => {
+export default async (appId, userId, ugcId, reason, details) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
@@ -50,7 +45,7 @@ export default async (
       .insertOne(ugcReport);
 
     /* Return id and report information */
-    return (ugcReport);
+    return ugcReport;
   } finally {
     client.close();
   }

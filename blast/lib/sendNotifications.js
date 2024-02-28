@@ -1,24 +1,21 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendNotificationTo } from './snsNotifications';
 
 import NotificationSpecificsHandler from './notificationSpecificsHandlers/NotificationSpecificsHandler';
 
-const {
-  COLL_BLAST_NOTIFICATIONS_QUEUE,
-  COLL_PUSH_NOTIFICATIONS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_BLAST_NOTIFICATIONS_QUEUE, COLL_PUSH_NOTIFICATIONS, COLL_USERS } =
+  mongoCollections;
 
 const PROCESS_BATCH_SIZE = 200;
 
-export const sendNotifications = async (
-  appId,
-  queueId,
-) => {
+export const sendNotifications = async (appId, queueId) => {
   const client = await MongoClient.connect();
   try {
-    const queueCollection = client.db().collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
+    const queueCollection = client
+      .db()
+      .collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
     const $match = { appId, queueId: new ObjectID(queueId), root: false };
     const $rootMatch = { _id: new ObjectID(queueId), appId, root: true };
     const rootNotifQueue = await queueCollection.findOne($rootMatch);
@@ -32,67 +29,78 @@ export const sendNotifications = async (
     if (!rootNotifQueue) {
       await queueCollection.deleteMany($match);
     } else {
-      const pendingNotifs = await queueCollection.aggregate([
-        { $match },
-        { $limit: PROCESS_BATCH_SIZE },
-        { $lookup: {
-          from: COLL_PUSH_NOTIFICATIONS,
-          localField: 'endpointId',
-          foreignField: '_id',
-          as: 'endpoint',
-        } },
-        { $lookup: {
-          from: COLL_USERS,
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-        } },
-        { $project: {
-          data: 1,
-          endpoint: 1,
-          user: 1,
-        } },
-      ]).toArray();
+      const pendingNotifs = await queueCollection
+        .aggregate([
+          { $match },
+          { $limit: PROCESS_BATCH_SIZE },
+          {
+            $lookup: {
+              from: COLL_PUSH_NOTIFICATIONS,
+              localField: 'endpointId',
+              foreignField: '_id',
+              as: 'endpoint',
+            },
+          },
+          {
+            $lookup: {
+              from: COLL_USERS,
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'user',
+            },
+          },
+          {
+            $project: {
+              data: 1,
+              endpoint: 1,
+              user: 1,
+            },
+          },
+        ])
+        .toArray();
 
       received = pendingNotifs.length;
-      const notifSpecificsHandler = new NotificationSpecificsHandler(client, appId, rootNotifQueue);
+      const notifSpecificsHandler = new NotificationSpecificsHandler(
+        client,
+        appId,
+        rootNotifQueue
+      );
       const abort = !(await notifSpecificsHandler.init());
 
       if (abort) {
         retry = false;
       } else {
         retry = !!(pendingNotifs.length === PROCESS_BATCH_SIZE);
-        const promises = pendingNotifs.map(async ({
-          data = {},
-          endpoint: [endpoint],
-          user: [user],
-        }) => {
-          if (!endpoint) return;
+        const promises = pendingNotifs.map(
+          async ({ data = {}, endpoint: [endpoint], user: [user] }) => {
+            if (!endpoint) return;
 
-          const {
-            canNotify = true,
-            data: notificationData = {},
-          } = await notifSpecificsHandler.processOne({
-            data,
-            user,
-          });
+            const { canNotify = true, data: notificationData = {} } =
+              await notifSpecificsHandler.processOne({
+                data,
+                user,
+              });
 
-          if (!canNotify) {
-            skipped += 1;
-            return;
-          }
+            if (!canNotify) {
+              skipped += 1;
+              return;
+            }
 
-          await new Promise((resolve) => {
-            sendNotificationTo({
-              ...notificationData,
-              endpoint,
-            }, (error/* , res */) => {
-              if (!error) sent += 1;
-              else failed += 1;
-              resolve();
+            await new Promise((resolve) => {
+              sendNotificationTo(
+                {
+                  ...notificationData,
+                  endpoint,
+                },
+                (error /* , res */) => {
+                  if (!error) sent += 1;
+                  else failed += 1;
+                  resolve();
+                }
+              );
             });
-          });
-        });
+          }
+        );
         await Promise.all(promises);
       }
 
@@ -102,7 +110,7 @@ export const sendNotifications = async (
         await queueCollection.deleteMany($match);
       } else if (pendingNotifs.length > 0) {
         await queueCollection.deleteMany({
-          _id: { $in: pendingNotifs.map(({ _id }) => (_id)) },
+          _id: { $in: pendingNotifs.map(({ _id }) => _id) },
         });
       }
 
@@ -116,14 +124,14 @@ export const sendNotifications = async (
      *       to remove, even from other apps, maybe?
      */
 
-    return ({
+    return {
       requested: PROCESS_BATCH_SIZE,
       received,
       sent,
       failed,
       skipped,
       retry,
-    });
+    };
   } finally {
     await client.close();
   }

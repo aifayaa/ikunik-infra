@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   L'utilisateur ayant écrit l'article ci-dessous a été reporté par l'utilisateur <strong title="{{userId}}">{{username}}</strong> sur l'app <strong>{{appName}}</strong>

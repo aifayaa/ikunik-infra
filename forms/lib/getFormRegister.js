@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -14,7 +15,7 @@ export default async (formId) => {
       throw new Error('content_not_found');
     }
 
-    return (form);
+    return form;
   } finally {
     client.close();
   }

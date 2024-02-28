@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import buildCrowdPipeline from '../lib/pipelines/crowdPipeline';
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
@@ -15,19 +16,34 @@ export default async (event) => {
     const { appId } = event.requestContext.authorizer;
     Object.assign(event.queryStringParameters, { filterUserInfo: true });
 
-    if (event.queryStringParameters.type && event.queryStringParameters.type === 'press') {
+    if (
+      event.queryStringParameters.type &&
+      event.queryStringParameters.type === 'press'
+    ) {
       const permKey = 'search_press';
       const perms = JSON.parse(event.requestContext.authorizer.perms);
       if (!checkPerms(permKey, perms)) {
         return response({ code: 403, message: 'access_forbidden' });
       }
 
-      const pipeline = buildPressPipeline(userId, appId, event.queryStringParameters);
-      const results = await pressSearch(pipeline, appId, event.queryStringParameters);
+      const pipeline = buildPressPipeline(
+        userId,
+        appId,
+        event.queryStringParameters
+      );
+      const results = await pressSearch(
+        pipeline,
+        appId,
+        event.queryStringParameters
+      );
       return response({ code: 200, body: results });
     }
 
-    const pipeline = buildCrowdPipeline(userId, appId, event.queryStringParameters);
+    const pipeline = buildCrowdPipeline(
+      userId,
+      appId,
+      event.queryStringParameters
+    );
     const results = await search(pipeline, event.queryStringParameters);
     return response({ code: 200, body: results });
   } catch (e) {

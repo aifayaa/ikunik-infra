@@ -1,12 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PRESS_ARTICLES,
-  COLL_PRESS_MODALS,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_PRESS_MODALS } = mongoCollections;
 
-const boolEq = (a, b) => (!!a === !!b);
+const boolEq = (a, b) => !!a === !!b;
 
 /**
  * Modals are managed by hand for now. Example structure :
@@ -25,9 +23,7 @@ const boolEq = (a, b) => (!!a === !!b);
 export const getArticleModals = async (
   articleId,
   appId,
-  {
-    userId = null,
-  } = {},
+  { userId = null } = {}
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -46,33 +42,29 @@ export const getArticleModals = async (
       .find({ appId })
       .toArray();
 
-    const modals = dbModals.filter((modal) => {
-      if (typeof modal.type === 'string' && modal.type !== 'article') {
-        return (false);
-      }
-      if (typeof modal.loggedIn === 'boolean') {
-        return (boolEq(modal.loggedIn, userId));
-      }
-      if (typeof modal.articleId === 'string') {
-        return (modal.articleId === articleId);
-      }
+    const modals = dbModals
+      .filter((modal) => {
+        if (typeof modal.type === 'string' && modal.type !== 'article') {
+          return false;
+        }
+        if (typeof modal.loggedIn === 'boolean') {
+          return boolEq(modal.loggedIn, userId);
+        }
+        if (typeof modal.articleId === 'string') {
+          return modal.articleId === articleId;
+        }
 
-      return (true);
-    }).map(({
-      _id,
-      html,
-      maxDisplayCount = null,
-      video,
-      zindex,
-    }) => ({
-      _id,
-      html,
-      video,
-      maxDisplayCount,
-      zindex,
-    }));
+        return true;
+      })
+      .map(({ _id, html, maxDisplayCount = null, video, zindex }) => ({
+        _id,
+        html,
+        video,
+        maxDisplayCount,
+        zindex,
+      }));
 
-    return (modals);
+    return modals;
   } finally {
     client.close();
   }

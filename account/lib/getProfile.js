@@ -1,25 +1,25 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_PERM_GROUPS,
-  COLL_PROFILES,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PERM_GROUPS, COLL_PROFILES, COLL_USERS } =
+  mongoCollections;
 
 export default async (userId, appId) => {
   const client = await MongoClient.connect();
   const db = client.db();
   try {
     const [profileFromProfile, [profileFromApp]] = await Promise.all([
-      db.collection(COLL_PROFILES)
-        .findOne({
+      db.collection(COLL_PROFILES).findOne(
+        {
           UserId: userId,
           appId,
-        }, { projection: { _id: 1 } }),
+        },
+        { projection: { _id: 1 } }
+      ),
       /* getProfileFromApp */
-      db.collection(COLL_USERS)
+      db
+        .collection(COLL_USERS)
         .aggregate([
           {
             $match: {
@@ -74,7 +74,8 @@ export default async (userId, appId) => {
               newRoot: '$profile',
             },
           },
-        ]).toArray(),
+        ])
+        .toArray(),
     ]);
 
     const profile = profileFromProfile || profileFromApp;

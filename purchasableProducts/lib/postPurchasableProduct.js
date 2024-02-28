@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -9,14 +10,10 @@ export const postPurchasableProduct = async (
   {
     _id = new ObjectID().toString(),
     contents = [],
-    options: {
-      expiresIn = false,
-      appleProductId,
-      googleProductId,
-    } = {},
+    options: { expiresIn = false, appleProductId, googleProductId } = {},
     price,
     type,
-  },
+  }
 ) => {
   const purchasableProduct = {
     _id,
@@ -35,7 +32,8 @@ export const postPurchasableProduct = async (
   const client = await MongoClient.connect();
 
   try {
-    await client.db()
+    await client
+      .db()
       .collection(COLL_PURCHASABLE_PRODUCT)
       .insertOne(purchasableProduct);
 

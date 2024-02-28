@@ -1,17 +1,19 @@
+/* eslint-disable import/no-relative-packages */
 import nodemailer from 'nodemailer';
 import { intlInit, formatMessage } from '../intl/intl';
 
-const {
-  SMTP_FROM,
-  SMTP_LOGIN,
-  SMTP_SERVER,
-  SMTP_SECURE,
-  SMTP_PASSWORD,
-} = process.env;
+const { SMTP_FROM, SMTP_LOGIN, SMTP_SERVER, SMTP_SECURE, SMTP_PASSWORD } =
+  process.env;
 
 let transport = null;
 
-export const sendEmailTemplate = async (lang, template, to, subject, content) => {
+export const sendEmailTemplate = async (
+  lang,
+  template,
+  to,
+  subject,
+  content
+) => {
   intlInit(lang);
 
   if (['clients', 'customers', 'internal'].indexOf(template) < 0) {
@@ -30,7 +32,10 @@ export const sendEmailTemplate = async (lang, template, to, subject, content) =>
     });
   }
 
-  const html = formatMessage('libsEmail:template_skeleton', { body: `$t(libsEmail:template_${template})`, content });
+  const html = formatMessage('libsEmail:template_skeleton', {
+    body: `$t(libsEmail:template_${template})`,
+    content,
+  });
   const response = await transport.sendMail({
     from: SMTP_FROM,
     to,
@@ -38,5 +43,5 @@ export const sendEmailTemplate = async (lang, template, to, subject, content) =>
     html,
   });
 
-  return (response);
+  return response;
 };

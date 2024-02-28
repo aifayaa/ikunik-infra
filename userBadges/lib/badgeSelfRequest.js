@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
@@ -11,17 +12,19 @@ const {
   COLL_PERM_GROUPS,
 } = mongoCollections;
 
-const {
-  REACT_APP_PRESS_SERVICE_URL,
-  REACT_APP_CROWD_SERVICE_URL,
-} = process.env;
+const { REACT_APP_PRESS_SERVICE_URL, REACT_APP_CROWD_SERVICE_URL } =
+  process.env;
 
 const PERMISSIONS = [
   'userGeneratedContents_notify',
   'userGeneratedContents_notify_email',
 ];
 
-async function notifyAdminsForBadgeRequest(user, badge, { appId, lang, client }) {
+async function notifyAdminsForBadgeRequest(
+  user,
+  badge,
+  { appId, lang, client }
+) {
   intlInit(lang);
   const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
 
@@ -33,7 +36,11 @@ async function notifyAdminsForBadgeRequest(user, badge, { appId, lang, client })
     username: user.profile.username,
     usersUrl: `${REACT_APP_CROWD_SERVICE_URL}/${app._id}/users`,
   });
-  const subject = formatMessage('userBadges:user_badge_request.title', { appName: app.name, badgeName: badge.name, username: user.profile.username });
+  const subject = formatMessage('userBadges:user_badge_request.title', {
+    appName: app.name,
+    badgeName: badge.name,
+    username: user.profile.username,
+  });
   const [result] = await client
     .db()
     .collection(COLL_PERM_GROUPS)
@@ -83,7 +90,8 @@ async function notifyAdminsForBadgeRequest(user, badge, { appId, lang, client })
           emails: { $push: '$_id' },
         },
       },
-    ]).toArray();
+    ])
+    .toArray();
   const { emails = [] } = result || {};
   const promises = emails.map((email) => {
     /* in case of error, ignore it, just try with best effort */
@@ -102,7 +110,10 @@ export default async (appId, userId, userBadgeId, { lang }) => {
   const client = await MongoClient.connect();
 
   try {
-    const user = await client.db().collection(COLL_USERS).findOne({ _id: userId, appId });
+    const user = await client
+      .db()
+      .collection(COLL_USERS)
+      .findOne({ _id: userId, appId });
     const userBadges = user.badges || [];
 
     const badge = await client
@@ -120,24 +131,32 @@ export default async (appId, userId, userBadgeId, { lang }) => {
 
     const userBadgesHash = userBadges.reduce((acc, itm) => {
       acc[itm.id] = true;
-      return (acc);
+      return acc;
     }, {});
 
     if (!userBadgesHash[userBadgeId]) {
       const actions = {};
 
       if (!user.badges) {
-        actions.$set = { badges: [{ id: userBadgeId, status: 'requested', requestedAt: new Date() }] };
+        actions.$set = {
+          badges: [
+            { id: userBadgeId, status: 'requested', requestedAt: new Date() },
+          ],
+        };
       } else {
         actions.$addToSet = {
-          badges: { id: userBadgeId, status: 'requested', requestedAt: new Date() },
+          badges: {
+            id: userBadgeId,
+            status: 'requested',
+            requestedAt: new Date(),
+          },
         };
       }
 
-      await client.db().collection(COLL_USERS).updateOne(
-        { _id: userId, appId },
-        actions,
-      );
+      await client
+        .db()
+        .collection(COLL_USERS)
+        .updateOne({ _id: userId, appId }, actions);
       await notifyAdminsForBadgeRequest(user, badge, { appId, lang, client });
     }
   } finally {

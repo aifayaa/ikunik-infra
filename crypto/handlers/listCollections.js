@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import listCollections from '../lib/listCollections';
 import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import set from 'lodash/set';
 import mongoCollections from '../../../libs/mongoCollections.json';
@@ -193,31 +194,37 @@ const pipelineStart = (userId, appId) => [
   { $unwind: { path: '$user', preserveNullAndEmptyArrays: false } },
 ];
 
-export default (userId, appId, {
-  artist,
-  city,
-  coordinates,
-  country,
-  gender,
-  hasEmail,
-  hasNotification,
-  hasText,
-  languages,
-  maximumAge,
-  minFBFriends,
-  minimumAge,
-  project,
-  purchased,
-  range,
-  search,
-  track,
-  sortBy,
-  sortOrder,
-}) => {
+export default (
+  userId,
+  appId,
+  {
+    artist,
+    city,
+    coordinates,
+    country,
+    gender,
+    hasEmail,
+    hasNotification,
+    hasText,
+    languages,
+    maximumAge,
+    minFBFriends,
+    minimumAge,
+    project,
+    purchased,
+    range,
+    search,
+    track,
+    sortBy,
+    sortOrder,
+  }
+) => {
   const pipeline = coordinates
     ? pipelineLocationStart(userId, appId, coordinates, range)
     : pipelineStart(userId, appId);
-  pipeline.push({ $sort: { [sortBy || 'views']: (sortOrder === 'asc' ? 1 : -1) } });
+  pipeline.push({
+    $sort: { [sortBy || 'views']: sortOrder === 'asc' ? 1 : -1 },
+  });
   pipeline.push({
     $lookup: {
       from: COLL_PUSH_NOTIFICATIONS,
@@ -248,7 +255,8 @@ export default (userId, appId, {
 
     if (artist) pipeline[9].$match.$and.push({ 'project.artist_ID': artist });
 
-    if (track) pipeline[9].$match.$and.push({ 'contentByUserMetric.content_ID': track });
+    if (track)
+      pipeline[9].$match.$and.push({ 'contentByUserMetric.content_ID': track });
   } else {
     if (project) set(pipeline, '[0].$match._id', project);
 
@@ -267,22 +275,43 @@ export default (userId, appId, {
       ],
     });
   }
-  if (minimumAge) match.$match.$and.push({ 'user.services.facebook.age_range.min': { $gte: parseInt(minimumAge, 10) } });
-  if (maximumAge) match.$match.$and.push({ 'user.services.facebook.age_range.max': { $lte: parseInt(maximumAge, 10) } });
-  if (get(gender, 'length') > 0) match.$match.$and.push({ 'user.profile.gender': gender });
+  if (minimumAge)
+    match.$match.$and.push({
+      'user.services.facebook.age_range.min': {
+        $gte: parseInt(minimumAge, 10),
+      },
+    });
+  if (maximumAge)
+    match.$match.$and.push({
+      'user.services.facebook.age_range.max': {
+        $lte: parseInt(maximumAge, 10),
+      },
+    });
+  if (get(gender, 'length') > 0)
+    match.$match.$and.push({ 'user.profile.gender': gender });
   if (hasEmail) {
-    match.$match.$and.push({ $or: [
-      { 'user.email': { $exists: true } },
-      { 'user.profile.email': { $exists: true } },
-      { 'user.emails.0.address': { $exists: true } },
-    ] });
+    match.$match.$and.push({
+      $or: [
+        { 'user.email': { $exists: true } },
+        { 'user.profile.email': { $exists: true } },
+        { 'user.emails.0.address': { $exists: true } },
+      ],
+    });
   }
-  if (hasNotification) match.$match.$and.push({ endpoints: { $exists: true, $ne: [] } });
-  if (hasText) match.$match.$and.push({ 'user.profile.phone': { $exists: true } });
-  if (get(languages, 'length') > 0) match.$match.$and.push({ 'user.services.facebook.locale': languages });
-  if (get(country, 'length') > 0) match.$match.$and.push({ 'user.country': country });
-  if (get(city, 'length') > 0) match.$match.$and.push({ 'user.location.city': city });
-  if (minFBFriends) match.$match.$and.push({ 'user.profile.numFBFriends': { $gte: parseInt(minFBFriends, 10) } });
+  if (hasNotification)
+    match.$match.$and.push({ endpoints: { $exists: true, $ne: [] } });
+  if (hasText)
+    match.$match.$and.push({ 'user.profile.phone': { $exists: true } });
+  if (get(languages, 'length') > 0)
+    match.$match.$and.push({ 'user.services.facebook.locale': languages });
+  if (get(country, 'length') > 0)
+    match.$match.$and.push({ 'user.country': country });
+  if (get(city, 'length') > 0)
+    match.$match.$and.push({ 'user.location.city': city });
+  if (minFBFriends)
+    match.$match.$and.push({
+      'user.profile.numFBFriends': { $gte: parseInt(minFBFriends, 10) },
+    });
   if (get(purchased, 'length', 0) === 1) {
     if (purchased[0] === 'yes') match.$match.$and.push({ purchased: true });
     else match.$match.$and.push({ purchased: { $exists: false } });

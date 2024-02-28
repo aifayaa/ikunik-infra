@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 function MetricsTimer(lambda) {
   this.lambda = lambda;
   this.startTime = Date.now();
@@ -20,7 +21,7 @@ MetricsTimer.prototype.print = function print(metric, extra = {}) {
 
   const extraStr = Object.keys(extra).reduce((acc, key) => {
     acc.push(`${key}=${extra[key]}`);
-    return (acc);
+    return acc;
   }, []);
 
   this.metrics.push({
@@ -33,14 +34,13 @@ MetricsTimer.prototype.print = function print(metric, extra = {}) {
   });
 
   // eslint-disable-next-line no-console
-  console.log(`MetricsTimer ${this.lambda} ${metric} '${extraStr}' ${duration} (${isoStart} -> ${isoEnd})`);
+  console.log(
+    `MetricsTimer ${this.lambda} ${metric} '${extraStr}' ${duration} (${isoStart} -> ${isoEnd})`
+  );
 };
 
 MetricsTimer.prototype.save = async function save(client) {
-  await client
-    .db()
-    .collection('ghantyMetricsTimer')
-    .insertMany(this.metrics);
+  await client.db().collection('ghantyMetricsTimer').insertMany(this.metrics);
 
   this.metrics = [];
 };

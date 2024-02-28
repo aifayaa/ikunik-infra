@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -7,10 +8,7 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import identifyUserMetrics from '../../lib/identifyUserMetrics';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  COLL_PUSH_NOTIFICATIONS,
-  COLL_USER_METRICS,
-} = mongoCollections;
+const { COLL_PUSH_NOTIFICATIONS, COLL_USER_METRICS } = mongoCollections;
 
 describe('lib - identifyUserMetrics', () => {
   let spyMongo;
@@ -33,7 +31,7 @@ describe('lib - identifyUserMetrics', () => {
     const res = await identifyUserMetrics(
       'crowdaa_app_id',
       'userId',
-      'deviceId',
+      'deviceId'
     );
     expect(res).to.deep.eq(response);
   });
@@ -46,7 +44,10 @@ describe('lib - identifyUserMetrics', () => {
   it('should be called with the good args', () => {
     sinon.assert.calledWith(spyMongo.collection, COLL_USER_METRICS);
     sinon.assert.calledWith(spyMongo.collection, COLL_PUSH_NOTIFICATIONS);
-    sinon.assert.calledWith(spyMongo.updateMany, spyMongo.updateMany.getCall(0).args[0]);
+    sinon.assert.calledWith(
+      spyMongo.updateMany,
+      spyMongo.updateMany.getCall(0).args[0]
+    );
   });
 
   after(() => {

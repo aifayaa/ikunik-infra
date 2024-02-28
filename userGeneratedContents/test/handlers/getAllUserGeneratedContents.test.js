@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -39,23 +40,9 @@ describe('handlers - getAllUserGeneratedContents', () => {
     });
 
     it('should called with the good args', () => {
-      const {
-        appId,
-      } = event.requestContext.authorizer;
-      const {
-        start,
-        limit,
-        type,
-        userId,
-      } = event.queryStringParameters;
-      sinon.assert.calledWith(
-        stubLib,
-        appId,
-        start,
-        limit,
-        type,
-        userId,
-      );
+      const { appId } = event.requestContext.authorizer;
+      const { start, limit, type, userId } = event.queryStringParameters;
+      sinon.assert.calledWith(stubLib, appId, start, limit, type, userId);
     });
 
     after(() => {
@@ -67,7 +54,9 @@ describe('handlers - getAllUserGeneratedContents', () => {
     const libResult = new Error('lib method fail');
 
     before(() => {
-      stubLib = sandbox.stub(lib, 'default').callsFake(() => Promise.reject(libResult));
+      stubLib = sandbox
+        .stub(lib, 'default')
+        .callsFake(() => Promise.reject(libResult));
     });
 
     it('should return 500', async () => {

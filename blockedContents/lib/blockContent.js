@@ -1,10 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import allowedTypes from './blockedContentTypes.json';
 
-const {
-  COLL_BLOCKED_CONTENTS,
-} = mongoCollections;
+const { COLL_BLOCKED_CONTENTS } = mongoCollections;
 
 export default async (userId, type, contentId, { appId }) => {
   const client = await MongoClient.connect();
@@ -24,12 +23,12 @@ export default async (userId, type, contentId, { appId }) => {
     });
 
     if (alreadyBlocked) {
-      return ({
+      return {
         _id: alreadyBlocked._id,
         appId,
         contentId,
         type,
-      });
+      };
     }
 
     const result = await db.collection(COLL_BLOCKED_CONTENTS).insertOne({
@@ -41,12 +40,12 @@ export default async (userId, type, contentId, { appId }) => {
 
     const { insertedId: _id } = result;
 
-    return ({
+    return {
       _id,
       appId,
       contentId,
       type,
-    });
+    };
   } finally {
     client.close();
   }

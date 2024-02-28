@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { getArticleShareUrl } from '../lib/getArticleShareUrl';
 import response from '../../libs/httpResponses/response';
 

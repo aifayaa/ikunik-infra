@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import fs from 'fs';
 import https from 'https';
@@ -10,7 +11,8 @@ import Random from '../../libs/account_utils/random';
 import MetricsTimer from './metricsTimer';
 import hashLoginToken from '../../auth/lib/hashLoginToken';
 
-const { COLL_APPS, COLL_PICTURES, COLL_USERS, COLL_USER_BADGES } = mongoCollections;
+const { COLL_APPS, COLL_PICTURES, COLL_USERS, COLL_USER_BADGES } =
+  mongoCollections;
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -36,7 +38,13 @@ function uploadPngHttps(fileStream, fileSize, url) {
   });
 }
 
-async function callGetUploadUrlLambda(userId, appId, fileSize, fileName, fileType) {
+async function callGetUploadUrlLambda(
+  userId,
+  appId,
+  fileSize,
+  fileName,
+  fileType
+) {
   const lambdaResponse = await lambda
     .invoke({
       FunctionName: `files-${process.env.STAGE}-getUploadUrl`,
@@ -94,10 +102,7 @@ export default async (inputUsername, inputPassword, appId) => {
       throw new Error('missing_access_token');
     }
 
-    const {
-      client_id: username,
-      qrcode: qrCodeContent,
-    } = response;
+    const { client_id: username, qrcode: qrCodeContent } = response;
 
     let newUser = false;
     let user = await client.db().collection(COLL_USERS).findOne({
@@ -107,7 +112,11 @@ export default async (inputUsername, inputPassword, appId) => {
     const token = Random.secret();
     if (!user) {
       const badges = (
-        await client.db().collection(COLL_USER_BADGES).find({ appId, isDefault: true }).toArray()
+        await client
+          .db()
+          .collection(COLL_USER_BADGES)
+          .find({ appId, isDefault: true })
+          .toArray()
       ).map((badge) => ({ id: badge._id }));
 
       newUser = true;
@@ -156,7 +165,7 @@ export default async (inputUsername, inputPassword, appId) => {
                 when: new Date(),
               },
             },
-          },
+          }
         );
     }
 
@@ -170,13 +179,13 @@ export default async (inputUsername, inputPassword, appId) => {
         appId,
         fileStats.size,
         'qrcode.png',
-        'image/png',
+        'image/png'
       );
 
       await uploadPngHttps(
         fs.createReadStream('/tmp/qrcode.png'),
         fileStats.size,
-        uploadParams.url,
+        uploadParams.url
       );
 
       const qrcodeUrl = await new Promise((resolve) => {
@@ -205,7 +214,7 @@ export default async (inputUsername, inputPassword, appId) => {
               'profile.qrcodeImage': qrcodeUrl,
               'profile.qrcodeImageId': uploadParams.id,
             },
-          },
+          }
         );
     }
 

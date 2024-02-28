@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 const {
   ANDROID_PACKAGE_ID = 'com.crowdaa.free.www',
   IOS_APP_ID = '1074256465',

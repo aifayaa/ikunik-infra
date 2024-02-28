@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import addressConfirmationEmailHtml from './addressConfirmationEmailHtml';
 import appPreviewEmailHtml from './appPreviewEmailHtml';
 import emailTemplateClients from './emailTemplateClients';
@@ -93,7 +94,8 @@ export default {
       html: updatedAppSettingsHtml,
       title: '[{{stage}}/{{region}}] App settings changed for {{- appName}}',
     },
-    app_preview_sms: 'Hey! Here\'s the link to test your app {{- sanatizedAppName}} : {{- url}}, enjoy it!',
+    app_preview_sms:
+      "Hey! Here's the link to test your app {{- sanatizedAppName}} : {{- url}}, enjoy it!",
     invite_app_admin_email_title: 'Crowdaa || Your dashboard {{- appName}}',
   },
   auth: {
@@ -117,7 +119,8 @@ export default {
     siwa_periodic_renewal: {
       global_error: 'Error during general Apple SIWA token renewal : {{error}}',
       html: siwaPeriodicRenewalHtml,
-      list_line_error: '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}<br><b>Reason</b>: {{reason}}',
+      list_line_error:
+        '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}<br><b>Reason</b>: {{reason}}',
       list_line_success: '<b>ID</b>: {{app._id}}<br><b>Name</b>: {{app.name}}',
       title: '[{{stage}}/{{region}}] SIWA periodic renewal summary',
       title_error: '<h4>Failed renewals</h4>',
@@ -137,27 +140,33 @@ export default {
     media_type_video: 'Video',
     new_ugc_article_email: {
       html: newUgcArticleEmailHtml,
-      title: '[{{- appName}}] A new user article has been {{editionType}} with title {{- ugc.data.title}}',
+      title:
+        '[{{- appName}}] A new user article has been {{editionType}} with title {{- ugc.data.title}}',
     },
     new_ugc_comment_email: {
       html: newUgcCommentEmailHtml,
-      title: '[{{- appName}}] A new user comment has been {{editionType}} on article {{- ugc.rootParent.title}}',
+      title:
+        '[{{- appName}}] A new user comment has been {{editionType}} on article {{- ugc.rootParent.title}}',
     },
     reported_ugc_article_email: {
       html: reportedUgcArticleEmailHtml,
-      title: '[{{- appName}}] A user has reported an article named {{- ugc.data.title}}',
+      title:
+        '[{{- appName}}] A user has reported an article named {{- ugc.data.title}}',
     },
     reported_ugc_comment_email: {
       html: reportedUgcCommentEmailHtml,
-      title: '[{{- appName}}] A user has reported a comment on article {{- ugc.rootParent.title}}',
+      title:
+        '[{{- appName}}] A user has reported a comment on article {{- ugc.rootParent.title}}',
     },
     reported_ugc_user_article_email: {
       html: reportedUgcUserArticleEmailHtml,
-      title: '[{{- appName}}] A user has reported  an other user who wrote an article named {{- ugc.data.title}}',
+      title:
+        '[{{- appName}}] A user has reported  an other user who wrote an article named {{- ugc.data.title}}',
     },
     reported_ugc_user_comment_email: {
       html: reportedUgcUserCommentEmailHtml,
-      title: '[{{- appName}}] A user has reported  an other user who wrote a comment on article {{- ugc.rootParent.title}}',
+      title:
+        '[{{- appName}}] A user has reported  an other user who wrote a comment on article {{- ugc.rootParent.title}}',
     },
     ugc_user_data_email: {
       article: ugcDataArticleEmailHtml,
@@ -192,13 +201,17 @@ export default {
   pressArticles: {
     generateContent: {
       generic: {
-        title: 'Write a short article title about the following subject : {{- userPrompt}}',
-        article: 'Write an article in Markdown with the following title : {%title%}',
+        title:
+          'Write a short article title about the following subject : {{- userPrompt}}',
+        article:
+          'Write an article in Markdown with the following title : {%title%}',
         articlePicture: '{%title%}',
       },
       custom: {
-        title: 'Write a short article title about the following subject : {{- userPrompt}}',
-        article: 'Write an article in Markdown about the following subject : {{- userPrompt}}',
+        title:
+          'Write a short article title about the following subject : {{- userPrompt}}',
+        article:
+          'Write an article in Markdown about the following subject : {{- userPrompt}}',
         articlePicture: '{{- userPrompt}}',
       },
     },
@@ -206,8 +219,10 @@ export default {
   pressAutomation: {
     runTask: {
       summary: {
-        globalSummary: 'Briefly summarize these {{- count}} news titles, one per line : {{- newsTitles}}',
-        singleSummary: 'Briefly summarize this article in markdown format : {{- news}}',
+        globalSummary:
+          'Briefly summarize these {{- count}} news titles, one per line : {{- newsTitles}}',
+        singleSummary:
+          'Briefly summarize this article in markdown format : {{- news}}',
         title: '{{- date}} news summary about {{- category}}',
       },
       reword: {
@@ -225,15 +240,18 @@ export default {
   },
   userBadges: {
     user_badge_request: {
-      title: '[{{- appName}}] User {{- username}} requested access to the permission {{- badgeName}}',
+      title:
+        '[{{- appName}}] User {{- username}} requested access to the permission {{- badgeName}}',
       html: userBadgeRequestHtml,
     },
     badge_request_validated: {
-      title: '[{{- appName}}] Your permission request to {{- badgeName}} was accepted',
+      title:
+        '[{{- appName}}] Your permission request to {{- badgeName}} was accepted',
       html: userBadgeRequestValidatedHtml,
     },
     badge_request_rejected: {
-      title: '[{{- appName}}] Your permission request to {{- badgeName}} was rejected',
+      title:
+        '[{{- appName}}] Your permission request to {{- badgeName}} was rejected',
       html: userBadgeRequestRejectedHtml,
     },
   },

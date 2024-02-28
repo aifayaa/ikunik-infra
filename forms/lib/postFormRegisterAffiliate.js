@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
@@ -49,7 +50,7 @@ export default async (data = {}) => {
 
     await dbForm.insertOne(form);
 
-    const lang = ((['fr', 'en'].indexOf(data.region) >= 0) ? data.region : 'en');
+    const lang = ['fr', 'en'].indexOf(data.region) >= 0 ? data.region : 'en';
 
     await intlInit(lang);
 
@@ -82,7 +83,7 @@ export default async (data = {}) => {
       mailData.title,
       mailData.template,
       mailData.data,
-      mailData.extra,
+      mailData.extra
     );
 
     mailData = {
@@ -115,10 +116,10 @@ export default async (data = {}) => {
       mailData.title,
       mailData.template,
       mailData.data,
-      mailData.extra,
+      mailData.extra
     );
 
-    return (form);
+    return form;
   } finally {
     client.close();
   }

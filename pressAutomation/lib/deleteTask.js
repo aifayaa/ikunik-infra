@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -16,18 +17,15 @@ export default async (taskId, appId) => {
       });
 
     if (taskObj) {
-      await client
-        .db()
-        .collection(COLL_PRESS_AUTOMATION_TASKS)
-        .deleteOne({
-          _id: taskId,
-          appId,
-        });
+      await client.db().collection(COLL_PRESS_AUTOMATION_TASKS).deleteOne({
+        _id: taskId,
+        appId,
+      });
     } else {
       throw new Error('not_found');
     }
 
-    return (taskObj);
+    return taskObj;
   } finally {
     client.close();
   }

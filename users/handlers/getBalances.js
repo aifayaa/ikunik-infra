@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getBalances from '../lib/getBalances';
 import response from '../../libs/httpResponses/response';
 

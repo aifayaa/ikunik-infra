@@ -1,4 +1,9 @@
-import getResourcesUrls, { allResourceTypes, allResourceFormats, allActions } from '../lib/getResourcesUrls';
+/* eslint-disable import/no-relative-packages */
+import getResourcesUrls, {
+  allResourceTypes,
+  allResourceFormats,
+  allActions,
+} from '../lib/getResourcesUrls';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -9,10 +14,7 @@ export default async (event) => {
   const { action } = event.pathParameters;
   const { appId } = event.requestContext.authorizer;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
-  let {
-    resourceTypes,
-    resourceFormats,
-  } = event.queryStringParameters || {};
+  let { resourceTypes, resourceFormats } = event.queryStringParameters || {};
 
   try {
     if (!checkPerms(allowedPerms, perms)) {

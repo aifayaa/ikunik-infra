@@ -1,17 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import prepareNotif from './prepareNotifString';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
-const {
-  COLL_PRESS_ARTICLES,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
@@ -23,7 +19,7 @@ export const queueArticleNotifications = async (
   draftId,
   notifyAt,
   content = null,
-  title = null,
+  title = null
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -47,20 +43,22 @@ export const queueArticleNotifications = async (
       title = title || prepareNotif(article.title, 60, false);
     }
 
-    const response = await lambda.invoke({
-      FunctionName: `blast-${STAGE}-queueNotifications`,
-      Payload: JSON.stringify({
-        appId,
-        notifyAt,
-        type: 'pressArticle',
-        data: {
-          articleId,
-          draftId,
-          content,
-          title,
-        },
-      }),
-    }).promise();
+    const response = await lambda
+      .invoke({
+        FunctionName: `blast-${STAGE}-queueNotifications`,
+        Payload: JSON.stringify({
+          appId,
+          notifyAt,
+          type: 'pressArticle',
+          data: {
+            articleId,
+            draftId,
+            content,
+            title,
+          },
+        }),
+      })
+      .promise();
     const { queueId } = JSON.parse(response.Payload);
 
     if (queueId) {
@@ -71,11 +69,12 @@ export const queueArticleNotifications = async (
           {
             _id: articleId,
             appId,
-          }, {
+          },
+          {
             $set: {
               pendingNotificationQueueId: queueId,
             },
-          },
+          }
         );
     }
   } finally {
@@ -83,9 +82,7 @@ export const queueArticleNotifications = async (
   }
 };
 
-export const cleanPendingArticleNotifications = async (
-  articleId,
-) => {
+export const cleanPendingArticleNotifications = async (articleId) => {
   const client = await MongoClient.connect();
   try {
     const article = await client
@@ -99,9 +96,11 @@ export const cleanPendingArticleNotifications = async (
           region: REGION,
         });
         try {
-          await stepfunctions.stopExecution({
-            executionArn: article.pendingNotificationAwsArnId,
-          }).promise();
+          await stepfunctions
+            .stopExecution({
+              executionArn: article.pendingNotificationAwsArnId,
+            })
+            .promise();
         } finally {
           /**
            * We don't need to investigate further, other cases are
@@ -117,20 +116,23 @@ export const cleanPendingArticleNotifications = async (
         .updateOne(
           {
             _id: articleId,
-          }, {
+          },
+          {
             $unset: {
               pendingNotificationAwsArnId: '',
             },
-          },
+          }
         );
     } else if (article.pendingNotificationQueueId) {
-      await lambda.invoke({
-        FunctionName: `blast-${STAGE}-unqueueNotifications`,
-        Payload: JSON.stringify({
-          appId: article.appId,
-          queueId: article.pendingNotificationQueueId,
-        }),
-      }).promise();
+      await lambda
+        .invoke({
+          FunctionName: `blast-${STAGE}-unqueueNotifications`,
+          Payload: JSON.stringify({
+            appId: article.appId,
+            queueId: article.pendingNotificationQueueId,
+          }),
+        })
+        .promise();
 
       await client
         .db()
@@ -138,11 +140,12 @@ export const cleanPendingArticleNotifications = async (
         .updateOne(
           {
             _id: articleId,
-          }, {
+          },
+          {
             $unset: {
               pendingNotificationQueueId: '',
             },
-          },
+          }
         );
     }
   } finally {

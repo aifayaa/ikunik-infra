@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import PQueue from 'p-queue';
 import flatten from 'lodash/flatten';
 import queue from 'async/queue';
@@ -40,8 +41,14 @@ export default async ({
     /* whole queueing system to process batch of mongo queries */
     let endpoints = [];
     const paginatorWorker = (queryStringParameters) => async () => {
-      const localResults = await pressSearch([...pipeline], appId, queryStringParameters);
-      endpoints = endpoints.concat(flatten(localResults.crowd.map((fan) => fan.endpoints)));
+      const localResults = await pressSearch(
+        [...pipeline],
+        appId,
+        queryStringParameters
+      );
+      endpoints = endpoints.concat(
+        flatten(localResults.crowd.map((fan) => fan.endpoints))
+      );
     };
     const searchAndBlast = new PQueue({ concurrency: SEARCH_CONCURRENCY });
     const searchAndBlastTasks = [];
@@ -56,7 +63,7 @@ export default async ({
           filterUserInfo: false,
         };
         searchAndBlastTasks.push(paginatorWorker(localQS));
-      })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
+      })(i + 1, limit - i * MAXIMUM_DATA_FETCHED_PER_PAGE);
     }
 
     await searchAndBlast.addAll(searchAndBlastTasks);
@@ -78,9 +85,7 @@ export default async ({
 
     const updatePromises = [];
     const interval = setInterval(() => {
-      updatePromises.push(
-        currentLogBlast.update({ sended: successfulBlast }),
-      );
+      updatePromises.push(currentLogBlast.update({ sended: successfulBlast }));
     }, UPDATE_STATUS_INTERVAL);
 
     endpoints.forEach((endpoint) => {

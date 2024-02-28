@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -7,13 +8,10 @@ export default async (pollId, appId, userId, deviceId, votes) => {
   const client = await MongoClient.connect();
 
   try {
-    const poll = await client
-      .db()
-      .collection(COLL_PRESS_POLLS)
-      .findOne({
-        _id: pollId,
-        appId,
-      });
+    const poll = await client.db().collection(COLL_PRESS_POLLS).findOne({
+      _id: pollId,
+      appId,
+    });
 
     if (!poll) {
       throw new Error('content_not_found');
@@ -27,10 +25,7 @@ export default async (pollId, appId, userId, deviceId, votes) => {
 
     const deviceUserMatch = {};
     if (deviceId && userId) {
-      deviceUserMatch.$or = [
-        { userId },
-        { deviceId },
-      ];
+      deviceUserMatch.$or = [{ userId }, { deviceId }];
     } else if (deviceId) {
       deviceUserMatch.deviceId = deviceId;
     } else if (userId) {
@@ -47,34 +42,31 @@ export default async (pollId, appId, userId, deviceId, votes) => {
       });
 
     if (!voted) {
-      await client
-        .db()
-        .collection(COLL_PRESS_POLLS_VOTES)
-        .insertOne({
-          appId,
-          pollId,
-          userId,
-          deviceId,
-          votes,
-        });
+      await client.db().collection(COLL_PRESS_POLLS_VOTES).insertOne({
+        appId,
+        pollId,
+        userId,
+        deviceId,
+        votes,
+      });
     } else if (poll.canUpdate) {
-      await client
-        .db()
-        .collection(COLL_PRESS_POLLS_VOTES)
-        .updateOne({
+      await client.db().collection(COLL_PRESS_POLLS_VOTES).updateOne(
+        {
           _id: voted._id,
-        }, {
+        },
+        {
           $set: {
             userId,
             deviceId,
             votes,
           },
-        });
+        }
+      );
     } else {
-      return (false);
+      return false;
     }
 
-    return (true);
+    return true;
   } finally {
     client.close();
   }

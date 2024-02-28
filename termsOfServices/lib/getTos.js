@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import tosFields from '../tosFields.json';
@@ -32,7 +33,8 @@ export const getTos = async (appId, tosId, options = {}) => {
       .find(query, {
         projection,
         sort: { createdAt: -1 },
-      }).toArray();
+      })
+      .toArray();
     return tos;
   } finally {
     client.close();

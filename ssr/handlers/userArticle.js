@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import response from '../../libs/httpResponses/response';
 import getAppFromName from '../lib/getAppFromName';
@@ -9,13 +10,9 @@ import redirect from '../lib/redirect';
 export default async (event) => {
   try {
     const redirectUrl = (event.queryStringParameters || {}).redirect_url;
-    const { appName } = (event.queryStringParameters || {});
+    const { appName } = event.queryStringParameters || {};
     const userAgent = event.headers['User-Agent'];
-    const {
-      _id: appId,
-      builds,
-      credentials,
-    } = await getAppFromName(appName);
+    const { _id: appId, builds, credentials } = await getAppFromName(appName);
     const redirectResponse = await redirect(userAgent, redirectUrl, appId);
     if (redirectResponse) {
       return redirectResponse;
@@ -42,9 +39,14 @@ export default async (event) => {
       article.data.title,
       prepareNotifString(article.data.content, 120),
       pictureUrl,
-      options,
+      options
     );
-    return response({ code: 200, body, raw: true, headers: { 'Content-Type': 'text/html' } });
+    return response({
+      code: 200,
+      body,
+      raw: true,
+      headers: { 'Content-Type': 'text/html' },
+    });
   } catch (e) {
     let code;
     switch (e.message) {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import addUserBadge from '../lib/addUserBadge';
 import fieldChecks from '../lib/badgeFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';

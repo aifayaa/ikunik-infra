@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import registerDevice from '../lib/registerDevice';
 import response from '../../libs/httpResponses/response';
 
@@ -21,7 +22,7 @@ export default async (event) => {
 
     return response({ code: 200, body: { registered: true } });
   } catch (e) {
-    const code = (e.message === 'already_registered_token') ? 200 : 500;
+    const code = e.message === 'already_registered_token' ? 200 : 500;
     return response({ code, message: e.message });
   }
 };

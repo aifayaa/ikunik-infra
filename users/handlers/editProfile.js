@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import editProfile from '../lib/editProfile';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -18,9 +19,7 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const {
-      username,
-    } = bodyParsed;
+    const { username } = bodyParsed;
 
     if (!username) {
       throw new Error('mal_formed_request');

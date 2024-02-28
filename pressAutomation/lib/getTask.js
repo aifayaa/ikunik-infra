@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -12,7 +13,7 @@ export default async (taskId, appId) => {
       .collection(COLL_PRESS_AUTOMATION_TASKS)
       .findOne({ _id: taskId, appId });
 
-    return (taskObj);
+    return taskObj;
   } finally {
     client.close();
   }

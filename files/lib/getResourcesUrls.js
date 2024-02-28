@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import AWS from 'aws-sdk';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -8,14 +9,9 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const {
-  S3_RESOURCES_BUCKET,
-  S3_PUBLIC_RESOURCES_BUCKET,
-} = process.env;
+const { S3_RESOURCES_BUCKET, S3_PUBLIC_RESOURCES_BUCKET } = process.env;
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 const LANG = 'en';
 const MAIL_TO = 'prod@crowdaa.com';
@@ -23,26 +19,28 @@ const MAIL_TO = 'prod@crowdaa.com';
 export const resourceFormatToPath = {
   icon: { path: 'icon.png', basename: 'icon.png' },
   splash: { path: 'splash.png', basename: 'splash.png' },
-  background: { path: 'android/icon-background.png', basename: 'icon-background.png' },
-  foreground: { path: 'android/icon-foreground.png', basename: 'icon-foreground.png' },
+  background: {
+    path: 'android/icon-background.png',
+    basename: 'icon-background.png',
+  },
+  foreground: {
+    path: 'android/icon-foreground.png',
+    basename: 'icon-foreground.png',
+  },
 };
 
-export const allActions = [
-  'get',
-  'put',
-];
-export const allResourceTypes = [
-  'ios',
-  'android',
-  'public',
-];
+export const allActions = ['get', 'put'];
+export const allResourceTypes = ['ios', 'android', 'public'];
 export const allResourceFormats = Object.keys(resourceFormatToPath);
 
-export default async (appId, {
-  action,
-  resourceTypes = allResourceTypes,
-  resourceFormats = allResourceFormats,
-}) => {
+export default async (
+  appId,
+  {
+    action,
+    resourceTypes = allResourceTypes,
+    resourceFormats = allResourceFormats,
+  }
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -55,18 +53,10 @@ export default async (appId, {
     }
     let iosPackageId = null;
     let androidPackageId = null;
-    if (
-      app.builds &&
-      app.builds.ios &&
-      app.builds.ios.packageId
-    ) {
+    if (app.builds && app.builds.ios && app.builds.ios.packageId) {
       iosPackageId = app.builds.ios.packageId;
     }
-    if (
-      app.builds &&
-      app.builds.android &&
-      app.builds.android.packageId
-    ) {
+    if (app.builds && app.builds.android && app.builds.android.packageId) {
       androidPackageId = app.builds.android.packageId;
     }
 
@@ -103,11 +93,14 @@ export default async (appId, {
     if (action === 'put') {
       intlInit(LANG);
 
-      const subject = formatMessage('files:requested_resource_upload_url.title', {
-        appName: app.name,
-        region: process.env.REGION,
-        stage: process.env.STAGE,
-      });
+      const subject = formatMessage(
+        'files:requested_resource_upload_url.title',
+        {
+          appName: app.name,
+          region: process.env.REGION,
+          stage: process.env.STAGE,
+        }
+      );
 
       const resources = [];
       Object.keys(urls).forEach((type) => {
@@ -125,7 +118,7 @@ export default async (appId, {
     }
 
     /* Return the document ID and the upload url */
-    return (returnResources);
+    return returnResources;
   } finally {
     client.close();
   }

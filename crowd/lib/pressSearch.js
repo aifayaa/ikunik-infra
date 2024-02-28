@@ -1,11 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PRESS_ARTICLES,
-  COLL_USERS,
-  COLL_USER_METRICS,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_USERS, COLL_USER_METRICS } = mongoCollections;
 
 export default async (
   pipeline,
@@ -17,7 +14,7 @@ export default async (
     sortOrder = 'asc',
     countOnly = false,
     filterUserInfo = true,
-  },
+  }
 ) => {
   if (page && typeof page !== 'number') {
     page = parseInt(page, 10);
@@ -92,7 +89,7 @@ export default async (
       },
       {
         $project: project,
-      },
+      }
     );
 
     const [result] = await client
@@ -221,24 +218,29 @@ export default async (
       });
 
       /* Insert data to crowd results */
-      const unique = (arrayOfArticles) => arrayOfArticles
-        .map((v) => v.title)
-        .filter((v, i, a) => a.indexOf(v) === i)
-        .map((v) => ({ title: v }));
+      const unique = (arrayOfArticles) =>
+        arrayOfArticles
+          .map((v) => v.title)
+          .filter((v, i, a) => a.indexOf(v) === i)
+          .map((v) => ({ title: v }));
 
       crowd.forEach((value, key) => {
         const { deviceId, user_ID: userId } = value;
         if (userId) {
-          crowd[key].lastGeolocation = { location: geolocationDataFormattedById[userId]
-            ? geolocationDataFormattedById[userId].pop()
-            : null };
+          crowd[key].lastGeolocation = {
+            location: geolocationDataFormattedById[userId]
+              ? geolocationDataFormattedById[userId].pop()
+              : null,
+          };
           crowd[key].userArticles = articleDataFormattedById[userId]
             ? unique(articleDataFormattedById[userId])
             : [];
         } else if (deviceId) {
-          crowd[key].lastGeolocation = { location: geolocationDataFormattedByDevice[userId]
-            ? geolocationDataFormattedByDevice[userId].pop()
-            : null };
+          crowd[key].lastGeolocation = {
+            location: geolocationDataFormattedByDevice[userId]
+              ? geolocationDataFormattedByDevice[userId].pop()
+              : null,
+          };
           crowd[key].userArticles = articleDataFormattedByDevice[deviceId]
             ? unique(articleDataFormattedByDevice[deviceId])
             : [];

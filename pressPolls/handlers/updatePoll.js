@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import updatePoll from '../lib/updatePoll';
 import { updateFieldChecks } from '../lib/pollsFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';

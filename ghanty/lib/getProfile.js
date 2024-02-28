@@ -1,22 +1,20 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import MetricsTimer from './metricsTimer';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-export default async (
-  appId,
-  userId,
-) => {
+export default async (appId, userId) => {
   const client = await MongoClient.connect();
   const metricsTimer = new MetricsTimer(__filename.replace(/.*\//, ''));
   try {
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
-    const user = await client.db().collection(COLL_USERS).findOne({ _id: userId });
+    const user = await client
+      .db()
+      .collection(COLL_USERS)
+      .findOne({ _id: userId });
     if (!app) {
       throw new Error('app_not_found');
     }
@@ -34,7 +32,7 @@ export default async (
 
     await metricsTimer.save(client);
 
-    return ({ balance: response.balance });
+    return { balance: response.balance };
   } finally {
     client.close();
   }

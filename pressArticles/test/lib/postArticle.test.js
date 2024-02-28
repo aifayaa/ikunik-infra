@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -7,10 +8,7 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import { postArticle } from '../../lib/postArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  COLL_PRESS_DRAFTS,
-  COLL_PRESS_ARTICLES,
-} = mongoCollections;
+const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
 describe('lib - postArticle', () => {
   let spyMongo;
@@ -58,7 +56,7 @@ describe('lib - postArticle', () => {
     sinon.assert.calledWith(
       spyMongo.insertOne,
       spyMongo.insertOne.getCall(0).args[0],
-      spyMongo.insertOne.getCall(0).args[1],
+      spyMongo.insertOne.getCall(0).args[1]
     );
   });
 
@@ -67,7 +65,7 @@ describe('lib - postArticle', () => {
     sinon.assert.calledWith(
       spyMongo.insertOne,
       spyMongo.insertOne.getCall(1).args[0],
-      spyMongo.insertOne.getCall(1).args[1],
+      spyMongo.insertOne.getCall(1).args[1]
     );
   });
 

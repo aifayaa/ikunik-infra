@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -35,7 +36,7 @@ describe('lib - patchPurchasableProduct', () => {
         },
         price: 'price',
         type: 'type',
-      },
+      }
     );
     expect(res).to.deep.eq(response);
     expect(res).to.be.a('object');
@@ -48,7 +49,10 @@ describe('lib - patchPurchasableProduct', () => {
 
   it('should be called with the good args', () => {
     sinon.assert.calledWith(spyMongo.collection, COLL_PURCHASABLE_PRODUCT);
-    sinon.assert.calledWith(spyMongo.updateOne, spyMongo.updateOne.getCall(0).args[0]);
+    sinon.assert.calledWith(
+      spyMongo.updateOne,
+      spyMongo.updateOne.getCall(0).args[0]
+    );
   });
 
   after(() => {

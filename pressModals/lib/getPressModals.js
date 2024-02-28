@@ -1,12 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import { WordpressAPI } from '../../libs/backends/wordpress';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_PRESS_MODALS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PRESS_MODALS, COLL_USERS } = mongoCollections;
 
 const publicFields = [
   '_id',
@@ -23,38 +20,39 @@ function countBadgesPerStatus(badges) {
   const counts = badges.reduce((acc, badge) => {
     const { status = 'validated' } = badge;
     acc[status] = (acc[status] || 0) + 1;
-    return (acc);
+    return acc;
   }, {});
 
-  return (counts);
+  return counts;
 }
 
 function haveBadges(user) {
-  if (!user) return (false);
-  if (!user.badges) return (false);
-  if (user.badges.length === 0) return (false);
+  if (!user) return false;
+  if (!user.badges) return false;
+  if (user.badges.length === 0) return false;
 
   const counts = countBadgesPerStatus(user.badges);
-  if (counts.validated > 0) return (true);
+  if (counts.validated > 0) return true;
 
-  return (false);
+  return false;
 }
 
 function havePendingBadges(user) {
-  if (!user) return (false);
-  if (!user.badges) return (false);
-  if (user.badges.length === 0) return (false);
+  if (!user) return false;
+  if (!user.badges) return false;
+  if (user.badges.length === 0) return false;
 
   const counts = countBadgesPerStatus(user.badges);
-  if (counts.requested > 0) return (true);
+  if (counts.requested > 0) return true;
 
-  return (false);
+  return false;
 }
 
-export default async function getPressModals(appId, {
-  type = null,
-  articleId = null,
-}, { userId, loginTokenObj }) {
+export default async function getPressModals(
+  appId,
+  { type = null, articleId = null },
+  { userId, loginTokenObj }
+) {
   const client = await MongoClient.connect();
 
   try {
@@ -78,35 +76,37 @@ export default async function getPressModals(appId, {
       .collection(COLL_USERS)
       .findOne({ _id: userId, appId });
 
-    const modals = dbModals.filter((modal) => {
-      if (typeof modal.loggedIn === 'boolean') {
-        if ((!modal.loggedIn) !== (!userId)) {
-          return (false);
-        }
-      }
-
-      if (modal.badges) {
-        if (typeof modal.badges.none === 'boolean') {
-          if (!haveBadges(dbUser) !== modal.badges.none) {
-            return (false);
+    const modals = dbModals
+      .filter((modal) => {
+        if (typeof modal.loggedIn === 'boolean') {
+          if (!modal.loggedIn !== !userId) {
+            return false;
           }
         }
-        if (typeof modal.badges.pending === 'boolean') {
-          if (havePendingBadges(dbUser) !== modal.badges.pending) {
-            return (false);
+
+        if (modal.badges) {
+          if (typeof modal.badges.none === 'boolean') {
+            if (!haveBadges(dbUser) !== modal.badges.none) {
+              return false;
+            }
+          }
+          if (typeof modal.badges.pending === 'boolean') {
+            if (havePendingBadges(dbUser) !== modal.badges.pending) {
+              return false;
+            }
           }
         }
-      }
 
-      return (true);
-    }).map((modal) => (
-      publicFields.reduce((acc, field) => {
-        if (modal[field] !== undefined) {
-          acc[field] = modal[field];
-        }
-        return (acc);
-      }, {})
-    ));
+        return true;
+      })
+      .map((modal) =>
+        publicFields.reduce((acc, field) => {
+          if (modal[field] !== undefined) {
+            acc[field] = modal[field];
+          }
+          return acc;
+        }, {})
+      );
 
     if (appId === '77408f0a-ef4a-4339-8827-25ed684e5a26') {
       const systemikRhModals = {
@@ -144,30 +144,31 @@ export default async function getPressModals(appId, {
 
       const wpApi = new WordpressAPI(app);
 
-      if (!loginTokenObj) return (modals);
+      if (!loginTokenObj) return modals;
 
       try {
         let response = await wpApi.authCall(
           'GET',
           '/crowdaa-sync/v1/systemikrh/userStatus',
           loginTokenObj.wpToken,
-          null,
+          null
         );
         response = JSON.parse(response);
-        if (!response || !response.status || !systemikRhModals[response.status]) {
-          return (modals);
+        if (
+          !response ||
+          !response.status ||
+          !systemikRhModals[response.status]
+        ) {
+          return modals;
         }
 
-        return ([
-          ...modals,
-          systemikRhModals[response.status],
-        ]);
+        return [...modals, systemikRhModals[response.status]];
       } catch (e) {
         /* Ignore error */
       }
     }
 
-    return (modals);
+    return modals;
   } finally {
     client.close();
   }

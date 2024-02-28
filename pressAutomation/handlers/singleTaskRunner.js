@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import singleTaskRunner from '../lib/singleTaskRunner';
 
 export default async (event) => {

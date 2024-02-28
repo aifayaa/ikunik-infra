@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -36,7 +37,7 @@ describe('handlers - getTos', () => {
       expect(stubLib.calledOnce).to.be.true;
     });
 
-    it('shouldn\'t call getHtmlResults', () => {
+    it("shouldn't call getHtmlResults", () => {
       expect(stubHtmlLib.called).to.be.false;
     });
 
@@ -56,7 +57,9 @@ describe('handlers - getTos', () => {
       let response;
 
       before(async () => {
-        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns(libResult);
+        stubHtmlLib = sandbox
+          .stub(getHtmlResults, 'getHtmlResults')
+          .returns(libResult);
         stubLib = sandbox.stub(lib, 'getTos').returns([{}]);
         event.headers.accept = 'text/html';
         response = await handler(event);
@@ -87,14 +90,16 @@ describe('handlers - getTos', () => {
       let response;
 
       before(async () => {
-        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
+        stubHtmlLib = sandbox
+          .stub(getHtmlResults, 'getHtmlResults')
+          .returns('');
         stubLib = sandbox.stub(lib, 'getTos').returns(libResult);
         event.headers.accept = 'application/json';
         response = await handler(event);
       });
 
       if (event.headers.accept.includes('application/json')) {
-        it('shouldn\'t call stubHtmlLib', () => {
+        it("shouldn't call stubHtmlLib", () => {
           expect(stubHtmlLib.called).to.be.false;
         });
       }
@@ -114,10 +119,12 @@ describe('handlers - getTos', () => {
   describe('Case lib return results', () => {
     let response;
     before(async () => {
-      stubLib = sandbox.stub(lib, 'getTos').returns([{
-        _id: 'tosId',
-        appId: 'crowdaa_app_id',
-      }]);
+      stubLib = sandbox.stub(lib, 'getTos').returns([
+        {
+          _id: 'tosId',
+          appId: 'crowdaa_app_id',
+        },
+      ]);
       response = await handler(event);
     });
     it('should call lib once', () => {
@@ -136,15 +143,19 @@ describe('handlers - getTos', () => {
     describe('getTos', () => {
       let response;
       before(async () => {
-        stubLib = sandbox.stub(lib, 'getTos').callsFake(() => Promise.reject(new Error('error_message')));
-        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').returns('');
+        stubLib = sandbox
+          .stub(lib, 'getTos')
+          .callsFake(() => Promise.reject(new Error('error_message')));
+        stubHtmlLib = sandbox
+          .stub(getHtmlResults, 'getHtmlResults')
+          .returns('');
         response = await handler(event);
       });
       it('should call lib once', () => {
         expect(stubLib.calledOnce).to.be.true;
       });
 
-      it('shouldn\'t call stubHtmlLib', () => {
+      it("shouldn't call stubHtmlLib", () => {
         expect(stubHtmlLib.called).to.be.false;
       });
 
@@ -161,7 +172,9 @@ describe('handlers - getTos', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'getTos').returns([{}]);
-        stubHtmlLib = sandbox.stub(getHtmlResults, 'getHtmlResults').throws(new Error('An Error'));
+        stubHtmlLib = sandbox
+          .stub(getHtmlResults, 'getHtmlResults')
+          .throws(new Error('An Error'));
         response = await handler(event);
       });
 

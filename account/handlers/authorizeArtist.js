@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import authorizeArtist from '../lib/authorizeArtist';
 import generatePolicy from '../lib/generatePolicy';
@@ -17,10 +18,14 @@ export default async ({ headers, methodArn, requestContext }) => {
     const hashedLoginToken = hashLoginToken(loginToken);
     const app = await getAppFromKey(apiKey);
     const userId = await authorizeArtist(hashedLoginToken, app._id);
-    const profileId = userId && await getProfile(userId, app._id);
+    const profileId = userId && (await getProfile(userId, app._id));
     if (userId && profileId) {
       jsConsole.info('allow', authorizationToken, userId);
-      return generatePolicy('allow', methodArn, { userId, appId: app._id, profileId });
+      return generatePolicy('allow', methodArn, {
+        userId,
+        appId: app._id,
+        profileId,
+      });
     }
     jsConsole.info('deny', authorizationToken);
     return generatePolicy('deny', methodArn);

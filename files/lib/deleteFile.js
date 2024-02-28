@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import AWS from 'aws-sdk';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -7,15 +8,9 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const {
-  S3_UPLOAD_BUCKET,
-  S3_PICTURES_BUCKET,
-  S3_VIDEOS_BUCKET,
-} = process.env;
+const { S3_UPLOAD_BUCKET, S3_PICTURES_BUCKET, S3_VIDEOS_BUCKET } = process.env;
 
-const {
-  COLL_PICTURES,
-} = mongoCollections;
+const { COLL_PICTURES } = mongoCollections;
 
 export default async (userId, appId, file) => {
   const client = await MongoClient.connect();
@@ -54,10 +49,12 @@ export default async (userId, appId, file) => {
     } else {
       const videoId = key.split('.')[0];
       const prefix = `videos/${videoId}`;
-      const videosObjects = await s3.listObjectsV2({
-        Bucket: S3_VIDEOS_BUCKET,
-        Prefix: prefix,
-      }).promise();
+      const videosObjects = await s3
+        .listObjectsV2({
+          Bucket: S3_VIDEOS_BUCKET,
+          Prefix: prefix,
+        })
+        .promise();
 
       if (videosObjects.Contents) {
         // All encoded videos

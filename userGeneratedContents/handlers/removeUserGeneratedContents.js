@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import checkOwner from '../../libs/perms/checkOwner';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import removeUserGeneratedContents from '../lib/removeUserGeneratedContents';
@@ -5,10 +6,7 @@ import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const permKeys = [
-  'userGeneratedContents_all',
-  'userGeneratedContents_delete',
-];
+const permKeys = ['userGeneratedContents_all', 'userGeneratedContents_delete'];
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
@@ -23,7 +21,13 @@ export default async (event) => {
 
     let ugc = null;
     try {
-      ugc = await checkOwner(appId, userGeneratedContentsId, COLL_USER_GENERATED_CONTENTS, 'userId', userId);
+      ugc = await checkOwner(
+        appId,
+        userGeneratedContentsId,
+        COLL_USER_GENERATED_CONTENTS,
+        'userId',
+        userId
+      );
     } catch (e) {
       const error = errorMessage(e);
       if (error.code === 404 || !isModerator) {
@@ -31,12 +35,14 @@ export default async (event) => {
       }
     }
 
-    const options = { moderationInfo: ugc ? null : 'content has been moderated' };
+    const options = {
+      moderationInfo: ugc ? null : 'content has been moderated',
+    };
     const results = await removeUserGeneratedContents(
       appId,
       userId,
       userGeneratedContentsId,
-      options,
+      options
     );
     return response({ code: 200, body: results });
   } catch (e) {

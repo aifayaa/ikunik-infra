@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { actionRegexp } from '../../libs/regexp/action';
 
 const { SAFE_ORDER_NUMBER } = process.env;
@@ -24,10 +25,7 @@ export default ({
   });
 
   if (picture) {
-    if (
-      typeof picture !== 'object' ||
-      typeof picture.length === 'undefined'
-    ) {
+    if (typeof picture !== 'object' || typeof picture.length === 'undefined') {
       throw new Error('wrong_argument_type');
     }
 
@@ -44,7 +42,10 @@ export default ({
     throw new Error('Wrong color syntax, must be #xxxxxx');
   }
 
-  if (order && (!Number.isInteger(order) || order < 1 || order >= safeOrderNumber)) {
+  if (
+    order &&
+    (!Number.isInteger(order) || order < 1 || order >= safeOrderNumber)
+  ) {
     throw new Error('Wrong order syntax, must be a positive integer');
   }
 

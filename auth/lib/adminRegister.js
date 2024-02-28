@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 // based on meteor accounts-password module
 // createUser method from
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
@@ -9,20 +10,11 @@ import { crowdaaRegister } from './backends/crowdaaRegister';
 import syncAdminLoginBaserow from './backends/syncAdminLoginBaserow';
 import postLoginChecks from './postLoginChecks';
 
-const {
-  ADMIN_APP,
-} = process.env;
+const { ADMIN_APP } = process.env;
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
-export const adminRegister = async ({
-  email,
-  username,
-  password,
-  profile,
-}) => {
+export const adminRegister = async ({ email, username, password, profile }) => {
   const client = await MongoClient.connect();
 
   try {
@@ -37,13 +29,17 @@ export const adminRegister = async ({
 
     await postLoginChecks(ret, app, 'admin-register');
 
-    await syncAdminLoginBaserow(ret.userId, {
-      email,
-      username,
-      profile,
-    }, client);
+    await syncAdminLoginBaserow(
+      ret.userId,
+      {
+        email,
+        username,
+        profile,
+      },
+      client
+    );
 
-    return (ret);
+    return ret;
   } finally {
     client.close();
   }

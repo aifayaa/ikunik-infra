@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -72,7 +73,12 @@ describe('handlers - logout', () => {
       expect(response.statusCode).to.equal(200);
     });
     it('should call lib with right args', () => {
-      expect(stubLib.calledWith(event.headers['x-auth-token'], event.headers['x-user-id']));
+      expect(
+        stubLib.calledWith(
+          event.headers['x-auth-token'],
+          event.headers['x-user-id']
+        )
+      );
     });
     after(() => {
       sandbox.restore();

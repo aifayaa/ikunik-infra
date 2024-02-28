@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -9,7 +10,7 @@ const lambda = new Lambda({
 });
 
 function canRun() {
-  return (true);
+  return true;
 }
 
 export default async () => {
@@ -20,24 +21,31 @@ export default async () => {
     const allTasks = client
       .db()
       .collection(COLL_PRESS_AUTOMATION_TASKS)
-      .find({
-        active: true,
-        startDateTime: { $lte: now },
-      }, {
-        projection: {
-          _id: 1,
+      .find(
+        {
+          active: true,
+          startDateTime: { $lte: now },
         },
-      });
+        {
+          projection: {
+            _id: 1,
+          },
+        }
+      );
 
     const promises = [];
     await allTasks.forEach((task) => {
       if (canRun(task, now)) {
-        promises.push(lambda.invokeAsync({
-          FunctionName: `pressAutomation-${process.env.STAGE}-singleTaskRunner`,
-          InvokeArgs: JSON.stringify({
-            taskId: task._id,
-          }),
-        }).promise());
+        promises.push(
+          lambda
+            .invokeAsync({
+              FunctionName: `pressAutomation-${process.env.STAGE}-singleTaskRunner`,
+              InvokeArgs: JSON.stringify({
+                taskId: task._id,
+              }),
+            })
+            .promise()
+        );
       }
     });
 
@@ -45,7 +53,7 @@ export default async () => {
       await Promise.all(promises);
     }
 
-    return (promises.length);
+    return promises.length;
   } finally {
     client.close();
   }

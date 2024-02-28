@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { register } from '../lib/register';
@@ -13,13 +14,18 @@ export default async (event) => {
 
     const { email, username, password } = JSON.parse(event.body);
 
-    if (!typeCheck('[String]', [email, username, password])) throw new Error('wrong_argument_type');
-    if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
+    if (!typeCheck('[String]', [email, username, password]))
+      throw new Error('wrong_argument_type');
+    if (password.length < PASSWORD_MIN_LENGTH)
+      throw new Error('invalid_password_length');
 
     const { appId } = event.requestContext.authorizer;
     const { userId } = await register(email, username, password, appId);
 
-    return response({ code: 200, body: { status: 'success', data: { _id: userId } } });
+    return response({
+      code: 200,
+      body: { status: 'success', data: { _id: userId } },
+    });
   } catch (e) {
     return response(errorMessage(e));
   }

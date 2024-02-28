@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import updateTask from '../lib/updateTask';
 import { updateFieldChecks } from '../lib/tasksFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   Pour associer votre wallet Ethereum à votre compte Crowdaa, merci de cliquer sur le lien ci-dessous.

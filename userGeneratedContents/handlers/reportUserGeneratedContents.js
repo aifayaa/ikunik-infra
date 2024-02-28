@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import reportUserGeneratedContents from '../lib/reportUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
@@ -20,19 +21,13 @@ export default async (event) => {
 
     /* Parse body and get parameters from it */
     const bodyParsed = JSON.parse(event.body);
-    const {
-      details,
-      reason = 'inappropriate',
-    } = bodyParsed;
+    const { details, reason = 'inappropriate' } = bodyParsed;
 
     /* Proceed to some checks */
     if (!reason || !details) {
       throw new Error('missing_arguments');
     }
-    [
-      reason,
-      details,
-    ].forEach((item) => {
+    [reason, details].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
@@ -47,7 +42,7 @@ export default async (event) => {
       userId,
       userGeneratedContentsId,
       reason,
-      details,
+      details
     );
 
     const lang = getUserLanguage(event.headers);
@@ -70,7 +65,7 @@ export default async (event) => {
         userGeneratedContentsId,
         reason,
         details,
-        lang,
+        lang
       );
       await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {

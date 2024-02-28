@@ -1,9 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 import mongoCollections from '../mongoCollections.json';
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 function MyFidApi(app) {
   if (!(this instanceof MyFidApi)) {
@@ -24,10 +23,10 @@ MyFidApi.prototype.isApiLoggedIn = function isApiLoggedIn() {
     !this.myfidbackend.apiAccessToken.value ||
     this.myfidbackend.apiAccessToken.expires <= aBitLaterDate
   ) {
-    return (false);
+    return false;
   }
 
-  return (true);
+  return true;
 };
 
 MyFidApi.prototype.isLoginLoggedIn = function isLoginLoggedIn() {
@@ -36,15 +35,17 @@ MyFidApi.prototype.isLoginLoggedIn = function isLoginLoggedIn() {
     !this.myfidbackend.accountApiAccessToken.value ||
     this.myfidbackend.accountApiAccessToken.expires <= aBitLaterDate
   ) {
-    return (false);
+    return false;
   }
 
-  return (true);
+  return true;
 };
 
-MyFidApi.prototype.renewAPITokenIfNeeded = async function renewAPITokenIfNeeded(client) {
+MyFidApi.prototype.renewAPITokenIfNeeded = async function renewAPITokenIfNeeded(
+  client
+) {
   if (this.isApiLoggedIn()) {
-    return (false);
+    return false;
   }
 
   const body = new URLSearchParams();
@@ -73,59 +74,82 @@ MyFidApi.prototype.renewAPITokenIfNeeded = async function renewAPITokenIfNeeded(
   } = response;
 
   this.myfidbackend.apiAccessToken.value = value;
-  this.myfidbackend.apiAccessToken.expires = new Date(Date.now() + expiresIn * 1000);
+  this.myfidbackend.apiAccessToken.expires = new Date(
+    Date.now() + expiresIn * 1000
+  );
   this.myfidbackend.apiAccessToken.tokenType = tokenType;
 
-  await client.db().collection(COLL_APPS).updateOne({ _id: this.app._id }, { $set: {
-    'settings.myfidbackend.apiAccessToken': this.myfidbackend.apiAccessToken,
-  } });
+  await client
+    .db()
+    .collection(COLL_APPS)
+    .updateOne(
+      { _id: this.app._id },
+      {
+        $set: {
+          'settings.myfidbackend.apiAccessToken':
+            this.myfidbackend.apiAccessToken,
+        },
+      }
+    );
 
-  return (true);
+  return true;
 };
 
-MyFidApi.prototype.renewLoginTokenIfNeeded = async function renewLoginTokenIfNeeded(client) {
-  if (this.isLoginLoggedIn()) {
-    return (false);
-  }
+MyFidApi.prototype.renewLoginTokenIfNeeded =
+  async function renewLoginTokenIfNeeded(client) {
+    if (this.isLoginLoggedIn()) {
+      return false;
+    }
 
-  const body = new URLSearchParams();
-  if (this.myfidbackend.accountApiAccessBody) {
-    Object.keys(this.myfidbackend.accountApiAccessBody).forEach((key) => {
-      body.append(key, this.myfidbackend.accountApiAccessBody[key]);
-    });
-  }
+    const body = new URLSearchParams();
+    if (this.myfidbackend.accountApiAccessBody) {
+      Object.keys(this.myfidbackend.accountApiAccessBody).forEach((key) => {
+        body.append(key, this.myfidbackend.accountApiAccessBody[key]);
+      });
+    }
 
-  const params = {
-    method: 'POST',
-    url: `${this.myfidbackend.accountApiUrl}/moserver/token`,
-    body: body.toString(),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+    const params = {
+      method: 'POST',
+      url: `${this.myfidbackend.accountApiUrl}/moserver/token`,
+      body: body.toString(),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    };
+
+    let response = await request(params);
+
+    if (typeof response === 'string') {
+      response = JSON.parse(response);
+    }
+
+    const {
+      token_type: tokenType,
+      expires_in: expiresIn,
+      access_token: value,
+    } = response;
+
+    this.myfidbackend.accountApiAccessToken.value = value;
+    this.myfidbackend.accountApiAccessToken.expires = new Date(
+      Date.now() + expiresIn * 1000
+    );
+    this.myfidbackend.accountApiAccessToken.tokenType = tokenType;
+
+    await client
+      .db()
+      .collection(COLL_APPS)
+      .updateOne(
+        { _id: this.app._id },
+        {
+          $set: {
+            'settings.myfidbackend.accountApiAccessToken':
+              this.myfidbackend.accountApiAccessToken,
+          },
+        }
+      );
+
+    return true;
   };
-
-  let response = await request(params);
-
-  if (typeof response === 'string') {
-    response = JSON.parse(response);
-  }
-
-  const {
-    token_type: tokenType,
-    expires_in: expiresIn,
-    access_token: value,
-  } = response;
-
-  this.myfidbackend.accountApiAccessToken.value = value;
-  this.myfidbackend.accountApiAccessToken.expires = new Date(Date.now() + expiresIn * 1000);
-  this.myfidbackend.accountApiAccessToken.tokenType = tokenType;
-
-  await client.db().collection(COLL_APPS).updateOne({ _id: this.app._id }, { $set: {
-    'settings.myfidbackend.accountApiAccessToken': this.myfidbackend.accountApiAccessToken,
-  } });
-
-  return (true);
-};
 
 MyFidApi.prototype.call = async function call(path, options = {}) {
   const {
@@ -165,10 +189,13 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
     response = JSON.parse(response);
   }
 
-  return (response);
+  return response;
 };
 
-MyFidApi.prototype.authAPICall = async function authAPICall(path, options = {}) {
+MyFidApi.prototype.authAPICall = async function authAPICall(
+  path,
+  options = {}
+) {
   const {
     body = null,
     bodyFormat = 'json',
@@ -206,7 +233,7 @@ MyFidApi.prototype.authAPICall = async function authAPICall(path, options = {}) 
     response = JSON.parse(response);
   }
 
-  return (response);
+  return response;
 };
 
 MyFidApi.prototype.checkUser = async function checkUser(username, password) {
@@ -235,9 +262,7 @@ MyFidApi.prototype.checkUser = async function checkUser(username, password) {
     response = JSON.parse(response);
   }
 
-  return (response);
+  return response;
 };
 
-export {
-  MyFidApi,
-};
+export { MyFidApi };

@@ -1,10 +1,7 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import {
-  common,
-  admin,
-  server,
-} from './articleFields';
+import { common, admin, server } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 import { getArticleCommentsCount } from './getArticleCounts';
 
@@ -31,7 +28,7 @@ export const getArticle = async (
     isServer = false,
     publishedOnly = false,
     userId = null,
-  } = {},
+  } = {}
 ) => {
   const options = {
     articleFields: common,
@@ -100,7 +97,8 @@ export const getArticle = async (
           },
         },
       },
-      { /*
+      {
+        /*
         some users have base 64 pictures in profile,
         we remove those fields to avoid big trafic load
         */
@@ -133,16 +131,20 @@ export const getArticle = async (
               articleId: '$_id',
               articleProductId: '$productId',
             },
-            pipeline: [{ $match: {
-              $expr: {
-                $and: [
-                  { $ne: ['$$articleProductId', null] },
-                  { $eq: ['$contentId', '$$articleId'] },
-                  { $eq: ['$contentCollection', COLL_PRESS_ARTICLES] },
-                  iapLookupUserPipeline,
-                ],
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $ne: ['$$articleProductId', null] },
+                      { $eq: ['$contentId', '$$articleId'] },
+                      { $eq: ['$contentCollection', COLL_PRESS_ARTICLES] },
+                      iapLookupUserPipeline,
+                    ],
+                  },
+                },
               },
-            } }],
+            ],
           },
         },
         {
@@ -160,13 +162,10 @@ export const getArticle = async (
     if (getPictures) {
       // Lookup on pictures
       const pictureGroup = {
-        ...Object.keys(options.articleFields).reduce(
-          (res, key) => {
-            res[key] = { $first: `$${key}` };
-            return res;
-          },
-          {},
-        ),
+        ...Object.keys(options.articleFields).reduce((res, key) => {
+          res[key] = { $first: `$${key}` };
+          return res;
+        }, {}),
         badges: { $first: '$badges' },
         category: { $first: '$category' },
         categories: { $first: '$categories' },
@@ -217,13 +216,10 @@ export const getArticle = async (
 
       // Lookup on pictures
       const videoGroup = {
-        ...Object.keys(options.articleFields).reduce(
-          (res, key) => {
-            res[key] = { $first: `$${key}` };
-            return res;
-          },
-          {},
-        ),
+        ...Object.keys(options.articleFields).reduce((res, key) => {
+          res[key] = { $first: `$${key}` };
+          return res;
+        }, {}),
         badges: { $first: '$badges' },
         category: { $first: '$category' },
         categories: { $first: '$categories' },
@@ -279,9 +275,14 @@ export const getArticle = async (
       const app = await client
         .db()
         .collection(COLL_APPS)
-        .findOne({ _id: appId }, { projection: {
-          'settings.press.articles.previewLength': 1,
-        } });
+        .findOne(
+          { _id: appId },
+          {
+            projection: {
+              'settings.press.articles.previewLength': 1,
+            },
+          }
+        );
 
       let previewLength = 180;
       if (
@@ -294,7 +295,11 @@ export const getArticle = async (
         previewLength = app.settings.press.articles.previewLength;
       }
 
-      const articleRequires = (what, requiredElements, { preview = false } = {}) => {
+      const articleRequires = (
+        what,
+        requiredElements,
+        { preview = false } = {}
+      ) => {
         if (preview && article.text) {
           article.text = article.text.substr(0, previewLength);
         } else {
@@ -317,24 +322,18 @@ export const getArticle = async (
           });
 
         if (extPurchases) {
-          return (article);
+          return article;
         }
       }
 
       /* Filter article if purchasable and not paid yet */
       const cp = article.permissions;
-      if (
-        article.storeProductId &&
-        (!cp || (!cp.all && !cp.read))
-      ) {
+      if (article.storeProductId && (!cp || (!cp.all && !cp.read))) {
         articleRequires('iap');
       }
 
       const user = userId
-        ? await client
-          .db()
-          .collection(COLL_USERS)
-          .findOne({ _id: userId })
+        ? await client.db().collection(COLL_USERS).findOne({ _id: userId })
         : null;
 
       if (!isServer && (!user || user.appId !== ADMIN_APP || deviceId)) {
@@ -348,7 +347,7 @@ export const getArticle = async (
               storeProductId: { $ne: null },
             })
             .toArray();
-          const iapBadgesIds = allIAPBadges.map(({ _id }) => (_id));
+          const iapBadgesIds = allIAPBadges.map(({ _id }) => _id);
 
           if (iapBadgesIds.length > 0) {
             const purchasedBadges = await client
@@ -375,20 +374,27 @@ export const getArticle = async (
 
         await badgeChecker.init;
 
-        badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
+        badgeChecker.registerBadges(
+          userBadges.map(({ id: badgeId }) => badgeId)
+        );
         if (article.badges) {
-          badgeChecker.registerBadges(article.badges.list.map(({ id: badgeId }) => (badgeId)));
+          badgeChecker.registerBadges(
+            article.badges.list.map(({ id: badgeId }) => badgeId)
+          );
         }
 
         const { categories = [article.category] } = article;
-        const categoriesBadges = (categories && categories.reduce((acc, category) => {
-          if (category && category.badges) {
-            const list = category.badges.list.map((badge) => (badge.id));
-            badgeChecker.registerBadges(list);
-            acc.push(category.badges);
-          }
-          return (acc);
-        }, [])) || [];
+        const categoriesBadges =
+          (categories &&
+            categories.reduce((acc, category) => {
+              if (category && category.badges) {
+                const list = category.badges.list.map((badge) => badge.id);
+                badgeChecker.registerBadges(list);
+                acc.push(category.badges);
+              }
+              return acc;
+            }, [])) ||
+          [];
         await badgeChecker.loadBadges();
 
         const opts = {
@@ -401,14 +407,12 @@ export const getArticle = async (
         let checkerResults = await badgeChecker.checkBadges(
           userBadges,
           article.badges,
-          opts,
+          opts
         );
         const promises = categoriesBadges.map(async (categoryBadges) => {
-          checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
-            userBadges,
-            categoryBadges,
-            opts,
-          ));
+          checkerResults = checkerResults.merge(
+            await badgeChecker.checkBadges(userBadges, categoryBadges, opts)
+          );
         });
         await Promise.all(promises);
         article.paidBadges = checkerResults.paidBadges;
@@ -416,11 +420,9 @@ export const getArticle = async (
           throw new Error('forbidden');
         }
         if (!checkerResults.canRead) {
-          articleRequires(
-            'userBadges',
-            checkerResults.restrictedBy,
-            { preview: checkerResults.canPreview },
-          );
+          articleRequires('userBadges', checkerResults.restrictedBy, {
+            preview: checkerResults.canPreview,
+          });
         }
       }
     }
