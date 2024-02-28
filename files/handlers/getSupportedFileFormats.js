@@ -11,11 +11,11 @@ const supportedFormats = Object.keys(supportedFormatsExtensions).reduce(
 );
 
 export default () =>
-  new Promise((resolve) =>
+  new Promise((resolve) => {
     resolve(
       response({
         body: supportedFormats,
         code: 200,
       })
-    )
-  );
+    );
+  });
