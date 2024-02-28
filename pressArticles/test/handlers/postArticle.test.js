@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import fs from 'fs';
 import sinon from 'sinon';
 import util from 'util';
@@ -18,7 +19,8 @@ import prepareNotif from '../../lib/prepareNotifString';
 import xmlToHtml from '../../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../../lib/xmlParsing/xmlToText';
 
-const readFile = (fileName) => util.promisify(fs.readFile)(`${__dirname}/../xml/${fileName}.xml`, 'utf8');
+const readFile = (fileName) =>
+  util.promisify(fs.readFile)(`${__dirname}/../xml/${fileName}.xml`, 'utf8');
 
 describe('handlers - postArticle', () => {
   let stubLib;
@@ -98,13 +100,9 @@ describe('handlers - postArticle', () => {
 
     // TODO: FIX TEST
     it.skip('lib should called with the goods args', () => {
-      const {
-        categoryId,
-        title,
-        summary,
-        md,
-        pictures,
-      } = JSON.parse(event.body);
+      const { categoryId, title, summary, md, pictures } = JSON.parse(
+        event.body
+      );
       const { principalId, appId } = event.requestContext.authorizer;
       const opt = {
         actions: [],
@@ -157,10 +155,7 @@ describe('handlers - postArticle', () => {
     it.skip('lib should called with the goods args', () => {
       const xml = event.body;
       const { principalId, appId } = event.requestContext.authorizer;
-      const {
-        forceCategoryId,
-        forcePictures,
-      } = event.queryStringParameters;
+      const { forceCategoryId, forcePictures } = event.queryStringParameters;
       const infos = getInfos(xml, defaultSettings);
       const title = infos.title || infos.name;
       const html = xmlToHtml(xml, defaultSettings);
@@ -197,7 +192,9 @@ describe('handlers - postArticle', () => {
 
     beforeEach(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubLib = sandbox.stub(lib, 'postArticle').callsFake(() => Promise.reject(postArticleResult));
+      stubLib = sandbox
+        .stub(lib, 'postArticle')
+        .callsFake(() => Promise.reject(postArticleResult));
     });
 
     afterEach(() => {
@@ -249,7 +246,9 @@ describe('handlers - postArticle', () => {
       event.queryStringParameters.autoPublish = 'true';
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
       stubLib = sandbox.stub(lib, 'postArticle').returns(postArticleResult);
-      stubPublishArticle = sandbox.stub(publishArticle, 'publishArticle').returns(publishResult);
+      stubPublishArticle = sandbox
+        .stub(publishArticle, 'publishArticle')
+        .returns(publishResult);
     });
 
     // TODO: FIX TEST
@@ -260,7 +259,13 @@ describe('handlers - postArticle', () => {
       const response = await handler(event);
       expect(response.statusCode).to.eq(200);
       expect(JSON.parse(response.body)).to.deep.eq({ published: true });
-      sinon.assert.calledWith(stubPublishArticle, principalId, articleId, draftId, appId);
+      sinon.assert.calledWith(
+        stubPublishArticle,
+        principalId,
+        articleId,
+        draftId,
+        appId
+      );
     });
 
     after(() => {
@@ -287,11 +292,19 @@ describe('handlers - postArticle', () => {
       event.queryStringParameters.autoPublish = 'true';
       event.queryStringParameters.sendNotifications = 'true';
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubSendNotificationsTo = sandbox.stub(snsNotifications, 'sendNotificationTo').returns(true);
-      /* stubQueueArticleNotifications = */sandbox.stub(notificationsQueue, 'queueArticleNotifications').returns(true);
+      stubSendNotificationsTo = sandbox
+        .stub(snsNotifications, 'sendNotificationTo')
+        .returns(true);
+      /* stubQueueArticleNotifications = */ sandbox
+        .stub(notificationsQueue, 'queueArticleNotifications')
+        .returns(true);
       stubLib = sandbox.stub(lib, 'postArticle').returns(postArticleResult);
-      stubPublishArticle = sandbox.stub(publishArticle, 'publishArticle').returns(publishArticleResult);
-      stubGetArticle = sandbox.stub(getArticle, 'getArticle').returns(getArticleResult);
+      stubPublishArticle = sandbox
+        .stub(publishArticle, 'publishArticle')
+        .returns(publishArticleResult);
+      stubGetArticle = sandbox
+        .stub(getArticle, 'getArticle')
+        .returns(getArticleResult);
     });
 
     it('should send notifications', async () => {
@@ -309,13 +322,17 @@ describe('handlers - postArticle', () => {
         principalId,
         articleId,
         draftId,
-        appId,
+        appId
       );
     });
 
     // TODO: FIX TEST (getArticle not called anymore)
     it.skip('getArticle called with good args', () => {
-      sinon.assert.calledWith(stubGetArticle, publishArticleResult.articleId, {});
+      sinon.assert.calledWith(
+        stubGetArticle,
+        publishArticleResult.articleId,
+        {}
+      );
     });
 
     // TODO: FIX TEST (Notifications changes)
@@ -329,7 +346,7 @@ describe('handlers - postArticle', () => {
         title,
         prepareNotif(plainText),
         appId,
-        { articleId },
+        { articleId }
       );
     });
 

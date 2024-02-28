@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, after, beforeEach, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
@@ -82,14 +83,23 @@ describe('lib - register', () => {
       try {
         await register(address, username, password, appId);
       } catch (error) {
-        expect(error).to.be.an('error').and.to.have.property('message', 'app_not_found');
+        expect(error)
+          .to.be.an('error')
+          .and.to.have.property('message', 'app_not_found');
       }
 
       stubMongo.restore();
     });
 
     it('should fail with duplicate username or email', async () => {
-      spyMongo = spyMongoMethods({ _id: 0 }, null, [], [], [{ _id: 0 }, { _id: 1 }], []);
+      spyMongo = spyMongoMethods(
+        { _id: 0 },
+        null,
+        [],
+        [],
+        [{ _id: 0 }, { _id: 1 }],
+        []
+      );
       const fakeClient = {
         db: spyMongo.db,
         close: spyMongo.close,
@@ -101,7 +111,10 @@ describe('lib - register', () => {
         await register(address, username, password, appId);
       } catch (error) {
         expect(error).to.be.an('error');
-        expect(error.message).to.be.oneOf(['username_already_exists', 'email_already_exists']);
+        expect(error.message).to.be.oneOf([
+          'username_already_exists',
+          'email_already_exists',
+        ]);
       }
 
       stubMongo.restore();

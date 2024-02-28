@@ -1,9 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_NFT_COLLECTIONS,
-} = mongoCollections;
+const { COLL_NFT_COLLECTIONS } = mongoCollections;
 
 export default async (appId) => {
   const client = await MongoClient.connect();
@@ -11,9 +10,12 @@ export default async (appId) => {
   try {
     const db = client.db();
 
-    const nftColls = await db.collection(COLL_NFT_COLLECTIONS).find({ appId }).toArray();
+    const nftColls = await db
+      .collection(COLL_NFT_COLLECTIONS)
+      .find({ appId })
+      .toArray();
 
-    return (nftColls);
+    return nftColls;
   } finally {
     client.close();
   }

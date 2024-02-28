@@ -1,10 +1,17 @@
+/* eslint-disable import/no-relative-packages */
 export default (libs, output) => {
-  const method = libs.make.method('Gets all article categories, including hidden ones', [{ name: 'pressCategories' }]);
+  const method = libs.make.method(
+    'Gets all article categories, including hidden ones',
+    [{ name: 'pressCategories' }]
+  );
 
   method.parameters = [];
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaRef('responses', 'pressArticles', 'getCategories')),
+    200: libs.make.response(
+      'Success',
+      libs.make.schemaRef('responses', 'pressArticles', 'getCategories')
+    ),
     500: libs.make.responseError('Server error, not handled'),
   };
 

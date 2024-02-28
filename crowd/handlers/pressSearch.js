@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';

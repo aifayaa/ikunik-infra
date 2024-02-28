@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import authorizeRole from '../lib/authorizeRole';
 import generatePolicy from '../lib/generatePolicy';
@@ -17,10 +18,15 @@ export default async ({ headers, methodArn, requestContext }) => {
     const hashedLoginToken = hashLoginToken(loginToken);
     const app = getAppFromKey(apiKey);
     const user = authorizeRole(hashedLoginToken, app._id);
-    const profileId = user.id && await getProfile(user.id, app._id);
+    const profileId = user.id && (await getProfile(user.id, app._id));
     if (user.id) {
       jsConsole.info('allow', authorizationToken, user.id, user.roles, app._id);
-      return generatePolicy('allow', methodArn, { userId: user.id, profileId, roles: user.roles, appId: app._id });
+      return generatePolicy('allow', methodArn, {
+        userId: user.id,
+        profileId,
+        roles: user.roles,
+        appId: app._id,
+      });
     }
     jsConsole.info('deny', authorizationToken);
     return generatePolicy('deny', methodArn);

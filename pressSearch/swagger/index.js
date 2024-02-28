@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import search from './search';
 
 import yaml from '../serverless.yml';

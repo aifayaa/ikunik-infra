@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -24,19 +25,15 @@ describe('lib - postPurchasableProduct', () => {
   });
 
   it('should return an object', async () => {
-    const res = await postPurchasableProduct(
-      'crowdaa_app_id',
-      'userId',
-      {
-        _id: '_id',
-        contents: [],
-        options: {
-          expiresIn: false,
-        },
-        price: 'price',
-        type: 'type',
+    const res = await postPurchasableProduct('crowdaa_app_id', 'userId', {
+      _id: '_id',
+      contents: [],
+      options: {
+        expiresIn: false,
       },
-    );
+      price: 'price',
+      type: 'type',
+    });
     expect(res).to.deep.eq(response);
     expect(res).to.be.a('object');
   });
@@ -48,7 +45,10 @@ describe('lib - postPurchasableProduct', () => {
 
   it('should be called with the good args', () => {
     sinon.assert.calledWith(spyMongo.collection, COLL_PURCHASABLE_PRODUCT);
-    sinon.assert.calledWith(spyMongo.insertOne, spyMongo.insertOne.getCall(0).args[0]);
+    sinon.assert.calledWith(
+      spyMongo.insertOne,
+      spyMongo.insertOne.getCall(0).args[0]
+    );
   });
 
   after(() => {

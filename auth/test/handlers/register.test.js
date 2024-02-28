@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, after, beforeEach, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';

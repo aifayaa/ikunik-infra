@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -15,11 +16,11 @@ export const getUserByFacebook = async (userToken, appId) => {
   // get facebook app settings
   const settings = await getFacebookSettings(appId);
   const appToken = await getFacebookAppToken(settings);
-  const {
-    accessToken,
-    expiresAt,
-    fbUserId,
-  } = await getFacebookLongLiveToken(userToken, appToken, settings);
+  const { accessToken, expiresAt, fbUserId } = await getFacebookLongLiveToken(
+    userToken,
+    appToken,
+    settings
+  );
   const client = await MongoClient.connect();
   let userId; // will be retrieved from db or set on user created
   try {
@@ -71,10 +72,12 @@ export const getUserByFacebook = async (userToken, appId) => {
             name: profile.username,
           },
           resume: {
-            loginTokens: [{
-              hashedToken: hash,
-              when: date.toISOString(),
-            }],
+            loginTokens: [
+              {
+                hashedToken: hash,
+                when: date.toISOString(),
+              },
+            ],
           },
         },
       };

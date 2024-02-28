@@ -1,19 +1,23 @@
+/* eslint-disable import/no-relative-packages */
 import { toggleReactionOn } from './setReactions';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PRESS_ARTICLES,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES } = mongoCollections;
 
-export default async function pressArticleReact(appId, articleId, userId, reaction) {
+export default async function pressArticleReact(
+  appId,
+  articleId,
+  userId,
+  reaction
+) {
   const insertedReaction = await toggleReactionOn(
     appId,
     COLL_PRESS_ARTICLES,
     articleId,
     userId,
     'reaction',
-    reaction,
+    reaction
   );
 
-  return ({ added: !!insertedReaction });
+  return { added: !!insertedReaction };
 }

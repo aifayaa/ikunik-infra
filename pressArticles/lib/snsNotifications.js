@@ -1,10 +1,7 @@
+/* eslint-disable import/no-relative-packages */
 import SNS from 'aws-sdk/clients/sns';
 
-const {
-  SNS_KEY_ID,
-  SNS_REGION,
-  SNS_SECRET,
-} = process.env;
+const { SNS_KEY_ID, SNS_REGION, SNS_SECRET } = process.env;
 
 const sns = new SNS({
   region: SNS_REGION,
@@ -14,7 +11,10 @@ const sns = new SNS({
   },
 });
 
-export const sendNotificationTo = ({ title, message, endpoint, extraData = {} }, cb) => {
+export const sendNotificationTo = (
+  { title, message, endpoint, extraData = {} },
+  cb
+) => {
   const msg = {};
   msg.default = '';
   if (endpoint.Platform === 'APNS') {

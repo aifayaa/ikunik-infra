@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -14,17 +15,20 @@ export default async (formId, data = {}) => {
       throw new Error('content_not_found');
     }
 
-    await dbForm.updateOne({ _id: formId }, {
-      $set: {
-        processed: false,
-        data,
-      },
-    });
+    await dbForm.updateOne(
+      { _id: formId },
+      {
+        $set: {
+          processed: false,
+          data,
+        },
+      }
+    );
 
     form.processed = false;
     form.data = data;
 
-    return (form);
+    return form;
   } finally {
     client.close();
   }

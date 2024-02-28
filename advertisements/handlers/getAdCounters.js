@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAdCounters from '../lib/getAdCounters';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -14,10 +15,7 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const {
-      _id,
-      campaignId,
-    } = event.queryStringParameters;
+    const { _id, campaignId } = event.queryStringParameters;
 
     if (!_id && !campaignId) throw new Error('missing_argument');
 

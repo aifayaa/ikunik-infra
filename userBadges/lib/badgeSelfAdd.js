@@ -1,19 +1,19 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { syncUserBadges } from '../../libs/wordpress/wordpressApiSync';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 
 export default async (appId, userId, userBadgeId) => {
   const client = await MongoClient.connect();
 
   try {
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
-    const user = await client.db().collection(COLL_USERS).findOne({ _id: userId, appId });
+    const user = await client
+      .db()
+      .collection(COLL_USERS)
+      .findOne({ _id: userId, appId });
     const userBadges = user.badges || [];
 
     const badge = await client
@@ -35,7 +35,7 @@ export default async (appId, userId, userBadgeId) => {
 
     const ownedBadges = userBadges.reduce((acc, itm) => {
       acc[itm.id] = true;
-      return (acc);
+      return acc;
     }, {});
 
     if (!ownedBadges[userBadgeId]) {
@@ -56,10 +56,10 @@ export default async (appId, userId, userBadgeId) => {
 
       user.badges.push(newBadge);
 
-      await client.db().collection(COLL_USERS).updateOne(
-        { _id: userId, appId },
-        actions,
-      );
+      await client
+        .db()
+        .collection(COLL_USERS)
+        .updateOne({ _id: userId, appId }, actions);
 
       if (app.backend && app.backend.type === 'wordpress') {
         await syncUserBadges(user);

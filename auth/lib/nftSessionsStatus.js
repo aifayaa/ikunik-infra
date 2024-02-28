@@ -1,9 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export const nftSessionsStatus = async (userId, appId) => {
   const client = await MongoClient.connect();
@@ -16,12 +15,12 @@ export const nftSessionsStatus = async (userId, appId) => {
       throw new Error('user_not_found');
     }
 
-    return ({
+    return {
       wallets: (user.crypto && user.crypto.wallets) || [],
       coinbase: !!user.services.coinbase,
       metamask: !!user.services.metamask,
       metamaskPending: !!user.services.metamaskLoginToken,
-    });
+    };
   } finally {
     client.close();
   }

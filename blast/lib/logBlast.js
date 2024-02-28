@@ -1,32 +1,35 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
-const {
-  COLL_BLASTS,
-} = mongoCollections;
+const { COLL_BLASTS } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
 });
 
-export default async (type, message, qte, { userId, listId, projectId, appId }) => {
+export default async (
+  type,
+  message,
+  qte,
+  { userId, listId, projectId, appId }
+) => {
   let client;
   let profileId;
   try {
     if (userId) {
-      const res = await lambda.invoke({
-        FunctionName: `users-${STAGE}-getProfile`,
-        Payload: JSON.stringify({
-          pathParameters: { id: userId },
-          requestContext: { authorizer: { principalId: userId, appId } },
-        }),
-      }).promise();
+      const res = await lambda
+        .invoke({
+          FunctionName: `users-${STAGE}-getProfile`,
+          Payload: JSON.stringify({
+            pathParameters: { id: userId },
+            requestContext: { authorizer: { principalId: userId, appId } },
+          }),
+        })
+        .promise();
       const { StatusCode, Payload } = res;
       if (StatusCode !== 200) throw new Error('failed to get profile');
       const { body } = JSON.parse(Payload);

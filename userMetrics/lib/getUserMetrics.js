@@ -1,10 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-  COLL_USER_METRICS,
-} = mongoCollections;
+const { COLL_USERS, COLL_USER_METRICS } = mongoCollections;
 
 export default async (appId, userMetricsId) => {
   let client;

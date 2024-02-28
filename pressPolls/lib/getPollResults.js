@@ -1,35 +1,30 @@
+/* eslint-disable import/no-relative-packages */
 import Random from '../../libs/account_utils/random';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { fetchPollCounters } from './getPoll';
 import { formatMessage } from '../../libs/intl/intl';
 
-const {
-  COLL_PRESS_POLLS,
-  COLL_PRESS_POLLS_VOTES,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_PRESS_POLLS, COLL_PRESS_POLLS_VOTES, COLL_USERS } =
+  mongoCollections;
 
 function escapeCsvEntry(rawValue) {
   const value = `${rawValue}`;
   if (value.match(/[,"\n\r]/)) {
-    return (`"${value.replace(/"/g, '""')}"`);
+    return `"${value.replace(/"/g, '""')}"`;
   }
 
-  return (value);
+  return value;
 }
 
 function escapeCsvLine(rawLine) {
   const line = rawLine.map(escapeCsvEntry);
-  return (`${line.join(',')}\n`);
+  return `${line.join(',')}\n`;
 }
 
 // intlInit() should be called before calling this function
 export function pollResultsToCsv(pollResults) {
-  const {
-    poll,
-    votes,
-  } = pollResults;
+  const { poll, votes } = pollResults;
 
   let output = '';
   const firstLine = [
@@ -49,7 +44,9 @@ export function pollResultsToCsv(pollResults) {
     if (vote.user) {
       if (vote.user.profile) {
         if (vote.user.profile.firstname || vote.user.profile.lastname) {
-          line.push((`${vote.user.profile.firstname || ''} ${vote.user.profile.lastname || ''}`).trim());
+          line.push(
+            `${vote.user.profile.firstname || ''} ${vote.user.profile.lastname || ''}`.trim()
+          );
         } else if (vote.user.profile.username) {
           line.push(vote.user.profile.username);
         } else if (vote.user.profile.email) {
@@ -84,7 +81,7 @@ export function pollResultsToCsv(pollResults) {
     output += escapeCsvLine(line);
   });
 
-  return (output);
+  return output;
 }
 
 export default async (pollId, appId, inputExportToken = null) => {
@@ -102,12 +99,12 @@ export default async (pollId, appId, inputExportToken = null) => {
 
     const exportToken = poll.exportToken || Random.id(24);
     if (!poll.exportToken) {
-      await client
-        .db()
-        .collection(COLL_PRESS_POLLS)
-        .updateOne({ _id: pollId, appId }, {
+      await client.db().collection(COLL_PRESS_POLLS).updateOne(
+        { _id: pollId, appId },
+        {
           $set: { exportToken },
-        });
+        }
+      );
     }
 
     if (inputExportToken && inputExportToken !== exportToken) {
@@ -140,12 +137,12 @@ export default async (pollId, appId, inputExportToken = null) => {
       ])
       .toArray();
 
-    return ({
+    return {
       counters: allVotes,
       exportToken,
       poll,
       votes,
-    });
+    };
   } finally {
     client.close();
   }

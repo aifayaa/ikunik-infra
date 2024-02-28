@@ -1,10 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_AUDIOS,
-  COLL_VIDEOS,
-} = mongoCollections;
+const { COLL_AUDIOS, COLL_VIDEOS } = mongoCollections;
 
 export default async (userId, appId, mediaIds) => {
   const client = await MongoClient.connect();

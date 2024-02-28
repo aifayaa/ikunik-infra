@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -25,10 +26,7 @@ export const addPurchaseHistory = async ({
   const client = await MongoClient.connect();
 
   try {
-    await client
-      .db()
-      .collection(COLL_PURCHASES)
-      .insertOne(insertData);
+    await client.db().collection(COLL_PURCHASES).insertOne(insertData);
 
     return insertData;
   } finally {

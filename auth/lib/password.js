@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import MongoClient from '../../libs/mongoClient';
@@ -7,10 +8,8 @@ const { COLL_USERS } = mongoCollections;
 
 const bcryptRounds = 10;
 
-const sha256 = (value) => crypto
-  .createHash('sha256')
-  .update(value)
-  .digest('hex');
+const sha256 = (value) =>
+  crypto.createHash('sha256').update(value).digest('hex');
 
 // extracted from meteor accounts-password module
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
@@ -26,7 +25,9 @@ export const getPasswordString = (password) => {
   } else {
     // 'password' is an object
     if (password.algorithm !== 'sha-256') {
-      throw new Error("Invalid password hash algorithm. Only 'sha-256' is allowed.");
+      throw new Error(
+        "Invalid password hash algorithm. Only 'sha-256' is allowed."
+      );
     }
     password = password.digest;
   }
@@ -79,9 +80,12 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
           { _id: user._id },
           {
             $set: {
-              'services.password.bcrypt': await bcrypt.hash(formattedPassword, bcryptRounds),
+              'services.password.bcrypt': await bcrypt.hash(
+                formattedPassword,
+                bcryptRounds
+              ),
             },
-          },
+          }
         );
     } finally {
       if (openClient) {

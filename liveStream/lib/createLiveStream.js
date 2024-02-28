@@ -1,18 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random';
 import { filterOutput } from './utils';
 
-const {
-  IVS_BUCKET,
-  IVS_REGION,
-  STAGE,
-} = process.env;
+const { IVS_BUCKET, IVS_REGION, STAGE } = process.env;
 
-const {
-  COLL_LIVE_STREAM,
-} = mongoCollections;
+const { COLL_LIVE_STREAM } = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -24,7 +19,9 @@ const EXPIRATION_DELAY = 7 * 86400 * 1000;
 async function getRecordingConfiguration() {
   const awsRecordingName = `crowdaa-liveStream-recording-${STAGE}`;
 
-  const { recordingConfigurations } = await ivs.listRecordingConfigurations({}).promise();
+  const { recordingConfigurations } = await ivs
+    .listRecordingConfigurations({})
+    .promise();
 
   let recordingConfiguration;
   for (let i = 0; i < recordingConfigurations.length; i += 1) {
@@ -35,30 +32,34 @@ async function getRecordingConfiguration() {
   }
 
   if (!recordingConfiguration) {
-    const response = await ivs.createRecordingConfiguration({
-      name: awsRecordingName,
-      destinationConfiguration: {
-        s3: {
-          bucketName: IVS_BUCKET,
+    const response = await ivs
+      .createRecordingConfiguration({
+        name: awsRecordingName,
+        destinationConfiguration: {
+          s3: {
+            bucketName: IVS_BUCKET,
+          },
         },
-      },
-    }).promise();
+      })
+      .promise();
     recordingConfiguration = response.recordingConfiguration;
   }
 
   const recordingConfigurationArn = recordingConfiguration.arn;
 
   if (recordingConfiguration.state === 'ACTIVE') {
-    return (recordingConfigurationArn);
+    return recordingConfigurationArn;
   }
 
   await new Promise((resolve, reject) => {
     const refreshRecordingState = async () => {
-      const rec = await ivs.getRecordingConfiguration({
-        arn: recordingConfigurationArn,
-      }).promise();
+      const rec = await ivs
+        .getRecordingConfiguration({
+          arn: recordingConfigurationArn,
+        })
+        .promise();
 
-      return (rec.recordingConfiguration.state);
+      return rec.recordingConfiguration.state;
     };
 
     /**
@@ -66,25 +67,24 @@ async function getRecordingConfiguration() {
      * it will be created once only. It usually takes a few seconds anyway.
      */
     const retry = () => {
-      refreshRecordingState().then((state) => {
-        if (state === 'ACTIVE') {
-          resolve();
-        } else {
-          setTimeout(retry, 1000);
-        }
-      }).catch(reject);
+      refreshRecordingState()
+        .then((state) => {
+          if (state === 'ACTIVE') {
+            resolve();
+          } else {
+            setTimeout(retry, 1000);
+          }
+        })
+        .catch(reject);
     };
 
     retry();
   });
 
-  return (recordingConfigurationArn);
+  return recordingConfigurationArn;
 }
 
-export default async (appId, {
-  name,
-  startDateTime,
-}) => {
+export default async (appId, { name, startDateTime }) => {
   const client = await MongoClient.connect();
   try {
     const dbName = `${appId}-${STAGE}-${name.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
@@ -133,8 +133,8 @@ export default async (appId, {
       streamKey: streamKey.value,
       playbackUrl: channel.playbackUrl,
 
-      aws: { /** Mostly for debugging purpose */
-        arn: channel.arn,
+      aws: {
+        /** Mostly for debugging purpose */ arn: channel.arn,
         recordingConfigurationArn,
         streamKeyArn: streamKey.arn,
 
@@ -144,12 +144,9 @@ export default async (appId, {
       },
     };
 
-    await client
-      .db()
-      .collection(COLL_LIVE_STREAM)
-      .insertOne(dbLiveStream);
+    await client.db().collection(COLL_LIVE_STREAM).insertOne(dbLiveStream);
 
-    return (filterOutput(dbLiveStream));
+    return filterOutput(dbLiveStream);
   } finally {
     client.close();
   }

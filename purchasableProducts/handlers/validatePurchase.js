@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import iap from 'in-app-purchase';
 import MongoClient from '../../libs/mongoClient';
@@ -15,7 +16,7 @@ const { COLL_APPS } = mongoCollections;
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
-  const { deviceId = null } = (event.queryStringParameters || {});
+  const { deviceId = null } = event.queryStringParameters || {};
 
   const client = await MongoClient.connect();
   try {
@@ -28,13 +29,16 @@ export default async (event) => {
     const appInfo = await client
       .db()
       .collection(COLL_APPS)
-      .findOne({ _id: appId }, {
-        projection: {
-          'builds.android.googleApiData': true,
-          'settings.iap.appleSecret': true,
-          'settings.iap.googleLicenceKey': true,
-        },
-      });
+      .findOne(
+        { _id: appId },
+        {
+          projection: {
+            'builds.android.googleApiData': true,
+            'settings.iap.appleSecret': true,
+            'settings.iap.googleLicenceKey': true,
+          },
+        }
+      );
 
     if (!appInfo) {
       throw new Error('app_not_found');
@@ -43,7 +47,10 @@ export default async (event) => {
     const googleApiData = get(appInfo, 'builds.android.googleApiData');
     const applePassword = get(appInfo, 'settings.iap.appleSecret');
     const googleLicenceKey = get(appInfo, 'settings.iap.googleLicenceKey');
-    const googleSubscriptionCredentials = get(appInfo, 'settings.iap.googleSubscriptionCredentials');
+    const googleSubscriptionCredentials = get(
+      appInfo,
+      'settings.iap.googleSubscriptionCredentials'
+    );
     const receiptRaw = get(bodyParsed, 'transaction.receipt');
     const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
     const googleReceipt = receiptRaw && JSON.parse(receiptRaw);
@@ -55,10 +62,7 @@ export default async (event) => {
       throw new Error('missing_arguments');
     }
 
-    const {
-      client_email: clientEmail,
-      privateKey,
-    } = googleApiData || {};
+    const { client_email: clientEmail, privateKey } = googleApiData || {};
 
     const iapConfiguration = {
       requestDefaults: {},
@@ -88,10 +92,14 @@ export default async (event) => {
     }
 
     if (googleSubscriptionCredentials) {
-      iapConfiguration.googleClientID = googleSubscriptionCredentials.googleClientID;
-      iapConfiguration.googleClientSecret = googleSubscriptionCredentials.googleClientSecret;
-      iapConfiguration.googleAccToken = googleSubscriptionCredentials.googleAccToken;
-      iapConfiguration.googleRefToken = googleSubscriptionCredentials.googleRefToken;
+      iapConfiguration.googleClientID =
+        googleSubscriptionCredentials.googleClientID;
+      iapConfiguration.googleClientSecret =
+        googleSubscriptionCredentials.googleClientSecret;
+      iapConfiguration.googleAccToken =
+        googleSubscriptionCredentials.googleAccToken;
+      iapConfiguration.googleRefToken =
+        googleSubscriptionCredentials.googleRefToken;
     }
 
     iap.config(iapConfiguration);
@@ -99,7 +107,10 @@ export default async (event) => {
     await iap.setup();
 
     const validatedData = await iap.validate(
-      appleReceipt || { data: googleReceipt, signature: bodyParsed.transaction.signature },
+      appleReceipt || {
+        data: googleReceipt,
+        signature: bodyParsed.transaction.signature,
+      }
     );
 
     const options = {
@@ -118,7 +129,14 @@ export default async (event) => {
       // @TODO : checks if price is defined ?
 
       await addBalance(appId, userId, deviceId, parseFloat(price));
-      await addPurchaseHistory({ appId, userId, deviceId, productId, bodyParsed, purchaseData });
+      await addPurchaseHistory({
+        appId,
+        userId,
+        deviceId,
+        productId,
+        bodyParsed,
+        purchaseData,
+      });
 
       const responseBody = { ok: true, data: validatedData };
       return response({ code: 200, body: responseBody });
@@ -128,7 +146,14 @@ export default async (event) => {
       const price = badgePrices[productId];
 
       await setBalance(appId, userId, deviceId, price, { type: productId });
-      await addPurchaseHistory({ appId, userId, deviceId, productId, bodyParsed, purchaseData });
+      await addPurchaseHistory({
+        appId,
+        userId,
+        deviceId,
+        productId,
+        bodyParsed,
+        purchaseData,
+      });
 
       const responseBody = { ok: true, data: validatedData };
       return response({ code: 200, body: responseBody });
@@ -142,7 +167,7 @@ export default async (event) => {
         e = JSON.parse(e);
       } catch (error) {
         // eslint-disable-next-line no-ex-assign
-        e = new Error('Can\'t parse error');
+        e = new Error("Can't parse error");
       }
     }
     return response({ code: 500, message: e.message });

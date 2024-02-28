@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -5,14 +6,7 @@ const { COLL_USER_METRICS } = mongoCollections;
 
 export default async (
   appId,
-  {
-    contentCollection,
-    contentId,
-    data = {},
-    deviceId,
-    type,
-    userId,
-  },
+  { contentCollection, contentId, data = {}, deviceId, type, userId }
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getUploadUrl from './getUploadUrl';
 import getSupportedFileFormats from './getSupportedFileFormats';
 

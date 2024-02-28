@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAllUserGeneratedContents from '../lib/getAllUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
@@ -8,12 +9,10 @@ const permKeys = [
   'userGeneratedContents_moderate',
 ];
 
-const isBooleanStringOrUndefined = (val) => typeof val === 'undefined' ||
-  !!(['true', 'false'].indexOf(val) + 1);
+const isBooleanStringOrUndefined = (val) =>
+  typeof val === 'undefined' || !!(['true', 'false'].indexOf(val) + 1);
 
-const ORDER_BY_LIST = [
-  'reportsCount',
-];
+const ORDER_BY_LIST = ['reportsCount'];
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
@@ -74,7 +73,9 @@ export default async (event) => {
       const perms = JSON.parse(event.requestContext.authorizer.perms);
       const isModerator = checkPerms(permKeys, perms);
       if (!isModerator) {
-        const error = new Error('Unauthorized: this operation require moderator level rights');
+        const error = new Error(
+          'Unauthorized: this operation require moderator level rights'
+        );
         error.code = 401;
         throw error;
       }
@@ -89,17 +90,19 @@ export default async (event) => {
       userId,
       {
         countOnly: countOnly && !isRaw,
-        moderated: typeof moderated !== 'undefined' ? moderated === 'true' : moderated,
+        moderated:
+          typeof moderated !== 'undefined' ? moderated === 'true' : moderated,
         moderator,
         parentId,
         raw: isRaw,
         reported,
         reportsCount,
-        reviewed: typeof reviewed !== 'undefined' ? reviewed === 'true' : reviewed,
+        reviewed:
+          typeof reviewed !== 'undefined' ? reviewed === 'true' : reviewed,
         sortBy,
         sortOrder,
         trashed,
-      },
+      }
     );
     let body;
     if (isRaw) {

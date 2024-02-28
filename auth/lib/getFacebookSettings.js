@@ -1,15 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  FACEBOOK_CLIENT_ID,
-  FACEBOOK_CLIENT_SECRET,
-} = process.env;
+const { FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET } = process.env;
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export const getFacebookSettings = async (appId) => {
   const client = await MongoClient.connect();
@@ -21,12 +17,15 @@ export const getFacebookSettings = async (appId) => {
     } = get(
       await db
         .collection(COLL_APPS)
-        .findOne({ _id: appId }, { projection: { 'credentials.facebook': true } }),
+        .findOne(
+          { _id: appId },
+          { projection: { 'credentials.facebook': true } }
+        ),
       'credentials.facebook',
       {
         appId: FACEBOOK_CLIENT_ID,
         appSecret: FACEBOOK_CLIENT_SECRET,
-      },
+      }
     );
     return {
       appId: facebookAppId,

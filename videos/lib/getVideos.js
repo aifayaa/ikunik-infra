@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable no-await-in-loop */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -11,11 +12,9 @@ export default async (appId, { start, limit }) => {
     client = await MongoClient.connect();
 
     const promises = [
-      client.db()
-        .collection(COLL_VIDEOS)
-        .find({ appId })
-        .count(),
-      client.db()
+      client.db().collection(COLL_VIDEOS).find({ appId }).count(),
+      client
+        .db()
         .collection(COLL_VIDEOS)
         .find({ appId })
         .sort([['createdAt', 1]])
@@ -26,7 +25,7 @@ export default async (appId, { start, limit }) => {
 
     const [count, list] = await Promise.all(promises);
 
-    return ({ count, list });
+    return { count, list };
   } finally {
     client.close();
   }

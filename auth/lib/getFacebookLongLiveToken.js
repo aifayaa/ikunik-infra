@@ -1,18 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable camelcase */
 import request from 'request-promise-native';
 
-const {
-  FACEBOOK_CLIENT_ID,
-  FACEBOOK_CLIENT_SECRET,
-} = process.env;
+const { FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET } = process.env;
 
 export const getFacebookLongLiveToken = async (
   userToken,
   appToken,
-  {
-    appId = FACEBOOK_CLIENT_ID,
-    appSecret = FACEBOOK_CLIENT_SECRET,
-  } = {},
+  { appId = FACEBOOK_CLIENT_ID, appSecret = FACEBOOK_CLIENT_SECRET } = {}
 ) => {
   // get a long live token
   const longLifeTokenResp = await request.get({

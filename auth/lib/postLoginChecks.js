@@ -1,14 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import jsonata from 'jsonata';
 import request from 'request-promise-native';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 function promiseExecUntilTrue(exec) {
-  return (new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const process = (ret) => {
       if (ret === true) {
         resolve();
@@ -18,7 +17,7 @@ function promiseExecUntilTrue(exec) {
     };
 
     process();
-  }));
+  });
 }
 
 function objGet(obj, keys, dft) {
@@ -35,13 +34,13 @@ function objGet(obj, keys, dft) {
       const key = keysArray.shift();
       ret = ret[key];
     } catch (e) {
-      return (dft);
+      return dft;
     }
   }
 
-  if (ret === undefined) return (dft);
+  if (ret === undefined) return dft;
 
-  return (ret);
+  return ret;
 }
 
 export default async function postLoginChecks(ret, app, checksOn) {
@@ -56,22 +55,28 @@ export default async function postLoginChecks(ret, app, checksOn) {
 
       await promiseExecUntilTrue(async () => {
         if (userDataCollection.length === 0) {
-          return (true);
+          return true;
         }
 
         const collectSettings = userDataCollection.shift();
 
-        const user = await usersCollection.findOne({ _id: userId, appId: app._id });
+        const user = await usersCollection.findOne({
+          _id: userId,
+          appId: app._id,
+        });
         const lookupData = { user, app };
 
         const autoReplaceUserKeys = (string) => {
-          const replaced = string.replace(/{{([^}|]+)(?:\|([^}|]+))?}}/g, (_wholematch, key, dftVal) => {
-            if (!dftVal) dftVal = '';
-            const replacement = objGet(lookupData, key, dftVal);
-            return (replacement);
-          });
+          const replaced = string.replace(
+            /{{([^}|]+)(?:\|([^}|]+))?}}/g,
+            (_wholematch, key, dftVal) => {
+              if (!dftVal) dftVal = '';
+              const replacement = objGet(lookupData, key, dftVal);
+              return replacement;
+            }
+          );
 
-          return (replaced);
+          return replaced;
         };
 
         const {
@@ -85,7 +90,7 @@ export default async function postLoginChecks(ret, app, checksOn) {
         } = collectSettings;
 
         if (!on[checksOn]) {
-          return (false);
+          return false;
         }
 
         const queryParams = {
@@ -98,7 +103,7 @@ export default async function postLoginChecks(ret, app, checksOn) {
           const key = autoReplaceUserKeys(rawKey);
           const val = autoReplaceUserKeys(headers[rawKey]);
           acc[key] = val;
-          return (acc);
+          return acc;
         }, {});
 
         if (extraRequestFields) {
@@ -110,15 +115,23 @@ export default async function postLoginChecks(ret, app, checksOn) {
         let response = null;
         try {
           const rawResponse = await request(queryParams);
-          if (!rawResponse) return (false);
-          response = (typeof rawResponse === 'string' ? JSON.parse(rawResponse) : rawResponse);
+          if (!rawResponse) return false;
+          response =
+            typeof rawResponse === 'string'
+              ? JSON.parse(rawResponse)
+              : rawResponse;
         } catch (e) {
           if (e.statusCode !== 404) {
             /** Failing silently here, it should not be too much of a problem */
             // eslint-disable-next-line no-console
-            console.error('postLoginChecks() error on query', queryParams, ':', e);
+            console.error(
+              'postLoginChecks() error on query',
+              queryParams,
+              ':',
+              e
+            );
           }
-          return (false);
+          return false;
         }
 
         const dbOps = {};
@@ -158,13 +171,16 @@ export default async function postLoginChecks(ret, app, checksOn) {
         }
 
         if (pendingOps) {
-          await usersCollection.updateOne({
-            _id: userId,
-            appId: app._id,
-          }, dbOps);
+          await usersCollection.updateOne(
+            {
+              _id: userId,
+              appId: app._id,
+            },
+            dbOps
+          );
         }
 
-        return (false);
+        return false;
       });
     }
   } catch (e) {

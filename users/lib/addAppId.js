@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -7,10 +8,7 @@ export default async (userId, appId) => {
     const { value } = await client
       .db()
       .collection(mongoCollections.COLL_USERS)
-      .updateOne(
-        { _id: userId },
-        { $addToSet: { appId } },
-      );
+      .updateOne({ _id: userId }, { $addToSet: { appId } });
     return value;
   } finally {
     client.close();

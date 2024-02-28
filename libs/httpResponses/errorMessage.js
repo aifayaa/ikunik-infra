@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default ({ code, message = 'Error' } = {}) => {
   let errorCode;
   switch (message) {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -57,11 +58,7 @@ describe('handlers - getArticleDraft', () => {
       const { appId } = event.requestContext.authorizer;
       const { id } = event.pathParameters;
       sinon.assert.calledOnce(stubPerms);
-      sinon.assert.calledWith(
-        stubLib,
-        id,
-        appId,
-      );
+      sinon.assert.calledWith(stubLib, id, appId);
     });
 
     after(() => {
@@ -74,7 +71,9 @@ describe('handlers - getArticleDraft', () => {
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubLib = sandbox.stub(lib, 'getArticleDraft').callsFake(() => Promise.reject(libResult));
+      stubLib = sandbox
+        .stub(lib, 'getArticleDraft')
+        .callsFake(() => Promise.reject(libResult));
     });
 
     it('should return 500', async () => {

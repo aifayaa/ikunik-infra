@@ -1,4 +1,9 @@
-export default (Effect, _Resource, { userId, profileId, roles, perms, appId, loginToken } = {}) => {
+/* eslint-disable import/no-relative-packages */
+export default (
+  Effect,
+  _Resource,
+  { userId, profileId, roles, perms, appId, loginToken } = {}
+) => {
   const policy = {
     principalId: userId,
     policyDocument: {

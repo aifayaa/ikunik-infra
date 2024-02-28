@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import url from 'url';
 import getAppsInfos from '../../apps/lib/getAppsInfos';
 import isCrawler from './isCrawler';
@@ -12,12 +13,7 @@ export default async (userAgent, redirectUrl, appId) => {
     decodedUrl = decodedUrl.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
     /* /!\ url.parse adds ":" at the end of the protocol */
-    const {
-      host,
-      hostname,
-      path,
-      protocol,
-    } = url.parse(decodedUrl);
+    const { host, hostname, path, protocol } = url.parse(decodedUrl);
 
     /* Retrieve list of allowed protocols from database
      * and add ":" after protocol to match with url.parse */
@@ -25,7 +21,8 @@ export default async (userAgent, redirectUrl, appId) => {
     const allowedProtocols = appsInfos.map((v) => `${v.protocol}:`);
 
     /* Check if redirect is valid */
-    const isValid = (hostname.endsWith('crowdaa.com') && protocol === 'https:') ||
+    const isValid =
+      (hostname.endsWith('crowdaa.com') && protocol === 'https:') ||
       allowedUrls.includes(`${protocol}//${host}${path}`) ||
       allowedProtocols.includes(protocol);
 

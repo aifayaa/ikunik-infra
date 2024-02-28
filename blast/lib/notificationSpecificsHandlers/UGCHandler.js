@@ -1,36 +1,38 @@
+/* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../../libs/mongoCollections.json';
 import BadgeChecker from '../../../libs/badges/BadgeChecker';
 
-const {
-  COLL_USER_GENERATED_CONTENTS,
-} = mongoCollections;
+const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 function UGCHandler() {
   this.badgeChecker = new BadgeChecker(this.appId);
 }
 
 UGCHandler.prototype.init = async function init() {
-  const ugc = await this.client.db().collection(COLL_USER_GENERATED_CONTENTS).findOne({
-    _id: this.queueData.ugcId,
-    trashed: { $ne: true },
-    parentCollection: '',
-    parentId: null,
-    'data.title': { $exists: true },
-    'data.content': { $exists: true },
-  });
+  const ugc = await this.client
+    .db()
+    .collection(COLL_USER_GENERATED_CONTENTS)
+    .findOne({
+      _id: this.queueData.ugcId,
+      trashed: { $ne: true },
+      parentCollection: '',
+      parentId: null,
+      'data.title': { $exists: true },
+      'data.content': { $exists: true },
+    });
 
-  if (!ugc) return (false);
+  if (!ugc) return false;
 
   this.title = this.queueData.title;
   this.content = this.queueData.content;
 
-  return (true);
+  return true;
 };
 
 UGCHandler.prototype.processOne = function processOne() {
   const { title, content } = this;
 
-  return ({
+  return {
     canNotify: true,
     data: {
       isText: true,
@@ -38,15 +40,18 @@ UGCHandler.prototype.processOne = function processOne() {
       content,
       extraData: { userArticleId: this.queueData.ugcId },
     },
-  });
+  };
 };
 
 UGCHandler.prototype.batchDone = async function batchDone(abort, retry) {
   if (!abort && !retry) {
-    await this.client.db().collection(COLL_USER_GENERATED_CONTENTS).updateOne(
-      { _id: this.queueData.ugcId },
-      { $unset: { pendingNotificationQueueId: '' } },
-    );
+    await this.client
+      .db()
+      .collection(COLL_USER_GENERATED_CONTENTS)
+      .updateOne(
+        { _id: this.queueData.ugcId },
+        { $unset: { pendingNotificationQueueId: '' } }
+      );
   }
 };
 

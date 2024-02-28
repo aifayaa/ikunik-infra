@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import queue from 'async/queue';
 import blastText from '../lib/blastText';
 import getBalanceForBlast from '../lib/getBalanceForBlast';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import pick from 'lodash/pick';
 import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
@@ -36,7 +37,10 @@ export default async (event) => {
     }
 
     /* Check terms of services */
-    const termsOfServices = await getTos(appId, false, { outdated: false, required: true });
+    const termsOfServices = await getTos(appId, false, {
+      outdated: false,
+      required: true,
+    });
     if (termsOfServices.length) {
       if (!results.optIn || !Array.isArray(results.optIn)) {
         results.optIn = false;

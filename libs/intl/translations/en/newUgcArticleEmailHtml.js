@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   A new article was {{editionType}} by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>

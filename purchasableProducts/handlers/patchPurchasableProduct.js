@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { patchPurchasableProduct } from '../lib/patchPurchasableProduct';
 import response from '../../libs/httpResponses/response';
@@ -22,28 +23,19 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const {
-      _id,
-      contents,
-      options = {},
-      price,
-      type,
-    } = bodyParsed;
+    const { _id, contents, options = {}, price, type } = bodyParsed;
 
-    [
-      _id,
-      appId,
-      price,
-      type,
-      userId,
-    ].forEach((item) => {
+    [_id, appId, price, type, userId].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
     });
 
     if (typeof contents !== 'undefined') {
-      if (typeof contents !== 'object' || typeof contents.length === 'undefined') {
+      if (
+        typeof contents !== 'object' ||
+        typeof contents.length === 'undefined'
+      ) {
         throw new Error('wrong_argument_type');
       }
 
@@ -90,18 +82,13 @@ export default async (event) => {
       throw new Error('wrong_argument_value');
     }
 
-    const results = await patchPurchasableProduct(
-      appId,
-      userId,
-      productId,
-      {
-        _id,
-        contents,
-        options,
-        price,
-        type,
-      },
-    );
+    const results = await patchPurchasableProduct(appId, userId, productId, {
+      _id,
+      contents,
+      options,
+      price,
+      type,
+    });
 
     return response({ code: 200, body: results });
   } catch (e) {

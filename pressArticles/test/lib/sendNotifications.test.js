@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -19,11 +20,13 @@ describe('lib - sendNotifications', () => {
 
   describe('success', () => {
     before(() => {
-      spyMongo = spyMongoMethods([{
-        _id: 'id',
-        Platform: 'Android',
-        EndpointArn: 'arn:aws:sns:us-west-2:630176884077:tes',
-      }]);
+      spyMongo = spyMongoMethods([
+        {
+          _id: 'id',
+          Platform: 'Android',
+          EndpointArn: 'arn:aws:sns:us-west-2:630176884077:tes',
+        },
+      ]);
       const fakeClient = {
         db: spyMongo.db,
         close: spyMongo.close,
@@ -58,7 +61,7 @@ describe('lib - sendNotifications', () => {
       sinon.assert.calledWith(
         spyMongo.find,
         spyMongo.find.getCall(0).args[0],
-        spyMongo.find.getCall(0).args[1],
+        spyMongo.find.getCall(0).args[1]
       );
       sinon.assert.called(spyMongo.forEach);
     });

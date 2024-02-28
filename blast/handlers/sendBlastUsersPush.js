@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import sendBlastUsersPush from '../lib/sendBlastUsersPush';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -19,11 +20,7 @@ export default async (event) => {
 
     const {
       filters,
-      message: {
-        title = '',
-        content = '',
-        extraData = {},
-      },
+      message: { title = '', content = '', extraData = {} },
     } = JSON.parse(event.body);
 
     const results = await sendBlastUsersPush(appId, {

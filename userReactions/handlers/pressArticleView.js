@@ -1,13 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import pressArticleView from '../lib/pressArticleView';
 
 export default async (event) => {
   const articleId = event.pathParameters.id;
-  const {
-    appId,
-    principalId: userId,
-  } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const { deviceId } = event.queryStringParameters || {};
 
   try {

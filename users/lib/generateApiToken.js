@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
@@ -11,16 +12,19 @@ export default async (userId) => {
     await client
       .db()
       .collection(mongoCollections.COLL_USERS)
-      .updateOne({
-        _id: userId,
-      }, {
-        $addToSet: {
-          'services.apiTokens': {
-            hashedToken: hash,
-            when: new Date(Date.now()).toISOString(),
-          },
+      .updateOne(
+        {
+          _id: userId,
         },
-      });
+        {
+          $addToSet: {
+            'services.apiTokens': {
+              hashedToken: hash,
+              when: new Date(Date.now()).toISOString(),
+            },
+          },
+        }
+      );
     return token;
   } finally {
     client.close();

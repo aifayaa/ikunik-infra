@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import checkOwner from '../../libs/perms/checkOwner';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents';
@@ -21,10 +22,7 @@ export default async (event) => {
     const userId = event.requestContext.authorizer.principalId;
     const userGeneratedContentsId = event.pathParameters.id;
     const bodyParsed = JSON.parse(event.body);
-    const {
-      moderated,
-      reason,
-    } = bodyParsed;
+    const { moderated, reason } = bodyParsed;
 
     let ugc = null;
     let errMsg = null;
@@ -34,7 +32,7 @@ export default async (event) => {
       COLL_USER_GENERATED_CONTENTS,
       'userId',
       userId,
-      { safeExec: true },
+      { safeExec: true }
     ));
 
     if (errMsg && (errMsg === 'content_not_found' || !isModerator)) {
@@ -57,7 +55,7 @@ export default async (event) => {
       appId,
       userId,
       ugc,
-      bodyParsed,
+      bodyParsed
     );
 
     return response({ code: 200, body: results });

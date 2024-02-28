@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import random from 'lodash/random';
 
 // To avoid getting a warning with lint

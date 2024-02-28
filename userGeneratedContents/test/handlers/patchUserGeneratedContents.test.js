@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -32,9 +33,15 @@ describe('handlers - patchUserGeneratedContents', () => {
   describe('no perms', () => {
     let response;
     before(async () => {
-      stubOwner = sandbox.stub(checkOwner, 'default').throws(new Error('forbidden_user'));
-      stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-      stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+      stubOwner = sandbox
+        .stub(checkOwner, 'default')
+        .throws(new Error('forbidden_user'));
+      stubEmailTemplate = sandbox
+        .stub(emailUgcNotifyTemplate, 'default')
+        .returns({ subject: 'subject', body: 'body' });
+      stubSendEmail = sandbox
+        .stub(sendEmailToAdmin, 'default')
+        .returns(undefined);
       stubLib = sandbox.stub(lib, 'default').returns(true);
       response = await handler(event);
     });
@@ -59,8 +66,12 @@ describe('handlers - patchUserGeneratedContents', () => {
       before(async () => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailUgcNotifyTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         const finalEvent = { ...event };
         finalEvent.body = JSON.stringify({ data: {} });
         response = await handler(finalEvent);
@@ -84,8 +95,12 @@ describe('handlers - patchUserGeneratedContents', () => {
       before(async () => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
         stubLib = sandbox.stub(lib, 'default').throws();
-        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailUgcNotifyTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -109,8 +124,12 @@ describe('handlers - patchUserGeneratedContents', () => {
       before(async () => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').throws();
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailUgcNotifyTemplate, 'default')
+          .throws();
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -132,7 +151,9 @@ describe('handlers - patchUserGeneratedContents', () => {
       before(async () => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
+        stubEmailTemplate = sandbox
+          .stub(emailUgcNotifyTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
         stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').throws();
         response = await handler(event);
       });
@@ -151,8 +172,12 @@ describe('handlers - patchUserGeneratedContents', () => {
       before(async () => {
         stubOwner = sandbox.stub(checkOwner, 'default').returns(true);
         stubLib = sandbox.stub(lib, 'default').returns(true);
-        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubEmailTemplate = sandbox
+          .stub(emailUgcNotifyTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -162,51 +187,30 @@ describe('handlers - patchUserGeneratedContents', () => {
 
       it('should call lib with right args', () => {
         const { id } = event.pathParameters;
-        const {
-          principalId,
-          appId,
-        } = event.requestContext.authorizer;
+        const { principalId, appId } = event.requestContext.authorizer;
         const bodyParsed = JSON.parse(event.body);
-        const {
-          data,
-        } = bodyParsed;
+        const { data } = bodyParsed;
 
         sinon.assert.calledOnce(stubOwner);
-        sinon.assert.calledWith(
-          stubLib,
-          appId,
-          principalId,
-          id,
-          data,
-        );
+        sinon.assert.calledWith(stubLib, appId, principalId, id, data);
       });
 
       it('should call emailTemplate with right args', () => {
-        const {
-          principalId: userId,
-          appId,
-        } = event.requestContext.authorizer;
+        const { principalId: userId, appId } = event.requestContext.authorizer;
         expect(stubEmailTemplate.calledOnce).to.be.true;
         sinon.assert.calledWith(
           stubEmailTemplate,
           userId,
           appId,
           { contentId: 'userGeneratedContentsId', data: 'test' },
-          { isEdition: true },
+          { isEdition: true }
         );
       });
 
       it('should call send email with right args', () => {
-        const {
-          appId,
-        } = event.requestContext.authorizer;
+        const { appId } = event.requestContext.authorizer;
         expect(stubSendEmail.calledOnce).to.be.true;
-        sinon.assert.calledWith(
-          stubSendEmail,
-          'subject',
-          'body',
-          appId,
-        );
+        sinon.assert.calledWith(stubSendEmail, 'subject', 'body', appId);
       });
 
       after(() => {

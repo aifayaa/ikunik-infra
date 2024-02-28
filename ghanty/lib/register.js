@@ -1,11 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import MetricsTimer from './metricsTimer';
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export default async (
   appId,
@@ -24,7 +23,7 @@ export default async (
     postalCode, // : 97430
     country, // : Réunion
     consentToCGV = 1, // : 0 / 1
-  },
+  }
 ) => {
   const client = await MongoClient.connect();
   const metricsTimer = new MetricsTimer(__filename.replace(/.*\//, ''));
@@ -64,7 +63,7 @@ export default async (
       throw new Error(registerResp.message);
     }
 
-    return (registerResp);
+    return registerResp;
   } finally {
     client.close();
   }

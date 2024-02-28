@@ -1,17 +1,18 @@
+/* eslint-disable import/no-relative-packages */
 import metamaskLoginToken from '../lib/metamaskLoginToken';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 
 export default async (event) => {
   try {
-    const {
+    const { appId, userId, userMetamaskToken, wallet } = JSON.parse(event.body);
+
+    const valid = await metamaskLoginToken(
       appId,
       userId,
       userMetamaskToken,
-      wallet,
-    } = JSON.parse(event.body);
-
-    const valid = await metamaskLoginToken(appId, userId, userMetamaskToken, wallet);
+      wallet
+    );
 
     return response({ code: 200, body: { valid } });
   } catch (e) {

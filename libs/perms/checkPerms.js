@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /**
  * Check perms object which should contains required perms
  *
@@ -10,7 +11,7 @@
  *
  * @return  {boolean}  indicate if all permissions have been granted according
  *                     to supplied perms param.
-*/
+ */
 
 export const checkPerms = (required, perms) => {
   if (typeof perms === 'string') {

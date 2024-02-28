@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 
 /* get userInfo from facebookGraphAPI */

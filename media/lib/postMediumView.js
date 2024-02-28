@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -69,14 +70,11 @@ export default async (userId, appId, mediumType, mediumId) => {
 
     // Deadline should be update only if it's freePerDay distros
     if (distribution && distribution.includes('PerDay')) {
-      const deadlines = await client
-        .db()
-        .collection(COLL_DEADLINES)
-        .findOne({
-          userId,
-          content_ID: mediumId,
-          appId,
-        });
+      const deadlines = await client.db().collection(COLL_DEADLINES).findOne({
+        userId,
+        content_ID: mediumId,
+        appId,
+      });
       const { deadlineDate } = deadlines || {};
 
       if ((deadlines && new Date() > deadlineDate) || !deadlines) {
@@ -84,7 +82,7 @@ export default async (userId, appId, mediumType, mediumId) => {
         jsConsole.info(
           'create a new deadline because',
           `NoDeadline: ${!deadlines}`,
-          `expired:${new Date() > deadlineDate}`,
+          `expired:${new Date() > deadlineDate}`
         );
         const newDate = new Date();
         newDate.setDate(new Date().getDate() + 1);
@@ -121,7 +119,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             },
             {
               upsert: true,
-            },
+            }
           );
       } else {
         jsConsole.info('update an existing deadline');
@@ -145,7 +143,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             },
             {
               upsert: true,
-            },
+            }
           );
       }
     }
@@ -153,13 +151,16 @@ export default async (userId, appId, mediumType, mediumId) => {
     await client
       .db()
       .collection(COLL_PROJECTS)
-      .updateOne({
-        _id: medium.project_ID,
-        appId,
-      }, {
-        $inc: { views: 1 },
-        $set: { lastView: new Date() },
-      });
+      .updateOne(
+        {
+          _id: medium.project_ID,
+          appId,
+        },
+        {
+          $inc: { views: 1 },
+          $set: { lastView: new Date() },
+        }
+      );
     await client
       .db()
       .collection(COLL_CONTENT_BY_USER_METRIC)
@@ -177,7 +178,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             collection: mediaCol,
           },
         },
-        { upsert: true },
+        { upsert: true }
       );
 
     // update the total number for Crowdaa
@@ -191,7 +192,7 @@ export default async (userId, appId, mediumType, mediumId) => {
           $inc: { views: 1 },
           $set: { appId },
         },
-        { upsert: true },
+        { upsert: true }
       );
     await client
       .db()
@@ -208,7 +209,7 @@ export default async (userId, appId, mediumType, mediumId) => {
             appId,
           },
         },
-        { upsert: true },
+        { upsert: true }
       );
     return true;
   } finally {

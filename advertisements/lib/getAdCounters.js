@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -29,7 +30,7 @@ export default async (appId, { _id, campaignId }) => {
       ret.clicks += ad.counters.clicks;
     });
 
-    return (ret);
+    return ret;
   } finally {
     client.close();
   }

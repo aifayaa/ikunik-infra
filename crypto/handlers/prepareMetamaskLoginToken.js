@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import prepareMetamaskLoginToken from '../lib/prepareMetamaskLoginToken';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';

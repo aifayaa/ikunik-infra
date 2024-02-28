@@ -1,26 +1,30 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 function makeUsernameRegex(search) {
   let ret = search.split('*');
 
-  ret = ret.map((part) => (part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  ret = ret.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
   ret = ret.join('.*');
 
-  return (new RegExp(ret, 'i'));
+  return new RegExp(ret, 'i');
 }
 
-export default async (appId, {
-  limit = 10,
-  onlyPendingBadges = false,
-  onlyRejectedBadges = false,
-  search = null,
-  sortBy,
-  sortOrder,
-  start,
-  userId = null,
-}) => {
+export default async (
+  appId,
+  {
+    limit = 10,
+    onlyPendingBadges = false,
+    onlyRejectedBadges = false,
+    search = null,
+    sortBy,
+    sortOrder,
+    start,
+    userId = null,
+  }
+) => {
   const client = await MongoClient.connect();
   try {
     const $match = { appId };
@@ -80,10 +84,10 @@ export default async (appId, {
       .find($match)
       .count();
 
-    return ({
+    return {
       users,
       count,
-    });
+    };
   } finally {
     client.close();
   }

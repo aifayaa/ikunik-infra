@@ -1,14 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
 
 const { COLL_LIVE_STREAM } = mongoCollections;
 
-export default async (appId, {
-  id,
-  start,
-  limit,
-}) => {
+export default async (appId, { id, start, limit }) => {
   const $match = {
     appId,
     provider: 'aws-ivs',
@@ -41,7 +38,7 @@ export default async (appId, {
       .collection(COLL_LIVE_STREAM)
       .aggregate(pipeline)
       .toArray();
-    list = list.map((item) => (filterOutput(item)));
+    list = list.map((item) => filterOutput(item));
 
     const count = await client
       .db()
@@ -49,7 +46,7 @@ export default async (appId, {
       .find($match, { projection: { _id: 1 } })
       .count();
 
-    return ({ list, count });
+    return { list, count };
   } finally {
     client.close();
   }

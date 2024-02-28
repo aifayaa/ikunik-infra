@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { forgotPassword } from '../lib/forgotPassword';
@@ -20,7 +21,10 @@ export default async (event) => {
     const lang = getUserLanguage(event.headers);
     const result = await forgotPassword(email, lang, appId);
 
-    return response({ code: 200, body: { email, message: 'ok', backend: result.backend } });
+    return response({
+      code: 200,
+      body: { email, message: 'ok', backend: result.backend },
+    });
   } catch (e) {
     return response(errorMessage(e));
   }

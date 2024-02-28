@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import exportUsers from '../lib/exportUsers';
 import response from '../../libs/httpResponses/response';
 
@@ -9,9 +10,9 @@ export default async (event) => {
     ownedBadges = 'true',
   } = event.queryStringParameters || {};
 
-  fields = fields.split(',').filter((x) => (x.trim()));
-  wholeProfile = (wholeProfile.match(/^true$/i) !== null);
-  ownedBadges = (ownedBadges.match(/^true$/i) !== null);
+  fields = fields.split(',').filter((x) => x.trim());
+  wholeProfile = wholeProfile.match(/^true$/i) !== null;
+  ownedBadges = ownedBadges.match(/^true$/i) !== null;
 
   try {
     const csv = await exportUsers(appId, { fields, wholeProfile, ownedBadges });

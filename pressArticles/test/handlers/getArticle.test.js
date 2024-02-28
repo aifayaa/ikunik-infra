@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after, afterEach } from 'mocha';
 import { expect } from 'chai';
@@ -32,10 +33,10 @@ describe('handlers - getArticle', () => {
     it.skip('should call lib with publishedOnly true', async () => {
       const response = await handler(event);
       sinon.assert.calledOnce(stubLib);
-      sinon.assert.calledWith(
-        stubLib, 'articleId', 'crowdaa_app_id',
-        { getPictures: true, publishedOnly: true },
-      );
+      sinon.assert.calledWith(stubLib, 'articleId', 'crowdaa_app_id', {
+        getPictures: true,
+        publishedOnly: true,
+      });
       expect(response.statusCode).to.eq(200);
     });
 
@@ -64,12 +65,10 @@ describe('handlers - getArticle', () => {
       const { appId } = event.requestContext.authorizer;
       const { id } = event.pathParameters;
       sinon.assert.calledOnce(stubPerms);
-      sinon.assert.calledWith(
-        stubLib,
-        id,
-        appId,
-        { getPictures: true, publishedOnly: false },
-      );
+      sinon.assert.calledWith(stubLib, id, appId, {
+        getPictures: true,
+        publishedOnly: false,
+      });
     });
 
     after(() => {
@@ -82,7 +81,9 @@ describe('handlers - getArticle', () => {
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubLib = sandbox.stub(lib, 'getArticle').callsFake(() => Promise.reject(libResult));
+      stubLib = sandbox
+        .stub(lib, 'getArticle')
+        .callsFake(() => Promise.reject(libResult));
     });
 
     it('should return 500', async () => {
@@ -97,7 +98,7 @@ describe('handlers - getArticle', () => {
 
   describe('lib return null', () => {
     [true, false].forEach((havePerms) => {
-      it(`should return 404 if user ${!havePerms && 'don\'t'} have perms`, async () => {
+      it(`should return 404 if user ${!havePerms && "don't"} have perms`, async () => {
         stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(havePerms);
         stubLib = sandbox.stub(lib, 'getArticle').returns(null);
         const response = await handler(event);

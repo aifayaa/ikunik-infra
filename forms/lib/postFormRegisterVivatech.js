@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
@@ -39,9 +40,7 @@ export default async (data = {}) => {
       template: 'send_register_crowdaa_team_vivatech',
       data: { ...data },
       extra: {
-        cc: [
-          CORP_EMAIL_ERIC,
-        ].join(', '),
+        cc: [CORP_EMAIL_ERIC].join(', '),
       },
       lang,
     };
@@ -52,7 +51,7 @@ export default async (data = {}) => {
       mailData.title,
       mailData.template,
       mailData.data,
-      mailData.extra,
+      mailData.extra
     );
 
     mailData = {
@@ -70,10 +69,10 @@ export default async (data = {}) => {
       mailData.title,
       mailData.template,
       mailData.data,
-      mailData.extra,
+      mailData.extra
     );
 
-    return (form);
+    return form;
   } finally {
     client.close();
   }

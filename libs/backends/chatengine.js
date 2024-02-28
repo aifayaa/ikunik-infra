@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 
 const BASE_URL = 'https://api.chatengine.io';
@@ -19,7 +20,12 @@ function ChatEngineAPI(app) {
   this.credentials = app.credentials.chatengine;
 }
 
-ChatEngineAPI.prototype.call = async function call(method, path, data, options = {}) {
+ChatEngineAPI.prototype.call = async function call(
+  method,
+  path,
+  data,
+  options = {}
+) {
   const uri = `${BASE_URL}${path}`;
   const params = {
     method,
@@ -50,14 +56,12 @@ ChatEngineAPI.prototype.call = async function call(method, path, data, options =
 
   try {
     const jsonResponse = JSON.parse(rawResponse);
-    return (jsonResponse);
+    return jsonResponse;
   } catch (e) {
     /* do nothing */
   }
 
-  return (rawResponse);
+  return rawResponse;
 };
 
-export {
-  ChatEngineAPI,
-};
+export { ChatEngineAPI };

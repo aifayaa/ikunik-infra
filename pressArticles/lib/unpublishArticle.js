@@ -1,11 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { cleanPendingArticleNotifications } from './notificationsQueue';
 
-const {
-  COLL_PRESS_ARTICLES,
-  COLL_PRESS_DRAFTS,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;
 
 export const unpublishArticle = async (userId, appId, articleId) => {
   const client = await MongoClient.connect();
@@ -29,7 +27,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
             isPublished: false,
           },
         },
-        opts,
+        opts
       );
 
     await client
@@ -45,7 +43,7 @@ export const unpublishArticle = async (userId, appId, articleId) => {
             isPublished: false,
           },
         },
-        opts,
+        opts
       );
 
     await session.commitTransaction();

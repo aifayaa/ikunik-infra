@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import get from 'lodash/get';
 import getUser from '../lib/getUser';
@@ -14,10 +15,19 @@ export default async (event) => {
     // TODO: check if user is a fan of artist when DB repaired
     const { subject, template } = JSON.parse(event.body);
     const user = await getUser(userId);
-    const contacts = [{
-      email: user.email || get(user, 'profile.email') || get(user, 'emails[0].address'),
-      name: user.firstname || get(user, 'profile.firstname') || user.username || get(user, 'profile.username', ''),
-    }];
+    const contacts = [
+      {
+        email:
+          user.email ||
+          get(user, 'profile.email') ||
+          get(user, 'emails[0].address'),
+        name:
+          user.firstname ||
+          get(user, 'profile.firstname') ||
+          user.username ||
+          get(user, 'profile.username', ''),
+      },
+    ];
 
     // To charge the user profile if this method is called from http
     const opts = { appId };

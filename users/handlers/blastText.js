@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import phone from 'phone';
 import getUser from '../lib/getUser';

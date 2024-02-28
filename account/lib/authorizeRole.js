@@ -1,13 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  ADMIN_APP,
-} = process.env;
+const { ADMIN_APP } = process.env;
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
@@ -26,10 +23,7 @@ export default async (hashedToken, appId) => {
     const user = await client
       .db()
       .collection(COLL_USERS)
-      .findOne(
-        conds,
-        { projection: { _id: 1, roles: 1, profil_ID: 1 } },
-      );
+      .findOne(conds, { projection: { _id: 1, roles: 1, profil_ID: 1 } });
     user.roles = user.roles || [];
     if (user && user.profil_ID) user.roles.push('artist');
     return {

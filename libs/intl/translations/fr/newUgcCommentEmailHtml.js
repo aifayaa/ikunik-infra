@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   Un nouveau commentaire a été {{editionType}} par l'utilisateur <strong title="{{userId}}">{{username}}</strong> sur l'app <strong>{{appName}}</strong>

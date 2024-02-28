@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import updateLiveStream from '../lib/updateLiveStream';
@@ -18,22 +19,13 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
     const bodyParsed = JSON.parse(event.body);
-    const {
-      name,
-      startDateTime,
-    } = bodyParsed;
+    const { name, startDateTime } = bodyParsed;
 
-    if (
-      !name ||
-      !startDateTime
-    ) {
+    if (!name || !startDateTime) {
       throw new Error('mal_formed_request');
     }
 
-    if (
-      !checks.name(name, appId) ||
-      !checks.startDateTime(startDateTime)
-    ) {
+    if (!checks.name(name, appId) || !checks.startDateTime(startDateTime)) {
       throw new Error('mal_formed_request');
     }
 

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAppSettings from './getAppSettings';
 import getAppInfos from './getAppInfos';
 import getAppBuilds from './getAppBuilds';

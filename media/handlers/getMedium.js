@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getMedium from '../lib/getMedium';
 import response from '../../libs/httpResponses/response';
 

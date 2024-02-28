@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 import MongoClient from '../mongoClient';
 import { OpenSeaApi } from '../opensea';
@@ -15,7 +16,7 @@ const {
  * There is no delay between calls, you can handle that yourself.
  */
 export function promiseExecUntilEqualsTo(val, exec) {
-  return (new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const process = (ret) => {
       if (ret === val) {
         resolve();
@@ -25,7 +26,7 @@ export function promiseExecUntilEqualsTo(val, exec) {
     };
 
     process();
-  }));
+  });
 }
 
 function BadgeCheckerResults({
@@ -46,7 +47,10 @@ function BadgeCheckerResults({
   Object.defineProperty(this, 'canRead', { ...propConf, value: canRead });
   Object.defineProperty(this, 'canPreview', { ...propConf, value: canPreview });
   Object.defineProperty(this, 'canNotify', { ...propConf, value: canNotify });
-  Object.defineProperty(this, 'restrictedBy', { ...propConf, value: restrictedBy });
+  Object.defineProperty(this, 'restrictedBy', {
+    ...propConf,
+    value: restrictedBy,
+  });
   Object.defineProperty(this, 'paidBadges', { ...propConf, value: paidBadges });
 }
 
@@ -57,18 +61,22 @@ BadgeCheckerResults.prototype.merge = function merge(otherResults) {
   const canNotify = this.canNotify && otherResults.canNotify;
 
   let badgeIds = {};
-  const restrictedBy = this.restrictedBy.concat(otherResults.restrictedBy).filter((badge) => {
-    if (badgeIds[badge._id]) return (false);
-    badgeIds[badge._id] = true;
-    return (true);
-  });
+  const restrictedBy = this.restrictedBy
+    .concat(otherResults.restrictedBy)
+    .filter((badge) => {
+      if (badgeIds[badge._id]) return false;
+      badgeIds[badge._id] = true;
+      return true;
+    });
 
   badgeIds = {};
-  const paidBadges = this.paidBadges.concat(otherResults.paidBadges).filter((badge) => {
-    if (badgeIds[badge._id]) return (false);
-    badgeIds[badge._id] = true;
-    return (true);
-  });
+  const paidBadges = this.paidBadges
+    .concat(otherResults.paidBadges)
+    .filter((badge) => {
+      if (badgeIds[badge._id]) return false;
+      badgeIds[badge._id] = true;
+      return true;
+    });
 
   return new BadgeCheckerResults({
     canList,
@@ -92,11 +100,10 @@ function BadgeCheckerResultsBuilder() {
   this.paidBadges = [];
 }
 
-BadgeCheckerResultsBuilder.prototype.notBlockedBy = function notBlockedBy(badge) {
-  const {
-    management = 'private-internal',
-    productId = null,
-  } = badge;
+BadgeCheckerResultsBuilder.prototype.notBlockedBy = function notBlockedBy(
+  badge
+) {
+  const { management = 'private-internal', productId = null } = badge;
 
   if (
     management === 'request' ||
@@ -110,10 +117,7 @@ BadgeCheckerResultsBuilder.prototype.notBlockedBy = function notBlockedBy(badge)
 };
 
 BadgeCheckerResultsBuilder.prototype.blockedBy = function blockedBy(badge) {
-  const {
-    access = 'hidden',
-    management = 'private-internal',
-  } = badge;
+  const { access = 'hidden', management = 'private-internal' } = badge;
 
   if (access === 'teaser') {
     this.canNotify = false;
@@ -137,19 +141,19 @@ BadgeCheckerResultsBuilder.prototype.blockedBy = function blockedBy(badge) {
 };
 
 BadgeCheckerResultsBuilder.prototype.getResults = function getResults() {
-  return (new BadgeCheckerResults({
+  return new BadgeCheckerResults({
     canList: this.canList,
     canPreview: this.canPreview,
     canRead: this.canRead,
     canNotify: this.canNotify,
     restrictedBy: this.restrictedBy,
     paidBadges: this.paidBadges,
-  }));
+  });
 };
 
 export default function BadgeChecker(appId) {
   if (!(this instanceof BadgeChecker)) {
-    return (new BadgeChecker(appId));
+    return new BadgeChecker(appId);
   }
 
   this.init = (async () => {
@@ -168,7 +172,7 @@ function checkInitialized(checker) {
 }
 
 BadgeChecker.newEmptyResults = function newEmptyResults() {
-  return (new BadgeCheckerResults());
+  return new BadgeCheckerResults();
 };
 
 BadgeChecker.prototype.close = async function close() {
@@ -187,7 +191,9 @@ BadgeChecker.prototype.registerBadges = function registerBadges(badgeIds) {
   });
 };
 
-BadgeChecker.prototype.loadBadges = async function loadBadges(moreBadgeIds = null) {
+BadgeChecker.prototype.loadBadges = async function loadBadges(
+  moreBadgeIds = null
+) {
   checkInitialized(this);
 
   if (moreBadgeIds) {
@@ -198,10 +204,10 @@ BadgeChecker.prototype.loadBadges = async function loadBadges(moreBadgeIds = nul
 
   const badgesIds = uniqIds.filter((id) => {
     if (this.badgesMap[id]) {
-      return (false);
+      return false;
     }
 
-    return (true);
+    return true;
   });
 
   if (badgesIds.length > 0) {
@@ -214,7 +220,10 @@ BadgeChecker.prototype.loadBadges = async function loadBadges(moreBadgeIds = nul
 
     badges.forEach((badge) => {
       this.badgesMap[badge._id] = badge;
-      if (badge.nftCollectionId && !this.nftCollectionsMap[badge.nftCollectionId]) {
+      if (
+        badge.nftCollectionId &&
+        !this.nftCollectionsMap[badge.nftCollectionId]
+      ) {
         nftCollectionIds.push(badge.nftCollectionId);
       }
     });
@@ -234,12 +243,16 @@ BadgeChecker.prototype.loadBadges = async function loadBadges(moreBadgeIds = nul
 };
 
 // Both a getter and a setter (when set is not null)
-BadgeChecker.prototype.extPurchaseVal = function extPurchaseVal(userId, badgeId, set = null) {
+BadgeChecker.prototype.extPurchaseVal = function extPurchaseVal(
+  userId,
+  badgeId,
+  set = null
+) {
   if (set !== null) {
     this.extPurchasesMap[`${userId}|${badgeId}`] = set;
   }
 
-  return (this.extPurchasesMap[`${userId}|${badgeId}`]);
+  return this.extPurchasesMap[`${userId}|${badgeId}`];
 };
 
 BadgeChecker.prototype.loadExtPerms = async function loadExtPerms(userId) {
@@ -247,10 +260,10 @@ BadgeChecker.prototype.loadExtPerms = async function loadExtPerms(userId) {
 
   const badgesIds = Object.keys(this.badgesMap).filter((id) => {
     if (this.extPurchaseVal(userId, id)) {
-      return (false);
+      return false;
     }
 
-    return (true);
+    return true;
   });
 
   const extPurchases = await this.client
@@ -278,16 +291,16 @@ BadgeChecker.prototype.loadExtPerms = async function loadExtPerms(userId) {
 BadgeChecker.prototype.checkBadges = async function checkBadges(
   userBadges,
   toCheckbadges,
-  options,
+  options
 ) {
   const resultsBuilder = new BadgeCheckerResultsBuilder();
   checkInitialized(this);
 
   if (!toCheckbadges) {
-    return (resultsBuilder.getResults());
+    return resultsBuilder.getResults();
   }
   if (toCheckbadges.list.length === 0) {
-    return (resultsBuilder.getResults());
+    return resultsBuilder.getResults();
   }
 
   const { allow = 'any' } = toCheckbadges;
@@ -297,13 +310,15 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
     if (status === 'validated') {
       acc[perm.id] = true;
     }
-    return (acc);
+    return acc;
   }, {});
 
-  await this.loadBadges([].concat(
-    Object.keys(userBadgesMap),
-    toCheckbadges.list.map(({ id }) => (id)),
-  ));
+  await this.loadBadges(
+    [].concat(
+      Object.keys(userBadgesMap),
+      toCheckbadges.list.map(({ id }) => id)
+    )
+  );
 
   if (options.userId) {
     await this.loadExtPerms(options.userId);
@@ -318,7 +333,10 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
 
     if (userBadgesMap[badge._id]) {
       allowedForBadge = true;
-    } else if (options.userId && this.extPurchaseVal(options.userId, badge._id)) {
+    } else if (
+      options.userId &&
+      this.extPurchaseVal(options.userId, badge._id)
+    ) {
       allowedForBadge = true;
       badge.externallyOwned = true;
     } else if (badge.validationUrl) {
@@ -330,8 +348,8 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
         USER_ID: options.userId,
       };
       const uri = badge.validationUrl.replace(
-        /\{([A-Z_]+)\}/ig,
-        (_val, name) => (replacements[name] || 'null'),
+        /\{([A-Z_]+)\}/gi,
+        (_val, name) => replacements[name] || 'null'
       );
 
       const params = {
@@ -366,7 +384,7 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
           let ethId = 0;
           await promiseExecUntilEqualsTo(false, async () => {
             const wallet = user.crypto.wallets.ETH[ethId];
-            if (!wallet) return (false);
+            if (!wallet) return false;
 
             const response = await osApi.call('/assets', {
               owner: wallet,
@@ -376,12 +394,14 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
 
             if (response.assets && response.assets.length > 0) {
               allowedForBadge = true;
-              return (false);
+              return false;
             }
 
             ethId += 1;
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            return (true);
+            await new Promise((resolve) => {
+              setTimeout(resolve, 200);
+            });
+            return true;
           });
         }
       } catch (e) {
@@ -400,10 +420,10 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
   await Promise.all(promises);
 
   if (allow === 'any' && allowedAtLeastOnce) {
-    return (new BadgeCheckerResults({
+    return new BadgeCheckerResults({
       paidBadges: resultsBuilder.getResults().paidBadges,
-    }));
+    });
   }
 
-  return (resultsBuilder.getResults());
+  return resultsBuilder.getResults();
 };

@@ -1,7 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import sax from 'sax';
 
 export default (xml, { contentTag }) => {
-  const xmlContent = xml.match(new RegExp(`<${contentTag}>(.*?)</${contentTag}>`, 's'))[1];
+  const xmlContent = xml.match(
+    new RegExp(`<${contentTag}>(.*?)</${contentTag}>`, 's')
+  )[1];
   const parser = sax.parser();
   let output = '';
   parser.ontext = (text) => {

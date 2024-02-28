@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -31,7 +32,9 @@ export default async (_userId, profileId, appId) => {
         {
           $project: {
             projects: 1,
-            purchases: { $ifNull: ['$purchases', { purchase: { project_ID: '$_id' } }] },
+            purchases: {
+              $ifNull: ['$purchases', { purchase: { project_ID: '$_id' } }],
+            },
           },
         },
         {
@@ -45,7 +48,13 @@ export default async (_userId, profileId, appId) => {
           $group: {
             _id: null,
             total: { $sum: '$purchases' },
-            projects: { $push: { _id: '$_id', projectName: '$projectName', purchases: '$purchases' } },
+            projects: {
+              $push: {
+                _id: '$_id',
+                projectName: '$projectName',
+                purchases: '$purchases',
+              },
+            },
           },
         },
         {
@@ -57,7 +66,8 @@ export default async (_userId, profileId, appId) => {
             symbol: { $literal: 'credits' },
           },
         },
-      ]).toArray();
+      ])
+      .toArray();
     return record[0];
   } finally {
     client.close();

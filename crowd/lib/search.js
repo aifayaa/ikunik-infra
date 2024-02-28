@@ -1,9 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PROJECTS } = mongoCollections;
 
-export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserInfo }) => {
+export default async (
+  pipeline,
+  { page = 1, limit = 20, coordinates, filterUserInfo }
+) => {
   if (page && typeof page !== 'number') page = parseInt(page, 10);
   if (limit && typeof limit !== 'number') limit = parseInt(limit, 10);
   const client = await MongoClient.connect();
@@ -29,9 +33,7 @@ export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserI
           hasPhone: {
             $cond: {
               if: {
-                $or: [
-                  { $ifNull: ['$user.profile.phone', false] },
-                ],
+                $or: [{ $ifNull: ['$user.profile.phone', false] }],
               },
               then: true,
               else: false,
@@ -54,12 +56,15 @@ export default async (pipeline, { page = 1, limit = 20, coordinates, filterUserI
       },
       {
         $project: {
-          fancount: 1, crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
+          fancount: 1,
+          crowd: { $slice: ['$crowd', (page - 1) * limit, limit] },
         },
-      },
+      }
     );
-    const [result] = await client.db()
-      .collection(coordinates ? 'users' : COLL_PROJECTS).aggregate(pipeline)
+    const [result] = await client
+      .db()
+      .collection(coordinates ? 'users' : COLL_PROJECTS)
+      .aggregate(pipeline)
       .toArray();
     const { crowd, fancount } = result || { crowd: [], fancount: 0 };
     return { crowd, count: fancount };

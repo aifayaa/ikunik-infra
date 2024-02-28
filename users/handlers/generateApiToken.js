@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import generateApiToken from '../lib/generateApiToken';
 import response from '../../libs/httpResponses/response';
 

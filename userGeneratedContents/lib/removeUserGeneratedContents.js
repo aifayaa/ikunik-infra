@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -7,7 +8,7 @@ export default async (
   appId,
   userId,
   userGeneratedContentsId,
-  { moderationInfo = '' } = {},
+  { moderationInfo = '' } = {}
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -25,10 +26,13 @@ export default async (
     const { matchedCount } = await client
       .db()
       .collection(COLL_USER_GENERATED_CONTENTS)
-      .updateOne({
-        _id: userGeneratedContentsId,
-        appId,
-      }, patch);
+      .updateOne(
+        {
+          _id: userGeneratedContentsId,
+          appId,
+        },
+        patch
+      );
     return !!matchedCount;
   } finally {
     client.close();

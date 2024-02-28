@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import oauthCallback from '../lib/oauthCallback';
 

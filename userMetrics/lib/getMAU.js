@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -20,10 +21,16 @@ export default async (appId, { month, year }) => {
             appId,
             $or: [
               {
-                $and: [{ createdAt: { $gte: startDate } }, { createdAt: { $lt: endDate } }],
+                $and: [
+                  { createdAt: { $gte: startDate } },
+                  { createdAt: { $lt: endDate } },
+                ],
               },
               {
-                $and: [{ modifiedAt: { $gte: startDate } }, { modifiedAt: { $lt: endDate } }],
+                $and: [
+                  { modifiedAt: { $gte: startDate } },
+                  { modifiedAt: { $lt: endDate } },
+                ],
               },
             ],
           },

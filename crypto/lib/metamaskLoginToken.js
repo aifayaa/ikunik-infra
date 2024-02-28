@@ -1,9 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export default async (appId, userId, userMetamaskToken, wallet) => {
   const client = await MongoClient.connect();
@@ -34,10 +33,13 @@ export default async (appId, userId, userMetamaskToken, wallet) => {
       action.$addToSet = { 'crypto.wallets.ETH': wallet };
     }
 
-    await db.collection(COLL_USERS).updateOne({
-      appId,
-      _id: userId,
-    }, action);
+    await db.collection(COLL_USERS).updateOne(
+      {
+        appId,
+        _id: userId,
+      },
+      action
+    );
   } finally {
     client.close();
   }

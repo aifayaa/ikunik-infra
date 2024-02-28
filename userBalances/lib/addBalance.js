@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -8,9 +9,7 @@ export const addBalance = async (
   userId,
   deviceId,
   amount,
-  {
-    type = 'coin',
-  } = {},
+  { type = 'coin' } = {}
 ) => {
   const findQuery = {
     appId,
@@ -24,10 +23,7 @@ export const addBalance = async (
     deviceId,
   };
   if (userId && deviceId) {
-    findQuery.$or = [
-      { userId },
-      { deviceId, userId: null },
-    ];
+    findQuery.$or = [{ userId }, { deviceId, userId: null }];
   } else if (userId) {
     findQuery.userId = userId;
   } else if (deviceId) {
@@ -46,19 +42,19 @@ export const addBalance = async (
       .findOne(findQuery);
 
     if (!balance) {
-      await client
-        .db()
-        .collection(COLL_USER_BALANCES)
-        .insertOne(insertData);
+      await client.db().collection(COLL_USER_BALANCES).insertOne(insertData);
     } else {
       await client
         .db()
         .collection(COLL_USER_BALANCES)
-        .updateOne({ _id: balance._id }, {
-          $set: {
-            amount: ((balance.amount || 0) + amount),
-          },
-        });
+        .updateOne(
+          { _id: balance._id },
+          {
+            $set: {
+              amount: (balance.amount || 0) + amount,
+            },
+          }
+        );
     }
 
     return insertData;

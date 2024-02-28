@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   Un nouvel utilisateur a complété son profil

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -11,7 +12,7 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
       .findOne({ _id: userId });
 
     if (!appUser || !appUser.previewForAdmin) {
-      return ([]);
+      return [];
     }
 
     const pipeline = [
@@ -56,7 +57,8 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
       },
     ];
 
-    if (sortBy && sortOrder) pipeline.push({ $sort: { [sortBy]: (sortOrder === 'desc' ? 1 : -1) } });
+    if (sortBy && sortOrder)
+      pipeline.push({ $sort: { [sortBy]: sortOrder === 'desc' ? 1 : -1 } });
 
     const appsOwnedByUser = await client
       .db()
@@ -64,9 +66,9 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
       .aggregate(pipeline, { collation: { locale: 'en' } })
       .toArray();
 
-    return (appsOwnedByUser.filter((app) => (
-      app.settings && app.settings.previewKey
-    )));
+    return appsOwnedByUser.filter(
+      (app) => app.settings && app.settings.previewKey
+    );
   } finally {
     client.close();
   }

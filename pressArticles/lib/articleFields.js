@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 const common = {
   _id: true,
   actions: true,
@@ -47,8 +48,4 @@ export default {
   server,
 };
 
-export {
-  common,
-  admin,
-  server,
-};
+export { common, admin, server };

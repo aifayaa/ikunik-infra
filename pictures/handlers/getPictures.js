@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getPictures from '../lib/getPictures';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -14,14 +15,11 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const params = (event.queryStringParameters || {});
+    const params = event.queryStringParameters || {};
 
     const filters = {};
 
-    const {
-      start = 0,
-      limit = 30,
-    } = params;
+    const { start = 0, limit = 30 } = params;
 
     filters.start = parseInt(start, 10);
     filters.limit = parseInt(limit, 10);

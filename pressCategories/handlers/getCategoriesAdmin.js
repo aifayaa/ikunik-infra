@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getCategories from '../lib/getCategories';
 import response from '../../libs/httpResponses/response';
@@ -7,9 +8,8 @@ const permKey = 'pressCategories_all';
 export default async (event) => {
   const { appId, perms, principalId: userId } = event.requestContext.authorizer;
   const permsParsed = JSON.parse(perms);
-  const {
-    fetchMaxOrder: fetchMaxOrderParameter = '',
-  } = event.queryStringParameters || {};
+  const { fetchMaxOrder: fetchMaxOrderParameter = '' } =
+    event.queryStringParameters || {};
   let { parentId } = event.queryStringParameters || {};
   const fetchMaxOrder = fetchMaxOrderParameter.toLowerCase() === 'true';
 

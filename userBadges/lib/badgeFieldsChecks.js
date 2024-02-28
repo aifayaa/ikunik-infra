@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { optionnalUrlRegexp } from '../../libs/regexp/url';
 
 export default {
@@ -7,9 +8,9 @@ export default {
       case 'teaser':
       case 'preview':
       case 'notifications':
-        return (true);
+        return true;
       default:
-        return (false);
+        return false;
     }
   },
   management(val) {
@@ -18,21 +19,21 @@ export default {
       case 'private-visible':
       case 'request':
       case 'public':
-        return (true);
+        return true;
       default:
-        return (false);
+        return false;
     }
   },
   isDefault(val) {
-    return (typeof val === 'boolean');
+    return typeof val === 'boolean';
   },
   subscriptionUrl(val) {
-    return (!!optionnalUrlRegexp.test(val || ''));
+    return !!optionnalUrlRegexp.test(val || '');
   },
   validationUrl(val) {
-    return (!!optionnalUrlRegexp.test(val || ''));
+    return !!optionnalUrlRegexp.test(val || '');
   },
   name(val) {
-    return (typeof val === 'string' && !!val);
+    return typeof val === 'string' && !!val;
   },
 };

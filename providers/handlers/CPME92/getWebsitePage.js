@@ -1,26 +1,23 @@
+/* eslint-disable import/no-relative-packages */
 import getWebsitePage from '../../lib/CPME92/getWebsitePage';
 
 export default async (event) => {
   try {
-    const {
-      path: pagePath,
-    } = event.queryStringParameters || {};
+    const { path: pagePath } = event.queryStringParameters || {};
 
-    const page = await getWebsitePage(
-      pagePath,
-    );
+    const page = await getWebsitePage(pagePath);
 
-    return ({
+    return {
       statusCode: 200,
       body: page,
       headers: {
         'Content-Type': 'text/html',
       },
-    });
+    };
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log('Error :', e);
-    return ({
+    return {
       statusCode: 500,
       body: `<!DOCTYPE html>
 <html lang="en">
@@ -34,6 +31,6 @@ export default async (event) => {
       headers: {
         'Content-Type': 'text/html',
       },
-    });
+    };
   }
 };

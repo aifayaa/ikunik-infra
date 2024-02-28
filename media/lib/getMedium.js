@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { URL } from 'url';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -5,11 +6,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import generateSignedURL from '../../libs/aws/generateSignedURL';
 import isMediaLocked from './isMediaLocked';
 
-const {
-  COLL_AUDIOS,
-  COLL_PICTURES,
-  COLL_VIDEOS,
-} = mongoCollections;
+const { COLL_AUDIOS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
 
 export default async (userId, appId, mediumType, mediumId) => {
   const client = await MongoClient.connect();
@@ -21,27 +18,15 @@ export default async (userId, appId, mediumType, mediumId) => {
     let medium;
     switch (mediumType) {
       case 'audio':
-        medium = await client
-          .db()
-          .collection(COLL_AUDIOS)
-          .findOne(query);
+        medium = await client.db().collection(COLL_AUDIOS).findOne(query);
         break;
       case 'video':
-        medium = await client
-          .db()
-          .collection(COLL_VIDEOS)
-          .findOne(query);
+        medium = await client.db().collection(COLL_VIDEOS).findOne(query);
         break;
       case 'all':
-        medium = await client
-          .db()
-          .collection(COLL_AUDIOS)
-          .findOne(query);
+        medium = await client.db().collection(COLL_AUDIOS).findOne(query);
         if (!medium) {
-          medium = await client
-            .db()
-            .collection(COLL_VIDEOS)
-            .findOne(query);
+          medium = await client.db().collection(COLL_VIDEOS).findOne(query);
         }
         break;
       default:
@@ -58,12 +43,17 @@ export default async (userId, appId, mediumType, mediumId) => {
         medium.picture = picture;
       }
     }
-    if (medium.collection && medium.filename && medium.fileObj_ID && medium.url) {
+    if (
+      medium.collection &&
+      medium.filename &&
+      medium.fileObj_ID &&
+      medium.url
+    ) {
       medium.url = generateSignedURL(
         `${medium.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${medium.fileObj_ID}-${
           medium.filename
         }`,
-        new URL(medium.url).host,
+        new URL(medium.url).host
       );
     }
 

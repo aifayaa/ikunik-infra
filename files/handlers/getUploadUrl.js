@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getUploadUrl from '../lib/getUploadUrl';
 import response from '../../libs/httpResponses/response';
 // import { checkPerms } from '../../libs/perms/checkPerms';
@@ -18,10 +19,7 @@ export default async (event) => {
       throw new Error('missing_user_id');
     }
 
-    const {
-      files,
-      metadata = {},
-    } = JSON.parse(event.body);
+    const { files, metadata = {} } = JSON.parse(event.body);
 
     if (typeof files !== 'object' || !files.length) {
       throw new Error('wrong_argument');

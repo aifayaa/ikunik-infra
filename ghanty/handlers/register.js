@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import register from '../lib/register';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';

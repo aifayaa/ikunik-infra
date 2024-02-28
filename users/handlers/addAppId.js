@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import addAppId from '../lib/addAppId';
 import response from '../../libs/httpResponses/response';
 

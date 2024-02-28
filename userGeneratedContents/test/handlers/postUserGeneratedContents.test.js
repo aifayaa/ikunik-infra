@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -39,9 +40,15 @@ describe('handlers - postUserGeneratedContents', () => {
       let response;
       before(async () => {
         stubLib = sandbox.stub(lib, 'default').throws();
-        stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
-        stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-        stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+        stubPathToCollection = sandbox
+          .stub(pathToCollection, 'default')
+          .returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
+        stubEmailTemplate = sandbox
+          .stub(emailUgcNotifyTemplate, 'default')
+          .returns({ subject: 'subject', body: 'body' });
+        stubSendEmail = sandbox
+          .stub(sendEmailToAdmin, 'default')
+          .returns(undefined);
         response = await handler(event);
       });
 
@@ -63,10 +70,18 @@ describe('handlers - postUserGeneratedContents', () => {
     let response;
 
     before(async () => {
-      stubLib = sandbox.stub(lib, 'default').returns({ _id: 'userGeneratedContentsId' });
-      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
-      stubEmailTemplate = sandbox.stub(emailUgcNotifyTemplate, 'default').returns({ subject: 'subject', body: 'body' });
-      stubSendEmail = sandbox.stub(sendEmailToAdmin, 'default').returns(undefined);
+      stubLib = sandbox
+        .stub(lib, 'default')
+        .returns({ _id: 'userGeneratedContentsId' });
+      stubPathToCollection = sandbox
+        .stub(pathToCollection, 'default')
+        .returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
+      stubEmailTemplate = sandbox
+        .stub(emailUgcNotifyTemplate, 'default')
+        .returns({ subject: 'subject', body: 'body' });
+      stubSendEmail = sandbox
+        .stub(sendEmailToAdmin, 'default')
+        .returns(undefined);
       response = await handler(event);
     });
 
@@ -75,16 +90,9 @@ describe('handlers - postUserGeneratedContents', () => {
     });
 
     it('should call lib with right args', () => {
-      const {
-        principalId,
-        appId,
-      } = event.requestContext.authorizer;
+      const { principalId, appId } = event.requestContext.authorizer;
       const bodyParsed = JSON.parse(event.body);
-      const {
-        parentId,
-        type,
-        data,
-      } = bodyParsed;
+      const { parentId, type, data } = bodyParsed;
       const parentCollection = mongoCollections.COLL_USER_GENERATED_CONTENTS;
       const rootParentId = parentId;
       const rootParentCollection = parentCollection;
@@ -99,42 +107,27 @@ describe('handlers - postUserGeneratedContents', () => {
         rootParentCollection,
         principalId,
         type,
-        data,
+        data
       );
     });
 
     it('should call emailTemplate with right args', () => {
-      const {
-        principalId: userId,
-        appId,
-      } = event.requestContext.authorizer;
+      const { principalId: userId, appId } = event.requestContext.authorizer;
       expect(stubEmailTemplate.calledOnce).to.be.true;
-      sinon.assert.calledWith(
-        stubEmailTemplate,
-        userId,
-        appId,
-        {
-          contentId: 'userGeneratedContentsId',
-          data: {
-            title: 'title',
-            content: 'content',
-            pictures: ['pictureId'],
-          },
+      sinon.assert.calledWith(stubEmailTemplate, userId, appId, {
+        contentId: 'userGeneratedContentsId',
+        data: {
+          title: 'title',
+          content: 'content',
+          pictures: ['pictureId'],
         },
-      );
+      });
     });
 
     it('should call send email with right args', () => {
-      const {
-        appId,
-      } = event.requestContext.authorizer;
+      const { appId } = event.requestContext.authorizer;
       expect(stubSendEmail.calledOnce).to.be.true;
-      sinon.assert.calledWith(
-        stubSendEmail,
-        'subject',
-        'body',
-        appId,
-      );
+      sinon.assert.calledWith(stubSendEmail, 'subject', 'body', appId);
     });
 
     after(() => {

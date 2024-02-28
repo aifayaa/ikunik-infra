@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import hashToken from '../../libs/tokens/hashToken';
@@ -15,7 +16,7 @@ export const removeLoginToken = async (userId, token) => {
         $pull: {
           'services.resume.loginTokens': { hashedToken: hash },
         },
-      },
+      }
     );
     if (!modifiedCount) {
       throw new Error('token_user_not_found');

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import createTask from '../lib/createTask';
 import { createFieldChecks } from '../lib/tasksFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';

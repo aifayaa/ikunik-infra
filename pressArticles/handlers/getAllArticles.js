@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { getArticles } from '../lib/getArticles';
@@ -13,7 +14,7 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
     const results = await getArticles(category, start, limit, appId, {
-      getOrphansArticles: (!category),
+      getOrphansArticles: !category,
       onlyPublished: false,
       showHiddenOnFeed: true,
       showWithHiddenCategories: true,

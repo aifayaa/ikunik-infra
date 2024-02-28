@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import AWS from 'aws-sdk/';
 import managePicture from '../lib/managePicture';
 import manageVideo from '../lib/manageVideo';
@@ -6,21 +7,14 @@ import response from '../../libs/httpResponses/response';
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_DOCUMENTS,
-  COLL_PICTURES,
-  COLL_VIDEOS,
-} = mongoCollections;
+const { COLL_DOCUMENTS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
 export default async (event) => {
-  const {
-    bucket,
-    object,
-  } = event.Records[0].s3;
+  const { bucket, object } = event.Records[0].s3;
 
   try {
     const params = {
@@ -30,9 +24,7 @@ export default async (event) => {
 
     const fileHead = await s3.headObject(params).promise();
 
-    const {
-      ContentType,
-    } = fileHead;
+    const { ContentType } = fileHead;
 
     const collection = getCollectionFromContentType(ContentType);
     if (collection === COLL_PICTURES) {

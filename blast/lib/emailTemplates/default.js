@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 
 export default {

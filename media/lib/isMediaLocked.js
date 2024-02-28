@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 
 export default async (userId, appId, medium) => {
@@ -14,7 +15,10 @@ export default async (userId, appId, medium) => {
   try {
     if (medium.subscriptionIds) {
       const { isLocked } = medium;
-      return { isLocked: isLocked || false, state: isLocked ? 'locked' : 'subscribed' };
+      return {
+        isLocked: isLocked || false,
+        state: isLocked ? 'locked' : 'subscribed',
+      };
     }
     const lastday = new Date();
     lastday.setDate(new Date().getDate() - 1);
@@ -61,22 +65,22 @@ export default async (userId, appId, medium) => {
       case '1free': {
         remainingViews = 1 - numviews;
         return {
-          isLocked: (remainingViews <= 0),
-          state: (remainingViews <= 0) ? 'locked' : `${remainingViews}free`,
+          isLocked: remainingViews <= 0,
+          state: remainingViews <= 0 ? 'locked' : `${remainingViews}free`,
         };
       }
       case '2free': {
         remainingViews = 2 - numviews;
         return {
-          isLocked: (remainingViews <= 0),
-          state: (remainingViews <= 0) ? 'locked' : `${remainingViews}free`,
+          isLocked: remainingViews <= 0,
+          state: remainingViews <= 0 ? 'locked' : `${remainingViews}free`,
         };
       }
       case '3free': {
         remainingViews = 3 - numviews;
         return {
-          isLocked: (remainingViews <= 0),
-          state: (remainingViews <= 0) ? 'locked' : `${remainingViews}free`,
+          isLocked: remainingViews <= 0,
+          state: remainingViews <= 0 ? 'locked' : `${remainingViews}free`,
         };
       }
       case '1freePerDay':
@@ -95,7 +99,7 @@ export default async (userId, appId, medium) => {
             state: distribution,
           };
         }
-        const isLocked = (lastView <= 0);
+        const isLocked = lastView <= 0;
         return {
           isLocked,
           state: isLocked ? 'locked' : `${lastView}freePerDay`,

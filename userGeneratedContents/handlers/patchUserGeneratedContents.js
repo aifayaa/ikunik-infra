@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 import checkOwner from '../../libs/perms/checkOwner';
 import emailTemplate from '../lib/emailUgcNotifyTemplate';
@@ -16,23 +17,25 @@ export default async (event) => {
     const userId = event.requestContext.authorizer.principalId;
     const userGeneratedContentsId = event.pathParameters.id;
     const bodyParsed = JSON.parse(event.body);
-    const {
-      data,
-    } = bodyParsed;
+    const { data } = bodyParsed;
 
     if (!data) {
       throw new Error('missing_arguments');
     }
 
-    [
-      data,
-    ].forEach((item) => {
+    [data].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('wrong_argument_type');
       }
     });
 
-    const ugc = await checkOwner(appId, userGeneratedContentsId, COLL_USER_GENERATED_CONTENTS, 'userId', userId);
+    const ugc = await checkOwner(
+      appId,
+      userGeneratedContentsId,
+      COLL_USER_GENERATED_CONTENTS,
+      'userId',
+      userId
+    );
     const { type } = ugc;
 
     switch (type) {
@@ -58,14 +61,15 @@ export default async (event) => {
           throw new Error('wrong_argument_type');
         }
         break;
-      default: break;
+      default:
+        break;
     }
 
     const results = await patchUserGeneratedContents(
       appId,
       userId,
       userGeneratedContentsId,
-      data,
+      data
     );
 
     const lang = getUserLanguage(event.headers);
@@ -87,7 +91,7 @@ export default async (event) => {
         appId,
         { contentId: userGeneratedContentsId, data },
         lang,
-        { isEdition: true },
+        { isEdition: true }
       );
       await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {

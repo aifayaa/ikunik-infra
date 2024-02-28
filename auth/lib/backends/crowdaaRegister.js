@@ -1,20 +1,18 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import Random from '../../../libs/account_utils/random';
 import mongoCollections from '../../../libs/mongoCollections.json';
 import checkForCaseInsensitiveUserDuplicates from '../checkForCaseInsensitiveUserDuplicates';
 import { hashPassword } from '../password';
 
-const {
-  COLL_USERS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 
 export const crowdaaRegister = async (
   username,
   rawEmail,
   password,
   app,
-  profile = {},
+  profile = {}
 ) => {
   const client = await MongoClient.connect();
   const { _id: appId } = app;
@@ -26,37 +24,46 @@ export const crowdaaRegister = async (
     const hashed = await hashPassword(password);
     let userId;
 
-    const existingUser = email && await usersCollection.findOne({
-      appId,
-      'emails.address': email,
-      services: { $exists: true },
-      'services.password': { $exists: false },
-    }, { projection: {
-      'emails.$': 1,
-      'services.password': 1,
-      _id: 1,
-      appId: 1,
-    } });
+    const existingUser =
+      email &&
+      (await usersCollection.findOne(
+        {
+          appId,
+          'emails.address': email,
+          services: { $exists: true },
+          'services.password': { $exists: false },
+        },
+        {
+          projection: {
+            'emails.$': 1,
+            'services.password': 1,
+            _id: 1,
+            appId: 1,
+          },
+        }
+      ));
 
     if (existingUser) {
       userId = existingUser._id;
 
-      await usersCollection.updateOne({
-        _id: existingUser._id,
-      }, {
-        $set: {
-          'services.password': {
-            bcrypt: hashed,
-          },
+      await usersCollection.updateOne(
+        {
+          _id: existingUser._id,
         },
-      });
+        {
+          $set: {
+            'services.password': {
+              bcrypt: hashed,
+            },
+          },
+        }
+      );
     } else {
       userId = Random.id();
 
-      const badges = (await badgesCollection
-        .find({ appId, isDefault: true })
-        .toArray())
-        .map((badge) => ({ id: badge._id }));
+      const badges = (
+        await badgesCollection.find({ appId, isDefault: true }).toArray()
+      ).map((badge) => ({ id: badge._id }));
 
       const newUser = {
         _id: userId,
@@ -78,29 +85,53 @@ export const crowdaaRegister = async (
       };
 
       // Perform a case insensitive check before insert
-      await checkForCaseInsensitiveUserDuplicates(appId, 'username', 'Username', username, {
-        errorMessage: 'username_already_exists',
-        mongoClient: client,
-      });
-      await checkForCaseInsensitiveUserDuplicates(appId, 'emails.address', 'Email', email, {
-        errorMessage: 'email_already_exists',
-        mongoClient: client,
-      });
+      await checkForCaseInsensitiveUserDuplicates(
+        appId,
+        'username',
+        'Username',
+        username,
+        {
+          errorMessage: 'username_already_exists',
+          mongoClient: client,
+        }
+      );
+      await checkForCaseInsensitiveUserDuplicates(
+        appId,
+        'emails.address',
+        'Email',
+        email,
+        {
+          errorMessage: 'email_already_exists',
+          mongoClient: client,
+        }
+      );
       await usersCollection.insertOne(newUser);
 
       // Perform another check after insert, in case a matching user has been
       // inserted in the meantime
       try {
-        await checkForCaseInsensitiveUserDuplicates(appId, 'username', 'Username', username, {
-          errorMessage: 'username_already_exists',
-          mongoClient: client,
-          ownUserId: userId,
-        });
-        await checkForCaseInsensitiveUserDuplicates(appId, 'emails.address', 'Email', email, {
-          errorMessage: 'email_already_exists',
-          mongoClient: client,
-          ownUserId: userId,
-        });
+        await checkForCaseInsensitiveUserDuplicates(
+          appId,
+          'username',
+          'Username',
+          username,
+          {
+            errorMessage: 'username_already_exists',
+            mongoClient: client,
+            ownUserId: userId,
+          }
+        );
+        await checkForCaseInsensitiveUserDuplicates(
+          appId,
+          'emails.address',
+          'Email',
+          email,
+          {
+            errorMessage: 'email_already_exists',
+            mongoClient: client,
+            ownUserId: userId,
+          }
+        );
       } catch (ex) {
         // Delete inserted user if the check fails
         await usersCollection.deleteOne({ _id: userId });

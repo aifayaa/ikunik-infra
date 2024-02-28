@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -10,28 +11,30 @@ export default async (pollId, appId, userId, toSet) => {
     await client
       .db()
       .collection(COLL_PRESS_POLLS)
-      .updateOne({
-        _id: pollId,
-        appId,
-      }, { $set: {
-        ...toSet,
-        updatedAt: new Date(),
-        updatedBy: userId,
-      } });
+      .updateOne(
+        {
+          _id: pollId,
+          appId,
+        },
+        {
+          $set: {
+            ...toSet,
+            updatedAt: new Date(),
+            updatedBy: userId,
+          },
+        }
+      );
 
-    const pollObj = await client
-      .db()
-      .collection(COLL_PRESS_POLLS)
-      .findOne({
-        _id: pollId,
-        appId,
-      });
+    const pollObj = await client.db().collection(COLL_PRESS_POLLS).findOne({
+      _id: pollId,
+      appId,
+    });
 
     if (!pollObj) {
       throw new Error('content_not_found');
     }
 
-    return (pollObj);
+    return pollObj;
   } finally {
     client.close();
   }

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -37,7 +38,8 @@ export default async (userId, profileId, appId) => {
             symbol: { $literal: 'credits' },
           },
         },
-      ]).toArray();
+      ])
+      .toArray();
     return record[0];
   } finally {
     client.close();

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -55,7 +56,8 @@ export default async (userId, { sortBy, sortOrder } = {}) => {
       },
     },
   ];
-  if (sortBy && sortOrder) pipeline.push({ $sort: { [sortBy]: (sortOrder === 'desc' ? 1 : -1) } });
+  if (sortBy && sortOrder)
+    pipeline.push({ $sort: { [sortBy]: sortOrder === 'desc' ? 1 : -1 } });
   try {
     const appsOwnedByUser = await client
       .db()

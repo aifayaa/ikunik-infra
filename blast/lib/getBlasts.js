@@ -1,11 +1,14 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_BLASTS } = mongoCollections;
 
-export default async (userId, appId, {
-  limit, skip, sortBy, sortOrder, type,
-} = {}) => {
+export default async (
+  userId,
+  appId,
+  { limit, skip, sortBy, sortOrder, type } = {}
+) => {
   const client = await MongoClient.connect();
   try {
     const selector = {
@@ -17,9 +20,11 @@ export default async (userId, appId, {
     if (type) selector.type = type;
     limit = parseInt(limit, 10) || 10;
     skip = parseInt(skip, 10) || 0;
-    if (sortBy && sortOrder) sort = { [sortBy]: (sortOrder === 'desc' ? 1 : -1) };
+    if (sortBy && sortOrder) sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
 
-    const [record] = await client.db().collection(COLL_BLASTS)
+    const [record] = await client
+      .db()
+      .collection(COLL_BLASTS)
       .aggregate([
         { $match: selector },
         { $sort: sort },
@@ -37,7 +42,8 @@ export default async (userId, appId, {
             blasts: { $slice: ['$blasts', skip, limit] },
           },
         },
-      ]).toArray();
+      ])
+      .toArray();
     return record || { blasts: [], totalCount: 0 };
   } finally {
     client.close();

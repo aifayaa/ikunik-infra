@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 
 const OPENSEA_BASE_URL = 'https://api.opensea.io/api/v1';
@@ -9,14 +10,18 @@ function OpenSeaApi() {
   }
 }
 
-OpenSeaApi.prototype.call = async function call(path, data = null, options = {
-  body: 'querystring',
-  headers: {},
-  method: 'GET',
-}) {
+OpenSeaApi.prototype.call = async function call(
+  path,
+  data = null,
+  options = {
+    body: 'querystring',
+    headers: {},
+    method: 'GET',
+  }
+) {
   const uri = `${OPENSEA_BASE_URL}${path}`;
   const params = {
-    method: (options.method || 'GET'),
+    method: options.method || 'GET',
     uri,
     headers: {
       'X-API-KEY': CRYPTO_API_KEY,
@@ -44,15 +49,13 @@ OpenSeaApi.prototype.call = async function call(path, data = null, options = {
 
   if (typeof rawResponse === 'string') {
     try {
-      return (JSON.parse(rawResponse));
+      return JSON.parse(rawResponse);
     } catch (e) {
       /* . */
     }
   }
 
-  return (rawResponse);
+  return rawResponse;
 };
 
-export {
-  OpenSeaApi,
-};
+export { OpenSeaApi };

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { getUserByOidc } from '../lib/getUserByOidc';
 
@@ -7,9 +8,7 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const {
-      identityToken,
-    } = JSON.parse(event.body);
+    const { identityToken } = JSON.parse(event.body);
     const { appId } = event.requestContext.authorizer;
 
     [identityToken, appId].forEach((item) => {

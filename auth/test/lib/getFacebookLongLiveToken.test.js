@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, afterEach, describe, it } from 'mocha';
 import { expect } from 'chai';
@@ -22,9 +23,11 @@ describe('lib - getFacebookLongLiveToken', () => {
       stubRequestGet
         .onCall(0)
         .returns(JSON.stringify({ access_token: 'myLongLifeToken' }));
-      stubRequestGet.onCall(1).returns(JSON.stringify({
-        data: { user_id: 'myUserId', expires_at: 'expirationDate' },
-      }));
+      stubRequestGet.onCall(1).returns(
+        JSON.stringify({
+          data: { user_id: 'myUserId', expires_at: 'expirationDate' },
+        })
+      );
       resp = await getFacebookLongLiveToken('myShortLifeToken', 'myAppToken');
     });
 
@@ -36,7 +39,7 @@ describe('lib - getFacebookLongLiveToken', () => {
         'client_id',
         'client_secret',
         'grant_type',
-        'fb_exchange_token',
+        'fb_exchange_token'
       );
       expect(parsed).to.includes({
         grant_type: 'fb_exchange_token',

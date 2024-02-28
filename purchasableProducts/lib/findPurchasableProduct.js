@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -5,17 +6,16 @@ const { COLL_PURCHASABLE_PRODUCT } = mongoCollections;
 
 export const findPurchasableProduct = async (
   appId,
-  {
-    contentCollection,
-    contentId,
-  } = {},
+  { contentCollection, contentId } = {}
 ) => {
   const query = {
     appId,
-    content: [{
-      contentCollection,
-      contentId,
-    }],
+    content: [
+      {
+        contentCollection,
+        contentId,
+      },
+    ],
   };
 
   const client = await MongoClient.connect();

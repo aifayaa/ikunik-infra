@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -26,7 +27,7 @@ describe('lib - getUserGeneratedContents', () => {
   it('should return an object', async () => {
     const res = await getUserGeneratedContents(
       'crowdaa_app_id',
-      'userGeneratedContentsId',
+      'userGeneratedContentsId'
     );
     expect(res).to.deep.eq(response);
     expect(res).to.be.a('array');
@@ -39,7 +40,10 @@ describe('lib - getUserGeneratedContents', () => {
 
   it('should be called with the good args', () => {
     sinon.assert.calledWith(spyMongo.collection, COLL_USER_GENERATED_CONTENTS);
-    sinon.assert.calledWith(spyMongo.aggregate, spyMongo.aggregate.getCall(0).args[0]);
+    sinon.assert.calledWith(
+      spyMongo.aggregate,
+      spyMongo.aggregate.getCall(0).args[0]
+    );
     sinon.assert.called(spyMongo.toArray);
   });
 

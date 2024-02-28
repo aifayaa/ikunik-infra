@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 
 function WordpressAPI(app) {
@@ -18,9 +19,14 @@ function WordpressAPI(app) {
   this.app = app;
 }
 
-WordpressAPI.prototype.call = async function call(method, path, data, options = {
-  body: 'json',
-}) {
+WordpressAPI.prototype.call = async function call(
+  method,
+  path,
+  data,
+  options = {
+    body: 'json',
+  }
+) {
   const uri = `${this.app.backend.url}${path}`;
   const params = {
     method,
@@ -49,12 +55,18 @@ WordpressAPI.prototype.call = async function call(method, path, data, options = 
 
   const rawResponse = await request(params);
 
-  return (rawResponse);
+  return rawResponse;
 };
 
-WordpressAPI.prototype.authCall = async function authCall(method, path, bearer, data, options = {
-  body: 'json',
-}) {
+WordpressAPI.prototype.authCall = async function authCall(
+  method,
+  path,
+  bearer,
+  data,
+  options = {
+    body: 'json',
+  }
+) {
   const finalOptions = { ...options };
 
   if (!finalOptions.headers) finalOptions.headers = {};
@@ -63,9 +75,7 @@ WordpressAPI.prototype.authCall = async function authCall(method, path, bearer, 
 
   const response = await this.call(method, path, data, finalOptions);
 
-  return (response);
+  return response;
 };
 
-export {
-  WordpressAPI,
-};
+export { WordpressAPI };

@@ -1,8 +1,7 @@
+/* eslint-disable import/no-relative-packages */
 import { MongoClient, ObjectID } from 'mongodb';
 
-const {
-  MONGO_URL,
-} = process.env;
+const { MONGO_URL } = process.env;
 
 const DEFAULT_OPTS = {
   useUnifiedTopology: true,
@@ -19,13 +18,13 @@ const { connect } = MongoClient;
 MongoClient.connect = async function connectMethodOverload(mongoURL, opts, cb) {
   const connectArgs = JSON.stringify([mongoURL, opts]);
   if (prevClients[connectArgs] && prevClients[connectArgs].isConnected()) {
-    return (prevClients[connectArgs]);
+    return prevClients[connectArgs];
   }
 
   const client = await connect(
     mongoURL || MONGO_URL,
     { ...DEFAULT_OPTS, ...opts },
-    cb,
+    cb
   );
 
   const close = client.close.bind(client);
@@ -40,7 +39,7 @@ MongoClient.connect = async function connectMethodOverload(mongoURL, opts, cb) {
 
   prevClients[connectArgs] = client;
 
-  return (client);
+  return client;
 };
 
 export default MongoClient;

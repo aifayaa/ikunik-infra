@@ -1,12 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mailgun from 'mailgun-js';
 import { generateEmailHTML } from './emailUtils';
 
-const {
-  MAILGUN_API_KEY,
-  MAILGUN_DOMAIN,
-  MAILGUN_FROM,
-} = process.env;
+const { MAILGUN_API_KEY, MAILGUN_DOMAIN, MAILGUN_FROM } = process.env;
 
 const mailgun = Mailgun({
   apiKey: MAILGUN_API_KEY,

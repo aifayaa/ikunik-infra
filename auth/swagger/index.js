@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import appleLogin from './appleLogin';
 import changePassword from './changePassword';
 import facebookLogin from './facebookLogin';

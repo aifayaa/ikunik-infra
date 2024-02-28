@@ -1,18 +1,12 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { ChatEngineAPI } from '../../libs/backends/chatengine';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-  COLL_CHATENGINE_ROOM_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS, COLL_CHATENGINE_ROOM_USERS } = mongoCollections;
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
 const lambda = new Lambda({
   region: REGION,
@@ -38,48 +32,51 @@ function formatMessage(text, haveAttachments = false) {
   const cuttedText = preparedText.replace(cutRegex, '$1');
 
   if (!cuttedText && haveAttachments) {
-    return ('📁');
+    return '📁';
   }
 
   if (cuttedText.length < text.length) {
-    return (`${cuttedText}...`);
+    return `${cuttedText}...`;
   }
 
-  return (cuttedText);
+  return cuttedText;
 }
 
-export default async (userId, appId, {
-  roomId,
-  message,
-  haveAttachments,
-}) => {
+export default async (userId, appId, { roomId, message, haveAttachments }) => {
   const client = await MongoClient.connect();
   const db = client.db();
 
   try {
     const [app, user, roomUsers] = await Promise.all([
-      db.collection(COLL_APPS)
-        .findOne({
+      db.collection(COLL_APPS).findOne(
+        {
           _id: appId,
           'credentials.chatengine': { $exists: true },
-        }, { projection: {
-          'credentials.chatengine': 1,
-          'settings.press': 1,
-        } }),
-      db.collection(COLL_USERS)
-        .findOne({
+        },
+        {
+          projection: {
+            'credentials.chatengine': 1,
+            'settings.press': 1,
+          },
+        }
+      ),
+      db.collection(COLL_USERS).findOne(
+        {
           _id: userId,
           appId,
           'services.chatengine': { $exists: true },
-        }, { projection: {
-          'services.chatengine': 1,
-          profile: 1,
-        } }),
-      db.collection(COLL_CHATENGINE_ROOM_USERS)
-        .findOne({
-          roomId,
-          appId,
-        }),
+        },
+        {
+          projection: {
+            'services.chatengine': 1,
+            profile: 1,
+          },
+        }
+      ),
+      db.collection(COLL_CHATENGINE_ROOM_USERS).findOne({
+        roomId,
+        appId,
+      }),
     ]);
 
     if (!app) throw new Error('app_not_found');
@@ -91,7 +88,11 @@ export default async (userId, appId, {
     }
 
     let roomUsersId = null;
-    if (roomUsers && roomUsers.updatedAt.getTime() + CHATENGINE_ROOM_UPDATE_INTERVAL > Date.now()) {
+    if (
+      roomUsers &&
+      roomUsers.updatedAt.getTime() + CHATENGINE_ROOM_UPDATE_INTERVAL >
+        Date.now()
+    ) {
       roomUsersId = roomUsers._id;
       if (roomUsers.users.length === 0) {
         return;
@@ -103,34 +104,43 @@ export default async (userId, appId, {
       const peoples = await api.call('GET', `/chats/${roomId}/people`);
 
       const toNotifyUsernames = peoples
-        .filter(({ person }) => (person.username !== username))
-        .map(({ person }) => (person.username));
+        .filter(({ person }) => person.username !== username)
+        .map(({ person }) => person.username);
 
-      const users = await db.collection(COLL_USERS)
-        .find({
-          appId,
-          'services.chatengine.username': { $in: toNotifyUsernames },
-        }, { projection: {
-          _id: 1,
-        } }).toArray();
-      const userIds = users.map(({ _id }) => (_id));
+      const users = await db
+        .collection(COLL_USERS)
+        .find(
+          {
+            appId,
+            'services.chatengine.username': { $in: toNotifyUsernames },
+          },
+          {
+            projection: {
+              _id: 1,
+            },
+          }
+        )
+        .toArray();
+      const userIds = users.map(({ _id }) => _id);
 
       if (roomUsers) {
         await db.collection(COLL_CHATENGINE_ROOM_USERS).updateOne(
           { _id: roomUsers._id },
-          { $set: {
-            users: userIds,
-            updatedAt: new Date(),
-          } },
+          {
+            $set: {
+              users: userIds,
+              updatedAt: new Date(),
+            },
+          }
         );
         roomUsersId = roomUsers._id;
       } else {
-        const { insertedId } = await db.collection(COLL_CHATENGINE_ROOM_USERS).insertOne(
-          {
+        const { insertedId } = await db
+          .collection(COLL_CHATENGINE_ROOM_USERS)
+          .insertOne({
             users: userIds,
             updatedAt: new Date(),
-          },
-        );
+          });
         roomUsersId = insertedId;
       }
 
@@ -139,20 +149,22 @@ export default async (userId, appId, {
       }
     }
 
-    await lambda.invoke({
-      FunctionName: `blast-${STAGE}-queueNotifications`,
-      Payload: JSON.stringify({
-        appId,
-        notifyAt: (new Date()).toISOString(),
-        type: 'chat-message',
-        only: 'users',
-        data: {
-          message: formatMessage(message, haveAttachments),
-          roomUsersId,
-          roomId,
-        },
-      }),
-    }).promise();
+    await lambda
+      .invoke({
+        FunctionName: `blast-${STAGE}-queueNotifications`,
+        Payload: JSON.stringify({
+          appId,
+          notifyAt: new Date().toISOString(),
+          type: 'chat-message',
+          only: 'users',
+          data: {
+            message: formatMessage(message, haveAttachments),
+            roomUsersId,
+            roomId,
+          },
+        }),
+      })
+      .promise();
   } finally {
     client.close();
   }

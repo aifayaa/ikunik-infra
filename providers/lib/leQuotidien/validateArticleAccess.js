@@ -1,30 +1,28 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import mongoCollections from '../../../libs/mongoCollections.json';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 
 const { LEQUOTIDIEN_ACCESS_CHECK_URI } = process.env;
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-export default async (
-  appId,
-  userId,
-  articleId,
-) => {
+export default async (appId, userId, articleId) => {
   const client = await MongoClient.connect();
   try {
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
-    const user = await client.db()
+    const user = await client
+      .db()
       .collection(COLL_USERS)
-      .findOne({ _id: userId, appId }, {
-        projection: {
-          'emails.address': 1,
-          'profile.email': 1,
-        },
-      });
+      .findOne(
+        { _id: userId, appId },
+        {
+          projection: {
+            'emails.address': 1,
+            'profile.email': 1,
+          },
+        }
+      );
 
     if (!app) throw new Error('app_not_found');
     if (!user) throw new Error('user_not_found');

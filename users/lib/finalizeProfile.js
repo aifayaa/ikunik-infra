@@ -1,18 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
-const {
-  REACT_APP_CROWD_SERVICE_URL,
-} = process.env;
+const { REACT_APP_CROWD_SERVICE_URL } = process.env;
 
-const {
-  COLL_APPS,
-  COLL_PERM_GROUPS,
-  COLL_USERS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS, COLL_USER_BADGES } =
+  mongoCollections;
 
 const PERMISSIONS = [
   'userGeneratedContents_notify',
@@ -37,7 +32,7 @@ async function getUserAndApp(userId, appId, { db }) {
     throw new Error('app_not_found');
   }
 
-  return ({ app, user });
+  return { app, user };
 }
 
 export async function finalizeInternalProfile(userId, appId, newProfileFields) {
@@ -62,12 +57,12 @@ export async function finalizeInternalProfile(userId, appId, newProfileFields) {
 
     const $set = Object.keys(user.internalProfile).reduce((acc, key) => {
       acc[`internalProfile.${key}`] = user.internalProfile[key];
-      return (acc);
+      return acc;
     }, {});
 
     await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set });
 
-    return (true);
+    return true;
   } finally {
     client.close();
   }
@@ -79,7 +74,8 @@ export async function finalizeProfile(userId, appId, newProfileFields) {
 
   try {
     const { user, app } = await getUserAndApp(userId, appId, { db });
-    const { profile: requiredProfileFields } = app.settings.public.requiresUserInput;
+    const { profile: requiredProfileFields } =
+      app.settings.public.requiresUserInput;
 
     if (!user.profile) {
       user.profile = {};
@@ -95,12 +91,12 @@ export async function finalizeProfile(userId, appId, newProfileFields) {
 
     const $set = Object.keys(user.profile).reduce((acc, key) => {
       acc[`profile.${key}`] = user.profile[key];
-      return (acc);
+      return acc;
     }, {});
 
     await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set });
 
-    return (true);
+    return true;
   } finally {
     client.close();
   }
@@ -114,10 +110,13 @@ export async function finalizeBadge(userId, appId, badgeId) {
     const { user, app } = await getUserAndApp(userId, appId, { db });
     const { badges: requiredBadges } = app.settings.public.requiresUserInput;
 
-    const appBadges = await db.collection(COLL_USER_BADGES).find({ appId, management: { $in: ['request', 'public'] } }).toArray();
+    const appBadges = await db
+      .collection(COLL_USER_BADGES)
+      .find({ appId, management: { $in: ['request', 'public'] } })
+      .toArray();
     const appBadgesHash = appBadges.reduce((acc, badge) => {
       acc[badge._id] = badge;
-      return (acc);
+      return acc;
     }, {});
 
     if (!user.badges) {
@@ -140,11 +139,16 @@ export async function finalizeBadge(userId, appId, badgeId) {
 
     user.badges.push(insBadge);
 
-    await db.collection(COLL_USERS).updateOne({ _id: userId, appId }, { $set: {
-      badges: user.badges,
-    } });
+    await db.collection(COLL_USERS).updateOne(
+      { _id: userId, appId },
+      {
+        $set: {
+          badges: user.badges,
+        },
+      }
+    );
 
-    return (true);
+    return true;
   } finally {
     client.close();
   }
@@ -175,18 +179,22 @@ export async function finalizedUser(userId, appId, lang) {
     app.settings.public.requiresUserInput &&
     app.settings.public.requiresUserInput.profile
   ) {
-    const { profile: requiredProfileFields } = app.settings.public.requiresUserInput;
+    const { profile: requiredProfileFields } =
+      app.settings.public.requiresUserInput;
     const extraFieldsArray = requiredProfileFields.map(({ field, name }) => {
       const value = user.profile[field];
       const encValue = formatMessage('general:var', { var: value });
       const encName = formatMessage('general:var', { var: name });
-      return (`<li>${encName} : <strong>${encValue}</strong></li>`);
+      return `<li>${encName} : <strong>${encValue}</strong></li>`;
     });
     bodyParams.extraFields = extraFieldsArray.join('\n');
   }
 
   const body = formatMessage('users:finalized_profile.html', bodyParams);
-  const subject = formatMessage('users:finalized_profile.title', { appName: app.name, username: user.profile.username });
+  const subject = formatMessage('users:finalized_profile.title', {
+    appName: app.name,
+    username: user.profile.username,
+  });
   const [result] = await db
     .collection(COLL_PERM_GROUPS)
     .aggregate([
@@ -235,7 +243,8 @@ export async function finalizedUser(userId, appId, lang) {
           emails: { $push: '$_id' },
         },
       },
-    ]).toArray();
+    ])
+    .toArray();
   const { emails = [] } = result || {};
   const promises = emails.map((email) => {
     /* in case of error, ignore it, just try with best effort */

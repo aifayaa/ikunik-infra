@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export function objGet(obj, keys, dft) {
   let keysArray = keys;
   let ret = obj;
@@ -12,11 +13,11 @@ export function objGet(obj, keys, dft) {
       const key = keysArray.shift();
       ret = ret[key];
     } catch (e) {
-      return (dft);
+      return dft;
     }
   }
 
-  if (ret === undefined) return (dft);
+  if (ret === undefined) return dft;
 
-  return (ret);
+  return ret;
 }

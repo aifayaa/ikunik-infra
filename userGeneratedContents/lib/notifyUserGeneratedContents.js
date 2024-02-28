@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -30,11 +31,7 @@ const prepareNotif = (text, length = 116, ellipsis = false) => {
 export default async (
   appId,
   ugcId,
-  {
-    title = null,
-    content = null,
-    notifyAt,
-  } = {},
+  { title = null, content = null, notifyAt } = {}
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -72,19 +69,21 @@ export default async (
       content = content || prepareNotif(ugc.data.content);
     }
 
-    const response = await lambda.invoke({
-      FunctionName: `blast-${STAGE}-queueNotifications`,
-      Payload: JSON.stringify({
-        appId,
-        notifyAt,
-        type: 'userArticle',
-        data: {
-          ugcId,
-          content,
-          title,
-        },
-      }),
-    }).promise();
+    const response = await lambda
+      .invoke({
+        FunctionName: `blast-${STAGE}-queueNotifications`,
+        Payload: JSON.stringify({
+          appId,
+          notifyAt,
+          type: 'userArticle',
+          data: {
+            ugcId,
+            content,
+            title,
+          },
+        }),
+      })
+      .promise();
     const { queueId } = JSON.parse(response.Payload);
 
     if (queueId) {
@@ -95,11 +94,12 @@ export default async (
           {
             _id: ugcId,
             appId,
-          }, {
+          },
+          {
             $set: {
               pendingNotificationQueueId: queueId,
             },
-          },
+          }
         );
     }
   } finally {

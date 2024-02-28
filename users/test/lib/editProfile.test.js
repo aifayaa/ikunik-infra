@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -23,11 +24,7 @@ describe('lib - editProfile', () => {
   });
 
   it('should return an object', async () => {
-    const res = await editProfile(
-      'userId',
-      'appId',
-      { username: 'a' },
-    );
+    const res = await editProfile('userId', 'appId', { username: 'a' });
     expect(res).to.be.a('boolean');
   });
 
@@ -38,7 +35,10 @@ describe('lib - editProfile', () => {
 
   it('should be called with the good args', () => {
     sinon.assert.calledWith(spyMongo.collection, COLL_USERS);
-    sinon.assert.calledWith(spyMongo.updateOne, spyMongo.updateOne.getCall(0).args[0]);
+    sinon.assert.calledWith(
+      spyMongo.updateOne,
+      spyMongo.updateOne.getCall(0).args[0]
+    );
   });
 
   after(() => {

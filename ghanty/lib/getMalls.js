@@ -1,11 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import MetricsTimer from './metricsTimer';
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export default async (appId) => {
   const client = await MongoClient.connect();
@@ -26,7 +25,7 @@ export default async (appId) => {
 
     await metricsTimer.save(client);
 
-    return (response);
+    return response;
   } finally {
     client.close();
   }

@@ -1,17 +1,14 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_PICTURES,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PICTURES, COLL_USERS } = mongoCollections;
 
-export default async (userId, appId, {
-  username,
-  avatar: avatarId,
-  ...extraFields
-}) => {
+export default async (
+  userId,
+  appId,
+  { username, avatar: avatarId, ...extraFields }
+) => {
   const $set = {
     'profile.username': `${username}`,
   };
@@ -19,7 +16,9 @@ export default async (userId, appId, {
   const db = client.db();
 
   try {
-    const user = await db.collection(COLL_USERS).findOne({ _id: userId, appId });
+    const user = await db
+      .collection(COLL_USERS)
+      .findOne({ _id: userId, appId });
     if (!user) {
       throw new Error('user_not_found');
     }
@@ -32,9 +31,14 @@ export default async (userId, appId, {
       app.settings.public.requiresUserInput &&
       app.settings.public.requiresUserInput.profile
     ) {
-      const { profile: extraProfileFields } = app.settings.public.requiresUserInput;
+      const { profile: extraProfileFields } =
+        app.settings.public.requiresUserInput;
       extraProfileFields.forEach(({ field, optionnal }) => {
-        if (field === 'username' || field === 'avatar' || field === 'avatarId') {
+        if (
+          field === 'username' ||
+          field === 'avatar' ||
+          field === 'avatarId'
+        ) {
           return;
         }
         if (!optionnal && !extraFields[field]) {
@@ -50,7 +54,9 @@ export default async (userId, appId, {
     }
 
     if (avatarId) {
-      const avatarObj = await db.collection(COLL_PICTURES).findOne({ _id: avatarId, appId });
+      const avatarObj = await db
+        .collection(COLL_PICTURES)
+        .findOne({ _id: avatarId, appId });
       if (!avatarObj || !avatarObj.mediumUrl) {
         throw new Error('missing_avatar');
       }
@@ -59,14 +65,15 @@ export default async (userId, appId, {
       $set['profile.avatar'] = avatarObj.mediumUrl;
     }
 
-    const { matchedCount } = await db
-      .collection(COLL_USERS)
-      .updateOne({
+    const { matchedCount } = await db.collection(COLL_USERS).updateOne(
+      {
         _id: userId,
         appId,
-      }, {
+      },
+      {
         $set,
-      });
+      }
+    );
 
     return !!matchedCount;
   } finally {

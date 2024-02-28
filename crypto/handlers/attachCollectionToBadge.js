@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import attachCollectionToBadge from '../lib/attachCollectionToBadge';
 import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';
@@ -16,9 +17,7 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const {
-      badgeId,
-    } = JSON.parse(event.body);
+    const { badgeId } = JSON.parse(event.body);
 
     const results = await attachCollectionToBadge(appId, collectionId, badgeId);
 

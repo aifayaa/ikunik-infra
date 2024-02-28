@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -43,10 +44,7 @@ describe('handlers - getAllArticles', () => {
 
   describe('lib success', () => {
     const getArticlesResult = {
-      articles: [
-        {},
-        {},
-      ],
+      articles: [{}, {}],
       total: 2,
     };
     let response;
@@ -59,10 +57,16 @@ describe('handlers - getAllArticles', () => {
     // TODO: FIX TEST
     it.skip('should call lib with right args', () => {
       const { args } = stubLib.getCall(0);
-      expect(args).to.deep.equal(['A_crowdaa_cat', 0, 10, 'crowdaa_app_id', {
-        getOrphansArticles: true,
-        onlyPublished: false,
-      }]);
+      expect(args).to.deep.equal([
+        'A_crowdaa_cat',
+        0,
+        10,
+        'crowdaa_app_id',
+        {
+          getOrphansArticles: true,
+          onlyPublished: false,
+        },
+      ]);
     });
 
     it('should return 200', () => {
@@ -71,20 +75,10 @@ describe('handlers - getAllArticles', () => {
     });
 
     it('should called with the good args', () => {
-      const {
-        category,
-        start,
-        limit,
-      } = event.queryStringParameters;
+      const { category, start, limit } = event.queryStringParameters;
       const { appId } = event.requestContext.authorizer;
       sinon.assert.calledOnce(stubPerms);
-      sinon.assert.calledWith(
-        stubLib,
-        category,
-        start,
-        limit,
-        appId,
-      );
+      sinon.assert.calledWith(stubLib, category, start, limit, appId);
     });
 
     after(() => {
@@ -97,7 +91,9 @@ describe('handlers - getAllArticles', () => {
 
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubLib = sandbox.stub(lib, 'getArticles').callsFake(() => Promise.reject(getArticlesResult));
+      stubLib = sandbox
+        .stub(lib, 'getArticles')
+        .callsFake(() => Promise.reject(getArticlesResult));
     });
 
     it('should return 500', async () => {

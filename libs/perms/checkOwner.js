@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../mongoClient';
 
 export default async (
@@ -9,7 +10,7 @@ export default async (
   options = {
     safeExec: false,
     useTrashedField: true,
-  },
+  }
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();
@@ -24,10 +25,7 @@ export default async (
       findObj.trashed = false;
     }
 
-    const obj = await client
-      .db()
-      .collection(collectionName)
-      .findOne(findObj);
+    const obj = await client.db().collection(collectionName).findOne(findObj);
 
     let error = '';
 

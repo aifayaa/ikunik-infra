@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -35,7 +36,9 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
 
     before(() => {
       stubLib = sandbox.stub(lib, 'default').returns(libResult);
-      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
+      stubPathToCollection = sandbox
+        .stub(pathToCollection, 'default')
+        .returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
     });
 
     it('should return 200', async () => {
@@ -46,13 +49,8 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
 
     it('should called with the good args', () => {
       const { id } = event.pathParameters;
-      const {
-        appId,
-      } = event.requestContext.authorizer;
-      const {
-        start,
-        limit,
-      } = event.queryStringParameters;
+      const { appId } = event.requestContext.authorizer;
+      const { start, limit } = event.queryStringParameters;
       sinon.assert.calledOnce(stubPathToCollection);
       sinon.assert.calledWith(
         stubLib,
@@ -60,7 +58,7 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
         id,
         mongoCollections.COLL_USER_GENERATED_CONTENTS,
         start,
-        limit,
+        limit
       );
     });
 
@@ -73,8 +71,12 @@ describe('handlers - getChildrenUserGeneratedContents', () => {
     const libResult = new Error('lib method fail');
 
     before(() => {
-      stubLib = sandbox.stub(lib, 'default').callsFake(() => Promise.reject(libResult));
-      stubPathToCollection = sandbox.stub(pathToCollection, 'default').returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
+      stubLib = sandbox
+        .stub(lib, 'default')
+        .callsFake(() => Promise.reject(libResult));
+      stubPathToCollection = sandbox
+        .stub(pathToCollection, 'default')
+        .returns(mongoCollections.COLL_USER_GENERATED_CONTENTS);
     });
 
     it('should return 500', async () => {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -14,7 +15,11 @@ describe('lib - publishArticle', () => {
   let stubMongo;
 
   describe('Case article contain pictures', () => {
-    const response = { articleId: 'articleId', draftId: 'draftId', pictures: ['pic1', 'pic2'] };
+    const response = {
+      articleId: 'articleId',
+      draftId: 'draftId',
+      pictures: ['pic1', 'pic2'],
+    };
     before(() => {
       spyMongo = spyMongoMethods(response, {});
       const fakeClient = {
@@ -31,7 +36,7 @@ describe('lib - publishArticle', () => {
         'appId',
         'articleId',
         'draftId',
-        'publicationDate',
+        'publicationDate'
       );
       expect(res).to.deep.eq({ articleId: 'articleId', draftId: 'draftId' });
       expect(res).to.be.an('object');
@@ -56,7 +61,7 @@ describe('lib - publishArticle', () => {
         spyMongo.updateOne,
         spyMongo.updateOne.getCall(0).args[0],
         spyMongo.updateOne.getCall(0).args[1],
-        spyMongo.updateOne.getCall(0).args[2],
+        spyMongo.updateOne.getCall(0).args[2]
       );
     });
 
@@ -66,13 +71,13 @@ describe('lib - publishArticle', () => {
         spyMongo.updateOne,
         spyMongo.updateOne.getCall(1).args[0],
         spyMongo.updateOne.getCall(1).args[1],
-        spyMongo.updateOne.getCall(1).args[2],
+        spyMongo.updateOne.getCall(1).args[2]
       );
       sinon.assert.calledWith(
         spyMongo.updateMany,
         spyMongo.updateMany.getCall(0).args[0],
         spyMongo.updateMany.getCall(0).args[1],
-        spyMongo.updateMany.getCall(0).args[2],
+        spyMongo.updateMany.getCall(0).args[2]
       );
     });
 
@@ -83,7 +88,7 @@ describe('lib - publishArticle', () => {
         'appId',
         'articleId',
         'draftId',
-        'publicationDate',
+        'publicationDate'
       );
       expect(res).to.deep.eq({ articleId: 'articleId', draftId: 'draftId' });
       expect(res).to.be.an('object');
@@ -95,7 +100,11 @@ describe('lib - publishArticle', () => {
   });
 
   describe('Case missing picture in article', () => {
-    const response = { articleId: 'articleId', draftId: 'draftId', pictures: [] };
+    const response = {
+      articleId: 'articleId',
+      draftId: 'draftId',
+      pictures: [],
+    };
     before(() => {
       spyMongo = spyMongoMethods(response);
       const fakeClient = {
@@ -108,7 +117,13 @@ describe('lib - publishArticle', () => {
     it('should throw an error', async () => {
       let error;
       try {
-        await publishArticle('userId', 'appId', 'articleId', 'draftId', 'publicationDate');
+        await publishArticle(
+          'userId',
+          'appId',
+          'articleId',
+          'draftId',
+          'publicationDate'
+        );
       } catch (e) {
         error = e;
       }

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import PressArticleHandler from './PressArticleHandler';
 import UGCHandler from './UGCHandler';
 import ChatMessageHandler from './ChatMessageHandler';
@@ -12,7 +13,7 @@ const handlers = {
 
 function NotificationSpecificsHandler(client, appId, rootNotifQueue) {
   if (!(this instanceof NotificationSpecificsHandler)) {
-    return (new NotificationSpecificsHandler(client, appId, rootNotifQueue));
+    return new NotificationSpecificsHandler(client, appId, rootNotifQueue);
   }
 
   this.client = client;
@@ -30,11 +31,11 @@ function NotificationSpecificsHandler(client, appId, rootNotifQueue) {
 }
 
 NotificationSpecificsHandler.prototype.init = function init() {
-  return (false);
+  return false;
 };
 
 NotificationSpecificsHandler.prototype.processOne = function processOne() {
-  return ({ canNotify: false });
+  return { canNotify: false };
 };
 
 NotificationSpecificsHandler.prototype.batchDone = function batchDone() {};

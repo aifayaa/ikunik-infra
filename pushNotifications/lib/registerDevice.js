@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import SNS from 'aws-sdk/clients/sns';
 import check from 'check-types';
 import get from 'lodash/get';
@@ -6,16 +7,9 @@ import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  SNS_REGION,
-  SNS_KEY_ID,
-  SNS_SECRET,
-} = process.env;
+const { SNS_REGION, SNS_KEY_ID, SNS_SECRET } = process.env;
 
-const {
-  COLL_APPS,
-  COLL_PUSH_NOTIFICATIONS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PUSH_NOTIFICATIONS } = mongoCollections;
 
 const sns = new SNS({
   region: SNS_REGION,
@@ -30,24 +24,27 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     check.not.string(Token) ||
     check.not.string(deviceUUID) ||
     check.not.string(platform)
-  ) throw new Error('wrong_args_type');
+  )
+    throw new Error('wrong_args_type');
 
   const client = await MongoClient.connect();
   try {
-    const app = await client.db()
-      .collection(COLL_APPS).findOne({ _id: appId });
+    const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
     if (!app) throw new Error('app_not_found');
 
-    const platformApplicationArns = get(app, 'settings.platformApplicationArns');
-    if (!platformApplicationArns) throw new Error('missing_platform_arn_in_app_config');
+    const platformApplicationArns = get(
+      app,
+      'settings.platformApplicationArns'
+    );
+    if (!platformApplicationArns)
+      throw new Error('missing_platform_arn_in_app_config');
 
     const PlatformApplicationArn = platformApplicationArns[platform].arn;
-    const collection = client.db()
-      .collection(COLL_PUSH_NOTIFICATIONS);
+    const collection = client.db().collection(COLL_PUSH_NOTIFICATIONS);
 
     const found = await collection.findOne(
       { Token, PlatformApplicationArn, appId },
-      { projection: { _id: 1 } },
+      { projection: { _id: 1 } }
     );
     if (found) throw new Error('already_registered_token');
 
@@ -64,18 +61,27 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
       ({ EndpointArn } = await sns.createPlatformEndpoint(params).promise());
     } catch (e) {
       /* If its a known error : ARN does already exists */
-      if (e.statusCode === 400 && !e.retryable && e.code === 'InvalidParameter') {
-        ([EndpointArn] = e.message.match(/arn:aws:sns:[^: ]+:[0-9]+:([^ ,'":])+/));
+      if (
+        e.statusCode === 400 &&
+        !e.retryable &&
+        e.code === 'InvalidParameter'
+      ) {
+        [EndpointArn] = e.message.match(
+          /arn:aws:sns:[^: ]+:[0-9]+:([^ ,'":])+/
+        );
 
-        if (!EndpointArn) throw new Error('AWS API changed : cannot retrieve EndpointArn');
+        if (!EndpointArn)
+          throw new Error('AWS API changed : cannot retrieve EndpointArn');
 
-        const { Attributes } = await sns.getEndpointAttributes({ EndpointArn }).promise();
+        const { Attributes } = await sns
+          .getEndpointAttributes({ EndpointArn })
+          .promise();
 
         if (Attributes.Token !== Token) throw new Error('token_mismatch');
 
         ({ CustomUserData } = Attributes);
 
-      /* Re-throwing unknown errors */
+        /* Re-throwing unknown errors */
       } else {
         throw e;
       }
@@ -98,7 +104,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
     return await collection.updateOne(
       pick(modifier.$set, 'deviceUUID', 'platform', 'appId'),
       modifier,
-      { upsert: true },
+      { upsert: true }
     );
   } finally {
     client.close();

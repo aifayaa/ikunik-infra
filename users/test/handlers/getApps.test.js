@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { expect } from 'chai';
 import { after, before, describe, it } from 'mocha';
 import sinon from 'sinon';
@@ -65,8 +66,8 @@ describe('handler - getApps', () => {
     it('should return apps data', () => {
       expect(
         responseBody.items.every(
-          (item, index) => item._id === appsStub[index]._id,
-        ),
+          (item, index) => item._id === appsStub[index]._id
+        )
       ).to.equal(true);
       expect(responseBody.totalCount).to.equal(appsStub.length);
     });

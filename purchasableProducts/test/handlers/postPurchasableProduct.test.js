@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -141,7 +142,11 @@ describe('handlers - postPurchasableProduct', () => {
       it('wrong type for contents.id', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ id: 4, collection: 'pressArticles', permissions: {} });
+        body.contents.push({
+          id: 4,
+          collection: 'pressArticles',
+          permissions: {},
+        });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -163,7 +168,11 @@ describe('handlers - postPurchasableProduct', () => {
       it('wrong type for contents.permissions', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ id: 'id', collection: 'pressArticles', permissions: 4 });
+        body.contents.push({
+          id: 'id',
+          collection: 'pressArticles',
+          permissions: 4,
+        });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -174,7 +183,11 @@ describe('handlers - postPurchasableProduct', () => {
       it('wrong type for contents.permissions/data', async () => {
         const testEvent = JSON.parse(JSON.stringify(event));
         const body = JSON.parse(testEvent.body);
-        body.contents.push({ id: 'id', collection: 'pressArticles', permissions: { read: 4 } });
+        body.contents.push({
+          id: 'id',
+          collection: 'pressArticles',
+          permissions: { read: 4 },
+        });
         testEvent.body = JSON.stringify(body);
         const response = await handler(testEvent);
         const { message } = JSON.parse(response.body);
@@ -245,7 +258,9 @@ describe('handlers - postPurchasableProduct', () => {
       const libResult = new Error('lib method fail');
 
       before(() => {
-        stubLib = sandbox.stub(lib, 'postPurchasableProduct').callsFake(() => Promise.reject(libResult));
+        stubLib = sandbox
+          .stub(lib, 'postPurchasableProduct')
+          .callsFake(() => Promise.reject(libResult));
       });
 
       it('should return 500', async () => {
@@ -273,18 +288,10 @@ describe('handlers - postPurchasableProduct', () => {
     });
 
     it('should called with the good args', () => {
-      const {
-        principalId: userId,
-        appId,
-      } = event.requestContext.authorizer;
+      const { principalId: userId, appId } = event.requestContext.authorizer;
       const bodyParsed = JSON.parse(event.body);
       bodyParsed.options.expiresIn = new Date(bodyParsed.options.expiresIn);
-      sinon.assert.calledWith(
-        stubLib,
-        appId,
-        userId,
-        bodyParsed,
-      );
+      sinon.assert.calledWith(stubLib, appId, userId, bodyParsed);
     });
 
     after(() => {

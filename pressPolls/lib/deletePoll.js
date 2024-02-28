@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -7,35 +8,26 @@ export default async (pollId, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const pollObj = await client
-      .db()
-      .collection(COLL_PRESS_POLLS)
-      .findOne({
+    const pollObj = await client.db().collection(COLL_PRESS_POLLS).findOne({
+      _id: pollId,
+      appId,
+    });
+
+    if (pollObj) {
+      await client.db().collection(COLL_PRESS_POLLS).deleteOne({
         _id: pollId,
         appId,
       });
 
-    if (pollObj) {
-      await client
-        .db()
-        .collection(COLL_PRESS_POLLS)
-        .deleteOne({
-          _id: pollId,
-          appId,
-        });
-
-      await client
-        .db()
-        .collection(COLL_PRESS_POLLS_VOTES)
-        .deleteMany({
-          pollId,
-          appId,
-        });
+      await client.db().collection(COLL_PRESS_POLLS_VOTES).deleteMany({
+        pollId,
+        appId,
+      });
     } else {
       throw new Error('not_found');
     }
 
-    return (pollObj);
+    return pollObj;
   } finally {
     client.close();
   }

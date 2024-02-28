@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -15,26 +16,21 @@ export default async ({
   const client = await MongoClient.connect();
 
   try {
-    const counter = await client
-      .db()
-      .collection(COLL_COUNTERS)
-      .findOne({
-        _id,
-        appId,
-        type,
-        name,
-        updateToken,
-      });
+    const counter = await client.db().collection(COLL_COUNTERS).findOne({
+      _id,
+      appId,
+      type,
+      name,
+      updateToken,
+    });
 
     if (!counter) {
-      throw new Error(`Counter not found with ID "${_id}", appId "${appId}", type "${type}", name "${name}", updateToken "${updateToken}"`);
+      throw new Error(
+        `Counter not found with ID "${_id}", appId "${appId}", type "${type}", name "${name}", updateToken "${updateToken}"`
+      );
     }
 
-    const {
-      collection,
-      pipeline,
-      outputField = 'count',
-    } = updateQuery;
+    const { collection, pipeline, outputField = 'count' } = updateQuery;
 
     const [result] = await client
       .db()
@@ -42,22 +38,29 @@ export default async ({
       .aggregate(pipeline)
       .toArray();
 
-    const value = (result && typeof result[outputField] === 'number' && result[outputField]) || 0;
+    const value =
+      (result &&
+        typeof result[outputField] === 'number' &&
+        result[outputField]) ||
+      0;
     await client
       .db()
       .collection(COLL_COUNTERS)
-      .updateOne({
-        _id,
-      }, {
-        $unset: {
-          updatingAt: '',
-          updateToken: '',
+      .updateOne(
+        {
+          _id,
         },
-        $set: {
-          expiresAt: new Date(Date.now() + expiresDelay),
-          value,
-        },
-      });
+        {
+          $unset: {
+            updatingAt: '',
+            updateToken: '',
+          },
+          $set: {
+            expiresAt: new Date(Date.now() + expiresDelay),
+            value,
+          },
+        }
+      );
   } finally {
     client.close();
   }

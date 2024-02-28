@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { getUserByApple } from '../lib/getUserByApple';
 
@@ -7,17 +8,19 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const {
+    const { authorizationCode, identityToken, fullName, email } = JSON.parse(
+      event.body
+    );
+    const { appId } = event.requestContext.authorizer;
+    const tokenInfo = await getUserByApple(
       authorizationCode,
       identityToken,
-      fullName,
-      email,
-    } = JSON.parse(event.body);
-    const { appId } = event.requestContext.authorizer;
-    const tokenInfo = await getUserByApple(authorizationCode, identityToken, appId, {
-      fullName,
-      email,
-    });
+      appId,
+      {
+        fullName,
+        email,
+      }
+    );
 
     /* get User in db or create new one if not exists */
     return response({ code: 200, body: tokenInfo });

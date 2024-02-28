@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { checkPerms } from '../../libs/perms/checkPerms';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
@@ -13,9 +14,7 @@ export default (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const {
-      md,
-    } = JSON.parse(event.body);
+    const { md } = JSON.parse(event.body);
     if (!md) {
       throw new Error('mal_formed_request');
     }
