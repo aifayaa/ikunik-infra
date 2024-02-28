@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -13,11 +14,13 @@ export default async (previewKey) => {
         {
           'settings.previewKey': previewKey,
         },
-        { projection: {
-          key: 1,
-          name: 1,
-          protocol: 1,
-        } },
+        {
+          projection: {
+            key: 1,
+            name: 1,
+            protocol: 1,
+          },
+        }
       );
 
     if (!app) {

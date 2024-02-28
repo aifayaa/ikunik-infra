@@ -1,22 +1,19 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import defaultReactions from '../../libs/defaultReactions';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export default async (appId, allSettings = false) => {
   let client;
   try {
     client = await MongoClient.connect();
 
-    const application = await client.db()
-      .collection(COLL_APPS)
-      .findOne({
-        _id: appId,
-      });
+    const application = await client.db().collection(COLL_APPS).findOne({
+      _id: appId,
+    });
 
     if (!application) {
       return false;
@@ -43,8 +40,16 @@ export default async (appId, allSettings = false) => {
         public: application.settings.public,
         press: {
           reactions: {
-            articles: objGet(application, 'settings.press.reactions.articles', defaultReactions),
-            comments: objGet(application, 'settings.press.reactions.comments', defaultReactions),
+            articles: objGet(
+              application,
+              'settings.press.reactions.articles',
+              defaultReactions
+            ),
+            comments: objGet(
+              application,
+              'settings.press.reactions.comments',
+              defaultReactions
+            ),
           },
         },
         oauth,

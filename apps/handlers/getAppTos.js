@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { getTos } from '../../termsOfServices/lib/getTos';
 import { getHtmlResults } from '../../termsOfServices/htmlResults';
 import response from '../../libs/httpResponses/response';
@@ -14,7 +15,10 @@ export default async (event) => {
       });
     }
 
-    const results = await getTos(appId, false, { outdated: false, required: true });
+    const results = await getTos(appId, false, {
+      outdated: false,
+      required: true,
+    });
 
     if (results && results.length) {
       const body = getHtmlResults(results);

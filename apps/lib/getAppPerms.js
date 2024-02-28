@@ -1,11 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 export default async (appId, userId) => {
   let client;
@@ -26,11 +24,7 @@ export default async (appId, userId) => {
     }
     const userBadges = (user && user.badges) || [];
 
-    if (
-      app.settings &&
-      app.settings.press &&
-      app.settings.press.tabs
-    ) {
+    if (app.settings && app.settings.press && app.settings.press.tabs) {
       const { tabs } = app.settings.press;
       ret.tabs = {};
 
@@ -38,7 +32,7 @@ export default async (appId, userId) => {
 
       await badgeChecker.init;
 
-      badgeChecker.registerBadges((userBadges || []).map(({ id }) => (id)));
+      badgeChecker.registerBadges((userBadges || []).map(({ id }) => id));
       Object.keys(tabs).forEach((tab) => {
         badgeChecker.registerBadges(tabs[tab].list);
       });
@@ -48,10 +42,15 @@ export default async (appId, userId) => {
         const results = await badgeChecker.checkBadges(
           userBadges || [],
           tabs[tab],
-          { userId },
+          { userId }
         );
 
-        if (results.canList && results.canRead && results.canPreview && results.canNotify) {
+        if (
+          results.canList &&
+          results.canRead &&
+          results.canPreview &&
+          results.canNotify
+        ) {
           ret.tabs[tab] = true;
         } else {
           ret.tabs[tab] = false;
@@ -63,7 +62,7 @@ export default async (appId, userId) => {
       await badgeChecker.close();
     }
 
-    return (ret);
+    return ret;
   } finally {
     client.close();
   }

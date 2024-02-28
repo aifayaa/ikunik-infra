@@ -29,19 +29,20 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
   environment:
-    $<<:
-      ${file(../env.yml)}
+    $<<: ${file(../env.yml)}
     INVITE_MAIL_LANG: '${self:custom.${self:provider.stage}.${self:provider.region}.INVITE_MAIL_LANG}'
     REACT_APP_AUTH_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_AUTH_URL}'
     REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
   region: ${opt:region, "us-east-1"}
   deploymentBucket: ms-deployment-${self:provider.region}
 
@@ -73,6 +74,23 @@ functions:
     events:
       - http:
           path: apps/{id}/settings
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              paths:
+                id: true
+              headers:
+                Authorization: true
+
+  getAppAdminStats:
+    handler: handlers/getAppAdminStats.default
+    events:
+      - http:
+          path: admin/apps/{id}/stats
           method: get
           cors: true
           authorizer:
@@ -230,16 +248,16 @@ functions:
                 Authorization: true
 
   getAppTos:
-      handler: handlers/getAppTos.default
-      events:
-        - http:
-            path: apps/{id}/tos
-            method: get
-            cors: true
-            request:
-              parameters:
-                paths:
-                  id: true
+    handler: handlers/getAppTos.default
+    events:
+      - http:
+          path: apps/{id}/tos
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - serverless-disable-request-validators

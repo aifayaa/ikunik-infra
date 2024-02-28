@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import deleteAppAdmin from '../lib/deleteAppAdmin';
 import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';
@@ -17,9 +18,7 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const {
-      adminId,
-    } = JSON.parse(event.body);
+    const { adminId } = JSON.parse(event.body);
 
     if (!adminId || typeof adminId !== 'string') {
       throw new Error('wrong_argument_type');

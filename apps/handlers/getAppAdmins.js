@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAppAdmins from '../lib/getAppAdmins';
 import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';

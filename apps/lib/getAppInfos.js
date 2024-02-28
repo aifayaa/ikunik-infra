@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -16,10 +17,7 @@ export default async (appId, havePerms) => {
     const app = await client
       .db()
       .collection(COLL_APPS)
-      .findOne(
-        { _id: appId },
-        { projection },
-      );
+      .findOne({ _id: appId }, { projection });
 
     if (!app) {
       return false;

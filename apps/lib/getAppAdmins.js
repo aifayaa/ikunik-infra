@@ -1,21 +1,14 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  ADMIN_APP,
-} = process.env;
+const { ADMIN_APP } = process.env;
 
-const {
-  COLL_APPS,
-  COLL_PERM_GROUPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS } = mongoCollections;
 
 export default async (
   appId,
-  {
-    groups = ['admins', 'moderators', 'crowd_managers'],
-  } = {},
+  { groups = ['admins', 'moderators', 'crowd_managers'] } = {}
 ) => {
   const client = await MongoClient.connect();
 
@@ -29,15 +22,19 @@ export default async (
     }
 
     const [permGroupsResults] = await Promise.all([
-      Promise.all(groups.map((group) => (
-        db.collection(COLL_PERM_GROUPS).findOne({
-          appId,
-          name: { $regex: new RegExp(`.*_${group}$`) },
-        })
-      ))),
+      Promise.all(
+        groups.map((group) =>
+          db.collection(COLL_PERM_GROUPS).findOne({
+            appId,
+            name: { $regex: new RegExp(`.*_${group}$`) },
+          })
+        )
+      ),
     ]);
 
-    const permGroupIds = permGroupsResults.filter((pg) => (pg)).map((result) => (result._id));
+    const permGroupIds = permGroupsResults
+      .filter((pg) => pg)
+      .map((result) => result._id);
     if (permGroupIds.length === 0) {
       throw new Error('app_configuration_error');
     }
@@ -51,17 +48,17 @@ export default async (
       'profile.firstname': 1,
       'profile.lastname': 1,
     };
-    const users = await db.collection(COLL_USERS).find(
-      userQuery,
-      { projection: userProjection },
-    ).toArray();
+    const users = await db
+      .collection(COLL_USERS)
+      .find(userQuery, { projection: userProjection })
+      .toArray();
 
-    return (users.map((user) => ({
+    return users.map((user) => ({
       _id: user._id,
       email: user.emails[0].address,
       firstname: user.profile.firstname,
       lastname: user.profile.lastname,
-    })));
+    }));
   } finally {
     client.close();
   }

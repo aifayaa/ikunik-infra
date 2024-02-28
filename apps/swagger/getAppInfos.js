@@ -6,11 +6,22 @@ export default (libs, output) => {
   ];
 
   method.responses = {
-    200: libs.make.response('Success', libs.make.schemaObject({
-      name: libs.make.outParam('The Crowdaa app name', 'string', true),
-      protocol: libs.make.outParam('The Crowdaa scheme (used to run the app and launch specific tasks from links)', 'string', true),
-      key: libs.make.outParam('The app key (only returned when proper permissions are set', 'string', false),
-    })),
+    200: libs.make.response(
+      'Success',
+      libs.make.schemaObject({
+        name: libs.make.outParam('The Crowdaa app name', 'string', true),
+        protocol: libs.make.outParam(
+          'The Crowdaa scheme (used to run the app and launch specific tasks from links)',
+          'string',
+          true
+        ),
+        key: libs.make.outParam(
+          'The app key (only returned when proper permissions are set',
+          'string',
+          false
+        ),
+      })
+    ),
     404: libs.make.responseError('No app found'),
     500: libs.make.responseError('Server error, not handled'),
   };
