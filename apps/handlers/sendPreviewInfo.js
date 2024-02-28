@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import phoneCleaner from 'phone';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -7,9 +8,7 @@ import { sendPreviewInfoSMS } from '../lib/sendPreviewInfoSMS';
 
 const permKey = 'apps_sendPreviewInfo';
 
-const {
-  INVITE_MAIL_LANG,
-} = process.env;
+const { INVITE_MAIL_LANG } = process.env;
 
 export default async (event) => {
   try {
@@ -18,20 +17,14 @@ export default async (event) => {
     }
 
     const { authorizer } = event.requestContext;
-    const {
-      appId,
-      perms: rawPerms,
-    } = authorizer;
+    const { appId, perms: rawPerms } = authorizer;
     const perms = JSON.parse(rawPerms);
 
     if (!checkPerms(permKey, perms)) {
       throw new Error('access_forbidden');
     }
 
-    const {
-      email,
-      number,
-    } = JSON.parse(event.body);
+    const { email, number } = JSON.parse(event.body);
 
     if (!email && !number) {
       throw new Error('mal_formed_request');
@@ -54,7 +47,9 @@ export default async (event) => {
       promises.push(sendPreviewInfoEmail(appId, email, INVITE_MAIL_LANG));
     }
     if (number) {
-      promises.push(sendPreviewInfoSMS(appId, phoneNumber[0], INVITE_MAIL_LANG));
+      promises.push(
+        sendPreviewInfoSMS(appId, phoneNumber[0], INVITE_MAIL_LANG)
+      );
     }
     const results = await Promise.all(promises);
 

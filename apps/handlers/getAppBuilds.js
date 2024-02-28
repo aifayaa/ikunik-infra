@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAppBuilds from '../lib/getAppBuilds';
 import response from '../../libs/httpResponses/response';
 
