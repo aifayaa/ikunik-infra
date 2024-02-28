@@ -66,7 +66,9 @@ export default async (appId, wallet) => {
       }
 
       offset += limit;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
 
       return false;
     });
