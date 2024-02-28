@@ -1,19 +1,16 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 
 export default (...responses) => {
   let responseCount = -1;
-  const forEach = sinon.spy(
-    (cb) => {
-      responseCount += 1;
-      return Promise.resolve(cb(responses[responseCount]));
-    },
-  );
-  const toArray = sinon.spy(
-    () => {
-      responseCount += 1;
-      return Promise.resolve(responses[responseCount]);
-    },
-  );
+  const forEach = sinon.spy((cb) => {
+    responseCount += 1;
+    return Promise.resolve(cb(responses[responseCount]));
+  });
+  const toArray = sinon.spy(() => {
+    responseCount += 1;
+    return Promise.resolve(responses[responseCount]);
+  });
   const aggregate = sinon.spy(() => ({
     toArray,
   }));

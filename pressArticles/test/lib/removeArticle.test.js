@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -7,10 +8,7 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import { removeArticle } from '../../lib/removeArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const {
-  COLL_PRESS_DRAFTS,
-  COLL_PRESS_ARTICLES,
-} = mongoCollections;
+const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
 describe('lib - removeArticle', () => {
   let spyMongo;
@@ -28,11 +26,7 @@ describe('lib - removeArticle', () => {
   });
 
   it('should return articleId', async () => {
-    const res = await removeArticle(
-      'userID',
-      'crowdaa_app_id',
-      'articleId',
-    );
+    const res = await removeArticle('userID', 'crowdaa_app_id', 'articleId');
     expect(res).to.deep.eq(response);
     expect(res).to.be.a('object');
     expect(res.articleId).to.be.a('string');
@@ -52,7 +46,7 @@ describe('lib - removeArticle', () => {
     sinon.assert.calledWith(
       spyMongo.deleteOne,
       spyMongo.deleteOne.getCall(0).args[0],
-      spyMongo.deleteOne.getCall(0).args[1],
+      spyMongo.deleteOne.getCall(0).args[1]
     );
   });
 
@@ -61,7 +55,7 @@ describe('lib - removeArticle', () => {
     sinon.assert.calledWith(
       spyMongo.deleteMany,
       spyMongo.deleteMany.getCall(0).args[0],
-      spyMongo.deleteMany.getCall(0).args[1],
+      spyMongo.deleteMany.getCall(0).args[1]
     );
   });
 

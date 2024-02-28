@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <h3>
   A comment has been reported by user <strong title="{{userId}}">{{username}}</strong> on app <strong>{{appName}}</strong>

@@ -1,20 +1,25 @@
+/* eslint-disable import/no-relative-packages */
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mailgun from 'mailgun-js';
 
-const {
-  MAILGUN_API_KEY,
-  MAILGUN_DOMAIN,
-} = process.env;
+const { MAILGUN_API_KEY, MAILGUN_DOMAIN } = process.env;
 
 const mailgun = Mailgun({
   apiKey: MAILGUN_API_KEY,
   domain: MAILGUN_DOMAIN,
 });
 
-export function sendEmailMailgunTemplate(from, to, subject, template, vars = {}, extra = {}) {
+export function sendEmailMailgunTemplate(
+  from,
+  to,
+  subject,
+  template,
+  vars = {},
+  extra = {}
+) {
   const mappedVars = Object.keys(vars).reduce((acc, key) => {
     acc[`v:${key}`] = vars[key];
-    return (acc);
+    return acc;
   }, {});
 
   return new Promise((resolve, reject) => {

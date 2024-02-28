@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getMyBlockedContents from '../lib/getMyBlockedContents';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';

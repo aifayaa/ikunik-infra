@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /*
   Based on meteor accounts-password module
   createUser method from
@@ -42,8 +43,10 @@ import nodeCrypto from 'crypto';
 // window.crypto.getRandomValues() or alea, the primitive is fraction and we use
 // that to construct hex string.
 
-const UNMISTAKABLE_CHARS = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
-const BASE64_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
+const UNMISTAKABLE_CHARS =
+  '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
+const BASE64_CHARS =
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
 
 /**
  * @name Random.hexString

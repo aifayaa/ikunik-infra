@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getAppsPreviews from '../lib/getAppsPreviews';
@@ -6,10 +7,8 @@ import response from '../../libs/httpResponses/response';
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const { id: urlId } = event.pathParameters;
-  const {
-    sortBy = 'name',
-    sortOrder = 'desc',
-  } = event.queryStringParameters || {};
+  const { sortBy = 'name', sortOrder = 'desc' } =
+    event.queryStringParameters || {};
 
   try {
     if (userId !== urlId) {

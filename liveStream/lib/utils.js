@@ -1,5 +1,6 @@
+/* eslint-disable import/no-relative-packages */
 export function filterOutput(input) {
-  return ({
+  return {
     _id: input._id,
     createdAt: input.createdAt,
     startDateTime: input.startDateTime,
@@ -12,5 +13,5 @@ export function filterOutput(input) {
     playbackUrl: input.playbackUrl,
 
     recordings: input.recordings,
-  });
+  };
 }

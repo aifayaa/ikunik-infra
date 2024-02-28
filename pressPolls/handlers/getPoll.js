@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getPoll from '../lib/getPoll';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -9,12 +10,15 @@ export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
   const pollId = event.pathParameters.id;
-  const params = (event.queryStringParameters || {});
+  const params = event.queryStringParameters || {};
 
   try {
     const isAdmin = checkPerms(allowedPerms, perms);
 
-    let poll = await getPoll(pollId, appId, { userId, deviceId: params.deviceId });
+    let poll = await getPoll(pollId, appId, {
+      userId,
+      deviceId: params.deviceId,
+    });
 
     if (!isAdmin) {
       const publicFields = [
@@ -34,7 +38,7 @@ export default async (event) => {
 
       poll = publicFields.reduce((acc, key) => {
         acc[key] = poll[key];
-        return (acc);
+        return acc;
       }, {});
     }
 

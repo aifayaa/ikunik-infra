@@ -1,16 +1,20 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_ADVERTISEMENTS } = mongoCollections;
 
-export default async (appId, {
-  active = null,
-  campaignId = null,
-  isActiveNow = null,
-  limit = null,
-  location = null,
-  start = null,
-}) => {
+export default async (
+  appId,
+  {
+    active = null,
+    campaignId = null,
+    isActiveNow = null,
+    limit = null,
+    location = null,
+    start = null,
+  }
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -58,7 +62,7 @@ export default async (appId, {
       .find(query)
       .count();
 
-    return ({ list: adsList, count: adsCount });
+    return { list: adsList, count: adsCount };
   } finally {
     client.close();
   }

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import crypto from 'crypto';
 
 export default (loginToken) => {

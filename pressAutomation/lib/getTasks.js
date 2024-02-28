@@ -1,13 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_AUTOMATION_TASKS } = mongoCollections;
 
-export default async (appId, {
-  active = null,
-  limit = null,
-  start = null,
-}) => {
+export default async (appId, { active = null, limit = null, start = null }) => {
   const client = await MongoClient.connect();
 
   try {
@@ -35,7 +32,7 @@ export default async (appId, {
       .find(query)
       .count();
 
-    return ({ list: tasksList, count: tasksCount });
+    return { list: tasksList, count: tasksCount };
   } finally {
     client.close();
   }

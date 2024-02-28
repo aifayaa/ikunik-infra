@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -12,7 +13,7 @@ export default async (adId, appId) => {
       .collection(COLL_ADVERTISEMENTS)
       .findOne({ _id: adId, appId });
 
-    return (ad);
+    return ad;
   } finally {
     client.close();
   }

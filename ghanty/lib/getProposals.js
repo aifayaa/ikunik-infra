@@ -1,23 +1,20 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import MetricsTimer from './metricsTimer';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-export default async (
-  appId,
-  userId,
-  options = {},
-) => {
+export default async (appId, userId, options = {}) => {
   const client = await MongoClient.connect();
   const metricsTimer = new MetricsTimer(__filename.replace(/.*\//, ''));
   try {
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
-    const user = await client.db().collection(COLL_USERS).findOne({ _id: userId });
+    const user = await client
+      .db()
+      .collection(COLL_USERS)
+      .findOne({ _id: userId });
     if (!app) {
       throw new Error('app_not_found');
     }
@@ -33,12 +30,18 @@ export default async (
     const page = parseInt(options.page || '0', 10) + 1;
 
     metricsTimer.start();
-    const response = await fidApi.call(`/users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page}`);
-    metricsTimer.print('GET proposals', { pageSize, page, username: user.username });
+    const response = await fidApi.call(
+      `/users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page}`
+    );
+    metricsTimer.print('GET proposals', {
+      pageSize,
+      page,
+      username: user.username,
+    });
 
     await metricsTimer.save(client);
 
-    return (response);
+    return response;
   } finally {
     client.close();
   }

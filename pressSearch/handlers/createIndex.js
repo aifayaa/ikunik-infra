@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import createIndex from '../lib/createIndex';
 import response from '../../libs/httpResponses/response';
 

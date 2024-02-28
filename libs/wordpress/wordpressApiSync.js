@@ -1,10 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { WordpressAPI } from '../backends/wordpress';
 
-const {
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export async function syncUserBadges(user) {
   const client = await MongoClient.connect();
@@ -15,16 +14,15 @@ export async function syncUserBadges(user) {
     });
 
     const wpApi = new WordpressAPI(app);
-    const wpUserId = user.services && user.services.wordpress && user.services.wordpress.userId;
+    const wpUserId =
+      user.services &&
+      user.services.wordpress &&
+      user.services.wordpress.userId;
 
-    await wpApi.call(
-      'POST',
-      '/crowdaa-sync/v1/sync/badges/users',
-      {
-        user_id: wpUserId,
-        badges: (user.badges || []).map(({ id }) => (id)),
-      },
-    );
+    await wpApi.call('POST', '/crowdaa-sync/v1/sync/badges/users', {
+      user_id: wpUserId,
+      badges: (user.badges || []).map(({ id }) => id),
+    });
   } finally {
     client.close();
   }

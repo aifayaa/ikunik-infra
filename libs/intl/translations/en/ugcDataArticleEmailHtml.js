@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <ul>
   <li><strong>Title :</strong> {{ugc.data.title}}</li>

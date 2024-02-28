@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getLiveStream from '../lib/getLiveStream';
 import response from '../../libs/httpResponses/response';
 import { formatMessage, intlInit, getUserLanguage } from '../../libs/intl/intl';

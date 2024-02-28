@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getUserGeneratedContentReports from '../lib/getUserGeneratedContentReports';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
@@ -12,14 +13,9 @@ export default async (event) => {
   const userGeneratedContentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
 
-  const {
-    limit,
-    start,
-  } = event.queryStringParameters || {};
+  const { limit, start } = event.queryStringParameters || {};
 
-  let {
-    countOnly = false,
-  } = event.queryStringParameters || {};
+  let { countOnly = false } = event.queryStringParameters || {};
 
   try {
     const perms = JSON.parse(event.requestContext.authorizer.perms);
@@ -54,7 +50,7 @@ export default async (event) => {
         start,
         limit,
         countOnly,
-      },
+      }
     );
     return response({
       code: 200,

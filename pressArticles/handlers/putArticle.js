@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import removeMd from 'remove-markdown';
 
 import checkActions from '../lib/checks/checkActions';
@@ -23,10 +24,8 @@ export default async (event) => {
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
-    const {
-      autoPublish,
-      sendNotifications = false,
-    } = event.queryStringParameters || {};
+    const { autoPublish, sendNotifications = false } =
+      event.queryStringParameters || {};
 
     const bodyParsed = JSON.parse(event.body);
     const {
@@ -56,9 +55,7 @@ export default async (event) => {
       videoPlayMode,
       videos,
     } = bodyParsed;
-    let {
-      actions,
-    } = bodyParsed;
+    let { actions } = bodyParsed;
 
     if (!actions) {
       actions = [];
@@ -81,7 +78,8 @@ export default async (event) => {
     if (actions.length) {
       Object.keys(actions).forEach((k) => {
         if (actions[k].url.indexOf('/pdf/') === 0) {
-          actions[k].url = `/pdf/${encodeURIComponent(actions[k].url.substring(5))}`;
+          actions[k].url =
+            `/pdf/${encodeURIComponent(actions[k].url.substring(5))}`;
         }
       });
     }
@@ -91,7 +89,8 @@ export default async (event) => {
     }
 
     const html = isWebview || isPoll ? md : mdToHtml(md);
-    const plainText = isWebview || isPoll ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
+    const plainText =
+      isWebview || isPoll ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
 
     const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
@@ -141,7 +140,7 @@ export default async (event) => {
         appId,
         results.articleId,
         results.draftId,
-        article.publicationDate || new Date(),
+        article.publicationDate || new Date()
       );
       results.published = true;
       if (sendNotifications === 'true') {
@@ -149,7 +148,7 @@ export default async (event) => {
           appId,
           results.articleId,
           results.draftId,
-          new Date(),
+          new Date()
         );
         results.notificationSent = true;
       }

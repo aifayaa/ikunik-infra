@@ -1,10 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_NFT_COLLECTIONS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_NFT_COLLECTIONS, COLL_USER_BADGES } = mongoCollections;
 
 export default async (appId, collectionId, badgeId) => {
   const client = await MongoClient.connect();
@@ -26,14 +24,19 @@ export default async (appId, collectionId, badgeId) => {
       throw new Error('content_not_found');
     }
 
-    await db.collection(COLL_USER_BADGES).updateOne({
-      _id: badgeId,
-      appId,
-    }, { $set: {
-      nftCollectionId: collectionId,
-    } });
+    await db.collection(COLL_USER_BADGES).updateOne(
+      {
+        _id: badgeId,
+        appId,
+      },
+      {
+        $set: {
+          nftCollectionId: collectionId,
+        },
+      }
+    );
 
-    return ({ ok: true });
+    return { ok: true };
   } finally {
     client.close();
   }

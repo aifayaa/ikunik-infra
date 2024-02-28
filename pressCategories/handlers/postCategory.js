@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import postCategory from '../lib/postCategory';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { checkPerms } from '../../libs/perms/checkPerms';
 import { getArticle } from '../lib/getArticle';
 import response from '../../libs/httpResponses/response';
@@ -12,7 +13,7 @@ export default async (event) => {
       perms,
       principalId: userId,
     } = event.requestContext.authorizer;
-    const { deviceId = null } = (event.queryStringParameters || {});
+    const { deviceId = null } = event.queryStringParameters || {};
 
     const permissions = JSON.parse(perms);
     const publishedOnly = !checkPerms(permKey, permissions);

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
 import badgePrices from '../badgePrices.json';
 import response from '../../libs/httpResponses/response';
@@ -17,7 +18,7 @@ export default async (event) => {
     loginToken,
     principalId: userId,
   } = event.requestContext.authorizer;
-  const { deviceId = null } = (event.queryStringParameters || {});
+  const { deviceId = null } = event.queryStringParameters || {};
 
   try {
     const badge = await getBadge(badgeId, appId);
@@ -32,21 +33,17 @@ export default async (event) => {
       throw new Error('product_not_found');
     }
 
-    const balance = await getBalance(appId, userId, deviceId, { type: badge.storeProductId });
+    const balance = await getBalance(appId, userId, deviceId, {
+      type: badge.storeProductId,
+    });
 
     if (!balance || price > balance.amount) {
       throw new Error('not_enough_wealth');
     }
 
-    const operationStatus = await setBalance(
-      appId,
-      userId,
-      deviceId,
-      0,
-      {
-        type: badge.storeProductId,
-      },
-    );
+    const operationStatus = await setBalance(appId, userId, deviceId, 0, {
+      type: badge.storeProductId,
+    });
     if (!operationStatus) {
       throw new Error('balance_update_failed');
     }
@@ -59,7 +56,7 @@ export default async (event) => {
       COLL_USER_BADGES,
       {
         permissions: { all: false, read: true, write: false },
-      },
+      }
     );
 
     await toggleUserBadgeToUser(badgeId, appId, { action: 'add', userId });

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getPollResults, { pollResultsToCsv } from '../lib/getPollResults';
 import response from '../../libs/httpResponses/response';
@@ -13,10 +14,7 @@ export default async (event) => {
   try {
     const isAdmin = checkPerms(allowedPerms, perms);
 
-    const {
-      exportToken = null,
-      appId,
-    } = (event.queryStringParameters || {});
+    const { exportToken = null, appId } = event.queryStringParameters || {};
 
     if (!isAdmin && !exportToken) {
       throw new Error('access_forbidden');

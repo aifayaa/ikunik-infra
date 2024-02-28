@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -17,15 +18,13 @@ export default async (id, appId, { isPublished }) => {
     }
 
     client = await MongoClient.connect();
-    const video = await client.db()
-      .collection(COLL_VIDEOS)
-      .findOne($find);
+    const video = await client.db().collection(COLL_VIDEOS).findOne($find);
 
     if (!video) {
-      return (null);
+      return null;
     }
 
-    return (video.thumbUrl || null);
+    return video.thumbUrl || null;
   } finally {
     client.close();
   }

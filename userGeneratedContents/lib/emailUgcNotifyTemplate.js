@@ -1,11 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 
-const {
-  REACT_APP_API_URL,
-  REACT_APP_PRESS_SERVICE_URL,
-} = process.env;
+const { REACT_APP_API_URL, REACT_APP_PRESS_SERVICE_URL } = process.env;
 
 const {
   COLL_APPS,
@@ -15,22 +13,30 @@ const {
   COLL_VIDEOS,
 } = mongoCollections;
 
-export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) => {
+export default async (
+  userId,
+  appId,
+  ugcId,
+  lang,
+  { isEdition = false } = {}
+) => {
   const client = await MongoClient.connect();
   const db = client.db();
   try {
     const [user, app, [ugc]] = await Promise.all([
-      db
-        .collection(COLL_USERS)
-        .findOne({
+      db.collection(COLL_USERS).findOne(
+        {
           _id: userId,
           appId,
-        }, { projection: { 'profile.username': true } }),
-      db
-        .collection(COLL_APPS)
-        .findOne({
+        },
+        { projection: { 'profile.username': true } }
+      ),
+      db.collection(COLL_APPS).findOne(
+        {
           _id: appId,
-        }, { projection: { name: true } }),
+        },
+        { projection: { name: true } }
+      ),
       db
         .collection(COLL_USER_GENERATED_CONTENTS)
         .aggregate([
@@ -105,7 +111,9 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
 
     intlInit(lang);
 
-    const editionType = (isEdition ? formatMessage('ugc:edition_type_edited') : formatMessage('ugc:edition_type_posted'));
+    const editionType = isEdition
+      ? formatMessage('ugc:edition_type_edited')
+      : formatMessage('ugc:edition_type_posted');
     return {
       body: formatMessage(`ugc:new_ugc_${ugc.type}_email.html`, {
         editionType,
@@ -118,7 +126,12 @@ export default async (userId, appId, ugcId, lang, { isEdition = false } = {}) =>
         ugc,
         mediaType,
       }),
-      subject: formatMessage(`ugc:new_ugc_${ugc.type}_email.title`, { editionType, appName: app.name, ugc, user }),
+      subject: formatMessage(`ugc:new_ugc_${ugc.type}_email.title`, {
+        editionType,
+        appName: app.name,
+        ugc,
+        user,
+      }),
     };
   } finally {
     client.close();

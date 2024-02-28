@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import queue from 'async/queue';
 import blastEmail from '../lib/blastEmail';
 import getBalanceForBlast from '../lib/getBalanceForBlast';
@@ -9,12 +10,7 @@ import response from '../../libs/httpResponses/response';
 // To avoid getting a warning with lint
 const jsConsole = console;
 
-export default async ({
-  contacts,
-  subject,
-  template,
-  opts = {},
-}) => {
+export default async ({ contacts, subject, template, opts = {} }) => {
   const { profileId, appId } = opts;
   try {
     if (profileId) {

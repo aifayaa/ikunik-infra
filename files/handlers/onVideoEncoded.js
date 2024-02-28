@@ -1,26 +1,20 @@
+/* eslint-disable import/no-relative-packages */
 import S3 from 'aws-sdk/clients/s3';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import uploadStatus from '../uploadStatus.json';
 import response from '../../libs/httpResponses/response';
 
-const {
-  CDN_DOMAIN_NAME,
-  S3_PICTURES_BUCKET,
-} = process.env;
+const { CDN_DOMAIN_NAME, S3_PICTURES_BUCKET } = process.env;
 
-const {
-  COLL_VIDEOS,
-} = mongoCollections;
+const { COLL_VIDEOS } = mongoCollections;
 
 const s3 = new S3({
   signatureVersion: 'v4',
 });
 
 export default async (event) => {
-  const {
-    Message: message,
-  } = event.Records[0].Sns;
+  const { Message: message } = event.Records[0].Sns;
 
   const client = await MongoClient.connect();
 
@@ -28,22 +22,21 @@ export default async (event) => {
     const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);
     const { id, name } = userMetadata;
 
-    const document = await client.db()
-      .collection(COLL_VIDEOS)
-      .findOne({
-        _id: id,
-      });
+    const document = await client.db().collection(COLL_VIDEOS).findOne({
+      _id: id,
+    });
 
     if (!document) {
       throw new Error('document_not_found');
     }
 
     if (state !== 'COMPLETED') {
-      await client.db()
+      await client
+        .db()
         .collection(COLL_VIDEOS)
         .updateOne(
           { _id: id },
-          { $set: { status: uploadStatus.ENCODING_ERROR } },
+          { $set: { status: uploadStatus.ENCODING_ERROR } }
         );
       throw new Error('encoding_error');
     }
@@ -85,7 +78,8 @@ export default async (event) => {
           });
         }
 
-        if (videosObjects.isTruncated) continuationToken = videosObjects.NextContinuationToken;
+        if (videosObjects.isTruncated)
+          continuationToken = videosObjects.NextContinuationToken;
         else continuationToken = null;
       } while (continuationToken);
 
@@ -94,7 +88,9 @@ export default async (event) => {
         if (keepFilenames[key].found) {
           if (!keepKey) {
             keepKey = key;
-          } else if (keepFilenames[key].priority > keepFilenames[keepKey].priority) {
+          } else if (
+            keepFilenames[key].priority > keepFilenames[keepKey].priority
+          ) {
             toRemoveThumbnails[keepKey] = true;
             keepKey = key;
           } else {
@@ -132,12 +128,10 @@ export default async (event) => {
         url,
       };
 
-      await client.db()
+      await client
+        .db()
         .collection(COLL_VIDEOS)
-        .updateOne(
-          { _id: userMetadata.id },
-          { $set: videoDoc },
-        );
+        .updateOne({ _id: userMetadata.id }, { $set: videoDoc });
     }
   } catch (e) {
     return response({ code: 500, message: e.message });

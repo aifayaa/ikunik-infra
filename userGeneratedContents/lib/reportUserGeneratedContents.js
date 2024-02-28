@@ -1,19 +1,12 @@
+/* eslint-disable import/no-relative-packages */
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USER_GENERATED_CONTENTS,
-  COLL_USER_GENERATED_CONTENTS_REPORTS,
-} = mongoCollections;
+const { COLL_USER_GENERATED_CONTENTS, COLL_USER_GENERATED_CONTENTS_REPORTS } =
+  mongoCollections;
 
-export default async (
-  appId,
-  userId,
-  ugcId,
-  reason,
-  details,
-) => {
+export default async (appId, userId, ugcId, reason, details) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getLiveStream from '../lib/getLiveStream';
 import response from '../../libs/httpResponses/response';
 import { formatMessage, intlInit, getUserLanguage } from '../../libs/intl/intl';
@@ -6,13 +7,15 @@ export default async (event) => {
   try {
     const { id } = event.pathParameters;
     const [appId, liveStreamId] = id.split(',');
-    const {
-      recordingId,
-    } = event.queryStringParameters || {};
+    const { recordingId } = event.queryStringParameters || {};
 
     const liveStream = await getLiveStream(appId, liveStreamId);
 
-    if (!liveStream || !liveStream.recordings || liveStream.recordings.length === 0) {
+    if (
+      !liveStream ||
+      !liveStream.recordings ||
+      liveStream.recordings.length === 0
+    ) {
       throw new Error('not_found');
     }
 
@@ -32,7 +35,9 @@ export default async (event) => {
     intlInit(lang);
 
     const body = formatMessage('liveStream:view_recording_html_page', {
-      recordingUrl: JSON.stringify(`${recording.baseUrl}/${recording.root}/${recording.playlist}`),
+      recordingUrl: JSON.stringify(
+        `${recording.baseUrl}/${recording.root}/${recording.playlist}`
+      ),
     });
 
     return response({

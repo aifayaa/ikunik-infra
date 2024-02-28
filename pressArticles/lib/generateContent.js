@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -7,9 +8,7 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-const {
-  COLL_AI_QUERIES,
-} = mongoCollections;
+const { COLL_AI_QUERIES } = mongoCollections;
 
 const fieldsList = [
   { field: 'title', type: 'text' },
@@ -17,7 +16,7 @@ const fieldsList = [
   { field: 'articlePicture', type: 'picture' },
 ];
 
-export const possibleFields = fieldsList.map(({ field }) => (field));
+export const possibleFields = fieldsList.map(({ field }) => field);
 
 export async function generateContent(userPrompts, lang, { appId, userId }) {
   const client = await MongoClient.connect();
@@ -30,15 +29,18 @@ export async function generateContent(userPrompts, lang, { appId, userId }) {
       userId,
       parts: fieldsList.map(({ field, type }) => {
         const tsKey = userPrompts[field] ? 'custom' : 'generic';
-        const aiPrompt = formatMessage(`pressArticles:generateContent.${tsKey}.${field}`, {
-          userPrompt: (userPrompts && userPrompts[field]) || '',
-        });
+        const aiPrompt = formatMessage(
+          `pressArticles:generateContent.${tsKey}.${field}`,
+          {
+            userPrompt: (userPrompts && userPrompts[field]) || '',
+          }
+        );
 
-        return ({
+        return {
           field,
           prompt: aiPrompt,
           type,
-        });
+        };
       }),
     };
 
@@ -49,14 +51,16 @@ export async function generateContent(userPrompts, lang, { appId, userId }) {
 
     const { insertedId } = insertResult;
 
-    await lambda.invokeAsync({
-      FunctionName: `ai-${process.env.STAGE}-OpenAI-GenerateContent`,
-      InvokeArgs: JSON.stringify({
-        queryId: insertedId,
-      }),
-    }).promise();
+    await lambda
+      .invokeAsync({
+        FunctionName: `ai-${process.env.STAGE}-OpenAI-GenerateContent`,
+        InvokeArgs: JSON.stringify({
+          queryId: insertedId,
+        }),
+      })
+      .promise();
 
-    return (insertedId);
+    return insertedId;
   } finally {
     await client.close();
   }

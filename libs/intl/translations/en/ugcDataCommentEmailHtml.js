@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default `
 <ul>
   <li><strong>Commented article title :</strong> {{ugc.rootParent.title}}</li>

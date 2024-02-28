@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
 import response from '../../libs/httpResponses/response';
 import getBadge from '../lib/getUserBadge';
@@ -9,7 +10,7 @@ const { COLL_USER_BADGES } = mongoCollections;
 export default async (event) => {
   const badgeId = event.pathParameters.id;
   const { appId, principalId: userId } = event.requestContext.authorizer;
-  const { deviceId = null } = (event.queryStringParameters || {});
+  const { deviceId = null } = event.queryStringParameters || {};
 
   try {
     const badge = await getBadge(badgeId, appId);
@@ -23,7 +24,7 @@ export default async (event) => {
       userId,
       deviceId,
       badgeId,
-      COLL_USER_BADGES,
+      COLL_USER_BADGES
     );
 
     await toggleUserBadgeToUser(badgeId, appId, { action: 'remove', userId });

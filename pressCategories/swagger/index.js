@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getCategories from './getCategories';
 import getCategoriesAdmin from './getCategoriesAdmin';
 import getCategory from './getCategory';

@@ -1,10 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { NewsDataIO } from '../../libs/backends/newsdata-io';
 
-const {
-  COLL_PRESS_AUTOMATION_TASKS,
-} = mongoCollections;
+const { COLL_PRESS_AUTOMATION_TASKS } = mongoCollections;
 
 export async function getTaskNewsFromTask(taskObj) {
   const newsDataIo = new NewsDataIO();
@@ -41,7 +40,7 @@ export async function getTaskNewsFromTask(taskObj) {
     throw new Error('no_news_found');
   }
 
-  return (selectedNews);
+  return selectedNews;
 }
 
 export default async function getTaskNews(taskId, { appId }) {
@@ -59,7 +58,7 @@ export default async function getTaskNews(taskId, { appId }) {
 
     const taskNews = await getTaskNewsFromTask(taskObj);
 
-    return (taskNews);
+    return taskNews;
   } finally {
     await client.close();
   }

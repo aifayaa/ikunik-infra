@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
@@ -11,7 +12,11 @@ const permKeys = [
 export default async (event) => {
   const parentId = event.pathParameters.id;
   const { appId } = event.requestContext.authorizer;
-  const { start, limit, children = 'false' } = event.queryStringParameters || {};
+  const {
+    start,
+    limit,
+    children = 'false',
+  } = event.queryStringParameters || {};
   let { all: fetchAll } = event.queryStringParameters || {};
 
   /* Get collection from resource path */
@@ -22,7 +27,7 @@ export default async (event) => {
       throw new Error('Missing arguments');
     }
 
-    fetchAll = (`${fetchAll}` === 'true');
+    fetchAll = `${fetchAll}` === 'true';
 
     const perms = JSON.parse(event.requestContext.authorizer.perms);
     const isModerator = checkPerms(permKeys, perms);
@@ -30,10 +35,7 @@ export default async (event) => {
       fetchAll = false;
     }
 
-    [
-      parentId,
-      parentCollection,
-    ].forEach((item) => {
+    [parentId, parentCollection].forEach((item) => {
       if (item && typeof item !== 'string') {
         throw new Error('Wrong argument type');
       }
@@ -56,7 +58,7 @@ export default async (event) => {
       start,
       limit,
       children === 'true',
-      fetchAll,
+      fetchAll
     );
     return response({ code: 200, body: results });
   } catch (e) {

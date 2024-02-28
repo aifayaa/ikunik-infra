@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import addWalletCollections from '../lib/addWalletCollections';
 import getPerms from '../../libs/perms/getPerms';
 import response from '../../libs/httpResponses/response';
@@ -15,9 +16,7 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const {
-      wallet,
-    } = JSON.parse(event.body);
+    const { wallet } = JSON.parse(event.body);
 
     const results = await addWalletCollections(appId, wallet);
 

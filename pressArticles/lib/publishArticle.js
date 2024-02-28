@@ -1,12 +1,16 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_PRESS_DRAFTS,
-  COLL_PRESS_ARTICLES,
-} = mongoCollections;
+const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
-export const publishArticle = async (userId, appId, articleId, draftId, publicationDate) => {
+export const publishArticle = async (
+  userId,
+  appId,
+  articleId,
+  draftId,
+  publicationDate
+) => {
   const client = await MongoClient.connect();
   let session;
 
@@ -15,14 +19,14 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     session.startTransaction();
     const opts = { session };
 
-    const draft = await client
-      .db()
-      .collection(COLL_PRESS_DRAFTS)
-      .findOne({
+    const draft = await client.db().collection(COLL_PRESS_DRAFTS).findOne(
+      {
         articleId,
         _id: draftId,
         appId,
-      }, opts);
+      },
+      opts
+    );
     if (!draft) {
       throw new Error('Not found');
     }
@@ -61,7 +65,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
     const $set = {
       actions,
       authorName,
-      badges: badges || ({ list: [], allow: 'any' }),
+      badges: badges || { list: [], allow: 'any' },
       categoriesId,
       categoryId,
       displayOptions: displayOptions || {},
@@ -75,9 +79,12 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       isWebview,
       md,
       mediaCaptions,
-      pdfs: (typeof pdfs !== 'undefined' && pdfs.length) ? pdfs : undefined,
+      pdfs: typeof pdfs !== 'undefined' && pdfs.length ? pdfs : undefined,
       pdfsOpenButton,
-      pictures: (typeof pictures !== 'undefined' && pictures.length) ? pictures : undefined,
+      pictures:
+        typeof pictures !== 'undefined' && pictures.length
+          ? pictures
+          : undefined,
       pinned,
       plainText,
       productId,
@@ -89,25 +96,24 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
       thumbnailDisplayMethod,
       title,
       videoPlayMode,
-      videos: (typeof videos !== 'undefined' && videos.length) ? videos : undefined,
+      videos:
+        typeof videos !== 'undefined' && videos.length ? videos : undefined,
     };
 
     if (!$set.videos && !$set.pictures) {
       throw new Error('Unable to publish article without pictures or videos');
     }
 
-    await client
-      .db()
-      .collection(COLL_PRESS_ARTICLES)
-      .updateOne(
-        {
-          _id: articleId,
-          appId,
-        }, {
-          $set,
-        },
-        opts,
-      );
+    await client.db().collection(COLL_PRESS_ARTICLES).updateOne(
+      {
+        _id: articleId,
+        appId,
+      },
+      {
+        $set,
+      },
+      opts
+    );
 
     await client
       .db()
@@ -122,7 +128,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
             isPublished: false,
           },
         },
-        opts,
+        opts
       );
 
     await client
@@ -139,7 +145,7 @@ export const publishArticle = async (userId, appId, articleId, draftId, publicat
             publicationDate,
           },
         },
-        opts,
+        opts
       );
 
     await session.commitTransaction();

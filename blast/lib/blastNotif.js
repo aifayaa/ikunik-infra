@@ -1,10 +1,7 @@
+/* eslint-disable import/no-relative-packages */
 import SNS from 'aws-sdk/clients/sns';
 
-const {
-  SNS_REGION,
-  SNS_KEY_ID,
-  SNS_SECRET,
-} = process.env;
+const { SNS_REGION, SNS_KEY_ID, SNS_SECRET } = process.env;
 
 const sns = new SNS({
   region: SNS_REGION,

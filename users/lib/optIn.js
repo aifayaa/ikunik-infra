@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -11,7 +12,7 @@ export default async (userId, val) => {
         { _id: userId },
         [],
         { $addToSet: { optIn: { $each: val } } },
-        { new: true, projection: { optIn: true } },
+        { new: true, projection: { optIn: true } }
       );
     return value;
   } finally {

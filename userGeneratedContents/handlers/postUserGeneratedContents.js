@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 import emailTemplate from '../lib/emailUgcNotifyTemplate';
 import pathToCollection from '../../libs/collections/pathToCollection';
@@ -9,21 +10,12 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import sendNewUGCPushNotifications from '../lib/sendPushNotifications';
 
 /* Collections from environment */
-const {
-  COLL_PRESS_ARTICLES,
-  COLL_USER_GENERATED_CONTENTS,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 export default async (event) => {
-  const {
-    authorizer,
-    resourcePath,
-  } = event.requestContext;
+  const { authorizer, resourcePath } = event.requestContext;
 
-  const {
-    appId,
-    principalId: userId,
-  } = authorizer;
+  const { appId, principalId: userId } = authorizer;
 
   /* Get collection from resource path */
   let parentCollection = pathToCollection(resourcePath);
@@ -35,14 +27,8 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const {
-      data,
-      parentId,
-      parentType,
-      replyTo,
-      rootParentType,
-      type,
-    } = bodyParsed;
+    const { data, parentId, parentType, replyTo, rootParentType, type } =
+      bodyParsed;
 
     if (!parentId) {
       parentCollection = '';
@@ -96,10 +82,8 @@ export default async (event) => {
         if (
           !data.title ||
           !data.content ||
-          ((!data.pictures ||
-          !data.pictures.length) &&
-          (!data.videos ||
-          !data.videos.length))
+          ((!data.pictures || !data.pictures.length) &&
+            (!data.videos || !data.videos.length))
         ) {
           throw new Error('missing_arguments');
         }
@@ -116,7 +100,8 @@ export default async (event) => {
           throw new Error('wrong_argument_type');
         }
         break;
-      default: break;
+      default:
+        break;
     }
 
     const result = await postUserGeneratedContents(
@@ -127,7 +112,7 @@ export default async (event) => {
       rootParentCollection,
       userId,
       type,
-      data,
+      data
     );
 
     const lang = getUserLanguage(event.headers);
@@ -164,7 +149,7 @@ export default async (event) => {
         userId,
         appId,
         result._id,
-        lang,
+        lang
       );
       await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {

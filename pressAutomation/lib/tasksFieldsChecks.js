@@ -1,17 +1,11 @@
-const isNonEmptyString = (val) => (typeof val === 'string' && val.length > 0);
-const isInteger = (val) => (typeof val === 'number' && val === (val | 0));
-const isStrictlyPositiveInteger = (val) => (isInteger(val) && val > 0);
-const isValidDate = (val) => (typeof val === 'string' && !Number.isNaN((new Date(val)).getFullYear()));
+/* eslint-disable import/no-relative-packages */
+const isNonEmptyString = (val) => typeof val === 'string' && val.length > 0;
+const isInteger = (val) => typeof val === 'number' && val === (val | 0);
+const isStrictlyPositiveInteger = (val) => isInteger(val) && val > 0;
+const isValidDate = (val) =>
+  typeof val === 'string' && !Number.isNaN(new Date(val).getFullYear());
 
-const allDays = [
-  'mon',
-  'tue',
-  'wed',
-  'thu',
-  'fri',
-  'sat',
-  'sun',
-];
+const allDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 const allNewsCategories = [
   'business',
@@ -188,92 +182,86 @@ const allCountryCodes = [
 
 export const createFieldChecks = {
   name(val) {
-    return (isNonEmptyString(val));
+    return isNonEmptyString(val);
   },
   query(val) {
-    return (typeof val === 'string');
+    return typeof val === 'string';
   },
   startDateTime: isValidDate,
   endDateTime(val) {
-    return (isNonEmptyString(val) || val === null);
+    return isNonEmptyString(val) || val === null;
   },
   articlesCount: isStrictlyPositiveInteger,
   nextArticles: (val) => {
-    if (!Array.isArray(val)) return (false);
+    if (!Array.isArray(val)) return false;
 
     const invalid = val.find((x) => {
-      if (!x.title) return (true);
-      if (!x.content) return (true);
-      if (!x.pictureId) return (true);
-      return (false);
+      if (!x.title) return true;
+      if (!x.content) return true;
+      if (!x.pictureId) return true;
+      return false;
     });
 
-    if (invalid !== undefined) return (false);
+    if (invalid !== undefined) return false;
 
-    return (true);
+    return true;
   },
   fetchNewsSince: (val) => {
-    if (!isInteger(val)) return (false);
-    if (val < 1 || val > 48) return (false);
-    return (true);
+    if (!isInteger(val)) return false;
+    if (val < 1 || val > 48) return false;
+    return true;
   },
   action(val) {
-    return ([
-      'reword',
-      'summarize',
-    ].indexOf(val) >= 0);
+    return ['reword', 'summarize'].indexOf(val) >= 0;
   },
   customPrompts(val) {
-    if (typeof val !== 'object' || val === null) return (false);
-    return (true);
+    if (typeof val !== 'object' || val === null) return false;
+    return true;
   },
   autoPublish(val) {
-    return (typeof val === 'boolean' || val === undefined);
+    return typeof val === 'boolean' || val === undefined;
   },
   autoNotify(val) {
-    return (typeof val === 'boolean' || val === undefined);
+    return typeof val === 'boolean' || val === undefined;
   },
   categories(val) {
-    if (!Array.isArray(val)) return (false);
-    if (val.length === 0) return (false);
+    if (!Array.isArray(val)) return false;
+    if (val.length === 0) return false;
 
-    const invalids = val.find((id) => (!(id && typeof id === 'string')));
-    if (invalids !== undefined) return (false);
+    const invalids = val.find((id) => !(id && typeof id === 'string'));
+    if (invalids !== undefined) return false;
 
-    return (true);
+    return true;
   },
   newsCategory(val) {
-    if (!val) return (true);
-    if (typeof val !== 'string') return (false);
+    if (!val) return true;
+    if (typeof val !== 'string') return false;
 
-    const isValid = (allNewsCategories.indexOf(val) >= 0);
+    const isValid = allNewsCategories.indexOf(val) >= 0;
 
-    return (isValid);
+    return isValid;
   },
   country(val) {
-    if (!val) return (true);
-    if (typeof val !== 'string') return (false);
+    if (!val) return true;
+    if (typeof val !== 'string') return false;
 
-    const isValid = (allCountryCodes.indexOf(val) >= 0);
+    const isValid = allCountryCodes.indexOf(val) >= 0;
 
-    return (isValid);
+    return isValid;
   },
   recurrence(val) {
-    if (typeof val !== 'object' || val === null) return (false);
+    if (typeof val !== 'object' || val === null) return false;
 
-    if (!Array.isArray(val.days)) return (false);
-    if (!(`${val.time}`.match(/^[0-9]{2}:[0-9]{2}:[0-9]{2}$/))) return (false);
+    if (!Array.isArray(val.days)) return false;
+    if (!`${val.time}`.match(/^[0-9]{2}:[0-9]{2}:[0-9]{2}$/)) return false;
 
-    const invalids = val.days.find((day) => (allDays.indexOf(day) < 0));
-    if (invalids !== undefined) return (false);
+    const invalids = val.days.find((day) => allDays.indexOf(day) < 0);
+    if (invalids !== undefined) return false;
 
-    return (true);
+    return true;
   },
   lang(val) {
-    return ([
-      'en',
-      'fr',
-    ].indexOf(val) >= 0);
+    return ['en', 'fr'].indexOf(val) >= 0;
   },
   // countries(val) {
   //   if (!Array.isArray(val)) return (false);
@@ -285,7 +273,7 @@ export const createFieldChecks = {
   //   return (good);
   // },
   active(val) {
-    return (typeof val === 'boolean' || val === undefined);
+    return typeof val === 'boolean' || val === undefined;
   },
 };
 

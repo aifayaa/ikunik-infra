@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
 import articlePrices from '../articlePrices.json';
 import response from '../../libs/httpResponses/response';
@@ -11,7 +12,7 @@ const { COLL_PRESS_ARTICLES } = mongoCollections;
 export default async (event) => {
   const articleId = event.pathParameters.id;
   const { appId, principalId: userId } = event.requestContext.authorizer;
-  const { deviceId = null } = (event.queryStringParameters || {});
+  const { deviceId = null } = event.queryStringParameters || {};
 
   try {
     const article = await getArticle(articleId, appId, { userId, deviceId });
@@ -32,7 +33,12 @@ export default async (event) => {
       throw new Error('not_enough_wealth');
     }
 
-    const operationStatus = await addBalance(appId, userId, deviceId, price * -1);
+    const operationStatus = await addBalance(
+      appId,
+      userId,
+      deviceId,
+      price * -1
+    );
     if (!operationStatus) {
       throw new Error('balance_update_failed');
     }
@@ -45,7 +51,7 @@ export default async (event) => {
       COLL_PRESS_ARTICLES,
       {
         permissions: { all: false, read: true, write: false },
-      },
+      }
     );
 
     return response({ code: 200, body: results });

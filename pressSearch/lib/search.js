@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from '../../pressArticles/lib/articleFields';
@@ -17,7 +18,7 @@ const searchArticle = async (
   text,
   appId,
   { skip = 0, limit = 10 },
-  { keepEmptyCategory = false, noTrashed = true },
+  { keepEmptyCategory = false, noTrashed = true }
 ) => {
   const $match = {
     $text: { $search: text },
@@ -123,7 +124,7 @@ export default async (text, appId, { skip, limit }) => {
       text,
       appId,
       { skip, limit },
-      {},
+      {}
     );
     return { articles: result.articles || [], total: result.total || 0 };
   } finally {

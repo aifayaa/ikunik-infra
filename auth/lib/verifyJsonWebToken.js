@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import jwksClient from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
@@ -17,11 +18,9 @@ const verify = promisify(jwt.verify);
  */
 export default async (token, appId, { mongoClient }) => {
   const { COLL_APPS } = mongoCollections;
-  const client = mongoClient || await MongoClient.connect();
+  const client = mongoClient || (await MongoClient.connect());
   try {
-    const {
-      header,
-    } = await jwt.decode(token, { complete: true });
+    const { header } = await jwt.decode(token, { complete: true });
     const app = await client
       .db()
       .collection(COLL_APPS)

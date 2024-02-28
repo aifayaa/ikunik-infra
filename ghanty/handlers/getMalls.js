@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getMalls from '../lib/getMalls';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';

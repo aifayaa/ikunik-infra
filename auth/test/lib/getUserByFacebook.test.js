@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 // TODO: these tests need to be updated since facebookSettings loaded from db
 //       line which fail will be commented with 'TODO(0): '
 //       at least on mongo connection is done in every cases
@@ -165,10 +166,7 @@ describe('lib - getUserByFacebook', () => {
 
     // TODO: FIX TEST
     it.skip('should return userId and authToken', () => {
-      expect(resp).to.have.any.keys([
-        'userId',
-        'authToken',
-      ]);
+      expect(resp).to.have.any.keys(['userId', 'authToken']);
       expect(resp.userId).to.equal('myUserId');
       expect(resp.authToken).to.be.string;
     });
@@ -235,10 +233,7 @@ describe('lib - getUserByFacebook', () => {
       expect(when).to.be.string;
     });
     it('should return created userId and authToken', () => {
-      expect(resp).to.have.any.keys([
-        'userId',
-        'authToken',
-      ]);
+      expect(resp).to.have.any.keys(['userId', 'authToken']);
       expect(resp.userId).to.be.string;
       expect(resp.authToken).to.be.string;
     });

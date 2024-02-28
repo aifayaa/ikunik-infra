@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -13,7 +14,7 @@ export default async (
   rootParentCollection,
   userId,
   type,
-  data,
+  data
 ) => {
   /* Mongo client */
   const client = await MongoClient.connect();

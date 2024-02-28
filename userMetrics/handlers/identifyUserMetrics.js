@@ -1,15 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import identifyUserMetrics from '../lib/identifyUserMetrics';
 import response from '../../libs/httpResponses/response';
 
 export default async (event) => {
-  const {
-    appId,
-    principalId: userId,
-  } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
-  const {
-    id: deviceId,
-  } = event.pathParameters;
+  const { id: deviceId } = event.pathParameters;
 
   try {
     if (!deviceId) {
@@ -25,11 +21,7 @@ export default async (event) => {
     // We should make sure a deviceId is free to be claimed
     //  without forbidding users to share a device
 
-    const results = await identifyUserMetrics(
-      appId,
-      userId,
-      deviceId,
-    );
+    const results = await identifyUserMetrics(appId, userId, deviceId);
 
     return response({ code: 200, body: results });
   } catch (e) {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -7,7 +8,8 @@ const { COLL_USERS } = mongoCollections;
   from meteor string_utils
    https://github.com/meteor/meteor/blob/devel/packages/meteor/string_utils.js
 */
-const escapeRegExp = (string) => String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegExp = (string) =>
+  String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /*
   based on meteor accounts-password module
@@ -19,15 +21,17 @@ const generateCasePermutationsForString = (string) => {
   let permutations = [''];
   for (let i = 0; i < string.length; i += 1) {
     const ch = string.charAt(i);
-    permutations = [].concat(...permutations.map((prefix) => {
-      const lowerCaseChar = ch.toLowerCase();
-      const upperCaseChar = ch.toUpperCase();
-      // Don't add unneccesary permutations when ch is not a letter
-      if (lowerCaseChar === upperCaseChar) {
-        return [prefix + ch];
-      }
-      return [prefix + lowerCaseChar, prefix + upperCaseChar];
-    }));
+    permutations = [].concat(
+      ...permutations.map((prefix) => {
+        const lowerCaseChar = ch.toLowerCase();
+        const upperCaseChar = ch.toUpperCase();
+        // Don't add unneccesary permutations when ch is not a letter
+        if (lowerCaseChar === upperCaseChar) {
+          return [prefix + ch];
+        }
+        return [prefix + lowerCaseChar, prefix + upperCaseChar];
+      })
+    );
   }
   return permutations;
 };
@@ -40,13 +44,18 @@ const generateCasePermutationsForString = (string) => {
 const selectorForFastCaseInsensitiveLookup = (fieldName, string, appId) => {
   // Performance seems to improve up to 4 prefix characters
   const prefix = string.substring(0, Math.min(string.length, 4));
-  const orClause = generateCasePermutationsForString(prefix).map((prefixPermutation) => {
-    const selector = {};
-    selector[fieldName] = new RegExp(`^${escapeRegExp(prefixPermutation)}`);
-    return selector;
-  });
+  const orClause = generateCasePermutationsForString(prefix).map(
+    (prefixPermutation) => {
+      const selector = {};
+      selector[fieldName] = new RegExp(`^${escapeRegExp(prefixPermutation)}`);
+      return selector;
+    }
+  );
   const caseInsensitiveClause = {};
-  caseInsensitiveClause[fieldName] = new RegExp(`^${escapeRegExp(string)}$`, 'i');
+  caseInsensitiveClause[fieldName] = new RegExp(
+    `^${escapeRegExp(string)}$`,
+    'i'
+  );
   return {
     $and: [{ $or: orClause }, caseInsensitiveClause, { appId }],
   };
@@ -62,11 +71,7 @@ export default async (
   fieldName,
   displayName,
   fieldValue,
-  {
-    errorMessage,
-    mongoClient,
-    ownUserId,
-  } = {},
+  { errorMessage, mongoClient, ownUserId } = {}
 ) => {
   if (fieldValue) {
     const noClient = !mongoClient;
@@ -79,16 +84,19 @@ export default async (
       const matchedUsers = await mongoClient
         .db()
         .collection(COLL_USERS)
-        .find(selectorForFastCaseInsensitiveLookup(fieldName, fieldValue, appId))
+        .find(
+          selectorForFastCaseInsensitiveLookup(fieldName, fieldValue, appId)
+        )
         .toArray();
 
       if (
-        matchedUsers.length > 0 && (
-          // If we don't have a userId yet, any match we find is a duplicate
-          !ownUserId ||
+        matchedUsers.length > 0 &&
+        // If we don't have a userId yet, any match we find is a duplicate
+        (!ownUserId ||
           // Otherwise, check to see if there are multiple matches or a match
           // that is not us
-          (matchedUsers.length > 1 || matchedUsers[0]._id !== ownUserId))
+          matchedUsers.length > 1 ||
+          matchedUsers[0]._id !== ownUserId)
       ) {
         throw new Error(errorMessage || `${displayName} already exists.`);
       }

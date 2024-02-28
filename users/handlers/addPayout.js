@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import askPayout from '../lib/askPayout';
 import response from '../../libs/httpResponses/response';
 

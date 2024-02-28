@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
@@ -34,7 +35,7 @@ export const getArticles = async (
     showWithHiddenCategories = false,
     startDate = null,
     userId,
-  },
+  }
 ) => {
   let client;
   const badgeChecker = new BadgeChecker(appId);
@@ -65,9 +66,10 @@ export const getArticles = async (
 
     const categoriesIds = categories
       .filter(
-        (category) => showWithHiddenCategories ||
+        (category) =>
+          showWithHiddenCategories ||
           category.hidden === undefined ||
-          category.hidden === showWithHiddenCategories,
+          category.hidden === showWithHiddenCategories
       )
       .map((category) => category._id);
 
@@ -393,17 +395,13 @@ export const getArticles = async (
         .collection(COLL_PRESS_ARTICLES)
         .aggregate(articlesPipeline)
         .toArray(),
-      client
-        .db()
-        .collection(COLL_PRESS_ARTICLES)
-        .find(matchArticles)
-        .count(),
+      client.db().collection(COLL_PRESS_ARTICLES).find(matchArticles).count(),
     ]);
 
     let extPurchases = null;
     // Get drafts of articles
     if (articles.length > 0) {
-      const articlesIds = articles.map((a) => (a._id));
+      const articlesIds = articles.map((a) => a._id);
       const draftPipeline = [
         {
           $match: {
@@ -453,27 +451,27 @@ export const getArticles = async (
           .toArray(),
         userId
           ? client
-            .db()
-            .collection(COLL_EXTERNAL_PURCHASES)
-            .find({
-              appId,
-              collection: COLL_PRESS_ARTICLES,
-              userId,
-              itemId: { $in: articlesIds },
-            })
-            .toArray()
+              .db()
+              .collection(COLL_EXTERNAL_PURCHASES)
+              .find({
+                appId,
+                collection: COLL_PRESS_ARTICLES,
+                userId,
+                itemId: { $in: articlesIds },
+              })
+              .toArray()
           : [],
       ]);
 
       extPurchases = extPurchases.reduce((acc, itm) => {
         acc[itm.itemId] = itm;
-        return (acc);
+        return acc;
       }, {});
 
       const articlesMap = articles.reduce((acc, art) => {
         acc[art._id] = art;
         art.draft = null;
-        return (acc);
+        return acc;
       }, {});
       drafts.forEach((draft) => {
         articlesMap[draft.articleId].draft = draft;
@@ -481,11 +479,12 @@ export const getArticles = async (
     }
 
     const articlesWithCategory = articles.map((article) => {
-      const articleCategory = categories.find(
-        (category) => category._id === article.categoryId,
-      ) || (article.categories && article.categories.find(
-        (category) => category._id === article.categoryId,
-      ));
+      const articleCategory =
+        categories.find((category) => category._id === article.categoryId) ||
+        (article.categories &&
+          article.categories.find(
+            (category) => category._id === article.categoryId
+          ));
       if (articleCategory && articleCategory.forcedAuthor) {
         article.authorName = articleCategory.forcedAuthor;
       }
@@ -494,10 +493,7 @@ export const getArticles = async (
 
     /** Permissions checks */
     const user = userId
-      ? await client
-        .db()
-        .collection(COLL_USERS)
-        .findOne({ _id: userId })
+      ? await client.db().collection(COLL_USERS).findOne({ _id: userId })
       : null;
 
     if (checkBadges && (!user || user.appId !== ADMIN_APP)) {
@@ -506,9 +502,14 @@ export const getArticles = async (
       const app = await client
         .db()
         .collection(COLL_APPS)
-        .findOne({ _id: appId }, { projection: {
-          'settings.press.articles.previewLength': 1,
-        } });
+        .findOne(
+          { _id: appId },
+          {
+            projection: {
+              'settings.press.articles.previewLength': 1,
+            },
+          }
+        );
 
       let previewLength = 180;
       if (
@@ -521,7 +522,12 @@ export const getArticles = async (
         previewLength = app.settings.press.articles.previewLength;
       }
 
-      const articleRequires = (article, what, requiredElements, { preview = false } = {}) => {
+      const articleRequires = (
+        article,
+        what,
+        requiredElements,
+        { preview = false } = {}
+      ) => {
         if (preview && article.text) {
           article.text = article.text.substr(0, previewLength);
         } else {
@@ -534,24 +540,30 @@ export const getArticles = async (
 
       await badgeChecker.init;
 
-      badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => (badgeId)));
+      badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => badgeId));
 
       articlesWithCategory.forEach((article) => {
         if (article.badges) {
-          const toRegister = article.badges.list.map(({ id: badgeId }) => (badgeId));
+          const toRegister = article.badges.list.map(
+            ({ id: badgeId }) => badgeId
+          );
           badgeChecker.registerBadges(toRegister);
         }
 
         if (article.categories) {
           article.categories.forEach((category) => {
             if (category.badges) {
-              const toRegister = category.badges.list.map(({ id: badgeId }) => (badgeId));
+              const toRegister = category.badges.list.map(
+                ({ id: badgeId }) => badgeId
+              );
               badgeChecker.registerBadges(toRegister);
             }
           });
         } else if (article.category) {
           if (article.category.badges) {
-            const toRegister = article.category.badges.list.map(({ id: badgeId }) => (badgeId));
+            const toRegister = article.category.badges.list.map(
+              ({ id: badgeId }) => badgeId
+            );
             badgeChecker.registerBadges(toRegister);
           }
         }
@@ -569,25 +581,26 @@ export const getArticles = async (
             categoriesId: article.categoriesId,
           };
           const { categories: artCategories = [] } = article;
-          const categoriesBadges = (artCategories && artCategories.reduce((acc, { badges }) => {
-            if (badges) {
-              const list = badges.list.map((badge) => (badge.id));
-              badgeChecker.registerBadges(list);
-              acc.push(badges);
-            }
-            return (acc);
-          }, [])) || [];
+          const categoriesBadges =
+            (artCategories &&
+              artCategories.reduce((acc, { badges }) => {
+                if (badges) {
+                  const list = badges.list.map((badge) => badge.id);
+                  badgeChecker.registerBadges(list);
+                  acc.push(badges);
+                }
+                return acc;
+              }, [])) ||
+            [];
           let checkerResults = await badgeChecker.checkBadges(
             userBadges,
             article.badges,
-            opts,
+            opts
           );
           const promises2 = categoriesBadges.map(async (categoryBadges) => {
-            checkerResults = checkerResults.merge(await badgeChecker.checkBadges(
-              userBadges,
-              categoryBadges,
-              opts,
-            ));
+            checkerResults = checkerResults.merge(
+              await badgeChecker.checkBadges(userBadges, categoryBadges, opts)
+            );
           });
           await Promise.all(promises2);
 
@@ -600,7 +613,7 @@ export const getArticles = async (
               articlesWithCategory[id],
               'userBadges',
               checkerResults.restrictedBy,
-              { preview: checkerResults.canPreview },
+              { preview: checkerResults.canPreview }
             );
           }
         }
@@ -611,7 +624,10 @@ export const getArticles = async (
 
     const promises3 = articlesWithCategory.map(async (article) => {
       if (article) {
-        article.commentsCount = await getArticleCommentsCount(appId, article._id);
+        article.commentsCount = await getArticleCommentsCount(
+          appId,
+          article._id
+        );
       }
     });
 

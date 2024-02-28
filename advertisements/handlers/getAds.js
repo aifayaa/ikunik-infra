@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAds from '../lib/getAds';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -5,34 +6,26 @@ import { checkPerms } from '../../libs/perms/checkPerms';
 
 const allowedPerms = ['pressArticles_all'];
 
-const stringToBool = (str) => (str === 'true');
+const stringToBool = (str) => str === 'true';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
   const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
-    const params = (event.queryStringParameters || {});
+    const params = event.queryStringParameters || {};
     const isAdmin = checkPerms(allowedPerms, perms);
 
     const filters = {};
 
-    const {
-      start = 0,
-      limit = 25,
-      location = null,
-    } = params;
+    const { start = 0, limit = 25, location = null } = params;
 
     filters.start = parseInt(start, 10);
     filters.limit = parseInt(limit, 10);
     if (location !== null) filters.location = location;
 
     if (isAdmin) {
-      const {
-        active = null,
-        campaignId = null,
-        isActiveNow = null,
-      } = params;
+      const { active = null, campaignId = null, isActiveNow = null } = params;
 
       if (active !== null) filters.active = stringToBool(active);
       if (campaignId !== null) filters.campaignId = campaignId;
@@ -46,23 +39,25 @@ export default async (event) => {
     let { list } = ads;
 
     if (!isAdmin) {
-      list = list.map(({
-        _id,
-        format,
-        location: loc,
-        locationOpts,
-        media,
-        mediaType,
-        url,
-      }) => ({
-        _id,
-        format,
-        location: loc,
-        locationOpts,
-        media,
-        mediaType,
-        url,
-      }));
+      list = list.map(
+        ({
+          _id,
+          format,
+          location: loc,
+          locationOpts,
+          media,
+          mediaType,
+          url,
+        }) => ({
+          _id,
+          format,
+          location: loc,
+          locationOpts,
+          media,
+          mediaType,
+          url,
+        })
+      );
     }
 
     return response({ code: 200, body: { list, count } });

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response';
 import { resetPassword } from '../lib/resetPassword';
@@ -12,10 +13,17 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { email, token, password, appId: inputAppId } = JSON.parse(event.body);
+    const {
+      email,
+      token,
+      password,
+      appId: inputAppId,
+    } = JSON.parse(event.body);
 
-    if (!typeCheck('[String]', [email, token, password])) throw new Error('wrong_argument_type');
-    if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
+    if (!typeCheck('[String]', [email, token, password]))
+      throw new Error('wrong_argument_type');
+    if (password.length < PASSWORD_MIN_LENGTH)
+      throw new Error('invalid_password_length');
 
     const lang = getUserLanguage(event.headers);
     const { appId } = event.requestContext.authorizer;

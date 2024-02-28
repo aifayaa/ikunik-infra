@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
@@ -7,23 +8,27 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-export const getUserByApple = async (authorizationCode, _identityToken, appId, {
-  fullName,
-  email: userEmail,
-} = {}) => {
+export const getUserByApple = async (
+  authorizationCode,
+  _identityToken,
+  appId,
+  { fullName, email: userEmail } = {}
+) => {
   // TODO:verify identityToken => https://developer.apple.com/documentation/signinwithapplerestapi/verifying_a_user
 
   const client = await MongoClient.connect();
   try {
     const db = client.db();
-    const app = await db.collection(COLL_APPS).findOne({
-      _id: appId,
-    }, { projection: { 'credentials.apple': true, 'builds.ios.packageId': true } });
+    const app = await db.collection(COLL_APPS).findOne(
+      {
+        _id: appId,
+      },
+      {
+        projection: { 'credentials.apple': true, 'builds.ios.packageId': true },
+      }
+    );
 
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {
@@ -31,16 +36,18 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
     }
 
     // verify token given by client
-    const verified = JSON.parse(await request({
-      method: 'POST',
-      uri: 'https://appleid.apple.com/auth/token',
-      form: {
-        grant_type: 'authorization_code',
-        code: authorizationCode,
-        client_id: clientId,
-        client_secret: clientSecret,
-      },
-    }));
+    const verified = JSON.parse(
+      await request({
+        method: 'POST',
+        uri: 'https://appleid.apple.com/auth/token',
+        form: {
+          grant_type: 'authorization_code',
+          code: authorizationCode,
+          client_id: clientId,
+          client_secret: clientSecret,
+        },
+      })
+    );
 
     const {
       access_token: accessToken,
@@ -49,11 +56,11 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
       id_token: idToken,
     } = verified;
     const {
-      iss, /* should always be "https://appleid.apple.com" */
-      aud, /* client_id => same as packageId */
-      exp, /* expire at */
+      iss /* should always be "https://appleid.apple.com" */,
+      aud /* client_id => same as packageId */,
+      exp /* expire at */,
       /* iat, */
-      sub, /* userId */
+      sub /* userId */,
       /* at_hash, */
       email,
       /* email_verified, */
@@ -70,10 +77,13 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
 
     /* get user in db */
     const collection = db.collection(COLL_USERS);
-    const user = await collection.findOne({
-      'services.apple.userId': sub,
-      appId,
-    }, { projection: { _id: true, 'profile.email': true } });
+    const user = await collection.findOne(
+      {
+        'services.apple.userId': sub,
+        appId,
+      },
+      { projection: { _id: true, 'profile.email': true } }
+    );
     const token = generateToken();
     const hash = hashToken(token);
     const date = new Date();
@@ -106,10 +116,10 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
     } else {
       /* create new user */
       const profile = {
-        username: fullName.nickname ||
-        (fullName.givenName || fullName.familyName)
-          ? `${fullName.givenName} ${fullName.familyName}`
-          : finalEmail.split('@')[0],
+        username:
+          fullName.nickname || fullName.givenName || fullName.familyName
+            ? `${fullName.givenName} ${fullName.familyName}`
+            : finalEmail.split('@')[0],
         email: finalEmail,
       };
 
@@ -129,10 +139,12 @@ export const getUserByApple = async (authorizationCode, _identityToken, appId, {
             idToken,
           },
           resume: {
-            loginTokens: [{
-              hashedToken: hash,
-              when: date.toISOString(),
-            }],
+            loginTokens: [
+              {
+                hashedToken: hash,
+                when: date.toISOString(),
+              },
+            ],
           },
         },
       };

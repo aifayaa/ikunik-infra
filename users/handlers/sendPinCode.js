@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sendPinCode from '../lib/sendPinCode';
 import response from '../../libs/httpResponses/response';
 

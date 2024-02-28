@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -25,38 +26,63 @@ export default async (userBadgeId, appId) => {
       throw new Error('content_not_found');
     }
 
+    await client.db().collection(COLL_USER_BADGES).deleteOne({
+      _id: userBadgeId,
+      appId,
+    });
+
     await client
       .db()
-      .collection(COLL_USER_BADGES)
-      .deleteOne({
-        _id: userBadgeId,
-        appId,
-      });
-
-    await client.db().collection(COLL_USERS).updateMany(
-      { appId, 'badges.id': userBadgeObj._id },
-      { $pull: { badges: {
-        id: userBadgeObj._id,
-      } } },
-    );
-    await client.db().collection(COLL_PRESS_CATEGORIES).updateMany(
-      { appId, 'badges.list.id': userBadgeObj._id },
-      { $pull: { 'badges.list': {
-        id: userBadgeObj._id,
-      } } },
-    );
-    await client.db().collection(COLL_PRESS_ARTICLES).updateMany(
-      { appId, 'badges.list.id': userBadgeObj._id },
-      { $pull: { 'badges.list': {
-        id: userBadgeObj._id,
-      } } },
-    );
-    await client.db().collection(COLL_PRESS_DRAFTS).updateMany(
-      { appId, 'badges.list.id': userBadgeObj._id },
-      { $pull: { 'badges.list': {
-        id: userBadgeObj._id,
-      } } },
-    );
+      .collection(COLL_USERS)
+      .updateMany(
+        { appId, 'badges.id': userBadgeObj._id },
+        {
+          $pull: {
+            badges: {
+              id: userBadgeObj._id,
+            },
+          },
+        }
+      );
+    await client
+      .db()
+      .collection(COLL_PRESS_CATEGORIES)
+      .updateMany(
+        { appId, 'badges.list.id': userBadgeObj._id },
+        {
+          $pull: {
+            'badges.list': {
+              id: userBadgeObj._id,
+            },
+          },
+        }
+      );
+    await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .updateMany(
+        { appId, 'badges.list.id': userBadgeObj._id },
+        {
+          $pull: {
+            'badges.list': {
+              id: userBadgeObj._id,
+            },
+          },
+        }
+      );
+    await client
+      .db()
+      .collection(COLL_PRESS_DRAFTS)
+      .updateMany(
+        { appId, 'badges.list.id': userBadgeObj._id },
+        {
+          $pull: {
+            'badges.list': {
+              id: userBadgeObj._id,
+            },
+          },
+        }
+      );
   } finally {
     client.close();
   }

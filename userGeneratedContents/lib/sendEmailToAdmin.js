@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
@@ -7,10 +8,7 @@ const PERMISSIONS = [
   'userGeneratedContents_notify_email',
 ];
 
-const {
-  COLL_USERS,
-  COLL_PERM_GROUPS,
-} = mongoCollections;
+const { COLL_USERS, COLL_PERM_GROUPS } = mongoCollections;
 
 export default async (lang, subject, body, appId) => {
   const client = await MongoClient.connect();
@@ -64,7 +62,8 @@ export default async (lang, subject, body, appId) => {
             emails: { $push: '$_id' },
           },
         },
-      ]).toArray();
+      ])
+      .toArray();
     const { emails = [] } = result || {};
     const promises = emails.map((email) => {
       /* in case of error, ignore it, just try with best effort */

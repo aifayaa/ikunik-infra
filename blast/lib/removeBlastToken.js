@@ -1,11 +1,9 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_BALANCE_EMAILS,
-  COLL_BALANCE_MESSAGES,
-  COLL_BALANCE_NOTIFS,
-} = mongoCollections;
+const { COLL_BALANCE_EMAILS, COLL_BALANCE_MESSAGES, COLL_BALANCE_NOTIFS } =
+  mongoCollections;
 
 // To avoid getting a warning with lint
 const jsConsole = console;
@@ -26,18 +24,24 @@ export default async (type, profileId, qte, appId) => {
   }
   const client = await MongoClient.connect();
   try {
-    const res = await client.db().collection(collName)
-      .updateOne({
-        profil_ID: profileId,
-        appId,
-      }, {
-        $inc: {
-          balance: -Number(qte),
+    const res = await client
+      .db()
+      .collection(collName)
+      .updateOne(
+        {
+          profil_ID: profileId,
+          appId,
         },
-        $set: {
-          updatedAt: new Date(),
+        {
+          $inc: {
+            balance: -Number(qte),
+          },
+          $set: {
+            updatedAt: new Date(),
+          },
         },
-      }, { upsert: true });
+        { upsert: true }
+      );
     if (res.upsertedCount === 1 || res.modifiedCount === 1) {
       jsConsole.info(`decrement ${profileId} of ${qte} ${type} tokens`);
       return true;

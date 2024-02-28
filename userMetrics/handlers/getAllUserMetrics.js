@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getAllUserMetrics from '../lib/getAllUserMetrics';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userMetrics.json';
@@ -76,7 +77,7 @@ export default async (event) => {
       endTime,
       latitude,
       longitude,
-      range,
+      range
     );
     return response({ code: 200, body: results });
   } catch (e) {

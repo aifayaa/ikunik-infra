@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import checkPinCode from '../lib/checkPinCode';
 import response from '../../libs/httpResponses/response';
 
@@ -17,7 +18,7 @@ export default async (event) => {
     if (!phoneNumber || !pinCode) {
       throw new Error('mal formed request');
     }
-    await checkPinCode(phoneNumber, pinCode, (deviceUuid || null), userId, appId);
+    await checkPinCode(phoneNumber, pinCode, deviceUuid || null, userId, appId);
     return response({ code: 200, body: true });
   } catch (e) {
     return response({ code: 500, message: e.message });

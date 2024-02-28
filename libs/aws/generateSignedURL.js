@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { S3 } from 'aws-sdk';
 
 export default (Key, endpoint) => {

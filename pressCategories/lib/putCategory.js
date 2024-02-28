@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
@@ -39,18 +40,19 @@ export default async ({
 
     const previousCategoryValues = await collection.findOne(
       { _id: categoryId, appId },
-      { projection: { order: 1, parentId: 1 } },
+      { projection: { order: 1, parentId: 1 } }
     );
-    const { order: previousOrder, parentId: previousParentId } = previousCategoryValues;
+    const { order: previousOrder, parentId: previousParentId } =
+      previousCategoryValues;
     const hasOrderChanged = order !== null && previousOrder !== order;
     const hasParentIdChanged = previousParentId !== parentId;
 
     /* maximumOrderValue is the number of categories */
-    const maximumOrderValue = (await collection.countDocuments({
+    const maximumOrderValue = await collection.countDocuments({
       appId,
       parentId: previousParentId,
       order: { $ne: safeOrderNumber },
-    }));
+    });
 
     /* * * * * * * * * * * * * * * * * * * * * * * * *
      *
@@ -64,7 +66,7 @@ export default async ({
       appId,
       name,
       pathName,
-      categoryId,
+      categoryId
     );
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
@@ -96,11 +98,12 @@ export default async ({
     }
 
     /* Get the maximum order value for that parentId */
-    const maximumOrderValueForParentId = (await collection.countDocuments({
-      appId,
-      parentId,
-      order: { $ne: safeOrderNumber },
-    })) + 1;
+    const maximumOrderValueForParentId =
+      (await collection.countDocuments({
+        appId,
+        parentId,
+        order: { $ne: safeOrderNumber },
+      })) + 1;
 
     if (hasParentIdChanged) {
       if (parentId) {
@@ -139,10 +142,14 @@ export default async ({
     }
 
     if (badges.length > 0) {
-      const allBadges = await client.db().collection(COLL_USER_BADGES).find().toArray();
+      const allBadges = await client
+        .db()
+        .collection(COLL_USER_BADGES)
+        .find()
+        .toArray();
       const allBadgesMap = allBadges.reduce((acc, badge) => {
         acc[badge._id] = badge;
-        return (acc);
+        return acc;
       }, {});
 
       badges = badges.map((p) => {
@@ -151,9 +158,9 @@ export default async ({
           throw new Error('invalid_permission');
         }
 
-        return ({
+        return {
           id: p,
-        });
+        };
       });
     }
 
@@ -181,17 +188,20 @@ export default async ({
     if (rssFeedUrl !== null) category.rssFeedUrl = rssFeedUrl;
     if (forcedAuthor !== null) category.forcedAuthor = forcedAuthor;
     if (reversedFlow !== null) category.reversedFlow = reversedFlow;
-    if (reversedFlowStart !== null) category.reversedFlowStart = reversedFlowStart;
+    if (reversedFlowStart !== null)
+      category.reversedFlowStart = reversedFlowStart;
 
     if (picture && picture.length) {
       category.picture = picture.pop();
     }
 
     if (order) {
-      const whichMaximumOrderValue = parentId ? maximumOrderValueForParentId : maximumOrderValue;
+      const whichMaximumOrderValue = parentId
+        ? maximumOrderValueForParentId
+        : maximumOrderValue;
       category.order = Math.min(
         order || whichMaximumOrderValue,
-        whichMaximumOrderValue,
+        whichMaximumOrderValue
       );
     } else if (order === null && hasParentIdChanged) {
       category.order = 0;
@@ -226,7 +236,7 @@ export default async ({
         })
         .update({ $inc: { order: 1 } });
 
-    /* Otherwise if parent has not changed but order changed */
+      /* Otherwise if parent has not changed but order changed */
     } else if (hasOrderChanged) {
       /* If order was increased */
       if (category.order > previousOrder) {
@@ -251,7 +261,7 @@ export default async ({
           })
           .update({ $inc: { order: -1 } });
 
-      /* Otherwise if order was decreased */
+        /* Otherwise if order was decreased */
       } else if (category.order < previousOrder) {
         /* ex move 4 to position 2
              ________

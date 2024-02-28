@@ -1,27 +1,32 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_AUTOMATION_TASKS } = mongoCollections;
 
-export default async (appId, userId, {
-  action,
-  active = true,
-  articlesCount,
-  autoNotify = true,
-  autoPublish = true,
-  categories,
-  country,
-  customPrompts = {},
-  endDateTime,
-  fetchNewsSince,
-  lang = 'en',
-  name,
-  newsCategory,
-  nextArticles = [],
-  query,
-  recurrence,
-  startDateTime,
-}) => {
+export default async (
+  appId,
+  userId,
+  {
+    action,
+    active = true,
+    articlesCount,
+    autoNotify = true,
+    autoPublish = true,
+    categories,
+    country,
+    customPrompts = {},
+    endDateTime,
+    fetchNewsSince,
+    lang = 'en',
+    name,
+    newsCategory,
+    nextArticles = [],
+    query,
+    recurrence,
+    startDateTime,
+  }
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -55,7 +60,7 @@ export default async (appId, userId, {
       .collection(COLL_PRESS_AUTOMATION_TASKS)
       .insertOne(newTaskObj);
 
-    return (newTaskObj);
+    return newTaskObj;
   } finally {
     client.close();
   }

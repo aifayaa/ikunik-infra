@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import flatten from 'lodash/flatten';
 import queue from 'async/queue';
@@ -5,10 +6,7 @@ import buildPipeline from '../lib/pipelines/crowdPipeline';
 import response from '../../libs/httpResponses/response';
 import search from '../lib/search';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
 const lambda = new Lambda({
   region: REGION,
@@ -22,16 +20,32 @@ const jsConsole = console;
 export default async (event) => {
   try {
     /* Some base variables */
-    const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
+    const {
+      principalId: userId,
+      appId,
+      profileId,
+    } = event.requestContext.authorizer;
     const { title, message } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasNotification: true });
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
+    const pipeline = buildPipeline(
+      userId,
+      appId,
+      event.queryStringParameters || {}
+    );
 
     /* whole queueing system to process batch of mongo queries */
     let endpoints = [];
-    const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await search([...pipeline], queryStringParameters || {});
-      endpoints = endpoints.concat(flatten(localResults.crowd.map((fan) => fan.endpoints)));
+    const paginatorCallback = async (
+      { queryStringParameters },
+      doneCallback
+    ) => {
+      const localResults = await search(
+        [...pipeline],
+        queryStringParameters || {}
+      );
+      endpoints = endpoints.concat(
+        flatten(localResults.crowd.map((fan) => fan.endpoints))
+      );
       doneCallback();
     };
     const searchAndBlast = queue(paginatorCallback, 20);
@@ -46,7 +60,7 @@ export default async (event) => {
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
         };
         searchAndBlast.push({ queryStringParameters: localQS });
-      })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
+      })(i + 1, limit - i * MAXIMUM_DATA_FETCHED_PER_PAGE);
     }
 
     await searchAndBlast.drain();

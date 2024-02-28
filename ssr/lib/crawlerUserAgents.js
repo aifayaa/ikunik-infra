@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default [
   'facebookexternalhit/1.1',
   'Googlebotfa',

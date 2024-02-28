@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import acceptLanguageParser from 'accept-language-parser';
 import i18next from 'i18next';
 import langFr from './translations/fr';
@@ -10,7 +11,7 @@ const resources = {
 };
 
 export function formatMessage(...args) {
-  return (i18next.t(...args));
+  return i18next.t(...args);
 }
 
 export function getUserLanguage(headers) {
@@ -21,9 +22,9 @@ export function getUserLanguage(headers) {
   const found = Object.keys(headers).some((key) => {
     if (key.toLowerCase() === 'accept-language') {
       acceptLanguageHeader = headers[key];
-      return (true);
+      return true;
     }
-    return (false);
+    return false;
   });
 
   if (!found) {
@@ -39,7 +40,7 @@ export function getUserLanguage(headers) {
     }
   }
 
-  return (lng);
+  return lng;
 }
 
 export async function intlInit(lng) {

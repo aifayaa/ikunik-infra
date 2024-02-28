@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
@@ -59,7 +60,9 @@ describe('handlers - publishArticle', () => {
     before(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
       stubLib = sandbox.stub(lib, 'publishArticle').returns(libResult);
-      /* stubCleanPendingArticleNotifications = */sandbox.stub(notificationsQueue, 'cleanPendingArticleNotifications').returns(true);
+      /* stubCleanPendingArticleNotifications = */ sandbox
+        .stub(notificationsQueue, 'cleanPendingArticleNotifications')
+        .returns(true);
     });
 
     it('should return 200', async () => {
@@ -80,7 +83,7 @@ describe('handlers - publishArticle', () => {
         appId,
         id,
         eventParsed.draftId,
-        new Date(eventParsed.date),
+        new Date(eventParsed.date)
       );
     });
 
@@ -94,8 +97,12 @@ describe('handlers - publishArticle', () => {
 
     beforeEach(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubLib = sandbox.stub(lib, 'publishArticle').callsFake(() => Promise.reject(libResult));
-      /* stubCleanPendingArticleNotifications = */sandbox.stub(notificationsQueue, 'cleanPendingArticleNotifications').returns(true);
+      stubLib = sandbox
+        .stub(lib, 'publishArticle')
+        .callsFake(() => Promise.reject(libResult));
+      /* stubCleanPendingArticleNotifications = */ sandbox
+        .stub(notificationsQueue, 'cleanPendingArticleNotifications')
+        .returns(true);
     });
 
     afterEach(() => {
@@ -137,17 +144,21 @@ describe('handlers - publishArticle', () => {
       });
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
       stubGetArticle = sandbox.stub(getArticle, 'getArticle').returns(article);
-      stubSendNotificationsTo = sandbox.stub(snsNotifications, 'sendNotificationTo').returns(true);
-      /* stubQueueArticleNotifications = */sandbox.stub(notificationsQueue, 'queueArticleNotifications').returns(true);
-      /* stubCleanPendingArticleNotifications = */sandbox.stub(notificationsQueue, 'cleanPendingArticleNotifications').returns(true);
+      stubSendNotificationsTo = sandbox
+        .stub(snsNotifications, 'sendNotificationTo')
+        .returns(true);
+      /* stubQueueArticleNotifications = */ sandbox
+        .stub(notificationsQueue, 'queueArticleNotifications')
+        .returns(true);
+      /* stubCleanPendingArticleNotifications = */ sandbox
+        .stub(notificationsQueue, 'cleanPendingArticleNotifications')
+        .returns(true);
       stubLib = sandbox.stub(lib, 'publishArticle').returns(true);
     });
 
     // TODO: FIX TEST (Notifications changes)
     it.skip('should send notifications', async () => {
-      const {
-        appId,
-      } = event.requestContext.authorizer;
+      const { appId } = event.requestContext.authorizer;
       const { id } = event.pathParameters;
       const opts = { articleId: id };
 
@@ -158,7 +169,7 @@ describe('handlers - publishArticle', () => {
         article.title,
         prepareNotif(article.plainText),
         appId,
-        opts,
+        opts
       );
     });
 

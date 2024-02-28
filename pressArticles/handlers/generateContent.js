@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPerms } from '../../libs/perms/checkPerms';
@@ -14,16 +15,17 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
-    const {
-      prompts,
-    } = JSON.parse(event.body);
+    const { prompts } = JSON.parse(event.body);
 
     if (!prompts || !prompts.title) {
       throw new Error('mal_formed_request');
     }
 
     Object.keys(prompts).forEach((field) => {
-      if (possibleFields.indexOf(field) < 0 || typeof prompts[field] !== 'string') {
+      if (
+        possibleFields.indexOf(field) < 0 ||
+        typeof prompts[field] !== 'string'
+      ) {
         throw new Error('mal_formed_request');
       }
     });

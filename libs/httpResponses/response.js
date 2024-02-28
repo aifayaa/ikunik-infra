@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default ({ headers = {}, code, body, message, raw }) => {
   if (!body && !message) {
     message = 'http_error_missing_response_arguments';
@@ -8,7 +9,7 @@ export default ({ headers = {}, code, body, message, raw }) => {
     if (raw) {
       respBody = body;
     } else {
-      respBody = (typeof body === 'string') ? { message: body } : body;
+      respBody = typeof body === 'string' ? { message: body } : body;
       respBody = JSON.stringify(respBody);
     }
   } else {

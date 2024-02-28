@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import ElasticTranscoder from 'aws-sdk/clients/elastictranscoder';
 import path from 'path';
 import MongoClient from '../../libs/mongoClient';
@@ -5,11 +6,7 @@ import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 import transcoderPresets from './elasticTranscoderPresets.json';
 
-const {
-  EL_PIPELINE,
-  EL_PIPELINE_REGION,
-  STAGE,
-} = process.env;
+const { EL_PIPELINE, EL_PIPELINE_REGION, STAGE } = process.env;
 
 /* Encoding parameters */
 const HLSVideos = transcoderPresets[`${STAGE}.${EL_PIPELINE_REGION}`];
@@ -18,11 +15,7 @@ export default async (bucket, object, file) => {
   const client = await MongoClient.connect();
 
   /* all key names are lowercaser in metadata */
-  const {
-    id,
-    title,
-    type,
-  } = file.Metadata;
+  const { id, title, type } = file.Metadata;
 
   if (!id) {
     throw new Error('missing_id');
@@ -31,11 +24,9 @@ export default async (bucket, object, file) => {
   try {
     /* Get existing document and check it exists */
     const collection = getCollectionFromContentType(type);
-    const document = await client.db()
-      .collection(collection)
-      .findOne({
-        _id: id,
-      });
+    const document = await client.db().collection(collection).findOne({
+      _id: id,
+    });
 
     if (!document) {
       throw new Error('document_not_found');
@@ -43,11 +34,12 @@ export default async (bucket, object, file) => {
 
     /* Check content type match */
     if (type !== file.ContentType) {
-      await client.db()
+      await client
+        .db()
         .collection(collection)
         .updateOne(
           { _id: document._id },
-          { $set: { status: uploadStatus.UPLOAD_ERROR } },
+          { $set: { status: uploadStatus.UPLOAD_ERROR } }
         );
       throw new Error('content_type_mismatch');
     }
@@ -65,12 +57,10 @@ export default async (bucket, object, file) => {
       status: uploadStatus.ENCODING,
     });
 
-    await client.db()
+    await client
+      .db()
       .collection(collection)
-      .updateOne(
-        { _id: document._id },
-        { $set: videoDoc },
-      );
+      .updateOne({ _id: document._id }, { $set: videoDoc });
 
     /* Proceed to encoding */
     const elasticTranscoder = new ElasticTranscoder({
@@ -105,14 +95,17 @@ export default async (bucket, object, file) => {
     try {
       await elasticTranscoder.createJob(params).promise();
     } catch (e) {
-      await client.db()
+      await client
+        .db()
         .collection(collection)
         .updateOne(
           { _id: document._id },
-          { $set: {
-            message: e.message,
-            status: uploadStatus.ENCODING_JOB_ERROR,
-          } },
+          {
+            $set: {
+              message: e.message,
+              status: uploadStatus.ENCODING_JOB_ERROR,
+            },
+          }
         );
     }
   } finally {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -23,10 +24,7 @@ describe('handlers - getArticles', () => {
 
   describe('lib success', () => {
     const libResult = {
-      articles: [
-        {},
-        {},
-      ],
+      articles: [{}, {}],
       total: 2,
     };
 
@@ -41,20 +39,10 @@ describe('handlers - getArticles', () => {
     });
 
     it('should called with the good args', () => {
-      const {
-        category,
-        start,
-        limit,
-      } = event.queryStringParameters;
+      const { category, start, limit } = event.queryStringParameters;
       const { appId } = event.requestContext.authorizer;
 
-      sinon.assert.calledWith(
-        stubLib,
-        category,
-        start,
-        limit,
-        appId,
-      );
+      sinon.assert.calledWith(stubLib, category, start, limit, appId);
     });
 
     after(() => {
@@ -66,7 +54,9 @@ describe('handlers - getArticles', () => {
     const libResult = new Error('lib method fail');
 
     before(() => {
-      stubLib = sandbox.stub(lib, 'getArticles').callsFake(() => Promise.reject(libResult));
+      stubLib = sandbox
+        .stub(lib, 'getArticles')
+        .callsFake(() => Promise.reject(libResult));
     });
 
     it('should return 500', async () => {

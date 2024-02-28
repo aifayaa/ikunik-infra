@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import removeMd from 'remove-markdown';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import getInfos from '../lib/xmlParsing/getInfos';
@@ -63,7 +64,8 @@ export default async (event) => {
     let xml;
     let pinned;
 
-    const contentType = event.headers['content-type'] || event.headers['Content-Type'];
+    const contentType =
+      event.headers['content-type'] || event.headers['Content-Type'];
     switch (contentType) {
       case 'application/json': {
         ({
@@ -162,7 +164,8 @@ export default async (event) => {
     if (actions.length) {
       Object.keys(actions).forEach((k) => {
         if (actions[k].url.indexOf('/pdf/') === 0) {
-          actions[k].url = `/pdf/${encodeURIComponent(actions[k].url.substring(5))}`;
+          actions[k].url =
+            `/pdf/${encodeURIComponent(actions[k].url.substring(5))}`;
         }
       });
     }
@@ -219,7 +222,7 @@ export default async (event) => {
         appId,
         results.articleId,
         results.draftId,
-        new Date(),
+        new Date()
       );
       results.published = true;
       if (sendNotifications === 'true') {
@@ -227,7 +230,7 @@ export default async (event) => {
           appId,
           results.articleId,
           results.draftId,
-          new Date(),
+          new Date()
         );
         results.notificationSent = true;
       }

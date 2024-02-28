@@ -1,17 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
-export default async (
-  appId,
-  userId,
-  ugc,
-  {
-    reason = '',
-    moderated,
-  } = {},
-) => {
+export default async (appId, userId, ugc, { reason = '', moderated } = {}) => {
   /* Mongo client */
   const client = await MongoClient.connect();
 
@@ -30,7 +23,7 @@ export default async (
           _id: ugc._id,
           appId,
         },
-        { $set },
+        { $set }
       );
 
     return !!matchedCount;

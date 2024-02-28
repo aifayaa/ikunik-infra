@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
@@ -40,12 +41,7 @@ describe('handlers - editProfile', () => {
     it('should called with the good args', () => {
       const eventParsed = JSON.parse(event.body);
       const { principalId, appId } = event.requestContext.authorizer;
-      sinon.assert.calledWith(
-        stubLib,
-        principalId,
-        appId,
-        eventParsed,
-      );
+      sinon.assert.calledWith(stubLib, principalId, appId, eventParsed);
     });
 
     after(() => {
@@ -75,7 +71,9 @@ describe('handlers - editProfile', () => {
     const result = new Error('lib method fail');
 
     beforeEach(() => {
-      stubLib = sandbox.stub(lib, 'default').callsFake(() => Promise.reject(result));
+      stubLib = sandbox
+        .stub(lib, 'default')
+        .callsFake(() => Promise.reject(result));
     });
 
     afterEach(() => {

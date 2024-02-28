@@ -1,23 +1,15 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import mongoCollections from '../../../libs/mongoCollections.json';
 import { checkPassword } from '../password';
 import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
 
-const {
-  ADMIN_APP,
-} = process.env;
+const { ADMIN_APP } = process.env;
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
-export const crowdaaLogin = async (
-  username,
-  rawEmail,
-  password,
-  app,
-) => {
+export const crowdaaLogin = async (username, rawEmail, password, app) => {
   const client = await MongoClient.connect();
   try {
     const usersCollection = client.db().collection(COLL_USERS);
@@ -61,15 +53,20 @@ export const crowdaaLogin = async (
       const newUser = {
         _id: Random.id(),
         createdAt: new Date(),
-        username: username || user.username || email.replace(/@.*/, `-${Random.id(10)}`),
+        username:
+          username ||
+          user.username ||
+          email.replace(/@.*/, `-${Random.id(10)}`),
         emails: [{ address: email }],
         services: {
           password: user.services.password,
           resume: {
-            loginTokens: [{
-              hashedToken: hashLoginToken(token),
-              when: new Date(),
-            }],
+            loginTokens: [
+              {
+                hashedToken: hashLoginToken(token),
+                when: new Date(),
+              },
+            ],
           },
         },
         appId,
@@ -93,14 +90,17 @@ export const crowdaaLogin = async (
               when: new Date(),
             },
           },
-        },
+        }
       );
 
       if (user.previewForAdmin) {
-        const adminUser = await usersCollection.findOne({
-          _id: user.previewForAdmin,
-          appId: ADMIN_APP,
-        }, { projection: { _id: 1 } });
+        const adminUser = await usersCollection.findOne(
+          {
+            _id: user.previewForAdmin,
+            appId: ADMIN_APP,
+          },
+          { projection: { _id: 1 } }
+        );
         if (!adminUser) {
           await usersCollection.deleteOne({ _id: user._id, appId });
 

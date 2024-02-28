@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -7,19 +8,12 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-const {
-  COLL_AI_QUERIES,
-  COLL_PRESS_AUTOMATION_TASKS,
-} = mongoCollections;
+const { COLL_AI_QUERIES, COLL_PRESS_AUTOMATION_TASKS } = mongoCollections;
 
-async function postArticle({
-  autoNotify,
-  autoPublish,
-  categoriesId,
-  md,
-  pictureId,
-  title,
-}, { appId, userId }) {
+async function postArticle(
+  { autoNotify, autoPublish, categoriesId, md, pictureId, title },
+  { appId, userId }
+) {
   const params = {
     InvocationType: 'Event',
     FunctionName: `pressArticles-${process.env.STAGE}-postArticle`,
@@ -43,7 +37,10 @@ async function postArticle({
       headers: {
         'content-type': 'application/json',
       },
-      queryStringParameters: { autoPublish: `${autoPublish}`, sendNotifications: `${autoNotify}` },
+      queryStringParameters: {
+        autoPublish: `${autoPublish}`,
+        sendNotifications: `${autoNotify}`,
+      },
       title,
       requestContext: {
         authorizer: {
@@ -59,13 +56,8 @@ async function postArticle({
 }
 
 async function createArticles(taskObj, generatedContent) {
-  const {
-    action,
-    autoNotify,
-    autoPublish,
-    categories,
-  } = taskObj;
-  const userId = (taskObj.updatedBy || taskObj.createdBy);
+  const { action, autoNotify, autoPublish, categories } = taskObj;
+  const userId = taskObj.updatedBy || taskObj.createdBy;
   const { appId } = taskObj;
 
   if (action === 'summarize') {
@@ -81,16 +73,19 @@ async function createArticles(taskObj, generatedContent) {
     articlePartKeys.forEach((key) => {
       articleParts.push(generatedContent[key]);
     });
-    await postArticle({
-      autoNotify,
-      autoPublish,
-      categoriesId: categories,
-      md: articleParts.join('\n\n'),
-      pictureId: articlePicture,
-      title,
-    }, { appId, userId });
+    await postArticle(
+      {
+        autoNotify,
+        autoPublish,
+        categoriesId: categories,
+        md: articleParts.join('\n\n'),
+        pictureId: articlePicture,
+        title,
+      },
+      { appId, userId }
+    );
 
-    return (1);
+    return 1;
   }
 
   /* reword */
@@ -107,19 +102,24 @@ async function createArticles(taskObj, generatedContent) {
 
   const promises = [];
   parts.forEach((itm) => {
-    promises.push(postArticle({
-      autoNotify,
-      autoPublish,
-      categoriesId: categories,
-      md: itm.article,
-      pictureId: itm.articlePicture,
-      title: itm.title,
-    }, { appId, userId }));
+    promises.push(
+      postArticle(
+        {
+          autoNotify,
+          autoPublish,
+          categoriesId: categories,
+          md: itm.article,
+          pictureId: itm.articlePicture,
+          title: itm.title,
+        },
+        { appId, userId }
+      )
+    );
   });
 
   await Promise.all(promises);
 
-  return (promises.count);
+  return promises.count;
 }
 
 export default async (taskId) => {
@@ -136,34 +136,40 @@ export default async (taskId) => {
     await client
       .db()
       .collection(COLL_PRESS_AUTOMATION_TASKS)
-      .updateOne({ _id: taskId }, {
-        $set: {
-          lastExecution: {
-            at: new Date(),
-            status: 'running',
+      .updateOne(
+        { _id: taskId },
+        {
+          $set: {
+            lastExecution: {
+              at: new Date(),
+              status: 'running',
+            },
           },
-        },
-      });
+        }
+      );
 
     let aiQueryId;
     try {
       aiQueryId = await runTask(taskId, {
         appId: taskObj.appId,
-        userId: (taskObj.updatedBy || taskObj.createdBy),
+        userId: taskObj.updatedBy || taskObj.createdBy,
       });
     } catch (e) {
       await client
         .db()
         .collection(COLL_PRESS_AUTOMATION_TASKS)
-        .updateOne({ _id: taskId }, {
-          $set: {
-            lastExecution: {
-              at: new Date(),
-              status: 'failed',
-              message: e.message,
+        .updateOne(
+          { _id: taskId },
+          {
+            $set: {
+              lastExecution: {
+                at: new Date(),
+                status: 'failed',
+                message: e.message,
+              },
             },
-          },
-        });
+          }
+        );
 
       throw e;
     }
@@ -186,7 +192,7 @@ export default async (taskId) => {
           } else if (query.processingEndTime) {
             const result = query.parts.reduce((acc, itm) => {
               acc[itm.field] = itm.response;
-              return (acc);
+              return acc;
             }, {});
             resolve(result);
           } else {
@@ -202,28 +208,34 @@ export default async (taskId) => {
       await client
         .db()
         .collection(COLL_PRESS_AUTOMATION_TASKS)
-        .updateOne({ _id: taskId }, {
-          $set: {
-            lastExecution: {
-              at: new Date(),
-              status: 'success',
-              message: `Generated ${creationCount} articles`,
+        .updateOne(
+          { _id: taskId },
+          {
+            $set: {
+              lastExecution: {
+                at: new Date(),
+                status: 'success',
+                message: `Generated ${creationCount} articles`,
+              },
             },
-          },
-        });
+          }
+        );
     } catch (e) {
       await client
         .db()
         .collection(COLL_PRESS_AUTOMATION_TASKS)
-        .updateOne({ _id: taskId }, {
-          $set: {
-            lastExecution: {
-              at: new Date(),
-              status: 'failed',
-              message: e.message,
+        .updateOne(
+          { _id: taskId },
+          {
+            $set: {
+              lastExecution: {
+                at: new Date(),
+                status: 'failed',
+                message: e.message,
+              },
             },
-          },
-        });
+          }
+        );
 
       throw e;
     }

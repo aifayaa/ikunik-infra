@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import badgePrices from '../badgePrices.json';
@@ -5,17 +6,22 @@ import { manageBadgeProduct } from './manageBadgeProduct';
 
 const { COLL_USER_BADGES } = mongoCollections;
 
-export default async (userBadgeId, appId, {
-  access,
-  color = '#FFFFFF',
-  description = '',
-  isDefault,
-  management,
-  name,
-  productId: storeProductId,
-  subscriptionUrl = null,
-  validationUrl = '',
-}, { userId }) => {
+export default async (
+  userBadgeId,
+  appId,
+  {
+    access,
+    color = '#FFFFFF',
+    description = '',
+    isDefault,
+    management,
+    name,
+    productId: storeProductId,
+    subscriptionUrl = null,
+    validationUrl = '',
+  },
+  { userId }
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -60,7 +66,7 @@ export default async (userBadgeId, appId, {
       userId,
       userBadgeObj,
       price,
-      storeProductId,
+      storeProductId
     );
 
     const $set = {
@@ -81,15 +87,15 @@ export default async (userBadgeId, appId, {
       $set.subscriptionUrl = subscriptionUrl;
     }
 
-    await client
-      .db()
-      .collection(COLL_USER_BADGES)
-      .updateOne({
+    await client.db().collection(COLL_USER_BADGES).updateOne(
+      {
         _id: userBadgeId,
         appId,
-      }, { $set });
+      },
+      { $set }
+    );
 
-    return ({ ...userBadgeObj, ...$set });
+    return { ...userBadgeObj, ...$set };
   } finally {
     client.close();
   }

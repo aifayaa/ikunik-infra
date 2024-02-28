@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getArticles from './getArticles';
 import getAllArticles from './getAllArticles';
 import getArticle from './getArticle';

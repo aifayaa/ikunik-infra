@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -5,10 +6,7 @@ import { hashPassword } from './password';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 
-const {
-  COLL_USERS,
-  COLL_APPS,
-} = mongoCollections;
+const { COLL_USERS, COLL_APPS } = mongoCollections;
 
 export const resetPassword = async (rawEmail, appId, token, password, lang) => {
   const email = rawEmail.toLowerCase();
@@ -24,8 +22,13 @@ export const resetPassword = async (rawEmail, appId, token, password, lang) => {
           appId,
         },
         {
-          projection: { _id: true, emails: true, 'services.password.reset': true, 'profile.username': true },
-        },
+          projection: {
+            _id: true,
+            emails: true,
+            'services.password.reset': true,
+            'profile.username': true,
+          },
+        }
       ),
       appsCollection.findOne({ _id: appId }, { projection: { _id: true } }),
     ]);
@@ -47,26 +50,32 @@ export const resetPassword = async (rawEmail, appId, token, password, lang) => {
       set email as verified
       remove password.reset token
     */
-    usersCollection.updateOne({
-      _id: user._id,
-      'emails.address': email,
-    }, {
-      $set: {
-        'services.resume.loginTokens': [],
-        'services.password.bcrypt': hashed,
-        'emails.$.verified': true,
+    usersCollection.updateOne(
+      {
+        _id: user._id,
+        'emails.address': email,
       },
-      $unset: {
-        'services.password.reset': 1,
-        'services.password.srp': 1,
-      },
-    });
+      {
+        $set: {
+          'services.resume.loginTokens': [],
+          'services.password.bcrypt': hashed,
+          'emails.$.verified': true,
+        },
+        $unset: {
+          'services.password.reset': 1,
+          'services.password.srp': 1,
+        },
+      }
+    );
 
     intlInit(lang);
 
     /* send confirmation by email to user */
     const subject = formatMessage('auth:password_reset_email.title');
-    const html = formatMessage('auth:password_reset_email.html', { username: user.profile.username, email });
+    const html = formatMessage('auth:password_reset_email.html', {
+      username: user.profile.username,
+      email,
+    });
 
     await sendEmailTemplate(lang, 'customers', email, subject, html);
   } finally {

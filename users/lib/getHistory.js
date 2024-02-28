@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -42,7 +43,8 @@ export default async (userId, appId, { limit } = {}) => {
       },
       { $limit: limit },
     ];
-    const history = await client.db()
+    const history = await client
+      .db()
       .collection(mongoCollections.COLL_USER_HISTORY)
       .aggregate(pipeline)
       .toArray();

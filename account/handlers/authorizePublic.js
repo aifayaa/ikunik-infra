@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import authorizeWithPerms from '../lib/authorizeWithPerms';
 import generatePolicy from '../lib/generatePolicy';
@@ -15,7 +16,9 @@ export default async ({ headers, methodArn, requestContext }) => {
     jsConsole.info(authorizationToken, methodArn);
     const app = apiKey ? await getAppFromKey(apiKey) : null;
     const opts = {};
-    if (app) { opts.appId = app._id; }
+    if (app) {
+      opts.appId = app._id;
+    }
 
     if (!authorizationToken) {
       jsConsole.info('allow public');
@@ -23,7 +26,10 @@ export default async ({ headers, methodArn, requestContext }) => {
     }
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
-    const user = await authorizeWithPerms(hashedLoginToken, (app && app._id) || null);
+    const user = await authorizeWithPerms(
+      hashedLoginToken,
+      (app && app._id) || null
+    );
     if (user) {
       opts.userId = user.id;
       opts.perms = user.perms;

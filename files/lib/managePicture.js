@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable no-await-in-loop */
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
@@ -11,10 +12,7 @@ const S3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const {
-  S3_PICTURES_BUCKET,
-  CDN_DOMAIN_NAME,
-} = process.env;
+const { S3_PICTURES_BUCKET, CDN_DOMAIN_NAME } = process.env;
 
 const outBucket = S3_PICTURES_BUCKET;
 
@@ -27,38 +25,43 @@ const heicMimeTypes = {
   'image/heif-sequence': true,
 };
 
-const resizeParams = ({ keepRatio = false }) => [{
-  resize: {
-    width: keepRatio ? null : 150,
-    height: 150,
-    fit: keepRatio ? 'inside' : 'contain',
+const resizeParams = ({ keepRatio = false }) => [
+  {
+    resize: {
+      width: keepRatio ? null : 150,
+      height: 150,
+      fit: keepRatio ? 'inside' : 'contain',
+    },
+    prefix: 'thumb',
+    docField: 'thumb',
   },
-  prefix: 'thumb',
-  docField: 'thumb',
-}, {
-  resize: {
-    width: keepRatio ? null : 500,
-    height: 500,
-    fit: keepRatio ? 'inside' : 'contain',
+  {
+    resize: {
+      width: keepRatio ? null : 500,
+      height: 500,
+      fit: keepRatio ? 'inside' : 'contain',
+    },
+    prefix: 'medium',
+    docField: 'medium',
   },
-  prefix: 'medium',
-  docField: 'medium',
-}, {
-  resize: {
-    width: keepRatio ? null : 1024,
-    height: 1024,
-    fit: keepRatio ? 'inside' : 'contain',
+  {
+    resize: {
+      width: keepRatio ? null : 1024,
+      height: 1024,
+      fit: keepRatio ? 'inside' : 'contain',
+    },
+    prefix: 'large',
+    docField: 'large',
   },
-  prefix: 'large',
-  docField: 'large',
-}, {
-  resize: {
-    width: null,
-    height: null,
+  {
+    resize: {
+      width: null,
+      height: null,
+    },
+    prefix: 'original',
+    docField: 'picture',
   },
-  prefix: 'original',
-  docField: 'picture',
-}];
+];
 
 const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   let body = picture.Body;
@@ -101,12 +104,7 @@ export default async (bucket, object, file) => {
   const client = await MongoClient.connect();
 
   /* all key names are lowercaser in metadata */
-  const {
-    id,
-    title,
-    type,
-    opts = '{}',
-  } = file.Metadata;
+  const { id, title, type, opts = '{}' } = file.Metadata;
 
   if (!id) {
     throw new Error('missing_id');
@@ -114,22 +112,21 @@ export default async (bucket, object, file) => {
 
   try {
     const collection = getCollectionFromContentType(type);
-    const document = await client.db()
-      .collection(collection)
-      .findOne({
-        _id: id,
-      });
+    const document = await client.db().collection(collection).findOne({
+      _id: id,
+    });
 
     if (!document) {
       throw new Error('document_not_found');
     }
 
     if (type !== file.ContentType) {
-      await client.db()
+      await client
+        .db()
         .collection(collection)
         .updateOne(
           { _id: document._id },
-          { $set: { status: uploadStatus.UPLOAD_ERROR } },
+          { $set: { status: uploadStatus.UPLOAD_ERROR } }
         );
       throw new Error('content_type_mismatch');
     }
@@ -164,12 +161,10 @@ export default async (bucket, object, file) => {
       views: 0,
     });
 
-    await client.db()
+    await client
+      .db()
       .collection(collection)
-      .updateOne(
-        { _id: document._id },
-        { $set: pictureDoc },
-      );
+      .updateOne({ _id: document._id }, { $set: pictureDoc });
 
     const resParams = resizeParams(JSON.parse(opts));
     for (let i = 0; i < resParams.length; i += 1) {
@@ -182,13 +177,9 @@ export default async (bucket, object, file) => {
         file,
         outBucket,
         oKey,
-        params.resize,
+        params.resize
       );
-      const {
-        key,
-        info,
-        url,
-      } = results;
+      const { key, info, url } = results;
       pictureDoc[`${params.docField}Filename`] = key;
       pictureDoc[`${params.docField}Url`] = url;
       pictureDoc[`${params.docField}Height`] = info.height;
@@ -197,12 +188,10 @@ export default async (bucket, object, file) => {
 
     pictureDoc.status = uploadStatus.READY;
 
-    await client.db()
+    await client
+      .db()
       .collection(collection)
-      .updateOne(
-        { _id: document._id },
-        { $set: pictureDoc },
-      );
+      .updateOne({ _id: document._id }, { $set: pictureDoc });
   } finally {
     client.close();
   }

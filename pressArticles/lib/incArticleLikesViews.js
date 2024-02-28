@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -6,10 +7,7 @@ const { COLL_PRESS_ARTICLES } = mongoCollections;
 export const incArticleLikesViews = async (
   appId,
   articleId,
-  {
-    likes = 0,
-    views = 0,
-  },
+  { likes = 0, views = 0 }
 ) => {
   const client = await MongoClient.connect();
 

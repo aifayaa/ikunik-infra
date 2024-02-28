@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import createAd from '../lib/createAd';
 import { createFieldChecks } from '../lib/adsFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';

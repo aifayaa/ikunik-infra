@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getPicture from './getPicture';
 import getPictureDataLocation from './getPictureDataLocation';
 

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -17,15 +18,16 @@ export default async (id, appId, { isPublished }) => {
     }
 
     client = await MongoClient.connect();
-    const document = await client.db()
+    const document = await client
+      .db()
       .collection(COLL_DOCUMENTS)
       .findOne($find);
 
     if (!document) {
-      return (null);
+      return null;
     }
 
-    return (document.url || null);
+    return document.url || null;
   } finally {
     client.close();
   }

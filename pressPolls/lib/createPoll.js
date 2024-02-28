@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -9,18 +10,15 @@ export default async (appId, userId, pollData) => {
   try {
     const newPollObj = {
       ...pollData,
-      _id: (new ObjectID()).toString(),
+      _id: new ObjectID().toString(),
       appId,
       createdBy: userId,
       createdAt: new Date(),
     };
 
-    await client
-      .db()
-      .collection(COLL_PRESS_POLLS)
-      .insertOne(newPollObj);
+    await client.db().collection(COLL_PRESS_POLLS).insertOne(newPollObj);
 
-    return (newPollObj);
+    return newPollObj;
   } finally {
     client.close();
   }

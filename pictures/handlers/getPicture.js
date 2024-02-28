@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getPicture from '../lib/getPicture';
 import response from '../../libs/httpResponses/response';
 
@@ -5,7 +6,11 @@ export default async (event) => {
   try {
     const { id } = event.pathParameters;
     const { appId } = event.requestContext.authorizer;
-    const results = await getPicture(id, appId, event.queryStringParameters || {});
+    const results = await getPicture(
+      id,
+      appId,
+      event.queryStringParameters || {}
+    );
     if (!results) throw new Error('picture_not_found');
     return response({ code: 200, body: results });
   } catch (e) {

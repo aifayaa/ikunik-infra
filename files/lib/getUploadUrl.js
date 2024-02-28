@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import path from 'path';
 import AWS from 'aws-sdk';
 import uuidv4 from 'uuid/v4';
@@ -11,22 +12,20 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const {
-  S3_UPLOAD_BUCKET,
-} = process.env;
+const { S3_UPLOAD_BUCKET } = process.env;
 
-const {
-  COLL_DOCUMENTS,
-  COLL_PICTURES,
-  COLL_VIDEOS,
-} = mongoCollections;
+const { COLL_DOCUMENTS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
 
 function getDirPrefixFromCollection(collection) {
   switch (collection) {
-    case COLL_VIDEOS: return 'VideoStorage/';
-    case COLL_DOCUMENTS: return 'Documents/';
-    case COLL_PICTURES: return 'Pictures/';
-    default: return '';
+    case COLL_VIDEOS:
+      return 'VideoStorage/';
+    case COLL_DOCUMENTS:
+      return 'Documents/';
+    case COLL_PICTURES:
+      return 'Pictures/';
+    default:
+      return '';
   }
 }
 
@@ -44,7 +43,8 @@ export default async (userId, appId, files, metadata) => {
     const collection = getCollectionFromContentType(type);
 
     /* Preparing s3 parameters to get an upload link */
-    const fileExtension = path.extname(name) || supportedFormatsExtensions[type] || '';
+    const fileExtension =
+      path.extname(name) || supportedFormatsExtensions[type] || '';
     const dirPrefix = getDirPrefixFromCollection(collection);
     const key = `${dirPrefix}${uuidv4()}${fileExtension}`;
     const id = uuidv4();
@@ -94,8 +94,11 @@ export default async (userId, appId, files, metadata) => {
 
   try {
     /* eslint-disable */
-    for(const collection in insertions) {
-      await client.db().collection(collection).insertMany(insertions[collection]);
+    for (const collection in insertions) {
+      await client
+        .db()
+        .collection(collection)
+        .insertMany(insertions[collection]);
     }
     /* eslint-enable */
   } finally {

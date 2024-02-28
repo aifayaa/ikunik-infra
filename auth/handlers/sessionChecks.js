@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import sessionChecks from '../lib/sessionChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
@@ -10,7 +11,11 @@ export default async (event) => {
       principalId: userId,
     } = event.requestContext.authorizer;
 
-    const data = await sessionChecks(userId, appId, loginToken && JSON.parse(loginToken));
+    const data = await sessionChecks(
+      userId,
+      appId,
+      loginToken && JSON.parse(loginToken)
+    );
 
     if (data) {
       return response({ code: 200, body: { success: true, data } });

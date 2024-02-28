@@ -1,10 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 export default async (userId, appId, active) => {
   const client = await MongoClient.connect();
@@ -12,22 +10,30 @@ export default async (userId, appId, active) => {
 
   try {
     const [app, user] = await Promise.all([
-      db.collection(COLL_APPS)
-        .findOne({
+      db.collection(COLL_APPS).findOne(
+        {
           _id: appId,
           'credentials.chatengine': { $exists: true },
-        }, { projection: {
-          'credentials.chatengine': 1,
-        } }),
-      db.collection(COLL_USERS)
-        .findOne({
+        },
+        {
+          projection: {
+            'credentials.chatengine': 1,
+          },
+        }
+      ),
+      db.collection(COLL_USERS).findOne(
+        {
           _id: userId,
           appId,
           'services.chatengine': { $exists: true },
-        }, { projection: {
-          'services.chatengine': 1,
-          profile: 1,
-        } }),
+        },
+        {
+          projection: {
+            'services.chatengine': 1,
+            profile: 1,
+          },
+        }
+      ),
     ]);
 
     if (!app) throw new Error('app_not_found');
@@ -40,13 +46,17 @@ export default async (userId, appId, active) => {
       lastActivity = null;
     }
 
-    await db.collection(COLL_USERS)
-      .updateOne({
+    await db.collection(COLL_USERS).updateOne(
+      {
         _id: userId,
         appId,
-      }, { $set: {
-        'services.chatengine.lastActivity': lastActivity,
-      } });
+      },
+      {
+        $set: {
+          'services.chatengine.lastActivity': lastActivity,
+        },
+      }
+    );
   } finally {
     client.close();
   }

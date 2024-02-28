@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -15,7 +16,7 @@ export default async (appId) => {
       })
       .toArray();
 
-    return (userBadges);
+    return userBadges;
   } finally {
     client.close();
   }

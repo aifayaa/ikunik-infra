@@ -1,12 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
 
-const {
-  IVS_REGION,
-  STAGE,
-} = process.env;
+const { IVS_REGION, STAGE } = process.env;
 
 const { COLL_LIVE_STREAM } = mongoCollections;
 
@@ -17,10 +15,7 @@ const ivs = new IVS({
 
 const EXPIRATION_DELAY = 7 * 86400 * 1000;
 
-export default async (appId, liveStreamId, {
-  name,
-  startDateTime,
-}) => {
+export default async (appId, liveStreamId, { name, startDateTime }) => {
   const client = await MongoClient.connect();
   try {
     const dbName = `${appId}-${STAGE}-${name.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
@@ -43,10 +38,12 @@ export default async (appId, liveStreamId, {
 
     if (dbName !== dbLiveStream.name) {
       if (!dbLiveStream.expired) {
-        await ivs.updateChannel({
-          arn: dbLiveStream.aws.arn,
-          name: dbName,
-        }).promise();
+        await ivs
+          .updateChannel({
+            arn: dbLiveStream.aws.arn,
+            name: dbName,
+          })
+          .promise();
       }
 
       update.dbName = dbName;
@@ -55,7 +52,10 @@ export default async (appId, liveStreamId, {
       dbLiveStream.displayName = name;
     }
     startDateTime = new Date(startDateTime);
-    if (startDateTime.getTime() !== dbLiveStream.startDateTime.getTime() && !dbLiveStream.expired) {
+    if (
+      startDateTime.getTime() !== dbLiveStream.startDateTime.getTime() &&
+      !dbLiveStream.expired
+    ) {
       update.startDateTime = startDateTime;
       dbLiveStream.startDateTime = startDateTime;
 
@@ -73,7 +73,7 @@ export default async (appId, liveStreamId, {
         .updateOne({ _id: liveStreamId }, { $set: update });
     }
 
-    return (filterOutput(dbLiveStream));
+    return filterOutput(dbLiveStream);
   } finally {
     client.close();
   }

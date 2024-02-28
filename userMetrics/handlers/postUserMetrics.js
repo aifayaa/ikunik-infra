@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import postUserMetrics from '../lib/postUserMetrics';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userMetrics.json';
@@ -26,28 +27,18 @@ export default async (event) => {
     } = bodyParsed;
 
     /* Check all arguments are present */
-    if (
-      (!userId && !deviceId) ||
-      !type ||
-      !contentId ||
-      !contentCollection
-    ) {
+    if ((!userId && !deviceId) || !type || !contentId || !contentCollection) {
       throw new Error('Missing arguments');
     }
 
     /* Check arguments types are string */
-    [
-      appId,
-      contentCollection,
-      contentId,
-      deviceId,
-      type,
-      userId,
-    ].forEach((item) => {
-      if (item && typeof item !== 'string') {
-        throw new Error('Wrong argument type');
+    [appId, contentCollection, contentId, deviceId, type, userId].forEach(
+      (item) => {
+        if (item && typeof item !== 'string') {
+          throw new Error('Wrong argument type');
+        }
       }
-    });
+    );
 
     /* Check this type exists */
     if (typeof AVAILABLE_TYPES[type] === 'undefined') {
@@ -60,10 +51,7 @@ export default async (event) => {
         if (!data.startTime || !data.endTime) {
           throw new Error('Missing arguments');
         }
-        [
-          data.startTime,
-          data.endTime,
-        ].forEach((item) => {
+        [data.startTime, data.endTime].forEach((item) => {
           if (item && typeof item !== 'string') {
             throw new Error('Wrong argument type');
           }
@@ -77,10 +65,7 @@ export default async (event) => {
         if (!data.latitude || !data.longitude) {
           throw new Error('Missing arguments');
         }
-        [
-          data.latitude,
-          data.longitude,
-        ].forEach((item) => {
+        [data.latitude, data.longitude].forEach((item) => {
           if (item && typeof item !== 'number') {
             throw new Error('Wrong argument type');
           }
@@ -89,20 +74,18 @@ export default async (event) => {
         delete data.longitude;
         delete data.latitude;
         break;
-      default: throw new Error('Unsupported type');
+      default:
+        throw new Error('Unsupported type');
     }
 
-    const results = await postUserMetrics(
-      appId,
-      {
-        contentCollection,
-        contentId,
-        data,
-        deviceId: deviceId || null,
-        type,
-        userId: userId || null,
-      },
-    );
+    const results = await postUserMetrics(appId, {
+      contentCollection,
+      contentId,
+      data,
+      deviceId: deviceId || null,
+      type,
+      userId: userId || null,
+    });
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });

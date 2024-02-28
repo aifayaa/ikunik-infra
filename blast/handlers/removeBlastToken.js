@@ -1,12 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import validator from 'validator';
 import Lambda from 'aws-sdk/clients/lambda';
 import removeBlastToken from '../lib/removeBlastToken';
 import response from '../../libs/httpResponses/response';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
 const lambda = new Lambda({ region: REGION });
 
@@ -20,13 +18,15 @@ export default async ({ type, userId, qte, appId }) => {
     if (!validator.isIn(type, ['email', 'notification', 'text'])) {
       throw new Error('invalid type value');
     }
-    const res = await lambda.invoke({
-      FunctionName: `users-${STAGE}-getProfile`,
-      Payload: JSON.stringify({
-        pathParameters: { id: userId },
-        requestContext: { authorizer: { principalId: userId, appId } },
-      }),
-    }).promise();
+    const res = await lambda
+      .invoke({
+        FunctionName: `users-${STAGE}-getProfile`,
+        Payload: JSON.stringify({
+          pathParameters: { id: userId },
+          requestContext: { authorizer: { principalId: userId, appId } },
+        }),
+      })
+      .promise();
     const { StatusCode, Payload } = res;
     if (StatusCode !== 200) throw new Error('failed to get profile');
     const { body } = JSON.parse(Payload);

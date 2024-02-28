@@ -1,4 +1,7 @@
-import editUserSettings, { allowedSettingsChecks } from '../lib/editUserSettings';
+/* eslint-disable import/no-relative-packages */
+import editUserSettings, {
+  allowedSettingsChecks,
+} from '../lib/editUserSettings';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 

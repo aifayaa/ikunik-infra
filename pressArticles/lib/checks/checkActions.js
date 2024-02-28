@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { actionRegexp } from '../../../libs/regexp/action';
 
 export default (actions) => {

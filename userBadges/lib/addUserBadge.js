@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
@@ -10,17 +11,21 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-export default async (userId, appId, {
-  access,
-  color = '#FFFFFF',
-  description = '',
-  isDefault,
-  management,
-  name,
-  productId: storeProductId,
-  subscriptionUrl = '',
-  validationUrl = '',
-}) => {
+export default async (
+  userId,
+  appId,
+  {
+    access,
+    color = '#FFFFFF',
+    description = '',
+    isDefault,
+    management,
+    name,
+    productId: storeProductId,
+    subscriptionUrl = '',
+    validationUrl = '',
+  }
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -75,33 +80,39 @@ export default async (userId, appId, {
       .insertOne(userBadgeObj);
 
     if (storeProductId) {
-      await lambda.invoke({
-        FunctionName: `purchasableProducts-${process.env.STAGE}-postPurchasableProduct`,
-        Payload: JSON.stringify({
-          body: JSON.stringify({
-            _id: productId,
-            contents: [{
-              id: insertedId,
-              collection: COLL_USER_BADGES,
-              permissions: { all: true },
-            }],
-            options: {
-              appleProductId: storeProductId,
-              googleProductId: storeProductId,
+      await lambda
+        .invoke({
+          FunctionName: `purchasableProducts-${process.env.STAGE}-postPurchasableProduct`,
+          Payload: JSON.stringify({
+            body: JSON.stringify({
+              _id: productId,
+              contents: [
+                {
+                  id: insertedId,
+                  collection: COLL_USER_BADGES,
+                  permissions: { all: true },
+                },
+              ],
+              options: {
+                appleProductId: storeProductId,
+                googleProductId: storeProductId,
+              },
+              price,
+              type: 'direct',
+            }),
+            requestContext: {
+              authorizer: {
+                appId,
+                perms: '{ "purchasableProducts_post": true }',
+                principalId: userId,
+              },
             },
-            price,
-            type: 'direct',
           }),
-          requestContext: { authorizer: {
-            appId,
-            perms: '{ "purchasableProducts_post": true }',
-            principalId: userId,
-          } },
-        }),
-      }).promise();
+        })
+        .promise();
     }
 
-    return (userBadgeObj);
+    return userBadgeObj;
   } finally {
     client.close();
   }

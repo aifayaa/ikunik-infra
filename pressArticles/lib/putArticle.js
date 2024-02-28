@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -69,10 +70,14 @@ export const putArticle = async ({
       userId,
       currentArticle,
       price,
-      storeProductId,
+      storeProductId
     );
 
-    if (categoryId && Array.isArray(categoriesId) && !categoriesId.indexOf(categoryId)) {
+    if (
+      categoryId &&
+      Array.isArray(categoriesId) &&
+      !categoriesId.indexOf(categoryId)
+    ) {
       categoriesId.unshift(categoryId);
     }
     if (!categoryId) [categoryId] = categoriesId;

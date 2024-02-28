@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getProfile from '../lib/getProfile';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';

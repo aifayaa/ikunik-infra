@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import uuidv4 from 'uuid/v4';
 import response from '../../libs/httpResponses/response';
@@ -12,11 +13,19 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { email, username = null, password, profile = {} } = JSON.parse(event.body);
+    const {
+      email,
+      username = null,
+      password,
+      profile = {},
+    } = JSON.parse(event.body);
 
-    if (!typeCheck('[String]', [email, password])) throw new Error('wrong_argument_type');
-    if (!typeCheck('[Object]', [profile])) throw new Error('wrong_argument_type');
-    if (password.length < PASSWORD_MIN_LENGTH) throw new Error('invalid_password_length');
+    if (!typeCheck('[String]', [email, password]))
+      throw new Error('wrong_argument_type');
+    if (!typeCheck('[Object]', [profile]))
+      throw new Error('wrong_argument_type');
+    if (password.length < PASSWORD_MIN_LENGTH)
+      throw new Error('invalid_password_length');
 
     const ret = await adminRegister({
       email,

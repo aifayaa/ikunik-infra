@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import removeCategory from '../lib/removeCategory';
 import response from '../../libs/httpResponses/response';

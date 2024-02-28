@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 export default (libs, output) => {
   const method = libs.make.method('Get our current app settings', [
     { name: 'apps' },

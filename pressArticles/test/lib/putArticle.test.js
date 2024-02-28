@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
@@ -56,9 +57,12 @@ describe('lib - putArticle', () => {
     sinon.assert.calledWith(
       spyMongo.findOne,
       spyMongo.findOne.getCall(0).args[0],
-      spyMongo.findOne.getCall(0).args[1],
+      spyMongo.findOne.getCall(0).args[1]
     );
-    sinon.assert.calledWith(spyMongo.insertOne, spyMongo.insertOne.getCall(0).args[0]);
+    sinon.assert.calledWith(
+      spyMongo.insertOne,
+      spyMongo.insertOne.getCall(0).args[0]
+    );
   });
 
   after(() => {

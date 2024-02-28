@@ -1,10 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-  COLL_USER_METRICS,
-} = mongoCollections;
+const { COLL_USERS, COLL_USER_METRICS } = mongoCollections;
 
 export default async (
   appId,
@@ -18,7 +16,7 @@ export default async (
   endTime,
   latitude,
   longitude,
-  range,
+  range
 ) => {
   let client;
   try {
@@ -126,21 +124,25 @@ export default async (
       });
     }
 
-    pipeline.push({
-      $lookup: {
-        from: COLL_USERS,
-        localField: 'userId',
-        foreignField: '_id',
-        as: 'user',
+    pipeline.push(
+      {
+        $lookup: {
+          from: COLL_USERS,
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
       },
-    }, {
-      $unwind: {
-        path: '$user',
-        preserveNullAndEmptyArrays: true,
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
+        },
       },
-    }, {
-      $project,
-    });
+      {
+        $project,
+      }
+    );
 
     return await client
       .db()

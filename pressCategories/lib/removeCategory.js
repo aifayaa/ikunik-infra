@@ -1,12 +1,10 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { SAFE_ORDER_NUMBER } = process.env;
 
-const {
-  COLL_PRESS_ARTICLES,
-  COLL_PRESS_CATEGORIES,
-} = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_PRESS_CATEGORIES } = mongoCollections;
 
 const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
@@ -18,7 +16,7 @@ export default async (appId, categoryId) => {
 
     const previousCategoryValues = await collection.findOne(
       { _id: categoryId, appId },
-      { projection: { order: 1, parentId: 1 } },
+      { projection: { order: 1, parentId: 1 } }
     );
 
     if (!previousCategoryValues) throw new Error('category_not_found');
@@ -75,7 +73,7 @@ export default async (appId, categoryId) => {
             trashed: true,
             categoryId: null,
           },
-        },
+        }
       );
     return { resultDelete, resultTrashed };
   } finally {

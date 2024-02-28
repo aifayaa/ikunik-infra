@@ -1,11 +1,8 @@
+/* eslint-disable import/no-relative-packages */
 import supportedFormatsExtensions from '../supportedFormatsExtensions.json';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_DOCUMENTS,
-  COLL_PICTURES,
-  COLL_VIDEOS,
-} = mongoCollections;
+const { COLL_DOCUMENTS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
 
 export default (contentType, throwError = true) => {
   if (!supportedFormatsExtensions[contentType]) {

@@ -1,13 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import queue from 'async/queue';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
 import response from '../../libs/httpResponses/response';
 import search from '../lib/search';
 
-const {
-  REGION,
-  STAGE,
-} = process.env;
+const { REGION, STAGE } = process.env;
 
 const lambda = new Lambda({
   region: REGION,
@@ -21,20 +19,37 @@ const jsConsole = console;
 export default async (event) => {
   try {
     /* Some base variables */
-    const { principalId: userId, appId, profileId } = event.requestContext.authorizer;
+    const {
+      principalId: userId,
+      appId,
+      profileId,
+    } = event.requestContext.authorizer;
     const { subject, template } = JSON.parse(event.body);
     Object.assign(event.queryStringParameters, { hasEmail: true });
-    const pipeline = buildPipeline(userId, appId, event.queryStringParameters || {});
+    const pipeline = buildPipeline(
+      userId,
+      appId,
+      event.queryStringParameters || {}
+    );
     /* whole queueing system to process batch of mongo queries */
     let contacts = [];
-    const paginatorCallback = async ({ queryStringParameters }, doneCallback) => {
-      const localResults = await search([...pipeline], queryStringParameters || {});
-      contacts = contacts.concat(localResults.crowd.map((fan) => ({
-        email: fan.user.email ||
-          fan.user.profile.email ||
-          (fan.user.emails && fan.user.emails[0].address),
-        name: fan.user.profile.username,
-      })));
+    const paginatorCallback = async (
+      { queryStringParameters },
+      doneCallback
+    ) => {
+      const localResults = await search(
+        [...pipeline],
+        queryStringParameters || {}
+      );
+      contacts = contacts.concat(
+        localResults.crowd.map((fan) => ({
+          email:
+            fan.user.email ||
+            fan.user.profile.email ||
+            (fan.user.emails && fan.user.emails[0].address),
+          name: fan.user.profile.username,
+        }))
+      );
       doneCallback();
     };
     const searchAndBlast = queue(paginatorCallback, 20);
@@ -49,7 +64,7 @@ export default async (event) => {
           limit: Math.min(MAXIMUM_DATA_FETCHED_PER_PAGE, batchProcessed),
         };
         searchAndBlast.push({ queryStringParameters: localQS });
-      })(i + 1, limit - (i * MAXIMUM_DATA_FETCHED_PER_PAGE));
+      })(i + 1, limit - i * MAXIMUM_DATA_FETCHED_PER_PAGE);
     }
 
     await searchAndBlast.drain();

@@ -1,17 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunHtml } from '../../libs/email/sendEmailMailgun';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 import random from '../../libs/account_utils/random';
 
-const {
-  COLL_APPS,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-const {
-  METAMASK_LOGIN_DOMAIN,
-} = process.env;
+const { METAMASK_LOGIN_DOMAIN } = process.env;
 
 export default async (appId, userId, lang) => {
   const client = await MongoClient.connect();
@@ -40,10 +36,13 @@ export default async (appId, userId, lang) => {
 
     if (!loginToken) {
       loginToken = `${Date.now()}-${random.id(32)}`;
-      await db.collection(COLL_USERS).updateOne({
-        _id: userId,
-        appId,
-      }, { $set: { 'services.metamaskLoginToken': loginToken } });
+      await db.collection(COLL_USERS).updateOne(
+        {
+          _id: userId,
+          appId,
+        },
+        { $set: { 'services.metamaskLoginToken': loginToken } }
+      );
     }
 
     const userEmail =
@@ -53,18 +52,27 @@ export default async (appId, userId, lang) => {
     await intlInit(lang);
 
     const link = `https://${METAMASK_LOGIN_DOMAIN}/authenticate?userId=${encodeURIComponent(userId)}&appId=${encodeURIComponent(appId)}&token=${encodeURIComponent(loginToken)}`;
-    const title = formatMessage('crypto:metamaskSendLoginUrl.title', { app, link });
-    const content = formatMessage('crypto:metamaskSendLoginUrl.html', { app, link });
-    const html = formatMessage('libsEmail:template_skeleton', { body: '$t(libsEmail:template_customers)', content });
+    const title = formatMessage('crypto:metamaskSendLoginUrl.title', {
+      app,
+      link,
+    });
+    const content = formatMessage('crypto:metamaskSendLoginUrl.html', {
+      app,
+      link,
+    });
+    const html = formatMessage('libsEmail:template_skeleton', {
+      body: '$t(libsEmail:template_customers)',
+      content,
+    });
 
     await sendEmailMailgunHtml(
       'No reply <support@crowdaa.com>',
       userEmail,
       title,
-      html,
+      html
     );
 
-    return ({ ok: true });
+    return { ok: true };
   } finally {
     client.close();
   }

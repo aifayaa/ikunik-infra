@@ -1,16 +1,15 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getUGCArticleCommentsCount } from './getUGCCounts';
 
-const {
-  COLL_USERS,
-  COLL_USER_GENERATED_CONTENTS,
-} = mongoCollections;
+const { COLL_USERS, COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
-export default async (appId, userGeneratedContentsId, {
-  moderator = undefined,
-  trashed = undefined,
-} = {}) => {
+export default async (
+  appId,
+  userGeneratedContentsId,
+  { moderator = undefined, trashed = undefined } = {}
+) => {
   let client;
   try {
     client = await MongoClient.connect();
@@ -64,21 +63,25 @@ export default async (appId, userGeneratedContentsId, {
         },
       },
     ];
-    pipeline.push({
-      $lookup: {
-        from: COLL_USERS,
-        localField: 'userId',
-        foreignField: '_id',
-        as: 'user',
+    pipeline.push(
+      {
+        $lookup: {
+          from: COLL_USERS,
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
       },
-    }, {
-      $unwind: {
-        path: '$user',
-        preserveNullAndEmptyArrays: true,
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
+        },
       },
-    }, {
-      $project,
-    });
+      {
+        $project,
+      }
+    );
 
     const ugcs = await client
       .db()
@@ -94,7 +97,7 @@ export default async (appId, userGeneratedContentsId, {
 
     await Promise.all(promises);
 
-    return (ugcs);
+    return ugcs;
   } finally {
     client.close();
   }

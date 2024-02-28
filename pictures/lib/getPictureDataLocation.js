@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -22,13 +23,13 @@ export default async (id, appId, { isPublished, quality }) => {
 
     quality.filter((item) => {
       if (QUALITIES.indexOf(item) < 0) {
-        return (false);
+        return false;
       }
-      return (true);
+      return true;
     });
 
     if (quality.length === 0) {
-      return (null);
+      return null;
     }
 
     if (typeof isPublished !== 'undefined') {
@@ -36,12 +37,10 @@ export default async (id, appId, { isPublished, quality }) => {
     }
 
     client = await MongoClient.connect();
-    const picture = await client.db()
-      .collection(COLL_PICTURES)
-      .findOne($find);
+    const picture = await client.db().collection(COLL_PICTURES).findOne($find);
 
     if (!picture) {
-      return (null);
+      return null;
     }
 
     let pictureUrl = null;
@@ -50,11 +49,11 @@ export default async (id, appId, { isPublished, quality }) => {
       const key = `${quality[i]}Url`;
       pictureUrl = picture[key];
       if (pictureUrl) {
-        return (pictureUrl);
+        return pictureUrl;
       }
     }
 
-    return (null);
+    return null;
   } finally {
     client.close();
   }

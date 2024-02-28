@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import getChatSettings from '../lib/getChatSettings';
 import response from '../../libs/httpResponses/response';
 
@@ -19,8 +20,12 @@ export default async (event) => {
   } catch (e) {
     let code = 500;
     switch (e.message) {
-      case 'Forbidden': code = 403; break;
-      default: code = 500; break;
+      case 'Forbidden':
+        code = 403;
+        break;
+      default:
+        code = 500;
+        break;
     }
     return response({ code, message: e.message });
   }

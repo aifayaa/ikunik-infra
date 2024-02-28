@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import S3 from 'aws-sdk/clients/s3';
 import MongoClient from '../../../libs/mongoClient';
 import mongoCollections from '../../../libs/mongoCollections.json';
@@ -9,9 +10,7 @@ const {
   LEQUOTIDIEN_BUCKET_PDF,
 } = process.env;
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 const s3 = new S3({
   region: LEQUOTIDIEN_AWS_REGION,
@@ -22,23 +21,24 @@ const s3 = new S3({
 });
 
 // TODO: add a check to user permission to access videos not published
-export default async (
-  pdfId,
-  { appId, userId, loginToken },
-) => {
+export default async (pdfId, { appId, userId, loginToken }) => {
   const client = await MongoClient.connect();
   try {
-    const user = await client.db()
+    const user = await client
+      .db()
       .collection(COLL_USERS)
-      .findOne({
-        _id: userId,
-        appId,
-        'services.resume.loginTokens.hashedToken': loginToken.hashedToken,
-      }, {
-        projection: {
-          'services.resume.loginTokens.$': 1,
+      .findOne(
+        {
+          _id: userId,
+          appId,
+          'services.resume.loginTokens.hashedToken': loginToken.hashedToken,
         },
-      });
+        {
+          projection: {
+            'services.resume.loginTokens.$': 1,
+          },
+        }
+      );
 
     if (loginToken.backend !== 'wordpress') {
       throw new Error('forbidden');
@@ -50,10 +50,12 @@ export default async (
     // @TODO CHECK USER PERMS WITH API
 
     try {
-      await s3.headObject({
-        Bucket: LEQUOTIDIEN_BUCKET_PDF,
-        Key: `${pdfId}.pdf`,
-      }).promise();
+      await s3
+        .headObject({
+          Bucket: LEQUOTIDIEN_BUCKET_PDF,
+          Key: `${pdfId}.pdf`,
+        })
+        .promise();
     } catch (e) {
       throw new Error('content_not_found');
     }
@@ -65,7 +67,7 @@ export default async (
       Expires: 600,
     };
 
-    return (s3.getSignedUrl('getObject', s3Params));
+    return s3.getSignedUrl('getObject', s3Params);
   } finally {
     client.close();
   }

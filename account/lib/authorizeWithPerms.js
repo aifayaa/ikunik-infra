@@ -1,22 +1,16 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  ADMIN_APP,
-} = process.env;
+const { ADMIN_APP } = process.env;
 
-const {
-  COLL_USERS,
-  COLL_PERM_GROUPS,
-} = mongoCollections;
+const { COLL_USERS, COLL_PERM_GROUPS } = mongoCollections;
 
 export default async (hashedToken, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const usersCollection = client
-      .db()
-      .collection(COLL_USERS);
+    const usersCollection = client.db().collection(COLL_USERS);
 
     const conds = {
       $or: [
@@ -29,15 +23,13 @@ export default async (hashedToken, appId) => {
       conds.appId = { $in: [appId, ADMIN_APP] };
     }
 
-    const user = await usersCollection
-      .findOne(
-        conds,
-        { projection: {
-          _id: 1,
-          permGroupIds: 1,
-          'services.resume.loginTokens': 1,
-        } },
-      );
+    const user = await usersCollection.findOne(conds, {
+      projection: {
+        _id: 1,
+        permGroupIds: 1,
+        'services.resume.loginTokens': 1,
+      },
+    });
 
     let loginToken = null;
     if (
@@ -50,9 +42,9 @@ export default async (hashedToken, appId) => {
        * with a condition inside an `$or`, and `$elemMatch` isn't supported either */
       const dbToken = user.services.resume.loginTokens.reduce((acc, tok) => {
         if (tok.hashedToken === hashedToken) {
-          return (tok);
+          return tok;
         }
-        return (acc);
+        return acc;
       }, null);
       loginToken = dbToken;
 
@@ -64,14 +56,14 @@ export default async (hashedToken, appId) => {
               $pull: {
                 'services.resume.loginTokens': dbToken,
               },
-            },
+            }
           );
 
-          return ({
+          return {
             id: null,
             loginToken: null,
             perms: {},
-          });
+          };
         }
       }
     }
@@ -87,13 +79,15 @@ export default async (hashedToken, appId) => {
 
     /* get user perms */
     const permGroupIds = (user && user.permGroupIds) || [];
-    const permsAll = permGroupIds.length ? await client
-      .db()
-      .collection(COLL_PERM_GROUPS)
-      .find({
-        _id: { $in: permGroupIds },
-        appId,
-      }).toArray()
+    const permsAll = permGroupIds.length
+      ? await client
+          .db()
+          .collection(COLL_PERM_GROUPS)
+          .find({
+            _id: { $in: permGroupIds },
+            appId,
+          })
+          .toArray()
       : [];
 
     const perms = permsAll.reduce((acc, curr) => {

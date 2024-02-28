@@ -1,21 +1,13 @@
+/* eslint-disable import/no-relative-packages */
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  SNS_KEY_ID,
-  SNS_REGION,
-  SNS_SECRET,
-  SNS_TOPIC,
-} = process.env;
+const { SNS_KEY_ID, SNS_REGION, SNS_SECRET, SNS_TOPIC } = process.env;
 
-const {
-  COLL_CONTACTS,
-  COLL_PHONES,
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_CONTACTS, COLL_PHONES, COLL_USERS } = mongoCollections;
 
 export default async (phone, pinCode, deviceUuid, userId) => {
   const sns = new SNS({
@@ -30,11 +22,14 @@ export default async (phone, pinCode, deviceUuid, userId) => {
     const { value } = await client
       .db()
       .collection(COLL_PHONES)
-      .findOneAndUpdate({
-        phone,
-        pinCode,
-        validated: false,
-      }, { $set: { validated: true } });
+      .findOneAndUpdate(
+        {
+          phone,
+          pinCode,
+          validated: false,
+        },
+        { $set: { validated: true } }
+      );
 
     if (!value) {
       throw new Error('phone, pin code not found or pin already validated');
@@ -53,7 +48,8 @@ export default async (phone, pinCode, deviceUuid, userId) => {
     }
     const cleandedPhoneNumber = cleanded[0];
     if (cleanded[1] === 'USA') {
-      const text = 'Welcome to Crowdaa exclusive fans club! Msg&data rates may apply. 1msg/wk. Reply HELP for help, STOP to cancel.';
+      const text =
+        'Welcome to Crowdaa exclusive fans club! Msg&data rates may apply. 1msg/wk. Reply HELP for help, STOP to cancel.';
       params = {
         Message: text,
         MessageStructure: 'string',
@@ -66,7 +62,10 @@ export default async (phone, pinCode, deviceUuid, userId) => {
     const res = await client
       .db()
       .collection(COLL_USERS)
-      .findOneAndUpdate({ _id: userId }, { $set: { 'profile.phone': cleandedPhoneNumber } });
+      .findOneAndUpdate(
+        { _id: userId },
+        { $set: { 'profile.phone': cleandedPhoneNumber } }
+      );
     const user = res.value || {};
     if (!user) {
       throw new Error('user not found');

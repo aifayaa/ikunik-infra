@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
@@ -113,7 +114,9 @@ describe('handlers - getAllUserMetrics', () => {
       const libResult = new Error('lib method fail');
 
       before(() => {
-        stubLib = sandbox.stub(lib, 'default').callsFake(() => Promise.reject(libResult));
+        stubLib = sandbox
+          .stub(lib, 'default')
+          .callsFake(() => Promise.reject(libResult));
       });
 
       it('should return 500', async () => {
@@ -128,10 +131,7 @@ describe('handlers - getAllUserMetrics', () => {
   });
 
   describe('lib success', () => {
-    const libResult = [
-      {},
-      {},
-    ];
+    const libResult = [{}, {}];
 
     before(() => {
       stubLib = sandbox.stub(lib, 'default').returns(libResult);
@@ -171,7 +171,7 @@ describe('handlers - getAllUserMetrics', () => {
         endTime,
         latitude,
         longitude,
-        range,
+        range
       );
     });
 

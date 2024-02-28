@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import sinon from 'sinon';
 import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
@@ -84,10 +85,7 @@ describe('handlers - putArticle', () => {
         plainText: 'titre1',
       };
       sinon.assert.calledOnce(stubPerms);
-      sinon.assert.calledWith(
-        stubLib,
-        opts,
-      );
+      sinon.assert.calledWith(stubLib, opts);
     });
 
     after(() => {
@@ -100,7 +98,9 @@ describe('handlers - putArticle', () => {
 
     beforeEach(() => {
       stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
-      stubLib = sandbox.stub(lib, 'putArticle').callsFake(() => Promise.reject(result));
+      stubLib = sandbox
+        .stub(lib, 'putArticle')
+        .callsFake(() => Promise.reject(result));
     });
 
     afterEach(() => {

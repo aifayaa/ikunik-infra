@@ -1,12 +1,11 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const {
-  COLL_USERS,
-} = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 function isBool(x) {
-  return (typeof x === 'boolean');
+  return typeof x === 'boolean';
 }
 
 export const allowedSettingsChecks = {
@@ -21,24 +20,27 @@ export default async (userId, appId, newSettings) => {
   const db = client.db();
 
   try {
-    const user = await db.collection(COLL_USERS).findOne({ _id: userId, appId });
+    const user = await db
+      .collection(COLL_USERS)
+      .findOne({ _id: userId, appId });
     if (!user) {
       throw new Error('user_not_found');
     }
 
     const $set = Object.keys(newSettings).reduce((acc, key) => {
       acc[`settings.${key}`] = newSettings[key];
-      return (acc);
+      return acc;
     }, {});
 
-    const { matchedCount } = await db
-      .collection(COLL_USERS)
-      .updateOne({
+    const { matchedCount } = await db.collection(COLL_USERS).updateOne(
+      {
         _id: userId,
         appId,
-      }, {
+      },
+      {
         $set,
-      });
+      }
+    );
 
     return !!matchedCount;
   } finally {
