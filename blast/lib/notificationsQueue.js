@@ -107,7 +107,7 @@ export const queueNotifications = async (
   notifyAt,
   type,
   data = {},
-  { only = null }
+  { only = null } = {}
 ) => {
   const client = await MongoClient.connect();
   try {
