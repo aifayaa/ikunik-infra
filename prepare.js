@@ -14,15 +14,25 @@ const AVAILABLE_STAGES_REGIONS = [
 ];
 
 if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
-  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS
-    .map((x) => (x.replace(':', ' + ')))
-    .join(', ');
+  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS.map((x) =>
+    x.replace(':', ' + ')
+  ).join(', ');
   console.log('usage : ./prepare.js [STAGE] [REGION] [EXTRA]\n');
-  console.log(`  STAGE + REGION are mandatory and can be : ${stageRegionsDisplayList}`);
-  console.log('  EXTRA is a comma-separated list of extra operations to do. It may contain :');
-  console.log('    - remove : Checks and removes database indexes that we did not list in this script');
-  console.log('    - verbose : Display extra information about what is being done');
-  console.log('    - dry : Don\'t run any database write operation except creating collections that are not found');
+  console.log(
+    `  STAGE + REGION are mandatory and can be : ${stageRegionsDisplayList}`
+  );
+  console.log(
+    '  EXTRA is a comma-separated list of extra operations to do. It may contain :'
+  );
+  console.log(
+    '    - remove : Checks and removes database indexes that we did not list in this script'
+  );
+  console.log(
+    '    - verbose : Display extra information about what is being done'
+  );
+  console.log(
+    "    - dry : Don't run any database write operation except creating collections that are not found"
+  );
   console.log('    - force : Force creation/update of existing indexes');
   process.exit(1);
 }
@@ -30,7 +40,7 @@ if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
 // Set options as a parameter, environment variable, or rc file.
 const fs = require('fs');
 const yaml = require('js-yaml');
-module.require = require('esm')(module/* , options */);
+module.require = require('esm')(module /* , options */);
 
 const isEqual = require('lodash/isEqual');
 const omitBy = require('lodash/omitBy');
@@ -51,9 +61,7 @@ const mongoCollections = require('./libs/mongoCollections.json');
  * @param {object} bigObj A bigger object
  */
 function objInclude(smallObj, bigObj) {
-  return !(Object.keys(smallObj).some(
-    (k) => !isEqual(smallObj[k], bigObj[k]),
-  ));
+  return !Object.keys(smallObj).some((k) => !isEqual(smallObj[k], bigObj[k]));
 }
 
 function makeOpts(...params) {
@@ -71,7 +79,7 @@ function makeOpts(...params) {
     }
   }
 
-  return (ret);
+  return ret;
 }
 
 /**
@@ -80,35 +88,39 @@ function makeOpts(...params) {
  * AFAIK, this is not in the specs of nodejs, though, so we're lucky if it stays that way.
  */
 function isStrictEqual(o1, o2) {
-  return (JSON.stringify(o1) === JSON.stringify(o2));
+  return JSON.stringify(o1) === JSON.stringify(o2);
 }
 
 function filterTextKeys(opts) {
   const ret = { ...opts };
   const keys = Object.keys(ret).filter((k) => {
-    if (ret[k] === 'text') return (true);
-    return (false);
+    if (ret[k] === 'text') return true;
+    return false;
   });
 
   if (keys.length === 0) {
-    return (ret);
+    return ret;
   }
 
-  keys.forEach((key) => { delete ret[key]; });
+  keys.forEach((key) => {
+    delete ret[key];
+  });
 
   // eslint-disable-next-line no-underscore-dangle
   ret._fts = 'text';
   // eslint-disable-next-line no-underscore-dangle
   ret._ftsx = 1;
 
-  return (ret);
+  return ret;
 }
 
 if (EXTRA) {
-  EXTRA = EXTRA.split(',').map((v) => v.trim()).reduce((result, item) => {
-    result[item] = true;
-    return result;
-  }, {});
+  EXTRA = EXTRA.split(',')
+    .map((v) => v.trim())
+    .reduce((result, item) => {
+      result[item] = true;
+      return result;
+    }, {});
 } else {
   EXTRA = {};
 }
@@ -130,14 +142,10 @@ function makeLogger(initialTitle) {
     },
   };
 
-  return (logObject);
+  return logObject;
 }
 
-const {
-  setTitle,
-  log,
-  verbose,
-} = makeLogger();
+const { setTitle, log, verbose } = makeLogger();
 
 async function processCollection(db, collName, indexSchemas) {
   const logger = makeLogger(`Collection ${collName}`);
@@ -201,24 +209,24 @@ async function processCollection(db, collName, indexSchemas) {
     if (found && found.name !== indexSchemas[i].name) {
       logger.verbose('Renaming index', filteredTextKeys, cleanedOptions);
       if (!EXTRA.dry) {
-        promises.push(collection.dropIndex(found.name).then(() => collection.createIndex(
-          indexSchemas[i].key,
-          {
-            ...cleanedOptions,
-            name: indexSchemas[i].name,
-          },
-        )));
+        promises.push(
+          collection.dropIndex(found.name).then(() =>
+            collection.createIndex(indexSchemas[i].key, {
+              ...cleanedOptions,
+              name: indexSchemas[i].name,
+            })
+          )
+        );
       }
     } else if (!found || EXTRA.force) {
       logger.verbose('Creating index', indexSchemas[i].key, cleanedOptions);
       if (!EXTRA.dry) {
-        promises.push(collection.createIndex(
-          indexSchemas[i].key,
-          {
+        promises.push(
+          collection.createIndex(indexSchemas[i].key, {
             ...cleanedOptions,
             name: indexSchemas[i].name,
-          },
-        ));
+          })
+        );
       }
     }
   }
@@ -234,10 +242,15 @@ async function processCollection(db, collName, indexSchemas) {
   }
 }
 
-verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringify(EXTRA)}`);
+verbose(
+  `Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringify(EXTRA)}`
+);
 
 (async () => {
-  const apiServerlessConfig = fs.readFileSync('./api-v1/serverless.yml', 'utf8');
+  const apiServerlessConfig = fs.readFileSync(
+    './api-v1/serverless.yml',
+    'utf8'
+  );
   const apiServerlessData = yaml.safeLoad(apiServerlessConfig);
 
   const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
@@ -264,7 +277,11 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
     const indexSchemas = {
       [COLL_USERS]: [
         /* Crowdaa indexes */
-        { name: 'crowdaa_username_search', key: { appId: 1, username: 1 }, opts: makeOpts('sparse') },
+        {
+          name: 'crowdaa_username_search',
+          key: { appId: 1, username: 1 },
+          opts: makeOpts('sparse'),
+        },
 
         /**
          * These IDs with partialFilterExpression can also be used as search index,
@@ -274,37 +291,65 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
         {
           name: 'crowdaa_appid_email_unique',
           key: { appId: 1, 'emails.address': 1 },
-          opts: makeOpts('unique', { partialFilterExpression: {
-            'emails.address': { $exists: true },
-          } }),
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'emails.address': { $exists: true },
+            },
+          }),
         },
         {
           name: 'crowdaa_appid_facebookid_unique',
           key: { appId: 1, 'services.facebook.id': 1 },
-          opts: makeOpts('unique', { partialFilterExpression: {
-            'services.facebook.id': { $exists: true },
-          } }),
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'services.facebook.id': { $exists: true },
+            },
+          }),
         },
         {
           name: 'crowdaa_appid_instagramid_unique',
           key: { appId: 1, 'services.instagram.id': 1 },
-          opts: makeOpts('unique', { partialFilterExpression: {
-            'services.instagram.id': { $exists: true },
-          } }),
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'services.instagram.id': { $exists: true },
+            },
+          }),
         },
         {
           name: 'crowdaa_appid_twitterid_unique',
           key: { appId: 1, 'services.twitter.id': 1 },
-          opts: makeOpts('unique', { partialFilterExpression: {
-            'services.twitter.id': { $exists: true },
-          } }),
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'services.twitter.id': { $exists: true },
+            },
+          }),
         },
 
-        { name: 'crowdaa_email_validationtoken_unique', key: { 'emails.validationTokens.token': 1 }, opts: makeOpts('unique', 'sparse') },
-        { name: 'crowdaa_sv_email_verificationtoken_unique', key: { 'services.email.verificationTokens.token': 1 }, opts: makeOpts('unique', 'sparse') },
-        { name: 'crowdaa_sv_email_passwordresettoken_unique', key: { 'services.password.reset.token': 1 }, opts: makeOpts('unique', 'sparse') },
-        { name: 'crowdaa_location_loc_search', key: { 'location.loc': '2dsphere' }, opts: makeOpts() },
-        { name: 'crowdaa_sv_accesstoken_search', key: { 'services.accessTokens.tokens.hashedToken': 1 }, opts: makeOpts() },
+        {
+          name: 'crowdaa_email_validationtoken_unique',
+          key: { 'emails.validationTokens.token': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
+        {
+          name: 'crowdaa_sv_email_verificationtoken_unique',
+          key: { 'services.email.verificationTokens.token': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
+        {
+          name: 'crowdaa_sv_email_passwordresettoken_unique',
+          key: { 'services.password.reset.token': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
+        {
+          name: 'crowdaa_location_loc_search',
+          key: { 'location.loc': '2dsphere' },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_sv_accesstoken_search',
+          key: { 'services.accessTokens.tokens.hashedToken': 1 },
+          opts: makeOpts(),
+        },
 
         {
           name: 'crowdaa_facebook_exp_mod_access_search',
@@ -318,18 +363,22 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
         {
           name: 'crowdaa_login_hashtoken_unique',
           key: { appId: 1, 'services.resume.loginTokens.hashedToken': 1 },
-          opts: makeOpts('unique', { partialFilterExpression: {
-            'services.resume.loginTokens.hashedToken': { $exists: true },
-            appId: { $exists: true },
-          } }),
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'services.resume.loginTokens.hashedToken': { $exists: true },
+              appId: { $exists: true },
+            },
+          }),
         },
         {
           name: 'crowdaa_apitoken_hashtoken_appid',
           key: { appId: 1, 'services.apiTokens.hashedToken': 1 },
-          opts: makeOpts('unique', { partialFilterExpression: {
-            'services.apiTokens.hashedToken': { $exists: true },
-            appId: { $exists: true },
-          } }),
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'services.apiTokens.hashedToken': { $exists: true },
+              appId: { $exists: true },
+            },
+          }),
         },
         {
           name: 'crowdaa_apitoken_hashtoken',
@@ -338,22 +387,62 @@ verbose(`Preparing database with parameters : ${STAGE} ${REGION} ${JSON.stringif
         },
 
         /* Meteor indexes */
-        { name: 'meteor_resume_hashtoken_unique', key: { 'services.resume.loginTokens.hashedToken': 1 }, opts: makeOpts('unique', 'sparse') },
-        { name: 'meteor_resume_token_unique', key: { 'services.resume.loginTokens.token': 1 }, opts: makeOpts('unique', 'sparse') },
-        { name: 'meteor_resume_haveloginstodelete_search', key: { 'services.resume.haveLoginTokensToDelete': 1 }, opts: makeOpts('sparse') },
-        { name: 'meteor_resume_logintokens_when', key: { 'services.resume.loginTokens.when': 1 }, opts: makeOpts('sparse') },
-        { name: 'meteor_password_reset_when_search', key: { 'services.password.reset.when': 1 }, opts: makeOpts('sparse') },
+        {
+          name: 'meteor_resume_hashtoken_unique',
+          key: { 'services.resume.loginTokens.hashedToken': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
+        {
+          name: 'meteor_resume_token_unique',
+          key: { 'services.resume.loginTokens.token': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
+        {
+          name: 'meteor_resume_haveloginstodelete_search',
+          key: { 'services.resume.haveLoginTokensToDelete': 1 },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'meteor_resume_logintokens_when',
+          key: { 'services.resume.loginTokens.when': 1 },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'meteor_password_reset_when_search',
+          key: { 'services.password.reset.when': 1 },
+          opts: makeOpts('sparse'),
+        },
       ],
       [COLL_PUSH_NOTIFICATIONS]: [
-        { name: 'crowdaa_blast_query_1', key: { userId: 1, appId: 1 }, opts: makeOpts() },
-        { name: 'crowdaa_blast_query_2', key: { deviceUUID: 1, appId: 1 }, opts: makeOpts() },
-        { name: 'crowdaa_blast_single_1', key: { Token: 1, PlatformApplicationArn: 1, appId: 1 }, opts: makeOpts() },
+        {
+          name: 'crowdaa_blast_query_1',
+          key: { userId: 1, appId: 1 },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_blast_query_2',
+          key: { deviceUUID: 1, appId: 1 },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_blast_single_1',
+          key: { Token: 1, PlatformApplicationArn: 1, appId: 1 },
+          opts: makeOpts(),
+        },
       ],
       [COLL_APPS]: [
-        { name: 'crowdaa_app_preview_key', key: { 'settings.previewKey': 1 }, opts: makeOpts('unique', 'sparse') },
+        {
+          name: 'crowdaa_app_preview_key',
+          key: { 'settings.previewKey': 1 },
+          opts: makeOpts('unique', 'sparse'),
+        },
       ],
       [COLL_PRESS_CATEGORIES]: [
-        { name: 'crowdaa_categories_hidden', key: { appId: 1, hidden: 1 }, opts: makeOpts() },
+        {
+          name: 'crowdaa_categories_hidden',
+          key: { appId: 1, hidden: 1 },
+          opts: makeOpts(),
+        },
       ],
       [COLL_PRESS_ARTICLES]: [
         {
