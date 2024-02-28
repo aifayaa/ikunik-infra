@@ -22,7 +22,7 @@ addLogs() {
 
 handleError() {
   folder="$1"
-  echo "$folder" >> "$errorsFile"
+  echo "$folder" >>"$errorsFile"
 }
 
 doServerless() {
@@ -43,9 +43,9 @@ doServerlessDomain() {
 
 doAwaitBackgroundTasks() {
   maxJobs="$1"
-  jobs > /dev/null
+  jobs >/dev/null
   while [ $(jobs | wc -l) -gt "$maxJobs" ]; do
-    jobs > /dev/null
+    jobs >/dev/null
     sleep 1
   done
 }
@@ -54,14 +54,13 @@ doDeploy() {
   fullDeploy="$1"
   pids=""
 
-  for folder in $(<$folders)
-  do
+  for folder in $(<$folders); do
     echo "___________ Deploying $folder on $STAGE / $REGION ___________"
     cd "$folder"
     case "$folder" in
-      libs) echo 'libs folder skipped';;
-      api-v1|ssr) (doServerlessDomain "$fullDeploy" 2>&1 || handleError "$folder") | addLogs "$folder" &;;
-      *) (doServerless deploy 2>&1 || handleError "$folder") | addLogs "$folder" &;;
+    libs) echo 'libs folder skipped' ;;
+    api-v1 | ssr) (doServerlessDomain "$fullDeploy" 2>&1 || handleError "$folder") | addLogs "$folder" & ;;
+    *) (doServerless deploy 2>&1 || handleError "$folder") | addLogs "$folder" & ;;
     esac
 
     if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
@@ -96,7 +95,7 @@ if [ "$doFullDeploy" = 'true' ]; then
   echo "___________ Re-Deploying api-v1 ___________"
   doServerless deploy
   cd ..
-else 
+else
   doDeploy
 fi
 

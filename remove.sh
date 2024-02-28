@@ -17,7 +17,7 @@ if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
   exit 1
 fi
 
-if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ] ; then 
+if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ] && [ "$STAGE" != "awax" ] && [ "$STAGE" != "awaxDev" ]) || [ -z "$REGION" ]; then
   usage
   exit 1
 fi
@@ -25,7 +25,7 @@ fi
 npm i
 npm run install
 
-for folder in $(tac < deployOrderList); do
+for folder in $(tac <deployOrderList); do
   cd "$folder"
   echo "Removing $folder"
   npx sls remove --stage "$STAGE" --region "$REGION"
