@@ -21,13 +21,12 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
   environment:
-    $<<:
-      ${file(../env.yml)}
+    $<<: ${file(../env.yml)}
     METAMASK_LOGIN_DOMAIN: '${self:custom.${self:provider.stage}.${self:provider.region}.METAMASK_LOGIN_DOMAIN}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}

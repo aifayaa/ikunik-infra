@@ -3,19 +3,19 @@ service: auth
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
   environment:
-    $<<: 
+    $<<:
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
-      Resource: "*"
+      Resource: '*'
     - Effect: Allow # See : https://stackoverflow.com/a/60250863
       Action:
         - ec2:DescribeNetworkInterfaces
@@ -23,7 +23,7 @@ provider:
         - ec2:DeleteNetworkInterface
         - ec2:DescribeInstances
         - ec2:AttachNetworkInterface
-      Resource: "*"
+      Resource: '*'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -84,7 +84,7 @@ functions:
           path: auth/facebook/logout
           method: post
           cors:
-            origin: "*"
+            origin: '*'
             headers:
               - Content-Type
               - X-Amz-Date
@@ -97,7 +97,7 @@ functions:
           path: auth/logout
           method: post
           cors:
-            origin: "*"
+            origin: '*'
             headers:
               - Content-Type
               - X-Amz-Date

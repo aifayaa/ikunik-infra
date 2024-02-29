@@ -3,7 +3,7 @@ service: account
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -42,127 +42,126 @@ package:
 
 resources:
   Resources:
-    ApiGatewayAuthorizer: 
+    ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizeLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
         IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizeLambdaFunction", "Arn" ] }
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizeLambdaFunction', 'Arn'] }
 
-    ApiGatewayAuthorizerNoApp: 
+    ApiGatewayAuthorizerNoApp:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizeNoAppLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizeNoAppLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
         IdentitySource: method.request.header.Authorization
         Name: authorizeNoApp
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizeNoAppLambdaFunction", "Arn" ] }
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizeNoAppLambdaFunction', 'Arn'] }
 
     AuthorizeLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
-        FunctionName: 
-          Fn::GetAtt: 
+        FunctionName:
+          Fn::GetAtt:
             - AuthorizeLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
-        Principal: 
+        Principal:
           Fn::Join:
             - ''
-            - 
-              - apigateway.
+            - - apigateway.
               - Ref: 'AWS::URLSuffix'
 
     AuthorizeNoAppLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
-        FunctionName: 
-          Fn::GetAtt: 
+        FunctionName:
+          Fn::GetAtt:
             - AuthorizeNoAppLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
-        Principal: 
+        Principal:
           Fn::Join:
             - ''
-            - 
-              - apigateway.
+            - - apigateway.
               - Ref: 'AWS::URLSuffix'
 
     AuthorizeArtistLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
-        FunctionName: 
-          Fn::GetAtt: 
+        FunctionName:
+          Fn::GetAtt:
             - AuthorizeArtistLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
-        Principal: 
+        Principal:
           Fn::Join:
             - ''
-            - 
-              - apigateway.
+            - - apigateway.
               - Ref: 'AWS::URLSuffix'
 
     AuthorizeRoleLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
-        FunctionName: 
-          Fn::GetAtt: 
+        FunctionName:
+          Fn::GetAtt:
             - AuthorizeRoleLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
-        Principal: 
+        Principal:
           Fn::Join:
             - ''
-            - 
-              - apigateway.
+            - - apigateway.
               - Ref: 'AWS::URLSuffix'
 
     AuthorizeWithPermsLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
-        FunctionName: 
-          Fn::GetAtt: 
+        FunctionName:
+          Fn::GetAtt:
             - AuthorizeWithPermsLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
-        Principal: 
+        Principal:
           Fn::Join:
             - ''
-            - 
-              - apigateway.
+            - - apigateway.
               - Ref: 'AWS::URLSuffix'
-    
+
     ApiGatewayResponseDenied:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:
@@ -174,124 +173,131 @@ resources:
           application/json: '{"message":"forbidden"}'
         ResponseType: ACCESS_DENIED
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
-        StatusCode: "403"
+        StatusCode: '403'
 
-    ApiGatewayAuthorizerArtist: 
+    ApiGatewayAuthorizerArtist:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizeArtistLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
         IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeArtistAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizeArtistLambdaFunction", "Arn" ] }
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizeArtistLambdaFunction', 'Arn'] }
 
-    ApiGatewayAuthorizerRole: 
+    ApiGatewayAuthorizerRole:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizeRoleLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizeRoleLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
         IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeRoleAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizeRoleLambdaFunction", "Arn" ] }
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizeRoleLambdaFunction', 'Arn'] }
 
-    ApiGatewayAuthorizerWithPerms: 
+    ApiGatewayAuthorizerWithPerms:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizeWithPermsLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizeWithPermsLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
         IdentitySource: method.request.header.Authorization, method.request.header.X-Api-Key
         Name: authorizeWithPermsAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizeWithPermsLambdaFunction", "Arn" ] }
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizeWithPermsLambdaFunction', 'Arn'] }
 
-    ApiGatewayAuthorizerPublic: 
+    ApiGatewayAuthorizerPublic:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         AuthorizerResultTtlInSeconds: 0
-        AuthorizerUri : {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:apigateway:",
-              {"Ref":"AWS::Region"},
-              ":lambda:path/2015-03-31/functions/",
-              { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] },
-              "/invocations"
-            ]
-          ]
-        }
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizePublicLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
         Name: authorizePublicAuthorizer
         RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
         Type: REQUEST
-        ProviderARNs: 
-          - { "Fn::GetAtt": ["AuthorizePublicLambdaFunction", "Arn" ] }
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizePublicLambdaFunction', 'Arn'] }
 
     AuthorizePublicLambdaPermissionApiGateway:
       Type: 'AWS::Lambda::Permission'
       Properties:
-        FunctionName: 
-          Fn::GetAtt: 
+        FunctionName:
+          Fn::GetAtt:
             - AuthorizePublicLambdaFunction
             - Arn
         Action: 'lambda:InvokeFunction'
-        Principal: 
+        Principal:
           Fn::Join:
             - ''
-            - 
-              - apigateway.
+            - - apigateway.
               - Ref: 'AWS::URLSuffix'
 
   Outputs:
     ApiGatewayAuthorizerId:
       Description: User authorizer ID
-      Value: 
+      Value:
         Ref: ApiGatewayAuthorizer
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerId
     ApiGatewayAuthorizerNoAppId:
       Description: User NoApp authorizer ID
-      Value: 
+      Value:
         Ref: ApiGatewayAuthorizerNoApp
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerNoAppId

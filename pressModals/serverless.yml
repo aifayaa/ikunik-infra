@@ -3,7 +3,7 @@ service: pressModals
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -18,19 +18,19 @@ provider:
 
 functions:
   getPressModals:
-      handler: handlers/getPressModals.default
-      events:
-        - http:
-            path: press/modals
-            method: get
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/getPressModals.default
+    events:
+      - http:
+          path: press/modals
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
 plugins:
   - serverless-disable-request-validators

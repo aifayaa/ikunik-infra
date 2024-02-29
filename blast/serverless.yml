@@ -25,7 +25,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 2048
   timeout: 300
@@ -33,22 +33,22 @@ provider:
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
-      Resource: "*"
+      Resource: '*'
     - Effect: Allow
       Action:
         - states:CreateStateMachine
         - states:StartExecution
-      Resource: "arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}"
+      Resource: 'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}'
     - Effect: Allow
       Action:
         - iam:PassRole
-      Resource: "${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}"
+      Resource: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}'
     - Effect: Allow
       Action:
         - states:StopExecution
-      Resource: "arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*"
+      Resource: 'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*'
   environment:
-    $<<: 
+    $<<:
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
   apiGateway:
