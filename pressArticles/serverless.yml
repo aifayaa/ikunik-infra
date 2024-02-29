@@ -33,13 +33,12 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
   environment:
-    $<<:
-      ${file(../env.yml)}
+    $<<: ${file(../env.yml)}
     REACT_APP_SSR_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_SSR_URL}'
     NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}'
     NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}'
@@ -48,24 +47,24 @@ provider:
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
-      Resource: "*"
+      Resource: '*'
     - Effect: Allow
       Action:
         - states:CreateStateMachine
         - states:StartExecution
-      Resource: "arn:aws:states:${self:provider.region}:630176884077:stateMachine:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}"
+      Resource: 'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}'
     - Effect: Allow
       Action:
         - iam:PassRole
-      Resource: "${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}"
+      Resource: '${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}'
     - Effect: Allow
       Action:
         - states:StopExecution
-      Resource: "arn:aws:states:${self:provider.region}:630176884077:execution:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}:${self:provider.stage}*"
+      Resource: 'arn:aws:states:${self:provider.region}:630176884077:execution:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}:${self:provider.stage}*'
     - Effect: Allow
       Action:
         - states:StopExecution
-      Resource: "arn:aws:states:${self:provider.region}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*"
+      Resource: 'arn:aws:states:${self:provider.region}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -208,115 +207,130 @@ functions:
               headers:
                 Authorization: true
               querystrings:
-                  autoPublish: false
-                  forceCategoryId: false
-                  forcePictures: false
-                  xmlTagMapper: false
+                autoPublish: false
+                forceCategoryId: false
+                forcePictures: false
+                xmlTagMapper: false
 
   putArticle:
-      handler: handlers/putArticle.default
-      events:
-        - http:
-            path: press/articles
-            method: put
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/putArticle.default
+    events:
+      - http:
+          path: press/articles
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   publishArticle:
-      handler: handlers/publishArticle.default
-      events:
-        - http:
-            path: press/articles/{id}/publish
-            method: put
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/publishArticle.default
+    events:
+      - http:
+          path: press/articles/{id}/publish
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   renderArticle:
-      handler: handlers/renderArticle.default
-      events:
-        - http:
-            path: admin/press/renderArticle
-            method: put
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/renderArticle.default
+    events:
+      - http:
+          path: admin/press/renderArticle
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   generateContent:
-      handler: handlers/generateContent.default
-      events:
-        - http:
-            path: admin/press/articles/generate
-            method: put
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/generateContent.default
+    events:
+      - http:
+          path: admin/press/articles/generate
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
+
+  getArticlesStats:
+    handler: handlers/getArticlesStats.default
+    events:
+      - http:
+          path: admin/press/articles/stats
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   generatedContentStatus:
-      handler: handlers/generatedContentStatus.default
-      events:
-        - http:
-            path: admin/press/articles/generated/{id}
-            method: get
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/generatedContentStatus.default
+    events:
+      - http:
+          path: admin/press/articles/generated/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   unpublishArticle:
-      handler: handlers/unpublishArticle.default
-      events:
-        - http:
-            path: press/articles/{id}/unpublish
-            method: put
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/unpublishArticle.default
+    events:
+      - http:
+          path: press/articles/{id}/unpublish
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   purchaseArticle:
-      handler: handlers/purchaseArticle.default
-      events:
-        - http:
-            path: press/articles/{id}/purchase
-            method: post
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/purchaseArticle.default
+    events:
+      - http:
+          path: press/articles/{id}/purchase
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   addLikeArticle:
     handler: handlers/addLikeArticle.default
@@ -353,34 +367,34 @@ functions:
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
 
   getArticleModals:
-      handler: handlers/getArticleModals.default
-      events:
-        - http:
-            path: press/articles/{id}/modals
-            method: get
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/getArticleModals.default
+    events:
+      - http:
+          path: press/articles/{id}/modals
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   removeArticle:
-      handler: handlers/removeArticle.default
-      events:
-        - http:
-            path: press/articles/{id}
-            method: delete
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/removeArticle.default
+    events:
+      - http:
+          path: press/articles/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
 plugins:
   - '@cruglobal/serverless-merge-config'
