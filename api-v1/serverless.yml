@@ -11,7 +11,7 @@ provider:
   name: aws
   stage: ${opt:stage, "dev"}
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   memorySize: 128
   timeout: 30
   region: ${opt:region, "us-east-1"}
@@ -73,25 +73,25 @@ custom:
       eu-west-1: awax-dev-api.aws.crowdaa.com
 
   adminApp:
-    prod: 
+    prod:
       us-east-1: cf72c7c3-ae67-42f9-963c-adc9a3211726
       eu-west-3: cf72c7c3-ae67-42f9-963c-adc9a3211726
-    preprod: 
+    preprod:
       eu-west-3: cf72c7c3-ae67-42f9-963c-adc9a3211726
-    dev: 
+    dev:
       us-east-1: crowdaa_app_id
-    defJam: 
+    defJam:
       us-east-1: crowdaa_app_id
-    awax: 
+    awax:
       eu-west-1: cf72c7c3-ae67-42f9-963c-adc9a3211726
-    awaxDev: 
+    awaxDev:
       eu-west-1: crowdaa_app_id
 
   customDomain:
-    basePath: "v1"
+    basePath: 'v1'
     domainName: ${self:custom.domains.${self:provider.stage}.${self:provider.region}}
-    endpointType: "regional"
-    stage: "${self:provider.stage}"
+    endpointType: 'regional'
+    stage: '${self:provider.stage}'
     createRoute53Record: true
 
   MAILGUN_API_KEY:
@@ -111,62 +111,62 @@ custom:
 resources:
   Resources:
     ApiGatewayStage:
-      Type: "AWS::ApiGateway::Stage"
+      Type: 'AWS::ApiGateway::Stage'
       Properties:
         StageName: ${self:provider.stage}
-        Description: "stage of api-v1"
+        Description: 'stage of api-v1'
         RestApiId:
-          Ref: "ApiGatewayRestApi"
+          Ref: 'ApiGatewayRestApi'
         DeploymentId:
           Ref: __deployment__
         CacheClusterEnabled: true
-        CacheClusterSize: "0.5"
-# remove on first deploy --- START1
+        CacheClusterSize: '0.5'
+        # remove on first deploy --- START1
         MethodSettings:
-          - ResourcePath: "/*"
+          - ResourcePath: '/*'
             CachingEnabled: false
-            HttpMethod: "*"
-            LoggingLevel: "INFO"
+            HttpMethod: '*'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
-          - ResourcePath: "/apps/settings"
+          - ResourcePath: '/apps/settings'
             CacheTtlInSeconds: 300
             CachingEnabled: true
-            HttpMethod: "GET"
-            LoggingLevel: "INFO"
+            HttpMethod: 'GET'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
-          - ResourcePath: "/artists/{id}"
+          - ResourcePath: '/artists/{id}'
             CacheTtlInSeconds: 3600
             CachingEnabled: true
-            HttpMethod: "GET"
-            LoggingLevel: "INFO"
+            HttpMethod: 'GET'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
-          - ResourcePath: "/audios/{id}"
+          - ResourcePath: '/audios/{id}'
             CacheTtlInSeconds: 3600
             CachingEnabled: true
-            HttpMethod: "GET"
-            LoggingLevel: "INFO"
+            HttpMethod: 'GET'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
-          - ResourcePath: "/crowd"
+          - ResourcePath: '/crowd'
             CacheDataEncrypted: true
             CacheTtlInSeconds: 3600
             CachingEnabled: true
-            HttpMethod: "GET"
-            LoggingLevel: "INFO"
+            HttpMethod: 'GET'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
-          - ResourcePath: "/selections"
+          - ResourcePath: '/selections'
             CacheTtlInSeconds: 3600
             CachingEnabled: true
-            HttpMethod: "GET"
-            LoggingLevel: "INFO"
+            HttpMethod: 'GET'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
-          - ResourcePath: "/selections/{id}"
+          - ResourcePath: '/selections/{id}'
             CacheTtlInSeconds: 3600
             CachingEnabled: true
-            HttpMethod: "GET"
-            LoggingLevel: "INFO"
+            HttpMethod: 'GET'
+            LoggingLevel: 'INFO'
             MetricsEnabled: true
     restApiGatewayDeployment:
-      Type: "AWS::ApiGateway::Deployment"
+      Type: 'AWS::ApiGateway::Deployment'
       DependsOn: ApiGatewayMethodGet
       Properties:
         Description: ${self:provider.stage} Environment
@@ -183,7 +183,7 @@ resources:
     #     RestApiId:
     #       Ref: ApiGatewayRestApi
     #     Stage: ${self:provider.stage}
-# remove  when first deploy --- END1
+  # remove  when first deploy --- END1
 
   Outputs:
     ApiGatewayStage:
@@ -220,6 +220,6 @@ resources:
         Name: ${self:service}:${self:provider.stage}:RestApiId
     RestApiRootResourceId:
       Description: Api Gateway ID
-      Value: { "Fn::GetAtt": ["ApiGatewayRestApi", "RootResourceId"] }
+      Value: { 'Fn::GetAtt': ['ApiGatewayRestApi', 'RootResourceId'] }
       Export:
         Name: ${self:service}:${self:provider.stage}:RestApiRootResourceId

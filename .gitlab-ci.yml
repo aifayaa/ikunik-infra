@@ -149,13 +149,15 @@ incrementVersion:
     - git merge --no-ff master
     - git push origin dev
     - |
-      releases=$(git branch -a --no-merged origin/master | awk '{ print $1 }' | grep '^remotes/origin/release/' | sed -e 's~^remotes/origin/~~')
-      for release in $releases; do
-        git checkout "$release"
-        git pull
-        git merge --no-ff master
-        git push origin "$release"
-      done
+      releases=$(git branch -a --no-merged origin/master | awk '{ print $1 }' | grep '^remotes/origin/release/' | sed -e 's~^remotes/origin/~~') || true
+      if [ -n "$releases" ]; then
+        for release in $releases; do
+          git checkout "$release"
+          git pull
+          git merge --no-ff master
+          git push origin "$release"
+        done
+      fi
   artifacts:
     paths:
       - 'package.json'

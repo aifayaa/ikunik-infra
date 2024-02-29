@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-relative-packages
 import response from '../../libs/httpResponses/response';
 
 export default (event) => {

@@ -29,13 +29,12 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
   environment:
-    $<<:
-      ${file(../env.yml)}
+    $<<: ${file(../env.yml)}
     IVS_REGION: '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_REGION}'
     IVS_BUCKET: '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_BUCKET}'
     MEDIACONVERT_IAM_ROLE_ARN: '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_IAM_ROLE_ARN}'
@@ -43,43 +42,43 @@ provider:
     - Effect: Allow
       Action:
         - ivs:*
-      Resource: "arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*"
+      Resource: 'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*'
     - Effect: Allow
       Action:
         - s3:GetBucketLocation
         - s3:ListBucket
         - s3:GetObject
       Resource:
-        - "arn:aws:s3:::${self:provider.environment.IVS_BUCKET}"
-        - "arn:aws:s3:::${self:provider.environment.IVS_BUCKET}/*"
+        - 'arn:aws:s3:::${self:provider.environment.IVS_BUCKET}'
+        - 'arn:aws:s3:::${self:provider.environment.IVS_BUCKET}/*'
     - Effect: Allow
       Action:
         - s3:CreateBucket
         - s3:ListAllMyBuckets
-      Resource: "*"
+      Resource: '*'
     - Effect: Allow
       Action:
         - servicequotas:ListServiceQuotas
-      Resource: "*"
+      Resource: '*'
     - Effect: Allow
       Action:
         - iam:CreateServiceLinkedRole
         - iam:AttachRolePolicy
         - iam:PutRolePolicy
-      Resource: "arn:aws:iam::630176884077:role/aws-service-role/ivs.amazonaws.com/AWSServiceRoleForIVSRecordToS3*"
+      Resource: 'arn:aws:iam::630176884077:role/aws-service-role/ivs.amazonaws.com/AWSServiceRoleForIVSRecordToS3*'
     - Effect: Allow
       Action:
         - mediaconvert:GetJob
         - mediaconvert:CreateJob
-      Resource: "arn:aws:mediaconvert:${self:provider.environment.IVS_REGION}:630176884077:*"
+      Resource: 'arn:aws:mediaconvert:${self:provider.environment.IVS_REGION}:630176884077:*'
     - Effect: Allow
       Action:
         - mediaconvert:DescribeEndpoints
-      Resource: "*"
+      Resource: '*'
     - Effect: Allow
       Action:
         - iam:PassRole
-      Resource: "${self:provider.environment.MEDIACONVERT_IAM_ROLE_ARN}"
+      Resource: '${self:provider.environment.MEDIACONVERT_IAM_ROLE_ARN}'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
@@ -176,26 +175,26 @@ functions:
                 id: true
 
   viewLiveStream:
-      handler: handlers/viewLiveStream.default
-      events:
-        - http:
-            path: liveStream/{id}/view
-            method: get
-            request:
-              parameters:
-                paths:
-                  id: true
+    handler: handlers/viewLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}/view
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
 
   viewLiveStreamRecording:
-      handler: handlers/viewLiveStreamRecording.default
-      events:
-        - http:
-            path: liveStream/{id}/recording
-            method: get
-            request:
-              parameters:
-                paths:
-                  id: true
+    handler: handlers/viewLiveStreamRecording.default
+    events:
+      - http:
+          path: liveStream/{id}/recording
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
 
 plugins:
   - '@cruglobal/serverless-merge-config'

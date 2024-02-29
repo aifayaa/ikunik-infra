@@ -22,13 +22,12 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
   environment:
-    $<<:
-      ${file(../env.yml)}
+    $<<: ${file(../env.yml)}
     CPME_CRED_PASS: '${self:custom.${self:provider.stage}.CPME_CRED_PASS, "NONE"}'
     CPME_CRED_USER: '${self:custom.${self:provider.stage}.CPME_CRED_USER, "NONE"}'
     CPME_PATH_AUTH: '${self:custom.${self:provider.stage}.CPME_PATH_AUTH, "NONE"}'
