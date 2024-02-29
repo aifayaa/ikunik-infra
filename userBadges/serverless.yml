@@ -25,7 +25,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   region: ${opt:region, "us-east-1"}
   memorySize: 128
@@ -34,10 +34,9 @@ provider:
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
-      Resource: "*"
+      Resource: '*'
   environment:
-    $<<:
-      ${file(../env.yml)}
+    $<<: ${file(../env.yml)}
     REACT_APP_CROWD_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_CROWD_SERVICE_URL}'
     REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}'
   apiGateway:

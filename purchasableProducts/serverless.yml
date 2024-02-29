@@ -3,7 +3,7 @@ service: purchasableProducts
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -70,34 +70,34 @@ functions:
                 Authorization: true
 
   patchPurchasableProduct:
-      handler: handlers/patchPurchasableProduct.default
-      events:
-        - http:
-            path: purchasableProducts/{id}
-            method: patch
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/patchPurchasableProduct.default
+    events:
+      - http:
+          path: purchasableProducts/{id}
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
   deletePurchasableProduct:
-      handler: handlers/deletePurchasableProduct.default
-      events:
-        - http:
-            path: purchasableProducts/{id}
-            method: delete
-            cors: true
-            authorizer:
-              type: CUSTOM
-              authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
+    handler: handlers/deletePurchasableProduct.default
+    events:
+      - http:
+          path: purchasableProducts/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+        request:
+          parameters:
+            headers:
+              Authorization: true
 
 plugins:
   - serverless-disable-request-validators

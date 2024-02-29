@@ -10,7 +10,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: "20201221"
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -19,7 +19,7 @@ provider:
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
-      Resource: "*"
+      Resource: '*'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
