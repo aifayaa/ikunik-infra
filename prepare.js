@@ -490,6 +490,15 @@ verbose(
           },
           opts: makeOpts('sparse'),
         },
+        {
+          name: 'crowdaa_articles_stats',
+          key: {
+            appId: 1,
+            isPublished: 1,
+            publicationDate: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
       ],
       [COLL_PRESS_DRAFTS]: [
         {
