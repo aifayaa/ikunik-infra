@@ -88,7 +88,7 @@ async function checkIfUserIsFromRootApp(db, userId) {
 
 async function createApp(db, name, userId, inputProtocol) {
   const apiKey = Random.id(42); // AWS makes it 40, let's make it 42 to have a tiny difference. And because 42!
-  const key = apiKey.value;
+  const key = apiKey;
   const appId = uuid.v4();
 
   const appFirstChars = name
