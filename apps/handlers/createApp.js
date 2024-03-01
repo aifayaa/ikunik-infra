@@ -3,14 +3,11 @@ import createApp from '../lib/createApp';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 
-const { ADMIN_APP } = process.env;
-
 export default async (event) => {
-  const appId = event.pathParameters.id;
   const userId = event.requestContext.authorizer.principalId;
 
   try {
-    if (!appId || !userId || appId !== ADMIN_APP) {
+    if (!userId) {
       throw new Error('malformed_request');
     }
 
@@ -18,9 +15,9 @@ export default async (event) => {
       throw new Error('malformed_request');
     }
 
-    const { name } = JSON.parse(event.body);
+    const { name, protocol } = JSON.parse(event.body);
 
-    const results = await createApp(name, userId);
+    const results = await createApp(name, userId, { protocol });
     return response({ code: 200, body: results });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
