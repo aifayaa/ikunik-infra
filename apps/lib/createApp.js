@@ -110,7 +110,7 @@ async function createApp(db, name, userId, inputProtocol) {
   };
   await db.collection(COLL_APPS).insertOne(toInsert);
 
-  return toInsert._id;
+  return toInsert;
 }
 
 async function createPermGroups(db, appId, name) {
@@ -171,13 +171,18 @@ export default async (name, userId, { protocol = null } = {}) => {
 
     await checkIfUserIsFromRootApp(db, userId);
 
-    const appId = await createApp(db, name, userId, protocol);
+    const { _id: appId, key: apiKey } = await createApp(
+      db,
+      name,
+      userId,
+      protocol
+    );
 
     const permGroupIds = await createPermGroups(db, appId, name);
 
     await addUserToPermGroups(db, userId, permGroupIds);
 
-    return { appId };
+    return { appId, apiKey };
   } finally {
     client.close();
   }
