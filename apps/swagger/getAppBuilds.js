@@ -15,6 +15,11 @@ export default (libs, output) => {
             iosAppId: libs.make.outParam('The iOS app ID', 'string', true),
             packageId: libs.make.outParam('THe iOS PAckage ID', 'string', true),
             platform: libs.make.outParam('"ios"', 'string', true),
+            deployed: libs.make.outParam(
+              'Indicates if the app is already deployed',
+              'boolean',
+              true
+            ),
           }),
           android: libs.make.schemaObject({
             packageId: libs.make.outParam(
@@ -23,6 +28,11 @@ export default (libs, output) => {
               true
             ),
             platform: libs.make.outParam('"android"', 'string', true),
+            deployed: libs.make.outParam(
+              'Indicates if the app is already deployed',
+              'boolean',
+              true
+            ),
           }),
         }),
       })
