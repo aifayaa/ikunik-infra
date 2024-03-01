@@ -16,24 +16,16 @@ module.exports = {
     rules: [
       {
         test: /\.y(a)?ml$/,
-        use: [
-          { loader: 'json-loader' },
-          { loader: 'yaml-loader' },
-        ],
+        use: [{ loader: 'json-loader' }, { loader: 'yaml-loader' }],
       },
       {
         test: /\.css$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' },
-        ],
+        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
       },
     ],
   },
   plugins: [
-    new CleanWebpackPlugin([
-      outputPath,
-    ]),
+    new CleanWebpackPlugin([outputPath]),
     new HtmlWebpackPlugin({
       template: 'index.html',
     }),

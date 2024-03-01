@@ -4,3 +4,5 @@ jspm_packages
 
 # Webpack directories
 .webpack
+
+/dist
