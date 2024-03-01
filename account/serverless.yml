@@ -24,6 +24,8 @@ functions:
     handler: handlers/authorizeWithPerms.default
   authorizePublic:
     handler: handlers/authorizePublic.default
+  authorizeAdmin:
+    handler: handlers/authorizeAdmin.default
 
 plugins:
   - serverless-disable-request-validators
@@ -288,6 +290,44 @@ resources:
             - - apigateway.
               - Ref: 'AWS::URLSuffix'
 
+    ApiGatewayAuthorizerAdmin:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        AuthorizerResultTtlInSeconds: 0
+        AuthorizerUri:
+          {
+            'Fn::Join':
+              [
+                '',
+                [
+                  'arn:aws:apigateway:',
+                  { 'Ref': 'AWS::Region' },
+                  ':lambda:path/2015-03-31/functions/',
+                  { 'Fn::GetAtt': ['AuthorizeAdminLambdaFunction', 'Arn'] },
+                  '/invocations',
+                ],
+              ],
+          }
+        Name: authorizeAdminAuthorizer
+        RestApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+        Type: REQUEST
+        ProviderARNs:
+          - { 'Fn::GetAtt': ['AuthorizeAdminLambdaFunction', 'Arn'] }
+
+    AuthorizeAdminLambdaPermissionApiGateway:
+      Type: 'AWS::Lambda::Permission'
+      Properties:
+        FunctionName:
+          Fn::GetAtt:
+            - AuthorizeAdminLambdaFunction
+            - Arn
+        Action: 'lambda:InvokeFunction'
+        Principal:
+          Fn::Join:
+            - ''
+            - - apigateway.
+              - Ref: 'AWS::URLSuffix'
+
   Outputs:
     ApiGatewayAuthorizerId:
       Description: User authorizer ID
@@ -325,3 +365,9 @@ resources:
         Ref: ApiGatewayAuthorizerPublic
       Export:
         Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerPublicId
+    ApiGatewayAuthorizerAdminId:
+      Description: Admin authorizer ID
+      Value:
+        Ref: ApiGatewayAuthorizerAdmin
+      Export:
+        Name: ${self:service}:${self:provider.stage}:ApiGatewayAuthorizerAdminId
