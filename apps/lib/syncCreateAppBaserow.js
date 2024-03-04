@@ -4,7 +4,7 @@ import request from 'request-promise-native';
 const { CROWDAA_REGION, STAGE } = process.env;
 
 const BASEROW_URL =
-  'http://automation.operations.aws.crowdaa.com/webhook-test/createCustomerCrowdaa';
+  'http://automation.operations.aws.crowdaa.com/webhook-test/createProjects-fa567-anbo86-eocq9-p7t58re';
 const BASEROW_METHOD = 'POST';
 
 async function callBaserowAPI(data) {
@@ -27,7 +27,7 @@ async function callBaserowAPI(data) {
   return response;
 }
 
-export default async (userId, { email, username, profile }) => {
+export default async (userId, { appId, name, apiKey }) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
@@ -35,9 +35,9 @@ export default async (userId, { email, username, profile }) => {
       region: CROWDAA_REGION,
       stage: STAGE,
       userId,
-      email,
-      username,
-      profile,
+      appId,
+      name,
+      apiKey,
     });
 
     // eslint-disable-next-line no-console
@@ -46,9 +46,9 @@ export default async (userId, { email, username, profile }) => {
     // eslint-disable-next-line no-console
     console.log('DEBUG Baserow API response error', e, 'for :', {
       userId,
-      email,
-      username,
-      profile,
+      appId,
+      name,
+      apiKey,
     });
   }
   // }
