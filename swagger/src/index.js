@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import SwaggerUI from 'swagger-ui';
 import 'swagger-ui/dist/swagger-ui.css';
 import schemas from './schemas';
@@ -18,7 +19,10 @@ const genericSpecs = require('./swagger-config.yaml');
 const devSpecs = require('./swagger-config.development.yaml');
 const prodSpecs = require('./swagger-config.production.yaml');
 
-const spec = (process.env.NODE_ENV === 'production') ? { ...genericSpecs, ...prodSpecs } : { ...genericSpecs, ...devSpecs };
+const spec =
+  process.env.NODE_ENV === 'production'
+    ? { ...genericSpecs, ...prodSpecs }
+    : { ...genericSpecs, ...devSpecs };
 
 schemas(libs, spec);
 apps(libs, spec);

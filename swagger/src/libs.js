@@ -36,7 +36,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -58,7 +58,7 @@ libs.make = {
       },
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -76,7 +76,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -85,11 +85,11 @@ libs.make = {
    * @param {array} tags Array of tags to add to this method.
    */
   method(description, tags = undefined) {
-    return ({
+    return {
       description,
       tags,
       responses: {},
-    });
+    };
   },
 
   /**
@@ -105,7 +105,7 @@ libs.make = {
     schema = undefined,
     headers = defaultRespHeaders,
     examples = [],
-    extra = {},
+    extra = {}
   ) {
     const ret = {
       description,
@@ -119,7 +119,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -135,7 +135,7 @@ libs.make = {
     content,
     headers = defaultRespHeaders,
     examples = [],
-    extra = {},
+    extra = {}
   ) {
     const ret = {
       description,
@@ -145,7 +145,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -158,13 +158,12 @@ libs.make = {
       description,
       schema: {
         type: 'object',
-        required: [
-          'message',
-        ],
+        required: ['message'],
         properties: {
           message: {
             type: 'string',
-            description: 'The error string, most often a token that will be translatable by the client',
+            description:
+              'The error string, most often a token that will be translatable by the client',
           },
         },
       },
@@ -172,7 +171,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -187,7 +186,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -202,7 +201,7 @@ libs.make = {
       ...extra,
     };
 
-    return (ret);
+    return ret;
   },
 
   /**
@@ -214,7 +213,7 @@ libs.make = {
       $ref: `#/components/${name.join('/')}`,
     };
 
-    return (ret);
+    return ret;
   },
 };
 
@@ -235,12 +234,23 @@ libs.checks = {
 
           const path = `/${event.http.path}`;
           const { method } = event.http;
-          if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths, path)) {
+          if (
+            !Object.prototype.hasOwnProperty.call(swaggerConfig.paths, path)
+          ) {
             // eslint-disable-next-line no-console
-            console.error(`Missing API documentation for : ${path} (Method ${method})`);
-          } else if (!Object.prototype.hasOwnProperty.call(swaggerConfig.paths[path], method)) {
+            console.error(
+              `Missing API documentation for : ${path} (Method ${method})`
+            );
+          } else if (
+            !Object.prototype.hasOwnProperty.call(
+              swaggerConfig.paths[path],
+              method
+            )
+          ) {
             // eslint-disable-next-line no-console
-            console.error(`Missing API documentation for : ${path} (Method ${method})`);
+            console.error(
+              `Missing API documentation for : ${path} (Method ${method})`
+            );
           }
         });
       }

@@ -70,9 +70,6 @@ export default async (event) => {
       rssFeedUrl,
     });
 
-    if (results === false) {
-      return response({ code: 404, message: 'category_not_found' });
-    }
     return response({ code: 200, body: results });
   } catch (e) {
     return response(errorMessage(e));

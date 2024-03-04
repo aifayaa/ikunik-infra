@@ -1,26 +1,26 @@
-openapi: "3.0.3"
+openapi: '3.0.3'
 info:
-  version: "2020-11-04T10:36:57Z"
-  title: "dev-api-v1"
+  version: '2020-11-04T10:36:57Z'
+  title: 'dev-api-v1'
 servers:
-- url: https://dev-api.aws.crowdaa.com/{basePath}
-  description: Development endpoint
-  variables:
-    basePath:
-      default: v1
-- url: https://preprod-api.aws.crowdaa.com/{basePath}
-  description: Pre-production endpoint
-  variables:
-    basePath:
-      default: v1
-- url: https://api.aws.crowdaa.com/{basePath}
-  description: Production endpoint
-  variables:
-    basePath:
-      default: v1
-basePath: "/v1"
+  - url: https://dev-api.aws.crowdaa.com/{basePath}
+    description: Development endpoint
+    variables:
+      basePath:
+        default: v1
+  - url: https://preprod-api.aws.crowdaa.com/{basePath}
+    description: Pre-production endpoint
+    variables:
+      basePath:
+        default: v1
+  - url: https://api.aws.crowdaa.com/{basePath}
+    description: Production endpoint
+    variables:
+      basePath:
+        default: v1
+basePath: '/v1'
 schemes:
-- "https"
+  - 'https'
 components:
   schemas: {}
   responses: {}
