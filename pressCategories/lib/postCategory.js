@@ -2,10 +2,9 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
+import reorderCategory from './reorderCategory';
 
-const { SAFE_ORDER_NUMBER } = process.env;
 const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
-const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
 
 export default async ({
   action,
@@ -41,31 +40,7 @@ export default async ({
     const checkAvailability = await isAvailable(client, appId, name, pathName);
     if (checkAvailability !== true) throw new Error(checkAvailability);
 
-    /* maximumOrderValue is the number of categories +1 */
-    const maximumOrderValue =
-      (await collection.countDocuments({
-        appId,
-        parentId: null,
-        /*
-          SAFE_ORDER_NUMBER = 999 is used as a safe position for unordered categories
-          mongodb sort null values on top, that's why all categories
-          should have an order field.
-        */
-        order: { $ne: safeOrderNumber },
-      })) + 1;
-
-    /* Checking we didn't exceed the maximum number of categories */
-    if (maximumOrderValue >= safeOrderNumber) {
-      throw new Error('max_category_reached');
-    }
-
-    /* Checking specified order does not exceed the maximum value */
-    if (order > maximumOrderValue) {
-      throw new Error('press_service_order_superior_to_max_order');
-    }
-
     /* If a parentId is specified (category is a child), doing some checks on the parent */
-    let maximumOrderValueForParentId = 0;
     if (parentId) {
       const parentCategory = await collection.findOne({ _id: parentId });
 
@@ -77,23 +52,6 @@ export default async ({
       /* For now we don't allow recursive categories, we stop at first level of child */
       if (parentCategory.parentId) {
         throw new Error('not_root_category');
-      }
-
-      /* Get the maximum order value for that parentId */
-      maximumOrderValueForParentId =
-        (await collection.countDocuments({
-          appId,
-          parentId,
-        })) + 1;
-
-      /* Also checking we didn't exceed the maximum number of child categories for that parent */
-      if (maximumOrderValueForParentId >= safeOrderNumber) {
-        throw new Error('max_child_category_reached');
-      }
-
-      /* Checking the specified value does not exceed the current maximum order value */
-      if (order > maximumOrderValueForParentId) {
-        throw new Error('press_service_order_superior_to_max_order');
       }
     }
 
@@ -152,38 +110,11 @@ export default async ({
       category.forcedAuthor = forcedAuthor;
     }
 
-    const whichMaximumOrderValue = parentId
-      ? maximumOrderValueForParentId
-      : maximumOrderValue;
-    category.order = Math.min(
-      order || whichMaximumOrderValue,
-      whichMaximumOrderValue
-    );
+    category.order = order || 1;
 
-    /* Inserting into database */
-    const bulk = collection.initializeOrderedBulkOp();
+    await collection.insertOne(category);
 
-    /* ex inserting at 2nd position
-      new
-      ||
-      \/
-      [1, 2 , 3, 4, 5]
-
-      all values after position 2 must be increased
-      [1, n=>2, 2=>3, 3=>4, 4=>5, 5=>6]
-      */
-    bulk
-      .find({
-        appId,
-        parentId: category.parentId,
-        order: {
-          $gte: category.order,
-          $lt: safeOrderNumber,
-        },
-      })
-      .update({ $inc: { order: 1 } });
-    bulk.insert(category);
-    await bulk.execute();
+    await reorderCategory(appId, category._id, order);
 
     return { _id: category._id, ...category };
   } finally {

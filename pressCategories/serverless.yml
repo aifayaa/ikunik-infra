@@ -108,6 +108,23 @@ functions:
               paths:
                 id: true
 
+  reorderCategory:
+    handler: handlers/reorderCategory.default
+    events:
+      - http:
+          path: press/categories/{id}/order
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
   removeCategory:
     handler: handlers/removeCategory.default
     events:
