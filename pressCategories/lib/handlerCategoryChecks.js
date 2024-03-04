@@ -1,9 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { actionRegexp } from '../../libs/regexp/action';
 
-const { SAFE_ORDER_NUMBER } = process.env;
-const safeOrderNumber = Number.parseInt(SAFE_ORDER_NUMBER, 10);
-
 export default ({
   action,
   color,
@@ -42,11 +39,8 @@ export default ({
     throw new Error('Wrong color syntax, must be #xxxxxx');
   }
 
-  if (
-    order &&
-    (!Number.isInteger(order) || order < 1 || order >= safeOrderNumber)
-  ) {
-    throw new Error('Wrong order syntax, must be a positive integer');
+  if (order && typeof order !== 'number') {
+    throw new Error('wrong_argument_type');
   }
 
   if (action) {
