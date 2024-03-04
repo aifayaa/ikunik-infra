@@ -10,6 +10,7 @@
   "dependencies": {
     "aws-sdk": "^2.749.0",
     "phone": "^2.4.15",
+    "request-promise-native": "^1.0.8",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
