@@ -4,6 +4,8 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
+const { ADMIN_APP } = process.env;
+
 const {
   COLL_APPS,
   COLL_USERS,
@@ -41,6 +43,14 @@ async function notifyAdminsForBadgeRequest(
     badgeName: badge.name,
     username: user.profile.username,
   });
+
+  const superAdmins = await client
+    .db()
+    .collection(COLL_USERS)
+    .find({ superAdmin: true, appId: ADMIN_APP }, { projection: { emails: 1 } })
+    .toArray();
+
+  const superAdminsEmails = superAdmins.map(({ emails }) => emails[0].address);
   const [result] = await client
     .db()
     .collection(COLL_PERM_GROUPS)
@@ -93,11 +103,17 @@ async function notifyAdminsForBadgeRequest(
     ])
     .toArray();
   const { emails = [] } = result || {};
+  superAdminsEmails.forEach((email) => {
+    if (emails.indexOf(email) < 0) {
+      emails.push(email);
+    }
+  });
   const promises = emails.map((email) => {
     /* in case of error, ignore it, just try with best effort */
     try {
       return sendEmailTemplate(lang, 'clients', email, subject, body);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       return null;
     }
