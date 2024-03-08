@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import xmlParser from 'fast-xml-parser';
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -10,16 +10,19 @@ import { WordpressAPI } from '../../libs/backends/wordpress';
 const { COLL_APPS, COLL_SAML_LOGINS, COLL_USERS, COLL_USER_BADGES } =
   mongoCollections;
 
-export default async (samlLoginId, key, loginXmlData) => {
+export default async (loginXmlData) => {
   const client = await MongoClient.connect();
 
   try {
+    const parsedResponse = xmlParser.parse(loginXmlData, {
+      ignoreAttributes: false,
+    });
+
     const samlLoginRequest = await client
       .db()
       .collection(COLL_SAML_LOGINS)
       .findOne({
-        _id: new ObjectID(samlLoginId),
-        key,
+        requestId: parsedResponse['saml2p:Response']['@_InResponseTo'],
         expiresAt: { $gte: new Date() },
       });
 
@@ -42,10 +45,6 @@ export default async (samlLoginId, key, loginXmlData) => {
     ) {
       throw new Error('App not found');
     }
-
-    const parsedResponse = xmlParser.parse(loginXmlData, {
-      ignoreAttributes: false,
-    });
 
     const responseStatus =
       parsedResponse['saml2p:Response']['saml2p:Status']['saml2p:StatusCode'][
