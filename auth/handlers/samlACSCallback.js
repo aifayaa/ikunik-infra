@@ -4,13 +4,12 @@ import samlACSCallback from '../lib/samlACSCallback';
 
 export default async (event) => {
   try {
-    const { _id, key } = event.queryStringParameters;
     const { body } = event;
     const parsedBody = new URLSearchParams(body);
     const xmlBuffer = Buffer.from(parsedBody.get('SAMLResponse'), 'base64');
     const xmlData = xmlBuffer.toString('utf8');
 
-    const retVal = await samlACSCallback(_id, key, xmlData);
+    const retVal = await samlACSCallback(xmlData);
 
     if (typeof retVal === 'string') {
       return response({

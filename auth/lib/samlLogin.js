@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import crypto from 'crypto';
 import saml2 from 'saml2-js';
 import request from 'request-promise-native';
 import xmlParser from 'fast-xml-parser';
@@ -78,21 +77,8 @@ export default async (apiKey, loginParameters) => {
       .db()
       .collection(COLL_SAML_LOGINS)
       .deleteMany({ expiresAt: { $lt: new Date() } });
-    const newSamlLoginData = {
-      appId,
-      expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      key: crypto.randomBytes(16).toString('hex'),
-      loginParameters,
-    };
-    const insertedResponse = await client
-      .db()
-      .collection(COLL_SAML_LOGINS)
-      .insertOne(newSamlLoginData);
-    const { insertedId } = insertedResponse;
 
     const endpointUrl = new URL(`${REACT_APP_API_URL}/auth/saml/acscallback`);
-    endpointUrl.searchParams.append('_id', insertedId.toString());
-    endpointUrl.searchParams.append('key', newSamlLoginData.key);
 
     const spOptions = {
       entity_id: spConfig.entityId,
@@ -121,16 +107,20 @@ export default async (apiKey, loginParameters) => {
     };
     const idp = new saml2.IdentityProvider(idpOptions);
 
-    const url = await new Promise((resolve, reject) => {
-      sp.create_login_request_url(
-        idp,
-        {},
-        (err, loginUrl /* , requestId */) => {
-          if (err) reject(err);
-          else resolve(loginUrl);
-        }
-      );
+    const [url, requestId] = await new Promise((resolve, reject) => {
+      sp.create_login_request_url(idp, {}, (err, loginUrl, reqId) => {
+        if (err) reject(err);
+        else resolve([loginUrl, reqId]);
+      });
     });
+
+    const newSamlLoginData = {
+      appId,
+      expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      loginParameters,
+      requestId,
+    };
+    await client.db().collection(COLL_SAML_LOGINS).insertOne(newSamlLoginData);
 
     return url;
   } finally {
