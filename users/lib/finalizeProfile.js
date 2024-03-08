@@ -4,6 +4,8 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 
+const { ADMIN_APP } = process.env;
+
 const { REACT_APP_CROWD_SERVICE_URL } = process.env;
 
 const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS, COLL_USER_BADGES } =
@@ -195,6 +197,13 @@ export async function finalizedUser(userId, appId, lang) {
     appName: app.name,
     username: user.profile.username,
   });
+  const superAdmins = await client
+    .db()
+    .collection(COLL_USERS)
+    .find({ superAdmin: true, appId: ADMIN_APP }, { projection: { emails: 1 } })
+    .toArray();
+
+  const superAdminsEmails = superAdmins.map(({ emails }) => emails[0].address);
   const [result] = await db
     .collection(COLL_PERM_GROUPS)
     .aggregate([
@@ -246,11 +255,17 @@ export async function finalizedUser(userId, appId, lang) {
     ])
     .toArray();
   const { emails = [] } = result || {};
+  superAdminsEmails.forEach((email) => {
+    if (emails.indexOf(email) < 0) {
+      emails.push(email);
+    }
+  });
   const promises = emails.map((email) => {
     /* in case of error, ignore it, just try with best effort */
     try {
       return sendEmailTemplate(lang, 'clients', email, subject, body);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       return null;
     }

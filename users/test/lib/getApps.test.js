@@ -32,7 +32,7 @@ describe('lib - getApps', () => {
   ];
 
   before(() => {
-    spyMongo = spyMongoMethods(appsStub);
+    spyMongo = spyMongoMethods(null, appsStub);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,

@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import allPerms from './allPerms';
 
 const { ADMIN_APP } = process.env;
 
@@ -28,6 +29,7 @@ export default async (hashedToken, appId) => {
         _id: 1,
         permGroupIds: 1,
         'services.resume.loginTokens': 1,
+        superAdmin: 1,
       },
     });
 
@@ -73,7 +75,7 @@ export default async (hashedToken, appId) => {
       return {
         id: user && user._id,
         loginToken,
-        perms: {},
+        perms: user.superAdmin ? allPerms : {},
       };
     }
 
@@ -102,7 +104,7 @@ export default async (hashedToken, appId) => {
     return {
       id: user && user._id,
       loginToken,
-      perms,
+      perms: user.superAdmin ? allPerms : perms,
     };
   } finally {
     client.close();
