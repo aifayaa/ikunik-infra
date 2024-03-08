@@ -21,3 +21,12 @@ export function objGet(obj, keys, dft) {
 
   return ret;
 }
+
+export function indexObjectArrayWithKey(arrayOfObjects, key = '_id') {
+  const ret = arrayOfObjects.reduce((acc, obj) => {
+    acc[obj[key]] = obj;
+    return acc;
+  }, {});
+
+  return ret;
+}

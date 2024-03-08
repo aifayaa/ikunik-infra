@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
+import { indexObjectArrayWithKey } from '../utils';
 
 const { COLL_USERS, COLL_PERM_GROUPS, COLL_APPS } = mongoCollections;
 
@@ -51,15 +52,6 @@ function areArraysIntersecting(a1, a2) {
   if (!a2) a2 = [];
   const intersect = !a1.every((i) => a2.indexOf(i) < 0);
   return intersect;
-}
-
-function indexObjectArrayWithKey(arrayOfObjects, key = '_id') {
-  const ret = arrayOfObjects.reduce((acc, obj) => {
-    acc[obj[key]] = obj;
-    return acc;
-  }, {});
-
-  return ret;
 }
 
 async function getOrgIdOfApp(appId) {
