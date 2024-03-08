@@ -6,20 +6,19 @@ import mdToHtml from '../lib/mdParsing/mdToHtml';
 import response from '../../libs/httpResponses/response';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import { queueArticleNotifications } from '../lib/notificationsQueue';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
 import articlePrices from '../articlePrices.json';
-
-const permKey = 'pressArticles_all';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const { appId } = event.requestContext.authorizer;
-    if (!checkPerms(permKey, perms)) {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     if (!event.body) {
@@ -179,7 +178,6 @@ export default async (event) => {
     views = parseInt(views, 10) || 0;
     if (views < 0) views = 0;
 
-    const userId = event.requestContext.authorizer.principalId;
     let results = await postArticle({
       actions,
       authorName,

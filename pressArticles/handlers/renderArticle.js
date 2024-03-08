@@ -1,14 +1,14 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const permKey = 'pressArticles_all';
-
-export default (event) => {
+export default async (event) => {
   try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    if (!checkPerms(permKey, perms)) {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     if (!event.body) {
@@ -20,8 +20,8 @@ export default (event) => {
     }
 
     const html = mdToHtml(md);
-    return Promise.resolve(response({ code: 200, body: { html } }));
+    return response({ code: 200, body: { html } });
   } catch (e) {
-    return Promise.resolve(response({ code: 500, message: e.message }));
+    return response({ code: 500, message: e.message });
   }
 };

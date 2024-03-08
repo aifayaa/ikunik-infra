@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import * as getArticle from '../../lib/getArticle';
 import * as snsNotifications from '../../lib/snsNotifications';
 import * as notificationsQueue from '../../lib/notificationsQueue';
-import * as checkPerms from '../../../libs/perms/checkPerms';
+import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
 import * as lib from '../../lib/publishArticle';
 import handler from '../../handlers/publishArticle';
 import prepareNotif from '../../lib/prepareNotifString';
@@ -39,7 +39,9 @@ describe('handlers - publishArticle', () => {
 
   describe('no perms', () => {
     before(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(false);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(false));
       stubLib = sandbox.stub(lib, 'publishArticle').returns({});
     });
 
@@ -58,7 +60,9 @@ describe('handlers - publishArticle', () => {
     const libResult = { message: 'ok' };
 
     before(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox.stub(lib, 'publishArticle').returns(libResult);
       /* stubCleanPendingArticleNotifications = */ sandbox
         .stub(notificationsQueue, 'cleanPendingArticleNotifications')
@@ -96,7 +100,9 @@ describe('handlers - publishArticle', () => {
     const libResult = new Error('lib method fail');
 
     beforeEach(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox
         .stub(lib, 'publishArticle')
         .callsFake(() => Promise.reject(libResult));
@@ -142,7 +148,9 @@ describe('handlers - publishArticle', () => {
         date: '2019-07-08T05:29:56.032Z',
         sendNotifications: true,
       });
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubGetArticle = sandbox.stub(getArticle, 'getArticle').returns(article);
       stubSendNotificationsTo = sandbox
         .stub(snsNotifications, 'sendNotificationTo')

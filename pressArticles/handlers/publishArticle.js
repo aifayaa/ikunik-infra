@@ -1,19 +1,18 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import {
   queueArticleNotifications,
   cleanPendingArticleNotifications,
 } from '../lib/notificationsQueue';
 import { publishArticle } from '../lib/publishArticle';
-
-const permKey = 'pressArticles_all';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const { appId } = event.requestContext.authorizer;
-    if (!checkPerms(permKey, perms)) {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     if (!event.body) {
@@ -31,7 +30,6 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
     const publicationDate = new Date(date);
-    const userId = event.requestContext.authorizer.principalId;
     const articleId = event.pathParameters.id;
     const results = await publishArticle(
       userId,

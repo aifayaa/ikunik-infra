@@ -3,23 +3,16 @@ import checkOwner from '../../libs/perms/checkOwner';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import mongoCollections from '../../libs/mongoCollections.json';
-
-const permKeys = [
-  'userGeneratedContents_all',
-  'userGeneratedContents_moderate',
-];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 export default async (event) => {
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
-  const isModerator = checkPerms(permKeys, perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const { appId } = event.requestContext.authorizer;
-    const userId = event.requestContext.authorizer.principalId;
+    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
     const userGeneratedContentsId = event.pathParameters.id;
     const bodyParsed = JSON.parse(event.body);
     const { moderated, reason } = bodyParsed;

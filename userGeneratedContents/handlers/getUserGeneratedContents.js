@@ -1,19 +1,14 @@
 /* eslint-disable import/no-relative-packages */
 import getUserGeneratedContents from '../lib/getUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKeys = [
-  'userGeneratedContents_all',
-  'userGeneratedContents_moderate',
-];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const isBooleanStringOrUndefined = (val) =>
   typeof val === 'undefined' || !!(['true', 'false'].indexOf(val) + 1);
 
 export default async (event) => {
   const userGeneratedContentsId = event.pathParameters.id;
-  const { appId, perms: rawPerms } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
     const { moderator = undefined, trashed = undefined } =
@@ -28,8 +23,7 @@ export default async (event) => {
 
     // Moderator only allowed parameters
     if (typeof moderator !== 'undefined' || typeof trashed !== 'undefined') {
-      const perms = JSON.parse(rawPerms);
-      const isModerator = checkPerms(permKeys, perms);
+      const isModerator = await checkPermsForApp(userId, appId, 'moderator');
       if (!isModerator) {
         const error = new Error(
           'Unauthorized: this operation require moderator level rights'

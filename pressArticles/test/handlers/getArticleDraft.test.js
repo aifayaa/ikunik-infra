@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
 
-import * as checkPerms from '../../../libs/perms/checkPerms';
+import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
 import * as lib from '../../lib/getArticleDraft';
 import handler from '../../handlers/getArticleDraft';
 
@@ -25,7 +25,9 @@ describe('handlers - getArticleDraft', () => {
 
   describe('no perms', () => {
     before(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(false);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(false));
       stubLib = sandbox.stub(lib, 'getArticleDraft').returns({});
     });
 
@@ -44,7 +46,9 @@ describe('handlers - getArticleDraft', () => {
     const libResult = { message: 'ok' };
 
     before(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox.stub(lib, 'getArticleDraft').returns(libResult);
     });
 
@@ -70,7 +74,9 @@ describe('handlers - getArticleDraft', () => {
     const libResult = new Error('lib method fail');
 
     before(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox
         .stub(lib, 'getArticleDraft')
         .callsFake(() => Promise.reject(libResult));

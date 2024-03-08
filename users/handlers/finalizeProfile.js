@@ -7,18 +7,14 @@ import {
 } from '../lib/finalizeProfile';
 import response from '../../libs/httpResponses/response';
 import { getUserLanguage } from '../../libs/intl/intl';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const allowedPerms = ['pressArticles_all'];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const urlUserId = event.pathParameters.id;
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
 
   try {
-    const isAdmin = checkPerms(allowedPerms, perms);
+    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
     // Only restricting to self for now, should allow admin users later
     if (userId !== urlUserId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });

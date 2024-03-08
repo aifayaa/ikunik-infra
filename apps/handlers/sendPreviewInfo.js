@@ -2,11 +2,9 @@
 import phoneCleaner from 'phone';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { sendPreviewInfoEmail } from '../lib/sendPreviewInfoEmail';
 import { sendPreviewInfoSMS } from '../lib/sendPreviewInfoSMS';
-
-const permKey = 'apps_sendPreviewInfo';
 
 const { INVITE_MAIL_LANG } = process.env;
 
@@ -16,11 +14,10 @@ export default async (event) => {
       throw new Error('missing_payload');
     }
 
-    const { authorizer } = event.requestContext;
-    const { appId, perms: rawPerms } = authorizer;
-    const perms = JSON.parse(rawPerms);
+    const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    if (!checkPerms(permKey, perms)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 

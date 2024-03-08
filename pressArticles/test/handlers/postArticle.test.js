@@ -5,7 +5,7 @@ import util from 'util';
 import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
 
-import * as checkPerms from '../../../libs/perms/checkPerms';
+import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
 import * as snsNotifications from '../../lib/snsNotifications';
 import * as notificationsQueue from '../../lib/notificationsQueue';
 import * as getArticle from '../../lib/getArticle';
@@ -65,7 +65,9 @@ describe('handlers - postArticle', () => {
 
   describe('no perms', () => {
     before(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(false);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(false));
       stubLib = sandbox.stub(lib, 'postArticle').returns(true);
     });
 
@@ -88,7 +90,9 @@ describe('handlers - postArticle', () => {
 
     before(() => {
       event.headers['content-type'] = 'application/json';
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox.stub(lib, 'postArticle').returns(postArticleResult);
     });
 
@@ -141,7 +145,9 @@ describe('handlers - postArticle', () => {
         forceCategoryId: 'forceCategoryId',
         forcePictures: JSON.stringify(['pictures']),
       };
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox.stub(lib, 'postArticle').returns(postArticleResult);
     });
 
@@ -191,7 +197,9 @@ describe('handlers - postArticle', () => {
     const postArticleResult = new Error('lib method fail');
 
     beforeEach(() => {
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox
         .stub(lib, 'postArticle')
         .callsFake(() => Promise.reject(postArticleResult));
@@ -244,7 +252,9 @@ describe('handlers - postArticle', () => {
 
     before(() => {
       event.queryStringParameters.autoPublish = 'true';
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubLib = sandbox.stub(lib, 'postArticle').returns(postArticleResult);
       stubPublishArticle = sandbox
         .stub(publishArticle, 'publishArticle')
@@ -291,7 +301,9 @@ describe('handlers - postArticle', () => {
     before(() => {
       event.queryStringParameters.autoPublish = 'true';
       event.queryStringParameters.sendNotifications = 'true';
-      stubPerms = sandbox.stub(checkPerms, 'checkPerms').returns(true);
+      stubPerms = sandbox
+        .stub(checkPermsFor, 'checkPermsForApp')
+        .returns(Promise.resolve(true));
       stubSendNotificationsTo = sandbox
         .stub(snsNotifications, 'sendNotificationTo')
         .returns(true);

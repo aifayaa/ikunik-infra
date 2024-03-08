@@ -1,16 +1,14 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import sendBlastUsersPush from '../lib/sendBlastUsersPush';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const allowedPerms = ['pressArticles_all'];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    if (!checkPerms(allowedPerms, perms)) {
+  try {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 

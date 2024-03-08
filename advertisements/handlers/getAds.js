@@ -2,19 +2,16 @@
 import getAds from '../lib/getAds';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const allowedPerms = ['pressArticles_all'];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const stringToBool = (str) => str === 'true';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
     const params = event.queryStringParameters || {};
-    const isAdmin = checkPerms(allowedPerms, perms);
+    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
 
     const filters = {};
 

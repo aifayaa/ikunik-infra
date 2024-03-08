@@ -1,18 +1,14 @@
 /* eslint-disable import/no-relative-packages */
 import getAppInfos from '../lib/getAppInfos';
 import response from '../../libs/httpResponses/response';
-import getPerms from '../../libs/perms/getPerms';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKey = 'apps_getInfos';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  const appId = event.pathParameters.id;
-  const userId = event.requestContext.authorizer.principalId;
-  const perms = await getPerms(userId, appId);
-  const havePerms = checkPerms(permKey, perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
+    const havePerms = await checkPermsForApp(userId, appId, 'admin');
+
     const results = await getAppInfos(appId, havePerms);
 
     if (results === false) {

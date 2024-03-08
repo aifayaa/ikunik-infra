@@ -17,8 +17,6 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
-  checkPerms:
-    handler: handlers/checkPerms.default
   getPerms:
     handler: handlers/getPerms.default
     events:

@@ -3,17 +3,15 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import putCategory from '../lib/putCategory';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKey = 'pressCategories_all';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { id: categoryId } = event.pathParameters;
-  const { appId, perms } = event.requestContext.authorizer;
-  const permsParsed = JSON.parse(perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    if (!checkPerms(permKey, permsParsed)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
     if (!event.body) {

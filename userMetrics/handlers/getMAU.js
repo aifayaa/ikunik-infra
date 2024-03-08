@@ -2,13 +2,10 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getMAU from '../lib/getMAU';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKey = 'pressCategories_all';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  const { appId, perms } = event.requestContext.authorizer;
-  const permsParsed = JSON.parse(perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   const now = new Date();
   now.setMonth(now.getMonth() - 1);
@@ -16,7 +13,8 @@ export default async (event) => {
     event.queryStringParameters || {};
 
   try {
-    if (!checkPerms(permKey, permsParsed)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 

@@ -2,19 +2,18 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getCategories from '../lib/getCategories';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const permKey = 'pressCategories_all';
 export default async (event) => {
-  const { appId, perms, principalId: userId } = event.requestContext.authorizer;
-  const permsParsed = JSON.parse(perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const { fetchMaxOrder: fetchMaxOrderParameter = '' } =
     event.queryStringParameters || {};
   let { parentId } = event.queryStringParameters || {};
   const fetchMaxOrder = fetchMaxOrderParameter.toLowerCase() === 'true';
 
   try {
-    if (!checkPerms(permKey, permsParsed)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 
