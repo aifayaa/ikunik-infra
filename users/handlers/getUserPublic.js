@@ -5,11 +5,13 @@ import { getTos } from '../../termsOfServices/lib/getTos';
 import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import allPerms from '../../account/lib/allPerms';
 
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const urlId = event.pathParameters.id;
+    const perms = JSON.parse(event.requestContext.authorizer.perms);
 
     const isAdmin = await checkPermsForApp(userId, appId, 'admin');
     if (userId !== urlId && !isAdmin) {
@@ -28,6 +30,7 @@ export default async (event) => {
       'previewForAdmin',
       'settings',
     ]);
+    results.perms = isAdmin ? allPerms : perms;
     try {
       results.allBadges = await getSelfUserBadges(appId, urlId);
     } catch (e) {
