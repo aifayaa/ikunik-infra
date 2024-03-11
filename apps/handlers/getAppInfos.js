@@ -4,7 +4,8 @@ import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const appId = event.pathParameters.id;
+  const { principalId: userId } = event.requestContext.authorizer;
 
   try {
     const havePerms = await checkPermsForApp(userId, appId, 'admin');
