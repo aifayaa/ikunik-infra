@@ -1,15 +1,16 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
 import { register } from '../../auth/lib/register';
 import Random from '../../libs/account_utils/random';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
+import { indexObjectArrayWithKey, objGet } from '../../libs/utils';
 
 const { ADMIN_APP, REACT_APP_PRESS_SERVICE_URL, REACT_APP_AUTH_URL } =
   process.env;
 
-const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS } = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 const BCC_EMAILS_BASE = [
   'vigile@crowdaa.com',
@@ -59,31 +60,7 @@ function sendNewAccountPassword(app, email, lang, { firstname, password }) {
   );
 }
 
-async function addUserToAppPermGroups(client, userId, appPermGroupIds) {
-  const db = client.db();
-
-  const permGroupIds = {
-    $each: appPermGroupIds.map((id) => ObjectID(id)),
-  };
-
-  await db.collection(COLL_USERS).updateOne(
-    { _id: userId },
-    {
-      $addToSet: {
-        permGroupIds,
-      },
-    }
-  );
-}
-
-export default async (
-  appId,
-  email,
-  firstname,
-  lastname,
-  lang,
-  { groups = ['admins', 'moderators', 'crowd_managers'] } = {}
-) => {
+export default async (appId, email, firstname, lastname, lang) => {
   const client = await MongoClient.connect();
   const inviteResult = {
     email,
@@ -102,28 +79,13 @@ export default async (
       throw new Error('app_not_found');
     }
 
-    const [permGroupsResults, usersResults] = await Promise.all([
-      Promise.all(
-        groups.map((group) =>
-          db.collection(COLL_PERM_GROUPS).findOne({
-            appId,
-            name: { $regex: new RegExp(`.*_${group}$`) },
-          })
-        )
-      ),
-      db.collection(COLL_USERS).findOne({
-        appId: ADMIN_APP,
-        'emails.address': email,
-      }),
-    ]);
-    const permGroupIds = permGroupsResults
-      .filter((pg) => pg)
-      .map((result) => result._id);
-    if (permGroupIds.length === 0) {
-      throw new Error('app_configuration_error');
-    }
-    if (usersResults) {
-      userId = usersResults._id;
+    let user = await db.collection(COLL_USERS).findOne({
+      appId: ADMIN_APP,
+      'emails.address': email,
+    });
+
+    if (user) {
+      userId = user._id;
     } else {
       password = Random.secret(12);
       const newUser = await register(email, email, password, ADMIN_APP, {
@@ -132,9 +94,50 @@ export default async (
       });
       userId = newUser.userId;
       inviteResult.userCreated = true;
+      user = await db.collection(COLL_USERS).findOne({
+        _id: userId,
+        appId: ADMIN_APP,
+      });
     }
 
-    await addUserToAppPermGroups(client, userId, permGroupIds);
+    const appsPerms = indexObjectArrayWithKey(
+      objGet(user, 'perms.apps', []),
+      '_id'
+    );
+
+    if (!appsPerms[app._id]) {
+      await db.collection(COLL_USERS).updateOne(
+        {
+          _id: userId,
+          appId: ADMIN_APP,
+        },
+        {
+          $push: {
+            'perms.apps': {
+              _id: app._id,
+              roles: ['admin'],
+            },
+          },
+        }
+      );
+    } else if (
+      !appsPerms[app._id].roles ||
+      (appsPerms[app._id].roles.indexOf('admin') < 0 &&
+        appsPerms[app._id].roles.indexOf('owner') < 0)
+    ) {
+      await db.collection(COLL_USERS).updateOne(
+        {
+          _id: userId,
+          appId: ADMIN_APP,
+          'perms.apps._id': app._id,
+        },
+        {
+          $set: {
+            'perms.apps.$.roles': ['admin'],
+          },
+        }
+      );
+    }
 
     try {
       await sendNewAccountPassword(app, email, lang, { firstname, password });

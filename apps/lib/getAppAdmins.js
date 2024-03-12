@@ -9,7 +9,15 @@ const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS } = mongoCollections;
 
 export default async (
   appId,
-  { groups = ['admins', 'moderators', 'crowd_managers'] } = {}
+  {
+    groups = ['admins', 'moderators', 'crowd_managers'],
+    userProjection = {
+      _id: 1,
+      'emails.address': 1,
+      'profile.firstname': 1,
+      'profile.lastname': 1,
+    },
+  } = {}
 ) => {
   const client = await MongoClient.connect();
 
@@ -38,12 +46,6 @@ export default async (
       .map((result) => result._id);
 
     const admins = {};
-    const userProjection = {
-      _id: 1,
-      'emails.address': 1,
-      'profile.firstname': 1,
-      'profile.lastname': 1,
-    };
     if (permGroupIds.length > 0) {
       const userQuery = {
         appId: ADMIN_APP,
