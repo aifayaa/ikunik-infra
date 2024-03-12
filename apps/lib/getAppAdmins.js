@@ -81,12 +81,7 @@ export default async (
       indexObjectArrayWithKey(adminsList, '_id', admins);
     }
 
-    return Object.values(admins).map((user) => ({
-      _id: user._id,
-      email: user.emails[0].address,
-      firstname: user.profile.firstname,
-      lastname: user.profile.lastname,
-    }));
+    return Object.values(admins);
   } finally {
     client.close();
   }

@@ -13,12 +13,18 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const results = await getAppAdmins(appId);
+    const rawAdmins = await getAppAdmins(appId);
 
-    if (results === false) {
+    if (rawAdmins === false) {
       return response({ code: 404, message: 'app_not_found' });
     }
-    return response({ code: 200, body: results });
+    const admins = rawAdmins.map((user) => ({
+      _id: user._id,
+      email: user.emails[0].address,
+      firstname: user.profile.firstname,
+      lastname: user.profile.lastname,
+    }));
+    return response({ code: 200, body: admins });
   } catch (e) {
     return response(errorMessage(e));
   }
