@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { indexObjectArrayWithKey } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
 
@@ -35,25 +36,50 @@ export default async (
     const permGroupIds = permGroupsResults
       .filter((pg) => pg)
       .map((result) => result._id);
-    if (permGroupIds.length === 0) {
-      throw new Error('app_configuration_error');
-    }
 
-    const userQuery = {
-      appId: ADMIN_APP,
-      permGroupIds: { $in: permGroupIds },
-    };
+    const admins = {};
     const userProjection = {
+      _id: 1,
       'emails.address': 1,
       'profile.firstname': 1,
       'profile.lastname': 1,
     };
-    const users = await db
+    if (permGroupIds.length > 0) {
+      const userQuery = {
+        appId: ADMIN_APP,
+        permGroupIds: { $in: permGroupIds },
+      };
+      const adminsList = await db
+        .collection(COLL_USERS)
+        .find(userQuery, { projection: userProjection })
+        .toArray();
+
+      if (adminsList.length > 0) {
+        indexObjectArrayWithKey(adminsList, '_id', admins);
+      }
+    }
+
+    if (app.orgId) {
+      const adminsList = await db
+        .collection(COLL_USERS)
+        .find({ 'perms.orgs._id': app.orgId }, { projection: userProjection })
+        .toArray();
+
+      if (adminsList.length > 0) {
+        indexObjectArrayWithKey(adminsList, '_id', admins);
+      }
+    }
+
+    const adminsList = await db
       .collection(COLL_USERS)
-      .find(userQuery, { projection: userProjection })
+      .find({ 'perms.apps._id': app._id }, { projection: userProjection })
       .toArray();
 
-    return users.map((user) => ({
+    if (adminsList.length > 0) {
+      indexObjectArrayWithKey(adminsList, '_id', admins);
+    }
+
+    return Object.values(admins).map((user) => ({
       _id: user._id,
       email: user.emails[0].address,
       firstname: user.profile.firstname,
