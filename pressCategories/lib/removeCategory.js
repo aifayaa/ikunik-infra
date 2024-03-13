@@ -3,7 +3,8 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { reorderCategoriesIn } from './reorderCategory';
 
-const { COLL_PRESS_ARTICLES, COLL_PRESS_CATEGORIES } = mongoCollections;
+const { COLL_PRESS_ARTICLES, COLL_PRESS_CATEGORIES, COLL_PRESS_DRAFTS } =
+  mongoCollections;
 
 export default async (appId, categoryId) => {
   const client = await MongoClient.connect();
@@ -33,21 +34,127 @@ export default async (appId, categoryId) => {
 
     await reorderCategoriesIn(appId, parentId);
 
-    const resultTrashed = await client
+    const resultTrashed = await Promise.all([
+      client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateMany(
+          {
+            appId,
+            categoryId,
+            categoriesId: { $exists: false },
+          },
+          {
+            $set: {
+              trashed: true,
+              categoryId: null,
+            },
+          }
+        ),
+      client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateMany(
+          {
+            appId,
+            categoriesId: categoryId,
+            'categoriesId.1': { $exists: false },
+          },
+          {
+            $set: {
+              trashed: true,
+              categoryId: null,
+              categoriesId: [],
+            },
+          }
+        ),
+    ]);
+
+    const articles = await client
       .db()
       .collection(COLL_PRESS_ARTICLES)
-      .updateMany(
+      .find(
         {
           appId,
-          categoryId,
+          categoriesId: categoryId,
+          'categoriesId.1': { $exists: true }, // Checks for arrays greater than 1
         },
-        {
-          $set: {
-            trashed: true,
-            categoryId: null,
+        { projection: { _id: 1 } }
+      )
+      .toArray();
+
+    if (articles.length > 0) {
+      const articlesIds = articles.map(({ _id }) => _id);
+      await client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateMany(
+          {
+            _id: { $in: articlesIds },
           },
-        }
-      );
+          {
+            $pull: {
+              categoriesId: categoryId,
+            },
+          }
+        );
+      await client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateMany(
+          {
+            _id: { $in: articlesIds },
+          },
+          [
+            {
+              $set: {
+                categoryId: { $arrayElemAt: ['$categoriesId', 0] },
+              },
+            },
+          ]
+        );
+      const drafts = await client
+        .db()
+        .collection(COLL_PRESS_DRAFTS)
+        .find(
+          {
+            appId,
+            categoriesId: categoryId,
+            'categoriesId.1': { $exists: true }, // Checks for arrays greater than 1
+          },
+          { projection: { _id: 1 } }
+        )
+        .toArray();
+      const draftsIds = drafts.map(({ _id }) => _id);
+      await client
+        .db()
+        .collection(COLL_PRESS_DRAFTS)
+        .updateMany(
+          {
+            _id: { $in: draftsIds },
+          },
+          {
+            $pull: {
+              categoriesId: categoryId,
+            },
+          }
+        );
+      await client
+        .db()
+        .collection(COLL_PRESS_DRAFTS)
+        .updateMany(
+          {
+            _id: { $in: draftsIds },
+          },
+          [
+            {
+              $set: {
+                categoryId: { $arrayElemAt: ['$categoriesId', 0] },
+              },
+            },
+          ]
+        );
+    }
     return { resultDelete, resultTrashed };
   } finally {
     client.close();

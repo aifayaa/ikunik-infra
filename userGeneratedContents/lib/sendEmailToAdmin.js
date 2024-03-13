@@ -2,15 +2,12 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
+import getAppAdmins from '../../apps/lib/getAppAdmins';
+import { objGet } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
 
-const PERMISSIONS = [
-  'userGeneratedContents_notify',
-  'userGeneratedContents_notify_email',
-];
-
-const { COLL_USERS, COLL_PERM_GROUPS } = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export default async (lang, subject, body, appId) => {
   const client = await MongoClient.connect();
@@ -27,58 +24,12 @@ export default async (lang, subject, body, appId) => {
     const superAdminsEmails = superAdmins.map(
       ({ emails }) => emails[0].address
     );
-    const [result] = await client
-      .db()
-      .collection(COLL_PERM_GROUPS)
-      .aggregate([
-        {
-          $match: {
-            appId,
-            $or: PERMISSIONS.map((perm) => ({ [`perms.${perm}`]: true })),
-          },
-        },
-        {
-          $lookup: {
-            from: COLL_USERS,
-            localField: '_id',
-            foreignField: 'permGroupIds',
-            as: 'users',
-          },
-        },
-        {
-          $unwind: {
-            path: '$users',
-            preserveNullAndEmptyArrays: false,
-          },
-        },
-        {
-          $replaceRoot: { newRoot: '$users' },
-        },
-        {
-          $project: {
-            'emails.address': true,
-          },
-        },
-        {
-          $unwind: {
-            path: '$emails',
-            preserveNullAndEmptyArrays: false,
-          },
-        },
-        {
-          $group: {
-            _id: '$emails.address',
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            emails: { $push: '$_id' },
-          },
-        },
-      ])
-      .toArray();
-    const { emails = [] } = result || {};
+    const admins = await getAppAdmins(appId, {
+      projection: { 'emails.address': 1 },
+    });
+    const emails = admins
+      .map((admin) => objGet(admin, 'emails.0.address'))
+      .filter((x) => x);
     superAdminsEmails.forEach((email) => {
       if (emails.indexOf(email) < 0) {
         emails.push(email);
@@ -89,6 +40,7 @@ export default async (lang, subject, body, appId) => {
       try {
         return sendEmailTemplate(lang, 'clients', email, subject, body);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(e);
         return null;
       }

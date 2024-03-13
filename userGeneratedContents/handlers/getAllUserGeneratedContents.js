@@ -2,12 +2,7 @@
 import getAllUserGeneratedContents from '../lib/getAllUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKeys = [
-  'userGeneratedContents_all',
-  'userGeneratedContents_moderate',
-];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const isBooleanStringOrUndefined = (val) =>
   typeof val === 'undefined' || !!(['true', 'false'].indexOf(val) + 1);
@@ -15,7 +10,7 @@ const isBooleanStringOrUndefined = (val) =>
 const ORDER_BY_LIST = ['reportsCount'];
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const {
     countOnly = false,
     limit,
@@ -31,7 +26,7 @@ export default async (event) => {
     start,
     trashed,
     type,
-    userId,
+    userId: searchedUserId,
   } = event.queryStringParameters || {};
 
   try {
@@ -70,8 +65,7 @@ export default async (event) => {
       typeof reviewed !== 'undefined' ||
       typeof trashed !== 'undefined'
     ) {
-      const perms = JSON.parse(event.requestContext.authorizer.perms);
-      const isModerator = checkPerms(permKeys, perms);
+      const isModerator = await checkPermsForApp(userId, appId, 'moderator');
       if (!isModerator) {
         const error = new Error(
           'Unauthorized: this operation require moderator level rights'
@@ -87,7 +81,7 @@ export default async (event) => {
       start,
       limit,
       type,
-      userId,
+      searchedUserId,
       {
         countOnly: countOnly && !isRaw,
         moderated:

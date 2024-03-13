@@ -4,16 +4,17 @@ import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
 import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import allPerms from '../../account/lib/allPerms';
 
-const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const urlId = event.pathParameters.id;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
 
-    if (userId !== urlId && !checkPerms(allowedPerms, perms)) {
+    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    if (userId !== urlId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
@@ -29,7 +30,7 @@ export default async (event) => {
       'previewForAdmin',
       'settings',
     ]);
-    results.perms = perms;
+    results.perms = isAdmin ? allPerms : perms;
     try {
       results.allBadges = await getSelfUserBadges(appId, urlId);
     } catch (e) {

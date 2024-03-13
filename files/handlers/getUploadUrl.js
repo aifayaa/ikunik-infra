@@ -1,8 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getUploadUrl from '../lib/getUploadUrl';
 import response from '../../libs/httpResponses/response';
-// import { checkPerms } from '../../libs/perms/checkPerms';
-// const permKey = 'files_upload';
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;
@@ -10,10 +8,6 @@ export default async (event) => {
 
   /* Check upload permissions */
   // TODO: better rights management, Upload File is allowed for all logged users
-  // const perms = JSON.parse(event.requestContext.authorizer.perms);
-  // if (!checkPerms(permKey, perms)) {
-  //   return response({ code: 403, message: 'access_forbidden' });
-  // }
   try {
     if (!userId) {
       throw new Error('missing_user_id');

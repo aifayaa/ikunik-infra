@@ -1,15 +1,14 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import getArticlesStats from '../lib/getArticlesStats';
-
-const permKey = 'pressArticles_all';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const { appId } = event.requestContext.authorizer;
-    if (!checkPerms(permKey, perms)) {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     const stats = await getArticlesStats(appId);

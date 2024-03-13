@@ -1,14 +1,13 @@
 /* eslint-disable import/no-relative-packages */
 import searchUser from '../lib/searchUser';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
   try {
-    const { appId } = event.requestContext.authorizer;
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    if (!checkPerms(allowedPerms, perms)) {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 
@@ -20,7 +19,7 @@ export default async (event) => {
       sortBy,
       sortOrder,
       start,
-      userId,
+      userId: searchUserId,
     } = event.queryStringParameters || {};
     const results = await searchUser(appId, {
       limit,
@@ -30,7 +29,7 @@ export default async (event) => {
       sortBy,
       sortOrder,
       start,
-      userId,
+      userId: searchUserId,
     });
     return response({ code: 200, body: results });
   } catch (e) {

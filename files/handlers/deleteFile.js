@@ -2,13 +2,10 @@
 import response from '../../libs/httpResponses/response';
 import deleteFile from '../lib/deleteFile';
 import findFileOfUser from '../lib/findFileOfUser';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKeys = ['files_delete', 'files_all'];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
     if (!userId) {
@@ -35,9 +32,8 @@ export default async (event) => {
     }
 
     /* Check delete permissions */
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
     const fileOfUser = await findFileOfUser(userId, appId, file);
-    const hasPerms = checkPerms(permKeys, perms);
+    const hasPerms = await checkPermsForApp(userId, appId, 'admin');
     if (!hasPerms) {
       if (!fileOfUser) {
         throw new Error('wrong_argument');
