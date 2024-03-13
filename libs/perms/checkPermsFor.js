@@ -3,7 +3,8 @@ import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { indexObjectArrayWithKey } from '../utils';
 
-const { COLL_USERS, COLL_PERM_GROUPS, COLL_APPS } = mongoCollections;
+const { COLL_USERS, COLL_PERM_GROUPS, COLL_APPS, COLL_WEBSITES } =
+  mongoCollections;
 
 /**
  * Example of user.perms structure :
@@ -47,6 +48,10 @@ const APP_PERMS_IMPLIED = {
   viewer: ['owner', 'admin'],
 };
 
+const WEBSITE_PERMS_IMPLIED = {
+  admin: ['owner'],
+};
+
 function areArraysIntersecting(a1, a2) {
   if (!a1) a1 = [];
   if (!a2) a2 = [];
@@ -67,6 +72,60 @@ async function getOrgIdOfApp(appId) {
       return null;
     }
     return app.orgId;
+  } finally {
+    client.close();
+  }
+}
+
+async function getOrgIdOfWebsite(websiteId) {
+  const client = await MongoClient.connect();
+
+  try {
+    const app = await client
+      .db()
+      .collection(COLL_WEBSITES)
+      .findOne({ _id: websiteId }, { projection: { orgId: 1 } });
+
+    if (!app) {
+      return null;
+    }
+    return app.orgId;
+  } finally {
+    client.close();
+  }
+}
+
+/**
+ * Returns user permissions. It is not backward compatible with old permissions system.
+ * @param {string} userId The user ID
+ * @param {string} websiteId The app ID
+ * @returns An object of permissions (stored in the user as user.perms)
+ */
+async function getPermsOnWebsite(userId, websiteId) {
+  const client = await MongoClient.connect();
+  try {
+    const [{ superAdmin = false, perms } = {}] = await client
+      .db()
+      .collection(COLL_USERS)
+      .find({ _id: userId })
+      .toArray();
+
+    if (superAdmin) {
+      return {
+        websites: [
+          {
+            _id: websiteId,
+            roles: ['owner'],
+          },
+        ],
+      };
+    }
+
+    if (perms) {
+      return perms;
+    }
+
+    return {};
   } finally {
     client.close();
   }
@@ -174,10 +233,11 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
 
   if (perms.apps && perms.apps.length > 0) {
     const appsPerms = indexObjectArrayWithKey(perms.apps);
-    if (appsPerms[appId])
+    if (appsPerms[appId]) {
       if (areArraysIntersecting(appsPerms[appId].roles, requestedPermsArray)) {
         return true;
       }
+    }
   }
 
   if (perms.orgs && perms.orgs.length > 0) {
@@ -191,6 +251,65 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
         if (
           areArraysIntersecting(
             orgsPerms[appOrg].apps.roles,
+            requestedPermsArray
+          )
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Checks for user permissions on a website.
+ * @param {string} userId The user ID
+ * @param {string} websiteId The website ID
+ * @param {string} requestedPerm The permission to check for, may be one of : owner, admin
+ * @returns true for a valid permission, false otherwise
+ */
+export const checkPermsForWebsite = async (
+  userId,
+  websiteId,
+  requestedPerm
+) => {
+  const perms = await getPermsOnWebsite(userId, websiteId);
+  const websiteOrg = await getOrgIdOfWebsite(websiteId);
+
+  const requestedPermsArray = [
+    requestedPerm,
+    ...(WEBSITE_PERMS_IMPLIED[requestedPerm] || []),
+  ];
+
+  if (perms.websites && perms.websites.length > 0) {
+    const websitesPerms = indexObjectArrayWithKey(perms.websites);
+    if (websitesPerms[websiteId]) {
+      if (
+        areArraysIntersecting(
+          websitesPerms[websiteId].roles,
+          requestedPermsArray
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+
+  if (perms.orgs && perms.orgs.length > 0) {
+    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
+    if (orgsPerms[websiteOrg]) {
+      if (
+        areArraysIntersecting(orgsPerms[websiteOrg].roles, ['owner', 'admin'])
+      ) {
+        return true;
+      }
+
+      if (orgsPerms[websiteOrg].websites) {
+        if (
+          areArraysIntersecting(
+            orgsPerms[websiteOrg].websites.roles,
             requestedPermsArray
           )
         ) {
