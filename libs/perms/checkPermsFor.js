@@ -25,7 +25,7 @@ const user = {
     orgs: [
       {
         _id: 'some-org-id1',
-        roles: ['owner', 'admin'],
+        roles: ['owner', 'admin', 'member'],
       },
       {
         _id: 'some-org-id2',
@@ -39,6 +39,7 @@ const user = {
     ],
   },
 };
+ * The 'member' role is impled on orgs. It may be specified or omitted.
  */
 
 const APP_PERMS_IMPLIED = {
@@ -50,6 +51,10 @@ const APP_PERMS_IMPLIED = {
 
 const WEBSITE_PERMS_IMPLIED = {
   admin: ['owner'],
+};
+const ORGANIZATION_PERMS_IMPLIED = {
+  admin: ['owner'],
+  member: ['admin', 'owner'],
 };
 
 function areArraysIntersecting(a1, a2) {
@@ -115,6 +120,42 @@ async function getPermsOnWebsite(userId, websiteId) {
         websites: [
           {
             _id: websiteId,
+            roles: ['owner'],
+          },
+        ],
+      };
+    }
+
+    if (perms) {
+      return perms;
+    }
+
+    return {};
+  } finally {
+    client.close();
+  }
+}
+
+/**
+ * Returns user permissions.
+ * @param {string} userId The user ID
+ * @param {string} orgId The app ID
+ * @returns An object of permissions (stored in the user as user.perms)
+ */
+async function getPermsOnOrganization(userId, orgId) {
+  const client = await MongoClient.connect();
+  try {
+    const [{ superAdmin = false, perms } = {}] = await client
+      .db()
+      .collection(COLL_USERS)
+      .find({ _id: userId })
+      .toArray();
+
+    if (superAdmin) {
+      return {
+        orgs: [
+          {
+            _id: orgId,
             roles: ['owner'],
           },
         ],
@@ -315,6 +356,42 @@ export const checkPermsForWebsite = async (
         ) {
           return true;
         }
+      }
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Checks for user permissions on an organization.
+ * @param {string} userId The user ID
+ * @param {string} orgId The organization ID
+ * @param {string} requestedPerm The permission to check for, may be one of : owner, admin, member
+ * @returns true for a valid permission, false otherwise
+ */
+export const checkPermsForOrganization = async (
+  userId,
+  orgId,
+  requestedPerm
+) => {
+  const perms = await getPermsOnOrganization(userId, orgId);
+
+  const requestedPermsArray = [
+    requestedPerm,
+    ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
+  ];
+
+  if (perms.orgs && perms.orgs.length > 0) {
+    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
+    if (orgsPerms[orgId]) {
+      if (
+        areArraysIntersecting(
+          orgsPerms[orgId].roles || ['member'],
+          requestedPermsArray
+        )
+      ) {
+        return true;
       }
     }
   }
