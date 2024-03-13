@@ -13,23 +13,26 @@ const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 describe('lib - postUserGeneratedContents', () => {
   let spyMongo;
   let stubMongo;
-  const response = {
-    _id: '_id',
-    parentId: 'parentId',
-    parentCollection: 'parentCollection',
-    rootParentId: 'rootParentId',
-    rootParentCollection: 'rootParentCollection',
-    userId: 'userId',
-    appId: 'crowdaa_app_id',
-    type: 'type',
-    data: 'data',
-    trashed: false,
-    createdAt: new Date(),
-    modifiedAt: false,
-  };
+  const responses = [
+    { _id: 'appId', settings: {} },
+    {
+      _id: '_id',
+      parentId: 'parentId',
+      parentCollection: 'parentCollection',
+      rootParentId: 'rootParentId',
+      rootParentCollection: 'rootParentCollection',
+      userId: 'userId',
+      appId: 'crowdaa_app_id',
+      type: 'type',
+      data: 'data',
+      trashed: false,
+      createdAt: new Date(),
+      modifiedAt: false,
+    },
+  ];
 
   before(() => {
-    spyMongo = spyMongoMethods(response);
+    spyMongo = spyMongoMethods(...responses);
     const fakeClient = {
       db: spyMongo.db,
       close: spyMongo.close,
