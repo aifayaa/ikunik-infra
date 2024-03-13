@@ -33,20 +33,81 @@ export default async (appId, categoryId) => {
 
     await reorderCategoriesIn(appId, parentId);
 
-    const resultTrashed = await client
+    const resultTrashed = await Promise.all([
+      client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateMany(
+          {
+            appId,
+            categoryId,
+            categoriesId: { $exists: false },
+          },
+          {
+            $set: {
+              trashed: true,
+              categoryId: null,
+            },
+          }
+        ),
+      client
+        .db()
+        .collection(COLL_PRESS_ARTICLES)
+        .updateMany(
+          {
+            appId,
+            categoriesId: categoryId,
+            'categoriesId.1': { $exists: false },
+          },
+          {
+            $set: {
+              trashed: true,
+              categoryId: null,
+              categoriesId: [],
+            },
+          }
+        ),
+    ]);
+    const articles = await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .find(
+        {
+          appId,
+          categoriesId: categoryId,
+          'categoriesId.1': { $exists: true }, // Checks for arrays greater than 1
+        },
+        { projection: { _id: 1 } }
+      )
+      .toArray();
+    const ids = articles.map(({ _id }) => _id);
+    await client
       .db()
       .collection(COLL_PRESS_ARTICLES)
       .updateMany(
         {
-          appId,
-          categoryId,
+          _id: { $in: ids },
         },
         {
-          $set: {
-            trashed: true,
-            categoryId: null,
+          $pull: {
+            categoriesId: categoryId,
           },
         }
+      );
+    await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .updateMany(
+        {
+          _id: { $in: ids },
+        },
+        [
+          {
+            $set: {
+              categoryId: { $arrayElemAt: ['$categoriesId', 0] },
+            },
+          },
+        ]
       );
     return { resultDelete, resultTrashed };
   } finally {
