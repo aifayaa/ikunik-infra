@@ -29,7 +29,7 @@ function appendPipelineFilters(pipeline, sortBy, sortOrder) {
     }
   );
   if (sortBy && sortOrder) {
-    pipeline.push({ $sort: { [sortBy]: sortOrder === 'desc' ? 1 : -1 } });
+    pipeline.push({ $sort: { [sortBy]: sortOrder === 'desc' ? -1 : 1 } });
   }
 
   return pipeline;
