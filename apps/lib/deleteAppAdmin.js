@@ -62,7 +62,7 @@ export default async (
           { _id: adminId },
           {
             $pull: {
-              'user.perms.apps': { _id: appId },
+              'user.perms.apps': { $elemMatch: { _id: appId } },
             },
           }
         );
