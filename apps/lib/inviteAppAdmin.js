@@ -60,6 +60,49 @@ function sendNewAccountPassword(app, email, lang, { firstname, password }) {
   );
 }
 
+async function setUserAsAdmin(client, user, app) {
+  const db = client.db();
+
+  const appsPerms = indexObjectArrayWithKey(
+    objGet(user, 'perms.apps', []),
+    '_id'
+  );
+
+  if (!appsPerms[app._id]) {
+    await db.collection(COLL_USERS).updateOne(
+      {
+        _id: user._id,
+        appId: ADMIN_APP,
+      },
+      {
+        $push: {
+          'perms.apps': {
+            _id: app._id,
+            roles: ['admin'],
+          },
+        },
+      }
+    );
+  } else if (
+    !appsPerms[app._id].roles ||
+    (appsPerms[app._id].roles.indexOf('admin') < 0 &&
+      appsPerms[app._id].roles.indexOf('owner') < 0)
+  ) {
+    await db.collection(COLL_USERS).updateOne(
+      {
+        _id: user._id,
+        appId: ADMIN_APP,
+        'perms.apps._id': app._id,
+      },
+      {
+        $set: {
+          'perms.apps.$.roles': ['admin'],
+        },
+      }
+    );
+  }
+}
+
 export default async (appId, email, firstname, lastname, lang) => {
   const client = await MongoClient.connect();
   const inviteResult = {
@@ -100,44 +143,7 @@ export default async (appId, email, firstname, lastname, lang) => {
       });
     }
 
-    const appsPerms = indexObjectArrayWithKey(
-      objGet(user, 'perms.apps', []),
-      '_id'
-    );
-
-    if (!appsPerms[app._id]) {
-      await db.collection(COLL_USERS).updateOne(
-        {
-          _id: userId,
-          appId: ADMIN_APP,
-        },
-        {
-          $push: {
-            'perms.apps': {
-              _id: app._id,
-              roles: ['admin'],
-            },
-          },
-        }
-      );
-    } else if (
-      !appsPerms[app._id].roles ||
-      (appsPerms[app._id].roles.indexOf('admin') < 0 &&
-        appsPerms[app._id].roles.indexOf('owner') < 0)
-    ) {
-      await db.collection(COLL_USERS).updateOne(
-        {
-          _id: userId,
-          appId: ADMIN_APP,
-          'perms.apps._id': app._id,
-        },
-        {
-          $set: {
-            'perms.apps.$.roles': ['admin'],
-          },
-        }
-      );
-    }
+    await setUserAsAdmin(client, user, app);
 
     try {
       await sendNewAccountPassword(app, email, lang, { firstname, password });
