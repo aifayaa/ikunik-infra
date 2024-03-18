@@ -4,21 +4,20 @@ import removeMd from 'remove-markdown';
 import checkActions from '../lib/checks/checkActions';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
 import { queueArticleNotifications } from '../lib/notificationsQueue';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 import articlePrices from '../articlePrices.json';
 import { getArticle } from '../lib/getArticle';
 
-const permKey = 'pressArticles_all';
-
 export default async (event) => {
   try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const { appId } = event.requestContext.authorizer;
-    if (!checkPerms(permKey, perms)) {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     if (!event.body) {
@@ -92,7 +91,6 @@ export default async (event) => {
     const plainText =
       isWebview || isPoll ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
 
-    const userId = event.requestContext.authorizer.principalId;
     const results = await putArticle({
       actions,
       appId,

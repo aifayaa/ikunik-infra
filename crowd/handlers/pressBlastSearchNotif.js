@@ -2,7 +2,7 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { ObjectID } from '../../libs/mongoClient';
 
 const { REGION, STAGE } = process.env;
@@ -11,14 +11,12 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-const permKey = 'crowd_blast';
-
 export default async (event) => {
-  /* Some base variables */
-  const { principalId: userId, appId, perms } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    if (!checkPerms(permKey, perms)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
     const { title, message, limit } = JSON.parse(event.body);

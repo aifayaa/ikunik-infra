@@ -2,17 +2,16 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getPollResults, { pollResultsToCsv } from '../lib/getPollResults';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import { getUserLanguage, intlInit } from '../../libs/intl/intl';
-
-const allowedPerms = ['pressArticles_all'];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const { appId: authorizerAppId, principalId: userId } =
+    event.requestContext.authorizer;
   const pollId = event.pathParameters.id;
 
   try {
-    const isAdmin = checkPerms(allowedPerms, perms);
+    const isAdmin = await checkPermsForApp(userId, authorizerAppId, 'admin');
 
     const { exportToken = null, appId } = event.queryStringParameters || {};
 

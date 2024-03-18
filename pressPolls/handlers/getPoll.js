@@ -2,18 +2,15 @@
 import getPoll from '../lib/getPoll';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const pollId = event.pathParameters.id;
   const params = event.queryStringParameters || {};
 
   try {
-    const isAdmin = checkPerms(allowedPerms, perms);
+    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
 
     let poll = await getPoll(pollId, appId, {
       userId,

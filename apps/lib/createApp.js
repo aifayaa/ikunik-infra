@@ -75,6 +75,20 @@ const DEFAULT_APP_SETTINGS = {
   },
 };
 
+async function addUserAsAppOwner(db, userId, appId) {
+  await db.collection(COLL_USERS).updateOne(
+    { _id: userId },
+    {
+      $push: {
+        'perms.apps': {
+          _id: appId,
+          roles: ['owner'],
+        },
+      },
+    }
+  );
+}
+
 async function checkIfUserIsFromRootApp(db, userId) {
   const user = await db.collection(COLL_USERS).findOne({ _id: userId });
 
@@ -182,6 +196,8 @@ export default async (name, userId, { protocol = null } = {}) => {
     const permGroupIds = await createPermGroups(db, appId, name);
 
     await addUserToPermGroups(db, userId, permGroupIds);
+
+    await addUserAsAppOwner(db, userId, appId);
 
     await syncCreateAppBaserow(userId, { appId, name, apiKey });
 

@@ -2,16 +2,11 @@
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKeys = [
-  'userGeneratedContents_all',
-  'userGeneratedContents_moderate',
-];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const parentId = event.pathParameters.id;
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const {
     start,
     limit,
@@ -29,8 +24,7 @@ export default async (event) => {
 
     fetchAll = `${fetchAll}` === 'true';
 
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const isModerator = checkPerms(permKeys, perms);
+    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
     if (!isModerator) {
       fetchAll = false;
     }

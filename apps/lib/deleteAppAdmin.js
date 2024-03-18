@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { indexObjectArrayWithKey, objGet } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
 
@@ -42,18 +43,31 @@ export default async (
     const permGroupIds = permGroupsResults
       .filter((pg) => pg)
       .map((result) => ObjectID(result._id));
-    if (permGroupIds.length === 0) {
-      throw new Error('app_configuration_error');
+    if (permGroupIds.length > 0) {
+      await db.collection(COLL_USERS).updateOne(
+        { _id: adminId },
+        {
+          $pull: {
+            permGroupIds: { $in: permGroupIds },
+          },
+        }
+      );
     }
 
-    await db.collection(COLL_USERS).updateOne(
-      { _id: adminId },
-      {
-        $pull: {
-          permGroupIds: { $in: permGroupIds },
-        },
+    const appsPerms = objGet(user, 'perms.apps');
+    if (appsPerms) {
+      const appsPermsHash = indexObjectArrayWithKey(appsPerms);
+      if (appsPermsHash[appId]) {
+        await db.collection(COLL_USERS).updateOne(
+          { _id: adminId },
+          {
+            $pull: {
+              'perms.apps': { _id: appId },
+            },
+          }
+        );
       }
-    );
+    }
   } finally {
     client.close();
   }

@@ -4,7 +4,7 @@ import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
 import pressSearch from '../lib/pressSearch';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 // To avoid getting a warning with lint
 const jsConsole = console;
@@ -12,18 +12,16 @@ const jsConsole = console;
 export default async (event) => {
   try {
     event.queryStringParameters = event.queryStringParameters || {};
-    const userId = event.requestContext.authorizer.principalId;
-    const { appId } = event.requestContext.authorizer;
+    const { appId, principalId: userId } = event.requestContext.authorizer;
     Object.assign(event.queryStringParameters, { filterUserInfo: true });
 
     if (
       event.queryStringParameters.type &&
       event.queryStringParameters.type === 'press'
     ) {
-      const permKey = 'search_press';
-      const perms = JSON.parse(event.requestContext.authorizer.perms);
-      if (!checkPerms(permKey, perms)) {
-        return response({ code: 403, message: 'access_forbidden' });
+      const allowed = await checkPermsForApp(userId, appId, 'admin');
+      if (!allowed) {
+        throw new Error('access_forbidden');
       }
 
       const pipeline = buildPressPipeline(

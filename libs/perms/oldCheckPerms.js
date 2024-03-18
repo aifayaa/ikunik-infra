@@ -13,7 +13,7 @@
  *                     to supplied perms param.
  */
 
-export const checkPerms = (required, perms) => {
+export const oldCheckPerms = (required, perms) => {
   if (typeof perms === 'string') {
     perms = JSON.parse(perms);
   }

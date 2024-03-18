@@ -3,17 +3,15 @@ import updateTask from '../lib/updateTask';
 import { updateFieldChecks } from '../lib/tasksFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
-  const userId = event.requestContext.authorizer.principalId;
-  const { appId } = event.requestContext.authorizer;
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const taskId = event.pathParameters.id;
 
   try {
-    if (!checkPerms(allowedPerms, perms)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 

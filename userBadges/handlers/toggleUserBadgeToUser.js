@@ -2,18 +2,17 @@
 import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
 import { getUserLanguage } from '../../libs/intl/intl';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const allowedPerms = ['pressArticles_all'];
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
   const userBadgeId = event.pathParameters.id;
-  const perms = JSON.parse(event.requestContext.authorizer.perms);
   const adminUserId = event.requestContext.authorizer.principalId;
 
   try {
-    if (!checkPerms(allowedPerms, perms)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 
@@ -22,16 +21,16 @@ export default async (event) => {
     }
 
     const bodyParsed = JSON.parse(event.body);
-    const { action, userId } = bodyParsed;
+    const { action, userId: targetUserId } = bodyParsed;
 
-    if (!userBadgeId || !userId) {
+    if (!userBadgeId || !targetUserId) {
       throw new Error('mal_formed_request');
     }
 
     const lang = getUserLanguage(event.headers);
     const userBadge = await toggleUserBadgeToUser(userBadgeId, appId, {
       action,
-      userId,
+      userId: targetUserId,
       adminUserId,
       lang,
     });

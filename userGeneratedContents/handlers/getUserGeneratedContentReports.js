@@ -2,24 +2,18 @@
 import getUserGeneratedContentReports from '../lib/getUserGeneratedContentReports';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import { checkPerms } from '../../libs/perms/checkPerms';
-
-const permKeys = [
-  'userGeneratedContents_all',
-  'userGeneratedContents_moderate',
-];
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const userGeneratedContentId = event.pathParameters.id;
-  const { appId } = event.requestContext.authorizer;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   const { limit, start } = event.queryStringParameters || {};
 
   let { countOnly = false } = event.queryStringParameters || {};
 
   try {
-    const perms = JSON.parse(event.requestContext.authorizer.perms);
-    const isModerator = checkPerms(permKeys, perms);
+    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
 
     if (!isModerator) {
       throw new Error('insufficient_user_rights');

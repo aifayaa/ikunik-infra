@@ -1,22 +1,16 @@
 /* eslint-disable import/no-relative-packages */
-import { checkPerms } from '../../libs/perms/checkPerms';
 import { getArticle } from '../lib/getArticle';
 import response from '../../libs/httpResponses/response';
-
-const permKey = 'pressArticles_all';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   try {
+    const { appId, principalId: userId } = event.requestContext.authorizer;
+
     const { id: articleId } = event.pathParameters;
-    const {
-      appId,
-      perms,
-      principalId: userId,
-    } = event.requestContext.authorizer;
     const { deviceId = null } = event.queryStringParameters || {};
 
-    const permissions = JSON.parse(perms);
-    const publishedOnly = !checkPerms(permKey, permissions);
+    const publishedOnly = !(await checkPermsForApp(userId, appId, 'admin'));
 
     const results = await getArticle(articleId, appId, {
       deviceId,

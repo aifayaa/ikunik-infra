@@ -2,18 +2,16 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { postPurchasableProduct } from '../lib/postPurchasableProduct';
 import response from '../../libs/httpResponses/response';
-import { checkPerms } from '../../libs/perms/checkPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const permKey = 'purchasableProducts_post';
 const availableTypes = ['subscription', 'direct'];
 
 export default async (event) => {
-  const { appId, perms } = event.requestContext.authorizer;
-  const userId = event.requestContext.authorizer.principalId;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const permissions = JSON.parse(perms);
-    if (!checkPerms(permKey, permissions)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 
