@@ -143,7 +143,9 @@ export default async (appId, email, firstname, lastname, lang) => {
       });
     }
 
-    await setUserAsAdmin(client, user, app);
+    if (!user.superAdmin) {
+      await setUserAsAdmin(client, user, app);
+    }
 
     try {
       await sendNewAccountPassword(app, email, lang, { firstname, password });
