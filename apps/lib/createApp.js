@@ -7,30 +7,7 @@ import syncCreateAppBaserow from './syncCreateAppBaserow';
 
 const { ADMIN_APP } = process.env;
 
-const { COLL_APPS, COLL_USERS, COLL_PERM_GROUPS } = mongoCollections;
-
-const DEFAULT_PERMS_ADMIN = {
-  apps_getInfos: true,
-  apps_getProfile: true,
-  crowd_blast: true,
-  files_upload: true,
-  pressArticles_all: true,
-  pressCategories_all: true,
-  search_press: true,
-  userGeneratedContents_all: true,
-};
-
-const DEFAULT_PERMS_MODERATORS = {
-  apps_getInfos: true,
-  userGeneratedContents_all: true,
-  userGeneratedContents_notify: true,
-};
-
-const DEFAULT_PERMS_CROWD_MANAGERS = {
-  apps_getInfos: true,
-  crowd_blast: true,
-  search_press: true,
-};
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 const DEFAULT_APP_SETTINGS = {
   press: {
@@ -128,57 +105,6 @@ async function createApp(db, name, userId, inputProtocol) {
   return toInsert;
 }
 
-async function createPermGroups(db, appId, name) {
-  const promises = [];
-
-  promises.push(
-    db.collection(COLL_PERM_GROUPS).insertOne({
-      appId,
-      name: `${name}_admins`,
-      perms: DEFAULT_PERMS_ADMIN,
-    })
-  );
-
-  promises.push(
-    db.collection(COLL_PERM_GROUPS).insertOne({
-      appId,
-      name: `${name}_moderators`,
-      perms: DEFAULT_PERMS_MODERATORS,
-    })
-  );
-
-  promises.push(
-    db.collection(COLL_PERM_GROUPS).insertOne({
-      appId,
-      name: `${name}_crowd_managers`,
-      perms: DEFAULT_PERMS_CROWD_MANAGERS,
-    })
-  );
-
-  const [
-    { insertedId: admins },
-    { insertedId: moderators },
-    { insertedId: crowdManagers },
-  ] = await Promise.all(promises);
-
-  return {
-    admins,
-    moderators,
-    crowdManagers,
-  };
-}
-
-async function addUserToPermGroups(db, userId, permGroupIds) {
-  await db.collection(COLL_USERS).updateOne(
-    { _id: userId },
-    {
-      $addToSet: {
-        permGroupIds: { $each: Object.values(permGroupIds) },
-      },
-    }
-  );
-}
-
 export default async (name, userId, { protocol = null } = {}) => {
   const client = await MongoClient.connect();
   try {
@@ -192,10 +118,6 @@ export default async (name, userId, { protocol = null } = {}) => {
       userId,
       protocol
     );
-
-    const permGroupIds = await createPermGroups(db, appId, name);
-
-    await addUserToPermGroups(db, userId, permGroupIds);
 
     await addUserAsAppOwner(db, userId, appId);
 
