@@ -3,8 +3,7 @@ import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { indexObjectArrayWithKey } from '../utils';
 
-const { COLL_USERS, COLL_PERM_GROUPS, COLL_APPS, COLL_WEBSITES } =
-  mongoCollections;
+const { COLL_USERS, COLL_APPS, COLL_WEBSITES } = mongoCollections;
 
 /**
  * Example of user.perms structure :
@@ -184,37 +183,21 @@ async function getPermsOnApp(userId, appId) {
       $match: { _id: userId },
     },
     {
-      $lookup: {
-        from: COLL_PERM_GROUPS,
-        localField: 'permGroupIds',
-        foreignField: '_id',
-        as: 'oldPermGroups',
-      },
-    },
-    {
       $project: {
         _id: 1,
         superAdmin: 1,
         perms: 1,
-        oldPermGroups: {
-          $filter: {
-            input: '$permGroups',
-            as: 'permGroup',
-            cond: { $eq: [appId, '$$permGroup.appId'] },
-          },
-        },
       },
     },
   ];
   const client = await MongoClient.connect();
   try {
-    const [{ oldPermGroups, superAdmin = false, perms } = {}] = await client
+    const [{ superAdmin = false, perms } = {}] = await client
       .db()
       .collection(COLL_USERS)
       .aggregate(oldPermsPipeline)
       .toArray();
 
-    let oldPerms = {};
     if (superAdmin) {
       return {
         apps: [
@@ -230,26 +213,6 @@ async function getPermsOnApp(userId, appId) {
       return perms;
     }
 
-    oldPerms = (oldPermGroups || []).reduce((acc, curr) => {
-      Object.keys(curr.oldPerms).forEach((key) => {
-        if (!acc[key]) {
-          acc[key] = curr.oldPerms[key];
-        }
-      });
-      return acc;
-    }, {});
-
-    const isAnyOldPerm = Object.values(oldPerms).indexOf(true) >= 0;
-    if (isAnyOldPerm) {
-      return {
-        apps: [
-          {
-            _id: appId,
-            roles: ['admin'],
-          },
-        ],
-      };
-    }
     return {};
   } finally {
     client.close();
