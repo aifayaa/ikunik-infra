@@ -1,17 +1,13 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { indexObjectArrayWithKey, objGet } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
 
-const { COLL_APPS, COLL_PERM_GROUPS, COLL_USERS } = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-export default async (
-  appId,
-  adminId,
-  { groups = ['admins', 'moderators', 'crowd_managers'] } = {}
-) => {
+export default async (appId, adminId) => {
   const client = await MongoClient.connect();
 
   try {
@@ -27,31 +23,6 @@ export default async (
     }
     if (!user) {
       throw new Error('user_not_found');
-    }
-
-    const [permGroupsResults] = await Promise.all([
-      Promise.all(
-        groups.map((group) =>
-          db.collection(COLL_PERM_GROUPS).findOne({
-            appId,
-            name: { $regex: new RegExp(`.*_${group}$`) },
-          })
-        )
-      ),
-    ]);
-
-    const permGroupIds = permGroupsResults
-      .filter((pg) => pg)
-      .map((result) => ObjectID(result._id));
-    if (permGroupIds.length > 0) {
-      await db.collection(COLL_USERS).updateOne(
-        { _id: adminId },
-        {
-          $pull: {
-            permGroupIds: { $in: permGroupIds },
-          },
-        }
-      );
     }
 
     const appsPerms = objGet(user, 'perms.apps');
