@@ -1,6 +1,7 @@
 api-v1
 account
 apps
+organizations
 admin
 auth
 ssr
