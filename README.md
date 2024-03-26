@@ -8,6 +8,28 @@ Install the following plugin in VSCode:
 | Prettier - Code formatter | esbenp.prettier-vscode |
 | ESLint | dbaeumer.vscode-eslint |
 
+## Example of manipulation of end point 'myEndPoint'
+
+Move to the concern directory, as "./ghanty" for example.
+
+Deploy:
+
+```
+npx sls deploy function -f myEndPoint --stage prod --region eu-west-3
+```
+
+Log:
+
+```
+npx sls logs --stage prod --region eu-west-3 -f myEndPoint
+```
+
+Log which stays opened:
+
+```
+npx sls logs --stage prod --region eu-west-3 -f myEndPoint -t
+```
+
 ## Setup
 
 Just run `npm i`. It will install all dependancies in the current directory and then link `node_modules` to each sub-directories.
