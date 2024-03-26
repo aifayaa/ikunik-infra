@@ -24,7 +24,7 @@ Log:
 npx sls logs --stage prod --region eu-west-3 -f myEndPoint
 ```
 
-Log which state opened:
+Log which stays opened:
 
 ```
 npx sls logs --stage prod --region eu-west-3 -f myEndPoint -t
