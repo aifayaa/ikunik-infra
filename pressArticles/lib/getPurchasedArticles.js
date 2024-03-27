@@ -62,18 +62,34 @@ export const getPurchasedArticles = async (
         createdAt: -1,
       };
       $match.isPublished = true;
-      $match.$or = [
+      $match.$and.push(
         {
-          publicationDate: {
-            $exists: false,
-          },
+          $or: [
+            {
+              publicationDate: {
+                $exists: false,
+              },
+            },
+            {
+              publicationDate: {
+                $lte: new Date(),
+              },
+            },
+          ],
         },
         {
-          publicationDate: {
-            $lte: new Date(),
-          },
-        },
-      ];
+          $or: [
+            {
+              unpublicationDate: null,
+            },
+            {
+              unpublicationDate: {
+                $gt: new Date(),
+              },
+            },
+          ],
+        }
+      );
     }
 
     const userDeviceMatch = {};
