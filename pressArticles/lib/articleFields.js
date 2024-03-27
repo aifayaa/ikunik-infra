@@ -27,6 +27,7 @@ const common = {
   text: true,
   thumbnailDisplayMethod: true,
   title: true,
+  unpublicationDate: true,
   user: true,
   videoPlayMode: true,
   views: true,

@@ -9,7 +9,8 @@ export const publishArticle = async (
   appId,
   articleId,
   draftId,
-  publicationDate
+  publicationDate,
+  unpublicationDate
 ) => {
   const client = await MongoClient.connect();
   let session;
@@ -89,6 +90,7 @@ export const publishArticle = async (
       plainText,
       productId,
       publicationDate,
+      unpublicationDate,
       publishedBy: userId,
       storeProductId,
       summary,
@@ -143,6 +145,7 @@ export const publishArticle = async (
           $set: {
             isPublished: true,
             publicationDate,
+            unpublicationDate,
           },
         },
         opts

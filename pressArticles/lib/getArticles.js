@@ -182,20 +182,34 @@ export const getArticles = async (
               ],
             });
           } else {
-            matchArticles.$and.push({
-              $or: [
-                {
-                  publicationDate: {
-                    $exists: false,
+            matchArticles.$and.push(
+              {
+                $or: [
+                  {
+                    publicationDate: {
+                      $exists: false,
+                    },
                   },
-                },
-                {
-                  publicationDate: {
-                    $lte: new Date(),
+                  {
+                    publicationDate: {
+                      $lte: new Date(),
+                    },
                   },
-                },
-              ],
-            });
+                ],
+              },
+              {
+                $or: [
+                  {
+                    unpublicationDate: null,
+                  },
+                  {
+                    unpublicationDate: {
+                      $gt: new Date(),
+                    },
+                  },
+                ],
+              }
+            );
           }
         }
       } else if (reversedFlow) {
@@ -226,20 +240,34 @@ export const getArticles = async (
         sortArticles = { pinned: -1, publicationDate: -1, createdAt: -1 };
         matchArticles.isPublished = true;
         if (!noDateFilter) {
-          matchArticles.$and.push({
-            $or: [
-              {
-                publicationDate: {
-                  $exists: false,
+          matchArticles.$and.push(
+            {
+              $or: [
+                {
+                  publicationDate: {
+                    $exists: false,
+                  },
                 },
-              },
-              {
-                publicationDate: {
-                  $lte: new Date(),
+                {
+                  publicationDate: {
+                    $lte: new Date(),
+                  },
                 },
-              },
-            ],
-          });
+              ],
+            },
+            {
+              $or: [
+                {
+                  unpublicationDate: null,
+                },
+                {
+                  unpublicationDate: {
+                    $gt: new Date(),
+                  },
+                },
+              ],
+            }
+          );
         }
       }
     }

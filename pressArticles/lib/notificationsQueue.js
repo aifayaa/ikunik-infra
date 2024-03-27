@@ -91,7 +91,11 @@ export const cleanPendingArticleNotifications = async (articleId) => {
       .findOne({ _id: articleId });
 
     if (article.pendingNotificationAwsArnId) {
-      if (article.publicationDate.getTime() > Date.now()) {
+      if (
+        article.publicationDate.getTime() > Date.now() &&
+        (!article.unpublicationDate ||
+          article.unpublicationDate.getTime() <= Date.now())
+      ) {
         const stepfunctions = new StepFunctions({
           region: REGION,
         });

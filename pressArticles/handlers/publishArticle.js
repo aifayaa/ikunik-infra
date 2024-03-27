@@ -19,12 +19,13 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
     const {
-      draftId,
       date,
-      sendNotifications = false,
+      draftId,
       notificationContent = null,
-      notificationTitle = null,
       notificationDate = null,
+      notificationTitle = null,
+      sendNotifications = false,
+      unpublicationDate = null,
     } = JSON.parse(event.body);
     if (!draftId || !date) {
       throw new Error('mal_formed_request');
@@ -36,7 +37,8 @@ export default async (event) => {
       appId,
       articleId,
       draftId,
-      publicationDate
+      publicationDate,
+      unpublicationDate && new Date(unpublicationDate)
     );
     const requestResults = { results };
     await cleanPendingArticleNotifications(articleId);

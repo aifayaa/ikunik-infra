@@ -138,7 +138,8 @@ export default async (event) => {
         appId,
         results.articleId,
         results.draftId,
-        article.publicationDate || new Date()
+        article.publicationDate || new Date(),
+        article.unpublicationDate || null
       );
       results.published = true;
       if (sendNotifications === 'true') {
