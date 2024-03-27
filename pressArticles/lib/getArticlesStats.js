@@ -12,9 +12,24 @@ export default async (appId) => {
     const articlesColl = client.db().collection(COLL_PRESS_ARTICLES);
 
     const [published, unpublished, drafts] = await Promise.all([
-      articlesColl.find({ appId, isPublished: true }).count(),
       articlesColl
-        .find({ appId, isPublished: false, publicationDate: { $exists: true } })
+        .find({
+          appId,
+          isPublished: true,
+          $or: [
+            { unpublicationDate: null },
+            { unpublicationDate: { $gt: new Date() } },
+          ],
+        })
+        .count(),
+      articlesColl
+        .find({
+          appId,
+          $or: [
+            { isPublished: false, publicationDate: { $exists: true } },
+            { isPublished: true, unpublicationDate: { $lte: new Date() } },
+          ],
+        })
         .count(),
       articlesColl
         .find({
