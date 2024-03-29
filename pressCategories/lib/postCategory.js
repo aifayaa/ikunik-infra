@@ -8,6 +8,7 @@ const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
 
 export default async ({
   action,
+  actionV2,
   appId,
   badges,
   badgesAllow,
@@ -87,6 +88,7 @@ export default async ({
     /* Prepare the category object for database insertion */
     const category = {
       _id: new ObjectID().toString(),
+      action_v2: actionV2,
       action,
       appId,
       color,
