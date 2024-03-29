@@ -24,6 +24,7 @@ export const postArticle = async ({
   feedPicture,
   hideFromFeed,
   html,
+  isEvent = false,
   isPoll = false,
   isWebview = false,
   likes = 0,
@@ -56,6 +57,7 @@ export const postArticle = async ({
     typeof pinned !== 'boolean' ||
     typeof isPoll !== 'boolean' ||
     typeof isWebview !== 'boolean' ||
+    typeof isEvent !== 'boolean' ||
     !(['string', 'undefined'].indexOf(typeof md) + 1) ||
     !(['string', 'undefined'].indexOf(typeof mediaCaptions) + 1) ||
     !(['string', 'undefined'].indexOf(typeof pdfsOpenButton) + 1) ||
@@ -101,6 +103,7 @@ export const postArticle = async ({
       eventStartDate,
       hideFromFeed,
       isPublished: false,
+      isEvent,
       isPoll,
       isWebview,
       likes,
