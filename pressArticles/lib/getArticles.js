@@ -430,10 +430,11 @@ export const getArticles = async (
     // Get drafts of articles
     if (articles.length > 0) {
       const articlesIds = articles.map((a) => a._id);
+      const draftIds = articles.map((a) => a.draftId);
       const draftPipeline = [
         {
           $match: {
-            articleId: { $in: articlesIds },
+            _id: { $in: draftIds },
           },
         },
         {
@@ -496,25 +497,13 @@ export const getArticles = async (
         return acc;
       }, {});
 
-      // For each articleId, retrieve the most recent 'draft document'
-      // dict of 'articleId' -> 'draft document'
-      const mostRecentDrafts = {};
-      for (let i = 0; i < drafts.length; i += 1) {
-        const candidateDraft = drafts[i];
-        const { articleId } = candidateDraft;
-        if (!mostRecentDrafts[articleId]) {
-          mostRecentDrafts[articleId] = candidateDraft;
-        } else if (
-          mostRecentDrafts[articleId].createdAt < candidateDraft.createdAt
-        ) {
-          mostRecentDrafts[articleId] = candidateDraft;
-        }
-      }
-
-      // For each article, fill the field 'draft' with its most recent 'draft document'
+      // For each article, fill the field 'draft' with its associated 'draft document'
       for (let i = 0; i < articles.length; i += 1) {
         const article = articles[i];
-        article.draft = mostRecentDrafts[article._id];
+        const associatedDraft = drafts.filter(
+          (draft) => draft._id === article.draftId
+        )[0];
+        article.draft = associatedDraft;
       }
     }
 
