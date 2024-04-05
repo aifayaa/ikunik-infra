@@ -496,14 +496,26 @@ export const getArticles = async (
         return acc;
       }, {});
 
-      const articlesMap = articles.reduce((acc, art) => {
-        acc[art._id] = art;
-        art.draft = null;
-        return acc;
-      }, {});
-      drafts.forEach((draft) => {
-        articlesMap[draft.articleId].draft = draft;
-      });
+      // For each articleId, retrieve the most recent 'draft document'
+      // dict of 'articleId' -> 'draft document'
+      const mostRecentDrafts = {};
+      for (let i = 0; i < drafts.length; i += 1) {
+        const candidateDraft = drafts[i];
+        const { articleId } = candidateDraft;
+        if (!mostRecentDrafts[articleId]) {
+          mostRecentDrafts[articleId] = candidateDraft;
+        } else if (
+          mostRecentDrafts[articleId].createdAt < candidateDraft.createdAt
+        ) {
+          mostRecentDrafts[articleId] = candidateDraft;
+        }
+      }
+
+      // For each article, fill the field 'draft' with its most recent 'draft document'
+      for (let i = 0; i < articles.length; i += 1) {
+        const article = articles[i];
+        article.draft = mostRecentDrafts[article._id];
+      }
     }
 
     const articlesWithCategory = articles.map((article) => {
