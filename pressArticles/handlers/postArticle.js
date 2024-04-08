@@ -44,6 +44,7 @@ export default async (event) => {
     let feedPicture;
     let hideFromFeed;
     let html;
+    let isEvent;
     let isPoll;
     let isWebview;
     let likes;
@@ -79,6 +80,7 @@ export default async (event) => {
           eventStartDate,
           feedPicture,
           hideFromFeed,
+          isEvent,
           isPoll,
           isWebview,
           likes,
@@ -192,6 +194,7 @@ export default async (event) => {
       feedPicture,
       hideFromFeed: !!hideFromFeed,
       html,
+      isEvent: !!isEvent,
       isPoll: !!isPoll,
       isWebview: !!isWebview,
       likes,

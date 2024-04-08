@@ -4,6 +4,7 @@ import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import putCategory from '../lib/putCategory';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import actionV2ToAction from '../lib/actionV2Migration';
 
 export default async (event) => {
   const { id: categoryId } = event.pathParameters;
@@ -26,6 +27,7 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
+      action_v2: actionV2 = null,
       badges,
       badgesAllow,
       color = null,
@@ -41,14 +43,21 @@ export default async (event) => {
       reversedFlowStart = null,
       rssFeedUrl = null,
     } = parsedBody;
-    let { action } = parsedBody;
+    let { action = '' } = parsedBody;
+
+    if (actionV2) {
+      action = actionV2ToAction(actionV2);
+    }
 
     /* Encore URI for internal PDF links */
     if (action && action.indexOf('/pdf/') === 0) {
       action = `/pdf/${encodeURIComponent(action.substring(5))}`;
+    } else if (!action) {
+      action = '';
     }
 
     const results = await putCategory({
+      actionV2,
       action,
       appId,
       badges: badges || [],

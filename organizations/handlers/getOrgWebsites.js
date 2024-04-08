@@ -1,0 +1,22 @@
+/* eslint-disable import/no-relative-packages */
+import getOrgWebsites from '../lib/getOrgWebsites';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+
+export default async (event) => {
+  const { principalId: userId } = event.requestContext.authorizer;
+  const orgId = event.pathParameters.id;
+
+  try {
+    const allowed = await checkPermsForOrganization(userId, orgId, 'member');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
+
+    const websites = await getOrgWebsites(orgId);
+    return response({ code: 200, body: websites });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
+  }
+};
