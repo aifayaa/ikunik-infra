@@ -16,19 +16,24 @@ Deploy:
 
 ```
 npx sls deploy function -f myEndPoint --stage prod --region eu-west-3
+npx sls deploy function -f myEndPoint --stage dev --region us-east-1
 ```
 
 Log:
 
 ```
 npx sls logs --stage prod --region eu-west-3 -f myEndPoint
+npx sls logs --stage dev --region us-east-1 -f myEndPoint
 ```
 
 Log which stays opened:
 
 ```
 npx sls logs --stage prod --region eu-west-3 -f myEndPoint -t
+npx sls logs --stage dev --region us-east-1 -f myEndPoint -t
 ```
+
+Remark : all `stage` / `region` combination can be found in `./prepare.js`.
 
 ## Setup
 

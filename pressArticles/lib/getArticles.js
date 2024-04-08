@@ -430,10 +430,11 @@ export const getArticles = async (
     // Get drafts of articles
     if (articles.length > 0) {
       const articlesIds = articles.map((a) => a._id);
+      const draftIds = articles.map((a) => a.draftId);
       const draftPipeline = [
         {
           $match: {
-            articleId: { $in: articlesIds },
+            _id: { $in: draftIds },
           },
         },
         {
@@ -496,14 +497,13 @@ export const getArticles = async (
         return acc;
       }, {});
 
-      const articlesMap = articles.reduce((acc, art) => {
-        acc[art._id] = art;
-        art.draft = null;
-        return acc;
-      }, {});
-      drafts.forEach((draft) => {
-        articlesMap[draft.articleId].draft = draft;
-      });
+      // For each article, fill the field 'draft' with its associated 'draft document'
+      for (let i = 0; i < articles.length; i += 1) {
+        const article = articles[i];
+        const associatedDraft =
+          drafts.find((draft) => draft._id === article.draftId) || {};
+        article.draft = associatedDraft;
+      }
     }
 
     const articlesWithCategory = articles.map((article) => {

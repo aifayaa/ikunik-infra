@@ -4,7 +4,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { manageArticleProduct } from './manageArticleProduct';
 
-const { COLL_PRESS_DRAFTS } = mongoCollections;
+const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
 export const putArticle = async ({
   actions,
@@ -140,6 +140,14 @@ export const putArticle = async ({
     });
 
     await client.db().collection(COLL_PRESS_DRAFTS).insertOne(draft);
+
+    // Update the 'draftId' field in the parent article
+    await client.db().collection(COLL_PRESS_ARTICLES).updateOne(
+      {
+        _id: articleId,
+      },
+      { $set: { draftId } }
+    );
 
     return { articleId, draftId };
   } finally {
