@@ -33,7 +33,7 @@ npx sls logs --stage prod --region eu-west-3 -f myEndPoint -t
 npx sls logs --stage dev --region us-east-1 -f myEndPoint -t
 ```
 
-Remark : all `stage` / `region` combinaison can be found in `./prepare.js`.
+Remark : all `stage` / `region` combination can be found in `./prepare.js`.
 
 ## Setup
 
