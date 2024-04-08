@@ -500,9 +500,8 @@ export const getArticles = async (
       // For each article, fill the field 'draft' with its associated 'draft document'
       for (let i = 0; i < articles.length; i += 1) {
         const article = articles[i];
-        const associatedDraft = drafts.filter(
-          (draft) => draft._id === article.draftId
-        )[0];
+        const associatedDraft =
+          drafts.find((draft) => draft._id === article.draftId) || {};
         article.draft = associatedDraft;
       }
     }
