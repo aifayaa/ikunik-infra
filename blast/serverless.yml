@@ -27,7 +27,6 @@ provider:
   runtime: nodejs16.x
   stage: ${opt:stage, "dev"}
   memorySize: 2048
-  timeout: 30
   iam:
     role:
       statements:
@@ -61,21 +60,29 @@ provider:
 functions:
   blastEmail:
     handler: handlers/blastEmail.default
+    timeout: 300
   blastNotification:
     handler: handlers/blastNotif.default
+    timeout: 300
   blastText:
     handler: handlers/blastText.default
+    timeout: 300
   pressBlastNotif:
     handler: handlers/pressBlastNotif.default
+    timeout: 300
   removeBlastToken:
     handler: handlers/removeBlastToken.default
+    timeout: 300
 
   sendNotifications:
     handler: handlers/sendNotifications.default
+    timeout: 300
   queueNotifications:
     handler: handlers/queueNotifications.default
+    timeout: 300
   unqueueNotifications:
     handler: handlers/unqueueNotifications.default
+    timeout: 300
 
   getBlasts:
     handler: handlers/getBlasts.default
