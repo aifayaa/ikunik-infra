@@ -72,7 +72,7 @@ functions:
 
   deleteFile:
     handler: handlers/deleteFile.default
-    evvents:
+    events:
       - http:
           path: files
           method: delete
