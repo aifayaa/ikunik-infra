@@ -27,7 +27,7 @@ provider:
   runtime: nodejs16.x
   stage: ${opt:stage, "dev"}
   memorySize: 2048
-  timeout: 300
+  timeout: 30
   iam:
     role:
       statements:
