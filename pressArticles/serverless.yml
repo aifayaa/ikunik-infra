@@ -221,10 +221,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   publishArticle:
     handler: handlers/publishArticle.default
@@ -236,10 +236,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   renderArticle:
     handler: handlers/renderArticle.default
@@ -251,10 +251,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   generateContent:
     handler: handlers/generateContent.default
@@ -266,10 +266,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   getArticlesStats:
     handler: handlers/getArticlesStats.default
@@ -281,10 +281,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   generatedContentStatus:
     handler: handlers/generatedContentStatus.default
@@ -296,10 +296,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   unpublishArticle:
     handler: handlers/unpublishArticle.default
@@ -311,10 +311,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   purchaseArticle:
     handler: handlers/purchaseArticle.default
@@ -326,10 +326,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   addLikeArticle:
     handler: handlers/addLikeArticle.default
@@ -375,10 +375,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   removeArticle:
     handler: handlers/removeArticle.default
@@ -390,10 +390,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - '@cruglobal/serverless-merge-config'
