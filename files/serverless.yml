@@ -1,8 +1,8 @@
 service: files
 
 package:
-  exclude:
-    - .git/**
+  patterns:
+    - '.git/**'
     - docker-compose.yml
     - Dockerfile
     - package.json
