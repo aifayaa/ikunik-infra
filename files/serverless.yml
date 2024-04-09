@@ -15,30 +15,33 @@ provider:
   stage: ${opt:stage, "dev"}
   memorySize: 1536
   timeout: 30
-  iamRoleStatements:
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}/*'
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
-    - Effect: Allow
-      Action:
-        - 's3:GetObject'
-        - 's3:PutObject'
-      Resource:
-        - 'arn:aws:s3:::${self:provider.environment.S3_RESOURCES_BUCKET}/*'
-        - 'arn:aws:s3:::${self:provider.environment.S3_PUBLIC_RESOURCES_BUCKET}/*'
-    - Effect: 'Allow'
-      Action:
-        - elastictranscoder:CreateJob
-      Resource: '*'
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: 'arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}/*'
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource:
+            - 'arn:aws:s3:::${self:provider.environment.S3_RESOURCES_BUCKET}/*'
+            - 'arn:aws:s3:::${self:provider.environment.S3_PUBLIC_RESOURCES_BUCKET}/*'
+        - Effect: 'Allow'
+          Action:
+            - elastictranscoder:CreateJob
+          Resource: '*'
+
   environment:
     $<<:
       - ${file(../env.yml)}
