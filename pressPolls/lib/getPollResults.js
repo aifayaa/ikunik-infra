@@ -132,7 +132,10 @@ export default async (pollId, appId, inputExportToken = null) => {
           },
         },
         {
-          $unwind: '$user',
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: true,
+          },
         },
       ])
       .toArray();
