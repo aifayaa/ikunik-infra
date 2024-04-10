@@ -199,7 +199,6 @@ pushDevToPreprodAWS:
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
-      when: manual
 
 pushPreprodToAWS:
   image: python:latest
