@@ -126,31 +126,6 @@ custom:
     number: 3
   serverless-disable-request-validators:
     action: delete
-  IntegrationRequestParameters:
-    integration.request.header.x-api-key: method.request.header.x-api-key
-    integration.request.querystring.articleId: method.request.querystring.articleId
-    integration.request.querystring.artist: method.request.querystring.artist
-    integration.request.querystring.city: method.request.querystring.city
-    integration.request.querystring.coordinates: method.request.querystring.coordinates
-    integration.request.querystring.country: method.request.querystring.country
-    integration.request.querystring.gender: method.request.querystring.gender
-    integration.request.querystring.hasEmail: method.request.querystring.hasEmail
-    integration.request.querystring.hasNotification: method.request.querystring.hasNotification
-    integration.request.querystring.hasText: method.request.querystring.hasText
-    integration.request.querystring.languages: method.request.querystring.languages
-    integration.request.querystring.limit: method.request.querystring.limit
-    integration.request.querystring.maximumAge: method.request.querystring.maximumAge
-    integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
-    integration.request.querystring.minimumAge: method.request.querystring.minimumAge
-    integration.request.querystring.page: method.request.querystring.page
-    integration.request.querystring.project: method.request.querystring.project
-    integration.request.querystring.purchased: method.request.querystring.purchased
-    integration.request.querystring.search: method.request.querystring.search
-    integration.request.querystring.sortBy: method.request.querystring.sortBy
-    integration.request.querystring.sortOrder: method.request.querystring.sortOrder
-    integration.request.querystring.track: method.request.querystring.track
-    integration.request.querystring.type: method.request.querystring.type
-
   querystrings:
     articleId: false
     artist: false
@@ -174,29 +149,3 @@ custom:
     sortOrder: false
     track: false
     type: false
-
-  RequestParameters:
-    method.request.header.Authorization: true
-    method.request.header.x-api-key: true
-    method.request.querystring.articleId: true
-    method.request.querystring.artist: true
-    method.request.querystring.city: true
-    method.request.querystring.coordinates: true
-    method.request.querystring.country: true
-    method.request.querystring.gender: true
-    method.request.querystring.hasEmail: true
-    method.request.querystring.hasNotification: true
-    method.request.querystring.hasText: true
-    method.request.querystring.languages: true
-    method.request.querystring.limit: true
-    method.request.querystring.maximumAge: true
-    method.request.querystring.minFBFriends: true
-    method.request.querystring.minimumAge: true
-    method.request.querystring.page: true
-    method.request.querystring.project: true
-    method.request.querystring.purchased: true
-    method.request.querystring.search: true
-    method.request.querystring.sortBy: true
-    method.request.querystring.sortOrder: true
-    method.request.querystring.track: true
-    method.request.querystring.type: true
