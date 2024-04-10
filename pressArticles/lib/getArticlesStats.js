@@ -5,6 +5,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 const { COLL_PRESS_ARTICLES } = mongoCollections;
 
 export default async (appId) => {
+  console.log('IN lib');
   let client;
   try {
     client = await MongoClient.connect();
