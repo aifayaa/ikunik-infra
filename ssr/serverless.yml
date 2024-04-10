@@ -1,9 +1,13 @@
 service: ssr
 
+# TODO: update merge conf plugin or change the mecanism to merge configuration files
+# configValidationMode: error will be the next default with serverless v4
+# configValidationMode: error
+configValidationMode: warn
+
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30

@@ -3,7 +3,6 @@ service: auth
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -11,19 +10,21 @@ provider:
     $<<:
       - ${file(../env.yml)}
       - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-      Resource: '*'
-    - Effect: Allow # See : https://stackoverflow.com/a/60250863
-      Action:
-        - ec2:DescribeNetworkInterfaces
-        - ec2:CreateNetworkInterface
-        - ec2:DeleteNetworkInterface
-        - ec2:DescribeInstances
-        - ec2:AttachNetworkInterface
-      Resource: '*'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: '*'
+        - Effect: Allow # See : https://stackoverflow.com/a/60250863
+          Action:
+            - ec2:DescribeNetworkInterfaces
+            - ec2:CreateNetworkInterface
+            - ec2:DeleteNetworkInterface
+            - ec2:DescribeInstances
+            - ec2:AttachNetworkInterface
+          Resource: '*'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

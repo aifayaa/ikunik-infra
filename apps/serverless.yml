@@ -40,7 +40,6 @@ custom:
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -293,16 +292,3 @@ plugins:
   - '@cruglobal/serverless-merge-config'
   - serverless-webpack
   - serverless-prune-plugin
-
-resources:
-  Resources:
-    ApiGatewayMethodAppsSettingsGet:
-      Properties:
-        RequestParameters:
-          method.request.header.x-api-key: true
-        Integration:
-          RequestParameters:
-            integration.request.header.x-api-key: method.request.header.x-api-key
-          CacheNamespace: ApiGatewayMethodAppsSettingsGetCacheNS
-          CacheKeyParameters:
-            - method.request.header.x-api-key

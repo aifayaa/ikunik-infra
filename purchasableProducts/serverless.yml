@@ -3,7 +3,6 @@ service: purchasableProducts
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 128
   timeout: 30
@@ -79,10 +78,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   deletePurchasableProduct:
     handler: handlers/deletePurchasableProduct.default
@@ -94,10 +93,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-disable-request-validators
