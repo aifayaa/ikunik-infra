@@ -26,10 +26,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-disable-request-validators
