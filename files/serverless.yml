@@ -2,12 +2,12 @@ service: files
 
 package:
   patterns:
-    - '.git/**'
-    - docker-compose.yml
-    - Dockerfile
-    - package.json
-    - package-lock.json
-    - README.md
+    - '!.git/**'
+    - '!docker-compose.yml'
+    - '!Dockerfile'
+    - '!package.json'
+    - '!package-lock.json'
+    - '!README.md'
 
 provider:
   name: aws
