@@ -32,11 +32,13 @@ provider:
     $<<: ${file(../env.yml)}
     REACT_APP_PRESS_SERVICE_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}'
     REACT_APP_API_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}'
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-      Resource: '*'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: '*'
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
