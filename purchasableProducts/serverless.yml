@@ -78,10 +78,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
   deletePurchasableProduct:
     handler: handlers/deletePurchasableProduct.default
@@ -93,10 +93,10 @@ functions:
           authorizer:
             type: CUSTOM
             authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-        request:
-          parameters:
-            headers:
-              Authorization: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
 
 plugins:
   - serverless-disable-request-validators
