@@ -273,6 +273,7 @@ functions:
               headers:
                 Authorization: true
 
+  # TODO: check if this end-point is called somewhere -> delete?
   getArticlesStats:
     handler: handlers/getArticlesStats.default
     events:
@@ -398,6 +399,7 @@ functions:
                 Authorization: true
 
 plugins:
+  - serverless-offline
   - '@cruglobal/serverless-merge-config'
   - serverless-disable-request-validators
   - serverless-webpack
