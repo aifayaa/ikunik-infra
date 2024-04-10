@@ -1,5 +1,6 @@
 service: crowd
 
+# TODO: this end-point seems to be not used anymore
 provider:
   name: aws
   runtime: nodejs16.x
@@ -111,32 +112,6 @@ functions:
                 Authorization: true
               querystrings: ${self:custom.querystrings}
 
-  search:
-    handler: handlers/search.default
-    events:
-      - http:
-          path: crowd/
-          method: get
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          cors:
-            origin: '*'
-            headers:
-              - Cache-Control
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-            allowCredentials: false
-          request:
-            parameters:
-              headers:
-                Authorization: true
-              querystrings: ${self:custom.querystrings}
-
 plugins:
   - serverless-disable-request-validators
   - serverless-webpack
@@ -225,37 +200,3 @@ custom:
     method.request.querystring.sortOrder: true
     method.request.querystring.track: true
     method.request.querystring.type: true
-
-resources:
-  Resources:
-    ApiGatewayMethodCrowdGet:
-      Properties:
-        RequestParameters: ${self:custom.RequestParameters}
-        Integration:
-          RequestParameters: ${self:custom.IntegrationRequestParameters}
-          CacheNamespace: ApiGatewayMethodCrowdCacheNS
-          CacheKeyParameters:
-            - method.request.header.Authorization
-            - method.request.header.x-api-key
-            - method.request.querystring.articleId
-            - method.request.querystring.artist
-            - method.request.querystring.city
-            - method.request.querystring.coordinates
-            - method.request.querystring.country
-            - method.request.querystring.gender
-            - method.request.querystring.hasEmail
-            - method.request.querystring.hasNotification
-            - method.request.querystring.hasText
-            - method.request.querystring.languages
-            - method.request.querystring.limit
-            - method.request.querystring.maximumAge
-            - method.request.querystring.minFBFriends
-            - method.request.querystring.minimumAge
-            - method.request.querystring.page
-            - method.request.querystring.project
-            - method.request.querystring.purchased
-            - method.request.querystring.search
-            - method.request.querystring.sortBy
-            - method.request.querystring.sortOrder
-            - method.request.querystring.track
-            - method.request.querystring.type
