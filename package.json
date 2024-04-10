@@ -79,7 +79,7 @@
     "serverless": "^3.38.0",
     "serverless-disable-request-validators": "^1.0.3",
     "serverless-domain-manager": "^3.3.1",
-    "serverless-export-env": "^1.4.0",
+    "serverless-export-env": "^2.2.0",
     "serverless-plugin-bind-deployment-id": "^1.1.1",
     "serverless-prune-plugin": "^2.0.1",
     "serverless-webpack": "^5.3.3",
