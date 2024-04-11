@@ -195,7 +195,7 @@ async function getPermsOnApp(userId, appId) {
   console.log('getPermsOnApp: PASS 1');
   console.log('process.env: ', process.env);
   console.dir(process.env);
-  console.dir(process.env['$<<']);
+  // console.dir(process.env['$<<']);
   const client = await MongoClient.connect();
   console.log('getPermsOnApp: PASS 2');
   try {
