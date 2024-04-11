@@ -37,7 +37,42 @@ provider:
   memorySize: 128
   timeout: 30
   environment:
-    $<<: ${file(../env.yml)}
+    # $<<: ${file(../env.yml)}
+    ADMIN_APP: ${cf:api-v1-${self:provider.stage}.AdminApp}
+    APP_NAME_DEFAULT: crowdaa
+    APP_API_KEY_DEFAULT: nQ9ZO9DEgfaOzWY44Xu2J2uaPtP92t176PpBkdqu
+    AUTH_PASS: fL9lAwCNRO8O
+    AUTH_SMTP: ssl0.ovh.net
+    AUTH_USER: services@crowdaa.com
+    CROWDAA_FEES: 0.2
+    DB_NAME: crowdaaDev
+    DEFAULT_LIMIT: 15
+    DYNAMO_AWS_KEY: AKIAJGROD5HF6C67HFHA
+    DYNAMO_AWS_SECRET: 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
+    IOS_FEES: 0.3
+    MAILGUN_API_KEY: ${cf:api-v1-${self:provider.stage}.MailgunApiKey}
+    MAILGUN_DOMAIN: ${cf:api-v1-${self:provider.stage}.MailgunDomain}
+    MAILGUN_FROM: postmaster
+    MINIMUM_PAYOUT: 600
+    MONGO_URL: ${cf:api-v1-${self:provider.stage}.MongoURL}
+    REGION: ${self:provider.region}
+    S3_ACCESS_KEY_ID: AKIAI3H2I7ZIK4ARL2NA
+    S3_BUCKET: crowdaa-user-content
+    S3_REGION: us-east-1
+    S3_SECRET_ACCESS_KEY: 0w8fSrKMg+IBRA1YeUoNy4Ytakr7HmBKOoeYThkD
+    SMTP_FROM: noreply@crowdaa.com
+    SMTP_LOGIN: noreply@crowdaa.com
+    SMTP_SERVER: ssl0.ovh.net:465
+    SMTP_SECURE: true
+    SMTP_PASSWORD: '!VnL6`h"7K'
+    SNS_KEY_ID: AKIAI3H2I7ZIK4ARL2NA
+    SNS_PLATFORM_ANDROID_ARN: arn:aws:sns:us-west-2:630176884077:app/GCM/Crowdaa-android
+    SNS_PLATFORM_IOS_ARN: arn:aws:sns:us-west-2:630176884077:app/APNS/Crowdaa-iosprod
+    SNS_REGION: us-west-2
+    SNS_SECRET: 0w8fSrKMg+IBRA1YeUoNy4Ytakr7HmBKOoeYThkD
+    SNS_TOPIC: arn:aws:sns:us-west-2:630176884077:crowdaa-test
+    STAGE: ${self:provider.stage}
+
     REACT_APP_SSR_URL: '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_SSR_URL}'
     NOTIFICATION_STATE_MACHINE_NAME: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}'
     NOTIFICATION_STATE_MACHINE_ROLE: '${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}'
