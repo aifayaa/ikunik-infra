@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 module.exports = {
   ADMIN_APP: '${cf:api-v1-${self:provider.stage}.AdminApp}',
   APP_NAME_DEFAULT: 'crowdaa',
