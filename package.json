@@ -77,6 +77,7 @@
     "prettier": "^3.2.5",
     "query-string": "^6.10.0",
     "serverless": "^3.38.0",
+    "serverless-cloudside-plugin": "^1.0.6",
     "serverless-disable-request-validators": "^1.0.3",
     "serverless-domain-manager": "^3.3.1",
     "serverless-export-env": "^2.2.0",
