@@ -9,7 +9,7 @@ import publishArticle from './publishArticle';
 import unpublishArticle from './unpublishArticle';
 import removeArticle from './removeArticle';
 
-import yaml from '../serverless.yml';
+import yaml from '../serverless';
 
 export default (libs, output) => {
   getArticles(libs, output);
