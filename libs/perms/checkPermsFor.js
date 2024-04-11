@@ -178,8 +178,6 @@ async function getPermsOnOrganization(userId, orgId) {
  * @returns An object of permissions (stored in the user as user.perms)
  */
 async function getPermsOnApp(userId, appId) {
-  console.log('getPermsOnApp');
-  console.log('getPermsOnApp: PASS 0');
   const oldPermsPipeline = [
     {
       $match: { _id: userId },
@@ -192,12 +190,7 @@ async function getPermsOnApp(userId, appId) {
       },
     },
   ];
-  console.log('getPermsOnApp: PASS 1');
-  console.log('process.env: ', process.env);
-  console.dir(process.env);
-  // console.dir(process.env['$<<']);
   const client = await MongoClient.connect();
-  console.log('getPermsOnApp: PASS 2');
   try {
     const [{ superAdmin = false, perms } = {}] = await client
       .db()
@@ -205,7 +198,6 @@ async function getPermsOnApp(userId, appId) {
       .aggregate(oldPermsPipeline)
       .toArray();
 
-    console.log('getPermsOnApp: PASS 3');
     if (superAdmin) {
       return {
         apps: [
@@ -217,15 +209,12 @@ async function getPermsOnApp(userId, appId) {
       };
     }
 
-    console.log('getPermsOnApp: PASS 4');
     if (perms) {
       return perms;
     }
 
-    console.log('getPermsOnApp: PASS 5');
     return {};
   } finally {
-    console.log('getPermsOnApp: PASS 6');
     client.close();
   }
 }
@@ -238,19 +227,14 @@ async function getPermsOnApp(userId, appId) {
  * @returns true for a valid permission, false otherwise
  */
 export const checkPermsForApp = async (userId, appId, requestedPerm) => {
-  console.log('checkPermsForApp');
-  console.log('checkPermsForApp: PASS 0');
   const perms = await getPermsOnApp(userId, appId);
-  console.log('checkPermsForApp: PASS 1');
   const appOrg = await getOrgIdOfApp(appId);
-  console.log('checkPermsForApp: PASS 2');
 
   const requestedPermsArray = [
     requestedPerm,
     ...(APP_PERMS_IMPLIED[requestedPerm] || []),
   ];
 
-  console.log('checkPermsForApp: PASS 3');
   if (perms.apps && perms.apps.length > 0) {
     const appsPerms = indexObjectArrayWithKey(perms.apps);
     if (appsPerms[appId]) {
@@ -260,7 +244,6 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
     }
   }
 
-  console.log('checkPermsForApp: PASS 4');
   if (perms.orgs && perms.orgs.length > 0) {
     const orgsPerms = indexObjectArrayWithKey(perms.orgs);
     if (orgsPerms[appOrg]) {
@@ -281,7 +264,6 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
     }
   }
 
-  console.log('checkPermsForApp: PASS 5');
   return false;
 };
 
