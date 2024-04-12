@@ -7,11 +7,20 @@ export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    const { category = null, start, limit } = event.queryStringParameters || {};
     const allowed = await checkPermsForApp(userId, appId, 'admin');
     if (!allowed) {
       return response({ code: 403, message: 'access_forbidden' });
     }
+
+    const { category = null, start, limit } = event.queryStringParameters || {};
+
+    if (!category) {
+      return response({
+        code: 400,
+        message: 'Query string "category" is missing',
+      });
+    }
+
     const results = await getArticlesByCategoryId(
       category,
       start,

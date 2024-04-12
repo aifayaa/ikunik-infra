@@ -73,10 +73,63 @@ export const getArticlesByCategoryId = async (
       )
       .map((category) => category._id);
 
+    // STEP 1: Faire un match sur les drafts avec categoryId
+    const draftsByCategory = await client
+      .db()
+      .collection(COLL_PRESS_DRAFTS)
+      // retrieve draft which 'appIds' field contains 'appId'
+      .find({
+        appId,
+        categoryId,
+      })
+      .toArray();
+
+    // STEP 2: Pour chaque draf trouvé : récupérer son articleId
+    const articleIds = draftsByCategory.map((draft) => draft.articleId);
+
+    // STEP 3: Pour chaque articleId : récupérer tous les drafts associés
+    const draftsArticleId = await client
+      .db()
+      .collection(COLL_PRESS_DRAFTS)
+      // retrieve draft which 'appIds' field contains 'appId'
+      .find({
+        appId,
+        articleId: { $in: articleIds },
+      })
+      .toArray();
+
+    // STEP 4: Pour chaque articleId de ces drafts : récupérer le dernier draft en date
+    const mapArticleIdDrafts = {};
+    for (const draft of draftsArticleId) {
+      if (!mapArticleIdDrafts[draft.articleId]) {
+        mapArticleIdDrafts[draft.articleId] = [draft];
+      } else {
+        mapArticleIdDrafts[draft.articleId].push(draft);
+      }
+    }
+
+    const mapArticleIdMostRecentDraft = {};
+    for (const articleId of Object.keys(mapArticleIdDrafts)) {
+      // Sort array of drafts: most recent first
+      mapArticleIdDrafts[articleId] = mapArticleIdDrafts[articleId].sort(
+        (draft0, draft1) => draft1.createdAt - draft0.createdAt
+      );
+      // eslint-disable-next-line prefer-destructuring
+      mapArticleIdMostRecentDraft[articleId] = mapArticleIdDrafts[articleId][0];
+    }
+
+    // STEP 5: Garder les articleIds dont le dernier draft appartient à la categories recherché
+    const filteredArticleIds = Object.entries(mapArticleIdMostRecentDraft)
+      // eslint-disable-next-line no-unused-vars
+      .filter(([_, draft]) => draft.categoriesId.includes(categoryId))
+      .map(([articleId]) => articleId);
+
     const matchArticles = {
       appId,
       /* Find only articles not trashed or trashed undefined */
       $and: [
+        // STEP 6: Appliquer les filtres existants sur les articles
+        { _id: { $in: filteredArticleIds } },
         {
           $or: [
             {

@@ -177,7 +177,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'admin/press/getArticlesByCategoryId/',
+            path: 'admin/press/articlesByCategoryId/',
             method: 'get',
             cors: true,
             authorizer: {
