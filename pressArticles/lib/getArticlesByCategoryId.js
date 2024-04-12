@@ -120,8 +120,12 @@ export const getArticlesByCategoryId = async (
 
     // STEP 5: Garder les articleIds dont le dernier draft appartient à la categories recherché
     const filteredArticleIds = Object.entries(mapArticleIdMostRecentDraft)
-      // eslint-disable-next-line no-unused-vars
-      .filter(([_, draft]) => draft.categoriesId.includes(categoryId))
+      .filter(
+        // eslint-disable-next-line no-unused-vars
+        ([_, draft]) =>
+          categoryId === draft.categoryId ||
+          draft.categoriesId.includes(categoryId)
+      )
       .map(([articleId]) => articleId);
 
     const matchArticles = {
