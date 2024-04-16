@@ -3,11 +3,16 @@ import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const {
+  /* Do not delete content from COLL_CONTENT_PERMISSIONS.
+   * It can now be recovered from the same deviceId
+   * (feature request from apple, @20240415)
+   */
+  // COLL_CONTENT_PERMISSIONS,
+
   COLL_DELETED_ELEMENTS,
 
   COLL_BLAST_NOTIFICATIONS_QUEUE,
   // +> endpointId(COLL_PUSH_NOTIFICATIONS) => userId
-  COLL_CONTENT_PERMISSIONS,
   // => userId
   COLL_DOCUMENTS,
   // => fromUserId
@@ -60,12 +65,12 @@ export default async (userId, appId) => {
 
   try {
     await deleteWhere(db, COLL_PURCHASES, { appId, userId }, deletedMeta);
-    await deleteWhere(
-      db,
-      COLL_CONTENT_PERMISSIONS,
-      { appId, userId },
-      deletedMeta
-    );
+    // await deleteWhere(
+    //   db,
+    //   COLL_CONTENT_PERMISSIONS,
+    //   { appId, userId },
+    //   deletedMeta
+    // );
     await deleteWhere(db, COLL_USER_BALANCES, { appId, userId }, deletedMeta);
     const ugcs = await deleteWhere(
       db,

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import isEqual from 'lodash/isEqual';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -10,12 +11,9 @@ export const setContentPermissions = async (
   deviceId,
   contentId,
   contentCollection,
-  options = {},
+  options = {}
 ) => {
-  const {
-    expiresAt = null,
-    permissions = { all: true },
-  } = options;
+  const { expiresAt = null, permissions = { all: true } } = options;
 
   const findQuery = {
     contentCollection,
@@ -31,10 +29,7 @@ export const setContentPermissions = async (
     deviceId,
   };
   if (userId && deviceId) {
-    findQuery.$or = [
-      { userId },
-      { deviceId, userId: null },
-    ];
+    findQuery.$or = [{ userId }, { deviceId, userId: null }];
   } else if (userId) {
     findQuery.userId = userId;
   } else if (deviceId) {
@@ -61,10 +56,7 @@ export const setContentPermissions = async (
 
     const update = { $set: {} };
 
-    [
-      'expiresAt',
-      'permissions',
-    ].forEach((key) => {
+    ['expiresAt', 'permissions'].forEach((key) => {
       if (!isEqual(contentPermissions[key], options[key])) {
         update.$set[key] = { ...contentPermissions[key], ...options[key] };
       }

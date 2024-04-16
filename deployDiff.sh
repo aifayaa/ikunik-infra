@@ -63,11 +63,22 @@ doDeploy() {
     *) (doServerless deploy 2>&1 || handleError "$folder") | addLogs "$folder" & ;;
     esac
 
-    if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
-      doAwaitBackgroundTasks 0
+    if [ -f './serverless.yml' ]; then
+      if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
+        doAwaitBackgroundTasks 0
+      else
+        doAwaitBackgroundTasks 5
+      fi
+    elif [ -f './serverless.js' ]; then
+      if grep -qFe '    Outputs: {' serverless.js && [ "$fullDeploy" = 'full' ]; then
+        doAwaitBackgroundTasks 0
+      else
+        doAwaitBackgroundTasks 5
+      fi
     else
-      doAwaitBackgroundTasks 5
+      doAwaitBackgroundTasks 0
     fi
+
     cd ..
   done
 
