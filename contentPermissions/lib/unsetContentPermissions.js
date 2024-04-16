@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -8,17 +9,14 @@ export const unsetContentPermissions = async (
   userId,
   deviceId,
   contentId,
-  contentCollection,
+  contentCollection
 ) => {
   const findQuery = {
     contentCollection,
     contentId,
   };
   if (userId && deviceId) {
-    findQuery.$or = [
-      { userId },
-      { deviceId, userId: null },
-    ];
+    findQuery.$or = [{ userId }, { deviceId, userId: null }];
   } else if (userId) {
     findQuery.userId = userId;
   } else if (deviceId) {
@@ -40,9 +38,11 @@ export const unsetContentPermissions = async (
       return;
     }
 
-    const update = { $set: {
-      expiresAt: new Date(),
-    } };
+    const update = {
+      $set: {
+        expiresAt: new Date(),
+      },
+    };
 
     await client
       .db()
