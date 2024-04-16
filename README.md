@@ -8,15 +8,22 @@ Install the following plugin in VSCode:
 | Prettier - Code formatter | esbenp.prettier-vscode |
 | ESLint | dbaeumer.vscode-eslint |
 
-## Example of manipulation of end point 'myEndPoint'
+## Example of manipulation of
 
 Move to the concern directory, as "./ghanty" for example.
 
-Deploy:
+Deploy a end point 'myEndPoint':
 
 ```
 npx sls deploy function -f myEndPoint --stage prod --region eu-west-3
 npx sls deploy function -f myEndPoint --stage dev --region us-east-1
+```
+
+Deploy end points from the current directory:
+
+```
+npx sls deploy --stage prod --region eu-west-3
+npx sls deploy --stage dev --region us-east-1
 ```
 
 Log:
@@ -34,6 +41,14 @@ npx sls logs --stage dev --region us-east-1 -f myEndPoint -t
 ```
 
 Remark : all `stage` / `region` combination can be found in `./prepare.js`.
+
+## Run lambda function locally
+
+Move to the concern directory, as "./ghanty" for example.
+
+```
+AUTHORIZER='{"appId": "ca38e8a8-445a-44bf-b60e-c67fc440c65d", "principalId": "rmSMbZAj8uiqDM4ty", "perms": {"apps_getInfos":true,"apps_getProfile":true,"crowd_blast":true,"files_upload":true,"pressArticles_all":true,"pressCategories_all":true,"search_press":true,"userGeneratedContents_all":true,"userGeneratedContents_notify":true}, "integrationLatency": "43"}' npx sls offline --reloadHandler --stage=dev --region=us-east-1
+```
 
 ## Setup
 

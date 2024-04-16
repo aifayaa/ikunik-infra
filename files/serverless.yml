@@ -1,45 +1,47 @@
 service: files
 
 package:
-  exclude:
-    - .git/**
-    - docker-compose.yml
-    - Dockerfile
-    - package.json
-    - package-lock.json
-    - README.md
+  patterns:
+    - '!.git/**'
+    - '!docker-compose.yml'
+    - '!Dockerfile'
+    - '!package.json'
+    - '!package-lock.json'
+    - '!README.md'
 
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 1536
   timeout: 30
-  iamRoleStatements:
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}/*'
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
-    - Effect: Allow
-      Action:
-        - 's3:GetObject'
-        - 's3:PutObject'
-      Resource:
-        - 'arn:aws:s3:::${self:provider.environment.S3_RESOURCES_BUCKET}/*'
-        - 'arn:aws:s3:::${self:provider.environment.S3_PUBLIC_RESOURCES_BUCKET}/*'
-    - Effect: 'Allow'
-      Action:
-        - elastictranscoder:CreateJob
-      Resource: '*'
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: 'arn:aws:s3:::${self:provider.environment.S3_UPLOAD_BUCKET}/*'
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: 'arn:aws:s3:::${self:provider.environment.S3_PICTURES_BUCKET}/*'
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: 'arn:aws:s3:::${self:provider.environment.S3_VIDEOS_BUCKET}/*'
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource:
+            - 'arn:aws:s3:::${self:provider.environment.S3_RESOURCES_BUCKET}/*'
+            - 'arn:aws:s3:::${self:provider.environment.S3_PUBLIC_RESOURCES_BUCKET}/*'
+        - Effect: 'Allow'
+          Action:
+            - elastictranscoder:CreateJob
+          Resource: '*'
+
   environment:
     $<<:
       - ${file(../env.yml)}
@@ -71,20 +73,21 @@ functions:
               headers:
                 Authorization: true
 
-  deleteFile:
-    handler: handlers/deleteFile.default
-    evvents:
-      - http:
-          path: files
-          method: delete
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          cors: true
-          request:
-            parameters:
-              headers:
-                Authorization: true
+  # TODO: Currently deleteFile is not functional
+  # deleteFile:
+  #   handler: handlers/deleteFile.default
+  #   events:
+  #     - http:
+  #         path: files
+  #         method: delete
+  #         authorizer:
+  #           type: CUSTOM
+  #           authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+  #         cors: true
+  #         request:
+  #           parameters:
+  #             headers:
+  #               Authorization: true
 
   getSupportedFileFormats:
     handler: handlers/getSupportedFileFormats.default

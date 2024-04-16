@@ -28,6 +28,7 @@ const user = {
       },
       {
         _id: 'some-org-id2',
+        roles: ['owner', 'admin', 'member'],
         apps: {
           roles: ['owner', 'admin', 'editor', 'moderator', 'viewer'],
         },
@@ -38,7 +39,6 @@ const user = {
     ],
   },
 };
- * The 'member' role is impled on orgs. It may be specified or omitted.
  */
 
 const APP_PERMS_IMPLIED = {

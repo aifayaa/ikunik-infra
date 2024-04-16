@@ -1,17 +1,19 @@
 service: crowd
 
+# TODO: this end-point seems to be not used anymore
 provider:
   name: aws
   runtime: nodejs16.x
-  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, "dev"}
   memorySize: 1024
   timeout: 30
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-      Resource: '*'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: '*'
   environment: ${file(../env.yml)}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
@@ -112,32 +114,6 @@ functions:
                 Authorization: true
               querystrings: ${self:custom.querystrings}
 
-  search:
-    handler: handlers/search.default
-    events:
-      - http:
-          path: crowd/
-          method: get
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
-          cors:
-            origin: '*'
-            headers:
-              - Cache-Control
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-            allowCredentials: false
-          request:
-            parameters:
-              headers:
-                Authorization: true
-              querystrings: ${self:custom.querystrings}
-
 plugins:
   - serverless-disable-request-validators
   - serverless-webpack
@@ -152,31 +128,6 @@ custom:
     number: 3
   serverless-disable-request-validators:
     action: delete
-  IntegrationRequestParameters:
-    integration.request.header.x-api-key: method.request.header.x-api-key
-    integration.request.querystring.articleId: method.request.querystring.articleId
-    integration.request.querystring.artist: method.request.querystring.artist
-    integration.request.querystring.city: method.request.querystring.city
-    integration.request.querystring.coordinates: method.request.querystring.coordinates
-    integration.request.querystring.country: method.request.querystring.country
-    integration.request.querystring.gender: method.request.querystring.gender
-    integration.request.querystring.hasEmail: method.request.querystring.hasEmail
-    integration.request.querystring.hasNotification: method.request.querystring.hasNotification
-    integration.request.querystring.hasText: method.request.querystring.hasText
-    integration.request.querystring.languages: method.request.querystring.languages
-    integration.request.querystring.limit: method.request.querystring.limit
-    integration.request.querystring.maximumAge: method.request.querystring.maximumAge
-    integration.request.querystring.minFBFriends: method.request.querystring.minFBFriends
-    integration.request.querystring.minimumAge: method.request.querystring.minimumAge
-    integration.request.querystring.page: method.request.querystring.page
-    integration.request.querystring.project: method.request.querystring.project
-    integration.request.querystring.purchased: method.request.querystring.purchased
-    integration.request.querystring.search: method.request.querystring.search
-    integration.request.querystring.sortBy: method.request.querystring.sortBy
-    integration.request.querystring.sortOrder: method.request.querystring.sortOrder
-    integration.request.querystring.track: method.request.querystring.track
-    integration.request.querystring.type: method.request.querystring.type
-
   querystrings:
     articleId: false
     artist: false
@@ -200,63 +151,3 @@ custom:
     sortOrder: false
     track: false
     type: false
-
-  RequestParameters:
-    method.request.header.Authorization: true
-    method.request.header.x-api-key: true
-    method.request.querystring.articleId: true
-    method.request.querystring.artist: true
-    method.request.querystring.city: true
-    method.request.querystring.coordinates: true
-    method.request.querystring.country: true
-    method.request.querystring.gender: true
-    method.request.querystring.hasEmail: true
-    method.request.querystring.hasNotification: true
-    method.request.querystring.hasText: true
-    method.request.querystring.languages: true
-    method.request.querystring.limit: true
-    method.request.querystring.maximumAge: true
-    method.request.querystring.minFBFriends: true
-    method.request.querystring.minimumAge: true
-    method.request.querystring.page: true
-    method.request.querystring.project: true
-    method.request.querystring.purchased: true
-    method.request.querystring.search: true
-    method.request.querystring.sortBy: true
-    method.request.querystring.sortOrder: true
-    method.request.querystring.track: true
-    method.request.querystring.type: true
-
-resources:
-  Resources:
-    ApiGatewayMethodCrowdGet:
-      Properties:
-        RequestParameters: ${self:custom.RequestParameters}
-        Integration:
-          RequestParameters: ${self:custom.IntegrationRequestParameters}
-          CacheNamespace: ApiGatewayMethodCrowdCacheNS
-          CacheKeyParameters:
-            - method.request.header.Authorization
-            - method.request.header.x-api-key
-            - method.request.querystring.articleId
-            - method.request.querystring.artist
-            - method.request.querystring.city
-            - method.request.querystring.coordinates
-            - method.request.querystring.country
-            - method.request.querystring.gender
-            - method.request.querystring.hasEmail
-            - method.request.querystring.hasNotification
-            - method.request.querystring.hasText
-            - method.request.querystring.languages
-            - method.request.querystring.limit
-            - method.request.querystring.maximumAge
-            - method.request.querystring.minFBFriends
-            - method.request.querystring.minimumAge
-            - method.request.querystring.page
-            - method.request.querystring.project
-            - method.request.querystring.purchased
-            - method.request.querystring.search
-            - method.request.querystring.sortBy
-            - method.request.querystring.sortOrder
-            - method.request.querystring.track
-            - method.request.querystring.type
