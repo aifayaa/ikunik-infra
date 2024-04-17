@@ -14,13 +14,20 @@ export const getTos = async (appId, tosId, options = {}) => {
     query._id = tosId;
   }
 
-  if (typeof options.outdated !== 'undefined') {
+  if (options.outdated !== undefined) {
     query.outdated = {
       $exists: options.outdated,
     };
   }
-  if (typeof options.required !== 'undefined') {
+  if (options.required !== undefined) {
     query.required = options.required;
+  }
+  if (options.type !== undefined) {
+    if (options.type === 'tos') {
+      query.$or = [{ type: 'tos' }, { type: { $exists: false } }];
+    } else {
+      query.type = options.type;
+    }
   }
 
   const { public: projection } = tosFields;
