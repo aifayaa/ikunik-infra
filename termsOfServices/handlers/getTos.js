@@ -15,6 +15,9 @@ export default async (event) => {
           options[v] = event.queryStringParameters[v] === 'true';
         }
       });
+      if (event.queryStringParameters.type) {
+        options.type = event.queryStringParameters.type;
+      }
     }
     const results = await getTos(appId, tosId, options);
 
