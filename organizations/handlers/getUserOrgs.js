@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import getUserOrgs from '../lib/getUserOrgs';
@@ -17,7 +18,10 @@ export default async (event) => {
       throw new Error('no_org_found');
     }
 
-    return response({ code: 200, body: orgs });
+    return response({
+      code: 200,
+      body: orgs.map((org) => returnedFieldsFilter(org)),
+    });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
