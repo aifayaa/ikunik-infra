@@ -11,7 +11,8 @@ export default async (userId) => {
     const orgs = await client
       .db()
       .collection(COLL_ORGANIZATIONS)
-      .find({ createdBy: userId });
+      .find({ createdBy: userId })
+      .toArray();
     if (!orgs) {
       throw new Error('no_org_for_user');
     }

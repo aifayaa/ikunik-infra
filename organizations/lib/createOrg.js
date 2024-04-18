@@ -2,7 +2,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const { COLL_ORGANIZATIONS } = mongoCollections;
+const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
 export default async (userId, data) => {
   const client = await MongoClient.connect();
@@ -17,6 +17,21 @@ export default async (userId, data) => {
     };
 
     await client.db().collection(COLL_ORGANIZATIONS).insertOne(newTaskObj);
+
+    await client
+      .db()
+      .collection(COLL_USERS)
+      .updateOne(
+        { _id: userId },
+        {
+          $push: {
+            'perms.organizations': {
+              _id: newTaskObj._id,
+              roles: ['owner'],
+            },
+          },
+        }
+      );
 
     return newTaskObj;
   } finally {
