@@ -14,13 +14,9 @@ export default async (event) => {
   try {
     const orgs = await getUserOrgs(userId);
 
-    if (orgs.length < 1) {
-      throw new Error('no_org_found');
-    }
-
     return response({
       code: 200,
-      body: orgs.map((org) => returnedFieldsFilter(org)),
+      body: orgs.map(returnedFieldsFilter),
     });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
