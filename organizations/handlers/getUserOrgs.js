@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import getUserOrgs from '../lib/getUserOrgs';
@@ -7,12 +6,18 @@ import getUserOrgs from '../lib/getUserOrgs';
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
 
+  if (!userId) {
+    throw new Error('user_not_found');
+  }
+
   try {
-    const org = await getUserOrgs(userId);
-    if (!org) {
-      throw new Error('org_not_found');
+    const orgs = await getUserOrgs(userId);
+
+    if (orgs.length < 1) {
+      throw new Error('no_org_found');
     }
-    return response({ code: 200, body: returnedFieldsFilter(org) });
+
+    return response({ code: 200, body: orgs });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
