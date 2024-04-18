@@ -25,7 +25,7 @@ export default async (userId, data) => {
         { _id: userId },
         {
           $push: {
-            'perms.organizations': {
+            'perms.orgs': {
               _id: newTaskObj._id,
               roles: ['owner'],
             },

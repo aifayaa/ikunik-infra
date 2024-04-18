@@ -7,12 +7,17 @@ import getUserOrgs from '../lib/getUserOrgs';
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
 
+  if (!userId) {
+    throw new Error('user_not_found');
+  }
+
   try {
-    const org = await getUserOrgs(userId);
-    if (!org) {
-      throw new Error('org_not_found');
-    }
-    return response({ code: 200, body: returnedFieldsFilter(org) });
+    const orgs = await getUserOrgs(userId);
+
+    return response({
+      code: 200,
+      body: orgs.map(returnedFieldsFilter),
+    });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
