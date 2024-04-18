@@ -31,6 +31,21 @@ functions:
               headers:
                 Authorization: true
 
+  getUserOrgs:
+    handler: handlers/getUserOrgs.default
+    events:
+      - http:
+          path: organizations
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getOrg:
     handler: handlers/getOrg.default
     events:
@@ -96,6 +111,8 @@ plugins:
   - serverless-disable-request-validators
   - serverless-webpack
   - serverless-prune-plugin
+  - serverless-export-env
+  - serverless-offline
 
 custom:
   prune:
