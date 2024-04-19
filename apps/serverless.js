@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'apps',
@@ -49,7 +50,7 @@ const serverlessConfiguration = {
     memorySize: 128,
     timeout: 30,
     environment: {
-      '$<<': '${file(../env.yml)}',
+      ...env,
       INVITE_MAIL_LANG:
         '${self:custom.${self:provider.stage}.${self:provider.region}.INVITE_MAIL_LANG}',
       REACT_APP_AUTH_URL:

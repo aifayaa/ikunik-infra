@@ -32,8 +32,8 @@ const { COLL_APPS } = mongoCollections;
 const DEFAULT_BUILD_SETUP = {
   status: 'start',
   statusChangedAt: new Date(),
-  errorsMessages: [{}],
-  statusHistory: [{}],
+  errorsMessages: [],
+  statusHistory: [],
 };
 
 export default async (appId) => {

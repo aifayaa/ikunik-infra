@@ -8,22 +8,23 @@ export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const appId = event.pathParameters.id;
   try {
-    console.log('TEEEEST', appId);
     const allowed = await checkPermsForApp(userId, appId, 'admin');
     if (!allowed) {
       throw new Error('access_forbidden');
     }
 
     const result = await setAppSetup(appId);
-    let returnMessage = '';
+    let status = '';
 
     if (result) {
-      returnMessage = 'Build launched successfully';
+      status = {
+        build: true,
+      };
     } else {
-      throw new Error('start-build-failed');
+      throw new Error('start_build_failed');
     }
 
-    return response({ code: 200, body: returnMessage });
+    return response({ code: 200, body: status });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
