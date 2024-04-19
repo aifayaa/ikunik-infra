@@ -10,8 +10,7 @@ const { COLL_APPS } = mongoCollections;
     setup: {
       status: 
         'start' or 'hold' or 'canceled' or 'error' or [processStateName] or 'done',
-      statusChangedAt:
-        new Date(),
+      statusChangedAt: new Date(),
       errorsMessages: [
         {
           date: new Date(),
@@ -31,7 +30,6 @@ const { COLL_APPS } = mongoCollections;
 
 const DEFAULT_BUILD_SETUP = {
   status: 'start',
-  statusChangedAt: new Date(),
   errorsMessages: [],
   statusHistory: [],
 };
@@ -42,9 +40,10 @@ export default async (appId) => {
     await client
       .db()
       .collection(COLL_APPS)
-      .updateOne({ _id: appId }, { $set: { setup: DEFAULT_BUILD_SETUP } });
-
-    return true;
+      .updateOne(
+        { _id: appId },
+        { $set: { setup: DEFAULT_BUILD_SETUP, statusChangedAt: new Date() } }
+      );
   } finally {
     client.close();
   }

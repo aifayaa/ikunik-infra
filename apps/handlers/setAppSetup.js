@@ -13,18 +13,10 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const result = await setAppSetup(appId);
-    let status = '';
+    const res = await setAppSetup(appId);
 
-    if (result) {
-      status = {
-        build: true,
-      };
-    } else {
-      throw new Error('start_build_failed');
-    }
-
-    return response({ code: 200, body: status });
+    if (!res) return response({ code: 500, body: { build: false } });
+    return response({ code: 201, body: { build: true } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
