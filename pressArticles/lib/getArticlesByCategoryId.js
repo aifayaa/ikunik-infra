@@ -80,7 +80,12 @@ export const getArticlesByCategoryId = async (
       // retrieve draft which 'appIds' field contains 'appId'
       .find({
         appId,
-        categoryId,
+        $or: [
+          {
+            categoryId,
+            categoriesId: categoryId,
+          },
+        ],
       })
       .toArray();
 
@@ -124,7 +129,7 @@ export const getArticlesByCategoryId = async (
         // eslint-disable-next-line no-unused-vars
         ([_, draft]) =>
           categoryId === draft.categoryId ||
-          draft.categoriesId.includes(categoryId)
+          (draft.categoriesId && draft.categoriesId.includes(categoryId))
       )
       .map(([articleId]) => articleId);
 
