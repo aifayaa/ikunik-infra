@@ -28,21 +28,30 @@ const { COLL_APPS } = mongoCollections;
   };
 */
 
-const DEFAULT_BUILD_SETUP = {
-  status: 'start',
-  errorsMessages: [],
-  statusHistory: [],
-};
-
 export default async (appId) => {
   const client = await MongoClient.connect();
+  const now = new Date();
   try {
     await client
       .db()
       .collection(COLL_APPS)
       .updateOne(
         { _id: appId },
-        { $set: { setup: DEFAULT_BUILD_SETUP, statusChangedAt: new Date() } }
+        {
+          $set: {
+            setup: {
+              status: 'start',
+              statusChangedAt: now,
+              errorsMessages: [],
+              statusHistory: [
+                {
+                  status: 'start',
+                  date: now,
+                },
+              ],
+            },
+          },
+        }
       );
   } finally {
     client.close();
