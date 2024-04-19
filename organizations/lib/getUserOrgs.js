@@ -4,6 +4,14 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
+const defaultPermsOrgs = [];
+
+const defaultPerms = {
+  apps: [],
+  websites: [],
+  orgs: defaultPermsOrgs,
+};
+
 export default async (userId) => {
   const client = await MongoClient.connect();
 
@@ -13,25 +21,44 @@ export default async (userId) => {
       .collection(COLL_USERS)
       .findOne({ _id: userId });
 
-    const isSuperAdmin = user.superAdmin;
-    let orgs;
-
-    if (!isSuperAdmin) {
-      const orgIds = user.perms.orgs.map((org) => org._id);
-      orgs = await client
+    // Sanity checks: if field is missing
+    // -> set it to its default value
+    if (user.perms === undefined) {
+      await client
         .db()
-        .collection(COLL_ORGANIZATIONS)
-        .find({ _id: { $in: orgIds } })
-        .toArray();
-    } else {
-      orgs = await client
+        .collection(COLL_USERS)
+        .updateOne({ _id: userId }, { $set: { perms: defaultPerms } });
+      return [];
+    }
+
+    if (user.perms.orgs === undefined) {
+      await client
+        .db()
+        .collection(COLL_USERS)
+        .updateOne(
+          { _id: userId },
+          { $set: { 'perms.orgs': defaultPermsOrgs } }
+        );
+      return [];
+    }
+
+    // If the user is super admin, return all available organisations
+    const isSuperAdmin = user.superAdmin;
+    if (isSuperAdmin) {
+      return await client
         .db()
         .collection(COLL_ORGANIZATIONS)
         .find({})
         .toArray();
     }
 
-    return orgs;
+    // Else, return the organisation the user belongs to
+    const orgIds = user.perms.orgs.map((org) => org._id);
+    return await client
+      .db()
+      .collection(COLL_ORGANIZATIONS)
+      .find({ _id: { $in: orgIds } })
+      .toArray();
   } finally {
     client.close();
   }
