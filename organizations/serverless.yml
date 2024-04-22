@@ -106,6 +106,82 @@ functions:
               headers:
                 Authorization: true
 
+  # Blank handlers for early testing
+  inviteUserToOrg:
+    handler: handlers/inviteUserToOrg.default
+    events:
+      - http:
+          path: organizations/{id}/invite
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  changeUserOrgPerms:
+    handler: handlers/changeUserOrgPerms.default
+    events:
+      - http:
+          path: organizations/{id}/user/{userId}
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  delUserOrgPerms:
+    handler: handlers/delUserOrgPerms.default
+    events:
+      - http:
+          path: organizations/{id}/user/{userId}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getOrgUsers:
+    handler: handlers/getOrgUsers.default
+    events:
+      - http:
+          path: organizations/{id}/users
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  delOrgApp:
+    handler: handlers/delOrgApp.default
+    events:
+      - http:
+          path: organizations/{id}/apps/{appId}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   # For debugging purposes only
   setOrgPaid:
     handler: handlers/setOrgPaid.default

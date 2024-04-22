@@ -416,6 +416,123 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getUserApps: {
+      handler: 'handlers/getUserApps.default',
+      events: [
+        {
+          http: {
+            path: 'apps',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    createNoStoreApp: {
+      handler: 'handlers/createNoStoreApp.default',
+      events: [
+        {
+          http: {
+            path: 'apps',
+            method: 'put',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    modifyApp: {
+      handler: 'handlers/modifyApp.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}',
+            method: 'patch',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    delApp: {
+      handler: 'handlers/delApp.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}',
+            method: 'delete',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    getAppUsers: {
+      handler: 'handlers/getAppUsers.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    modifyAppUserPerms: {
+      handler: 'handlers/modifyAppUserPerms.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users/{userId}',
+            method: 'patch',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    delUserAppPerms: {
+      handler: 'handlers/delUserAppPerms.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users/{userId}',
+            method: 'delete',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    startBuild: {
+      handler: 'handlers/startBuild.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/build',
+            method: 'put',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    getBuildStatus: {
+      handler: 'handlers/getBuildStatus.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/build',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-webpack',
