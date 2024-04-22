@@ -30,6 +30,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+            paths:
+                id: true
 
   deleteOrg:
     handler: handlers/deleteOrg.default
@@ -37,6 +39,23 @@ functions:
       - http:
           path: organizations/{id}
           method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  updateOrg:
+    handler: handlers/updateOrg.default
+    events:
+      - http:
+          path: organizations/{id}
+          method: patch
           cors: true
           authorizer:
             type: CUSTOM

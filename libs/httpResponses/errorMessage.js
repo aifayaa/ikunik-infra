@@ -1,5 +1,8 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/no-relative-packages */
-export default ({ code, message = 'Error' } = {}) => {
+import { ZodError } from 'zod';
+
+export default ({ code, message = 'Error', error } = {}) => {
   let errorCode;
   switch (message) {
     case 'action_field_missing':
@@ -34,5 +37,11 @@ export default ({ code, message = 'Error' } = {}) => {
       console.error(message);
       break;
   }
+
+  // for now, considering zod errors as validation errors
+  if (error instanceof ZodError) {
+    return { code: 422, message: error.flatten() };
+  }
+
   return { code: code || errorCode, message };
 };
