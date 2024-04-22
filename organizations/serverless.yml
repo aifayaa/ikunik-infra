@@ -45,6 +45,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   getUserOrgs:
     handler: handlers/getUserOrgs.default
@@ -75,6 +77,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   getOrgApps:
     handler: handlers/getOrgApps.default
@@ -90,6 +94,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   getOrgWebsites:
     handler: handlers/getOrgWebsites.default
@@ -105,6 +111,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   # Blank handlers for early testing
   inviteUserToOrg:
@@ -121,6 +129,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   changeUserOrgPerms:
     handler: handlers/changeUserOrgPerms.default
@@ -136,6 +146,9 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
+                userId: true
 
   delUserOrgPerms:
     handler: handlers/delUserOrgPerms.default
@@ -151,6 +164,9 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
+                userId: true
 
   getOrgUsers:
     handler: handlers/getOrgUsers.default
@@ -166,6 +182,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   delOrgApp:
     handler: handlers/delOrgApp.default
@@ -181,6 +199,9 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
+                userId: true
 
   # For debugging purposes only
   setOrgPaid:
@@ -197,6 +218,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
 plugins:
   - serverless-webpack

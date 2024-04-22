@@ -85,7 +85,6 @@ const serverlessConfiguration = {
             },
             request: {
               parameters: {
-                paths: { id: true },
                 headers: { Authorization: true },
               },
             },
@@ -107,6 +106,11 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
+            },
           },
         },
       ],
@@ -123,6 +127,11 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
             },
           },
         },
@@ -377,7 +386,10 @@ const serverlessConfiguration = {
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
             request: {
-              parameters: { headers: { Authorization: true } },
+              parameters: {
+                paths: { id: true },
+                headers: { Authorization: true },
+              },
             },
           },
         },
@@ -397,7 +409,10 @@ const serverlessConfiguration = {
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
             request: {
-              parameters: { headers: { Authorization: true } },
+              parameters: {
+                paths: { id: true },
+                headers: { Authorization: true },
+              },
             },
           },
         },
@@ -454,7 +469,10 @@ const serverlessConfiguration = {
             path: 'apps/{id}',
             method: 'patch',
             cors: true,
-            request: { parameters: { paths: { id: true } } },
+            request: {
+              paths: { id: true },
+              parameters: { paths: { id: true } },
+            },
           },
         },
       ],
@@ -493,7 +511,9 @@ const serverlessConfiguration = {
             path: 'apps/{id}/users/{userId}',
             method: 'patch',
             cors: true,
-            request: { parameters: { paths: { id: true } } },
+            request: {
+              parameters: { paths: { id: true, userId: true } },
+            },
           },
         },
       ],
@@ -506,7 +526,7 @@ const serverlessConfiguration = {
             path: 'apps/{id}/users/{userId}',
             method: 'delete',
             cors: true,
-            request: { parameters: { paths: { id: true } } },
+            request: { parameters: { paths: { id: true, userId: true } } },
           },
         },
       ],
