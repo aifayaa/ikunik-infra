@@ -424,7 +424,9 @@ const serverlessConfiguration = {
             path: 'apps',
             method: 'get',
             cors: true,
-            request: { parameters: { paths: { id: true } } },
+            request: {
+              parameters: { headers: { Authorization: true } },
+            },
           },
         },
       ],
@@ -437,7 +439,9 @@ const serverlessConfiguration = {
             path: 'apps',
             method: 'put',
             cors: true,
-            request: { parameters: { paths: { id: true } } },
+            request: {
+              parameters: { headers: { Authorization: true } },
+            },
           },
         },
       ],
