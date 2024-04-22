@@ -4,7 +4,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;
 
-export default async (appId) => {
+export default async (appId, params = null) => {
   const client = await MongoClient.connect();
 
   try {
@@ -14,9 +14,16 @@ export default async (appId) => {
       throw new Error('app_not_found');
     }
 
-    const { status, statusChangedAt } = app.setup;
+    const { status, statusChangedAt, errors, history } = app.setup;
 
-    return { status, statusChangedAt };
+    const response = {
+      status,
+      statusChangedAt,
+      ...(params.errors ? { errors } : null),
+      ...(params.history ? { history } : null),
+    };
+
+    return response;
   } finally {
     client.close();
   }

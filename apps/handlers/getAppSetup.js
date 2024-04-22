@@ -12,8 +12,9 @@ export default async (event) => {
     if (!allowed) {
       throw new Error('access_forbidden');
     }
+    const params = event.queryStringParameters || {};
 
-    const res = await getAppSetup(appId);
+    const res = await getAppSetup(appId, params);
 
     return response({ code: 200, body: res });
   } catch (e) {
