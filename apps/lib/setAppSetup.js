@@ -11,7 +11,7 @@ const { COLL_APPS } = mongoCollections;
       status: 
         'start' or 'hold' or 'canceled' or 'error' or [processStateName] or 'done',
       statusChangedAt: new Date(),
-      errorsMessages: [
+      errors: [
         {
           date: new Date(),
           type: 'error type',
@@ -42,8 +42,8 @@ export default async (appId) => {
             setup: {
               status: 'start',
               statusChangedAt: now,
-              errorsMessages: [],
-              statusHistory: [
+              errors: [],
+              history: [
                 {
                   status: 'start',
                   date: now,
