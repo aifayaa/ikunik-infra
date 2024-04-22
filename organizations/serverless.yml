@@ -31,6 +31,38 @@ functions:
               headers:
                 Authorization: true
 
+  deleteOrg:
+    handler: handlers/deleteOrg.default
+    events:
+      - http:
+          path: organizations/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  getUserOrgs:
+    handler: handlers/getUserOrgs.default
+    events:
+      - http:
+          path: organizations
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getOrg:
     handler: handlers/getOrg.default
     events:
@@ -45,6 +77,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   getOrgApps:
     handler: handlers/getOrgApps.default
@@ -60,6 +94,8 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
   getOrgWebsites:
     handler: handlers/getOrgWebsites.default
@@ -75,6 +111,97 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
+
+  # Blank handlers for early testing
+  inviteUserToOrg:
+    handler: handlers/inviteUserToOrg.default
+    events:
+      - http:
+          path: organizations/{id}/invite
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  changeUserOrgPerms:
+    handler: handlers/changeUserOrgPerms.default
+    events:
+      - http:
+          path: organizations/{id}/user/{userId}
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+                userId: true
+
+  delUserOrgPerms:
+    handler: handlers/delUserOrgPerms.default
+    events:
+      - http:
+          path: organizations/{id}/user/{userId}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+                userId: true
+
+  getOrgUsers:
+    handler: handlers/getOrgUsers.default
+    events:
+      - http:
+          path: organizations/{id}/users
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  delOrgApp:
+    handler: handlers/delOrgApp.default
+    events:
+      - http:
+          path: organizations/{id}/apps/{appId}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+                userId: true
 
   # For debugging purposes only
   setOrgPaid:
@@ -91,11 +218,15 @@ functions:
             parameters:
               headers:
                 Authorization: true
+              paths:
+                id: true
 
 plugins:
-  - serverless-disable-request-validators
   - serverless-webpack
+  - serverless-offline
+  - serverless-disable-request-validators
   - serverless-prune-plugin
+  - serverless-export-env
 
 custom:
   prune:

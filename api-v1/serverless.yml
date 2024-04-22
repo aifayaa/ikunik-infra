@@ -43,7 +43,7 @@ custom:
     action: delete
   mongoDB:
     dev:
-      us-east-1: mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodev.aws.crowdaa.com:27017/crowdaaDev
+      us-east-1: mongodb+srv://crowdaaMS:9871e59eac27cc669218907c570da230@dev.ykqidgl.mongodb.net/crowdaaDev
     preprod:
       eu-west-3: mongodb+srv://crowdaaMSpreprod:9YUPYr3XDicdKTiN@preprod.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority
     prod:

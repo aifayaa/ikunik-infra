@@ -6,6 +6,10 @@
       "after",
       { "overrides": { "?": "before", ":": "before" } }
     ],
+    "no-restricted-syntax": [
+      "off",
+      { "selector": "BinaryExpression[operator='of']" }
+    ],
     "import/prefer-default-export": "off",
     "no-param-reassign": "off",
     "require-await": "error",

@@ -111,7 +111,24 @@ export default async (appId, settings) => {
         formattedChanges,
       });
 
-      await sendEmailTemplate(LANG, 'internal', MAIL_TO, subject, html);
+      /**
+       * 20240417 / MAXIME :
+       * Stopping emails for dev platform since it was recognized as spam by OVH and blocked.
+       * Since we will make many tests later, it shall stay in this state during this process.
+       * Feel free to enable back emails for dev later if needed.
+       */
+      if (process.env.STAGE === 'dev') {
+        // eslint-disable-next-line no-console
+        console.log('Skipped sending email, details : ', [
+          LANG,
+          'internal',
+          MAIL_TO,
+          subject,
+          html,
+        ]);
+      } else {
+        await sendEmailTemplate(LANG, 'internal', MAIL_TO, subject, html);
+      }
     }
 
     return $set;

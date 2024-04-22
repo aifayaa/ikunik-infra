@@ -39,7 +39,10 @@ const user = {
     ],
   },
 };
- */
+
+ * 'app' and 'website' document also have an optional 'orgId' field
+ * to link the different entities together.
+*/
 
 const APP_PERMS_IMPLIED = {
   admin: ['owner'],

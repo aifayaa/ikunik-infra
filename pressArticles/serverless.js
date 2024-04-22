@@ -172,6 +172,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getArticlesByCategoryId: {
+      handler: 'handlers/getArticlesByCategoryId.default',
+      events: [
+        {
+          http: {
+            path: 'admin/press/articlesByCategoryId/',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     getArticlesFrom: {
       handler: 'handlers/getArticlesFrom.default',
       events: [
