@@ -13,20 +13,25 @@ export default async (appId, params = null) => {
     if (!app) {
       throw new Error('app_not_found');
     }
-    if (!app.setup) {
+    if (!app.setup && !app.builds) {
       return {
         setup: 'not_started',
-        builds: {
-          android:
-            app.build &&
-            app.build.android !== undefined &&
-            app.build.android !== null,
-          ios:
-            app.build && app.build.ios !== undefined && app.build.ios !== null,
+        build: {
+          android: false,
+          ios: false,
         },
       };
     }
-
+    if (!app.setup && app.builds) {
+      return {
+        setup: 'done',
+        builds: {
+          android:
+            app.builds.android !== undefined && app.builds.android !== null,
+          ios: app.builds.ios !== undefined && app.builds.ios !== null,
+        },
+      };
+    }
     const { status, statusChangedAt, errors, history } = app.setup;
 
     const response = {
