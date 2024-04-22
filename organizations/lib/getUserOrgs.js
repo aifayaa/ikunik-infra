@@ -4,14 +4,6 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
-const defaultPermsOrgs = [];
-
-const defaultPerms = {
-  apps: [],
-  websites: [],
-  orgs: defaultPermsOrgs,
-};
-
 export default async (userId) => {
   const client = await MongoClient.connect();
 
@@ -21,27 +13,6 @@ export default async (userId) => {
       .collection(COLL_USERS)
       .findOne({ _id: userId });
 
-    // Sanity checks: if field is missing
-    // -> set it to its default value
-    if (user.perms === undefined) {
-      await client
-        .db()
-        .collection(COLL_USERS)
-        .updateOne({ _id: userId }, { $set: { perms: defaultPerms } });
-      return [];
-    }
-
-    if (user.perms.orgs === undefined) {
-      await client
-        .db()
-        .collection(COLL_USERS)
-        .updateOne(
-          { _id: userId },
-          { $set: { 'perms.orgs': defaultPermsOrgs } }
-        );
-      return [];
-    }
-
     // If the user is super admin, return all available organisations
     const isSuperAdmin = user.superAdmin;
     if (isSuperAdmin) {
@@ -50,6 +21,11 @@ export default async (userId) => {
         .collection(COLL_ORGANIZATIONS)
         .find({})
         .toArray();
+    }
+
+    // If the user don't have permissions: no organisation
+    if (user.perms === undefined || user.perms.orgs === undefined) {
+      return [];
     }
 
     // Else, return the organisation the user belongs to
