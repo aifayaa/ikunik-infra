@@ -85,7 +85,6 @@ const serverlessConfiguration = {
             },
             request: {
               parameters: {
-                paths: { id: true },
                 headers: { Authorization: true },
               },
             },
@@ -107,6 +106,11 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
+            },
           },
         },
       ],
@@ -123,6 +127,11 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
             },
           },
         },
@@ -377,7 +386,10 @@ const serverlessConfiguration = {
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
             request: {
-              parameters: { headers: { Authorization: true } },
+              parameters: {
+                paths: { id: true },
+                headers: { Authorization: true },
+              },
             },
           },
         },
@@ -397,7 +409,10 @@ const serverlessConfiguration = {
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
             request: {
-              parameters: { headers: { Authorization: true } },
+              parameters: {
+                paths: { id: true },
+                headers: { Authorization: true },
+              },
             },
           },
         },
@@ -409,6 +424,132 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'apps/{id}/tos',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    getUserApps: {
+      handler: 'handlers/getUserApps.default',
+      events: [
+        {
+          http: {
+            path: 'apps',
+            method: 'get',
+            cors: true,
+            request: {
+              parameters: { headers: { Authorization: true } },
+            },
+          },
+        },
+      ],
+    },
+    createNoStoreApp: {
+      handler: 'handlers/createNoStoreApp.default',
+      events: [
+        {
+          http: {
+            path: 'apps',
+            method: 'put',
+            cors: true,
+            request: {
+              parameters: { headers: { Authorization: true } },
+            },
+          },
+        },
+      ],
+    },
+    modifyApp: {
+      handler: 'handlers/modifyApp.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}',
+            method: 'patch',
+            cors: true,
+            request: {
+              paths: { id: true },
+              parameters: { paths: { id: true } },
+            },
+          },
+        },
+      ],
+    },
+    delApp: {
+      handler: 'handlers/delApp.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}',
+            method: 'delete',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    getAppUsers: {
+      handler: 'handlers/getAppUsers.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    modifyAppUserPerms: {
+      handler: 'handlers/modifyAppUserPerms.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users/{userId}',
+            method: 'patch',
+            cors: true,
+            request: {
+              parameters: { paths: { id: true, userId: true } },
+            },
+          },
+        },
+      ],
+    },
+    delUserAppPerms: {
+      handler: 'handlers/delUserAppPerms.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users/{userId}',
+            method: 'delete',
+            cors: true,
+            request: { parameters: { paths: { id: true, userId: true } } },
+          },
+        },
+      ],
+    },
+    startBuild: {
+      handler: 'handlers/startBuild.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/build',
+            method: 'put',
+            cors: true,
+            request: { parameters: { paths: { id: true } } },
+          },
+        },
+      ],
+    },
+    getBuildStatus: {
+      handler: 'handlers/getBuildStatus.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/build',
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
