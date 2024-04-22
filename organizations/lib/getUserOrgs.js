@@ -13,25 +13,28 @@ export default async (userId) => {
       .collection(COLL_USERS)
       .findOne({ _id: userId });
 
+    // If the user is super admin, return all available organisations
     const isSuperAdmin = user.superAdmin;
-    let orgs;
-
-    if (!isSuperAdmin) {
-      const orgIds = user.perms.orgs.map((org) => org._id);
-      orgs = await client
-        .db()
-        .collection(COLL_ORGANIZATIONS)
-        .find({ _id: { $in: orgIds } })
-        .toArray();
-    } else {
-      orgs = await client
+    if (isSuperAdmin) {
+      return await client
         .db()
         .collection(COLL_ORGANIZATIONS)
         .find({})
         .toArray();
     }
 
-    return orgs;
+    // If the user don't have permissions: no organisation
+    if (user.perms === undefined || user.perms.orgs === undefined) {
+      return [];
+    }
+
+    // Else, return the organisation the user belongs to
+    const orgIds = user.perms.orgs.map((org) => org._id);
+    return await client
+      .db()
+      .collection(COLL_ORGANIZATIONS)
+      .find({ _id: { $in: orgIds } })
+      .toArray();
   } finally {
     client.close();
   }
