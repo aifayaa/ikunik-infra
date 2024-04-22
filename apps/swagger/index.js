@@ -4,7 +4,7 @@ import getAppInfos from './getAppInfos';
 import getAppBuilds from './getAppBuilds';
 import getAppTos from './getAppTos';
 
-import yaml from '../serverless.yml';
+import yaml from '../serverless';
 
 export default (libs, output) => {
   getAppSettings(libs, output);
