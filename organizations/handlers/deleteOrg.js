@@ -6,7 +6,16 @@ import deleteOrg from '../lib/deleteOrg';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
+
+  if (!userId) {
+    throw new Error('user_not_found');
+  }
+
   const orgId = event.pathParameters.id;
+
+  if (!orgId) {
+    throw new Error('org_not_found');
+  }
 
   try {
     const allowed = await checkPermsForOrganization(userId, orgId, 'owner');
