@@ -16,7 +16,7 @@ export default async (appId, params = null) => {
     if (!app.setup && !app.builds) {
       return {
         setup: 'not_started',
-        build: {
+        builds: {
           android: false,
           ios: false,
         },
