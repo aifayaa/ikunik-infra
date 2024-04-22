@@ -383,6 +383,26 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getAppSetup: {
+      handler: 'handlers/getAppSetup.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/setup',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: { headers: { Authorization: true } },
+            },
+          },
+        },
+      ],
+    },
     getAppTos: {
       handler: 'handlers/getAppTos.default',
       events: [
