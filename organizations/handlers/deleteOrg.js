@@ -24,7 +24,7 @@ export default async (event) => {
     }
 
     await deleteOrg(userId, orgId);
-    return response({ code: 200, body: `Delete of org '${orgId}'` });
+    return response({ code: 200, body: { deleted: true } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
