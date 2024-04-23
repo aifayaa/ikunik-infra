@@ -2,13 +2,24 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import getAppUsers from '../lib/getAppUsers';
+import getUserApps from '../lib/getUserApps';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const appId = event.pathParameters.id;
 
   try {
-    // TODO: check if userId has access to appId before anything else
+    if (!userId) throw new Error('no_user_found');
+
+    // Check if userId has access to appId before anything else
+    const { apps, orgsApps } = await getUserApps(userId);
+    const appIds = apps
+      .map((app) => app._id)
+      .concat(orgsApps.map((app) => app._id));
+
+    if (!appIds.includes(appId)) {
+      throw new Error('access_forbidden');
+    }
 
     const users = await getAppUsers(appId);
 

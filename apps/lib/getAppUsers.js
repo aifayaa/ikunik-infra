@@ -8,8 +8,8 @@ export default async (appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
-      .db()
+    const db = client.db();
+    const app = await db
       .collection(COLL_APPS)
       .findOne({ _id: appId }, { projection: { orgId: 1 } });
 
@@ -29,8 +29,7 @@ export default async (appId) => {
       $or.push({ 'perms.orgs._id': orgId });
     }
 
-    const users = await client
-      .db()
+    const users = await db
       .collection(COLL_USERS)
       .find({
         $and: [
