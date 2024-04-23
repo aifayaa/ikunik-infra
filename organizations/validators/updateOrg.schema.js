@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { z } from 'zod';
 
-export const UpdateOrgSchema = z
+export const updateOrgSchema = z
   .object({
     name: z
       .string({
