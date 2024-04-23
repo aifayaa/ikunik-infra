@@ -1,12 +1,16 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
+import getUserApps from '../lib/getUserApps';
 
-export default async () => {
+export default async (event) => {
+  const { principalId: userId } = event.requestContext.authorizer;
   try {
-    const res = { getUserApps: true };
+    if (!userId) throw new Error('no_user_found');
 
-    return await response({ code: 200, body: res });
+    const res = await getUserApps(userId);
+
+    return response({ code: 200, body: res });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
