@@ -2,7 +2,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const { COLL_APPS, COLL_USERS, COLL_ORGANIZATIONS } = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 export default async (userId) => {
   const client = await MongoClient.connect();
@@ -19,24 +19,13 @@ export default async (userId) => {
       .find({ _id: { $in: userAppIds } })
       .toArray();
 
-    const userOrgsWithApps =
+    const orgIds =
       user.perms && user.perms.orgs
-        ? user.perms.orgs.filter((org) => org.apps)
+        ? user.perms.orgs.map(({ _id }) => _id)
         : [];
-    const userOrgIds = userOrgsWithApps.map(({ _id }) => _id);
-
-    const orgsWithApps = await db
-      .collection(COLL_ORGANIZATIONS)
-      .find({ _id: { $in: userOrgIds }, apps: { $exists: true } })
-      .toArray();
-
-    const orgsAppsIds = orgsWithApps
-      .map((org) => org.apps.map(({ _id }) => _id))
-      .flat();
-
     const orgsApps = await db
       .collection(COLL_APPS)
-      .find({ _id: { $in: orgsAppsIds } })
+      .find({ orgId: { $in: orgIds } })
       .toArray();
 
     const response = {
