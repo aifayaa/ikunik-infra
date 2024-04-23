@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import pushAppToOrg from '../lib/putAppInOrg';
+import pushAppInOrg from '../lib/putAppInOrg';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
@@ -29,7 +29,7 @@ export default async (event) => {
       }
     });
 
-    const org = await pushAppToOrg(orgId, bodyParsed);
+    const org = await pushAppInOrg(orgId, bodyParsed);
     return response({ code: 200, body: org });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
