@@ -97,6 +97,21 @@ functions:
               paths:
                 id: true
 
+  putAppInOrg:
+    handler: handlers/putAppInOrg.default
+    events:
+      - http:
+          path: organizations/{id}/apps
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   getOrgWebsites:
     handler: handlers/getOrgWebsites.default
     events:
