@@ -30,8 +30,6 @@ functions:
             parameters:
               headers:
                 Authorization: true
-            paths:
-                id: true
 
   deleteOrg:
     handler: handlers/deleteOrg.default

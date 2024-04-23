@@ -3,8 +3,10 @@
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import updateOrg from '../lib/updateOrg';
 import { UpdateOrgSchema } from '../validators/updateOrg.schema';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -17,7 +19,13 @@ export default async (event) => {
     const update = JSON.parse(event.body);
 
     // validation
-    UpdateOrgSchema.parse(update);
+    try {
+      UpdateOrgSchema.parse(update);
+    } catch (err) {
+      const errors = formatValidationErrors(err);
+      const body = formatResponseBody({ errors });
+      return response({ code: 200, body });
+    }
 
     const modifiedCount = await updateOrg(orgId, update);
 
