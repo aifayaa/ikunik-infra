@@ -1,4 +1,3 @@
-/* eslint-disable import/no-relative-packages */
 export default ({ code, message = 'Error' } = {}) => {
   let errorCode;
   switch (message) {
@@ -34,5 +33,6 @@ export default ({ code, message = 'Error' } = {}) => {
       console.error(message);
       break;
   }
+
   return { code: code || errorCode, message };
 };

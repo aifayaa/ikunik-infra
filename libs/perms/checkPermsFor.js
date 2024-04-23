@@ -42,7 +42,23 @@ const user = {
 
  * 'app' and 'website' document also have an optional 'orgId' field
  * to link the different entities together.
-*/
+
+*****************************************************************************
+
+Current organization roles stories
+
+An organization owner:
+  - can CRUD any resource within the organization
+
+An organization admin:
+  - can CRUD any resource within the organization, but:
+  - cannot DELETE the organization
+  - cannot DELETE an app of the organization
+  - cannot DELETE a website of the organization
+
+An organization member:
+  - can READ any resource within the organization
+ */
 
 const APP_PERMS_IMPLIED = {
   admin: ['owner'],
