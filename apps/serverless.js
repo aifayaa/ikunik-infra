@@ -446,21 +446,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    createNoStoreApp: {
-      handler: 'handlers/createNoStoreApp.default',
-      events: [
-        {
-          http: {
-            path: 'apps',
-            method: 'put',
-            cors: true,
-            request: {
-              parameters: { headers: { Authorization: true } },
-            },
-          },
-        },
-      ],
-    },
     modifyApp: {
       handler: 'handlers/modifyApp.default',
       events: [
