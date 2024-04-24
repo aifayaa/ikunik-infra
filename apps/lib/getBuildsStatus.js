@@ -25,7 +25,7 @@ export default async (appId) => {
       );
 
     if (!buildStatus) {
-      return { app: false };
+      return { appFound: false };
     }
 
     return buildStatus;
