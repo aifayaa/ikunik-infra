@@ -14,7 +14,7 @@ export default async (userId, appId) => {
       .updateOne({ _id: userId }, { $pull: { 'perms.apps': { _id: appId } } });
 
     if (result.modifiedCount === 0) {
-      return { userUpdated: false };
+      return { permsFound: false };
     }
 
     return { userUpdated: true };
