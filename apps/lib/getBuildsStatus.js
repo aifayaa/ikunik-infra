@@ -28,7 +28,7 @@ export default async (appId) => {
       return { appFound: false };
     }
 
-    return buildStatus;
+    return { appFound: true, ...buildStatus };
   } finally {
     client.close();
   }
