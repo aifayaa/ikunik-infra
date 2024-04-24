@@ -529,8 +529,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getBuildStatus: {
-      handler: 'handlers/getBuildStatus.default',
+    getBuildsStatus: {
+      handler: 'handlers/getBuildsStatus.default',
       events: [
         {
           http: {
