@@ -90,6 +90,23 @@ const serverlessConfiguration = {
             },
           },
         },
+        {
+          http: {
+            path: 'apps',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
+            },
+          },
+        },
       ],
       vpc: '${self:custom.vpcConfig.${self:provider.region}}',
     },
