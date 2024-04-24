@@ -21,27 +21,52 @@ const user = {
         roles: ['owner', 'admin'],
       },
     ],
-    orgs: [
+    organizations: [
       {
         _id: 'some-org-id1',
         roles: ['owner', 'admin', 'member'],
-      },
-      {
-        _id: 'some-org-id2',
-        roles: ['owner', 'admin', 'member'],
-        apps: {
-          roles: ['owner', 'admin', 'editor', 'moderator', 'viewer'],
-        },
-        websites: {
-          roles: ['owner', 'admin'],
-        },
       },
     ],
   },
 };
 
- * 'app' and 'website' document also have an optional 'orgId' field
- * to link the different entities together.
+ * Example of app structure concerning organization permission:
+const app = {
+  _id: "app-id-string"
+  ...
+  organization: {
+    id: "org-id-string",
+    users: [
+      {
+        id: 'user-0-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+      {
+        id: 'user-1-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+    ]
+  }
+}
+
+ * Example of website structure concerning organization permission:
+const website = {
+  _id: "website-id-string"
+  ...
+  organization: {
+    id: "org-id-string",
+    users: [
+      {
+        id: 'user-0-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+      {
+        id: 'user-1-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+    ]
+  }
+}
 
 *****************************************************************************
 
