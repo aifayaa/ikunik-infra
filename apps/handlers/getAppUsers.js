@@ -12,10 +12,10 @@ export default async (event) => {
     if (!userId) throw new Error('no_user_found');
 
     // Check if userId has access to appId before anything else
-    const { apps, orgsApps } = await getUserApps(userId);
+    const { apps, organizationsApps } = await getUserApps(userId);
     const appIds = apps
       .map((app) => app._id)
-      .concat(orgsApps.map((app) => app._id));
+      .concat(organizationsApps.map((app) => app._id));
 
     if (!appIds.includes(appId)) {
       throw new Error('access_forbidden');

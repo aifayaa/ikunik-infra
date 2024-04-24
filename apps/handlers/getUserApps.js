@@ -8,9 +8,9 @@ export default async (event) => {
   try {
     if (!userId) throw new Error('no_user_found');
 
-    const res = await getUserApps(userId);
+    const dictApps = await getUserApps(userId);
 
-    return response({ code: 200, body: res });
+    return response({ code: 200, body: dictApps });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

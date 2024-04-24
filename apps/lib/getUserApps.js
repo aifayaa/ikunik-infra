@@ -10,6 +10,10 @@ export default async (userId) => {
     const db = client.db();
     const user = await db.collection(COLL_USERS).findOne({ _id: userId });
 
+    if (!user) {
+      throw new Error('user_not_found');
+    }
+
     const userAppIds =
       user.perms && user.perms.apps
         ? user.perms.apps.map(({ _id }) => _id)
@@ -20,17 +24,17 @@ export default async (userId) => {
       .toArray();
 
     const orgIds =
-      user.perms && user.perms.orgs
-        ? user.perms.orgs.map(({ _id }) => _id)
+      user.perms && user.perms.organizations
+        ? user.perms.organizations.map(({ _id }) => _id)
         : [];
     const orgsApps = await db
       .collection(COLL_APPS)
-      .find({ orgId: { $in: orgIds } })
+      .find({ 'organization.id': { $in: orgIds } })
       .toArray();
 
     const response = {
       apps: userApps || [],
-      orgsApps: orgsApps || [],
+      organizationsApps: orgsApps || [],
     };
 
     return response;
