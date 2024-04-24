@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import delUserAppPerms from '../lib/delUserAppPerms';
 
 export default async (event) => {
@@ -10,7 +10,7 @@ export default async (event) => {
   try {
     if (!targetId) throw new Error('target_user_not_found');
     if (!appId) throw new Error('org_not_found');
-    const allowed = await checkPermsForOrganization(userId, appId, 'admin');
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
     if (!allowed) throw new Error('access_forbidden');
 
     const res = await delUserAppPerms(targetId, appId);
