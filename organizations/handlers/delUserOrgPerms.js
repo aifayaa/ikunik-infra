@@ -8,7 +8,6 @@ export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const { id: orgId, userId: targetId } = event.pathParameters;
   try {
-    if (!userId) throw new Error('user_not_found');
     if (!targetId) throw new Error('target_user_not_found');
     if (!orgId) throw new Error('org_not_found');
     const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
