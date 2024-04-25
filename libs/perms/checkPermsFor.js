@@ -35,14 +35,14 @@ const app = {
   _id: "app-id-string"
   ...
   organization: {
-    id: "org-id-string",
+    _id: "org-id-string",
     users: [
       {
-        id: 'user-0-id-string',
+        _id: 'user-0-id-string',
         roles: ['admin', 'editor', 'moderator', 'viewer']
       },
       {
-        id: 'user-1-id-string',
+        _id: 'user-1-id-string',
         roles: ['admin', 'editor', 'moderator', 'viewer']
       },
     ]
@@ -54,14 +54,14 @@ const website = {
   _id: "website-id-string"
   ...
   organization: {
-    id: "org-id-string",
+    _id: "org-id-string",
     users: [
       {
-        id: 'user-0-id-string',
+        _id: 'user-0-id-string',
         roles: ['admin', 'editor', 'moderator', 'viewer']
       },
       {
-        id: 'user-1-id-string',
+        _id: 'user-1-id-string',
         roles: ['admin', 'editor', 'moderator', 'viewer']
       },
     ]
