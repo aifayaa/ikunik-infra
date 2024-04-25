@@ -9,7 +9,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const { S3_RESOURCES_BUCKET, S3_PUBLIC_RESOURCES_BUCKET } = process.env;
+const { S3_APPS_RESSOURCES, S3_APPS_PUBLIC_RESSOURCES } = process.env;
 
 const { COLL_APPS } = mongoCollections;
 
@@ -57,13 +57,13 @@ export default async (
         const s3Params = {};
 
         if (type === 'ios') {
-          s3Params.Bucket = S3_RESOURCES_BUCKET;
+          s3Params.Bucket = S3_APPS_RESSOURCES;
           s3Params.Key = `${appId}/ios/${resourceFormatToPath[format].path}`;
         } else if (type === 'android') {
-          s3Params.Bucket = S3_RESOURCES_BUCKET;
+          s3Params.Bucket = S3_APPS_RESSOURCES;
           s3Params.Key = `${appId}/android/${resourceFormatToPath[format].path}`;
         } else if (type === 'public') {
-          s3Params.Bucket = S3_PUBLIC_RESOURCES_BUCKET;
+          s3Params.Bucket = S3_APPS_PUBLIC_RESSOURCES;
           s3Params.Key = `${appId}/${resourceFormatToPath[format].basename}`;
         }
 
