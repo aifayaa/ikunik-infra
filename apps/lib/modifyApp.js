@@ -9,10 +9,11 @@ export default async (appId, update) => {
   try {
     const db = client.db();
     const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+    if (!app) throw new Error('app_not_found');
 
-    // An application can be updated only if it is not in an organization
-    if (app.organization) {
-      throw new Error('forbidden');
+    // If the application has already be built or setup, it cannot be modified
+    if (app.builds || app.setup) {
+      throw new Error('cannot_modify_app');
     }
 
     // Update the application name
