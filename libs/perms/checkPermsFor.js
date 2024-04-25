@@ -114,12 +114,12 @@ async function getOrgIdOfApp(appId) {
     const app = await client
       .db()
       .collection(COLL_APPS)
-      .findOne({ _id: appId }, { projection: { orgId: 1 } });
+      .findOne({ _id: appId }, { projection: { organization: 1 } });
 
-    if (!app) {
+    if (!app || !app.organization) {
       return null;
     }
-    return app.orgId;
+    return app.organization._id;
   } finally {
     client.close();
   }
@@ -271,16 +271,26 @@ async function getPermsOnApp(userId, appId) {
  * @returns true for a valid permission, false otherwise
  */
 export const checkPermsForApp = async (userId, appId, requestedPerm) => {
-  const perms = await getPermsOnApp(userId, appId);
-  const appOrg = await getOrgIdOfApp(appId);
+  const userPerms = await getPermsOnApp(userId, appId);
+  const appOrgId = await getOrgIdOfApp(appId);
+
+  console.log('userId', userId);
+  console.log('appId', appId);
+  console.log('requestedPerm', requestedPerm);
+  console.log('userPerms', userPerms);
 
   const requestedPermsArray = [
     requestedPerm,
     ...(APP_PERMS_IMPLIED[requestedPerm] || []),
   ];
 
-  if (perms.apps && perms.apps.length > 0) {
-    const appsPerms = indexObjectArrayWithKey(perms.apps);
+  console.log('requestedPermsArray', requestedPermsArray);
+
+  if (userPerms.apps && userPerms.apps.length > 0) {
+    const appsPerms = indexObjectArrayWithKey(userPerms.apps);
+    console.log('appId', appId);
+    console.log('appsPerms', appsPerms);
+    console.log('appsPerms[appId]', appsPerms[appId]);
     if (appsPerms[appId]) {
       if (areArraysIntersecting(appsPerms[appId].roles, requestedPermsArray)) {
         return true;
@@ -288,26 +298,94 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
     }
   }
 
-  if (perms.orgs && perms.orgs.length > 0) {
-    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
-    if (orgsPerms[appOrg]) {
-      if (areArraysIntersecting(orgsPerms[appOrg].roles, ['owner', 'admin'])) {
+  console.log('PASS 3');
+  if (userPerms.organizations && userPerms.organizations.length > 0) {
+    const orgsPerms = indexObjectArrayWithKey(userPerms.organizations);
+    console.log('appOrgId', appOrgId);
+    console.log('orgsPerms', orgsPerms);
+    console.log('orgsPerms[appOrgId]', orgsPerms[appOrgId]);
+    if (orgsPerms[appOrgId]) {
+      if (
+        areArraysIntersecting(orgsPerms[appOrgId].roles, ['owner', 'admin'])
+      ) {
         return true;
       }
 
-      if (orgsPerms[appOrg].apps) {
-        if (
-          areArraysIntersecting(
-            orgsPerms[appOrg].apps.roles,
-            requestedPermsArray
-          )
-        ) {
-          return true;
+      const client = await MongoClient.connect();
+      const applicationList = await client
+        .db()
+        .collection(COLL_APPS)
+        .aggregate([
+          {
+            $match: { _id: appId },
+          },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              organization: 1,
+            },
+          },
+        ])
+        .toArray();
+
+      // if (applicationList.length < 1) {
+      //   throw new Error('app_not_found');
+      // }
+
+      const application = applicationList[0];
+
+      const userOrgIds = userPerms.organizations.map((org) => org._id);
+      console.log('userOrgIds', userOrgIds);
+
+      console.log('application');
+      console.log(application);
+
+      const applicationOrgId =
+        application.organization && application.organization._id;
+
+      console.log('applicationOrgId', applicationOrgId);
+      // const applicationUsers = application.organization.map();
+      if (userOrgIds.includes(applicationOrgId)) {
+        const applicationOrgUsers = application.organization.users;
+        console.log('applicationOrgUsers', applicationOrgUsers);
+        const applicationOrgUser = applicationOrgUsers.find(
+          (user) => user._id === userId
+        );
+
+        console.log('applicationOrgUser', applicationOrgUser);
+
+        if (applicationOrgUser) {
+          const userRoles = applicationOrgUser.roles;
+          console.log('userRoles', userRoles);
+          console.log('requestedPermsArray', requestedPermsArray);
+
+          console.log(
+            'cond',
+            areArraysIntersecting(userRoles, requestedPermsArray)
+          );
+
+          if (areArraysIntersecting(userRoles, requestedPermsArray)) {
+            return true;
+          }
+
+          // console.log('orgsPerms[appOrgId].apps', orgsPerms[appOrgId].apps);
+          // if (orgsPerms[appOrgId].apps) {
+          //   if (
+          //     areArraysIntersecting(
+          //       orgsPerms[appOrgId].apps.roles,
+          //       requestedPermsArray
+          //     )
+          //   ) {
+          //     return true;
+          //   }
+          // }
         }
       }
     }
   }
 
+  console.log('PASS 4');
   return false;
 };
 

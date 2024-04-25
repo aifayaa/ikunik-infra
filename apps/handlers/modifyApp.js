@@ -3,7 +3,7 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import getUserApps from '../lib/getUserApps';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { modifyAppSchema } from '../validators/modifyAppSchema.schema';
 import modifyApp from '../lib/modifyApp';
 
@@ -13,13 +13,8 @@ export default async (event) => {
   try {
     if (!userId) throw new Error('no_user_found');
 
-    // Check if userId has access to appId before anything else
-    const { apps, organizationsApps } = await getUserApps(userId);
-    const appIds = apps
-      .map((app) => app._id)
-      .concat(organizationsApps.map((app) => app._id));
-
-    if (!appIds.includes(appId)) {
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 
