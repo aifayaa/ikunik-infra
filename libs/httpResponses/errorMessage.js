@@ -10,6 +10,7 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'username_already_exists':
     case 'wrong_argument_type':
     case 'wrong_argument_value':
+    case 'update_failed':
       errorCode = 400;
       break;
     case 'access_forbidden':
