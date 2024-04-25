@@ -107,37 +107,19 @@ function areArraysIntersecting(a1, a2) {
   return intersect;
 }
 
-async function getOrgIdOfApp(appId) {
-  const client = await MongoClient.connect();
-
-  try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({ _id: appId }, { projection: { orgId: 1 } });
-
-    if (!app) {
-      return null;
-    }
-    return app.orgId;
-  } finally {
-    client.close();
-  }
-}
-
 async function getOrgIdOfWebsite(websiteId) {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
+    const website = await client
       .db()
       .collection(COLL_WEBSITES)
-      .findOne({ _id: websiteId }, { projection: { orgId: 1 } });
+      .findOne({ _id: websiteId }, { projection: { organization: 1 } });
 
-    if (!app) {
+    if (!website || !website.organization) {
       return null;
     }
-    return app.orgId;
+    return website.organization._id;
   } finally {
     client.close();
   }
@@ -149,7 +131,7 @@ async function getOrgIdOfWebsite(websiteId) {
  * @param {string} websiteId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getPermsOnWebsite(userId, websiteId) {
+async function getUserPermsOnWebsite(userId, websiteId) {
   const client = await MongoClient.connect();
   try {
     const [{ superAdmin = false, perms } = {}] = await client
@@ -185,7 +167,7 @@ async function getPermsOnWebsite(userId, websiteId) {
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getPermsOnOrganization(userId, orgId) {
+async function getUserPermsOnOrganization(userId, orgId) {
   const client = await MongoClient.connect();
   try {
     const [{ superAdmin = false, perms } = {}] = await client
@@ -221,7 +203,7 @@ async function getPermsOnOrganization(userId, orgId) {
  * @param {string} appId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getPermsOnApp(userId, appId) {
+async function getUserPermsOnApp(userId, appId) {
   const oldPermsPipeline = [
     {
       $match: { _id: userId },
@@ -263,24 +245,44 @@ async function getPermsOnApp(userId, appId) {
   }
 }
 
+async function getApplication(appId) {
+  const client = await MongoClient.connect();
+
+  try {
+    const app = await client
+      .db()
+      .collection(COLL_APPS)
+      .findOne({ _id: appId }, { projection: { organization: 1 } });
+
+    if (!app || !app.organization) {
+      return null;
+    }
+    return app;
+  } finally {
+    client.close();
+  }
+}
+
 /**
  * Checks for user permissions on an app.
  * @param {string} userId The user ID
  * @param {string} appId The app ID
- * @param {string} requestedPerm The permission to check for, may be one of : owner, admin, editor, moderator, viewer
+ * @param {string} requestedPerm The permission to check for, may be one of: owner, admin, editor, moderator, viewer
  * @returns true for a valid permission, false otherwise
  */
-export const checkPermsForApp = async (userId, appId, requestedPerm) => {
-  const perms = await getPermsOnApp(userId, appId);
-  const appOrg = await getOrgIdOfApp(appId);
+export async function checkPermsForApp(userId, appId, requestedPerm) {
+  const application = await getApplication(appId);
+  const applicationOrganizationId =
+    application && application.organization && application.organization._id;
+  const userPerms = await getUserPermsOnApp(userId, appId);
 
   const requestedPermsArray = [
     requestedPerm,
     ...(APP_PERMS_IMPLIED[requestedPerm] || []),
   ];
 
-  if (perms.apps && perms.apps.length > 0) {
-    const appsPerms = indexObjectArrayWithKey(perms.apps);
+  if (userPerms.apps && userPerms.apps.length > 0) {
+    const appsPerms = indexObjectArrayWithKey(userPerms.apps);
     if (appsPerms[appId]) {
       if (areArraysIntersecting(appsPerms[appId].roles, requestedPermsArray)) {
         return true;
@@ -288,28 +290,43 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
     }
   }
 
-  if (perms.orgs && perms.orgs.length > 0) {
-    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
-    if (orgsPerms[appOrg]) {
-      if (areArraysIntersecting(orgsPerms[appOrg].roles, ['owner', 'admin'])) {
+  if (
+    applicationOrganizationId &&
+    userPerms.organizations &&
+    userPerms.organizations.length > 0
+  ) {
+    const userOrganizationsPerms = indexObjectArrayWithKey(
+      userPerms.organizations
+    );
+
+    if (userOrganizationsPerms[applicationOrganizationId]) {
+      if (
+        areArraysIntersecting(
+          userOrganizationsPerms[applicationOrganizationId].roles,
+          ['owner', 'admin']
+        )
+      ) {
         return true;
       }
 
-      if (orgsPerms[appOrg].apps) {
-        if (
-          areArraysIntersecting(
-            orgsPerms[appOrg].apps.roles,
-            requestedPermsArray
-          )
-        ) {
-          return true;
-        }
+      const applicationOrganizationUsers = indexObjectArrayWithKey(
+        application.organization.users
+      );
+
+      if (
+        applicationOrganizationUsers[userId] &&
+        areArraysIntersecting(
+          applicationOrganizationUsers[userId].roles,
+          requestedPermsArray
+        )
+      ) {
+        return true;
       }
     }
   }
 
   return false;
-};
+}
 
 /**
  * Checks for user permissions on a website.
@@ -318,12 +335,13 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
  * @param {string} requestedPerm The permission to check for, may be one of : owner, admin
  * @returns true for a valid permission, false otherwise
  */
+// TODO: rewrite to take into account the new data structure for perms, as 'checkPermsForApp()'
 export const checkPermsForWebsite = async (
   userId,
   websiteId,
   requestedPerm
 ) => {
-  const perms = await getPermsOnWebsite(userId, websiteId);
+  const perms = await getUserPermsOnWebsite(userId, websiteId);
   const websiteOrg = await getOrgIdOfWebsite(websiteId);
 
   const requestedPermsArray = [
@@ -382,7 +400,7 @@ export const checkPermsForOrganization = async (
   orgId,
   requestedPerm
 ) => {
-  const perms = await getPermsOnOrganization(userId, orgId);
+  const perms = await getUserPermsOnOrganization(userId, orgId);
 
   const requestedPermsArray = [
     requestedPerm,
