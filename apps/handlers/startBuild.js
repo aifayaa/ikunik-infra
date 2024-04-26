@@ -7,6 +7,7 @@ import startBuild from '../lib/startBuild';
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const { id: appId } = event.pathParameters;
+
   try {
     if (!appId) throw new Error('app_not_found');
     const allowed = await checkPermsForApp(userId, appId, 'admin');

@@ -25,7 +25,7 @@ export default async (appId) => {
     const app = await db.collection(COLL_APPS).findOne(
       { _id: appId },
       {
-        $projection: {
+        projection: {
           setup: 1,
           builds: 1,
         },
@@ -33,43 +33,56 @@ export default async (appId) => {
     );
     if (!app) return { buildStarted: false };
 
+    if (app.setup.status !== 'done') return { buildStarted: false };
+
+    const now = new Date();
+    const authPrevStatus = [0, 1];
+    const update = {};
+
     if (
-      app.setup.status === 'done' &&
-      app.builds !== undefined &&
-      app.builds !== null
+      app.builds &&
+      app.builds.android &&
+      authPrevStatus.includes(app.builds.android.status)
     ) {
-      const now = new Date();
-      const authPrevStatus = [0, 1];
-      const insert = [];
-
-      if (
-        app.builds.android &&
-        authPrevStatus.includes(app.builds.android.status)
-      ) {
-        insert.push({
-          'builds.android': {
-            status: 15,
-            info: { name: 'Build started', date: now },
-          },
-        });
-      }
-
-      if (app.builds.ios && authPrevStatus.includes(app.builds.ios.status)) {
-        insert.push({
-          'builds.ios': {
-            status: 15,
-            info: { name: 'Build started', date: now },
-          },
-        });
-      }
-
-      const res = await db
-        .collection(COLL_APPS)
-        .updateOne({ _id: appId }, { $set: insert });
-
-      return { buildStarted: true, ...res };
+      update['builds.android'] = {
+        status: 15,
+        info: { name: 'Build started', date: now },
+      };
     }
-    return { buildStarted: false };
+
+    if (
+      app.builds &&
+      app.builds.ios &&
+      authPrevStatus.includes(app.builds.ios.status)
+    ) {
+      update['builds.ios'] = {
+        status: 15,
+        info: { name: 'Build started', date: now },
+      };
+    }
+
+    if (Object.keys(update).length > 0) {
+      await db
+        .collection(COLL_APPS)
+        .updateOne({ _id: appId }, { $set: update });
+    }
+
+    const updatedApp = await db.collection(COLL_APPS).findOne({ _id: appId });
+
+    return {
+      android:
+        updatedApp.builds &&
+        updatedApp.builds.android &&
+        updatedApp.builds.android.status
+          ? updatedApp.builds.android.status
+          : undefined,
+      ios:
+        updatedApp.builds &&
+        updatedApp.builds.ios &&
+        updatedApp.builds.ios.status
+          ? updatedApp.builds.ios.status
+          : undefined,
+    };
   } finally {
     client.close();
   }
