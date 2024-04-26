@@ -32,8 +32,8 @@ export default async (appId) => {
       }
     );
 
-    if (!app || !app.setup || (app.setup && app.setup.status !== 'done')) {
-      return { android: undefined, ios: undefined };
+    if (!app || !app.setup || (app.setup && app.setup.status === 'done')) {
+      return { buildsStarted: false };
     }
 
     const now = new Date();
@@ -43,6 +43,7 @@ export default async (appId) => {
     if (
       app.builds &&
       app.builds.android &&
+      !app.builds.android.ready &&
       authPrevStatus.includes(app.builds.android.status)
     ) {
       update['builds.android'] = {
@@ -58,6 +59,7 @@ export default async (appId) => {
     if (
       app.builds &&
       app.builds.ios &&
+      !app.builds.ios.ready &&
       authPrevStatus.includes(app.builds.ios.status)
     ) {
       update['builds.ios'] = {
@@ -74,23 +76,34 @@ export default async (appId) => {
       await db
         .collection(COLL_APPS)
         .updateOne({ _id: appId }, { $set: update });
+    } else {
+      return {
+        buildsStarted: false,
+        builds: {
+          android: app.builds.android.status || undefined,
+          ios: app.builds.ios.status || undefined,
+        },
+      };
     }
 
     const updatedApp = await db.collection(COLL_APPS).findOne({ _id: appId });
 
     return {
-      android:
-        updatedApp.builds &&
-        updatedApp.builds.android &&
-        updatedApp.builds.android.status
-          ? updatedApp.builds.android.status
-          : undefined,
-      ios:
-        updatedApp.builds &&
-        updatedApp.builds.ios &&
-        updatedApp.builds.ios.status
-          ? updatedApp.builds.ios.status
-          : undefined,
+      buildsStarted: true,
+      builds: {
+        android:
+          updatedApp.builds &&
+          updatedApp.builds.android &&
+          updatedApp.builds.android.status
+            ? updatedApp.builds.android.status
+            : undefined,
+        ios:
+          updatedApp.builds &&
+          updatedApp.builds.ios &&
+          updatedApp.builds.ios.status
+            ? updatedApp.builds.ios.status
+            : undefined,
+      },
     };
   } finally {
     client.close();
