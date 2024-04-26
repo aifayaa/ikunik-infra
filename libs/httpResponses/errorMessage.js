@@ -21,6 +21,7 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'token_expired':
     case 'cannot_modify_app':
     case 'cannot_delete_app':
+    case 'user_already_exists':
       errorCode = 403;
       break;
     case 'content_not_found':

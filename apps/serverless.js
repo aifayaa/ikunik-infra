@@ -505,6 +505,21 @@ const serverlessConfiguration = {
         },
       ],
     },
+    putAppUserPerms: {
+      handler: 'handlers/putAppUserPerms.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users',
+            method: 'put',
+            cors: true,
+            request: {
+              parameters: { paths: { id: true, userId: true } },
+            },
+          },
+        },
+      ],
+    },
     modifyAppUserPerms: {
       handler: 'handlers/modifyAppUserPerms.default',
       events: [
