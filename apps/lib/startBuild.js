@@ -31,9 +31,10 @@ export default async (appId) => {
         },
       }
     );
-    if (!app) return { buildStarted: false };
 
-    if (app.setup.status !== 'done') return { buildStarted: false };
+    if (!app || !app.setup || (app.setup && app.setup.status !== 'done')) {
+      return { android: undefined, ios: undefined };
+    }
 
     const now = new Date();
     const authPrevStatus = [0, 1];
@@ -45,8 +46,12 @@ export default async (appId) => {
       authPrevStatus.includes(app.builds.android.status)
     ) {
       update['builds.android'] = {
+        ...app.builds.android,
         status: 15,
-        info: { name: 'Build started', date: now },
+        info: {
+          name: 'Build started',
+          date: now,
+        },
       };
     }
 
@@ -56,8 +61,12 @@ export default async (appId) => {
       authPrevStatus.includes(app.builds.ios.status)
     ) {
       update['builds.ios'] = {
+        ...app.builds.ios,
         status: 15,
-        info: { name: 'Build started', date: now },
+        info: {
+          name: 'Build started',
+          date: now,
+        },
       };
     }
 
