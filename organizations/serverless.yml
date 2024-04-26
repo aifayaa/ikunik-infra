@@ -16,6 +16,21 @@ provider:
   deploymentBucket: ms-deployment-${self:provider.region}
 
 functions:
+  getUserOrgs:
+    handler: handlers/getUserOrgs.default
+    events:
+      - http:
+          path: organizations
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
   createOrg:
     handler: handlers/createOrg.default
     events:
@@ -64,21 +79,6 @@ functions:
                 Authorization: true
               paths:
                 id: true
-
-  getUserOrgs:
-    handler: handlers/getUserOrgs.default
-    events:
-      - http:
-          path: organizations
-          method: get
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
 
   getOrg:
     handler: handlers/getOrg.default
