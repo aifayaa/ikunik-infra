@@ -3,9 +3,9 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import getUserApps from '../lib/getUserApps';
 import { modifyAppUserPermsSchema } from '../validators/modifyAppUserPermsSchema.schema';
-// import modifyAppUserPerms from '../lib/modifyAppUserPerms';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import modifyAppUserPerms from '../lib/modifyAppUserPerms';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -15,33 +15,30 @@ export default async (event) => {
   try {
     if (!userId) throw new Error('no_user_found');
 
-    // Check if userId has access to appId before anything else
-    const { apps, orgsApps } = await getUserApps(userId);
-    const appIds = apps
-      .map((app) => app._id)
-      .concat(orgsApps.map((app) => app._id));
-
-    if (!appIds.includes(appId)) {
+    // Check right for userId to appId
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
       throw new Error('access_forbidden');
     }
 
     // Validate the body of the request
-    const update = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
     // console.log('update', update);
 
+    let bodyValidated;
     try {
-      modifyAppUserPermsSchema.parse(update);
+      bodyValidated = modifyAppUserPermsSchema.parse(body);
     } catch (err) {
       const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+      const errorBody = formatResponseBody({ errors });
+      return response({ code: 200, body: errorBody });
     }
 
-    // const users = await modifyAppUserPerms(appId, targetUserId);
+    // return response({ code: 200, body: zodRes });
 
-    const res = { modifyAppUserPerms: true };
+    const app = await modifyAppUserPerms(appId, targetUserId, bodyValidated);
 
-    return await response({ code: 200, body: res });
+    return await response({ code: 200, body: app });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
