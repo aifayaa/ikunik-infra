@@ -11,7 +11,7 @@ export default async (appId) => {
     const db = client.db();
     const app = await db
       .collection(COLL_APPS)
-      .findOne({ _id: appId }, { projection: { orgId: 1 } });
+      .findOne({ _id: appId }, { projection: { organization: 1 } });
 
     if (!app) {
       throw new Error('app_not_found');
@@ -20,24 +20,24 @@ export default async (appId) => {
     // Check if a user is linked to this appId
     const $or = [{ 'perms.apps._id': appId }];
 
-    const { orgId } = app;
+    const orgId = app.organization && app.organization._id;
 
     // If the application is linked to an organization,
     // take it into account in the query
     if (orgId) {
       // Check if an organization of a user is linked to this appId
-      $or.push({ 'perms.orgs._id': orgId });
+      $or.push({ 'perms.organizations._id': orgId });
     }
 
     const users = await db
       .collection(COLL_USERS)
       .find({
         $and: [
-          // Filter out SuperAdmin users
+          // Filter out superAdmin users
           {
             $or: [
-              { 'profile.isSuperAdmin': false },
-              { 'profile.isSuperAdmin': { $exists: false } },
+              { 'profile.superAdmin': { $exists: false } },
+              { 'profile.superAdmin': false },
             ],
           },
           {
