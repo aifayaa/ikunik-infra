@@ -11,7 +11,7 @@ export default async (userId) => {
     const user = await client
       .db()
       .collection(COLL_USERS)
-      .findOne({ _id: userId });
+      .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
 
     // If the user is super admin, return all available organisations
     const isSuperAdmin = user.superAdmin;
@@ -24,12 +24,12 @@ export default async (userId) => {
     }
 
     // If the user don't have permissions: no organisation
-    if (user.perms === undefined || user.perms.orgs === undefined) {
+    if (user.perms === undefined || user.perms.organizations === undefined) {
       return [];
     }
 
     // Else, return the organisation the user belongs to
-    const orgIds = user.perms.orgs.map((org) => org._id);
+    const orgIds = user.perms.organizations.map((org) => org._id);
     return await client
       .db()
       .collection(COLL_ORGANIZATIONS)
