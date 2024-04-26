@@ -16,18 +16,18 @@ export default async (event) => {
     const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
     if (!allowed) throw new Error('access_forbidden');
 
-    const update = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
 
     // validation
     try {
-      updateOrgSchema.parse(update);
+      updateOrgSchema.parse(body);
     } catch (err) {
       const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+      const errorBody = formatResponseBody({ errors });
+      return response({ code: 200, body: errorBody });
     }
 
-    const modifiedCount = await updateOrg(orgId, update);
+    const modifiedCount = await updateOrg(orgId, body);
 
     return response({ code: 200, body: { count: modifiedCount } });
   } catch (error) {

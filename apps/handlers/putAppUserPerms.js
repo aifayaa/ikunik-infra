@@ -23,16 +23,16 @@ export default async (event) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let bodyValidated;
+    let validatedBody;
     try {
-      bodyValidated = putAppUserPermsSchema.parse(body);
+      validatedBody = putAppUserPermsSchema.parse(body);
     } catch (err) {
       const errors = formatValidationErrors(err);
       const errorBody = formatResponseBody({ errors });
       return response({ code: 200, body: errorBody });
     }
 
-    const app = await putAppUserPerms(appId, bodyValidated);
+    const app = await putAppUserPerms(appId, validatedBody);
 
     return response({ code: 200, body: app });
   } catch (e) {
