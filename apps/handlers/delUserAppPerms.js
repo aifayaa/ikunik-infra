@@ -6,14 +6,15 @@ import delUserAppPerms from '../lib/delUserAppPerms';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
-  const { id: appId, userId: targetId } = event.pathParameters;
+  const { id: appId, userId: targetUserId } = event.pathParameters;
   try {
-    if (!targetId) throw new Error('target_user_not_found');
     if (!appId) throw new Error('org_not_found');
+
+    // Check right for userId to appId
     const allowed = await checkPermsForApp(userId, appId, 'admin');
     if (!allowed) throw new Error('access_forbidden');
 
-    const res = await delUserAppPerms(targetId, appId);
+    const res = await delUserAppPerms(targetUserId, appId);
 
     return response({ code: 200, body: res });
   } catch (e) {
