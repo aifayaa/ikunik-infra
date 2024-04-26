@@ -23,13 +23,13 @@ export default async (userId) => {
       .find({ _id: { $in: userAppIds } })
       .toArray();
 
-    const orgIds =
+    const userOrgIds =
       user.perms && user.perms.organizations
         ? user.perms.organizations.map(({ _id }) => _id)
         : [];
     const orgsApps = await db
       .collection(COLL_APPS)
-      .find({ 'organization.id': { $in: orgIds } })
+      .find({ 'organization._id': { $in: userOrgIds } })
       .toArray();
 
     const response = {
