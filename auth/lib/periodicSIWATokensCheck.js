@@ -37,7 +37,7 @@ async function refreshJwtToken(
       secretAccessKey: S3_SECRET_ACCESS_KEY,
     },
   });
-  const s3Path = `${app._id}/${app.credentials.apple.clientId}_ios/AppleSignInKey.p8`;
+  const s3Path = `${app._id}/ios/AppleSignInKey.p8`;
   let s3KeyResponse;
   try {
     s3KeyResponse = await s3

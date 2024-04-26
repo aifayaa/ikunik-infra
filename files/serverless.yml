@@ -35,8 +35,8 @@ provider:
             - 's3:GetObject'
             - 's3:PutObject'
           Resource:
-            - 'arn:aws:s3:::${self:provider.environment.S3_RESOURCES_BUCKET}/*'
-            - 'arn:aws:s3:::${self:provider.environment.S3_PUBLIC_RESOURCES_BUCKET}/*'
+            - 'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*'
+            - 'arn:aws:s3:::${self:provider.environment.S3_APPS_PUBLIC_RESSOURCES}/*'
         - Effect: 'Allow'
           Action:
             - elastictranscoder:CreateJob
@@ -49,8 +49,8 @@ provider:
     S3_UPLOAD_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_UPLOAD_BUCKET}
     S3_PICTURES_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_PICTURES_BUCKET}
     S3_VIDEOS_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_VIDEOS_BUCKET}
-    S3_RESOURCES_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_RESOURCES_BUCKET}
-    S3_PUBLIC_RESOURCES_BUCKET: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_PUBLIC_RESOURCES_BUCKET}
+    S3_APPS_RESSOURCES: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_APPS_RESSOURCES}
+    S3_APPS_PUBLIC_RESSOURCES: ${file(./env.${self:provider.stage}.${self:provider.region}.yml):S3_APPS_PUBLIC_RESSOURCES}
   apiGateway:
     restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
     restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}

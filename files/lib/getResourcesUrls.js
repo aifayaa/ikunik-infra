@@ -9,7 +9,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const { S3_RESOURCES_BUCKET, S3_PUBLIC_RESOURCES_BUCKET } = process.env;
+const { S3_APPS_RESSOURCES, S3_APPS_PUBLIC_RESSOURCES } = process.env;
 
 const { COLL_APPS } = mongoCollections;
 
@@ -51,27 +51,19 @@ export default async (
     if (!app) {
       throw new Error('app_not_found');
     }
-    let iosPackageId = null;
-    let androidPackageId = null;
-    if (app.builds && app.builds.ios && app.builds.ios.packageId) {
-      iosPackageId = app.builds.ios.packageId;
-    }
-    if (app.builds && app.builds.android && app.builds.android.packageId) {
-      androidPackageId = app.builds.android.packageId;
-    }
 
     resourceTypes.forEach((type) => {
       resourceFormats.forEach((format) => {
         const s3Params = {};
 
-        if (type === 'ios' && iosPackageId) {
-          s3Params.Bucket = S3_RESOURCES_BUCKET;
-          s3Params.Key = `${appId}/${iosPackageId}_ios/${resourceFormatToPath[format].path}`;
-        } else if (type === 'android' && androidPackageId) {
-          s3Params.Bucket = S3_RESOURCES_BUCKET;
-          s3Params.Key = `${appId}/${androidPackageId}_android/${resourceFormatToPath[format].path}`;
+        if (type === 'ios') {
+          s3Params.Bucket = S3_APPS_RESSOURCES;
+          s3Params.Key = `${appId}/ios/${resourceFormatToPath[format].path}`;
+        } else if (type === 'android') {
+          s3Params.Bucket = S3_APPS_RESSOURCES;
+          s3Params.Key = `${appId}/android/${resourceFormatToPath[format].path}`;
         } else if (type === 'public') {
-          s3Params.Bucket = S3_PUBLIC_RESOURCES_BUCKET;
+          s3Params.Bucket = S3_APPS_PUBLIC_RESSOURCES;
           s3Params.Key = `${appId}/${resourceFormatToPath[format].basename}`;
         }
 
