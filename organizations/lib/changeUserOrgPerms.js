@@ -8,7 +8,7 @@ export default async (userId, orgId, data) => {
   const client = await MongoClient.connect();
 
   try {
-    const authPerms = ['owner', 'admin', 'editor', 'moderator', 'viewer'];
+    const authPerms = ['admin', 'member'];
 
     if (!authPerms.includes(data.newPerm)) {
       return { userPermUpdated: false };
