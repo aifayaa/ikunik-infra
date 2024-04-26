@@ -16,35 +16,26 @@ export default async (userId, orgId, data) => {
 
     const db = client.db();
 
-    const user = await db.collection(COLL_USERS).findOne({ _id: userId });
+    const userOrgPerm = await db
+      .collection(COLL_USERS)
+      .findOne({ _id: userId, 'perms.orgs._id': orgId });
 
-    if (!user) {
+    if (!userOrgPerm) {
       return { userPermUpdated: false };
     }
 
-    if (user.perms && user.perms.orgs) {
-      const org = await db
-        .collection(COLL_USERS)
-        .findOne({ _id: userId, 'perms.orgs._id': orgId });
+    const result = await db
+      .collection(COLL_USERS)
+      .updateOne(
+        { _id: userId, 'perms.orgs._id': orgId },
+        { $set: { 'perms.orgs.$.roles': data.newPerm } }
+      );
 
-      if (!org) {
-        return { userPermUpdated: false };
-      }
-
-      const result = await db
-        .collection(COLL_USERS)
-        .updateOne(
-          { _id: userId, 'perms.orgs._id': orgId },
-          { $set: { 'perms.orgs.$.roles': data.newPerm } }
-        );
-
-      if (result.modifiedCount === 0) {
-        return { userPermUpdated: false };
-      }
-
-      return { userPermUpdated: true };
+    if (result.modifiedCount === 0) {
+      return { userPermUpdated: false };
     }
-    return { userPermUpdated: false };
+
+    return { userPermUpdated: true };
   } finally {
     client.close();
   }
