@@ -9,8 +9,7 @@ import modifyAppUserPerms from '../lib/modifyAppUserPerms';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
-  const appId = event.pathParameters.id;
-  const targetUserId = event.pathParameters.userId;
+  const { id: appId, userId: targetUserId } = event.pathParameters;
 
   try {
     if (!userId) throw new Error('no_user_found');
@@ -23,7 +22,6 @@ export default async (event) => {
 
     // Validate the body of the request
     const body = JSON.parse(event.body);
-    // console.log('update', update);
 
     let bodyValidated;
     try {
@@ -34,11 +32,9 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    // return response({ code: 200, body: zodRes });
-
     const app = await modifyAppUserPerms(appId, targetUserId, bodyValidated);
 
-    return await response({ code: 200, body: app });
+    return response({ code: 200, body: app });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

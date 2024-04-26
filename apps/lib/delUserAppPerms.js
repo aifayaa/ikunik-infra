@@ -2,22 +2,26 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const { COLL_USERS } = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
-export default async (userId, appId) => {
+export default async (targetUserId, appId) => {
   const client = await MongoClient.connect();
 
   try {
-    const result = await client
-      .db()
-      .collection(COLL_USERS)
-      .updateOne({ _id: userId }, { $pull: { 'perms.apps': { _id: appId } } });
+    const db = client.db();
+    const commandRes = await db
+      .collection(COLL_APPS)
+      .findOneAndUpdate(
+        { _id: appId },
+        { $pull: { 'organization.users': { _id: targetUserId } } }
+      );
 
-    if (result.modifiedCount === 0) {
-      return { userUpdated: false };
+    const { ok, value: appUpdated } = commandRes;
+    if (ok !== 1) {
+      throw new Error('update_failed');
     }
 
-    return { userUpdated: true };
+    return appUpdated;
   } finally {
     client.close();
   }
