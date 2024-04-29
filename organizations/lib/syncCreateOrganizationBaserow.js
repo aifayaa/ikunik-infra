@@ -4,7 +4,7 @@ import request from 'request-promise-native';
 const { CROWDAA_REGION, STAGE } = process.env;
 
 const BASEROW_URL =
-  'http://automation.operations.aws.crowdaa.com/webhook/createProjects-fa567-anbo86-eocq9-p7t58re';
+  'http://automation.operations.aws.crowdaa.com/webhook/insert-organization-28716b61-546e-4a24-bd4b-f2bbb70d1b3a';
 const BASEROW_METHOD = 'POST';
 
 async function callBaserowAPI(data) {
@@ -27,7 +27,7 @@ async function callBaserowAPI(data) {
   return response;
 }
 
-export default async (userId, { appId, name, apiKey }) => {
+export default async (userId, { orgId, name }) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
@@ -35,21 +35,21 @@ export default async (userId, { appId, name, apiKey }) => {
       region: CROWDAA_REGION,
       stage: STAGE,
       userId,
-      appId,
+      orgId,
       name,
-      apiKey,
     });
 
     // eslint-disable-next-line no-console
     console.log('DEBUG Baserow API response', resp);
-  } catch (e) {
+  } catch (error) {
     // eslint-disable-next-line no-console
-    console.log('DEBUG Baserow API response error', e, 'for :', {
+    console.log('DEBUG Baserow API response error', error, 'for :', {
       userId,
-      appId,
+      orgId,
       name,
-      apiKey,
     });
+
+    throw error;
   }
   // }
 };
