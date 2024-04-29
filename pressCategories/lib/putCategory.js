@@ -165,6 +165,8 @@ export default async ({
     } else if (hasOrderChanged) {
       await reorderCategory(appId, categoryId, order);
     }
+
+    return { _id: categoryId, ...category };
   } finally {
     client.close();
   }
