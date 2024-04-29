@@ -1,5 +1,5 @@
-/* eslint-disable import/no-relative-packages */
-import { actionRegexp } from '../../libs/regexp/action';
+const actionRegexp =
+  /((http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?)|(^tel:)|(^mailto:)|(^\/articles\/)|(^\/pdf\/)|(^\/tab\/)|(^$)/;
 
 const ACTIONS_LIST = [
   'callPhoneNumber',
