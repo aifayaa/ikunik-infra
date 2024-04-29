@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
@@ -41,6 +42,9 @@ export default async (userId, data) => {
           },
           { sessionArg }
         );
+
+        const { _id: orgId, name } = newOrganization;
+        await syncCreateOrganizationBaserow(userId, { orgId, name });
 
         sessionRes = newOrganization;
       });
