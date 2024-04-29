@@ -7,37 +7,47 @@ const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 export default async (userId, data) => {
   const client = await MongoClient.connect();
 
-  const session = client.startSession();
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  // Return result of transaction by side effect
+  let sessionRes;
 
-  try {
-    const newOrganization = {
-      ...data,
+  await client
+    .withSession(async (session) => {
+      await session.withTransaction(async (sessionArg) => {
+        const newOrganization = {
+          ...data,
 
-      _id: new ObjectID().toString(),
-      createdAt: new Date(),
-      createdBy: userId,
-    };
+          _id: new ObjectID().toString(),
+          createdAt: new Date(),
+          createdBy: userId,
+        };
 
-    await session.withTransaction(async () => {
-      const db = client.db();
+        const db = client.db();
 
-      await db.collection(COLL_ORGANIZATIONS).insertOne(newOrganization);
+        await db
+          .collection(COLL_ORGANIZATIONS)
+          .insertOne(newOrganization, { sessionArg });
 
-      await db.collection(COLL_USERS).updateOne(
-        { _id: userId },
-        {
-          $push: {
-            'perms.organizations': {
-              _id: newOrganization._id,
-              roles: ['owner'],
+        await db.collection(COLL_USERS).updateOne(
+          { _id: userId },
+          {
+            $push: {
+              'perms.organizations': {
+                _id: newOrganization._id,
+                roles: ['owner'],
+              },
             },
           },
-        }
-      );
+          { sessionArg }
+        );
+
+        sessionRes = newOrganization;
+      });
+    })
+    .finally(() => {
+      client.close();
     });
 
-    return newOrganization;
-  } finally {
-    client.close();
-  }
+  return sessionRes;
 };
