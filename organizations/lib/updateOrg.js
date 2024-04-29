@@ -8,12 +8,27 @@ export default async (orgId, update) => {
   const client = await MongoClient.connect();
 
   try {
-    const { modifiedCount } = await client
+    const commandRes = await client
       .db()
       .collection(COLL_ORGANIZATIONS)
-      .updateOne({ _id: orgId }, { $set: update });
+      .findOneAndUpdate(
+        { _id: orgId },
+        { $set: update },
+        { returnNewDocument: true, returnDocument: 'after' }
+      );
 
-    return modifiedCount;
+    console.log('commandRes', commandRes);
+
+    const { ok, value: organization } = commandRes;
+
+    console.log('ok', ok);
+    console.log('organization', organization);
+
+    if (!ok) {
+      throw new Error('update_failed');
+    }
+
+    return organization;
   } finally {
     client.close();
   }
