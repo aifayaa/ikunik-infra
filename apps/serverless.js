@@ -21,6 +21,7 @@ const serverlessConfiguration = {
         INVITE_MAIL_LANG: 'en',
         REACT_APP_AUTH_URL: 'https://dev-auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://dev-blog.crowdaa.com',
+        CROWDAA_REGION: 'us',
       },
     },
     preprod: {
@@ -28,6 +29,7 @@ const serverlessConfiguration = {
         INVITE_MAIL_LANG: 'fr',
         REACT_APP_AUTH_URL: 'https://depreprodv-auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://preprod-blog.crowdaa.com',
+        CROWDAA_REGION: 'fr',
       },
     },
     prod: {
@@ -35,11 +37,13 @@ const serverlessConfiguration = {
         INVITE_MAIL_LANG: 'en',
         REACT_APP_AUTH_URL: 'https://auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog.crowdaa.com',
+        CROWDAA_REGION: 'us',
       },
       'eu-west-3': {
         INVITE_MAIL_LANG: 'fr',
         REACT_APP_AUTH_URL: 'https://auth-fr.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog-fr.crowdaa.com',
+        CROWDAA_REGION: 'fr',
       },
     },
   },
