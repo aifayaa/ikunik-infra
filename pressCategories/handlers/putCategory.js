@@ -4,7 +4,7 @@ import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import putCategory from '../lib/putCategory';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
-import actionV2ToAction from '../lib/actionV2Migration';
+import { actionV2ToAction, actionToActionV2 } from '../lib/actionV2Migration';
 
 export default async (event) => {
   const { id: categoryId } = event.pathParameters;
@@ -27,7 +27,6 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
-      action_v2: actionV2 = null,
       badges,
       badgesAllow,
       color = null,
@@ -43,9 +42,11 @@ export default async (event) => {
       reversedFlowStart = null,
       rssFeedUrl = null,
     } = parsedBody;
-    let { action = '' } = parsedBody;
+    let { action = '', action_v2: actionV2 = null } = parsedBody;
 
-    if (actionV2) {
+    if (!actionV2 && action) {
+      actionV2 = actionToActionV2(action);
+    } else if (actionV2) {
       action = actionV2ToAction(actionV2);
     }
 
