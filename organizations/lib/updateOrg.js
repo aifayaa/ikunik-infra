@@ -11,24 +11,20 @@ export default async (orgId, update) => {
     const commandRes = await client
       .db()
       .collection(COLL_ORGANIZATIONS)
-      .findOneAndUpdate(
-        { _id: orgId },
-        { $set: update },
-        { returnNewDocument: true, returnDocument: 'after' }
-      );
+      .update({ _id: orgId }, { $set: update });
 
-    console.log('commandRes', commandRes);
-
-    const { ok, value: organization } = commandRes;
-
-    console.log('ok', ok);
-    console.log('organization', organization);
+    const {
+      result: { ok },
+    } = commandRes;
 
     if (!ok) {
       throw new Error('update_failed');
     }
 
-    return organization;
+    return await client
+      .db()
+      .collection(COLL_ORGANIZATIONS)
+      .findOne({ _id: orgId });
   } finally {
     client.close();
   }
