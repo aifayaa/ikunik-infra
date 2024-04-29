@@ -407,8 +407,8 @@ export const checkPermsForOrganization = async (
     ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
   ];
 
-  if (perms.orgs && perms.orgs.length > 0) {
-    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
+  if (perms.organizations && perms.organizations.length > 0) {
+    const orgsPerms = indexObjectArrayWithKey(perms.organizations);
     if (orgsPerms[orgId]) {
       if (
         areArraysIntersecting(
