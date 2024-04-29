@@ -7,55 +7,47 @@ const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 export default async (userId, data) => {
   const client = await MongoClient.connect();
 
-  try {
-    console.log('ENTER try');
-    // Documentation, how to use transaction:
-    // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
-    const sessionRes = await client.withSession(async (session) => {
-      console.log('ENTER withSession');
-      const transactionRes = await session.withTransaction(
-        async (sessionArg) => {
-          console.log('ENTER withTransaction');
-          const newOrganization = {
-            ...data,
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  // Return result of transaction by side effect
+  let sessionRes;
 
-            _id: new ObjectID().toString(),
-            createdAt: new Date(),
-            createdBy: userId,
-          };
+  await client
+    .withSession(async (session) => {
+      await session.withTransaction(async (sessionArg) => {
+        const newOrganization = {
+          ...data,
 
-          const db = client.db();
+          _id: new ObjectID().toString(),
+          createdAt: new Date(),
+          createdBy: userId,
+        };
 
-          await db
-            .collection(COLL_ORGANIZATIONS)
-            .insertOne(newOrganization, { sessionArg });
+        const db = client.db();
 
-          await db.collection(COLL_USERS).updateOne(
-            { _id: userId },
-            {
-              $push: {
-                'perms.organizations': {
-                  _id: newOrganization._id,
-                  roles: ['owner'],
-                },
+        await db
+          .collection(COLL_ORGANIZATIONS)
+          .insertOne(newOrganization, { sessionArg });
+
+        await db.collection(COLL_USERS).updateOne(
+          { _id: userId },
+          {
+            $push: {
+              'perms.organizations': {
+                _id: newOrganization._id,
+                roles: ['owner'],
               },
             },
-            { sessionArg }
-          );
+          },
+          { sessionArg }
+        );
 
-          console.log('newOrganization', newOrganization);
-          return newOrganization;
-        }
-      );
-
-      console.log('transactionRes', transactionRes);
-      return transactionRes;
+        sessionRes = newOrganization;
+      });
+    })
+    .finally(() => {
+      client.close();
     });
 
-    console.log('sessionRes', sessionRes);
-    return sessionRes;
-  } finally {
-    console.log('client.close()');
-    client.close();
-  }
+  return sessionRes;
 };
