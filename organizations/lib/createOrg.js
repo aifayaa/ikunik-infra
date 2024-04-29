@@ -8,39 +8,54 @@ export default async (userId, data) => {
   const client = await MongoClient.connect();
 
   try {
+    console.log('ENTER try');
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
-    return await client.withSession((session) => {
-      return session.withTransaction(async (sessionArg) => {
-        const newOrganization = {
-          ...data,
+    const sessionRes = await client.withSession(async (session) => {
+      console.log('ENTER withSession');
+      const transactionRes = await session.withTransaction(
+        async (sessionArg) => {
+          console.log('ENTER withTransaction');
+          const newOrganization = {
+            ...data,
 
-          _id: new ObjectID().toString(),
-          createdAt: new Date(),
-          createdBy: userId,
-        };
+            _id: new ObjectID().toString(),
+            createdAt: new Date(),
+            createdBy: userId,
+          };
 
-        const db = client.db();
+          const db = client.db();
 
-        await db.collection(COLL_ORGANIZATIONS).insertOne(newOrganization);
+          await db
+            .collection(COLL_ORGANIZATIONS)
+            .insertOne(newOrganization, { sessionArg });
 
-        await db.collection(COLL_USERS).updateOne(
-          { _id: userId },
-          {
-            $push: {
-              'perms.organizations': {
-                _id: newOrganization._id,
-                roles: ['owner'],
+          await db.collection(COLL_USERS).updateOne(
+            { _id: userId },
+            {
+              $push: {
+                'perms.organizations': {
+                  _id: newOrganization._id,
+                  roles: ['owner'],
+                },
               },
             },
-          },
-          { sessionArg }
-        );
+            { sessionArg }
+          );
 
-        return newOrganization;
-      });
+          console.log('newOrganization', newOrganization);
+          return newOrganization;
+        }
+      );
+
+      console.log('transactionRes', transactionRes);
+      return transactionRes;
     });
+
+    console.log('sessionRes', sessionRes);
+    return sessionRes;
   } finally {
+    console.log('client.close()');
     client.close();
   }
 };

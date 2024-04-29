@@ -24,6 +24,7 @@ export default async (event) => {
     }
 
     const org = await createOrg(userId, validatedBody);
+    console.log('org', org);
     return response({ code: 200, body: returnedFieldsFilter(org) });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
