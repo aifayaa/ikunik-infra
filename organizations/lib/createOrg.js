@@ -14,8 +14,8 @@ export default async (userId, data) => {
   let sessionRes;
 
   await client
-    .withSession(async (session) => {
-      await session.withTransaction(async (sessionArg) => {
+    .withSession(async (sessionArg) => {
+      await sessionArg.withTransaction(async (session) => {
         const newOrganization = {
           ...data,
 
@@ -28,7 +28,7 @@ export default async (userId, data) => {
 
         await db
           .collection(COLL_ORGANIZATIONS)
-          .insertOne(newOrganization, { sessionArg });
+          .insertOne(newOrganization, { session });
 
         await db.collection(COLL_USERS).updateOne(
           { _id: userId },
@@ -40,7 +40,7 @@ export default async (userId, data) => {
               },
             },
           },
-          { sessionArg }
+          { session }
         );
 
         const { _id: orgId, name } = newOrganization;
