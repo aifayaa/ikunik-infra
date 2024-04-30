@@ -1,33 +1,37 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
+import { changeUserOrgPermsSchema } from '../validators/changeUserOrgPerms.schema';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
-  const { id: orgId, userId: targetId } = event.pathParameters;
+  const { id: orgId, userId: targetUserId } = event.pathParameters;
+
   try {
-    if (!orgId) {
-      throw new Error('organization_not_found');
-    }
-    if (!targetId) {
-      throw new Error('target_user_not_found');
-    }
-
-    const bodyParsed = JSON.parse(event.body);
-    if (!bodyParsed) {
-      throw new Error('new_perm_missing');
-    }
-
     const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
     if (!allowed) {
       throw new Error('access_forbidden');
     }
 
-    const res = await changeUserOrgPerms(targetId, orgId, bodyParsed);
+    const body = JSON.parse(event.body);
 
-    return await response({ code: 200, body: res });
+    // validation
+    let validatedBody;
+    try {
+      validatedBody = changeUserOrgPermsSchema.parse(body);
+    } catch (err) {
+      const errors = formatValidationErrors(err);
+      const errorBody = formatResponseBody({ errors });
+      return response({ code: 200, body: errorBody });
+    }
+
+    const user = await changeUserOrgPerms(targetUserId, orgId, validatedBody);
+
+    return response({ code: 200, body: user });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

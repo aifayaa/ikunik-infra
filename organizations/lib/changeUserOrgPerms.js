@@ -8,34 +8,22 @@ export default async (userId, orgId, data) => {
   const client = await MongoClient.connect();
 
   try {
-    const authPerms = ['admin', 'member'];
-
-    if (!authPerms.includes(data.newPerm)) {
-      return { userPermUpdated: false };
-    }
-
     const db = client.db();
-
-    const userOrgPerm = await db
-      .collection(COLL_USERS)
-      .findOne({ _id: userId, 'perms.orgs._id': orgId });
-
-    if (!userOrgPerm) {
-      return { userPermUpdated: false };
-    }
 
     const result = await db
       .collection(COLL_USERS)
       .updateOne(
-        { _id: userId, 'perms.orgs._id': orgId },
-        { $set: { 'perms.orgs.$.roles': data.newPerm } }
+        { _id: userId, 'perms.organizations._id': orgId },
+        { $set: { 'perms.organizations.$.roles': data.roles } }
       );
 
     if (result.modifiedCount === 0) {
-      return { userPermUpdated: false };
+      throw new Error('update_failed');
     }
 
-    return { userPermUpdated: true };
+    return await db
+      .collection(COLL_USERS)
+      .findOne({ _id: userId, 'perms.organizations._id': orgId });
   } finally {
     client.close();
   }

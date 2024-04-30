@@ -19,15 +19,16 @@ export default async (event) => {
     const body = JSON.parse(event.body);
 
     // validation
+    let validatedBody;
     try {
-      updateOrgSchema.parse(body);
+      validatedBody = updateOrgSchema.parse(body);
     } catch (err) {
       const errors = formatValidationErrors(err);
       const errorBody = formatResponseBody({ errors });
       return response({ code: 200, body: errorBody });
     }
 
-    const modifiedCount = await updateOrg(orgId, body);
+    const modifiedCount = await updateOrg(orgId, validatedBody);
 
     return response({ code: 200, body: { count: modifiedCount } });
   } catch (error) {
