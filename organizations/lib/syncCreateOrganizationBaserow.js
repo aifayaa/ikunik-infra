@@ -52,7 +52,7 @@ export default async (userId, { orgId, name }) => {
 
     await sendEmailMailgunTemplate(
       'No reply <support@crowdaa.com>',
-      'fabien.rozar@crowdaa.com',
+      'connect@crowdaa.com',
       '[BASEROW Error] Create Organization',
       'internal_raw_mail',
       {
