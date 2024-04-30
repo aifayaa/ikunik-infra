@@ -8,58 +8,50 @@ const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 export default async (userId, data) => {
   const client = await MongoClient.connect();
 
-  try {
-    // Documentation, how to use transaction:
-    // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
-    // Return result of transaction by side effect
-    let sessionRes;
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  // Return result of transaction by side effect
+  let sessionRes;
 
-    await client
-      .withSession(async (session) => {
-        await session.withTransaction(async (sessionArg) => {
-          const newOrganization = {
-            ...data,
+  await client
+    .withSession(async (sessionArg) => {
+      await sessionArg.withTransaction(async (session) => {
+        const newOrganization = {
+          ...data,
 
-            _id: new ObjectID().toString(),
-            createdAt: new Date(),
-            createdBy: userId,
-          };
+          _id: new ObjectID().toString(),
+          createdAt: new Date(),
+          createdBy: userId,
+        };
 
-          const db = client.db();
+        const db = client.db();
 
-          await db
-            .collection(COLL_ORGANIZATIONS)
-            .insertOne(newOrganization, { sessionArg });
+        await db
+          .collection(COLL_ORGANIZATIONS)
+          .insertOne(newOrganization, { session });
 
-          await db.collection(COLL_USERS).updateOne(
-            { _id: userId },
-            {
-              $push: {
-                'perms.organizations': {
-                  _id: newOrganization._id,
-                  roles: ['owner'],
-                },
+        await db.collection(COLL_USERS).updateOne(
+          { _id: userId },
+          {
+            $push: {
+              'perms.organizations': {
+                _id: newOrganization._id,
+                roles: ['owner'],
               },
             },
-            { sessionArg }
-          );
+          },
+          { session }
+        );
 
-          // const { _id: orgId, name } = newOrganization;
-          // await syncCreateOrganizationBaserow(userId, { orgId, name });
+        const { _id: orgId, name } = newOrganization;
+        await syncCreateOrganizationBaserow(userId, { orgId, name });
 
-          session.AbortTransaction();
-          throw new Error('failed transaction');
-
-          sessionRes = newOrganization;
-        });
-      })
-      .finally(() => {
-        client.close();
+        sessionRes = newOrganization;
       });
+    })
+    .finally(() => {
+      client.close();
+    });
 
-    return sessionRes;
-  } catch (error) {
-    console.log('Catch error', error);
-    return false;
-  }
+  return sessionRes;
 };
