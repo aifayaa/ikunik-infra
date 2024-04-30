@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
+import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
 
 const { CROWDAA_REGION, STAGE } = process.env;
 
@@ -49,7 +50,15 @@ export default async (userId, { orgId, name }) => {
       name,
     });
 
-    throw error;
+    await sendEmailMailgunTemplate(
+      'No reply <support@crowdaa.com>',
+      'fabien.rozar@crowdaa.com',
+      '[BASEROW Error] Create Organization',
+      'internal_raw_mail',
+      {
+        body: { userId, orgId, name, error },
+      }
+    );
   }
   // }
 };
