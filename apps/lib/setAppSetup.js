@@ -22,17 +22,26 @@ export default async (appId) => {
   const now = new Date();
 
   try {
-    const app = await client.db().collection(COLL_APPS).findOne({
-      _id: appId,
-    });
+    const app = await client
+      .db()
+      .collection(COLL_APPS)
+      .findOne(
+        {
+          _id: appId,
+        },
+        { projection: { setup: 1, builds: 1 } }
+      );
 
     if (!app) {
       throw new Error('app_not_found');
     }
 
     if (!app.setup) {
+      if (app.builds) {
+        return { queued: false, status: 'done' };
+      }
       await setAppSetupField({ client, appId, now });
-      return { queued: true };
+      return { queued: true, status: 'queued' };
     }
 
     if (app.setup.status === 'done' || app.setup.status === 'queued') {
@@ -49,7 +58,7 @@ export default async (appId) => {
     }
     // case: app.setup.status === 'error'
     await setAppSetupField({ client, appId, now });
-    return { queued: true };
+    return { queued: true, status: 'queued' };
   } finally {
     client.close();
   }
