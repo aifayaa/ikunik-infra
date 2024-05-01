@@ -4,55 +4,61 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;
 
-/**
- * Example of app.setup structure :
-  const apps = {
+const TIMEOUT_DELAY = 20 * 60 * 1000;
+
+async function setAppSetupField({ client, appId, now }) {
+  const $set = {
     setup: {
-      status: 
-        'start' or 'hold' or 'canceled' or 'error' or [processStateName] or 'done',
-      statusChangedAt: new Date(),
-      errors: [
-        {
-          date: new Date(),
-          type: 'error type',
-          message: 'error message',
-        },
-      ],
-      history: [
-        {
-          status: apps.setup.status,
-          date: apps.setup.statusChangedAt
-        }
-      ]
+      status: 'queued',
+      date: now,
     },
   };
-*/
+
+  await client.db().collection(COLL_APPS).updateOne({ _id: appId }, { $set });
+}
 
 export default async (appId) => {
   const client = await MongoClient.connect();
   const now = new Date();
+
   try {
-    await client
+    const app = await client
       .db()
       .collection(COLL_APPS)
-      .updateOne(
-        { _id: appId },
+      .findOne(
         {
-          $set: {
-            setup: {
-              status: 'start',
-              statusChangedAt: now,
-              errors: [],
-              history: [
-                {
-                  status: 'start',
-                  date: now,
-                },
-              ],
-            },
-          },
-        }
+          _id: appId,
+        },
+        { projection: { setup: 1, builds: 1 } }
       );
+
+    if (!app) {
+      throw new Error('app_not_found');
+    }
+
+    if (!app.setup) {
+      if (app.builds) {
+        return { queued: false, status: 'done' };
+      }
+      await setAppSetupField({ client, appId, now });
+      return { queued: true, status: 'queued' };
+    }
+
+    if (app.setup.status === 'done' || app.setup.status === 'queued') {
+      return { queued: false, status: app.setup.status };
+    }
+    if (app.setup.status === 'running') {
+      if (now.getTime() - app.setup.date.getTime() < TIMEOUT_DELAY) {
+        return {
+          queued: false,
+          status: app.setup.status,
+          retryIn: TIMEOUT_DELAY - (now.getTime() - app.setup.date.getTime()),
+        };
+      }
+    }
+    // case: app.setup.status === 'error'
+    await setAppSetupField({ client, appId, now });
+    return { queued: true, status: 'queued' };
   } finally {
     client.close();
   }

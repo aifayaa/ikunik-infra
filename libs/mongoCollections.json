@@ -43,6 +43,7 @@
   "COLL_PERM_GROUPS": "permGroups",
   "COLL_PHONES": "phoneCollection",
   "COLL_PICTURES": "pictures",
+  "COLL_PIPELINES": "pipelines",
   "COLL_PRESS_ARTICLES": "pressArticles",
   "COLL_PRESS_AUTOMATION_TASKS": "pressAutomationTasks",
   "COLL_PRESS_BANNERS": "pressBanners",
