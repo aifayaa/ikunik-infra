@@ -14,7 +14,12 @@ export default async (event) => {
     }
     const params = event.queryStringParameters || {};
 
-    const res = await getAppSetup(appId, params);
+    const boolParams = Object.keys(params).reduce((acc, key) => {
+      acc[key] = params[key] === 'true';
+      return acc;
+    }, {});
+
+    const res = await getAppSetup(appId, boolParams);
 
     return response({ code: 200, body: res });
   } catch (e) {

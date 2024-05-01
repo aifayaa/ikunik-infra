@@ -15,8 +15,7 @@ export default async (event) => {
 
     const res = await setAppSetup(appId);
 
-    if (!res) return response({ code: 500, body: { build: false } });
-    return response({ code: 200, body: { build: true } });
+    return response({ code: 200, body: res });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
