@@ -4,29 +4,41 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import getOrg from './getOrg';
 import getOrgApps from './getOrgApps';
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_USERS, COLL_APPS } = mongoCollections;
 
-export default async (orgId, appId) => {
+export default async (orgId, appId, newOwner) => {
   const client = await MongoClient.connect();
 
-  try {
-    // Update the 'orgId' field of an app
-    const commandResult = await client
-      .db()
-      .collection(COLL_APPS)
-      .updateOne({ _id: appId }, { $unset: { orgId: '' } });
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  await client
+    .withSession(async (sessionArg) => {
+      await sessionArg.withTransaction(async (session) => {
+        const db = client.db();
+        // 1. Add application in the user.perms.apps
+        await db
+          .collection(COLL_USERS)
+          .updateOne(
+            { _id: newOwner },
+            { $push: { 'perms.apps': { _id: appId, roles: ['owner'] } } },
+            { session }
+          );
 
-    const { matchedCount } = commandResult;
+        // 2. Delete the field app.organization
+        await db
+          .collection(COLL_APPS)
+          .updateOne(
+            { _id: appId },
+            { $unset: { organization: '' } },
+            { session }
+          );
+      });
+    })
+    .finally(() => {
+      client.close();
+    });
 
-    // If the app is not found, return an error message
-    if (matchedCount === 0) {
-      throw new Error('app_not_found');
-    }
-
-    const org = await getOrg(orgId);
-    const apps = await getOrgApps(orgId);
-    return { ...org, apps };
-  } finally {
-    client.close();
-  }
+  const org = await getOrg(orgId);
+  const apps = await getOrgApps(orgId);
+  return { ...org, apps };
 };

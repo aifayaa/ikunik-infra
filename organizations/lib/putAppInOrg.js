@@ -11,9 +11,6 @@ export default async (userId, orgId, appId) => {
 
   // Documentation, how to use transaction:
   // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
-  // Return result of transaction by side effect
-  let sessionRes;
-
   await client
     .withSession(async (sessionArg) => {
       await sessionArg.withTransaction(async (session) => {
@@ -23,7 +20,7 @@ export default async (userId, orgId, appId) => {
           .collection(COLL_USERS)
           .updateOne(
             { _id: userId },
-            { $pull: { 'perms.organizations': { _id: orgId } } },
+            { $pull: { 'perms.apps': { _id: appId } } },
             { session }
           );
 
@@ -40,15 +37,13 @@ export default async (userId, orgId, appId) => {
           },
           { session }
         );
-
-        const org = await getOrg(orgId);
-        const apps = await getOrgApps(orgId);
-        sessionRes = { ...org, apps };
       });
     })
     .finally(() => {
       client.close();
     });
 
-  return sessionRes;
+  const org = await getOrg(orgId);
+  const apps = await getOrgApps(orgId);
+  return { ...org, apps };
 };
