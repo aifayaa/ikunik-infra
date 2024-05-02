@@ -6,15 +6,45 @@ import { formatValidationErrors } from '../../libs/httpResponses/formatValidatio
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { delOrgAppSchema } from '../validators/delOrgApp.schema';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_APPS } = mongoCollections;
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const { id: orgId, appId } = event.pathParameters;
 
   try {
+    const client = await MongoClient.connect();
     const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
     if (!allowed) {
       throw new Error('access_forbidden');
+    }
+
+    const app = await client
+      .db()
+      .collection(COLL_APPS)
+      .findOne(
+        { _id: appId },
+        { projection: { name: 1, setup: 1, builds: 1 } }
+      );
+
+    if (!app) {
+      throw new Error('app_not_found');
+    }
+    if (app.setup || app.builds) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: 'InternalException',
+            code: 'ALREADY_BUILD',
+            message: `Cannot delete application '${appId}' because it has been build.`,
+            details: { app },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
 
     const body = JSON.parse(event.body);
