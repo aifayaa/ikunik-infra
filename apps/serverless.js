@@ -448,6 +448,11 @@ const serverlessConfiguration = {
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -462,6 +467,11 @@ const serverlessConfiguration = {
             cors: true,
             request: {
               parameters: { headers: { Authorization: true } },
+            },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
@@ -479,6 +489,11 @@ const serverlessConfiguration = {
               paths: { id: true },
               parameters: { paths: { id: true } },
             },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -492,6 +507,11 @@ const serverlessConfiguration = {
             method: 'delete',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -505,6 +525,11 @@ const serverlessConfiguration = {
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -519,6 +544,11 @@ const serverlessConfiguration = {
             cors: true,
             request: {
               parameters: { paths: { id: true, userId: true } },
+            },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
@@ -535,6 +565,11 @@ const serverlessConfiguration = {
             request: {
               parameters: { paths: { id: true, userId: true } },
             },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -548,6 +583,11 @@ const serverlessConfiguration = {
             method: 'delete',
             cors: true,
             request: { parameters: { paths: { id: true, userId: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -561,6 +601,11 @@ const serverlessConfiguration = {
             method: 'put',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -574,6 +619,11 @@ const serverlessConfiguration = {
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -581,7 +631,6 @@ const serverlessConfiguration = {
   },
   plugins: [
     'serverless-webpack',
-    '@cruglobal/serverless-merge-config',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',

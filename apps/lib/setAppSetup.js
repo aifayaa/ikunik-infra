@@ -2,19 +2,40 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
 const TIMEOUT_DELAY = 20 * 60 * 1000;
 
-async function setAppSetupField({ client, appId, now }) {
+async function setAppSetupField({ client, app, now }) {
+  const { insertedId } = await client
+    .db()
+    .collection(COLL_PIPELINES)
+    .insertOne({
+      appId: app._id,
+      createdAt: new Date(),
+      type: 'appSetup',
+      pipeline: [{ key: 'queued', tag: 'start' }],
+      progression: 0,
+      currentStep: 'queued',
+      startedAt: new Date(),
+      status: 'running',
+      steps: {
+        queued: {
+          startedAt: new Date(),
+          status: 'running',
+        },
+      },
+    });
+
   const $set = {
     setup: {
+      _id: insertedId,
       status: 'queued',
       date: now,
     },
   };
 
-  await client.db().collection(COLL_APPS).updateOne({ _id: appId }, { $set });
+  await client.db().collection(COLL_APPS).updateOne({ _id: app._id }, { $set });
 }
 
 export default async (appId) => {
@@ -22,15 +43,9 @@ export default async (appId) => {
   const now = new Date();
 
   try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne(
-        {
-          _id: appId,
-        },
-        { projection: { setup: 1, builds: 1 } }
-      );
+    const app = await client.db().collection(COLL_APPS).findOne({
+      _id: appId,
+    });
 
     if (!app) {
       throw new Error('app_not_found');
@@ -40,7 +55,7 @@ export default async (appId) => {
       if (app.builds) {
         return { queued: false, status: 'done' };
       }
-      await setAppSetupField({ client, appId, now });
+      await setAppSetupField({ client, app, now });
       return { queued: true, status: 'queued' };
     }
 
@@ -57,7 +72,7 @@ export default async (appId) => {
       }
     }
     // case: app.setup.status === 'error'
-    await setAppSetupField({ client, appId, now });
+    await setAppSetupField({ client, app, now });
     return { queued: true, status: 'queued' };
   } finally {
     client.close();
