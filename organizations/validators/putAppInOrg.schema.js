@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { z } from 'zod';
 
-export const updateOrgSchema = z
+export const putAppInOrgSchema = z
   .object({
     appId: z
       .string({
