@@ -178,7 +178,7 @@ async function getUserPermsOnOrganization(userId, orgId) {
 
     if (superAdmin) {
       return {
-        orgs: [
+        organizations: [
           {
             _id: orgId,
             roles: ['owner'],
