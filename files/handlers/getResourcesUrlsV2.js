@@ -6,13 +6,11 @@ import getResourcesUrlsV2, {
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
-import { objGet } from '../../libs/utils';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   const { action } = event.pathParameters;
-  let { resources } = event.queryStringParameters || {};
 
   try {
     const allowed = await checkPermsForApp(userId, appId, 'admin');
@@ -24,21 +22,12 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
-    if (!resources) {
-      resources = undefined;
-    } else {
-      const list = resources.split(',').map((x) => x.split('.'));
-      list.forEach(([platform, imageName]) => {
-        if (!objGet(resourcesFormats, [platform, imageName])) {
-          throw new Error('mal_formed_request');
-        }
+    const resources = Object.keys(resourcesFormats).reduce((acc, platform) => {
+      Object.keys(resourcesFormats[platform]).forEach((imageName) => {
+        acc.push({ platform, imageName });
       });
-
-      resources = list.map(([platform, imageName]) => ({
-        platform,
-        imageName,
-      }));
-    }
+      return acc;
+    }, []);
 
     const body = await getResourcesUrlsV2(appId, {
       action,
