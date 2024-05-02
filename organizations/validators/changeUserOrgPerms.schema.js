@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const changeUserOrgPermsSchema = z
   .object({
-    roles: z.array(z.enum(['owner', 'admin', 'member'])),
+    roles: z.array(z.enum(['admin', 'member'])),
   })
   // Every field are required: 'roles'
   .required();
