@@ -33,6 +33,7 @@ provider:
         - Effect: Allow
           Action:
             - 's3:GetObject'
+            - 's3:GetObjectAttributes'
             - 's3:PutObject'
           Resource:
             - 'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*'
@@ -124,6 +125,21 @@ functions:
     events:
       - http:
           path: files/resources/{action}
+          method: get
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}
+          cors: true
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getResourcesUrlsV2:
+    handler: handlers/getResourcesUrlsV2.default
+    events:
+      - http:
+          path: files/resources/{action}/v2
           method: get
           authorizer:
             type: CUSTOM
