@@ -4,31 +4,51 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import getOrg from './getOrg';
 import getOrgApps from './getOrgApps';
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_USERS, COLL_APPS } = mongoCollections;
 
-export default async (orgId, bodyParsed) => {
+export default async (userId, orgId, appId) => {
   const client = await MongoClient.connect();
 
-  try {
-    const { appId } = bodyParsed;
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  // Return result of transaction by side effect
+  let sessionRes;
 
-    // Update the 'orgId' field of an app
-    const commandResult = await client
-      .db()
-      .collection(COLL_APPS)
-      .updateOne({ _id: appId }, { $set: { orgId } });
+  await client
+    .withSession(async (sessionArg) => {
+      await sessionArg.withTransaction(async (session) => {
+        const db = client.db();
+        // 1. Delete application from the user.perms.apps
+        await db
+          .collection(COLL_USERS)
+          .updateOne(
+            { _id: userId },
+            { $pull: { 'perms.organizations': { _id: orgId } } },
+            { session }
+          );
 
-    const { matchedCount } = commandResult;
+        // 2. Add user in the app.organization
+        await db.collection(COLL_APPS).updateOne(
+          { _id: appId },
+          {
+            $set: {
+              organization: {
+                _id: orgId,
+                users: [{ id_: userId, roles: ['admin'] }],
+              },
+            },
+          },
+          { session }
+        );
 
-    // If the app is not found, return an error message
-    if (matchedCount === 0) {
-      throw new Error('app_not_found');
-    }
+        const org = await getOrg(orgId);
+        const apps = await getOrgApps(orgId);
+        sessionRes = { ...org, apps };
+      });
+    })
+    .finally(() => {
+      client.close();
+    });
 
-    const org = await getOrg(orgId);
-    const apps = await getOrgApps(orgId);
-    return { ...org, apps };
-  } finally {
-    client.close();
-  }
+  return sessionRes;
 };

@@ -11,7 +11,7 @@ export default async (orgId) => {
     const apps = await client
       .db()
       .collection(COLL_APPS)
-      .find({ orgId }, { projection: { _id: 1, name: 1 } })
+      .find({ 'organization._id': orgId }, { projection: { _id: 1, name: 1 } })
       .toArray();
 
     return apps;

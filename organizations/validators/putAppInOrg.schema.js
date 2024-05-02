@@ -1,15 +1,14 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { z } from 'zod';
 
-export const updateOrgSchema = z
+export const putAppInOrgSchema = z
   .object({
-    name: z
+    appId: z
       .string({
-        required_error: 'name is required',
-        invalid_type_error: 'name must be a string',
+        required_error: 'appId is required',
+        invalid_type_error: 'appId must be a string',
       })
       .max(80, { message: 'Must be 80 or fewer characters long' })
       .trim(),
-    // TODO: define a regex to restrict characters ?
   })
   .required();
