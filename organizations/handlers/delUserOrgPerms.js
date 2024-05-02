@@ -6,14 +6,13 @@ import delUserOrgPerms from '../lib/delUserOrgPerms';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
-  const { id: orgId, userId: targetId } = event.pathParameters;
+  const { id: orgId, userId: targetUserId } = event.pathParameters;
+
   try {
-    if (!targetId) throw new Error('target_user_not_found');
-    if (!orgId) throw new Error('org_not_found');
     const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
     if (!allowed) throw new Error('access_forbidden');
 
-    const res = await delUserOrgPerms(targetId, orgId);
+    const res = await delUserOrgPerms(targetUserId, orgId);
 
     return response({ code: 200, body: res });
   } catch (e) {
