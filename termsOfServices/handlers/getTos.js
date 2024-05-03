@@ -21,25 +21,22 @@ export default async (event) => {
     }
     const results = await getTos(appId, tosId, options);
 
-    if (results && results.length) {
-      const body = getHtmlResults(results);
+    const body = getHtmlResults(results);
 
-      const accept = event.headers.accept || event.headers.Accept;
-      const acceptArray = accept.split(',');
+    const accept = event.headers.accept || event.headers.Accept;
+    const acceptArray = accept.split(',');
 
-      if (acceptArray.includes('text/html')) {
-        return response({
-          code: 200,
-          headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-          },
-          body,
-          raw: true,
-        });
-      }
-      return response({ code: 200, body: results });
+    if (acceptArray.includes('text/html')) {
+      return response({
+        code: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+        body,
+        raw: true,
+      });
     }
-    return response({ code: 404, message: 'tos_not_found' });
+    return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
