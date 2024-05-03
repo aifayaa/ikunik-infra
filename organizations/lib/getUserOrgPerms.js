@@ -12,6 +12,7 @@ export default async (orgId) => {
 
     return await db
       .collection(COLL_USERS)
+      // TODO Filter output, return profile, this organization roles and _id
       .find({ 'perms.organizations._id': orgId })
       .toArray();
   } finally {

@@ -12,6 +12,11 @@ export default async (event) => {
   const { id: orgId, userId: targetUserId } = event.pathParameters;
 
   try {
+    /* TODO On a le droit d'avoir plusieurs owners.
+     * On peut nommer un owner si on en est un.
+     * On peut supprimer un owner (y compris soi même) si il en reste d'autres.
+     * Il faudra une méthode `getPermsFor` qui retourne les rôles pour plus de flexibilité à ce niveau.
+     */
     const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
     if (!allowed) {
       throw new Error('access_forbidden');

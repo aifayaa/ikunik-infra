@@ -15,6 +15,7 @@ export default async (event) => {
   const orgId = event.pathParameters.id;
 
   try {
+    // TODO Limiter les droits aux admins, pas members
     const allowedOrg = await checkPermsForOrganization(userId, orgId, 'member');
     if (!allowedOrg) {
       throw new Error('access_forbidden');
