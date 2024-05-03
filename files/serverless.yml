@@ -139,7 +139,7 @@ functions:
     handler: handlers/getResourcesUrlsV2.default
     events:
       - http:
-          path: files/resources/{action}/v2
+          path: files/resources
           method: get
           authorizer:
             type: CUSTOM
