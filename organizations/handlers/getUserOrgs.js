@@ -22,7 +22,6 @@ export default async (event) => {
             code: CONTEXT_AUTHORIZER_NO_USER,
             message: `Cannot find user in request context`,
             details: { requestContext: event.requestContext },
-            timestamp: new Date().toISOString(),
           },
         ],
       });
@@ -48,7 +47,6 @@ export default async (event) => {
           code: UNMANAGED_EXCEPTION,
           message: exception.message,
           details: exception,
-          timestamp: new Date().toISOString(),
         },
       ],
     });

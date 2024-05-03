@@ -4,9 +4,9 @@ import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import updateOrg from '../lib/updateOrg';
 import { updateOrgSchema } from '../validators/updateOrg.schema';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

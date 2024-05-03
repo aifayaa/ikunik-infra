@@ -44,8 +44,6 @@ export default async (event) => {
             type: ERROR_TYPE_INTERNAL_EXCEPTION,
             code: APP_ALREADY_BUILD,
             message: `Cannot delete application '${appId}' because it has been build.`,
-            details: { app },
-            timestamp: new Date().toISOString(),
           },
         ],
       });

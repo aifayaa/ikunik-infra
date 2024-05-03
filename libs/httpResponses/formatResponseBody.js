@@ -14,7 +14,10 @@ export const formatResponseBody = ({ data, errors }) => {
   if (errors) {
     message = {
       status: 'error',
-      errors,
+      errors: errors.map((error) => ({
+        ...error,
+        timestamp: new Date().toISOString(),
+      })),
     };
   } else if (data) {
     message = {
