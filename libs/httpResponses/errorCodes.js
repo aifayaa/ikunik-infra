@@ -1,1 +1,7 @@
 export const ERROR_TYPE_VALIDATION_ERROR = 'ValidationError';
+export const ERROR_TYPE_INTERNAL_EXCEPTION = 'InternalException';
+export const ERROR_TYPE_AUTHORIZATION = 'Authorization';
+
+export const APP_ALREADY_BUILD = 'APP_ALREADY_BUILD';
+export const CONTEXT_AUTHORIZER_NO_USER = 'CONTEXTE_AUTHORIZER_NO_USER';
+export const UNMANAGED_EXCEPTION = 'UNMANAGED_EXCEPTION';
