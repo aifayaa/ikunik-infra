@@ -32,7 +32,7 @@ export default async (event) => {
     const orgs = await getUserOrgs(userId);
 
     const responseBody = formatResponseBody({
-      data: orgs.map(returnedFieldsFilter),
+      data: { organizations: orgs.map(returnedFieldsFilter) },
     });
 
     return response({
