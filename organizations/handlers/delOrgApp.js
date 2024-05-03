@@ -8,6 +8,10 @@ import { delOrgAppSchema } from '../validators/delOrgApp.schema';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import {
+  APP_ALREADY_BUILD,
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+} from '../../libs/httpResponses/errorCodes';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -37,10 +41,11 @@ export default async (event) => {
       const errorBody = formatResponseBody({
         errors: [
           {
-            type: 'InternalException',
-            code: 'ALREADY_BUILD',
+            type: ERROR_TYPE_INTERNAL_EXCEPTION,
+            code: APP_ALREADY_BUILD,
             message: `Cannot delete application '${appId}' because it has been build.`,
             details: { app },
+            timestamp: new Date().toISOString(),
           },
         ],
       });
