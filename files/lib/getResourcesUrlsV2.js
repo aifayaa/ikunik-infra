@@ -43,11 +43,11 @@ export const resourcesFormats = {
       bucket: S3_APPS_RESSOURCES,
       fullPath: 'android/splash.png',
     },
-    backgroundLayer: {
+    appIconBackgroundLayer: {
       bucket: S3_APPS_RESSOURCES,
       fullPath: 'android/android/icon-background.png',
     },
-    foregroundLayer: {
+    appIconForegroundLayer: {
       bucket: S3_APPS_RESSOURCES,
       fullPath: 'android/android/icon-foreground.png',
     },
@@ -59,8 +59,6 @@ export const resourcesFormats = {
     },
   },
 };
-
-export const allActions = ['get', 'put'];
 
 export default async (appId, { resources }) => {
   const client = await MongoClient.connect();
@@ -99,12 +97,12 @@ export default async (appId, { resources }) => {
       }
 
       if (!objAttrs) {
-        objSet(platforms, [platform, imageName, 'get'], null);
+        objSet(platforms, [platform, imageName, 'downloadUrl'], null);
       } else {
         s3Params.Expires = 3600;
         objSet(
           platforms,
-          [platform, imageName, 'get'],
+          [platform, imageName, 'downloadUrl'],
           s3.getSignedUrl('getObject', s3Params)
         );
       }
@@ -114,7 +112,7 @@ export default async (appId, { resources }) => {
       s3Params.ContentType = 'image/png';
       objSet(
         platforms,
-        [platform, imageName, 'put'],
+        [platform, imageName, 'uploadUrl'],
         s3.getSignedUrl('putObject', s3Params)
       );
     });
