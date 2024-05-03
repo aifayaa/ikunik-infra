@@ -28,6 +28,8 @@ export default async (userId, orgId) => {
       const userRoles = userOrganizationPerms.roles;
 
       if (userRoles.includes('owner')) {
+        /* TODO Retourner une erreur spécifique, code 200, `data` vide.
+         * type: forbidden, code: cannot delete owner */
         return { userDeleted: false };
       }
     }
@@ -39,10 +41,12 @@ export default async (userId, orgId) => {
         { $pull: { 'perms.organizations': { _id: orgId } } }
       );
 
+    /* TODO Virer ce check. */
     if (commandRes && commandRes.nModified && commandRes.nModified.ok !== 1) {
       return { userDeleted: false };
     }
 
+    /* TODO Retourner l'utilisateur (l'objet qui a été muté) (filtré, cf. liste des users) */
     return { userDeleted: true };
   } finally {
     client.close();

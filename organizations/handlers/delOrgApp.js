@@ -37,6 +37,7 @@ export default async (event) => {
     if (!app) {
       throw new Error('app_not_found');
     }
+    // TODO Quand on aura l'info de la publication de l'app sur les stores, prendre ça en compte plus tard.
     if (app.setup || app.builds) {
       const errorBody = formatResponseBody({
         errors: [
@@ -50,6 +51,7 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
+    // TODO Virer le body, on transfère à l'utilisateur qui fait la requête.
     const body = JSON.parse(event.body);
 
     // validation
