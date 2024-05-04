@@ -393,52 +393,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    setAppSetup: {
-      handler: 'handlers/setAppSetup.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/setup',
-            method: 'put',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
-    getAppSetup: {
-      handler: 'handlers/getAppSetup.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/setup',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
     getAppTos: {
       handler: 'handlers/getAppTos.default',
       events: [
@@ -597,7 +551,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'apps/{id}/build',
+            path: 'apps/{id}/builds',
             method: 'put',
             cors: true,
             request: { parameters: { paths: { id: true } } },
@@ -615,10 +569,23 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'apps/{id}/build',
+            path: 'apps/{id}/builds',
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+          },
+        },
+        {
+          http: {
+            path: 'apps/{id}/builds/{platform}',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true, platform: true } } },
             authorizer: {
               type: 'CUSTOM',
               authorizerId:

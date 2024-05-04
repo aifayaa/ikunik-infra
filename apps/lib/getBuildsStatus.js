@@ -1,34 +1,117 @@
 /* eslint-disable import/no-relative-packages */
+import Random from '../../libs/account_utils/random';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { filterAppPrivateFields } from './appsUtils';
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
-export default async (appId) => {
-  const client = await MongoClient.connect();
-  try {
-    const buildStatus = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne(
-        {
-          _id: appId,
+const ALL_PLATFORMS = ['ios', 'android'];
+
+async function getSetupOrBuildForPlatform(app, platform, { db, all = false }) {
+  const pipelinesData = {};
+
+  if (all) {
+    const pipelines = await db
+      .collection(COLL_PIPELINES)
+      .find({ appId: app._id, type: 'appSetup' }, { sort: [['createdAt', 1]] })
+      .toArray();
+
+    pipelinesData.pipelines = pipelines;
+  }
+
+  if (!app.builds[platform]) {
+    const packageIdSuffix = Random.randomString(
+      10,
+      'abcdefghijklmnopqrstuvwxyz0123456789'
+    );
+    const packageId = `com.crowdaa.app.${packageIdSuffix}`;
+
+    app.builds[platform] = {
+      name: app.name,
+      packageId,
+      platform,
+      repository: 'crowdaa_press_yui',
+    };
+
+    await db.collection('apps').updateOne(
+      { _id: app._id, [`builds.${platform}`]: { $exists: false } },
+      {
+        $set: {
+          [`builds.${platform}`]: app.builds[platform],
         },
-        {
-          projection: {
-            'builds.ios.status': 1,
-            'builds.ios.info': 1,
-            'builds.android.status': 1,
-            'builds.android.info': 1,
-          },
-        }
-      );
+      }
+    );
 
-    if (!buildStatus) {
-      return { appFound: false };
+    return {
+      ...pipelinesData,
+      build: filterAppPrivateFields(app).builds[platform],
+    };
+  }
+
+  if (!app.builds[platform].pipeline) {
+    return {
+      ...pipelinesData,
+      build: filterAppPrivateFields(app).builds[platform],
+    };
+  }
+
+  if (!app.builds[platform].pipeline._id) {
+    pipelinesData.pipeline = null;
+  } else {
+    const pipeline = await db.collection(COLL_PIPELINES).findOne(
+      {
+        _id: app.setup._id,
+        appId: app._id,
+        type: 'appSetup',
+      },
+      { sort: [['createdAt', 1]] }
+    );
+    pipelinesData.pipeline = pipeline;
+  }
+
+  return {
+    ...pipelinesData,
+    build: filterAppPrivateFields(app).builds[platform],
+  };
+}
+
+export default async (appId, requestedPlatform, { all = false }) => {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    const app = await db
+      .collection(COLL_APPS)
+      .findOne({ _id: appId }, { projection: { setup: 1, builds: 1 } });
+
+    if (!app) {
+      throw new Error('app_not_found');
+    }
+    if (!app.builds) {
+      return {
+        app: {
+          builds: {},
+        },
+      };
     }
 
-    return { appFound: true, ...buildStatus };
+    const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;
+
+    const promises = platforms.map(async (platform) => {
+      const ret = await getSetupOrBuildForPlatform(app, platform, { db, all });
+
+      return ret;
+    });
+
+    const results = await Promise.all(promises);
+
+    const output = platforms.reduce((acc, platform, id) => {
+      acc[platform] = results[id];
+      return acc;
+    }, {});
+
+    return output;
   } finally {
     client.close();
   }

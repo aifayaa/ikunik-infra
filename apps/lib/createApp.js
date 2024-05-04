@@ -92,13 +92,34 @@ async function createApp(db, name, userId, inputProtocol) {
     (inputProtocol && inputProtocol.substr(0, 120)) ||
     `crowdaa${appFirstChars}${Random.id(8)}proto`;
 
+  const packageIdSuffix = Random.randomString(
+    10,
+    'abcdefghijklmnopqrstuvwxyz0123456789'
+  );
+  const packageId = `com.crowdaa.app.${packageIdSuffix}`;
+
   const toInsert = {
     _id: appId,
     key,
     name,
-    owners: [userId],
+    createdAt: new Date(),
+    createdBy: userId,
     protocol,
     settings: DEFAULT_APP_SETTINGS,
+    builds: {
+      android: {
+        name,
+        packageId,
+        platform: 'android',
+        repository: 'crowdaa_press_yui',
+      },
+      ios: {
+        name,
+        packageId,
+        platform: 'ios',
+        repository: 'crowdaa_press_yui',
+      },
+    },
   };
   await db.collection(COLL_APPS).insertOne(toInsert);
 

@@ -6,7 +6,7 @@ import getBuildsStatus from '../lib/getBuildsStatus';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
-  const appId = event.pathParameters.id;
+  const { id: appId, platform } = event.pathParameters;
   try {
     if (!appId) throw new Error('no_app_found');
     const allowed = await checkPermsForApp(userId, appId, 'admin');
@@ -14,7 +14,14 @@ export default async (event) => {
       throw new Error('access_forbidden');
     }
 
-    const res = await getBuildsStatus(appId);
+    const params = event.queryStringParameters || {};
+
+    const boolParams = Object.keys(params).reduce((acc, key) => {
+      acc[key] = params[key] === 'true';
+      return acc;
+    }, {});
+
+    const res = await getBuildsStatus(appId, platform, boolParams);
 
     return response({ code: 200, body: res });
   } catch (e) {
