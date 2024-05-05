@@ -440,7 +440,6 @@ const serverlessConfiguration = {
             method: 'patch',
             cors: true,
             request: {
-              paths: { id: true },
               parameters: { paths: { id: true } },
             },
             authorizer: {
