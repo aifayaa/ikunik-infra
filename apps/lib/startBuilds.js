@@ -1,4 +1,11 @@
 /* eslint-disable import/no-relative-packages */
+import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import {
+  APP_NOT_FOUND,
+  ERROR_TYPE_NOT_FOUND,
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_ORGANIZATION,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objSet } from '../../libs/utils';
@@ -125,11 +132,19 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
       );
 
     if (!app) {
-      throw new Error('app_not_found');
+      throw new CrowdaaException(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND,
+        `The application with ID ${appId} was not found`
+      );
     }
 
     if (!app.organization || !app.organization._id) {
-      throw new Error('app_not_linked_to_org');
+      throw new CrowdaaException(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_ORGANIZATION,
+        `The application ${appId} have no organization set`
+      );
     }
 
     const promises = platforms.map(async (platform) => {

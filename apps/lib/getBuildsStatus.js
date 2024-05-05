@@ -1,5 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import Random from '../../libs/account_utils/random';
+import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import {
+  APP_NOT_FOUND,
+  ERROR_TYPE_NOT_FOUND,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterAppPrivateFields } from './appsUtils';
@@ -86,7 +91,11 @@ export default async (appId, requestedPlatform, { all = false }) => {
       .findOne({ _id: appId }, { projection: { setup: 1, builds: 1 } });
 
     if (!app) {
-      throw new Error('app_not_found');
+      throw new CrowdaaException(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND,
+        `The application with ID ${appId} was not found`
+      );
     }
     if (!app.builds) {
       return {

@@ -551,7 +551,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'apps/{id}/builds',
+            path: 'apps/{id}/builds/v2',
             method: 'put',
             cors: true,
             request: { parameters: { paths: { id: true } } },
@@ -569,7 +569,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'apps/{id}/builds',
+            path: 'apps/{id}/builds/v2',
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
@@ -582,7 +582,7 @@ const serverlessConfiguration = {
         },
         {
           http: {
-            path: 'apps/{id}/builds/{platform}',
+            path: 'apps/{id}/builds/v2/{platform}',
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true, platform: true } } },

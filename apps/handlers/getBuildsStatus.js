@@ -1,8 +1,13 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import getBuildsStatus from '../lib/getBuildsStatus';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  UNMANAGED_EXCEPTION,
+} from '../../libs/httpResponses/errorCodes';
+import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -21,10 +26,43 @@ export default async (event) => {
       return acc;
     }, {});
 
-    const res = await getBuildsStatus(appId, platform, boolParams);
+    const buildsStatus = await getBuildsStatus(appId, platform, boolParams);
 
-    return response({ code: 200, body: res });
-  } catch (e) {
-    return response(errorMessage(e));
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: buildsStatus,
+      }),
+    });
+  } catch (exception) {
+    if (exception instanceof CrowdaaException) {
+      return response({
+        code: exception.httpCode,
+        body: formatResponseBody({
+          errors: [
+            {
+              type: exception.type,
+              code: exception.code,
+              message: exception.message,
+              details: exception,
+            },
+          ],
+        }),
+      });
+    }
+
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_INTERNAL_EXCEPTION,
+            code: UNMANAGED_EXCEPTION,
+            message: exception.message,
+            details: exception,
+          },
+        ],
+      }),
+    });
   }
 };
