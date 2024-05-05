@@ -546,8 +546,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    startBuild: {
-      handler: 'handlers/startBuild.default',
+    startBuilds: {
+      handler: 'handlers/startBuilds.default',
       events: [
         {
           http: {
