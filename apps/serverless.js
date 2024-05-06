@@ -393,52 +393,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    setAppSetup: {
-      handler: 'handlers/setAppSetup.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/setup',
-            method: 'put',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
-    getAppSetup: {
-      handler: 'handlers/getAppSetup.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/setup',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
     getAppTos: {
       handler: 'handlers/getAppTos.default',
       events: [
@@ -486,7 +440,6 @@ const serverlessConfiguration = {
             method: 'patch',
             cors: true,
             request: {
-              paths: { id: true },
               parameters: { paths: { id: true } },
             },
             authorizer: {
@@ -592,12 +545,12 @@ const serverlessConfiguration = {
         },
       ],
     },
-    startBuild: {
-      handler: 'handlers/startBuild.default',
+    startBuilds: {
+      handler: 'handlers/startBuilds.default',
       events: [
         {
           http: {
-            path: 'apps/{id}/build',
+            path: 'apps/{id}/builds/v2',
             method: 'put',
             cors: true,
             request: { parameters: { paths: { id: true } } },
@@ -615,10 +568,23 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'apps/{id}/build',
+            path: 'apps/{id}/builds/v2',
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+          },
+        },
+        {
+          http: {
+            path: 'apps/{id}/builds/v2/{platform}',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true, platform: true } } },
             authorizer: {
               type: 'CUSTOM',
               authorizerId:

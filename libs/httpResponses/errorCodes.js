@@ -1,7 +1,11 @@
 export const ERROR_TYPE_VALIDATION_ERROR = 'ValidationError';
 export const ERROR_TYPE_INTERNAL_EXCEPTION = 'InternalException';
 export const ERROR_TYPE_AUTHORIZATION = 'Authorization';
+export const ERROR_TYPE_NOT_FOUND = 'NotFound';
+export const ERROR_TYPE_CONFLICT = 'Conflict';
 
 export const APP_ALREADY_BUILD = 'APP_ALREADY_BUILD';
 export const CONTEXT_AUTHORIZER_NO_USER = 'CONTEXTE_AUTHORIZER_NO_USER';
 export const UNMANAGED_EXCEPTION = 'UNMANAGED_EXCEPTION';
+export const APP_NOT_FOUND = 'APP_NOT_FOUND';
+export const MISSING_ORGANIZATION = 'MISSING_ORGANIZATION';
