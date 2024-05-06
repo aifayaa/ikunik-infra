@@ -6,7 +6,6 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { filterAppPrivateFields } from './appsUtils';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -23,7 +22,7 @@ export default async (appId) => {
       );
     }
 
-    return filterAppPrivateFields(app);
+    return app;
   } finally {
     client.close();
   }
