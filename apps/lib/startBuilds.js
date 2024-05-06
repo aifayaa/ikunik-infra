@@ -91,11 +91,12 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
             input: {
               app: filterAppPrivateFields(app),
             },
-            pipeline: [{ key: 'queued', tags: ['start'] }],
+            pipeline: [{ step: 'queued', tags: ['queue'] }],
             progression: 0,
             current: {
-              Step: 'queued',
+              step: 'queued',
               startedAt: now,
+              tags: ['queue'],
               status: 'running',
             },
             steps: {
