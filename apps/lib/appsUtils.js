@@ -61,5 +61,6 @@ export function getAppDefaultBuildFields(name, platform) {
     author: 'Crowdaa',
     description: `Welcome on ${name} community app!`,
     email: 'support@crowdaa.com',
+    version: '0.0.1',
   };
 }
