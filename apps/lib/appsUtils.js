@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { objGet, objUnset } from '../../libs/utils';
+import Random from '../../libs/account_utils/random';
 
 export const appPrivateFields = [
   'credentials',
@@ -42,5 +43,23 @@ export function getAppLockedFields(app) {
       (!objGet(app, ['builds', 'ios', 'pipeline']) ||
         objGet(app, ['builds', 'ios', 'pipeline', 'status']) === 'error')
     ),
+  };
+}
+
+export function getAppDefaultBuildFields(name, platform) {
+  const packageIdSuffix = Random.randomString(
+    10,
+    'abcdefghijklmnopqrstuvwxyz0123456789'
+  );
+  const packageId = `com.crowdaa.app.${packageIdSuffix}`;
+
+  return {
+    name,
+    packageId,
+    platform,
+    repository: 'crowdaa_press_yui',
+    author: 'Crowdaa',
+    description: `Welcome on ${name} community app!`,
+    email: 'support@crowdaa.com',
   };
 }

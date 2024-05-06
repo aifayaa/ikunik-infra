@@ -6,11 +6,10 @@ import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION,
 } from '../../libs/httpResponses/errorCodes';
-import Random from '../../libs/account_utils/random';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objSet } from '../../libs/utils';
-import { filterAppPrivateFields } from './appsUtils';
+import { filterAppPrivateFields, getAppDefaultBuildFields } from './appsUtils';
 
 const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
@@ -22,18 +21,11 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
   const now = new Date();
 
   if (!app.builds || !app.builds[platform]) {
-    const packageIdSuffix = Random.randomString(
-      10,
-      'abcdefghijklmnopqrstuvwxyz0123456789'
+    objSet(
+      app,
+      ['builds', platform],
+      getAppDefaultBuildFields(app.name, platform)
     );
-    const packageId = `com.crowdaa.app.${packageIdSuffix}`;
-
-    objSet(app, ['builds', platform], {
-      name: app.name,
-      packageId,
-      platform: 'android',
-      repository: 'crowdaa_press_yui',
-    });
 
     await client
       .db()

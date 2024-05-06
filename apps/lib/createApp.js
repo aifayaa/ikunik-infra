@@ -4,6 +4,7 @@ import MongoClient from '../../libs/mongoClient';
 import Random from '../../libs/account_utils/random';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateAppBaserow from './syncCreateAppBaserow';
+import { getAppDefaultBuildFields } from './appsUtils';
 
 const { ADMIN_APP } = process.env;
 
@@ -92,12 +93,6 @@ async function createApp(db, name, userId, inputProtocol) {
     (inputProtocol && inputProtocol.substr(0, 120)) ||
     `crowdaa${appFirstChars}${Random.id(8)}proto`;
 
-  const packageIdSuffix = Random.randomString(
-    10,
-    'abcdefghijklmnopqrstuvwxyz0123456789'
-  );
-  const packageId = `com.crowdaa.app.${packageIdSuffix}`;
-
   const toInsert = {
     _id: appId,
     key,
@@ -107,18 +102,8 @@ async function createApp(db, name, userId, inputProtocol) {
     protocol,
     settings: DEFAULT_APP_SETTINGS,
     builds: {
-      android: {
-        name,
-        packageId,
-        platform: 'android',
-        repository: 'crowdaa_press_yui',
-      },
-      ios: {
-        name,
-        packageId,
-        platform: 'ios',
-        repository: 'crowdaa_press_yui',
-      },
+      android: getAppDefaultBuildFields(name, 'android'),
+      ios: getAppDefaultBuildFields(name, 'ios'),
     },
   };
   await db.collection(COLL_APPS).insertOne(toInsert);
