@@ -36,6 +36,10 @@ export default async (appId, update) => {
         $set['builds.android.packageId'] = packageId;
         $set['builds.android.platform'] = 'android';
         $set['builds.android.repository'] = 'crowdaa_press_yui';
+        $set['builds.android.author'] = 'Crowdaa';
+        $set['builds.android.description'] =
+          `Welcome on ${app.name} community app!`;
+        $set['builds.android.email'] = 'support@crowdaa.com';
         $set['builds.android.name'] = update.androidName;
       } else if (!lockedFields.androidName) {
         $set['builds.android.name'] = update.androidName;
@@ -58,6 +62,10 @@ export default async (appId, update) => {
         $set['builds.ios.packageId'] = packageId;
         $set['builds.ios.platform'] = 'ios';
         $set['builds.ios.repository'] = 'crowdaa_press_yui';
+        $set['builds.android.author'] = 'Crowdaa';
+        $set['builds.android.description'] =
+          `Welcome on ${app.name} community app!`;
+        $set['builds.android.email'] = 'support@crowdaa.com';
       } else if (!lockedFields.iosName) {
         $set['builds.ios.name'] = update.iosName;
       } else {

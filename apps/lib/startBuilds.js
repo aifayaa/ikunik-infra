@@ -33,6 +33,9 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
       packageId,
       platform: 'android',
       repository: 'crowdaa_press_yui',
+      author: 'Crowdaa',
+      description: `Welcome on ${app.name} community app!`,
+      email: 'support@crowdaa.com',
     });
 
     await client

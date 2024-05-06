@@ -112,12 +112,18 @@ async function createApp(db, name, userId, inputProtocol) {
         packageId,
         platform: 'android',
         repository: 'crowdaa_press_yui',
+        author: 'Crowdaa',
+        description: `Welcome on ${name} community app!`,
+        email: 'support@crowdaa.com',
       },
       ios: {
         name,
         packageId,
         platform: 'ios',
         repository: 'crowdaa_press_yui',
+        author: 'Crowdaa',
+        description: `Welcome on ${name} community app!`,
+        email: 'support@crowdaa.com',
       },
     },
   };
