@@ -8,7 +8,16 @@ export const modifyAppSchema = z
         required_error: 'name is required',
         invalid_type_error: 'name must be a string',
       })
-      .trim(),
+      .trim()
+      .optional(),
+    androidName: z
+      .string({ invalid_type_error: 'name must be a string' })
+      .trim()
+      .optional(),
+    iosName: z
+      .string({ invalid_type_error: 'name must be a string' })
+      .trim()
+      .optional(),
   })
   // Every field are required: 'name'
   .required()

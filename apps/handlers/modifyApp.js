@@ -31,7 +31,7 @@ export default async (event) => {
 
     const app = await modifyApp(appId, update);
 
-    return response({ code: 200, body: app });
+    return response({ code: 200, body: { app } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
