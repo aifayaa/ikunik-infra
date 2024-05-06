@@ -8,6 +8,7 @@ import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   UNMANAGED_EXCEPTION,
 } from '../../libs/httpResponses/errorCodes';
+import { filterAppPrivateFields, getAppLockedFields } from '../lib/appsUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -25,7 +26,10 @@ export default async (event) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: app,
+        data: {
+          ...filterAppPrivateFields(app),
+          locked: getAppLockedFields(app),
+        },
       }),
     });
   } catch (exception) {

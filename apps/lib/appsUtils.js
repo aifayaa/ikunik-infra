@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { objUnset } from '../../libs/utils';
+import { objGet, objUnset } from '../../libs/utils';
 
 export const appPrivateFields = [
   'credentials',
@@ -28,4 +28,19 @@ export function filterAppPrivateFields(app) {
   });
 
   return ret;
+}
+
+export function getAppLockedFields(app) {
+  return {
+    androidName: !(
+      !objGet(app, ['builds', 'android', 'ready']) &&
+      (!objGet(app, ['builds', 'android', 'pipeline']) ||
+        objGet(app, ['builds', 'android', 'pipeline', 'status']) === 'error')
+    ),
+    iosName: !(
+      !objGet(app, ['builds', 'ios', 'ready']) &&
+      (!objGet(app, ['builds', 'ios', 'pipeline']) ||
+        objGet(app, ['builds', 'ios', 'pipeline', 'status']) === 'error')
+    ),
+  };
 }

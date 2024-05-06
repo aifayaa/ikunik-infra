@@ -1,9 +1,15 @@
 /* eslint-disable import/no-relative-packages */
 import Random from '../../libs/account_utils/random';
+import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import {
+  CANNOT_CHANGE_ANDROID_NAME,
+  CANNOT_CHANGE_IOS_NAME,
+  ERROR_TYPE_NOT_ALLOWED,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
-import { filterAppPrivateFields } from './appsUtils';
+import { getAppLockedFields } from './appsUtils';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -14,12 +20,7 @@ export default async (appId, update) => {
     const app = await db.collection(COLL_APPS).findOne({ _id: appId });
     if (!app) throw new Error('app_not_found');
 
-    // If the application has already be built or setup, it cannot be modified
-    if (app.builds || app.setup) {
-      throw new Error('cannot_modify_app');
-    }
-
-    // Update the application name
+    const lockedFields = getAppLockedFields(app);
     const $set = {};
     if (update.name) {
       $set.name = update.name;
@@ -36,12 +37,14 @@ export default async (appId, update) => {
         $set['builds.android.platform'] = 'android';
         $set['builds.android.repository'] = 'crowdaa_press_yui';
         $set['builds.android.name'] = update.androidName;
-      } else if (
-        !app.builds.android.ready &&
-        (!app.builds.android.pipeline ||
-          app.builds.android.pipeline.status === 'error')
-      ) {
+      } else if (!lockedFields.androidName) {
         $set['builds.android.name'] = update.androidName;
+      } else {
+        throw new CrowdaaException(
+          ERROR_TYPE_NOT_ALLOWED,
+          CANNOT_CHANGE_ANDROID_NAME,
+          `Cannot change the Android name for app ${app.name}`
+        );
       }
     }
     if (update.iosName) {
@@ -55,25 +58,22 @@ export default async (appId, update) => {
         $set['builds.ios.packageId'] = packageId;
         $set['builds.ios.platform'] = 'ios';
         $set['builds.ios.repository'] = 'crowdaa_press_yui';
-      } else if (
-        !app.builds.ios.ready &&
-        !app.appleAccounts &&
-        (!app.builds.ios.pipeline || app.builds.ios.pipeline.status === 'error')
-      ) {
+      } else if (!lockedFields.iosName) {
         $set['builds.ios.name'] = update.iosName;
+      } else {
+        throw new CrowdaaException(
+          ERROR_TYPE_NOT_ALLOWED,
+          CANNOT_CHANGE_IOS_NAME,
+          `Cannot change the iOS name for app ${app.name}`
+        );
       }
     }
-    const commandRes = await db
-      .collection(COLL_APPS)
-      .findOneAndUpdate({ _id: appId }, { $set });
 
-    const { ok, value: appUpdated } = commandRes;
+    await db.collection(COLL_APPS).findOneAndUpdate({ _id: appId }, { $set });
 
-    if (ok !== 1) {
-      throw new Error('update_failed');
-    }
+    const updatedApp = await db.collection(COLL_APPS).findOne({ _id: appId });
 
-    return filterAppPrivateFields(appUpdated);
+    return updatedApp;
   } finally {
     client.close();
   }
