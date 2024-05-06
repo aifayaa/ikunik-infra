@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import Random from '../../libs/account_utils/random';
 import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
 import {
   APP_NOT_FOUND,
@@ -19,38 +18,21 @@ async function getSetupOrBuildForPlatform(app, platform, { db, all = false }) {
   if (all) {
     const pipelines = await db
       .collection(COLL_PIPELINES)
-      .find({ appId: app._id, type: 'appSetup' }, { sort: [['createdAt', 1]] })
+      .find(
+        {
+          appId: app._id,
+          type: `build-${platform}`,
+        },
+        { sort: [['createdAt', -1]] }
+      )
       .toArray();
 
     pipelinesData.pipelines = pipelines;
   }
 
-  if (!app.builds[platform]) {
-    const packageIdSuffix = Random.randomString(
-      10,
-      'abcdefghijklmnopqrstuvwxyz0123456789'
-    );
-    const packageId = `com.crowdaa.app.${packageIdSuffix}`;
-
-    app.builds[platform] = {
-      name: app.name,
-      packageId,
-      platform,
-      repository: 'crowdaa_press_yui',
-    };
-
-    await db.collection('apps').updateOne(
-      { _id: app._id, [`builds.${platform}`]: { $exists: false } },
-      {
-        $set: {
-          [`builds.${platform}`]: app.builds[platform],
-        },
-      }
-    );
-
+  if (!app.builds || !app.builds[platform]) {
     return {
       ...pipelinesData,
-      build: filterAppPrivateFields(app).builds[platform],
     };
   }
 
@@ -96,13 +78,6 @@ export default async (appId, requestedPlatform, { all = false }) => {
         APP_NOT_FOUND,
         `The application with ID ${appId} was not found`
       );
-    }
-    if (!app.builds) {
-      return {
-        app: {
-          builds: {},
-        },
-      };
     }
 
     const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;

@@ -6,6 +6,7 @@ import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION,
 } from '../../libs/httpResponses/errorCodes';
+import Random from '../../libs/account_utils/random';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objSet } from '../../libs/utils';
@@ -21,10 +22,27 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
   const now = new Date();
 
   if (!app.builds || !app.builds[platform]) {
-    return {
-      started: false,
-      reason: 'Bad configuration',
-    };
+    const packageIdSuffix = Random.randomString(
+      10,
+      'abcdefghijklmnopqrstuvwxyz0123456789'
+    );
+    const packageId = `com.crowdaa.app.${packageIdSuffix}`;
+
+    objSet(app, ['builds', platform], {
+      name: app.name,
+      packageId,
+      platform: 'android',
+      repository: 'crowdaa_press_yui',
+    });
+
+    await client.db().collection(COLL_APPS).updateOne(
+      {
+        _id: app._id,
+      },
+      {
+        $set: app.builds[platform],
+      }
+    );
   }
 
   if (app.builds[platform].pipeline && app.builds[platform].pipeline._id) {
@@ -52,9 +70,7 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
     // continue below
   }
 
-  const type = app.builds[platform].ready
-    ? `build-${platform}`
-    : `setup-${platform}`;
+  const type = `build-${platform}`;
 
   const settedPipeline = await client.withSession((sessionArg) =>
     sessionArg.withTransaction(async (session) => {
@@ -126,7 +142,9 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
         { _id: appId },
         {
           projection: {
+            name: 1,
             builds: 1,
+            organization: 1,
           },
         }
       );

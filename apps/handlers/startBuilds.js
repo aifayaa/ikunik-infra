@@ -18,7 +18,7 @@ export default async (event) => {
     const allowed = await checkPermsForApp(userId, appId, 'admin');
     if (!allowed) throw new Error('access_forbidden');
 
-    const { platforms } = JSON.parse(event.body);
+    const { platforms } = event.body ? JSON.parse(event.body) : {};
 
     const startBuildResult = await startBuilds(appId, { platforms });
 

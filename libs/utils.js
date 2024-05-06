@@ -23,8 +23,15 @@ export function objGet(obj, keys, dft) {
 }
 
 export function objSet(obj, keys, value) {
-  const last = keys.pop();
-  keys.forEach((key) => {
+  let keysArray = keys;
+  if (typeof keys === 'string') {
+    keysArray = keys.split('.');
+  } else {
+    keysArray = Array.prototype.slice.call(keys);
+  }
+
+  const last = keysArray.pop();
+  keysArray.forEach((key) => {
     if (!obj[key]) {
       obj[key] = {};
     }
