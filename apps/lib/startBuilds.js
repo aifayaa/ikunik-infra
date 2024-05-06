@@ -35,14 +35,19 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
       repository: 'crowdaa_press_yui',
     });
 
-    await client.db().collection(COLL_APPS).updateOne(
-      {
-        _id: app._id,
-      },
-      {
-        $set: app.builds[platform],
-      }
-    );
+    await client
+      .db()
+      .collection(COLL_APPS)
+      .updateOne(
+        {
+          _id: app._id,
+        },
+        {
+          $set: {
+            [`builds.${platform}`]: app.builds[platform],
+          },
+        }
+      );
   }
 
   if (app.builds[platform].pipeline && app.builds[platform].pipeline._id) {
@@ -72,7 +77,7 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
 
   const type = `build-${platform}`;
 
-  const settedPipeline = await client.withSession((sessionArg) =>
+  await client.withSession((sessionArg) =>
     sessionArg.withTransaction(async (session) => {
       const { insertedId } = await client
         .db()
@@ -86,7 +91,7 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
             input: {
               app: filterAppPrivateFields(app),
             },
-            pipeline: [{ key: 'queued', tag: 'start' }],
+            pipeline: [{ key: 'queued', tags: ['start'] }],
             progression: 0,
             current: {
               Step: 'queued',
@@ -103,28 +108,25 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
           { session }
         );
 
-      const pipelineData = {
+      const settedPipeline = {
         _id: insertedId,
         status: 'queued',
         date: now,
       };
+      objSet(app, ['builds', platform, 'pipeline'], settedPipeline);
 
       const $set = {
-        [`builds.${platform}.pipeline`]: pipelineData,
+        [`builds.${platform}.pipeline`]: settedPipeline,
       };
 
       await client
         .db()
         .collection(COLL_APPS)
         .updateOne({ _id: app._id }, { $set }, { session });
-
-      return pipelineData;
     })
   );
 
-  const filteredApp = filterAppPrivateFields(
-    objSet(app, `builds.${platform}.pipeline`, settedPipeline)
-  );
+  const filteredApp = filterAppPrivateFields(app);
 
   return {
     started: true,

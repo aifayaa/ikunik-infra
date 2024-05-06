@@ -23,6 +23,7 @@ export function objGet(obj, keys, dft) {
 }
 
 export function objSet(obj, keys, value) {
+  let cursor = obj;
   let keysArray = keys;
   if (typeof keys === 'string') {
     keysArray = keys.split('.');
@@ -32,12 +33,12 @@ export function objSet(obj, keys, value) {
 
   const last = keysArray.pop();
   keysArray.forEach((key) => {
-    if (!obj[key]) {
-      obj[key] = {};
+    if (!cursor[key]) {
+      cursor[key] = {};
     }
-    obj = obj[key];
+    cursor = cursor[key];
   });
-  obj[last] = value;
+  cursor[last] = value;
   return obj;
 }
 
