@@ -12,23 +12,8 @@ const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
 const ALL_PLATFORMS = ['ios', 'android'];
 
-async function getSetupOrBuildForPlatform(app, platform, { db, all = false }) {
+async function getSetupOrBuildForPlatform(app, platform, { db }) {
   const pipelinesData = {};
-
-  if (all) {
-    const pipelines = await db
-      .collection(COLL_PIPELINES)
-      .find(
-        {
-          appId: app._id,
-          type: `build-${platform}`,
-        },
-        { sort: [['createdAt', -1]] }
-      )
-      .toArray();
-
-    pipelinesData.pipelines = pipelines;
-  }
 
   if (!app.builds || !app.builds[platform]) {
     return {
@@ -83,7 +68,22 @@ export default async (appId, requestedPlatform, { all = false }) => {
     const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;
 
     const promises = platforms.map(async (platform) => {
-      const ret = await getSetupOrBuildForPlatform(app, platform, { db, all });
+      const ret = await getSetupOrBuildForPlatform(app, platform, { db });
+
+      if (all) {
+        const pipelines = await db
+          .collection(COLL_PIPELINES)
+          .find(
+            {
+              appId: app._id,
+              type: `build-${platform}`,
+            },
+            { sort: [['createdAt', -1]] }
+          )
+          .toArray();
+
+        ret.pipelines = pipelines;
+      }
 
       return ret;
     });
