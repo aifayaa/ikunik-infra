@@ -25,7 +25,7 @@ export default async (event) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: { app },
+        data: app,
       }),
     });
   } catch (exception) {
