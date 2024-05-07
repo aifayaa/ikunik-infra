@@ -1,4 +1,11 @@
 /* eslint-disable import/no-relative-packages */
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  DELETE_OWNER_CODE,
+  ERROR_TYPE_FORBIDDEN,
+  ERROR_TYPE_NOT_FOUND,
+  USER_NOT_FOUND_CODE,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -16,7 +23,11 @@ export default async (userId, orgId) => {
 
     // If the target user is not found, Error
     if (!user) {
-      throw new Error('user_not_found');
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        USER_NOT_FOUND_CODE,
+        `User '${userId} is not found in organization '${orgId}'.`
+      );
     }
 
     const userOrganizationPerms = user.perms.organizations.find(
@@ -28,26 +39,34 @@ export default async (userId, orgId) => {
       const userRoles = userOrganizationPerms.roles;
 
       if (userRoles.includes('owner')) {
-        /* TODO Retourner une erreur spécifique, code 200, `data` vide.
-         * type: forbidden, code: cannot delete owner */
-        return { userDeleted: false };
+        throw new CrowdaaError(
+          ERROR_TYPE_FORBIDDEN,
+          DELETE_OWNER_CODE,
+          `User '${userId} is an owner of the organization '${orgId}': cannot be deleted.`
+        );
       }
     }
 
-    const commandRes = await db
+    await db
       .collection(COLL_USERS)
       .updateOne(
         { _id: userId },
         { $pull: { 'perms.organizations': { _id: orgId } } }
       );
 
-    /* TODO Virer ce check. */
-    if (commandRes && commandRes.nModified && commandRes.nModified.ok !== 1) {
-      return { userDeleted: false };
-    }
+    const updatedUser = await db.collection(COLL_USERS).findOne(
+      { _id: userId },
+      {
+        projection: {
+          _id: 1,
+          createdAt: 1,
+          profile: 1,
+          perms: 1,
+        },
+      }
+    );
 
-    /* TODO Retourner l'utilisateur (l'objet qui a été muté) (filtré, cf. liste des users) */
-    return { userDeleted: true };
+    return updatedUser;
   } finally {
     client.close();
   }
