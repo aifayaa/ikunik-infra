@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { appPrivateFieldsProjection } from '../../apps/lib/appsUtils';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -14,16 +15,7 @@ export default async (orgId) => {
       .find(
         { 'organization._id': orgId },
         {
-          projection: {
-            credentials: 0,
-            backend: 0,
-            'builds.android.googleApiData': 0,
-            'builds.android.firebase': 0,
-            'settings.iap': 0,
-            'settings.chatengine': 0,
-            'settings.userDataCollection': 0,
-            'settings.saml': 0,
-          },
+          projection: appPrivateFieldsProjection,
         }
       )
       .toArray();
