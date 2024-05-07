@@ -40,7 +40,10 @@ export default async (event) => {
     }
 
     const apps = await getOrgApps(orgId);
-    return response({ code: 200, body: formatResponseBody({ data: apps }) });
+    return response({
+      code: 200,
+      body: formatResponseBody({ data: { items: apps } }),
+    });
   } catch (exception) {
     const errorBody = formatResponseBody({
       errors: [

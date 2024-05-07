@@ -4,10 +4,10 @@ import response from '../../libs/httpResponses/response';
 import getUserOrgs from '../lib/getUserOrgs';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
-  CONTEXT_AUTHORIZER_NO_USER,
+  CONTEXT_AUTHORIZER_NO_USER_CODE,
   ERROR_TYPE_AUTHORIZATION,
   ERROR_TYPE_INTERNAL_EXCEPTION,
-  UNMANAGED_EXCEPTION,
+  UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 export default async (event) => {
@@ -19,7 +19,7 @@ export default async (event) => {
         errors: [
           {
             type: ERROR_TYPE_AUTHORIZATION,
-            code: CONTEXT_AUTHORIZER_NO_USER,
+            code: CONTEXT_AUTHORIZER_NO_USER_CODE,
             message: `Cannot find user in request context`,
             details: { requestContext: event.requestContext },
           },
@@ -32,7 +32,7 @@ export default async (event) => {
     const orgs = await getUserOrgs(userId);
 
     const responseBody = formatResponseBody({
-      data: { organizations: orgs.map(returnedFieldsFilter) },
+      data: { items: orgs.map(returnedFieldsFilter) },
     });
 
     return response({
@@ -44,7 +44,7 @@ export default async (event) => {
       errors: [
         {
           type: ERROR_TYPE_INTERNAL_EXCEPTION,
-          code: UNMANAGED_EXCEPTION,
+          code: UNMANAGED_EXCEPTION_CODE,
           message: exception.message,
           details: exception,
         },
