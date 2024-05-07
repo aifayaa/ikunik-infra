@@ -1,6 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { objGet } from '../../libs/utils';
+import { appPrivateFieldsProjection } from './appsUtils';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -10,34 +12,41 @@ export default async (userId) => {
     const db = client.db();
     const user = await db.collection(COLL_USERS).findOne({ _id: userId });
 
-    if (!user) {
-      throw new Error('user_not_found');
+    if (user.superAdmin) {
+      const allApps = await db
+        .collection(COLL_APPS)
+        .find({}, { projection: appPrivateFieldsProjection })
+        .toArray();
+
+      return allApps;
     }
 
-    const userAppIds =
-      user.perms && user.perms.apps
-        ? user.perms.apps.map(({ _id }) => _id)
-        : [];
-    const userApps = await db
+    const appsIds = objGet(user, ['perms', 'apps'], []).map(({ _id }) => _id);
+    const orgsIds = objGet(user, ['perms', 'organizations'], []).map(
+      ({ _id }) => _id
+    );
+
+    const $or = [];
+    if (appsIds.length > 0) {
+      $or.push({ _id: { $in: appsIds } });
+    }
+    if (orgsIds.length > 0) {
+      $or.push({ 'organization._id': { $in: orgsIds } });
+    }
+
+    if ($or.length === 0) return [];
+
+    const apps = await db
       .collection(COLL_APPS)
-      .find({ _id: { $in: userAppIds } })
+      .find(
+        {
+          $or,
+        },
+        { projection: appPrivateFieldsProjection }
+      )
       .toArray();
 
-    const userOrgIds =
-      user.perms && user.perms.organizations
-        ? user.perms.organizations.map(({ _id }) => _id)
-        : [];
-    const orgsApps = await db
-      .collection(COLL_APPS)
-      .find({ 'organization._id': { $in: userOrgIds } })
-      .toArray();
-
-    const response = {
-      apps: userApps || [],
-      organizationsApps: orgsApps || [],
-    };
-
-    return response;
+    return apps;
   } finally {
     client.close();
   }
