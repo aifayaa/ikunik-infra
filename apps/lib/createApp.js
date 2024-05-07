@@ -118,18 +118,14 @@ export default async (name, userId, { protocol = null } = {}) => {
 
     await checkIfUserIsFromRootApp(db, userId);
 
-    const { _id: appId, key: apiKey } = await createApp(
-      db,
-      name,
-      userId,
-      protocol
-    );
+    const app = await createApp(db, name, userId, protocol);
+    const { _id: appId, key: apiKey } = app;
 
     await addUserAsAppOwner(db, userId, appId);
 
     await syncCreateAppBaserow(userId, { appId, name, apiKey });
 
-    return { appId, apiKey };
+    return app;
   } finally {
     client.close();
   }
