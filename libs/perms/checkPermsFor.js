@@ -245,7 +245,7 @@ async function getUserPermsOnApp(userId, appId) {
   }
 }
 
-async function getApplication(appId) {
+export async function getApplicationWithOrg(appId) {
   const client = await MongoClient.connect();
 
   try {
@@ -263,6 +263,13 @@ async function getApplication(appId) {
   }
 }
 
+export async function getApplicationOrganizationId(appId) {
+  const application = await getApplicationWithOrg(appId);
+  return (
+    application && application.organization && application.organization._id
+  );
+}
+
 /**
  * Checks for user permissions on an app.
  * @param {string} userId The user ID
@@ -271,7 +278,7 @@ async function getApplication(appId) {
  * @returns true for a valid permission, false otherwise
  */
 export async function checkPermsForApp(userId, appId, requestedPerm) {
-  const application = await getApplication(appId);
+  const application = await getApplicationWithOrg(appId);
   const applicationOrganizationId =
     application && application.organization && application.organization._id;
   const userPerms = await getUserPermsOnApp(userId, appId);
