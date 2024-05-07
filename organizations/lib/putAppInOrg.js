@@ -47,8 +47,6 @@ export default async (userId, orgId, appId, originDestination) => {
   }
 
   if (originDestination === 'fromOrgToOrg') {
-    // const applicationOrganizationId = getApplicationOrganizationId(appId);
-
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
     await client

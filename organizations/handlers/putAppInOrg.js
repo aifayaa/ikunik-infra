@@ -6,13 +6,11 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-  // getApplicationOrganizationId,
   getApplicationWithOrg,
 } from '../../libs/perms/checkPermsFor';
 
 import putAppInOrg from '../lib/putAppInOrg';
 import {
-  // APPLICATION_PERMISSION_CODE,
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
