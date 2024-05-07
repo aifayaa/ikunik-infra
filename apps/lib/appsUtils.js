@@ -6,6 +6,7 @@ export const appPrivateFields = [
   'credentials',
   'appleAccounts',
   'firebaseProjectId',
+  'settings.iap',
   'settings.userDataCollection',
   'settings.platformApplicationArns',
   'backend',
