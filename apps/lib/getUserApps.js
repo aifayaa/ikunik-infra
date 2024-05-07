@@ -6,6 +6,11 @@ import { appPrivateFieldsProjection } from './appsUtils';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
+const APPS_SORT = [
+  ['createdAt', -1],
+  ['name', 1],
+];
+
 export default async (userId) => {
   const client = await MongoClient.connect();
   try {
@@ -16,6 +21,7 @@ export default async (userId) => {
       const allApps = await db
         .collection(COLL_APPS)
         .find({}, { projection: appPrivateFieldsProjection })
+        .sort(APPS_SORT)
         .toArray();
 
       return allApps;
@@ -44,6 +50,7 @@ export default async (userId) => {
         },
         { projection: appPrivateFieldsProjection }
       )
+      .sort(APPS_SORT)
       .toArray();
 
     return apps;
