@@ -7,7 +7,7 @@ import {
   checkPermsForApp,
   checkPermsForOrganization,
 } from '../../libs/perms/checkPermsFor';
-// import { putAppInOrgSchema } from '../validators/putAppInOrg.schema';
+
 import putAppInOrg from '../lib/putAppInOrg';
 import {
   APPLICATION_PERMISSION_CODE,
