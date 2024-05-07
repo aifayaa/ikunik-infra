@@ -7,8 +7,12 @@ import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import {
-  APP_ALREADY_BUILD,
+  APP_ALREADY_BUILD_CODE,
+  APP_NOT_FOUND_CODE,
+  ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_NOT_FOUND,
+  ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 const { COLL_APPS } = mongoCollections;
@@ -19,9 +23,28 @@ export default async (event) => {
 
   try {
     const client = await MongoClient.connect();
-    const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
+    const orgPermissionLevel = 'admin';
+    const allowed = await checkPermsForOrganization(
+      userId,
+      orgId,
+      orgPermissionLevel
+    );
     if (!allowed) {
-      throw new Error('access_forbidden');
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_ACCESS,
+            code: ORGANIZATION_PERMISSION_CODE,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
+            details: {
+              userId,
+              orgId,
+              orgPermissionLevel,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
 
     const app = await client
@@ -33,15 +56,28 @@ export default async (event) => {
       );
 
     if (!app) {
-      throw new Error('app_not_found');
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_NOT_FOUND,
+            code: APP_NOT_FOUND_CODE,
+            message: `Application '${appId}' is not found`,
+            details: {
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
+
     // TODO Quand on aura l'info de la publication de l'app sur les stores, prendre ça en compte plus tard.
     if (app.setup || app.builds) {
       const errorBody = formatResponseBody({
         errors: [
           {
             type: ERROR_TYPE_INTERNAL_EXCEPTION,
-            code: APP_ALREADY_BUILD,
+            code: APP_ALREADY_BUILD_CODE,
             message: `Cannot delete application '${appId}' because it has been build.`,
           },
         ],
@@ -50,7 +86,7 @@ export default async (event) => {
     }
 
     const org = await delOrgApp(orgId, appId, userId);
-    return response({ code: 200, body: org });
+    return response({ code: 200, body: formatResponseBody({ data: org }) });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }
