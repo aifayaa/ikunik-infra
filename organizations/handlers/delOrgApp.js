@@ -1,16 +1,18 @@
 /* eslint-disable import/no-relative-packages */
 import delOrgApp from '../lib/delOrgApp';
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { delOrgAppSchema } from '../validators/delOrgApp.schema';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import {
-  APP_ALREADY_BUILD,
+  APP_ALREADY_BUILD_CODE,
+  APP_NOT_FOUND_CODE,
+  ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_NOT_FOUND,
+  ORGANIZATION_PERMISSION_CODE,
+  UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 const { COLL_APPS } = mongoCollections;
@@ -21,9 +23,28 @@ export default async (event) => {
 
   try {
     const client = await MongoClient.connect();
-    const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
+    const orgPermissionLevel = 'admin';
+    const allowed = await checkPermsForOrganization(
+      userId,
+      orgId,
+      orgPermissionLevel
+    );
     if (!allowed) {
-      throw new Error('access_forbidden');
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_ACCESS,
+            code: ORGANIZATION_PERMISSION_CODE,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
+            details: {
+              userId,
+              orgId,
+              orgPermissionLevel,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
 
     const app = await client
@@ -35,15 +56,28 @@ export default async (event) => {
       );
 
     if (!app) {
-      throw new Error('app_not_found');
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_NOT_FOUND,
+            code: APP_NOT_FOUND_CODE,
+            message: `Application '${appId}' is not found`,
+            details: {
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
+
     // TODO Quand on aura l'info de la publication de l'app sur les stores, prendre ça en compte plus tard.
     if (app.setup || app.builds) {
       const errorBody = formatResponseBody({
         errors: [
           {
             type: ERROR_TYPE_INTERNAL_EXCEPTION,
-            code: APP_ALREADY_BUILD,
+            code: APP_ALREADY_BUILD_CODE,
             message: `Cannot delete application '${appId}' because it has been build.`,
           },
         ],
@@ -51,24 +85,19 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    // TODO Virer le body, on transfère à l'utilisateur qui fait la requête.
-    const body = JSON.parse(event.body);
-
-    // validation
-    let validatedBody;
-    try {
-      validatedBody = delOrgAppSchema.parse(body);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const errorBody = formatResponseBody({ errors });
-      return response({ code: 200, body: errorBody });
-    }
-
-    const { newOwner } = validatedBody;
-
-    const org = await delOrgApp(orgId, appId, newOwner);
-    return response({ code: 200, body: org });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    const org = await delOrgApp(orgId, appId, userId);
+    return response({ code: 200, body: formatResponseBody({ data: org }) });
+  } catch (exception) {
+    const errorBody = formatResponseBody({
+      errors: [
+        {
+          type: ERROR_TYPE_INTERNAL_EXCEPTION,
+          code: UNMANAGED_EXCEPTION_CODE,
+          message: exception.message,
+          details: exception,
+        },
+      ],
+    });
+    return response({ code: 200, body: errorBody });
   }
 };

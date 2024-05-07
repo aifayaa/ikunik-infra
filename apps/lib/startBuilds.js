@@ -1,10 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
 import {
-  APP_NOT_FOUND,
+  APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
-  MISSING_ORGANIZATION,
+  MISSING_ORGANIZATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -147,7 +147,7 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
     if (!app) {
       throw new CrowdaaException(
         ERROR_TYPE_NOT_FOUND,
-        APP_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
         `The application with ID ${appId} was not found`
       );
     }
@@ -155,7 +155,7 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
     if (!app.organization || !app.organization._id) {
       throw new CrowdaaException(
         ERROR_TYPE_VALIDATION_ERROR,
-        MISSING_ORGANIZATION,
+        MISSING_ORGANIZATION_CODE,
         `The application ${appId} have no organization set`
       );
     }

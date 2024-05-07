@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
 import {
-  APP_NOT_FOUND,
+  APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
@@ -17,7 +17,7 @@ export default async (appId) => {
     if (!app) {
       throw new CrowdaaException(
         ERROR_TYPE_NOT_FOUND,
-        APP_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
         `The application with ID ${appId} was not found`
       );
     }
