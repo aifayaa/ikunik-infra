@@ -12,8 +12,17 @@ export default async (orgId) => {
 
     return await db
       .collection(COLL_USERS)
-      // TODO Filter output, return profile, this organization roles and _id
-      .find({ 'perms.organizations._id': orgId })
+      .find(
+        { 'perms.organizations._id': orgId },
+        {
+          projection: {
+            _id: 1,
+            createdAt: 1,
+            profile: 1,
+            perms: 1,
+          },
+        }
+      )
       .toArray();
   } finally {
     client.close();
