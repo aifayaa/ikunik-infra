@@ -16,8 +16,10 @@ import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_BODY_CODE,
+  ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
   UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
@@ -101,8 +103,6 @@ export default async (event) => {
       return response({ code: 200, body: formatResponseBody({ data: org }) });
     }
 
-    // const applicationOrganizationId = getApplicationOrganizationId(appId);
-
     const application = await getApplicationWithOrg(appId);
     if (application.builds || application.setup) {
       const errorBody = formatResponseBody({
@@ -125,39 +125,50 @@ export default async (event) => {
     const applicationOrganizationId =
       application && application.organization && application.organization._id;
 
-    if (applicationOrganizationId) {
-      const allowedOriginOrganization = await checkPermsForOrganization(
-        userId,
-        applicationOrganizationId,
-        orgPermissionLevel
-      );
-
-      if (allowedOriginOrganization) {
-        const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
-        return response({ code: 200, body: formatResponseBody({ data: org }) });
-      }
+    if (!applicationOrganizationId) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_NOT_FOUND,
+            code: ORGANIZATION_NOT_FOUND_CODE,
+            message: `Cannot found the organization of application '${appId}'`,
+            details: {
+              userId,
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
 
-    // if (!allowedApp) {
-    //   const errorBody = formatResponseBody({
-    //     errors: [
-    //       {
-    //         type: ERROR_TYPE_ACCESS,
-    //         code: APPLICATION_PERMISSION_CODE,
-    //         message: `User '${userId}' is not at least '${appPermissionLevel}' on application ${appId}`,
-    //         details: {
-    //           userId,
-    //           appId,
-    //           appPermissionLevel,
-    //         },
-    //       },
-    //     ],
-    //   });
-    //   return response({ code: 200, body: errorBody });
-    // }
+    const allowedOriginOrganization = await checkPermsForOrganization(
+      userId,
+      applicationOrganizationId,
+      orgPermissionLevel
+    );
 
-    // const org = await putAppInOrg(userId, orgId, appId);
-    // return response({ code: 200, body: formatResponseBody({ data: org }) });
+    if (!allowedOriginOrganization) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_ACCESS,
+            code: ORGANIZATION_PERMISSION_CODE,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${applicationOrganizationId} which contains the application '${appId}'`,
+            details: {
+              userId,
+              applicationOrganizationId,
+              orgPermissionLevel,
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
+    }
+
+    const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
+    return response({ code: 200, body: formatResponseBody({ data: org }) });
   } catch (exception) {
     const errorBody = formatResponseBody({
       errors: [

@@ -15,7 +15,6 @@ export default async (userId, orgId, appId, originDestination) => {
     await client
       .withSession(async (sessionArg) => {
         await sessionArg.withTransaction(async (session) => {
-          /* TODO Vérifier les droits existants sur une autre org ou l'app serait présente, droits sur l'org, etc. et ne faire le transfert que si tout est ok (admin des deux côtés). Ne pas déplacer l'app si elle est déjà buildée/setup (pas avant Vivatech en tout cas please, les gars). En gros, check tout'! */
           const db = client.db();
           // 1. Delete application from the user.perms.apps
           await db
@@ -55,17 +54,7 @@ export default async (userId, orgId, appId, originDestination) => {
     await client
       .withSession(async (sessionArg) => {
         await sessionArg.withTransaction(async (session) => {
-          /* TODO Vérifier les droits existants sur une autre org ou l'app serait présente, droits sur l'org, etc. et ne faire le transfert que si tout est ok (admin des deux côtés). Ne pas déplacer l'app si elle est déjà buildée/setup (pas avant Vivatech en tout cas please, les gars). En gros, check tout'! */
           const db = client.db();
-          // // 1. Delete application from the user.perms.apps
-          // await db
-          //   .collection(COLL_USERS)
-          //   .updateOne(
-          //     { _id: userId },
-          //     { $pull: { 'perms.apps': { _id: appId } } },
-          //     { session }
-          //   );
-
           // 1. Delete the current relationship between the application and its organization
           await db.collection(COLL_APPS).updateOne(
             { _id: appId },
