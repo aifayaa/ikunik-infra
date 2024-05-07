@@ -1,8 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
 import {
-  CANNOT_CHANGE_ANDROID_NAME,
-  CANNOT_CHANGE_IOS_NAME,
+  CANNOT_CHANGE_ANDROID_NAME_CODE,
+  CANNOT_CHANGE_IOS_NAME_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
@@ -61,7 +61,7 @@ export default async (appId, update) => {
       } else {
         throw new CrowdaaException(
           ERROR_TYPE_NOT_ALLOWED,
-          CANNOT_CHANGE_ANDROID_NAME,
+          CANNOT_CHANGE_ANDROID_NAME_CODE,
           `Cannot change the Android name for app ${app.name}`
         );
       }
@@ -72,7 +72,7 @@ export default async (appId, update) => {
       } else {
         throw new CrowdaaException(
           ERROR_TYPE_NOT_ALLOWED,
-          CANNOT_CHANGE_IOS_NAME,
+          CANNOT_CHANGE_IOS_NAME_CODE,
           `Cannot change the iOS name for app ${app.name}`
         );
       }

@@ -2,7 +2,7 @@
 import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
-  UNMANAGED_EXCEPTION,
+  UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response from '../../libs/httpResponses/response';
@@ -51,7 +51,7 @@ export default async (event) => {
         errors: [
           {
             type: ERROR_TYPE_INTERNAL_EXCEPTION,
-            code: UNMANAGED_EXCEPTION,
+            code: UNMANAGED_EXCEPTION_CODE,
             message: exception.message,
             details: exception,
           },
