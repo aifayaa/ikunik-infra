@@ -52,7 +52,7 @@ export default async (event) => {
       .collection(COLL_APPS)
       .findOne(
         { _id: appId },
-        { projection: { name: 1, setup: 1, builds: 1 } }
+        { projection: { name: 1, setup: 1, builds: 1, organization: 1 } }
       );
 
     if (!app) {
@@ -62,6 +62,26 @@ export default async (event) => {
             type: ERROR_TYPE_NOT_FOUND,
             code: APP_NOT_FOUND_CODE,
             message: `Application '${appId}' is not found`,
+            details: {
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
+    }
+
+    if (
+      app.organization === undefined ||
+      app.organization._id === undefined ||
+      app.organization._id !== orgId
+    ) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_NOT_FOUND,
+            code: APP_NOT_FOUND_CODE,
+            message: `Application '${appId}' is not in the organization '${orgId}'`,
             details: {
               appId,
             },

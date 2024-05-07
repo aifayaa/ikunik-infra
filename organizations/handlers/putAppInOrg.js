@@ -6,15 +6,18 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import {
   checkPermsForApp,
   checkPermsForOrganization,
+  getApplicationWithOrg,
 } from '../../libs/perms/checkPermsFor';
 
 import putAppInOrg from '../lib/putAppInOrg';
 import {
-  APPLICATION_PERMISSION_CODE,
+  APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_BODY_CODE,
+  ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
   UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
@@ -92,13 +95,20 @@ export default async (event) => {
 
     const appPermissionLevel = 'owner';
     const allowedApp = checkPermsForApp(userId, appId, appPermissionLevel);
-    if (!allowedApp) {
+
+    if (allowedApp) {
+      const org = await putAppInOrg(userId, orgId, appId, 'fromUserToOrg');
+      return response({ code: 200, body: formatResponseBody({ data: org }) });
+    }
+
+    const application = await getApplicationWithOrg(appId);
+    if (application.builds || application.setup) {
       const errorBody = formatResponseBody({
         errors: [
           {
-            type: ERROR_TYPE_ACCESS,
-            code: APPLICATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${appPermissionLevel}' on application ${appId}`,
+            type: ERROR_TYPE_INTERNAL_EXCEPTION,
+            code: APP_ALREADY_BUILD_CODE,
+            message: `Application '${appId}' cannot be moved between organizations because already built`,
             details: {
               userId,
               appId,
@@ -110,7 +120,52 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const org = await putAppInOrg(userId, orgId, appId);
+    const applicationOrganizationId =
+      application && application.organization && application.organization._id;
+
+    if (!applicationOrganizationId) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_NOT_FOUND,
+            code: ORGANIZATION_NOT_FOUND_CODE,
+            message: `Cannot found the organization of application '${appId}'`,
+            details: {
+              userId,
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
+    }
+
+    const allowedOriginOrganization = await checkPermsForOrganization(
+      userId,
+      applicationOrganizationId,
+      orgPermissionLevel
+    );
+
+    if (!allowedOriginOrganization) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_ACCESS,
+            code: ORGANIZATION_PERMISSION_CODE,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${applicationOrganizationId} which contains the application '${appId}'`,
+            details: {
+              userId,
+              applicationOrganizationId,
+              orgPermissionLevel,
+              appId,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
+    }
+
+    const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
     return response({ code: 200, body: formatResponseBody({ data: org }) });
   } catch (exception) {
     const errorBody = formatResponseBody({
