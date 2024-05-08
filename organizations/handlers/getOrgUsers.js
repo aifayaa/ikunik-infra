@@ -39,7 +39,12 @@ export default async (event) => {
 
     const users = await getUserOrgPerms(orgId);
 
-    return response({ code: 200, body: formatResponseBody({ data: users }) });
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: { items: users, totalCount: users.length },
+      }),
+    });
   } catch (exception) {
     return handleException(exception);
   }
