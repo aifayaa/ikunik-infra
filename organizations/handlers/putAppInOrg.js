@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
@@ -19,7 +19,6 @@ import {
   MISSING_BODY_CODE,
   ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
-  UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 const putAppInOrgSchema = z
@@ -168,16 +167,6 @@ export default async (event) => {
     const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
     return response({ code: 200, body: formatResponseBody({ data: org }) });
   } catch (exception) {
-    const errorBody = formatResponseBody({
-      errors: [
-        {
-          type: ERROR_TYPE_INTERNAL_EXCEPTION,
-          code: UNMANAGED_EXCEPTION_CODE,
-          message: exception.message,
-          details: exception,
-        },
-      ],
-    });
-    return response({ code: 200, body: errorBody });
+    return handleException(exception);
   }
 };
