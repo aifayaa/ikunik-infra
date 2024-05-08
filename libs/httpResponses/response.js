@@ -1,5 +1,12 @@
+import { CrowdaaError } from './CrowdaaError';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  UNMANAGED_EXCEPTION_CODE,
+} from './errorCodes';
+import { formatResponseBody } from './formatResponseBody';
+
 /* eslint-disable import/no-relative-packages */
-export default ({ headers = {}, code, body, message, raw }) => {
+export default function response({ headers = {}, code, body, message, raw }) {
   if (!body && !message) {
     message = 'http_error_missing_response_arguments';
   }
@@ -25,4 +32,33 @@ export default ({ headers = {}, code, body, message, raw }) => {
       ...headers,
     },
   };
-};
+}
+
+export function handleException(exception) {
+  if (exception instanceof CrowdaaError) {
+    const { type, code, message } = exception;
+    const errorBody = formatResponseBody({
+      errors: [
+        {
+          type,
+          code,
+          message,
+          details: exception.stack,
+        },
+      ],
+    });
+    return response({ code: 200, body: errorBody });
+  }
+
+  const errorBody = formatResponseBody({
+    errors: [
+      {
+        type: ERROR_TYPE_INTERNAL_EXCEPTION,
+        code: UNMANAGED_EXCEPTION_CODE,
+        message: exception.message,
+        details: exception,
+      },
+    ],
+  });
+  return response({ code: 200, body: errorBody });
+}

@@ -3,7 +3,14 @@ import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { indexObjectArrayWithKey } from '../utils';
 
-const { COLL_USERS, COLL_APPS, COLL_WEBSITES } = mongoCollections;
+import { CrowdaaError } from '../httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  ORGANIZATION_NOT_FOUND_CODE,
+} from '../httpResponses/errorCodes';
+
+const { COLL_USERS, COLL_ORGANIZATIONS, COLL_APPS, COLL_WEBSITES } =
+  mongoCollections;
 
 /**
  * Example of user.perms structure :
@@ -407,6 +414,21 @@ export const checkPermsForOrganization = async (
   orgId,
   requestedPerm
 ) => {
+  const client = await MongoClient.connect();
+
+  const organization = await client
+    .db()
+    .collection(COLL_ORGANIZATIONS)
+    .findOne({ _id: orgId }, { projection: { name: 1 } });
+
+  if (!organization) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      ORGANIZATION_NOT_FOUND_CODE,
+      `Cannot found the organization '${orgId}'`
+    );
+  }
+
   const perms = await getUserPermsOnOrganization(userId, orgId);
 
   const requestedPermsArray = [
