@@ -6,6 +6,7 @@ const serverlessConfiguration = {
   custom: {
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
+    /* This is the internal network (used to call internal APIs like baserow) */
     vpcConfig: {
       'us-east-1': {
         securityGroupIds: ['sg-022c00c994d25c46e'],
