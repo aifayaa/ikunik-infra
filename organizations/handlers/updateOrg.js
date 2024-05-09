@@ -1,20 +1,57 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/no-relative-packages */
+import { z } from 'zod';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import updateOrg from '../lib/updateOrg';
-import { updateOrgSchema } from '../validators/updateOrg.schema';
+import {
+  ERROR_TYPE_ACCESS,
+  ORGANIZATION_PERMISSION_CODE,
+} from '../../libs/httpResponses/errorCodes';
+import { returnedFieldsFilter } from '../lib/fieldsChecks';
+
+const updateOrgSchema = z
+  .object({
+    name: z
+      .string({
+        required_error: 'name is required',
+        invalid_type_error: 'name must be a string',
+      })
+      .max(80, { message: 'Must be 80 or fewer characters long' })
+      .trim(),
+  })
+  .required();
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const orgId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
-    if (!allowed) throw new Error('access_forbidden');
+    const orgPermissionLevel = 'admin';
+    const allowed = await checkPermsForOrganization(
+      userId,
+      orgId,
+      orgPermissionLevel
+    );
+    if (!allowed) {
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_ACCESS,
+            code: ORGANIZATION_PERMISSION_CODE,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
+            details: {
+              userId,
+              orgId,
+              orgPermissionLevel,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
+    }
 
     const body = JSON.parse(event.body);
 
@@ -28,10 +65,14 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const modifiedCount = await updateOrg(orgId, validatedBody);
+    const { name } = validatedBody;
+    const org = await updateOrg(orgId, name);
 
-    return response({ code: 200, body: { count: modifiedCount } });
-  } catch (error) {
-    return response(errorMessage({ message: error.message, error }));
+    return response({
+      code: 200,
+      body: formatResponseBody({ data: returnedFieldsFilter(org) }),
+    });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

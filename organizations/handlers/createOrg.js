@@ -1,11 +1,22 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import { z } from 'zod';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { createOrgSchema } from '../validators/createOrg.schema';
 import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import createOrg from '../lib/createOrg';
+
+export const createOrgSchema = z
+  .object({
+    name: z
+      .string({
+        required_error: 'name is required',
+        invalid_type_error: 'name must be a string',
+      })
+      .max(80, { message: 'Must be 80 or fewer characters long' })
+      .trim(),
+  })
+  .required();
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -28,7 +39,7 @@ export default async (event) => {
       code: 200,
       body: formatResponseBody({ data: returnedFieldsFilter(org) }),
     });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };
