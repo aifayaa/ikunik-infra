@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import delOrgApp from '../lib/delOrgApp';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import MongoClient from '../../libs/mongoClient';
@@ -12,7 +12,6 @@ import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_PERMISSION_CODE,
-  UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 const { COLL_APPS } = mongoCollections;
@@ -108,16 +107,6 @@ export default async (event) => {
     const org = await delOrgApp(orgId, appId, userId);
     return response({ code: 200, body: formatResponseBody({ data: org }) });
   } catch (exception) {
-    const errorBody = formatResponseBody({
-      errors: [
-        {
-          type: ERROR_TYPE_INTERNAL_EXCEPTION,
-          code: UNMANAGED_EXCEPTION_CODE,
-          message: exception.message,
-          details: exception,
-        },
-      ],
-    });
-    return response({ code: 200, body: errorBody });
+    return handleException(exception);
   }
 };

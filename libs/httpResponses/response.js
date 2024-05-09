@@ -43,7 +43,7 @@ export function handleException(exception) {
           type,
           code,
           message,
-          details: exception.stack,
+          details: exception.details || exception.stack,
         },
       ],
     });
