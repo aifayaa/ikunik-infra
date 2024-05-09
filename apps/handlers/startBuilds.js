@@ -14,7 +14,6 @@ export default async (event) => {
   const { id: appId } = event.pathParameters;
 
   try {
-    if (!appId) throw new Error('app_not_found');
     const allowed = await checkPermsForApp(userId, appId, 'admin');
     if (!allowed) throw new Error('access_forbidden');
 

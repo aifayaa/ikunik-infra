@@ -5,6 +5,7 @@ import { indexObjectArrayWithKey } from '../utils';
 
 import { CrowdaaError } from '../httpResponses/CrowdaaError';
 import {
+  APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
@@ -256,15 +257,23 @@ export async function getApplicationWithOrg(appId) {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
+    const application = await client
       .db()
       .collection(COLL_APPS)
       .findOne({ _id: appId }, { projection: { organization: 1 } });
 
-    if (!app || !app.organization) {
+    if (!application) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
+        `Cannot found the organization '${appId}'`
+      );
+    }
+
+    if (!application.organization) {
       return null;
     }
-    return app;
+    return application;
   } finally {
     client.close();
   }
