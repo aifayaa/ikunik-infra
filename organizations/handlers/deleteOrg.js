@@ -9,10 +9,6 @@ export default async (event) => {
   const orgId = event.pathParameters.id;
 
   try {
-    if (!userId) {
-      throw new Error('user_not_found');
-    }
-
     const allowed = await checkPermsForOrganization(userId, orgId, 'owner');
     if (!allowed) {
       throw new Error('access_forbidden');
