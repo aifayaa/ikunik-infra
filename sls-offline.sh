@@ -40,23 +40,18 @@ while [ "$1" != '' ] && [ "$1" != '--' ]; do
     ;;
   --userId)
     USER_ID=$VALUE
-    shift
     ;;
   --appId)
     APP_ID=$VALUE
-    shift
     ;;
   --authorizer)
     AUTHORIZER_NAME=$VALUE
-    shift
     ;;
   --stage)
     STAGE=$VALUE
-    shift
     ;;
   --region)
     REGION=$VALUE
-    shift
     ;;
   *)
     echo "ERROR: unknown parameter \"$PARAM\""
@@ -65,8 +60,10 @@ while [ "$1" != '' ] && [ "$1" != '--' ]; do
     ;;
   esac
   shift
+  shift
 done
 
+shift
 EXTRA=$@
 
 case "$AUTHORIZER_NAME" in
