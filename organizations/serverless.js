@@ -266,7 +266,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'organizations/{id}/user/{userId}',
+            path: 'organizations/{id}/users/{userId}',
             method: 'patch',
             cors: true,
             authorizer: {
@@ -294,7 +294,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'organizations/{id}/user/{userId}',
+            path: 'organizations/{id}/users/{userId}',
             method: 'delete',
             cors: true,
             authorizer: {
