@@ -4,22 +4,14 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_ORGANIZATIONS } = mongoCollections;
 
-export default async (orgId, update) => {
+export default async (orgId, name) => {
   const client = await MongoClient.connect();
 
   try {
-    const commandRes = await client
+    await client
       .db()
       .collection(COLL_ORGANIZATIONS)
-      .update({ _id: orgId }, { $set: update });
-
-    const {
-      result: { ok },
-    } = commandRes;
-
-    if (!ok) {
-      throw new Error('update_failed');
-    }
+      .update({ _id: orgId }, { $set: { name } });
 
     return await client
       .db()
