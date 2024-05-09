@@ -212,25 +212,23 @@ async function getUserPermsOnOrganization(userId, orgId) {
  * @returns An object of permissions (stored in the user as user.perms)
  */
 async function getUserPermsOnApp(userId, appId) {
-  const oldPermsPipeline = [
-    {
-      $match: { _id: userId },
-    },
-    {
-      $project: {
-        _id: 1,
-        superAdmin: 1,
-        perms: 1,
-      },
-    },
-  ];
   const client = await MongoClient.connect();
+
   try {
-    const [{ superAdmin = false, perms } = {}] = await client
+    const user = await client
       .db()
       .collection(COLL_USERS)
-      .aggregate(oldPermsPipeline)
-      .toArray();
+      .findOne(
+        { _id: userId },
+        {
+          projection: {
+            superAdmin: 1,
+            perms: 1,
+          },
+        }
+      );
+
+    const { superAdmin, perms } = user;
 
     if (superAdmin) {
       return {
