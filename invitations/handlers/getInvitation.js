@@ -8,7 +8,8 @@ import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {
-  const { principalId: currentUserId } = event.requestContext.authorizer;
+  const { principalId: currentUserId } =
+    (event.requestContext || {}).authorizer || {};
   let invitationId = event.pathParameters.id;
 
   try {
@@ -19,7 +20,6 @@ export default async (event) => {
       const body = formatResponseBody({ errors });
       return response({ code: 200, body });
     }
-
     // access to the invitation is determined in a step further
     const invitationDocument = await getInvitation(currentUserId, invitationId);
     if (!invitationDocument) throw new Error('invitation_not_found');

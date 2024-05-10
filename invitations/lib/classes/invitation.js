@@ -200,10 +200,20 @@ export class Invitation {
   }
 
   async get(currentUserId, invitationId) {
-    const invitationDocument = await this.findInvitationById(
-      invitationId,
-      currentUserId
-    );
+    const invitationDocument = await this.findInvitationById(invitationId);
+    // spec: an unauthenticated user can only access the invitation if
+    // it is still pending and not expired
+    if (invitationDocument && !currentUserId) {
+      if (invitationDocument.status !== invitationStatuses.PENDING) {
+        return undefined;
+      }
+      if (
+        invitationDocument.expiredAt &&
+        new Date(invitationDocument.expiredAt) > new Date()
+      ) {
+        return undefined;
+      }
+    }
     return invitationDocument;
   }
 
@@ -231,10 +241,7 @@ export class Invitation {
   }
 
   async resend(currentUserId, invitationId) {
-    const invitation = await this.findInvitationById(
-      invitationId,
-      currentUserId
-    );
+    const invitation = await this.findInvitationById(invitationId);
 
     if (!invitation) throw new Error('invitation_not_found');
 
