@@ -42,6 +42,8 @@ export class CreatingStatus extends AbstractStatus {
   // should be protected or private
   async generateInvitationDocument() {
     const invitedUser = await this.getInvitedUser();
+    const invitingUser = await this.getInvitingUser();
+    const invitingUserProfile = invitingUser.profile || {};
     const invitationId = uuid.v4();
     const invitationUrl = AbstractStatus.generateInvitationUrl(
       invitationId,
@@ -55,6 +57,18 @@ export class CreatingStatus extends AbstractStatus {
     const document = {
       _id: invitationId,
       fromUserId: this.fromUserId,
+      source: {
+        type: 'user',
+        id: invitingUser._id,
+        profile: {
+          username: invitingUserProfile.username,
+          email: invitingUserProfile.email,
+          avatar: invitingUserProfile.avatar,
+          avatarId: invitingUserProfile.avatarId,
+          firstname: invitingUserProfile.firstname,
+          lastname: invitingUserProfile.lastname,
+        },
+      },
       fromUserLocale: this.fromUserLocale,
       toUserLocale: this.toUserLocale,
       status: invitationStatuses.PENDING,
