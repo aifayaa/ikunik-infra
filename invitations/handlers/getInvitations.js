@@ -5,6 +5,7 @@ import { formatValidationErrors } from '../../libs/httpResponses/formatValidatio
 import { getInvitations } from '../lib/getInvitations';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { paginationSchema } from '../../libs/schemas/pagination.schema';
+import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {
   const { principalId: currentUserId } = event.requestContext.authorizer;
@@ -24,7 +25,10 @@ export default async (event) => {
       getAllOptions: queryStringParameters,
     });
 
-    // TODO if the documents contain sensitive informations, omit them
+    invitationDocumentsResult.items = invitationDocumentsResult.items.map(
+      (invitationDocument) => filterSensitiveProperties(invitationDocument)
+    );
+
     return response({ code: 200, body: invitationDocumentsResult });
   } catch (error) {
     // TODO use a logger

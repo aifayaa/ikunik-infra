@@ -43,6 +43,7 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'invitation_expired':
     case 'invitation_unrecognized_user':
     case 'invitation_user_already_added_to_organization':
+    case 'invitation_invalid_secretChallengeCode':
       errorCode = 409;
       break;
     case 'not_implemented':

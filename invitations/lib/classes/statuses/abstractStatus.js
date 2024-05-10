@@ -21,6 +21,7 @@ export class AbstractStatus {
     this.expiredAt = null;
     this.method = null;
     this.target = null;
+    this.secretChallengeCode = null;
     this.invitedUser = null;
     this.invitingUser = null;
   }
@@ -53,7 +54,7 @@ export class AbstractStatus {
   }
 
   // should be protected
-  async notifyCreated({ locale, invitationId }) {
+  async notifyCreated({ locale, invitationId, secretChallengeCode }) {
     if (!Object.values(supportedLocales).includes(locale)) {
       throw new Error('unsupported_locale');
     }
@@ -70,7 +71,7 @@ export class AbstractStatus {
 
     let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
     if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
-      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}`;
+      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?secretChallengeCode=${secretChallengeCode}`;
     }
 
     await this.method.notifyCreated({
@@ -89,11 +90,13 @@ export class AbstractStatus {
     fromUserLocale,
     toUserLocale,
     expiredAt,
+    secretChallengeCode,
   }) {
     this.fromUserId = fromUserId;
     this.fromUserLocale = fromUserLocale;
     this.toUserLocale = toUserLocale;
     this.expiredAt = expiredAt;
+    this.secretChallengeCode = secretChallengeCode;
 
     if (this.expiredAt && new Date(this.expiredAt) < new Date()) {
       throw new Error('invitation_expired');

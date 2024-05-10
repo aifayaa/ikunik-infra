@@ -215,12 +215,16 @@ export class PendingStatus extends AbstractStatus {
   /**
    * Only invited user can accept the invitation
    */
-  async accept({ invitationId, currentUserId }) {
+  async accept({ invitationId, currentUserId, secretChallengeCode }) {
     const invitedUser = await this.getInvitedUser();
     if (!invitedUser) throw new Error('invitation_invited_user_not_found');
 
     if (invitedUser._id !== currentUserId) {
       throw new Error('invitation_unauthorized_action');
+    }
+
+    if (secretChallengeCode !== this.secretChallengeCode) {
+      throw new Error('invitation_invalid_secretChallengeCode');
     }
 
     this.target.checkInvitedUser(invitedUser);
@@ -234,12 +238,16 @@ export class PendingStatus extends AbstractStatus {
   /**
    * Only invited user can decline the invitation
    */
-  async decline({ invitationId, currentUserId }) {
+  async decline({ invitationId, currentUserId, secretChallengeCode }) {
     const invitedUser = await this.getInvitedUser();
     if (!invitedUser) throw new Error('invitation_invited_user_not_found');
 
     if (invitedUser._id !== currentUserId) {
       throw new Error('invitation_unauthorized_action');
+    }
+
+    if (secretChallengeCode !== this.secretChallengeCode) {
+      throw new Error('invitation_invalid_secretChallengeCode');
     }
 
     this.target.checkInvitedUser(invitedUser);
@@ -283,6 +291,7 @@ export class PendingStatus extends AbstractStatus {
     await this.notifyCreated({
       locale: this.toUserLocale,
       invitationId,
+      secretChallengeCode: this.secretChallengeCode,
     });
   }
 }

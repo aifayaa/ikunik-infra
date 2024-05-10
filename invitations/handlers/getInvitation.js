@@ -5,6 +5,7 @@ import { formatValidationErrors } from '../../libs/httpResponses/formatValidatio
 import { getInvitation } from '../lib/getInvitation';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
+import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {
   const { principalId: currentUserId } = event.requestContext.authorizer;
@@ -23,8 +24,10 @@ export default async (event) => {
     const invitationDocument = await getInvitation(currentUserId, invitationId);
     if (!invitationDocument) throw new Error('invitation_not_found');
 
-    // TODO if the document contains sensitive informations, omit them
-    return response({ code: 200, body: invitationDocument });
+    return response({
+      code: 200,
+      body: filterSensitiveProperties(invitationDocument),
+    });
   } catch (error) {
     // TODO use a logger
     return response(errorMessage({ message: error.message }));

@@ -2,7 +2,11 @@
 import MongoClient from '../../libs/mongoClient';
 import { Invitation } from './classes/invitation';
 
-export const updateInvitation = async (currentUserId, invitationId, update) => {
+export const updateInvitation = async (
+  currentUserId,
+  invitationId,
+  parameters
+) => {
   const mongoClient = await MongoClient.connect();
 
   try {
@@ -10,7 +14,7 @@ export const updateInvitation = async (currentUserId, invitationId, update) => {
     const modifiedCount = await invitation.update(
       currentUserId,
       invitationId,
-      update
+      parameters
     );
 
     return modifiedCount;

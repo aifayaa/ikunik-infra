@@ -45,6 +45,8 @@ export class CreatingStatus extends AbstractStatus {
       toUserLocale: this.toUserLocale,
       status: invitationStatuses.PENDING,
       createdAt: new Date().toISOString(),
+      // should never be returned in the http response
+      secretChallengeCode: this.secretChallengeCode,
       target: this.target.getInvitationDocumentProperties(),
       method: this.method.getInvitationDocumentProperties(),
     };
@@ -95,6 +97,7 @@ export class CreatingStatus extends AbstractStatus {
     await this.notifyCreated({
       locale: this.toUserLocale,
       invitationId: invitationDocument._id,
+      secretChallengeCode: this.secretChallengeCode,
     });
     return invitationDocument;
   }

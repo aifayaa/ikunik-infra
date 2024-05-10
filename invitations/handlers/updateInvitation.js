@@ -12,12 +12,12 @@ export default async (event) => {
   let invitationId = event.pathParameters.id;
 
   try {
-    let update = JSON.parse(event.body);
+    let parameters = JSON.parse(event.body);
 
     // validation
     try {
       invitationId = makeIdSchema('invitationId').parse(invitationId);
-      update = updateInvitationSchema.parse(update);
+      parameters = updateInvitationSchema.parse(parameters);
     } catch (err) {
       const errors = formatValidationErrors(err);
       const body = formatResponseBody({ errors });
@@ -25,7 +25,11 @@ export default async (event) => {
     }
 
     // current user right to update an invitation is determined in a step further
-    const count = await updateInvitation(currentUserId, invitationId, update);
+    const count = await updateInvitation(
+      currentUserId,
+      invitationId,
+      parameters
+    );
 
     return response({ code: 200, body: { count } });
   } catch (error) {

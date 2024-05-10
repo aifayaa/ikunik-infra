@@ -6,6 +6,7 @@ import { createInvitation } from '../lib/createInvitation';
 import { createInvitationSchema } from '../schemas/createInvitation.schema';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {
   const { principalId: currentUserId } = event.requestContext.authorizer;
@@ -30,8 +31,10 @@ export default async (event) => {
       currentUserLocale
     );
 
-    // TODO if the created document contains sensitive informations, omit them
-    return response({ code: 200, body: createdInvitationDocument });
+    return response({
+      code: 200,
+      body: filterSensitiveProperties(createdInvitationDocument),
+    });
   } catch (error) {
     // TODO use a logger
     return response(errorMessage({ message: error.message }));

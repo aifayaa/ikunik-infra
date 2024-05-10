@@ -2,8 +2,9 @@ import { z } from 'zod';
 
 import { invitationStatuses } from '../const/invitations';
 
-export const updateInvitationSchema = z
+const baseUpdateInvitationSchema = z
   .object({
+    secretChallengeCode: z.string().length(4).optional(),
     status: z.enum([
       invitationStatuses.ACCEPTED,
       invitationStatuses.DECLINED,
@@ -11,3 +12,24 @@ export const updateInvitationSchema = z
     ]),
   })
   .strict();
+
+export const updateInvitationSchema = baseUpdateInvitationSchema.superRefine(
+  (value, ctx) => {
+    switch (value.status) {
+      case invitationStatuses.ACCEPTED:
+      case invitationStatuses.DECLINED:
+        if (!value.secretChallengeCode) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.invalid_type,
+            expected: z.ZodParsedType.string,
+            received: z.ZodParsedType.undefined,
+            path: ['secretChallengeCode'],
+          });
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+);
