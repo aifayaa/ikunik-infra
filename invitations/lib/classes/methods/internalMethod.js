@@ -102,7 +102,7 @@ export class InternalMethod extends AbstractMethod {
 
     // notify invited user
     await InternalMethod.sendNotification({
-      userEmail: this.toUserId,
+      userId: this.toUserId,
       title,
       template,
       parameters,

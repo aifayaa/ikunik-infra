@@ -10,17 +10,16 @@ import mongoCollections from '../../../../libs/mongoCollections.json';
 const { COLL_INVITATIONS } = mongoCollections;
 
 export class PendingStatus extends AbstractStatus {
-  async updateAccepted(invitationId) {
+  async updateAccepted(invitationId, userId) {
     const session = this.mongoClient.startSession();
     let count = 0;
+    const user = await this.getUser(userId);
+    if (!user) throw new Error('invitation_invited_user_not_found');
 
     try {
       await session.withTransaction(async () => {
-        const invitedUser = await this.getInvitedUser();
-        if (!invitedUser) throw new Error('invitation_invited_user_not_found');
-
         const { modifiedCount } = await this.target.handleInvitationAccepted({
-          invitedUser,
+          invitedUser: user,
           session,
         });
         if (modifiedCount === 0) {
@@ -36,7 +35,7 @@ export class PendingStatus extends AbstractStatus {
             { _id: invitationId },
             {
               $set: {
-                toUserId: invitedUser._id,
+                toUserId: user._id,
                 status: invitationStatuses.ACCEPTED,
                 updatedAt: new Date().toISOString(),
               },
@@ -56,9 +55,9 @@ export class PendingStatus extends AbstractStatus {
     return count;
   }
 
-  async updateDeclined(invitationId) {
-    const invitedUser = await this.getInvitedUser();
-    if (!invitedUser) throw new Error('invitation_invited_user_not_found');
+  async updateDeclined(invitationId, userId) {
+    const user = await this.getUser(userId);
+    if (!user) throw new Error('invitation_invited_user_not_found');
 
     const updateInvitationRes = await this.mongoClient
       .db()
@@ -68,7 +67,7 @@ export class PendingStatus extends AbstractStatus {
         {
           $set: {
             status: invitationStatuses.DECLINED,
-            toUserId: invitedUser._id,
+            toUserId: user._id,
             updatedAt: new Date().toISOString(),
           },
         }
@@ -215,21 +214,23 @@ export class PendingStatus extends AbstractStatus {
   /**
    * Only invited user can accept the invitation
    */
-  async accept({ invitationId, currentUserId, secretChallengeCode }) {
+  async accept({ invitationId, currentUserId, challengeCode }) {
+    if (challengeCode !== this.challengeCode) {
+      throw new Error('invitation_invalid_challengeCode');
+    }
+
     const invitedUser = await this.getInvitedUser();
-    if (!invitedUser) throw new Error('invitation_invited_user_not_found');
-
-    if (invitedUser._id !== currentUserId) {
-      throw new Error('invitation_unauthorized_action');
+    if (invitedUser) {
+      if (invitedUser._id !== currentUserId) {
+        throw new Error('invitation_unauthorized_action');
+      }
+      this.target.checkInvitedUser(invitedUser);
     }
 
-    if (secretChallengeCode !== this.secretChallengeCode) {
-      throw new Error('invitation_invalid_secretChallengeCode');
-    }
-
-    this.target.checkInvitedUser(invitedUser);
-
-    const modifiedCount = await this.updateAccepted(invitationId);
+    const modifiedCount = await this.updateAccepted(
+      invitationId,
+      currentUserId
+    );
     await this.notifyAccepted();
 
     return modifiedCount;
@@ -238,21 +239,23 @@ export class PendingStatus extends AbstractStatus {
   /**
    * Only invited user can decline the invitation
    */
-  async decline({ invitationId, currentUserId, secretChallengeCode }) {
+  async decline({ invitationId, currentUserId, challengeCode }) {
+    if (challengeCode !== this.challengeCode) {
+      throw new Error('invitation_invalid_challengeCode');
+    }
+
     const invitedUser = await this.getInvitedUser();
-    if (!invitedUser) throw new Error('invitation_invited_user_not_found');
-
-    if (invitedUser._id !== currentUserId) {
-      throw new Error('invitation_unauthorized_action');
+    if (invitedUser) {
+      if (invitedUser._id !== currentUserId) {
+        throw new Error('invitation_unauthorized_action');
+      }
+      this.target.checkInvitedUser(invitedUser);
     }
 
-    if (secretChallengeCode !== this.secretChallengeCode) {
-      throw new Error('invitation_invalid_secretChallengeCode');
-    }
-
-    this.target.checkInvitedUser(invitedUser);
-
-    const modifiedCount = await this.updateDeclined(invitationId);
+    const modifiedCount = await this.updateDeclined(
+      invitationId,
+      currentUserId
+    );
     await this.notifyDeclined();
 
     return modifiedCount;
@@ -291,7 +294,7 @@ export class PendingStatus extends AbstractStatus {
     await this.notifyCreated({
       locale: this.toUserLocale,
       invitationId,
-      secretChallengeCode: this.secretChallengeCode,
+      challengeCode: this.challengeCode,
     });
   }
 }

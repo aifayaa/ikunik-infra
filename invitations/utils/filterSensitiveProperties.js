@@ -4,7 +4,7 @@ export const filterSensitiveProperties = (invitationDocument) => {
   const filtered = {
     ...invitationDocument,
   };
-  delete filtered.secretChallengeCode;
+  delete filtered.challengeCode;
 
   return filtered;
 };

@@ -3,8 +3,9 @@ export const invitationTargetTypes = {
 };
 
 export const invitationMethodTypes = {
-  INTERNAL: 'internal',
   EMAIL: 'email',
+  LINK: 'link',
+  INTERNAL: 'internal',
 };
 
 export const invitationOrganizationRoles = {

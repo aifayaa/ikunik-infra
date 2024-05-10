@@ -4,7 +4,12 @@ import {
   invitationTargetTypes,
   supportedLocales,
 } from '../../../const/invitations';
-import { AbstractMethod, EmailMethod, InternalMethod } from '../methods';
+import {
+  AbstractMethod,
+  EmailMethod,
+  InternalMethod,
+  LinkMethod,
+} from '../methods';
 import { AbstractTarget, OrganizationTarget } from '../targets';
 
 import mongoCollections from '../../../../libs/mongoCollections.json';
@@ -16,24 +21,45 @@ export class AbstractStatus {
     this.mongoClient = mongoClient;
 
     this.fromUserId = null;
+    this.toUserId = null;
     this.fromUserLocale = null;
     this.toUserLocale = null;
     this.expiredAt = null;
     this.method = null;
     this.target = null;
-    this.secretChallengeCode = null;
+    this.challengeCode = null;
     this.invitedUser = null;
     this.invitingUser = null;
+    this.currentUser = null;
+  }
+
+  // should be protected
+  async getUser(userId) {
+    const user = await this.mongoClient
+      .db()
+      .collection(COLL_USERS)
+      .findOne({ _id: userId });
+
+    return user;
   }
 
   // should be protected
   async getInvitedUser() {
     if (!this.invitedUser) {
-      const query = this.method.getFindOneInvitedUserQuery();
-      this.invitedUser = await this.mongoClient
-        .db()
-        .collection(COLL_USERS)
-        .findOne(query);
+      let query;
+
+      if (this.toUserId) {
+        query = { _id: this.toUserId };
+      } else {
+        query = this.method.getFindOneInvitedUserQuery();
+      }
+
+      if (query) {
+        this.invitedUser = await this.mongoClient
+          .db()
+          .collection(COLL_USERS)
+          .findOne(query);
+      }
     }
 
     return this.invitedUser;
@@ -53,8 +79,16 @@ export class AbstractStatus {
     return this.invitingUser;
   }
 
+  static generateInvitationUrl(invitationId, challengeCode) {
+    let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
+    if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
+      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?challengeCode=${challengeCode}`;
+    }
+    return url;
+  }
+
   // should be protected
-  async notifyCreated({ locale, invitationId, secretChallengeCode }) {
+  async notifyCreated({ locale, invitationId, challengeCode }) {
     if (!Object.values(supportedLocales).includes(locale)) {
       throw new Error('unsupported_locale');
     }
@@ -69,34 +103,31 @@ export class AbstractStatus {
 
     const invitingUser = await this.getInvitingUser();
 
-    let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
-    if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
-      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?secretChallengeCode=${secretChallengeCode}`;
-    }
-
     await this.method.notifyCreated({
       title,
       template,
       templateParameters,
       invitingUser,
-      url,
+      url: AbstractStatus.generateInvitationUrl(invitationId, challengeCode),
     });
   }
 
   async init({
     fromUserId,
+    toUserId,
     target,
     method,
     fromUserLocale,
     toUserLocale,
     expiredAt,
-    secretChallengeCode,
+    challengeCode,
   }) {
     this.fromUserId = fromUserId;
+    this.toUserId = toUserId;
     this.fromUserLocale = fromUserLocale;
     this.toUserLocale = toUserLocale;
     this.expiredAt = expiredAt;
-    this.secretChallengeCode = secretChallengeCode;
+    this.challengeCode = challengeCode;
 
     if (this.expiredAt && new Date(this.expiredAt) < new Date()) {
       throw new Error('invitation_expired');
@@ -123,6 +154,8 @@ export class AbstractStatus {
       this.method = new EmailMethod({ toUserEmail: method.emailAddress });
     } else if (method && method.type === invitationMethodTypes.INTERNAL) {
       this.method = new InternalMethod({ toUserId: method.toUserId });
+    } else if (method && method.type === invitationMethodTypes.LINK) {
+      this.method = new LinkMethod();
     } else {
       throw new Error('invitation_method_type_not_implemented');
     }

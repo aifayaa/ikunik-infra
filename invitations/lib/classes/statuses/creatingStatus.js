@@ -8,7 +8,7 @@ const { COLL_INVITATIONS } = mongoCollections;
 
 export class CreatingStatus extends AbstractStatus {
   // should be protected or private
-  async getExistingInvitation() {
+  async checkExistingInvitation() {
     const baseFindInvitationQuery = {
       fromUserId: this.fromUserId,
       /* 
@@ -20,10 +20,15 @@ export class CreatingStatus extends AbstractStatus {
     const invitedUser = await this.getInvitedUser();
     if (invitedUser) baseFindInvitationQuery.toUserId = invitedUser._id;
 
+    const queryFromTarget = this.target.getFindInvitationQuery();
+    const queryFromMethod = this.method.getFindInvitationQuery();
+
+    if (!queryFromTarget || !queryFromMethod) return;
+
     const findInvitationQuery = {
       ...baseFindInvitationQuery,
-      ...this.target.getFindInvitationQuery(),
-      ...this.method.getFindInvitationQuery(),
+      ...queryFromTarget,
+      ...queryFromMethod,
     };
 
     const existingInvitation = await this.mongoClient
@@ -31,24 +36,29 @@ export class CreatingStatus extends AbstractStatus {
       .collection(COLL_INVITATIONS)
       .findOne(findInvitationQuery);
 
-    return existingInvitation;
+    if (existingInvitation) throw new Error('already_exists');
   }
 
   // should be protected or private
   async generateInvitationDocument() {
     const invitedUser = await this.getInvitedUser();
+    const invitationId = uuid.v4();
+    const invitationUrl = AbstractStatus.generateInvitationUrl(
+      invitationId,
+      this.challengeCode
+    );
 
     const document = {
-      _id: uuid.v4(),
+      _id: invitationId,
       fromUserId: this.fromUserId,
       fromUserLocale: this.fromUserLocale,
       toUserLocale: this.toUserLocale,
       status: invitationStatuses.PENDING,
       createdAt: new Date().toISOString(),
       // should never be returned in the http response
-      secretChallengeCode: this.secretChallengeCode,
+      challengeCode: this.challengeCode,
       target: this.target.getInvitationDocumentProperties(),
-      method: this.method.getInvitationDocumentProperties(),
+      method: this.method.getInvitationDocumentProperties({ invitationUrl }),
     };
 
     if (this.expiredAt) {
@@ -77,8 +87,7 @@ export class CreatingStatus extends AbstractStatus {
     Public methods below
   **************************************************************************** */
   async create() {
-    const existingInvitation = await this.getExistingInvitation();
-    if (existingInvitation) throw new Error('already_exists');
+    await this.checkExistingInvitation();
 
     const invitingUser = await this.getInvitingUser();
     // inviting user must always exist when creating the invitation
@@ -97,7 +106,7 @@ export class CreatingStatus extends AbstractStatus {
     await this.notifyCreated({
       locale: this.toUserLocale,
       invitationId: invitationDocument._id,
-      secretChallengeCode: this.secretChallengeCode,
+      challengeCode: this.challengeCode,
     });
     return invitationDocument;
   }

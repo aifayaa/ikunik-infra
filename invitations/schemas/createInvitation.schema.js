@@ -32,7 +32,11 @@ const organizationTargetSchema = baseTargetSchema
 const baseMethodSchema = z
   .object({
     // TODO: add other method types when implemented
-    type: z.enum([invitationMethodTypes.EMAIL, invitationMethodTypes.INTERNAL]),
+    type: z.enum([
+      invitationMethodTypes.EMAIL,
+      invitationMethodTypes.INTERNAL,
+      invitationMethodTypes.LINK,
+    ]),
   })
   .passthrough();
 

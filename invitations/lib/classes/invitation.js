@@ -18,13 +18,12 @@ export class Invitation {
   }
 
   // should be protected or private
-  async findInvitationById(invitationId, currentUserId) {
+  async findInvitationById(invitationId) {
     const invitation = await this.mongoClient
       .db()
       .collection(COLL_INVITATIONS)
       .findOne({
         _id: invitationId,
-        ...Invitation.getFindInvitationsQuery(currentUserId),
       });
 
     return invitation;
@@ -73,12 +72,13 @@ export class Invitation {
   // should be protected or private
   async init({
     fromUserId,
+    toUserId,
     target,
     method,
     fromUserLocale,
     toUserLocale,
     expiredAt,
-    secretChallengeCode,
+    challengeCode,
     status,
   }) {
     const statusParams = {
@@ -116,12 +116,13 @@ export class Invitation {
 
     await this.status.init({
       fromUserId,
+      toUserId,
       target,
       method,
       fromUserLocale,
       toUserLocale,
       expiredAt,
-      secretChallengeCode,
+      challengeCode,
     });
   }
 
@@ -137,7 +138,7 @@ export class Invitation {
       toUserLocale: invitationParams.toUserLocale,
       expiredAt: invitationParams.expiredAt,
       status: invitationStatuses.CREATING,
-      secretChallengeCode: Invitation.generateSecretChallengeCode(),
+      challengeCode: Invitation.generateSecretChallengeCode(),
     });
 
     const invitationDocument = await this.status.create();
@@ -151,17 +152,18 @@ export class Invitation {
       currentUserId
     );
     if (!invitation) throw new Error('invitation_not_found');
-    const { status, secretChallengeCode } = parameters;
+    const { status, challengeCode } = parameters;
 
     await this.init({
       fromUserId: invitation.fromUserId,
+      toUserId: invitation.toUserId,
       target: invitation.target,
       method: invitation.method,
       fromUserLocale: invitation.fromUserLocale,
       toUserLocale: invitation.toUserLocale,
       expiredAt: invitation.expiredAt,
       status: invitation.status,
-      secretChallengeCode: invitation.secretChallengeCode,
+      challengeCode: invitation.challengeCode,
     });
 
     let modifiedCount;
@@ -173,14 +175,14 @@ export class Invitation {
       case invitationStatuses.ACCEPTED:
         modifiedCount = await this.status.accept({
           ...actionParams,
-          secretChallengeCode,
+          challengeCode,
         });
         break;
 
       case invitationStatuses.DECLINED:
         modifiedCount = await this.status.decline({
           ...actionParams,
-          secretChallengeCode,
+          challengeCode,
         });
         break;
 
@@ -238,13 +240,14 @@ export class Invitation {
 
     await this.init({
       fromUserId: invitation.fromUserId,
+      toUserId: invitation.toUserId,
       target: invitation.target,
       method: invitation.method,
       fromUserLocale: invitation.fromUserLocale,
       toUserLocale: invitation.toUserLocale,
       expiredAt: invitation.expiredAt,
       status: invitation.status,
-      secretChallengeCode: invitation.secretChallengeCode,
+      challengeCode: invitation.challengeCode,
     });
 
     const actionParams = {
