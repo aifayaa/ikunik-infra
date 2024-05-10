@@ -2,22 +2,26 @@
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
-import { updateInvitation } from '../lib/updateInvitation';
-import { updateInvitationSchema } from '../schemas/updateInvitation.schema';
+import { invitationAction } from '../lib/invitationAction';
+import { invitationActionSchema } from '../schemas/invitationAction.schema';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 
 export default async (event) => {
   const { principalId: currentUserId } = event.requestContext.authorizer;
   let invitationId = event.pathParameters.id;
+  const { action } = event.pathParameters;
 
   try {
-    let parameters = JSON.parse(event.body);
+    // should contain the challengeCode
+    let parameters = JSON.parse(event.body) || {};
+    parameters.action = action;
 
     // validation
     try {
       invitationId = makeIdSchema('invitationId').parse(invitationId);
-      parameters = updateInvitationSchema.parse(parameters);
+
+      parameters = invitationActionSchema.parse(parameters);
     } catch (err) {
       const errors = formatValidationErrors(err);
       const body = formatResponseBody({ errors });
@@ -25,13 +29,13 @@ export default async (event) => {
     }
 
     // current user right to update an invitation is determined in a step further
-    const count = await updateInvitation(
+    const modifiedCount = await invitationAction(
       currentUserId,
       invitationId,
       parameters
     );
 
-    return response({ code: 200, body: { count } });
+    return response({ code: 200, body: { modifiedCount } });
   } catch (error) {
     // TODO use a logger
     return response(errorMessage({ message: error.message }));

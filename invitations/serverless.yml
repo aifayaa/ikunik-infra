@@ -63,28 +63,11 @@ functions:
               paths:
                 id: true
 
-  updateInvitation:
-    handler: handlers/updateInvitation.default
+  invitationAction:
+    handler: handlers/invitationAction.default
     events:
       - http:
-          path: invitations/{id}
-          method: patch
-          cors: true
-          authorizer:
-            type: CUSTOM
-            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
-          request:
-            parameters:
-              headers:
-                Authorization: true
-              paths:
-                id: true
-
-  resendInvitation:
-    handler: handlers/resendInvitation.default
-    events:
-      - http:
-          path: invitations/{id}/resend
+          path: invitations/{id}/{action}
           method: put
           cors: true
           authorizer:
@@ -96,6 +79,7 @@ functions:
                 Authorization: true
               paths:
                 id: true
+                action: true
 
 plugins:
   - serverless-disable-request-validators

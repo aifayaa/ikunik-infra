@@ -216,16 +216,12 @@ export class PendingStatus extends AbstractStatus {
       throw new Error('invitation_invalid_challengeCode');
     }
     const invitingUser = await this.getInvitingUser();
-    if (invitingUser._id === currentUserId) { 
+    if (invitingUser._id === currentUserId) {
       throw new Error('invitation_unauthorized_action');
     }
 
-    const invitedUser = await this.getInvitedUser();
-    const isKnownInvitedUser = invitedUser && invitedUser._id === currentUserId;
-    if (!isKnownInvitedUser) {
-      const user = await this.getUser(currentUserId);
-      await this.target.checkUserCanAccept(user);
-    }
+    const user = await this.getUser(currentUserId);
+    await this.target.checkUserCanAccept(user);
 
     const modifiedCount = await this.updateAccepted(
       invitationId,
@@ -242,16 +238,12 @@ export class PendingStatus extends AbstractStatus {
     }
 
     const invitingUser = await this.getInvitingUser();
-    if (invitingUser._id === currentUserId) { 
+    if (invitingUser._id === currentUserId) {
       throw new Error('invitation_unauthorized_action');
     }
 
-    const invitedUser = await this.getInvitedUser();
-    const isKnownInvitedUser = invitedUser && invitedUser._id === currentUserId;
-    if (!isKnownInvitedUser) {
-      const user = await this.getUser(currentUserId);
-      await this.target.checkUserCanDecline(user);
-    }
+    const user = await this.getUser(currentUserId);
+    await this.target.checkUserCanDecline(user);
 
     const modifiedCount = await this.updateDeclined(
       invitationId,

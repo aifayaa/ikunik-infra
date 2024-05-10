@@ -2,12 +2,22 @@
 import MongoClient from '../../libs/mongoClient';
 import { Invitation } from './classes/invitation';
 
-export const resendInvitation = async (currentUserId, invitationId) => {
+export const invitationAction = async (
+  currentUserId,
+  invitationId,
+  parameters
+) => {
   const mongoClient = await MongoClient.connect();
 
   try {
     const invitation = new Invitation({ mongoClient });
-    await invitation.resend(currentUserId, invitationId);
+    const modifiedCount = await invitation.execAction(
+      currentUserId,
+      invitationId,
+      parameters
+    );
+
+    return modifiedCount;
   } finally {
     mongoClient.close();
   }

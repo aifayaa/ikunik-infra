@@ -72,7 +72,7 @@ export class OrganizationTarget extends AbstractTarget {
    * should perform the necessary operations for an accepted invitation
    */
   async handleInvitationAccepted({ session, invitedUser }) {
-    this.checkUserCanAccept(invitedUser);
+    await this.checkUserCanAccept(invitedUser);
 
     const update = {
       $addToSet: {

@@ -1,23 +1,24 @@
 import { z } from 'zod';
 
-import { invitationStatuses } from '../const/invitations';
+import { invitationActions } from '../const/invitations';
 
-const baseUpdateInvitationSchema = z
+const baseInvitationActionSchema = z
   .object({
     challengeCode: z.string().length(4).optional(),
-    status: z.enum([
-      invitationStatuses.ACCEPTED,
-      invitationStatuses.DECLINED,
-      invitationStatuses.CANCELED,
+    action: z.enum([
+      invitationActions.ACCEPT,
+      invitationActions.DECLINE,
+      invitationActions.CANCEL,
+      invitationActions.RESEND,
     ]),
   })
   .strict();
 
-export const updateInvitationSchema = baseUpdateInvitationSchema.superRefine(
+export const invitationActionSchema = baseInvitationActionSchema.superRefine(
   (value, ctx) => {
-    switch (value.status) {
-      case invitationStatuses.ACCEPTED:
-      case invitationStatuses.DECLINED:
+    switch (value.action) {
+      case invitationActions.ACCEPT:
+      case invitationActions.DECLINE:
         if (!value.challengeCode) {
           ctx.addIssue({
             code: z.ZodIssueCode.invalid_type,

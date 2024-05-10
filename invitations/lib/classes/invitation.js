@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { invitationStatuses } from '../../const/invitations';
+import { invitationActions, invitationStatuses } from '../../const/invitations';
 import {
   CreatingStatus,
   PendingStatus,
@@ -145,6 +145,64 @@ export class Invitation {
     const invitationDocument = await this.status.create();
 
     return invitationDocument;
+  }
+
+  async execAction(currentUserId, invitationId, parameters) {
+    const invitation = await this.findInvitationById(
+      invitationId,
+      currentUserId
+    );
+    if (!invitation) throw new Error('invitation_not_found');
+    const { action, challengeCode } = parameters;
+
+    await this.init({
+      fromUserId: invitation.fromUserId,
+      toUserId: invitation.toUserId,
+      target: invitation.target,
+      method: invitation.method,
+      fromUserLocale: invitation.fromUserLocale,
+      toUserLocale: invitation.toUserLocale,
+      expiredAt: invitation.expiredAt,
+      status: invitation.status,
+      challengeCode: invitation.challengeCode,
+    });
+
+    let modifiedCount;
+    const actionParams = {
+      currentUserId,
+      invitationId,
+    };
+    switch (action) {
+      case invitationActions.ACCEPT:
+        modifiedCount = await this.status.accept({
+          ...actionParams,
+          challengeCode,
+        });
+        break;
+
+      case invitationActions.DECLINE:
+        modifiedCount = await this.status.decline({
+          ...actionParams,
+          challengeCode,
+        });
+        break;
+
+      case invitationActions.CANCEL:
+        modifiedCount = await this.status.cancel(actionParams);
+        break;
+
+      case invitationActions.RESEND:
+        await this.status.resend(actionParams);
+        modifiedCount = 0;
+        break;
+
+      default:
+        throw new Error(
+          'invitation_could_not_determine_action_from_provided_status'
+        );
+    }
+
+    return modifiedCount;
   }
 
   async update(currentUserId, invitationId, parameters) {

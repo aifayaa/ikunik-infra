@@ -21,6 +21,13 @@ export const invitationStatuses = {
   CANCELED: 'canceled',
 };
 
+export const invitationActions = {
+  ACCEPT: 'accept',
+  DECLINE: 'decline',
+  CANCEL: 'cancel',
+  RESEND: 'resend',
+};
+
 export const supportedLocales = {
   FR: 'fr',
   EN: 'en',
