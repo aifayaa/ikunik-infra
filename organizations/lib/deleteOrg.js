@@ -49,5 +49,5 @@ export default async (userId, orgId) => {
       client.close();
     });
 
-  return { deletedResources: { organizationId: orgId } };
+  return { deletedResources: { organizationIds: [orgId] } };
 };
