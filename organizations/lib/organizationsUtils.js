@@ -1,0 +1,24 @@
+/* eslint-disable import/no-relative-packages */
+import { objUnset } from '../../libs/utils';
+
+export const userPrivateFields = ['services'];
+
+export const userPrivateFieldsProjection = userPrivateFields.reduce(
+  (acc, field) => {
+    acc[field] = 0;
+    return acc;
+  },
+  {}
+);
+
+export function filterUserPrivateFields(app) {
+  const ret = JSON.parse(JSON.stringify(app)); // Deep duplication required to avoid modifying the source
+
+  userPrivateFields.forEach((field) => {
+    objUnset(ret, field);
+  });
+
+  return ret;
+}
+
+export const organizationRoles = ['owner', 'admin', 'member'];

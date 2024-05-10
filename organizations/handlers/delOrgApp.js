@@ -34,7 +34,7 @@ export default async (event) => {
           {
             type: ERROR_TYPE_ACCESS,
             code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
             details: {
               userId,
               orgId,
@@ -91,7 +91,7 @@ export default async (event) => {
     }
 
     // TODO Quand on aura l'info de la publication de l'app sur les stores, prendre ça en compte plus tard.
-    if (app.setup || app.builds) {
+    if (app.builds.android.ready || app.builds.ios.ready) {
       const errorBody = formatResponseBody({
         errors: [
           {
