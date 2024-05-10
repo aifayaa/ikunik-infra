@@ -106,10 +106,9 @@ export const formatValidationErrors = (zodError) => {
         };
         break;
 
-      // TODO handle and test this case
-      // case ZodIssueCode.custom:
-      //   code = CUSTOM_CODE;
-      //   break;
+      case ZodIssueCode.custom:
+        code = CUSTOM_CODE;
+        break;
 
       default:
         code = VALIDATION_FAILED_CODE;

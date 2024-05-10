@@ -399,6 +399,33 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getOrgInvitations: {
+      handler: 'handlers/getOrgInvitations.default',
+      events: [
+        {
+          http: {
+            path: 'organizations/{id}/invitations',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-webpack',

@@ -76,3 +76,7 @@ export function indexObjectArrayWithKey(arrayOfObjects, key = '_id', to = {}) {
 
   return ret;
 }
+
+export function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
