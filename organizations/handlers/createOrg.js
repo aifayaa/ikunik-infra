@@ -6,17 +6,29 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import createOrg from '../lib/createOrg';
 
-export const createOrgSchema = z
-  .object({
-    name: z
-      .string({
-        required_error: 'name is required',
-        invalid_type_error: 'name must be a string',
-      })
-      .max(80, { message: 'Must be 80 or fewer characters long' })
-      .trim(),
-  })
-  .required();
+export const createOrgSchema = z.object({
+  name: z
+    .string({
+      required_error: 'name is required',
+      invalid_type_error: 'name must be a string',
+    })
+    .max(80, { message: 'Must be 80 or fewer characters long' })
+    .trim()
+    .required(),
+  appleTeamId: z
+    .string({
+      invalid_type_error: 'appleTeamId must be a string',
+    })
+    .length(10, { message: 'Must be 10 characters long' })
+    .trim(),
+  appleCompanyName: z
+    .string({
+      invalid_type_error: 'appleCompanyName must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .max(1, { message: 'Must be at most 100 character long' }) // Arbitrary length
+    .trim(),
+});
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

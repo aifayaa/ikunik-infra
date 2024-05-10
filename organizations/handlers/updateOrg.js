@@ -12,17 +12,28 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { returnedFieldsFilter } from '../lib/fieldsChecks';
 
-const updateOrgSchema = z
-  .object({
-    name: z
-      .string({
-        required_error: 'name is required',
-        invalid_type_error: 'name must be a string',
-      })
-      .max(80, { message: 'Must be 80 or fewer characters long' })
-      .trim(),
-  })
-  .required();
+const updateOrgSchema = z.object({
+  name: z
+    .string({
+      required_error: 'name is required',
+      invalid_type_error: 'name must be a string',
+    })
+    .max(80, { message: 'Must be 80 or fewer characters long' })
+    .trim(),
+  appleTeamId: z
+    .string({
+      invalid_type_error: 'appleTeamId must be a string',
+    })
+    .length(10, { message: 'Must be 10 characters long' })
+    .trim(),
+  appleCompanyName: z
+    .string({
+      invalid_type_error: 'appleCompanyName must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .max(1, { message: 'Must be at most 100 character long' }) // Arbitrary length
+    .trim(),
+});
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -65,8 +76,7 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const { name } = validatedBody;
-    const org = await updateOrg(orgId, name);
+    const org = await updateOrg(orgId, validatedBody);
 
     return response({
       code: 200,
