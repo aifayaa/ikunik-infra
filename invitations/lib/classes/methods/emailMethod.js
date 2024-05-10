@@ -12,7 +12,8 @@ export class EmailMethod extends AbstractMethod {
     this.toUserEmail = toUserEmail;
   }
 
-  getInvitationDocumentProperties() {
+  // eslint-disable-next-line require-await
+  async getInvitationDocumentProperties() {
     return {
       type: invitationMethodTypes.EMAIL,
       emailAddress: this.toUserEmail,

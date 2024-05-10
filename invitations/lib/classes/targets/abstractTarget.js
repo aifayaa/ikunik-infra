@@ -35,7 +35,7 @@ export class AbstractTarget {
    * should return properties that will be added to the target in the invitation document
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
-  getInvitationDocumentProperties() {
+  async getInvitationDocumentProperties() {
     throw new Error('not_implemented');
   }
 

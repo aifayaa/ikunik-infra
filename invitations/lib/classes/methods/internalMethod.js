@@ -11,8 +11,8 @@ export class InternalMethod extends AbstractMethod {
     this.toUserId = toUserId;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  getInvitationDocumentProperties() {
+  // eslint-disable-next-line class-methods-use-this, require-await
+  async getInvitationDocumentProperties() {
     return {
       type: invitationMethodTypes.INTERNAL,
       toUserId: this.toUserId,

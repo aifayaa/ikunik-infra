@@ -47,6 +47,10 @@ export class CreatingStatus extends AbstractStatus {
       invitationId,
       this.challengeCode
     );
+    const target = await this.target.getInvitationDocumentProperties();
+    const method = await this.method.getInvitationDocumentProperties({
+      invitationUrl,
+    });
 
     const document = {
       _id: invitationId,
@@ -57,8 +61,8 @@ export class CreatingStatus extends AbstractStatus {
       createdAt: new Date().toISOString(),
       // should never be returned in the http response
       challengeCode: this.challengeCode,
-      target: this.target.getInvitationDocumentProperties(),
-      method: this.method.getInvitationDocumentProperties({ invitationUrl }),
+      target,
+      method,
     };
 
     if (this.expiredAt) {

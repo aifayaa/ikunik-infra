@@ -100,10 +100,13 @@ export class OrganizationTarget extends AbstractTarget {
     };
   }
 
-  getInvitationDocumentProperties() {
+  // eslint-disable-next-line require-await
+  async getInvitationDocumentProperties() {
+    const getOrganization = await this.getOrganization();
     return {
       type: invitationTargetTypes.ORGANIZATION,
       organizationId: this.organizationId,
+      organizationName: getOrganization.name,
       role: this.role,
     };
   }

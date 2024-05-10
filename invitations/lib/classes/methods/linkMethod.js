@@ -3,8 +3,8 @@ import { AbstractMethod } from './abstractMethod';
 import { invitationMethodTypes } from '../../../const/invitations';
 
 export class LinkMethod extends AbstractMethod {
-  // eslint-disable-next-line class-methods-use-this
-  getInvitationDocumentProperties({ invitationUrl }) {
+  // eslint-disable-next-line class-methods-use-this, require-await
+  async getInvitationDocumentProperties({ invitationUrl }) {
     return {
       type: invitationMethodTypes.LINK,
       invitationUrl,

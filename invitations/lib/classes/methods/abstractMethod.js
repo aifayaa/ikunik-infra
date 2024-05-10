@@ -2,8 +2,8 @@ export class AbstractMethod {
   /**
    * should return properties that will be added to the method in the invitation document
    */
-  // eslint-disable-next-line class-methods-use-this
-  getInvitationDocumentProperties() {
+  // eslint-disable-next-line class-methods-use-this, require-await
+  async getInvitationDocumentProperties() {
     throw new Error('not_implemented');
   }
 
