@@ -41,6 +41,7 @@ export default async (orgId, { appleTeamId, appleCompanyName, name }) => {
       if (oldTeamId !== appleTeamId) {
         $set['apple.teamId'] = appleTeamId;
         $set['apple.teamStatus'] = 'checking';
+        $set['apple.setupDone'] = false;
         updates.$unset = {
           'apple.itcTeamId': '',
           'apple.lastTeamIdCheck': '',
