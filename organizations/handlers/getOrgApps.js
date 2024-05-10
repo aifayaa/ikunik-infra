@@ -42,7 +42,9 @@ export default async (event) => {
     const apps = await getOrgApps(orgId);
     return response({
       code: 200,
-      body: formatResponseBody({ data: { items: apps } }),
+      body: formatResponseBody({
+        data: { items: apps, totalCount: apps.length },
+      }),
     });
   } catch (exception) {
     const errorBody = formatResponseBody({
