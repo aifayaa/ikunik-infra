@@ -12,7 +12,8 @@ export const userPrivateFieldsProjection = userPrivateFields.reduce(
 );
 
 export function filterUserPrivateFields(app) {
-  const ret = JSON.parse(JSON.stringify(app)); // Deep duplication required to avoid modifying the source
+  // Deep duplication required to avoid modifying the source
+  const ret = JSON.parse(JSON.stringify(app));
 
   userPrivateFields.forEach((field) => {
     objUnset(ret, field);
