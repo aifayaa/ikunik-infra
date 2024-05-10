@@ -12,10 +12,10 @@ export const getInvitations = async (currentUserId, options) => {
       options.getAllOptions
     );
     const invitationDocumentsCount =
-      await invitation.getAllCount(currentUserId);
+      await invitation.getTotalCount(currentUserId);
 
     return {
-      count: invitationDocumentsCount,
+      totalCount: invitationDocumentsCount,
       items: invitationDocuments,
     };
   } finally {

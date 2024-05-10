@@ -55,7 +55,7 @@ export const paginationSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.too_small,
           type: z.ZodParsedType.number,
-          minimum: 0,
+          minimum: 1,
           inclusive: false,
           message: 'limit must be greater than 0',
         });

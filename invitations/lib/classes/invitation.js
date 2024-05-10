@@ -30,6 +30,7 @@ export class Invitation {
   }
 
   static getFindInvitationsQuery(currentUserId) {
+    // TODO allow access for organization admins and superAdmins
     return {
       $or: [{ fromUserId: currentUserId }, { toUserId: currentUserId }],
     };
@@ -50,12 +51,12 @@ export class Invitation {
   // should be protected or private
   async countInvitations(currentUserId) {
     // TODO: should we filter expired invitations ?
-    const invitations = await this.mongoClient
+    const count = await this.mongoClient
       .db()
       .collection(COLL_INVITATIONS)
       .countDocuments(Invitation.getFindInvitationsQuery(currentUserId));
 
-    return invitations;
+    return count;
   }
 
   static generateSecretChallengeCode() {
@@ -235,7 +236,7 @@ export class Invitation {
     return invitationDocuments;
   }
 
-  async getAllCount(currentUserId) {
+  async getTotalCount(currentUserId) {
     const invitationDocumentsCount = await this.countInvitations(currentUserId);
     return invitationDocumentsCount;
   }
