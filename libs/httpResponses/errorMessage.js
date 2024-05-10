@@ -22,13 +22,33 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'cannot_modify_app':
     case 'cannot_delete_app':
     case 'user_already_exists':
+    case 'invitation_forbidden_user':
+    case 'invitation_inviting_user_insufficient_rights':
       errorCode = 403;
       break;
     case 'content_not_found':
     case 'email_not_found':
     case 'app_not_found':
     case 'user_not_found':
+    case 'organization_not_found':
+    case 'invitation_not_found':
+    case 'invitation_inviting_user_not_found':
+    case 'invitation_invited_user_not_found':
       errorCode = 404;
+      break;
+    case 'already_exists':
+    case 'invitation_cannot_self_invite':
+    case 'invitation_unauthorized_status':
+    case 'invitation_unauthorized_action':
+    case 'invitation_expired':
+    case 'invitation_unrecognized_user':
+    case 'invitation_user_already_added_to_organization':
+      errorCode = 409;
+      break;
+    case 'not_implemented':
+    case 'invitation_target_type_not_implemented':
+    case 'invitation_method_type_not_implemented':
+      errorCode = 501;
       break;
     case 'cannot_send_email':
     default:

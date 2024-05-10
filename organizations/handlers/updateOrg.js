@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';

@@ -1,0 +1,115 @@
+service: invitations
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment: ${file(../env.yml)}
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  createInvitation:
+    handler: handlers/createInvitation.default
+    events:
+      - http:
+          path: invitations
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getInvitations:
+    handler: handlers/getInvitations.default
+    events:
+      - http:
+          path: invitations
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+
+  getInvitation:
+    handler: handlers/getInvitation.default
+    events:
+      - http:
+          path: invitations/{id}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  updateInvitation:
+    handler: handlers/updateInvitation.default
+    events:
+      - http:
+          path: invitations/{id}
+          method: patch
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  resendInvitation:
+    handler: handlers/resendInvitation.default
+    events:
+      - http:
+          path: invitations/{id}/resend
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+plugins:
+  - serverless-disable-request-validators
+  - serverless-export-env
+  - serverless-offline
+  - serverless-webpack
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  serverless-disable-request-validators:
+    action: delete
+
+package:
+  individually: true

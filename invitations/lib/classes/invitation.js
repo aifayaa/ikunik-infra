@@ -1,0 +1,234 @@
+/* eslint-disable import/no-relative-packages */
+import { invitationStatuses } from '../../const/invitations';
+import {
+  CreatingStatus,
+  PendingStatus,
+  AcceptedStatus,
+  DeclinedStatus,
+  CanceledStatus,
+} from './statuses';
+import { AbstractStatus } from './statuses/abstractStatus';
+import mongoCollections from '../../../libs/mongoCollections.json';
+
+const { COLL_INVITATIONS } = mongoCollections;
+
+export class Invitation {
+  constructor({ mongoClient }) {
+    this.mongoClient = mongoClient;
+  }
+
+  // should be protected or private
+  async findInvitationById(invitationId, currentUserId) {
+    const invitation = await this.mongoClient
+      .db()
+      .collection(COLL_INVITATIONS)
+      .findOne({
+        _id: invitationId,
+        ...Invitation.getFindInvitationsQuery(currentUserId),
+      });
+
+    return invitation;
+  }
+
+  static getFindInvitationsQuery(currentUserId) {
+    return {
+      $or: [{ fromUserId: currentUserId }, { toUserId: currentUserId }],
+    };
+  }
+
+  // should be protected or private
+  async findInvitations(currentUserId, options) {
+    // TODO: should we filter expired invitations ?
+    const invitations = await this.mongoClient
+      .db()
+      .collection(COLL_INVITATIONS)
+      .find(Invitation.getFindInvitationsQuery(currentUserId), options)
+      .toArray();
+
+    return invitations;
+  }
+
+  // should be protected or private
+  async countInvitations(currentUserId) {
+    // TODO: should we filter expired invitations ?
+    const invitations = await this.mongoClient
+      .db()
+      .collection(COLL_INVITATIONS)
+      .countDocuments(Invitation.getFindInvitationsQuery(currentUserId));
+
+    return invitations;
+  }
+
+  // should be protected or private
+  async init({
+    fromUserId,
+    target,
+    method,
+    fromUserLocale,
+    toUserLocale,
+    expiredAt,
+    status,
+  }) {
+    const statusParams = {
+      mongoClient: this.mongoClient,
+    };
+
+    switch (status) {
+      case invitationStatuses.CREATING:
+        this.status = new CreatingStatus(statusParams);
+        break;
+
+      case invitationStatuses.PENDING:
+        this.status = new PendingStatus(statusParams);
+        break;
+
+      case invitationStatuses.ACCEPTED:
+        this.status = new AcceptedStatus(statusParams);
+        break;
+
+      case invitationStatuses.DECLINED:
+        this.status = new DeclinedStatus(statusParams);
+        break;
+
+      case invitationStatuses.CANCELED:
+        this.status = new CanceledStatus(statusParams);
+        break;
+
+      default:
+        throw new Error('invitation_unknown_status');
+    }
+
+    if (!(this.status instanceof AbstractStatus)) {
+      throw new Error('invitation_bad_status_instance');
+    }
+
+    await this.status.init({
+      fromUserId,
+      target,
+      method,
+      fromUserLocale,
+      toUserLocale,
+      expiredAt,
+    });
+  }
+
+  /* ****************************************************************************
+    Public methods below
+  **************************************************************************** */
+  async create(fromUserId, invitationParams, fromUserLocale) {
+    await this.init({
+      fromUserId,
+      target: invitationParams.target,
+      method: invitationParams.method,
+      fromUserLocale,
+      toUserLocale: invitationParams.toUserLocale,
+      expiredAt: invitationParams.expiredAt,
+      status: invitationStatuses.CREATING,
+    });
+
+    const invitationDocument = await this.status.create();
+
+    return invitationDocument;
+  }
+
+  async update(currentUserId, invitationId, update) {
+    const invitation = await this.findInvitationById(
+      invitationId,
+      currentUserId
+    );
+    if (!invitation) throw new Error('invitation_not_found');
+    const { status } = update;
+
+    await this.init({
+      fromUserId: invitation.fromUserId,
+      target: invitation.target,
+      method: invitation.method,
+      fromUserLocale: invitation.fromUserLocale,
+      toUserLocale: invitation.toUserLocale,
+      expiredAt: invitation.expiredAt,
+      status: invitation.status,
+    });
+
+    let modifiedCount;
+    const actionParams = {
+      currentUserId,
+      invitationId: invitation._id,
+    };
+    switch (status) {
+      case invitationStatuses.ACCEPTED:
+        modifiedCount = await this.status.accept(actionParams);
+        break;
+
+      case invitationStatuses.DECLINED:
+        modifiedCount = await this.status.decline(actionParams);
+        break;
+
+      case invitationStatuses.CANCELED:
+        modifiedCount = await this.status.cancel(actionParams);
+        break;
+
+      default:
+        throw new Error(
+          'invitation_could_not_determine_action_from_provided_status'
+        );
+    }
+
+    return modifiedCount;
+  }
+
+  async get(currentUserId, invitationId) {
+    const invitationDocument = await this.findInvitationById(
+      invitationId,
+      currentUserId
+    );
+    return invitationDocument;
+  }
+
+  async getAll(currentUserId, options) {
+    const findOptions = {
+      skip: options ? options.start : undefined,
+      limit: options ? options.limit : undefined,
+      sort: {
+        // TODO: client should be able to specify sort
+        // TODO: add an index on createdAt
+        createdAt: -1,
+      },
+    };
+    const invitationDocuments = await this.findInvitations(
+      currentUserId,
+      findOptions
+    );
+
+    return invitationDocuments;
+  }
+
+  async getAllCount(currentUserId) {
+    const invitationDocumentsCount = await this.countInvitations(currentUserId);
+    return invitationDocumentsCount;
+  }
+
+  async resend(currentUserId, invitationId) {
+    const invitation = await this.findInvitationById(
+      invitationId,
+      currentUserId
+    );
+
+    if (!invitation) throw new Error('invitation_not_found');
+
+    await this.init({
+      fromUserId: invitation.fromUserId,
+      target: invitation.target,
+      method: invitation.method,
+      fromUserLocale: invitation.fromUserLocale,
+      toUserLocale: invitation.toUserLocale,
+      expiredAt: invitation.expiredAt,
+      status: invitation.status,
+    });
+
+    const actionParams = {
+      currentUserId,
+      invitationId: invitation._id,
+    };
+    await this.status.resend(actionParams);
+  }
+}
