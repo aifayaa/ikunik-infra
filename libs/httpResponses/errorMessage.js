@@ -22,8 +22,6 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'cannot_modify_app':
     case 'cannot_delete_app':
     case 'user_already_exists':
-    case 'invitation_forbidden_user':
-    case 'invitation_inviting_user_insufficient_rights':
       errorCode = 403;
       break;
     case 'content_not_found':
@@ -34,6 +32,7 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'invitation_not_found':
     case 'invitation_inviting_user_not_found':
     case 'invitation_invited_user_not_found':
+    case 'invitation_current_user_not_found':
       errorCode = 404;
       break;
     case 'already_exists':
@@ -44,6 +43,9 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'invitation_unrecognized_user':
     case 'invitation_user_already_added_to_organization':
     case 'invitation_invalid_challengeCode':
+    case 'invitation_forbidden_user':
+    case 'invitation_inviting_user_insufficient_rights':
+    case 'invitation_current_user_insufficient_rights':
       errorCode = 409;
       break;
     case 'not_implemented':

@@ -24,6 +24,7 @@ export class OrganizationTarget extends AbstractTarget {
     this.organization = null;
   }
 
+  // should be protected or private
   async getOrganization() {
     if (!this.organization) {
       this.organization = await this.mongoClient
@@ -35,11 +36,43 @@ export class OrganizationTarget extends AbstractTarget {
     return this.organization;
   }
 
+  // should be protected or private
+  async checkIsOrganizationAdmin(user) {
+    if (!user) throw new Error('user_not_found');
+
+    const allowed = await checkPermsForOrganization(
+      user._id,
+      this.organizationId,
+      'admin'
+    );
+
+    if (!allowed) {
+      throw new Error('invitation_current_user_insufficient_rights');
+    }
+  }
+
+  // should be protected or private
+  checkIsNotInOrganization(user) {
+    if (user && user.perms && Array.isArray(user.perms.organizations)) {
+      const organizationPerms = user.perms.organizations.find(
+        (orgPerm) => orgPerm._id === this.organizationId
+      );
+
+      if (organizationPerms) {
+        throw new Error('invitation_user_already_added_to_organization');
+      }
+    }
+  }
+
+  /* ****************************************************************************
+    Public methods below
+  **************************************************************************** */
+
   /**
    * should perform the necessary operations for an accepted invitation
    */
   async handleInvitationAccepted({ session, invitedUser }) {
-    this.checkInvitedUser(invitedUser);
+    this.checkUserCanAccept(invitedUser);
 
     const update = {
       $addToSet: {
@@ -57,40 +90,36 @@ export class OrganizationTarget extends AbstractTarget {
     return { modifiedCount: res.modifiedCount };
   }
 
-  /**
-   * should determine if the invited user has already been invited for this target
-   */
-  checkInvitedUser(invitedUser) {
-    if (
-      invitedUser &&
-      invitedUser.perms &&
-      Array.isArray(invitedUser.perms.organizations)
-    ) {
-      const organizationPerms = invitedUser.perms.organizations.find(
-        (orgPerm) => orgPerm._id === this.organizationId
-      );
-
-      if (organizationPerms) {
-        throw new Error('invitation_user_already_added_to_organization');
-      }
-    }
+  async checkUserCanCreate(user) {
+    // can create if organization admin
+    await this.checkIsOrganizationAdmin(user);
   }
 
-  /**
-   * should determine if inviting user can actually perform invitation operations
-   */
-  async checkInvitingUser(invitingUser) {
-    if (!invitingUser) throw new Error('invitation_inviting_user_not_found');
-    // TODO check if this function returns false in case of a non existing org or user
-    const allowed = await checkPermsForOrganization(
-      invitingUser._id,
-      this.organizationId,
-      'admin'
-    );
+  // eslint-disable-next-line require-await
+  async checkUserCanAcceptOrDecline(user) {
+    this.checkIsNotInOrganization(user);
+  }
 
-    if (!allowed) {
-      throw new Error('invitation_inviting_user_insufficient_rights');
-    }
+  // eslint-disable-next-line require-await
+  async checkUserCanAccept(user) {
+    // can accept if not already in org
+    this.checkIsNotInOrganization(user);
+  }
+
+  // eslint-disable-next-line require-await
+  async checkUserCanDecline(user) {
+    // can decline if not already in org
+    this.checkIsNotInOrganization(user);
+  }
+
+  async checkUserCanCancel(user) {
+    // can cancel if org admin
+    await this.checkIsOrganizationAdmin(user);
+  }
+
+  async checkUserCanResend(user) {
+    // can resend if org admin
+    await this.checkIsOrganizationAdmin(user);
   }
 
   getFindInvitationQuery() {

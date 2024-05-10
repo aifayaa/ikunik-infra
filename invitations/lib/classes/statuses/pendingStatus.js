@@ -14,7 +14,7 @@ export class PendingStatus extends AbstractStatus {
     const session = this.mongoClient.startSession();
     let count = 0;
     const user = await this.getUser(userId);
-    if (!user) throw new Error('invitation_invited_user_not_found');
+    if (!user) throw new Error('invitation_current_user_not_found');
 
     try {
       await session.withTransaction(async () => {
@@ -211,20 +211,20 @@ export class PendingStatus extends AbstractStatus {
     Public methods below
   **************************************************************************** */
 
-  /**
-   * Only invited user can accept the invitation
-   */
   async accept({ invitationId, currentUserId, challengeCode }) {
     if (challengeCode !== this.challengeCode) {
       throw new Error('invitation_invalid_challengeCode');
     }
+    const invitingUser = await this.getInvitingUser();
+    if (invitingUser._id === currentUserId) { 
+      throw new Error('invitation_unauthorized_action');
+    }
 
     const invitedUser = await this.getInvitedUser();
-    if (invitedUser) {
-      if (invitedUser._id !== currentUserId) {
-        throw new Error('invitation_unauthorized_action');
-      }
-      this.target.checkInvitedUser(invitedUser);
+    const isKnownInvitedUser = invitedUser && invitedUser._id === currentUserId;
+    if (!isKnownInvitedUser) {
+      const user = await this.getUser(currentUserId);
+      await this.target.checkUserCanAccept(user);
     }
 
     const modifiedCount = await this.updateAccepted(
@@ -236,20 +236,21 @@ export class PendingStatus extends AbstractStatus {
     return modifiedCount;
   }
 
-  /**
-   * Only invited user can decline the invitation
-   */
   async decline({ invitationId, currentUserId, challengeCode }) {
     if (challengeCode !== this.challengeCode) {
       throw new Error('invitation_invalid_challengeCode');
     }
 
+    const invitingUser = await this.getInvitingUser();
+    if (invitingUser._id === currentUserId) { 
+      throw new Error('invitation_unauthorized_action');
+    }
+
     const invitedUser = await this.getInvitedUser();
-    if (invitedUser) {
-      if (invitedUser._id !== currentUserId) {
-        throw new Error('invitation_unauthorized_action');
-      }
-      this.target.checkInvitedUser(invitedUser);
+    const isKnownInvitedUser = invitedUser && invitedUser._id === currentUserId;
+    if (!isKnownInvitedUser) {
+      const user = await this.getUser(currentUserId);
+      await this.target.checkUserCanDecline(user);
     }
 
     const modifiedCount = await this.updateDeclined(
@@ -261,18 +262,15 @@ export class PendingStatus extends AbstractStatus {
     return modifiedCount;
   }
 
-  /**
-   * Only inviting user can cancel the invitation
-   */
   async cancel({ invitationId, currentUserId }) {
     const invitingUser = await this.getInvitingUser();
-    if (!invitingUser) throw new Error('invitation_inviting_user_not_found');
 
-    if (invitingUser._id !== currentUserId) {
-      throw new Error('invitation_unauthorized_action');
+    if (invitingUser && invitingUser._id === currentUserId) {
+      await this.target.checkUserCanCancel(invitingUser);
+    } else {
+      const currentUser = await this.getUser(currentUserId);
+      await this.target.checkUserCanCancel(currentUser);
     }
-
-    this.target.checkInvitingUser(invitingUser);
 
     const modifiedCount = await this.updateCanceled(invitationId);
     await this.notifyCanceled();
@@ -280,15 +278,14 @@ export class PendingStatus extends AbstractStatus {
     return modifiedCount;
   }
 
-  /**
-   * Only inviting user can resend the invitation
-   */
   async resend({ invitationId, currentUserId }) {
     const invitingUser = await this.getInvitingUser();
-    if (!invitingUser) throw new Error('invitation_inviting_user_not_found');
 
-    if (invitingUser._id !== currentUserId) {
-      throw new Error('invitation_unauthorized_action');
+    if (invitingUser && invitingUser._id === currentUserId) {
+      await this.target.checkUserCanResend(invitingUser);
+    } else {
+      const currentUser = await this.getUser(currentUserId);
+      await this.target.checkUserCanResend(currentUser);
     }
 
     await this.notifyCreated({

@@ -59,7 +59,7 @@ export class CreatingStatus extends AbstractStatus {
       fromUserId: this.fromUserId,
       source: {
         type: 'user',
-        id: invitingUser._id,
+        _id: invitingUser._id,
         profile: {
           username: invitingUserProfile.username,
           email: invitingUserProfile.email,
@@ -110,14 +110,14 @@ export class CreatingStatus extends AbstractStatus {
     const invitingUser = await this.getInvitingUser();
     // inviting user must always exist when creating the invitation
     if (!invitingUser) throw new Error('invitation_inviting_user_not_found');
-    await this.target.checkInvitingUser(invitingUser);
+    await this.target.checkUserCanCreate(invitingUser);
 
     const invitedUser = await this.getInvitedUser();
     if (invitedUser) {
       if (invitedUser._id === invitingUser._id) {
         throw new Error('invitation_cannot_self_invite');
       }
-      this.target.checkInvitedUser(invitedUser);
+      await this.target.checkUserCanAcceptOrDecline(invitedUser);
     }
 
     const invitationDocument = await this.insertInDb();

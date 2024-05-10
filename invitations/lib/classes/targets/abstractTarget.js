@@ -7,19 +7,28 @@ export class AbstractTarget {
     throw new Error('not_implemented');
   }
 
-  /**
-   * should determine if the invited user has already been invited for this target
-   */
-  // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
-  checkInvitedUser(invitedUser) {
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
+  async checkUserCanCreate(user) {
     throw new Error('not_implemented');
   }
 
-  /**
-   * should determine if the inviting user can actually perform invitation operations
-   */
-  // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
-  async checkInvitingUser(invitingUser) {
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
+  async checkUserCanAccept(user) {
+    throw new Error('not_implemented');
+  }
+
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
+  async checkUserCanDecline(user) {
+    throw new Error('not_implemented');
+  }
+
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
+  async checkUserCanCancel(user) {
+    throw new Error('not_implemented');
+  }
+
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
+  async checkUserCanResend(user) {
     throw new Error('not_implemented');
   }
 
