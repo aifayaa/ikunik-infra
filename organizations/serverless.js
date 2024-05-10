@@ -207,33 +207,33 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getOrgWebsites: {
-      handler: 'handlers/getOrgWebsites.default',
-      events: [
-        {
-          http: {
-            path: 'organizations/{id}/websites',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
+    // getOrgWebsites: {
+    //   handler: 'handlers/getOrgWebsites.default',
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'organizations/{id}/websites',
+    //         method: 'get',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+    //         },
+    //         request: {
+    //           parameters: {
+    //             headers: {
+    //               Authorization: true,
+    //             },
+    //             paths: {
+    //               id: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
     inviteUserToOrg: {
       handler: 'handlers/inviteUserToOrg.default',
       events: [

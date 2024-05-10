@@ -28,7 +28,7 @@ export default async (event) => {
           {
             type: ERROR_TYPE_ACCESS,
             code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
             details: {
               userId,
               orgId,

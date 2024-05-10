@@ -56,7 +56,7 @@ export function handleException(exception) {
         type: ERROR_TYPE_INTERNAL_EXCEPTION,
         code: UNMANAGED_EXCEPTION_CODE,
         message: exception.message,
-        details: exception,
+        details: exception.stack,
       },
     ],
   });
