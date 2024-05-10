@@ -1,11 +1,20 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import { z } from 'zod';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
-import { changeUserOrgPermsSchema } from '../validators/changeUserOrgPerms.schema';
+import {
+  ERROR_TYPE_ACCESS,
+  ORGANIZATION_PERMISSION_CODE,
+} from '../../libs/httpResponses/errorCodes';
+
+export const changeUserOrgPermsSchema = z
+  .object({
+    roles: z.array(z.enum(['owner', 'admin', 'member'])).nonempty(),
+  })
+  .required();
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -17,9 +26,28 @@ export default async (event) => {
      * On peut supprimer un owner (y compris soi même) si il en reste d'autres.
      * Il faudra une méthode `getPermsFor` qui retourne les rôles pour plus de flexibilité à ce niveau.
      */
-    const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
+    const orgPermissionLevel = 'admin';
+    const allowed = await checkPermsForOrganization(
+      userId,
+      orgId,
+      orgPermissionLevel
+    );
     if (!allowed) {
-      throw new Error('access_forbidden');
+      const errorBody = formatResponseBody({
+        errors: [
+          {
+            type: ERROR_TYPE_ACCESS,
+            code: ORGANIZATION_PERMISSION_CODE,
+            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
+            details: {
+              userId,
+              orgId,
+              orgPermissionLevel,
+            },
+          },
+        ],
+      });
+      return response({ code: 200, body: errorBody });
     }
 
     const body = JSON.parse(event.body);
@@ -34,10 +62,11 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const user = await changeUserOrgPerms(targetUserId, orgId, validatedBody);
+    const { roles } = validatedBody;
+    const user = await changeUserOrgPerms(targetUserId, orgId, roles);
 
-    return response({ code: 200, body: user });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response({ code: 200, body: formatResponseBody({ data: user }) });
+  } catch (exception) {
+    return handleException(exception);
   }
 };
