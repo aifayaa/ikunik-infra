@@ -15,7 +15,8 @@ const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
 const ALL_PLATFORMS = ['ios', 'android'];
 
-const TIMEOUT_DELAY = 6 * 60 * 60 * 1000;
+const RUNNING_TIMEOUT_DELAY = 6 * 60 * 60 * 1000;
+const STARTING_TIMEOUT_DELAY = 1 * 60 * 60 * 1000;
 
 async function startSetupOrBuildForPlatform(app, platform, { client }) {
   const now = new Date();
@@ -51,10 +52,16 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
         reason: 'Build already queued',
       };
     }
-    if (app.builds[platform].pipeline.status === 'running') {
+    if (
+      app.builds[platform].pipeline.status === 'running' ||
+      app.builds[platform].pipeline.status === 'starting'
+    ) {
+      const delay =
+        app.builds[platform].pipeline.status === 'running'
+          ? RUNNING_TIMEOUT_DELAY
+          : STARTING_TIMEOUT_DELAY;
       const retryIn =
-        TIMEOUT_DELAY -
-        (now.getTime() - app.builds[platform].pipeline.date.getTime());
+        delay - (now.getTime() - app.builds[platform].pipeline.date.getTime());
       if (retryIn > 0) {
         return {
           started: false,
