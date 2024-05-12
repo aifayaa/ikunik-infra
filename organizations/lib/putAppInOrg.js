@@ -33,7 +33,7 @@ export default async (userId, orgId, appId, originDestination) => {
               $set: {
                 organization: {
                   _id: orgId,
-                  users: [{ id_: userId, roles: ['admin'] }],
+                  users: [{ _id: userId, roles: ['admin'] }],
                 },
               },
             },
@@ -72,7 +72,7 @@ export default async (userId, orgId, appId, originDestination) => {
               $set: {
                 organization: {
                   _id: orgId,
-                  users: [{ id_: userId, roles: ['admin'] }],
+                  users: [{ _id: userId, roles: ['admin'] }],
                 },
               },
             },

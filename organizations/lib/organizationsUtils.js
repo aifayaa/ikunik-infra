@@ -23,3 +23,12 @@ export function filterUserPrivateFields(app) {
 }
 
 export const organizationRoles = ['owner', 'admin', 'member'];
+
+export function isAppAlreadyBuild(application) {
+  return (
+    application &&
+    application.builds &&
+    ((application.builds.android && application.builds.android.ready) ||
+      (application.builds.ios && application.builds.ios.ready))
+  );
+}
