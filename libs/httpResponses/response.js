@@ -1,4 +1,5 @@
 import { CrowdaaError } from './CrowdaaError';
+import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   UNMANAGED_EXCEPTION_CODE,
@@ -47,6 +48,11 @@ export function handleException(exception) {
         },
       ],
     });
+    return response({ code: 200, body: errorBody });
+  }
+
+  if (exception instanceof CrowdaaErrorWithErrorBody) {
+    const { errorBody } = exception;
     return response({ code: 200, body: errorBody });
   }
 

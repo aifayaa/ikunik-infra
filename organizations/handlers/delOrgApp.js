@@ -13,6 +13,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
+import { isAppAlreadyBuild } from '../lib/organizationsUtils';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -91,7 +92,7 @@ export default async (event) => {
     }
 
     // TODO Quand on aura l'info de la publication de l'app sur les stores, prendre ça en compte plus tard.
-    if (app.builds.android.ready || app.builds.ios.ready) {
+    if (isAppAlreadyBuild(app)) {
       const errorBody = formatResponseBody({
         errors: [
           {

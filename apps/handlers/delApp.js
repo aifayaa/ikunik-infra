@@ -9,6 +9,7 @@ export default async (event) => {
   const appId = event.pathParameters.id;
   try {
     const allowed = await checkPermsForApp(userId, appId, 'owner');
+    // console.log('allowed', allowed);
     if (!allowed) {
       throw new Error('access_forbidden');
     }
