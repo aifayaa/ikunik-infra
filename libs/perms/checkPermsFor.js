@@ -264,7 +264,7 @@ export async function getApplicationWithOrg(appId) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         APP_NOT_FOUND_CODE,
-        `Cannot found the organization '${appId}'`
+        `Cannot found the application '${appId}'`
       );
     }
 
