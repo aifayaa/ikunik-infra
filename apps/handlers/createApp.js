@@ -21,19 +21,18 @@ export const createAppSchema = z.object({
     })
     .max(80, { message: 'Must be 80 or fewer characters long' })
     .trim(),
-  // .required(),
-  // protocol: z
-  //   .string({
-  //     invalid_type_error: 'protocol must be a string',
-  //   })
-  //   .min(1, { message: 'Must be at least 1 character long' })
-  //   .trim(),
-  // orgId: z
-  //   .string({
-  //     invalid_type_error: 'orgId must be a string',
-  //   })
-  //   .min(1, { message: 'Must be at least 1 character long' })
-  //   .trim(),
+  protocol: z
+    .string({
+      invalid_type_error: 'protocol must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .trim(),
+  orgId: z
+    .string({
+      invalid_type_error: 'orgId must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .trim(),
 });
 
 export default async (event) => {
@@ -45,15 +44,15 @@ export default async (event) => {
     let validatedBody;
     // validation
     try {
-      console.log('Before parse');
-      validatedBody = createAppSchema.parse(body);
-      console.log('After parse');
+      validatedBody = createAppSchema
+        .partial({
+          protocol: true,
+          orgId: true,
+        })
+        .parse(body);
     } catch (err) {
-      console.log('Exception handling');
-      console.log(err);
       const errors = formatValidationErrors(err);
       const errorBody = formatResponseBody({ errors });
-      // return response({ code: 200, body: errorBody });
       throw new CrowdaaErrorWithErrorBody(errorBody);
     }
 
@@ -61,6 +60,7 @@ export default async (event) => {
 
     const app = await createApp(name, userId, { protocol });
 
+    // If no orgId is precise as input: return the created app
     if (!orgId) {
       return response({
         code: 200,
@@ -70,8 +70,7 @@ export default async (event) => {
       });
     }
 
-    // If an organization is given as input
-    // Move the application to the organisation
+    // If an organization is given as input: move the application to the organization
     const { _id: appId } = app;
     await putAppInOrgHandlerBody(userId, orgId, appId);
 
