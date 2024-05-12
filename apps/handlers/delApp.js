@@ -23,13 +23,12 @@ export default async (event) => {
 
   try {
     const appPermissionLevel = 'owner';
-    // console.log('Before check');
     const allowedApp = await checkPermsForApp(
       userId,
       appId,
       appPermissionLevel
     );
-    // console.log('After  check');
+
     if (!allowedApp) {
       throw new CrowdaaError(
         ERROR_TYPE_ACCESS,
@@ -62,7 +61,6 @@ export default async (event) => {
     }
 
     const res = await delApp(userId, appId);
-    // console.log('res', res);
 
     return response({
       code: 200,
