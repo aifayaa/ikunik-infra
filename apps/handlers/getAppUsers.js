@@ -2,7 +2,7 @@
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
+  APPLICATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
@@ -20,7 +20,7 @@ export default async (event) => {
     if (!allowed) {
       throw new CrowdaaError(
         ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
+        APPLICATION_PERMISSION_CODE,
         `User '${userId}' is not at least '${appPermissionLevel}' on application '${appId}'`,
         {
           details: {
