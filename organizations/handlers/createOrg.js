@@ -20,14 +20,16 @@ export const createOrgSchema = z.object({
       invalid_type_error: 'appleTeamId must be a string',
     })
     .length(10, { message: 'Must be 10 characters long' })
-    .trim(),
+    .trim()
+    .optional(),
   appleCompanyName: z
     .string({
       invalid_type_error: 'appleCompanyName must be a string',
     })
     .min(1, { message: 'Must be at least 1 character long' })
-    .max(1, { message: 'Must be at most 100 character long' }) // Arbitrary length
-    .trim(),
+    .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
+    .trim()
+    .optional(),
 });
 
 export default async (event) => {
