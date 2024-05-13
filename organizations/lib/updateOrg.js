@@ -18,7 +18,7 @@ export default async (orgId, { appleTeamId, appleCompanyName, name }) => {
     const updates = { $set };
 
     if (name) {
-      $set.name = name;
+      $set.name = name.toUpperCase();
     }
 
     if (appleTeamId) {
