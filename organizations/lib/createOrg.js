@@ -17,7 +17,7 @@ export default async (userId, { appleTeamId, appleCompanyName, name }) => {
     .withSession(async (sessionArg) => {
       await sessionArg.withTransaction(async (session) => {
         const newOrganization = {
-          name,
+          name: name.toUpperCase(),
           apple: {
             setupDone: false,
           },
