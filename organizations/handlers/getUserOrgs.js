@@ -1,12 +1,10 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import getUserOrgs from '../lib/getUserOrgs';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   CONTEXT_AUTHORIZER_NO_USER_CODE,
   ERROR_TYPE_AUTHORIZATION,
-  ERROR_TYPE_INTERNAL_EXCEPTION,
-  UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 export default async (event) => {
@@ -39,16 +37,6 @@ export default async (event) => {
       body: responseBody,
     });
   } catch (exception) {
-    const errorBody = formatResponseBody({
-      errors: [
-        {
-          type: ERROR_TYPE_INTERNAL_EXCEPTION,
-          code: UNMANAGED_EXCEPTION_CODE,
-          message: exception.message,
-          details: exception,
-        },
-      ],
-    });
-    return response({ code: 200, body: errorBody });
+    return handleException(exception);
   }
 };
