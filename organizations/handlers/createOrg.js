@@ -3,7 +3,6 @@ import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import createOrg from '../lib/createOrg';
 
 export const createOrgSchema = z.object({
@@ -51,7 +50,7 @@ export default async (event) => {
     const org = await createOrg(userId, validatedBody);
     return response({
       code: 200,
-      body: formatResponseBody({ data: returnedFieldsFilter(org) }),
+      body: formatResponseBody({ data: org }),
     });
   } catch (exception) {
     return handleException(exception);

@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import response from '../../libs/httpResponses/response';
 import getUserOrgs from '../lib/getUserOrgs';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
@@ -32,7 +31,7 @@ export default async (event) => {
     const orgs = await getUserOrgs(userId);
 
     const responseBody = formatResponseBody({
-      data: { items: orgs.map(returnedFieldsFilter), totalCount: orgs.length },
+      data: { items: orgs, totalCount: orgs.length },
     });
 
     return response({

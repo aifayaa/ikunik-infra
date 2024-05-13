@@ -10,7 +10,6 @@ import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { returnedFieldsFilter } from '../lib/fieldsChecks';
 
 const updateOrgSchema = z.object({
   name: z
@@ -82,7 +81,7 @@ export default async (event) => {
 
     return response({
       code: 200,
-      body: formatResponseBody({ data: returnedFieldsFilter(org) }),
+      body: formatResponseBody({ data: org }),
     });
   } catch (exception) {
     return handleException(exception);
