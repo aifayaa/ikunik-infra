@@ -1,7 +1,13 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_ACCESS,
+  ORGANIZATION_PERMISSION_CODE,
+} from '../../libs/httpResponses/errorCodes';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { filterUserPrivateFields } from '../lib/appsUtils';
 import getAppUsers from '../lib/getAppUsers';
 
 export default async (event) => {
@@ -9,18 +15,35 @@ export default async (event) => {
   const appId = event.pathParameters.id;
 
   try {
-    if (!userId) throw new Error('no_user_found');
-
-    // Check right for userId to appId
-    const allowed = await checkPermsForApp(userId, appId, 'viewer');
+    const appPermissionLevel = 'viewer';
+    const allowed = await checkPermsForApp(userId, appId, appPermissionLevel);
     if (!allowed) {
-      throw new Error('access_forbidden');
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        ORGANIZATION_PERMISSION_CODE,
+        `User '${userId}' is not at least '${appPermissionLevel}' on application '${appId}'`,
+        {
+          details: {
+            userId,
+            appId,
+            appPermissionLevel,
+          },
+        }
+      );
     }
 
     const users = await getAppUsers(appId);
 
-    return response({ code: 200, body: users });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: {
+          items: filterUserPrivateFields(users),
+          totalCount: users.length,
+        },
+      }),
+    });
+  } catch (exception) {
+    return handleException(exception);
   }
 };
