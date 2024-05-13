@@ -3,7 +3,6 @@ import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import createOrg from '../lib/createOrg';
 
 export const createOrgSchema = z.object({
@@ -20,14 +19,16 @@ export const createOrgSchema = z.object({
       invalid_type_error: 'appleTeamId must be a string',
     })
     .length(10, { message: 'Must be 10 characters long' })
-    .trim(),
+    .trim()
+    .optional(),
   appleCompanyName: z
     .string({
       invalid_type_error: 'appleCompanyName must be a string',
     })
     .min(1, { message: 'Must be at least 1 character long' })
-    .max(1, { message: 'Must be at most 100 character long' }) // Arbitrary length
-    .trim(),
+    .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
+    .trim()
+    .optional(),
 });
 
 export default async (event) => {
@@ -49,7 +50,7 @@ export default async (event) => {
     const org = await createOrg(userId, validatedBody);
     return response({
       code: 200,
-      body: formatResponseBody({ data: returnedFieldsFilter(org) }),
+      body: formatResponseBody({ data: org }),
     });
   } catch (exception) {
     return handleException(exception);

@@ -1,8 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import {
-  setOrgDebugPaidChecks,
-  returnedFieldsFilter,
-} from '../lib/fieldsChecks';
+import { setOrgDebugPaidChecks } from '../lib/fieldsChecks';
 import setOrgPaid from '../lib/setOrgPaid';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
@@ -33,7 +30,7 @@ export default async (event) => {
     });
 
     const org = await setOrgPaid(userId, bodyParsed);
-    return response({ code: 200, body: returnedFieldsFilter(org) });
+    return response({ code: 200, body: org });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

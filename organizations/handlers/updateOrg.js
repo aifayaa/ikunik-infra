@@ -10,7 +10,6 @@ import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { returnedFieldsFilter } from '../lib/fieldsChecks';
 
 const updateOrgSchema = z.object({
   name: z
@@ -25,14 +24,16 @@ const updateOrgSchema = z.object({
       invalid_type_error: 'appleTeamId must be a string',
     })
     .length(10, { message: 'Must be 10 characters long' })
-    .trim(),
+    .trim()
+    .optional(),
   appleCompanyName: z
     .string({
       invalid_type_error: 'appleCompanyName must be a string',
     })
     .min(1, { message: 'Must be at least 1 character long' })
-    .max(1, { message: 'Must be at most 100 character long' }) // Arbitrary length
-    .trim(),
+    .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
+    .trim()
+    .optional(),
 });
 
 export default async (event) => {
@@ -80,7 +81,7 @@ export default async (event) => {
 
     return response({
       code: 200,
-      body: formatResponseBody({ data: returnedFieldsFilter(org) }),
+      body: formatResponseBody({ data: org }),
     });
   } catch (exception) {
     return handleException(exception);
