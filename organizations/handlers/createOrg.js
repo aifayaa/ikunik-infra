@@ -18,14 +18,16 @@ export const createOrgSchema = z.object({
       invalid_type_error: 'appleTeamId must be a string',
     })
     .length(10, { message: 'Must be 10 characters long' })
-    .trim(),
+    .trim()
+    .optional(),
   appleCompanyName: z
     .string({
       invalid_type_error: 'appleCompanyName must be a string',
     })
     .min(1, { message: 'Must be at least 1 character long' })
     .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
-    .trim(),
+    .trim()
+    .optional(),
 });
 
 export default async (event) => {
@@ -37,12 +39,7 @@ export default async (event) => {
     let validatedBody;
     // validation
     try {
-      validatedBody = createOrgSchema
-        .partial({
-          appleTeamId: true,
-          appleCompanyName: true,
-        })
-        .parse(body);
+      validatedBody = createOrgSchema.parse(body);
     } catch (err) {
       const errors = formatValidationErrors(err);
       const errorBody = formatResponseBody({ errors });
