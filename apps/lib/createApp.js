@@ -4,6 +4,7 @@ import MongoClient from '../../libs/mongoClient';
 import Random from '../../libs/account_utils/random';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateAppBaserow from './syncCreateAppBaserow';
+import { getAppDefaultBuildFields } from './appsUtils';
 
 const { ADMIN_APP } = process.env;
 
@@ -17,7 +18,7 @@ const DEFAULT_APP_SETTINGS = {
       apiKeyCanBeChanged: false,
       articleFromCommunityDateFormat: 'lll',
       articleFromFeedDateFormat: 'lll',
-      biometrics: true,
+      biometrics: false,
       categoryArticleDateFormat: 'L',
       communityArticleCommentsEnabled: true,
       communityArticleDateFormat: 'L',
@@ -42,9 +43,9 @@ const DEFAULT_APP_SETTINGS = {
       phoneRegisterRequired: false,
       registerWithCrowdaa: true,
       reversedFeed: false,
-      signInWithApple: true,
+      signInWithApple: false,
       signInWithCrowdaa: true,
-      signInWithFacebook: true,
+      signInWithFacebook: false,
       signInWithSAML: false,
       startTab: 'today',
       tabOrder: 'today,categories,community,search,settings',
@@ -96,9 +97,14 @@ async function createApp(db, name, userId, inputProtocol) {
     _id: appId,
     key,
     name,
-    owners: [userId],
+    createdAt: new Date(),
+    createdBy: userId,
     protocol,
     settings: DEFAULT_APP_SETTINGS,
+    builds: {
+      android: getAppDefaultBuildFields(name, 'android'),
+      ios: getAppDefaultBuildFields(name, 'ios'),
+    },
   };
   await db.collection(COLL_APPS).insertOne(toInsert);
 
@@ -112,18 +118,14 @@ export default async (name, userId, { protocol = null } = {}) => {
 
     await checkIfUserIsFromRootApp(db, userId);
 
-    const { _id: appId, key: apiKey } = await createApp(
-      db,
-      name,
-      userId,
-      protocol
-    );
+    const app = await createApp(db, name, userId, protocol);
+    const { _id: appId, key: apiKey } = app;
 
     await addUserAsAppOwner(db, userId, appId);
 
     await syncCreateAppBaserow(userId, { appId, name, apiKey });
 
-    return { appId, apiKey };
+    return app;
   } finally {
     client.close();
   }

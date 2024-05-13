@@ -1,40 +1,68 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
-export default async (userId, data) => {
+export default async (userId, { appleTeamId, appleCompanyName, name }) => {
   const client = await MongoClient.connect();
 
-  try {
-    const newTaskObj = {
-      ...data,
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  // Return result of transaction by side effect
+  let sessionRes;
 
-      _id: new ObjectID().toString(),
-      createdAt: new Date(),
-      createdBy: userId,
-    };
+  await client
+    .withSession(async (sessionArg) => {
+      await sessionArg.withTransaction(async (session) => {
+        const newOrganization = {
+          name: name.toUpperCase(),
+          apple: {
+            setupDone: false,
+          },
 
-    await client.db().collection(COLL_ORGANIZATIONS).insertOne(newTaskObj);
+          _id: new ObjectID().toString(),
+          createdAt: new Date(),
+          createdBy: userId,
+        };
 
-    await client
-      .db()
-      .collection(COLL_USERS)
-      .updateOne(
-        { _id: userId },
-        {
-          $push: {
-            'perms.orgs': {
-              _id: newTaskObj._id,
-              roles: ['owner'],
+        if (appleTeamId) {
+          newOrganization.apple.teamId = appleTeamId;
+          newOrganization.apple.teamStatus = 'checking';
+        }
+        if (appleCompanyName) {
+          newOrganization.apple.appleCompanyName = appleCompanyName;
+        }
+
+        const db = client.db();
+
+        await db
+          .collection(COLL_ORGANIZATIONS)
+          .insertOne(newOrganization, { session });
+
+        await db.collection(COLL_USERS).updateOne(
+          { _id: userId },
+          {
+            $push: {
+              'perms.organizations': {
+                _id: newOrganization._id,
+                roles: ['owner'],
+              },
             },
           },
-        }
-      );
+          { session }
+        );
 
-    return newTaskObj;
-  } finally {
-    client.close();
-  }
+        const { _id: orgId } = newOrganization;
+        await syncCreateOrganizationBaserow(userId, { orgId, name });
+
+        sessionRes = newOrganization;
+      });
+    })
+    .finally(() => {
+      client.close();
+    });
+
+  return sessionRes;
 };

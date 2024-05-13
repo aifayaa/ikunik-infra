@@ -133,6 +133,20 @@ export default {
       title: '[{{app.name}}] Metamask linking',
     },
   },
+  invitations: {
+    join_organization_title:
+      'Invitation to join the organization {{- organizationName}}',
+    updated_join_organization_title:
+      'Your invitation to join the organization {{- organizationName}} has been {{- status}}',
+    status_accepted_feminine: 'accepted',
+    status_declined_feminine: 'declined',
+    status_canceled_feminine: 'canceled',
+    status_unknown: 'unknown status',
+  },
+  organizations: {
+    roleMember: 'member',
+    roleAdmin: 'administrator',
+  },
   ugc: {
     edition_type_edited: 'edited',
     edition_type_posted: 'posted',

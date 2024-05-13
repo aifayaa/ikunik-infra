@@ -6,6 +6,7 @@ const serverlessConfiguration = {
   custom: {
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
+    /* This is the internal network (used to call internal APIs like baserow) */
     vpcConfig: {
       'us-east-1': {
         securityGroupIds: ['sg-022c00c994d25c46e'],
@@ -21,6 +22,7 @@ const serverlessConfiguration = {
         INVITE_MAIL_LANG: 'en',
         REACT_APP_AUTH_URL: 'https://dev-auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://dev-blog.crowdaa.com',
+        CROWDAA_REGION: 'us',
       },
     },
     preprod: {
@@ -28,6 +30,7 @@ const serverlessConfiguration = {
         INVITE_MAIL_LANG: 'fr',
         REACT_APP_AUTH_URL: 'https://depreprodv-auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://preprod-blog.crowdaa.com',
+        CROWDAA_REGION: 'fr',
       },
     },
     prod: {
@@ -35,11 +38,13 @@ const serverlessConfiguration = {
         INVITE_MAIL_LANG: 'en',
         REACT_APP_AUTH_URL: 'https://auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog.crowdaa.com',
+        CROWDAA_REGION: 'us',
       },
       'eu-west-3': {
         INVITE_MAIL_LANG: 'fr',
         REACT_APP_AUTH_URL: 'https://auth-fr.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog-fr.crowdaa.com',
+        CROWDAA_REGION: 'fr',
       },
     },
   },
@@ -76,6 +81,23 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'admin/apps',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
+            },
+          },
+        },
+        {
+          http: {
+            path: 'apps',
             method: 'post',
             cors: true,
             authorizer: {
@@ -372,52 +394,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    setAppSetup: {
-      handler: 'handlers/setAppSetup.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/setup',
-            method: 'put',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
-    getAppSetup: {
-      handler: 'handlers/getAppSetup.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/setup',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
     getAppTos: {
       handler: 'handlers/getAppTos.default',
       events: [
@@ -427,6 +403,11 @@ const serverlessConfiguration = {
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -442,20 +423,30 @@ const serverlessConfiguration = {
             request: {
               parameters: { headers: { Authorization: true } },
             },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
     },
-    createNoStoreApp: {
-      handler: 'handlers/createNoStoreApp.default',
+    getApp: {
+      handler: 'handlers/getApp.default',
       events: [
         {
           http: {
-            path: 'apps',
-            method: 'put',
+            path: 'apps/{id}',
+            method: 'get',
             cors: true,
             request: {
-              parameters: { headers: { Authorization: true } },
+              parameters: { paths: { id: true } },
+            },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
@@ -470,8 +461,12 @@ const serverlessConfiguration = {
             method: 'patch',
             cors: true,
             request: {
-              paths: { id: true },
               parameters: { paths: { id: true } },
+            },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
@@ -486,6 +481,11 @@ const serverlessConfiguration = {
             method: 'delete',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -499,6 +499,31 @@ const serverlessConfiguration = {
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+          },
+        },
+      ],
+    },
+    putAppUserPerms: {
+      handler: 'handlers/putAppUserPerms.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/users',
+            method: 'put',
+            cors: true,
+            request: {
+              parameters: { paths: { id: true, userId: true } },
+            },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -514,6 +539,11 @@ const serverlessConfiguration = {
             request: {
               parameters: { paths: { id: true, userId: true } },
             },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -527,32 +557,60 @@ const serverlessConfiguration = {
             method: 'delete',
             cors: true,
             request: { parameters: { paths: { id: true, userId: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
     },
-    startBuild: {
-      handler: 'handlers/startBuild.default',
+    startBuilds: {
+      handler: 'handlers/startBuilds.default',
       events: [
         {
           http: {
-            path: 'apps/{id}/build',
+            path: 'apps/{id}/builds/v2',
             method: 'put',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
     },
-    getBuildStatus: {
-      handler: 'handlers/getBuildStatus.default',
+    getBuildsStatus: {
+      handler: 'handlers/getBuildsStatus.default',
       events: [
         {
           http: {
-            path: 'apps/{id}/build',
+            path: 'apps/{id}/builds/v2',
             method: 'get',
             cors: true,
             request: { parameters: { paths: { id: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+          },
+        },
+        {
+          http: {
+            path: 'apps/{id}/builds/v2/{platform}',
+            method: 'get',
+            cors: true,
+            request: { parameters: { paths: { id: true, platform: true } } },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
           },
         },
       ],
@@ -560,7 +618,6 @@ const serverlessConfiguration = {
   },
   plugins: [
     'serverless-webpack',
-    '@cruglobal/serverless-merge-config',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',

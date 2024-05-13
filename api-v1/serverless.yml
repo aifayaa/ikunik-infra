@@ -107,6 +107,11 @@ custom:
     awax: mg.crowdaa.com
     awaxDev: mg.crowdaa.com
 
+  DASHBOARD_V2_DOMAIN:
+    dev: app-dev.crowdaa.com
+    preprod: app-preprod.crowdaa.com
+    prod: app.crowdaa.com
+
 resources:
   Resources:
     ApiGatewayStage:

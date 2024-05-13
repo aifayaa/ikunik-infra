@@ -3,7 +3,15 @@ import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { indexObjectArrayWithKey } from '../utils';
 
-const { COLL_USERS, COLL_APPS, COLL_WEBSITES } = mongoCollections;
+import { CrowdaaError } from '../httpResponses/CrowdaaError';
+import {
+  APP_NOT_FOUND_CODE,
+  ERROR_TYPE_NOT_FOUND,
+  ORGANIZATION_NOT_FOUND_CODE,
+} from '../httpResponses/errorCodes';
+
+const { COLL_USERS, COLL_ORGANIZATIONS, COLL_APPS, COLL_WEBSITES } =
+  mongoCollections;
 
 /**
  * Example of user.perms structure :
@@ -21,28 +29,69 @@ const user = {
         roles: ['owner', 'admin'],
       },
     ],
-    orgs: [
+    organizations: [
       {
         _id: 'some-org-id1',
         roles: ['owner', 'admin', 'member'],
-      },
-      {
-        _id: 'some-org-id2',
-        roles: ['owner', 'admin', 'member'],
-        apps: {
-          roles: ['owner', 'admin', 'editor', 'moderator', 'viewer'],
-        },
-        websites: {
-          roles: ['owner', 'admin'],
-        },
       },
     ],
   },
 };
 
- * 'app' and 'website' document also have an optional 'orgId' field
- * to link the different entities together.
-*/
+ * Example of app structure concerning organization permission:
+const app = {
+  _id: "app-id-string"
+  ...
+  organization: {
+    _id: "org-id-string",
+    users: [
+      {
+        _id: 'user-0-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+      {
+        _id: 'user-1-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+    ]
+  }
+}
+
+ * Example of website structure concerning organization permission:
+const website = {
+  _id: "website-id-string"
+  ...
+  organization: {
+    _id: "org-id-string",
+    users: [
+      {
+        _id: 'user-0-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+      {
+        _id: 'user-1-id-string',
+        roles: ['admin', 'editor', 'moderator', 'viewer']
+      },
+    ]
+  }
+}
+
+*****************************************************************************
+
+Current organization roles stories
+
+An organization owner:
+  - can CRUD any resource within the organization
+
+An organization admin:
+  - can CRUD any resource within the organization, but:
+  - cannot DELETE the organization
+  - cannot DELETE an app of the organization
+  - cannot DELETE a website of the organization
+
+An organization member:
+  - can READ any resource within the organization
+ */
 
 const APP_PERMS_IMPLIED = {
   admin: ['owner'],
@@ -66,37 +115,19 @@ function areArraysIntersecting(a1, a2) {
   return intersect;
 }
 
-async function getOrgIdOfApp(appId) {
-  const client = await MongoClient.connect();
-
-  try {
-    const app = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({ _id: appId }, { projection: { orgId: 1 } });
-
-    if (!app) {
-      return null;
-    }
-    return app.orgId;
-  } finally {
-    client.close();
-  }
-}
-
 async function getOrgIdOfWebsite(websiteId) {
   const client = await MongoClient.connect();
 
   try {
-    const app = await client
+    const website = await client
       .db()
       .collection(COLL_WEBSITES)
-      .findOne({ _id: websiteId }, { projection: { orgId: 1 } });
+      .findOne({ _id: websiteId }, { projection: { organization: 1 } });
 
-    if (!app) {
+    if (!website || !website.organization) {
       return null;
     }
-    return app.orgId;
+    return website.organization._id;
   } finally {
     client.close();
   }
@@ -108,7 +139,7 @@ async function getOrgIdOfWebsite(websiteId) {
  * @param {string} websiteId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getPermsOnWebsite(userId, websiteId) {
+async function getUserPermsOnWebsite(userId, websiteId) {
   const client = await MongoClient.connect();
   try {
     const [{ superAdmin = false, perms } = {}] = await client
@@ -144,7 +175,7 @@ async function getPermsOnWebsite(userId, websiteId) {
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getPermsOnOrganization(userId, orgId) {
+async function getUserPermsOnOrganization(userId, orgId) {
   const client = await MongoClient.connect();
   try {
     const [{ superAdmin = false, perms } = {}] = await client
@@ -155,7 +186,7 @@ async function getPermsOnOrganization(userId, orgId) {
 
     if (superAdmin) {
       return {
-        orgs: [
+        organizations: [
           {
             _id: orgId,
             roles: ['owner'],
@@ -180,26 +211,24 @@ async function getPermsOnOrganization(userId, orgId) {
  * @param {string} appId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getPermsOnApp(userId, appId) {
-  const oldPermsPipeline = [
-    {
-      $match: { _id: userId },
-    },
-    {
-      $project: {
-        _id: 1,
-        superAdmin: 1,
-        perms: 1,
-      },
-    },
-  ];
+async function getUserPermsOnApp(userId, appId) {
   const client = await MongoClient.connect();
+
   try {
-    const [{ superAdmin = false, perms } = {}] = await client
+    const user = await client
       .db()
       .collection(COLL_USERS)
-      .aggregate(oldPermsPipeline)
-      .toArray();
+      .findOne(
+        { _id: userId },
+        {
+          projection: {
+            superAdmin: 1,
+            perms: 1,
+          },
+        }
+      );
+
+    const { superAdmin, perms } = user;
 
     if (superAdmin) {
       return {
@@ -222,24 +251,59 @@ async function getPermsOnApp(userId, appId) {
   }
 }
 
+export async function getApplicationWithOrg(appId) {
+  const client = await MongoClient.connect();
+
+  try {
+    const application = await client
+      .db()
+      .collection(COLL_APPS)
+      .findOne({ _id: appId }, { projection: { organization: 1 } });
+
+    if (!application) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
+        `Cannot found the application '${appId}'`
+      );
+    }
+
+    if (!application.organization) {
+      return null;
+    }
+    return application;
+  } finally {
+    client.close();
+  }
+}
+
+export async function getApplicationOrganizationId(appId) {
+  const application = await getApplicationWithOrg(appId);
+  return (
+    application && application.organization && application.organization._id
+  );
+}
+
 /**
  * Checks for user permissions on an app.
  * @param {string} userId The user ID
  * @param {string} appId The app ID
- * @param {string} requestedPerm The permission to check for, may be one of : owner, admin, editor, moderator, viewer
+ * @param {string} requestedPerm The permission to check for, may be one of: owner, admin, editor, moderator, viewer
  * @returns true for a valid permission, false otherwise
  */
-export const checkPermsForApp = async (userId, appId, requestedPerm) => {
-  const perms = await getPermsOnApp(userId, appId);
-  const appOrg = await getOrgIdOfApp(appId);
+export async function checkPermsForApp(userId, appId, requestedPerm) {
+  const application = await getApplicationWithOrg(appId);
+  const applicationOrganizationId =
+    application && application.organization && application.organization._id;
+  const userPerms = await getUserPermsOnApp(userId, appId);
 
   const requestedPermsArray = [
     requestedPerm,
     ...(APP_PERMS_IMPLIED[requestedPerm] || []),
   ];
 
-  if (perms.apps && perms.apps.length > 0) {
-    const appsPerms = indexObjectArrayWithKey(perms.apps);
+  if (userPerms.apps && userPerms.apps.length > 0) {
+    const appsPerms = indexObjectArrayWithKey(userPerms.apps);
     if (appsPerms[appId]) {
       if (areArraysIntersecting(appsPerms[appId].roles, requestedPermsArray)) {
         return true;
@@ -247,28 +311,43 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
     }
   }
 
-  if (perms.orgs && perms.orgs.length > 0) {
-    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
-    if (orgsPerms[appOrg]) {
-      if (areArraysIntersecting(orgsPerms[appOrg].roles, ['owner', 'admin'])) {
+  if (
+    applicationOrganizationId &&
+    userPerms.organizations &&
+    userPerms.organizations.length > 0
+  ) {
+    const userOrganizationsPerms = indexObjectArrayWithKey(
+      userPerms.organizations
+    );
+
+    if (userOrganizationsPerms[applicationOrganizationId]) {
+      if (
+        areArraysIntersecting(
+          userOrganizationsPerms[applicationOrganizationId].roles,
+          ['owner', 'admin']
+        )
+      ) {
         return true;
       }
 
-      if (orgsPerms[appOrg].apps) {
-        if (
-          areArraysIntersecting(
-            orgsPerms[appOrg].apps.roles,
-            requestedPermsArray
-          )
-        ) {
-          return true;
-        }
+      const applicationOrganizationUsers = indexObjectArrayWithKey(
+        application.organization.users
+      );
+
+      if (
+        applicationOrganizationUsers[userId] &&
+        areArraysIntersecting(
+          applicationOrganizationUsers[userId].roles,
+          requestedPermsArray
+        )
+      ) {
+        return true;
       }
     }
   }
 
   return false;
-};
+}
 
 /**
  * Checks for user permissions on a website.
@@ -277,12 +356,13 @@ export const checkPermsForApp = async (userId, appId, requestedPerm) => {
  * @param {string} requestedPerm The permission to check for, may be one of : owner, admin
  * @returns true for a valid permission, false otherwise
  */
+// TODO: rewrite to take into account the new data structure for perms, as 'checkPermsForApp()'
 export const checkPermsForWebsite = async (
   userId,
   websiteId,
   requestedPerm
 ) => {
-  const perms = await getPermsOnWebsite(userId, websiteId);
+  const perms = await getUserPermsOnWebsite(userId, websiteId);
   const websiteOrg = await getOrgIdOfWebsite(websiteId);
 
   const requestedPermsArray = [
@@ -341,15 +421,30 @@ export const checkPermsForOrganization = async (
   orgId,
   requestedPerm
 ) => {
-  const perms = await getPermsOnOrganization(userId, orgId);
+  const client = await MongoClient.connect();
+
+  const organization = await client
+    .db()
+    .collection(COLL_ORGANIZATIONS)
+    .findOne({ _id: orgId }, { projection: { name: 1 } });
+
+  if (!organization) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      ORGANIZATION_NOT_FOUND_CODE,
+      `Cannot found the organization '${orgId}'`
+    );
+  }
+
+  const perms = await getUserPermsOnOrganization(userId, orgId);
 
   const requestedPermsArray = [
     requestedPerm,
     ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
   ];
 
-  if (perms.orgs && perms.orgs.length > 0) {
-    const orgsPerms = indexObjectArrayWithKey(perms.orgs);
+  if (perms.organizations && perms.organizations.length > 0) {
+    const orgsPerms = indexObjectArrayWithKey(perms.organizations);
     if (orgsPerms[orgId]) {
       if (
         areArraysIntersecting(

@@ -7,6 +7,12 @@ module.exports = {
   AUTH_SMTP: 'ssl0.ovh.net',
   AUTH_USER: 'services@crowdaa.com',
   CROWDAA_FEES: 0.2,
+  // be careful when referencing with file(): the resolution is relative to the file that imports this one
+  DASHBOARD_V2_DOMAIN:
+    '${file(../api-v1/serverless.yml):custom.DASHBOARD_V2_DOMAIN.${self:provider.stage}}',
+  // be careful when referencing with file(): the resolution is relative to the file that imports this one
+  DASHBOARD_V2_INVITATIONS_PAGE_URL:
+    'https://${file(../api-v1/serverless.yml):custom.DASHBOARD_V2_DOMAIN.${self:provider.stage}}/invitations',
   DB_NAME: 'crowdaaDev',
   DEFAULT_LIMIT: 15,
   DYNAMO_AWS_KEY: 'AKIAJGROD5HF6C67HFHA',

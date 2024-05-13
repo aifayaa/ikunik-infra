@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { appPrivateFieldsProjection } from '../../apps/lib/appsUtils';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -11,7 +12,12 @@ export default async (orgId) => {
     const apps = await client
       .db()
       .collection(COLL_APPS)
-      .find({ orgId }, { projection: { _id: 1, name: 1 } })
+      .find(
+        { 'organization._id': orgId },
+        {
+          projection: appPrivateFieldsProjection,
+        }
+      )
       .toArray();
 
     return apps;

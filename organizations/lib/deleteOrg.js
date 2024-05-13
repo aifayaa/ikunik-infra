@@ -1,24 +1,53 @@
 /* eslint-disable import/no-relative-packages */
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_NOT_ALLOWED,
+  ORGANISATION_STILL_CONTAINS_APPLICATION_CODE,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
+const { COLL_ORGANIZATIONS, COLL_USERS, COLL_APPS } = mongoCollections;
 
 export default async (userId, orgId) => {
   const client = await MongoClient.connect();
 
-  // TODO: check if applications belong to an organisation
-  // If there is at least an application, skip the deletion
-  try {
-    // Delete orgId in organisations collections
-    await client.db().collection(COLL_ORGANIZATIONS).deleteOne({ _id: orgId });
+  const db = client.db();
+  const appsCount = await db
+    .collection(COLL_APPS)
+    .find({ 'organization._id': orgId }, { name: 1 })
+    .count();
 
-    // Delete orgId from user permissions
-    await client
-      .db()
-      .collection(COLL_USERS)
-      .updateOne({ _id: userId }, { $pull: { 'perms.orgs': { _id: orgId } } });
-  } finally {
-    client.close();
+  if (appsCount > 0) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_ALLOWED,
+      ORGANISATION_STILL_CONTAINS_APPLICATION_CODE,
+      `Cannot delete organization '${orgId}' because it still contains ${appsCount} applications`,
+      { details: { appsCount } }
+    );
   }
+
+  await client
+    .withSession(async (sessionArg) => {
+      await sessionArg.withTransaction(async (session) => {
+        // Delete orgId in organisations collections
+        await db
+          .collection(COLL_ORGANIZATIONS)
+          .deleteOne({ _id: orgId }, { session });
+
+        // Delete orgId from user permissions
+        await db
+          .collection(COLL_USERS)
+          .updateOne(
+            { _id: userId },
+            { $pull: { 'perms.organizations': { _id: orgId } } },
+            { session }
+          );
+      });
+    })
+    .finally(() => {
+      client.close();
+    });
+
+  return { deletedResources: { organizationIds: [orgId] } };
 };

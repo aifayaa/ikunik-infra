@@ -7,6 +7,12 @@ export const createFieldChecks = {
   },
 };
 
+export const putAppFieldChecks = {
+  appId(val) {
+    return isNonEmptyString(val);
+  },
+};
+
 export const setOrgDebugPaidChecks = {
   paymentOk(val) {
     return typeof val === 'boolean';
