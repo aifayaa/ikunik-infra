@@ -24,10 +24,13 @@ export const appPrivateFieldsProjection = appPrivateFields.reduce(
 
 const userPrivateFields = ['services', 'perms'];
 
-const userPrivateFieldsProjection = userPrivateFields.reduce((acc, field) => {
-  acc[field] = 0;
-  return acc;
-}, {});
+export const userPrivateFieldsProjection = userPrivateFields.reduce(
+  (acc, field) => {
+    acc[field] = 0;
+    return acc;
+  },
+  {}
+);
 
 export function filterAppPrivateFields(app) {
   // Deep duplication required to avoid modifying the source
@@ -44,7 +47,7 @@ export function filterUserPrivateFields(app) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(app));
 
-  userPrivateFieldsProjection.forEach((field) => {
+  userPrivateFields.forEach((field) => {
     objUnset(ret, field);
   });
 
