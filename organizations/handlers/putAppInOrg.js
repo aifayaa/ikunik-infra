@@ -6,7 +6,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-  getApplicationWithOrg,
+  getApplicationWithinOrg,
 } from '../../libs/perms/checkPermsFor';
 
 import putAppInOrg from '../lib/putAppInOrg';
@@ -52,7 +52,7 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     return org;
   }
 
-  const application = await getApplicationWithOrg(appId);
+  const application = await getApplicationWithinOrg(appId);
   if (isAppAlreadyBuild(application)) {
     throw new CrowdaaError(
       ERROR_TYPE_INTERNAL_EXCEPTION,
