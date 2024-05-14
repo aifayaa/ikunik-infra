@@ -12,23 +12,23 @@ const serverlessConfiguration = {
     environment: {
       ...env,
       FACEBOOK_CLIENT_ID:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.FACEBOOK_CLIENT_ID}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.FACEBOOK_CLIENT_ID}',
       FACEBOOK_CLIENT_SECRET:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.FACEBOOK_CLIENT_SECRET}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.FACEBOOK_CLIENT_SECRET}',
       TWITTER_CONSUMER_KEY:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.TWITTER_CONSUMER_KEY}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.TWITTER_CONSUMER_KEY}',
       TWITTER_CONSUMER_SECRET:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.TWITTER_CONSUMER_SECRET}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.TWITTER_CONSUMER_SECRET}',
       INSTAGRAM_CLIENT_ID:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.INSTAGRAM_CLIENT_ID}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.INSTAGRAM_CLIENT_ID}',
       INSTAGRAM_CLIENT_SECRET:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.INSTAGRAM_CLIENT_SECRET}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.INSTAGRAM_CLIENT_SECRET}',
       REACT_APP_AUTH_URL:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.REACT_APP_AUTH_URL}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_AUTH_URL}',
       REACT_APP_API_URL:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}',
       S3_APPS_RESSOURCES:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
     },
     iam: {
       role: {
