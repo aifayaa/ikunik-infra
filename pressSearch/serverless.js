@@ -1,0 +1,120 @@
+/* eslint-disable no-template-curly-in-string */
+const env = require('../env');
+
+const serverlessConfiguration = {
+  service: 'pressSearch',
+  provider: {
+    name: 'aws',
+    runtime: 'nodejs16.x',
+    stage: '${opt:stage, "dev"}',
+    memorySize: 128,
+    timeout: 30,
+    environment: { env },
+    apiGateway: {
+      restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
+      restApiRootResourceId:
+        '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
+      restApiResources: {
+        '/press': '${cf:press-${self:provider.stage}.RestApiRootResourceId}',
+      },
+    },
+    region: '${opt:region, "us-east-1"}',
+    deploymentBucket: 'ms-deployment-${self:provider.region}',
+  },
+  functions: {
+    search: {
+      handler: 'handlers/search.handleSearch',
+      events: [
+        {
+          http: {
+            path: 'press/search',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                querystrings: '${self:custom.querystrings}',
+              },
+            },
+          },
+        },
+      ],
+    },
+    search2: {
+      handler: 'handlers/search2.default',
+      events: [
+        {
+          http: {
+            path: 'press/search2',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                querystrings: '${self:custom.querystrings}',
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+  plugins: [
+    'serverless-disable-request-validators',
+    'serverless-webpack',
+    'serverless-prune-plugin',
+  ],
+  package: {
+    individually: true,
+  },
+  custom: {
+    prune: {
+      automatic: true,
+      number: 3,
+    },
+    'serverless-disable-request-validators': {
+      action: 'delete',
+    },
+    IntegrationRequestParameters: {
+      'integration.request.header.x-api-key': 'method.request.header.x-api-key',
+      'integration.request.querystring.text': 'method.request.querystring.text',
+    },
+    querystrings: {
+      text: false,
+    },
+  },
+  resources: {
+    Resources: {
+      ApiGatewayMethodPressSearchGet: {
+        Properties: {
+          RequestParameters: {
+            'method.request.header.x-api-key': true,
+          },
+          Integration: {
+            RequestParameters: '${self:custom.IntegrationRequestParameters}',
+            CacheNamespace: 'ApiGatewayMethodPressSearchCacheNS',
+            CacheKeyParameters: [
+              'method.request.header.x-api-key',
+              'method.request.querystring.text',
+            ],
+          },
+        },
+      },
+    },
+  },
+};
+module.exports = serverlessConfiguration;
