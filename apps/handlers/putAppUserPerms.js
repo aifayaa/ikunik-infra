@@ -81,7 +81,6 @@ export default async (event) => {
       orgId,
       organizationPermissionLevel
     );
-
     if (!organizationUserSourceAllowed) {
       throw new CrowdaaError(
         ERROR_TYPE_ACCESS,
@@ -96,6 +95,7 @@ export default async (event) => {
         }
       );
     }
+
     const organizationTargetUserAllowed = await checkPermsForOrganization(
       targetUserId,
       orgId,
@@ -116,7 +116,6 @@ export default async (event) => {
       );
     }
 
-    // TODO: an admin must always remain on an application
     const app = await putAppUserPerms(appId, roles, targetUserId);
 
     return response({
