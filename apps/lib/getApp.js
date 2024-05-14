@@ -18,7 +18,7 @@ export default async (appId) => {
       throw new CrowdaaException(
         ERROR_TYPE_NOT_FOUND,
         APP_NOT_FOUND_CODE,
-        `The application with ID ${appId} was not found`
+        `The application with ID '${appId}' was not found`
       );
     }
 

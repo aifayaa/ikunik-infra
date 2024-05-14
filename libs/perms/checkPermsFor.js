@@ -5,13 +5,15 @@ import { indexObjectArrayWithKey } from '../utils';
 
 import { CrowdaaError } from '../httpResponses/CrowdaaError';
 import {
-  APP_NOT_FOUND_CODE,
+  APPLICATION_OUTSIDE_ORGANIZATION_CODE,
+  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
+import getApp from '../../apps/lib/getApp';
+import { CrowdaaException } from '../httpResponses/crowdaaException';
 
-const { COLL_USERS, COLL_ORGANIZATIONS, COLL_APPS, COLL_WEBSITES } =
-  mongoCollections;
+const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
 /**
  * Example of user.perms structure :
@@ -251,25 +253,18 @@ async function getUserPermsOnApp(userId, appId) {
   }
 }
 
-export async function getApplicationWithOrg(appId) {
+export async function getApplicationWithinOrg(appId) {
   const client = await MongoClient.connect();
 
   try {
-    const application = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne({ _id: appId }, { projection: { organization: 1 } });
-
-    if (!application) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        APP_NOT_FOUND_CODE,
-        `Cannot found the application '${appId}'`
-      );
-    }
+    const application = await getApp(appId);
 
     if (!application.organization) {
-      return null;
+      throw new CrowdaaException(
+        ERROR_TYPE_NOT_ALLOWED,
+        APPLICATION_OUTSIDE_ORGANIZATION_CODE,
+        `The application '${appId}' is not in an organization`
+      );
     }
     return application;
   } finally {
@@ -278,7 +273,8 @@ export async function getApplicationWithOrg(appId) {
 }
 
 export async function getApplicationOrganizationId(appId) {
-  const application = await getApplicationWithOrg(appId);
+  const application = await getApplicationWithinOrg(appId);
+
   return (
     application && application.organization && application.organization._id
   );
@@ -292,7 +288,7 @@ export async function getApplicationOrganizationId(appId) {
  * @returns true for a valid permission, false otherwise
  */
 export async function checkPermsForApp(userId, appId, requestedPerm) {
-  const application = await getApplicationWithOrg(appId);
+  const application = await getApp(appId);
   const applicationOrganizationId =
     application && application.organization && application.organization._id;
   const userPerms = await getUserPermsOnApp(userId, appId);
