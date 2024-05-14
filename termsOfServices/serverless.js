@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'termsOfServices',
@@ -8,7 +9,7 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.yml)}',
+    environment: { env },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
