@@ -10,7 +10,7 @@ import register from './register';
 import resetPassword from './resetPassword';
 import validateEmail from './validateEmail';
 
-import yaml from '../serverless.yml';
+import js from '../serverless';
 
 export default (libs, output) => {
   appleLogin(libs, output);
@@ -24,5 +24,5 @@ export default (libs, output) => {
   resetPassword(libs, output);
   validateEmail(libs, output);
 
-  libs.checks.forMissingAPIs(yaml, output);
+  libs.checks.forMissingAPIs(js, output);
 };
