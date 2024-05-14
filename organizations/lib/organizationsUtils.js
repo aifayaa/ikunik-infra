@@ -24,6 +24,13 @@ export function filterUserPrivateFields(app) {
 
 export const organizationRoles = ['owner', 'admin', 'member'];
 
+export const applicationRolesInOrganization = [
+  'admin',
+  'editor',
+  'moderator',
+  'viewer',
+];
+
 export function isAppAlreadyBuild(application) {
   return (
     application &&
