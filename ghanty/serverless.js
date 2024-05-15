@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'ghanty',
@@ -18,7 +17,7 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: { env },
+    environment: '${file(../env.js)}',
     iam: {
       role: {
         statements: [

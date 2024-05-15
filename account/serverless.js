@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'account',
@@ -9,7 +8,7 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: { env },
+    environment: '${file(../env.js)}',
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },

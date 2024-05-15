@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-const env = require('../env');
 
 module.exports = {
   service: 'purchases',
@@ -9,7 +8,7 @@ module.exports = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: { env },
+    environment: '${file(../env.js)}',
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:

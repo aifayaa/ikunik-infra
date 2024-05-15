@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'forms',
@@ -21,7 +20,7 @@ const serverlessConfiguration = {
         ],
       },
     },
-    environment: { env },
+    environment: '${file(../env.js)}',
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:

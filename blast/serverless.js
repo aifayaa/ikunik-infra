@@ -91,13 +91,13 @@ const serverlessConfiguration = {
     environment: {
       ...env,
       MAILGUN_API_KEY:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.MAILGUN_API_KEY}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MAILGUN_API_KEY}',
       MAILGUN_DOMAIN:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.MAILGUN_DOMAIN}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MAILGUN_DOMAIN}',
       ANDROID_PACKAGE_ID:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.ANDROID_PACKAGE_ID}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.ANDROID_PACKAGE_ID}',
       IOS_APP_ID:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.IOS_APP_ID}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.IOS_APP_ID}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',

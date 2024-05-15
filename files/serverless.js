@@ -59,21 +59,21 @@ const serverlessConfiguration = {
     environment: {
       ...env,
       EL_PIPELINE:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.EL_PIPELINE}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.EL_PIPELINE}',
       EL_PIPELINE_REGION:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.EL_PIPELINE_REGION}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.EL_PIPELINE_REGION}',
       S3_VIDEOS_BUCKET:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.S3_VIDEOS_BUCKET}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_VIDEOS_BUCKET}',
       CDN_DOMAIN_NAME:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.CDN_DOMAIN_NAME}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.CDN_DOMAIN_NAME}',
       S3_UPLOAD_BUCKET:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.S3_UPLOAD_BUCKET}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_UPLOAD_BUCKET}',
       S3_PICTURES_BUCKET:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.S3_PICTURES_BUCKET}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_PICTURES_BUCKET}',
       S3_APPS_RESSOURCES:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
       S3_APPS_PUBLIC_RESSOURCES:
-        '${self:customs.${self:provider.stage}.${self:provider.region}.S3_APPS_PUBLIC_RESSOURCES}',
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_PUBLIC_RESSOURCES}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',

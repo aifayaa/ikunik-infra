@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'userReactions',
@@ -10,7 +9,7 @@ const serverlessConfiguration = {
     region: '${opt:region, "us-east-1"}',
     memorySize: 128,
     timeout: 30,
-    environment: { env },
+    environment: '${file(../env.js)}',
     iam: {
       role: {
         statements: [
