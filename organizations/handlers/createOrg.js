@@ -46,7 +46,8 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const org = await createOrg(userId, validatedBody);
+    const { name, appleTeamId, appleCompanyName } = validatedBody;
+    const org = await createOrg(userId, name, appleTeamId, appleCompanyName);
     return response({
       code: 200,
       body: formatResponseBody({ data: org }),
