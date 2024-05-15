@@ -13,6 +13,12 @@ export const createOrgSchema = z.object({
     })
     .max(80, { message: 'Must be 80 or fewer characters long' })
     .trim(),
+  email: z
+    .string({
+      required_error: 'email is required',
+    })
+    .email()
+    .trim(),
   appleTeamId: z
     .string({
       invalid_type_error: 'appleTeamId must be a string',
@@ -46,8 +52,14 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const { name, appleTeamId, appleCompanyName } = validatedBody;
-    const org = await createOrg(userId, name, appleTeamId, appleCompanyName);
+    const { name, email, appleTeamId, appleCompanyName } = validatedBody;
+    const org = await createOrg(
+      userId,
+      name,
+      email,
+      appleTeamId,
+      appleCompanyName
+    );
     return response({
       code: 200,
       body: formatResponseBody({ data: org }),

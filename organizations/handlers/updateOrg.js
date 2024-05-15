@@ -18,7 +18,15 @@ const updateOrgSchema = z.object({
       invalid_type_error: 'name must be a string',
     })
     .max(80, { message: 'Must be 80 or fewer characters long' })
-    .trim(),
+    .trim()
+    .optional(),
+  email: z
+    .string({
+      required_error: 'email is required',
+    })
+    .email()
+    .trim()
+    .optional(),
   appleTeamId: z
     .string({
       invalid_type_error: 'appleTeamId must be a string',
@@ -77,7 +85,14 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const org = await updateOrg(orgId, validatedBody);
+    const { name, email, appleTeamId, appleCompanyName } = validatedBody;
+    const org = await updateOrg(
+      orgId,
+      name,
+      email,
+      appleTeamId,
+      appleCompanyName
+    );
 
     return response({
       code: 200,
