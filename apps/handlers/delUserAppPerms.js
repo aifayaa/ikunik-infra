@@ -1,23 +1,50 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  APPLICATION_PERMISSION_CODE,
+  ERROR_TYPE_ACCESS,
+} from '../../libs/httpResponses/errorCodes';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import response, { handleException } from '../../libs/httpResponses/response';
+import { checkPermsForAppArray } from '../../libs/perms/checkPermsFor';
+import { filterAppPrivateFields } from '../lib/appsUtils';
 import delUserAppPerms from '../lib/delUserAppPerms';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const { id: appId, userId: targetUserId } = event.pathParameters;
+
   try {
-    if (!appId) throw new Error('org_not_found');
+    const requestedPermissions = ['admin'];
+    const allowed = await checkPermsForAppArray(userId, appId, [
+      requestedPermissions,
+    ]);
+    if (!allowed) {
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        APPLICATION_PERMISSION_CODE,
+        `User '${userId}' is not at least '${requestedPermissions.join(' or ')}' on application '${appId}'`,
+        {
+          details: {
+            userId,
+            appId,
+            requestedPermissions,
+          },
+        }
+      );
+    }
 
-    // Check right for userId to appId
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) throw new Error('access_forbidden');
+    const app = await delUserAppPerms(targetUserId, appId);
 
-    const res = await delUserAppPerms(targetUserId, appId);
-
-    return response({ code: 200, body: res });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: {
+          items: filterAppPrivateFields(app),
+        },
+      }),
+    });
+  } catch (exception) {
+    return handleException(exception);
   }
 };
