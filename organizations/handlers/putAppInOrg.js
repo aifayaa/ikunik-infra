@@ -1,10 +1,11 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
+import MongoClient from '../../libs/mongoClient';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
-  checkPermsForApp,
+  checkPermsForAppAux,
   checkPermsForOrganization,
   getApplicationWithinOrg,
 } from '../../libs/perms/checkPermsFor';
@@ -44,8 +45,15 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     );
   }
 
+  const client = await MongoClient.connect();
+
   const appPermissionLevel = 'owner';
-  const allowedApp = checkPermsForApp(userId, appId, appPermissionLevel);
+  const allowedApp = await checkPermsForAppAux(
+    client.db(),
+    userId,
+    appId,
+    appPermissionLevel
+  );
 
   if (allowedApp) {
     const org = await putAppInOrg(userId, orgId, appId, 'fromUserToOrg');

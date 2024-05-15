@@ -1,7 +1,8 @@
 /* eslint-disable import/no-relative-packages */
+import MongoClient from '../../libs/mongoClient';
 import { getArticle } from '../lib/getArticle';
-import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import response, { handleException } from '../../libs/httpResponses/response';
+import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   try {
@@ -10,7 +11,13 @@ export default async (event) => {
     const { id: articleId } = event.pathParameters;
     const { deviceId = null } = event.queryStringParameters || {};
 
-    const publishedOnly = !(await checkPermsForApp(userId, appId, 'admin'));
+    const client = await MongoClient.connect();
+    const publishedOnly = !(await checkPermsForAppAux(
+      client.db(),
+      userId,
+      appId,
+      'admin'
+    ));
 
     const results = await getArticle(articleId, appId, {
       deviceId,
@@ -24,7 +31,7 @@ export default async (event) => {
     }
 
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response({ code: 500, message: e.message });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

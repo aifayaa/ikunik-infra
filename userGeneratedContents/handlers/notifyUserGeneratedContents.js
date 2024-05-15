@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import notifyUserGeneratedContents from '../lib/notifyUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -12,10 +11,7 @@ export default async (event) => {
     const bodyParsed = JSON.parse(event.body);
     const { content = null, notifyAt = null, title = null } = bodyParsed;
 
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('forbidden_user');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     await notifyUserGeneratedContents(appId, userGeneratedContentsId, {
       title,
@@ -24,7 +20,7 @@ export default async (event) => {
     });
 
     return response({ code: 200, body: { scheduled: true } });
-  } catch (e) {
-    return response(errorMessage(e));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

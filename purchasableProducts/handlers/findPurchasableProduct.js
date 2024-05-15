@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import { findPurchasableProduct } from '../lib/findPurchasableProduct';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -10,10 +9,7 @@ export default async (event) => {
   const { contentId, contentCollection } = queryParams;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!contentId || !contentCollection) {
       throw new Error('missing_argument');
@@ -31,7 +27,7 @@ export default async (event) => {
       contentId,
     });
     return response({ code: 200, body: results || {} });
-  } catch (e) {
-    return response(errorMessage(e));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

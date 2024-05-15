@@ -1,12 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import {
-  ERROR_TYPE_ACCESS,
-  APPLICATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForAppArray } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { filterUserPrivateFields } from '../lib/appsUtils';
 import getAppUsers from '../lib/getAppUsers';
 
@@ -16,25 +11,7 @@ export default async (event) => {
 
   try {
     const requestedPermissions = ['viewer', 'moderator', 'editor'];
-    const allowed = await checkPermsForAppArray(
-      userId,
-      appId,
-      requestedPermissions
-    );
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        APPLICATION_PERMISSION_CODE,
-        `User '${userId}' is not at least '${requestedPermissions.join(' or ')}' on application '${appId}'`,
-        {
-          details: {
-            userId,
-            appId,
-            requestPermissions: requestedPermissions,
-          },
-        }
-      );
-    }
+    await checkPermsForApp(userId, appId, requestedPermissions);
 
     const users = await getAppUsers(appId);
 

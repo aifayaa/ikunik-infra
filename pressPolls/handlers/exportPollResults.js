@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import getPollResults, { pollResultsToCsv } from '../lib/getPollResults';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { getUserLanguage, intlInit } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -11,11 +10,11 @@ export default async (event) => {
   const pollId = event.pathParameters.id;
 
   try {
-    const isAdmin = await checkPermsForApp(userId, authorizerAppId, 'admin');
+    await checkPermsForApp(userId, authorizerAppId, ['admin']);
 
     const { exportToken = null, appId } = event.queryStringParameters || {};
 
-    if (!isAdmin && !exportToken) {
+    if (!exportToken) {
       throw new Error('access_forbidden');
     }
 
@@ -34,7 +33,7 @@ export default async (event) => {
       body: csv,
       raw: true,
     });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

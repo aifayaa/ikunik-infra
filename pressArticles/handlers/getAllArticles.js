@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { getArticles } from '../lib/getArticles';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -8,10 +8,8 @@ export default async (event) => {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
     const { category = null, start, limit } = event.queryStringParameters || {};
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
     const results = await getArticles(category, start, limit, appId, {
       getOrphansArticles: !category,
       onlyPublished: false,
@@ -20,7 +18,7 @@ export default async (event) => {
       userId,
     });
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response({ code: 500, message: e.message });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

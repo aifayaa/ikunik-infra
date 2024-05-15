@@ -1,16 +1,22 @@
 /* eslint-disable import/no-relative-packages */
+import MongoClient from '../../libs/mongoClient';
 import getPoll from '../lib/getPoll';
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import response, { handleException } from '../../libs/httpResponses/response';
+import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
   const pollId = event.pathParameters.id;
   const params = event.queryStringParameters || {};
 
+  const client = await MongoClient.connect();
   try {
-    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    const isAdmin = await checkPermsForAppAux(
+      client.db(),
+      userId,
+      appId,
+      'admin'
+    );
 
     let poll = await getPoll(pollId, appId, {
       userId,
@@ -40,7 +46,9 @@ export default async (event) => {
     }
 
     return response({ code: 200, body: poll });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
+  } finally {
+    client.close();
   }
 };

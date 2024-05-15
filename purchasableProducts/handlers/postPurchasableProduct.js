@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import { postPurchasableProduct } from '../lib/postPurchasableProduct';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const availableTypes = ['subscription', 'direct'];
@@ -10,10 +9,7 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {
       throw new Error('missing_payload');
@@ -88,7 +84,7 @@ export default async (event) => {
     });
 
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response(errorMessage(e));
+  } catch (exception) {
+    return handleException(exception);
   }
 };
