@@ -495,7 +495,13 @@ export const checkPermsForOrganization = async (
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
       ORGANIZATION_NOT_FOUND_CODE,
-      `Cannot found the organization '${orgId}'`
+      `Cannot found the organization '${orgId}'`,
+      {
+        details: {
+          userId,
+          orgId,
+        },
+      }
     );
   }
 

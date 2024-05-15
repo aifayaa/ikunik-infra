@@ -13,23 +13,19 @@ import {
   filterUserPrivateFields,
   organizationRoles,
 } from '../lib/organizationsUtils';
-import MongoClient from '../../libs/mongoClient';
-import mongoCollections from '../../libs/mongoCollections.json';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-
-const { COLL_USERS } = mongoCollections;
-
-export const changeUserOrgPermsSchema = z
-  .object({
-    roles: z.array(z.enum(organizationRoles)).nonempty(),
-  })
-  .required();
 
 export default async (event) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer;
   const { id: orgId, userId: targetUserId } = event.pathParameters;
 
   try {
+    const changeUserOrgPermsSchema = z
+      .object({
+        roles: z.array(z.enum(organizationRoles)).nonempty(),
+      })
+      .required();
+
     const body = JSON.parse(event.body);
 
     // validation
@@ -85,22 +81,6 @@ export default async (event) => {
           },
         }
       );
-    }
-
-    // If the target user is a superAdmin, return it
-    const client = await MongoClient.connect();
-    const db = client.db();
-    const targetUser = await db
-      .collection(COLL_USERS)
-      .findOne({ _id: targetUserId });
-
-    // If the target user is a superAdmin, don't change permissions
-    const { superAdmin } = targetUser;
-    if (superAdmin) {
-      return response({
-        code: 200,
-        body: formatResponseBody({ data: filterUserPrivateFields(targetUser) }),
-      });
     }
 
     const user = await changeUserOrgPerms(

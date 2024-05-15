@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
@@ -9,16 +9,23 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;
 
+// TODO: Move to 'apps/lib/appsUtils.js'
 export default async (appId) => {
   const client = await MongoClient.connect();
   try {
     const db = client.db();
     const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+
     if (!app) {
-      throw new CrowdaaException(
+      throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         APP_NOT_FOUND_CODE,
-        `The application with ID '${appId}' was not found`
+        `The application '${appId}' is not found`,
+        {
+          details: {
+            appId,
+          },
+        }
       );
     }
 
