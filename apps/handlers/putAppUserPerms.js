@@ -52,26 +52,7 @@ export default async (event) => {
 
     const { roles, userId: targetUserId } = validatedBody;
 
-    const appPermissionLevel = 'admin';
-    const allowed = await checkPermsForApp(
-      sourceUserId,
-      appId,
-      appPermissionLevel
-    );
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        APPLICATION_PERMISSION_CODE,
-        `User '${sourceUserId}' is not at least '${appPermissionLevel}' on application '${appId}'`,
-        {
-          details: {
-            userId: sourceUserId,
-            appId,
-            appPermissionLevel,
-          },
-        }
-      );
-    }
+    await checkPermsForApp(sourceUserId, appId, ['admin']);
 
     const orgId = await getApplicationOrganizationId(appId);
 

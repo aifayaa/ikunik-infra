@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getAds from '../lib/getAds';
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const stringToBool = (str) => str === 'true';
@@ -11,7 +10,9 @@ export default async (event) => {
 
   try {
     const params = event.queryStringParameters || {};
-    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
 
     const filters = {};
 
@@ -58,7 +59,7 @@ export default async (event) => {
     }
 
     return response({ code: 200, body: { list, count } });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

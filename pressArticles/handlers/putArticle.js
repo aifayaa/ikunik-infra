@@ -3,7 +3,7 @@ import removeMd from 'remove-markdown';
 
 import checkActions from '../lib/checks/checkActions';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
 import { queueArticleNotifications } from '../lib/notificationsQueue';
@@ -16,10 +16,8 @@ export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
@@ -155,7 +153,7 @@ export default async (event) => {
       }
     }
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response({ code: 500, message: e.message });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

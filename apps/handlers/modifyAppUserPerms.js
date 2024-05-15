@@ -12,7 +12,6 @@ import modifyAppUserPerms from '../lib/modifyAppUserPerms';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
-  APPLICATION_PERMISSION_CODE,
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
@@ -44,26 +43,7 @@ export default async (event) => {
     const { roles } = validatedBody;
 
     // Check right for sourceUserId to appId
-    const appPermissionLevel = 'admin';
-    const allowed = await checkPermsForApp(
-      sourceUserId,
-      appId,
-      appPermissionLevel
-    );
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        APPLICATION_PERMISSION_CODE,
-        `User '${sourceUserId}' is not at least '${appPermissionLevel}' on application '${appId}'`,
-        {
-          details: {
-            userId: sourceUserId,
-            appId,
-            appPermissionLevel,
-          },
-        }
-      );
-    }
+    await checkPermsForApp(sourceUserId, appId, ['admin']);
 
     const orgId = await getApplicationOrganizationId(appId);
 

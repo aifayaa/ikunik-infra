@@ -2,7 +2,7 @@
 import checkOwner from '../../libs/perms/checkOwner';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import removeUserGeneratedContents from '../lib/removeUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -12,7 +12,9 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
+    const isModerator = await checkPermsForApp(userId, appId, ['moderator'], {
+      dontThrow: true,
+    });
     const userGeneratedContentsId = event.pathParameters.id;
 
     let ugc = null;
@@ -41,7 +43,7 @@ export default async (event) => {
       options
     );
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response(errorMessage(e));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

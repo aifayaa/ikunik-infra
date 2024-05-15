@@ -44,8 +44,9 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     );
   }
 
-  const appPermissionLevel = 'owner';
-  const allowedApp = checkPermsForApp(userId, appId, appPermissionLevel);
+  const allowedApp = await checkPermsForApp(userId, appId, ['owner'], {
+    dontThrow: true,
+  });
 
   if (allowedApp) {
     const org = await putAppInOrg(userId, orgId, appId, 'fromUserToOrg');
@@ -62,7 +63,6 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
         details: {
           userId,
           appId,
-          appPermissionLevel,
         },
       }
     );

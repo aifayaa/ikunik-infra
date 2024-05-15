@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getUserGeneratedContents from '../lib/getUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const isBooleanStringOrUndefined = (val) =>
@@ -23,14 +23,7 @@ export default async (event) => {
 
     // Moderator only allowed parameters
     if (typeof moderator !== 'undefined' || typeof trashed !== 'undefined') {
-      const isModerator = await checkPermsForApp(userId, appId, 'moderator');
-      if (!isModerator) {
-        const error = new Error(
-          'Unauthorized: this operation require moderator level rights'
-        );
-        error.code = 401;
-        throw error;
-      }
+      await checkPermsForApp(userId, appId, ['moderator']);
     }
 
     const results = await getUserGeneratedContents(
@@ -42,7 +35,7 @@ export default async (event) => {
       }
     );
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response({ code: 500, message: e.message });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

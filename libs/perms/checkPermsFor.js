@@ -6,6 +6,8 @@ import { indexObjectArrayWithKey } from '../utils';
 import { CrowdaaError } from '../httpResponses/CrowdaaError';
 import {
   APPLICATION_OUTSIDE_ORGANIZATION_CODE,
+  APPLICATION_PERMISSION_CODE,
+  ERROR_TYPE_ACCESS,
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
@@ -291,13 +293,9 @@ export async function getApplicationOrganizationId(appId) {
  * @param {string} requestedPerm The permission to check for, may be one of: owner, admin, editor, moderator, viewer
  * @returns true for a valid permission, false otherwise
  */
-export async function checkPermsForApp(userId, appId, requestedPerm) {
-  const client = await MongoClient.connect();
-  const db = client.db();
-
+async function checkPermsForAppAux(db, userId, appId, requestedPerm) {
   // The application exists
   const application = await getApp(appId);
-  // console.log('application', application);
 
   const user = await db.collection(COLL_USERS).findOne(
     { _id: userId },
@@ -347,7 +345,6 @@ export async function checkPermsForApp(userId, appId, requestedPerm) {
   else {
     // Else, check if the user has perms on application
     if (userPermsOnApp.roles.length !== 0) {
-      // return true;
       const requestedPermsArray = [
         requestedPerm,
         ...(APP_PERMS_IMPLIED[requestedPerm] || []),
@@ -364,18 +361,52 @@ export async function checkPermsForApp(userId, appId, requestedPerm) {
  * Checks for user permissions on an app.
  * @param {string} userId The user ID
  * @param {string} appId The app ID
- * @param {Array<'owner' | 'admin' | 'editor' | 'moderator' | 'viewer'>} requestedPerm The
+ * @param {Array<'owner' | 'admin' | 'editor' | 'moderator' | 'viewer'>} requestedPermissions The
  * permission to check for, may be one of: owner, admin, editor, moderator, viewer
+ * @param {object} options (facultative) precise if the function throw or not
+ * @throws {CrowdaaError} If user is not allowed
  * @returns true for a valid permission, false otherwise
  */
-export async function checkPermsForAppArray(userId, appId, requestedPerm) {
-  for (const permissionToCheck of requestedPerm) {
-    // eslint-disable-next-line no-await-in-loop
-    if (await checkPermsForApp(userId, appId, permissionToCheck)) {
-      return true;
+export async function checkPermsForApp(
+  userId,
+  appId,
+  requestedPermissions,
+  options = { dontThrow: false }
+) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    const promisesToRevolve = requestedPermissions.map((permissionToCheck) =>
+      checkPermsForAppAux(db, userId, appId, permissionToCheck)
+    );
+
+    const isAllow = await Promise.all(promisesToRevolve);
+
+    const res = isAllow.some(Boolean);
+    if (options.dontThrow) {
+      return res;
     }
+
+    if (!res) {
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        APPLICATION_PERMISSION_CODE,
+        `User '${userId}' is not at least '${requestedPermissions.join(' or ')}' on application '${appId}'`,
+        {
+          details: {
+            userId,
+            appId,
+            requestPermissions: requestedPermissions,
+          },
+        }
+      );
+    }
+
+    return res;
+  } finally {
+    client.close();
   }
-  return false;
 }
 
 /**
