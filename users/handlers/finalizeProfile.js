@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
 import {
   finalizeBadge,
   finalizeInternalProfile,
@@ -8,20 +7,16 @@ import {
 } from '../lib/finalizeProfile';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { getUserLanguage } from '../../libs/intl/intl';
-import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
   const urlUserId = event.pathParameters.id;
 
-  const client = MongoClient.connect();
   try {
-    const isAdmin = await checkPermsForAppAux(
-      client.db(),
-      userId,
-      appId,
-      'admin'
-    );
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
 
     // Only restricting to self for now, should allow admin users later
     if (userId !== urlUserId && !isAdmin) {
@@ -58,7 +53,5 @@ export default async (event) => {
     return response({ code: 200, body: results });
   } catch (exception) {
     return handleException(exception);
-  } finally {
-    client.close();
   }
 };

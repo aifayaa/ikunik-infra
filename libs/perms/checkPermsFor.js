@@ -293,7 +293,7 @@ export async function getApplicationOrganizationId(appId) {
  * @param {string} requestedPerm The permission to check for, may be one of: owner, admin, editor, moderator, viewer
  * @returns true for a valid permission, false otherwise
  */
-export async function checkPermsForAppAux(db, userId, appId, requestedPerm) {
+async function checkPermsForAppAux(db, userId, appId, requestedPerm) {
   // The application exists
   const application = await getApp(appId);
 
@@ -363,9 +363,16 @@ export async function checkPermsForAppAux(db, userId, appId, requestedPerm) {
  * @param {string} appId The app ID
  * @param {Array<'owner' | 'admin' | 'editor' | 'moderator' | 'viewer'>} requestedPermissions The
  * permission to check for, may be one of: owner, admin, editor, moderator, viewer
+ * @param {object} options (facultative) precise if the function throw or not
  * @throws {CrowdaaError} If user is not allowed
+ * @returns true for a valid permission, false otherwise
  */
-export async function checkPermsForApp(userId, appId, requestedPermissions) {
+export async function checkPermsForApp(
+  userId,
+  appId,
+  requestedPermissions,
+  options = { dontThrow: false }
+) {
   const client = await MongoClient.connect();
   const db = client.db();
 
@@ -376,7 +383,12 @@ export async function checkPermsForApp(userId, appId, requestedPermissions) {
 
     const isAllow = await Promise.all(promisesToRevolve);
 
-    if (!isAllow.some(Boolean)) {
+    const res = isAllow.some(Boolean);
+    if (options.dontThrow) {
+      return res;
+    }
+
+    if (!res) {
       throw new CrowdaaError(
         ERROR_TYPE_ACCESS,
         APPLICATION_PERMISSION_CODE,
@@ -390,6 +402,8 @@ export async function checkPermsForApp(userId, appId, requestedPermissions) {
         }
       );
     }
+
+    return res;
   } finally {
     client.close();
   }

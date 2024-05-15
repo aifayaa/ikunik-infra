@@ -1,24 +1,19 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
 import checkOwner from '../../libs/perms/checkOwner';
 import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents';
 import response, { handleException } from '../../libs/httpResponses/response';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
-  const client = MongoClient.connect();
   try {
-    const isModerator = await checkPermsForAppAux(
-      client.db(),
-      userId,
-      appId,
-      'moderator'
-    );
+    const isModerator = await checkPermsForApp(userId, appId, ['moderator'], {
+      dontThrow: true,
+    });
     const userGeneratedContentsId = event.pathParameters.id;
     const bodyParsed = JSON.parse(event.body);
     const { moderated, reason } = bodyParsed;
@@ -60,7 +55,5 @@ export default async (event) => {
     return response({ code: 200, body: results });
   } catch (exception) {
     return handleException(exception);
-  } finally {
-    client.close();
   }
 };

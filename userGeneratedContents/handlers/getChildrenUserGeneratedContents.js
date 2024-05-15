@@ -1,9 +1,8 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
 import response, { handleException } from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
-import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const parentId = event.pathParameters.id;
@@ -18,7 +17,6 @@ export default async (event) => {
   /* Get collection from resource path */
   const parentCollection = pathToCollection(event.requestContext.resourcePath);
 
-  const client = await MongoClient.connect();
   try {
     if (!parentId || !parentCollection) {
       throw new Error('Missing arguments');
@@ -26,12 +24,10 @@ export default async (event) => {
 
     fetchAll = `${fetchAll}` === 'true';
 
-    const isModerator = await checkPermsForAppAux(
-      client.db(),
-      userId,
-      appId,
-      'moderator'
-    );
+    const isModerator = await checkPermsForApp(userId, appId, ['moderator'], {
+      dontThrow: true,
+    });
+
     if (!isModerator) {
       fetchAll = false;
     }
@@ -64,7 +60,5 @@ export default async (event) => {
     return response({ code: 200, body: results });
   } catch (exception) {
     return handleException(exception);
-  } finally {
-    client.close();
   }
 };

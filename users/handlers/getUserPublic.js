@@ -1,26 +1,21 @@
 /* eslint-disable import/no-relative-packages */
 import pick from 'lodash/pick';
-import MongoClient from '../../libs/mongoClient';
 import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
 import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import allPerms from '../../account/lib/allPerms';
 
 export default async (event) => {
-  const client = MongoClient.connect();
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const urlId = event.pathParameters.id;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
 
-    const isAdmin = await checkPermsForAppAux(
-      client.db(),
-      userId,
-      appId,
-      'admin'
-    );
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
     if (userId !== urlId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });
     }
@@ -65,7 +60,5 @@ export default async (event) => {
     return response({ code: 200, body: results });
   } catch (exception) {
     return handleException(exception);
-  } finally {
-    client.close();
   }
 };

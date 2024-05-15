@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getAds from '../lib/getAds';
 import response, { handleException } from '../../libs/httpResponses/response';
-import MongoClient from '../../libs/mongoClient';
-import { checkPermsForAppAux } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const stringToBool = (str) => str === 'true';
 
@@ -11,9 +10,9 @@ export default async (event) => {
 
   try {
     const params = event.queryStringParameters || {};
-    const client = await MongoClient.connect();
-    const db = client.db();
-    const isAdmin = await checkPermsForAppAux(db, userId, appId, 'admin');
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
 
     const filters = {};
 
