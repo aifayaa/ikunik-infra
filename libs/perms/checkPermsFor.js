@@ -11,6 +11,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
+  USER_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
 import getApp from '../../apps/lib/getApp';
 import { CrowdaaException } from '../httpResponses/crowdaaException';
@@ -179,33 +180,35 @@ async function getUserPermsOnWebsite(userId, websiteId) {
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getUserPermsOnOrganization(userId, orgId) {
-  const client = await MongoClient.connect();
-  try {
-    const [{ superAdmin = false, perms } = {}] = await client
-      .db()
-      .collection(COLL_USERS)
-      .find({ _id: userId })
-      .toArray();
+async function getUserPermsOnOrganization(db, userId, orgId) {
+  const user = await db
+    .collection(COLL_USERS)
+    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
 
-    if (superAdmin) {
-      return {
-        organizations: [
-          {
-            _id: orgId,
-            roles: ['owner'],
-          },
-        ],
-      };
+  if (!user) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      USER_NOT_FOUND_CODE,
+      `Cannot found the user '${userId}'`
+    );
+  }
+
+  const { superAdmin, perms } = user;
+
+  if (superAdmin) {
+    return { superAdmin, roles: ['owner'] };
+  } else {
+    if (perms && perms.organizations) {
+      const theOrganization = perms.organizations.find(
+        (org) => org._id === orgId
+      );
+
+      if (theOrganization) {
+        return { superAdmin, roles: theOrganization.roles };
+      }
     }
 
-    if (perms) {
-      return perms;
-    }
-
-    return {};
-  } finally {
-    client.close();
+    return { superAdmin, roles: [] };
   }
 }
 
@@ -483,8 +486,8 @@ export const checkPermsForOrganization = async (
 ) => {
   const client = await MongoClient.connect();
 
-  const organization = await client
-    .db()
+  const db = client.db();
+  const organization = await db
     .collection(COLL_ORGANIZATIONS)
     .findOne({ _id: orgId }, { projection: { name: 1 } });
 
@@ -496,26 +499,20 @@ export const checkPermsForOrganization = async (
     );
   }
 
-  const perms = await getUserPermsOnOrganization(userId, orgId);
+  const { superAdmin, roles } = await getUserPermsOnOrganization(
+    db,
+    userId,
+    orgId
+  );
 
-  const requestedPermsArray = [
-    requestedPerm,
-    ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
-  ];
+  if (superAdmin) {
+    return true;
+  } else {
+    const requestedPermsArray = [
+      requestedPerm,
+      ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
+    ];
 
-  if (perms.organizations && perms.organizations.length > 0) {
-    const orgsPerms = indexObjectArrayWithKey(perms.organizations);
-    if (orgsPerms[orgId]) {
-      if (
-        areArraysIntersecting(
-          orgsPerms[orgId].roles || ['member'],
-          requestedPermsArray
-        )
-      ) {
-        return true;
-      }
-    }
+    return areArraysIntersecting(roles, requestedPermsArray);
   }
-
-  return false;
 };
