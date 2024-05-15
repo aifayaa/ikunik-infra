@@ -32,7 +32,7 @@ export default async (userId, { appleTeamId, appleCompanyName, name }) => {
           newOrganization.apple.teamStatus = 'checking';
         }
         if (appleCompanyName) {
-          newOrganization.apple.appleCompanyName = appleCompanyName;
+          newOrganization.apple.companyName = appleCompanyName;
         }
 
         const db = client.db();
