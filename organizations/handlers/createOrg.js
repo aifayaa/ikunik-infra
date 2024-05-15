@@ -5,42 +5,42 @@ import { formatValidationErrors } from '../../libs/httpResponses/formatValidatio
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import createOrg from '../lib/createOrg';
 
-export const createOrgSchema = z.object({
-  name: z
-    .string({
-      required_error: 'name is required',
-      invalid_type_error: 'name must be a string',
-    })
-    .max(80, { message: 'Must be 80 or fewer characters long' })
-    .trim(),
-  email: z
-    .string({
-      required_error: 'email is required',
-    })
-    .email()
-    .trim(),
-  appleTeamId: z
-    .string({
-      invalid_type_error: 'appleTeamId must be a string',
-    })
-    .length(10, { message: 'Must be 10 characters long' })
-    .trim()
-    .optional(),
-  appleCompanyName: z
-    .string({
-      invalid_type_error: 'appleCompanyName must be a string',
-    })
-    .min(1, { message: 'Must be at least 1 character long' })
-    .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
-    .trim()
-    .optional(),
-});
-
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
 
   try {
     const body = JSON.parse(event.body);
+
+    const createOrgSchema = z.object({
+      name: z
+        .string({
+          required_error: 'name is required',
+          invalid_type_error: 'name must be a string',
+        })
+        .max(80, { message: 'Must be 80 or fewer characters long' })
+        .trim(),
+      email: z
+        .string({
+          required_error: 'email is required',
+        })
+        .email()
+        .trim(),
+      appleTeamId: z
+        .string({
+          invalid_type_error: 'appleTeamId must be a string',
+        })
+        .length(10, { message: 'Must be 10 characters long' })
+        .trim()
+        .optional(),
+      appleCompanyName: z
+        .string({
+          invalid_type_error: 'appleCompanyName must be a string',
+        })
+        .min(1, { message: 'Must be at least 1 character long' })
+        .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
+        .trim()
+        .optional(),
+    });
 
     let validatedBody;
     // validation

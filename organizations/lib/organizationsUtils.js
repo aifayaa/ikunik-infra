@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { objUnset } from '../../libs/utils';
 
-export const userPrivateFields = ['services'];
+export const userPrivateFields = ['services', 'perms', 'superAdmin'];
 
 export const userPrivateFieldsProjection = userPrivateFields.reduce(
   (acc, field) => {
@@ -11,6 +11,7 @@ export const userPrivateFieldsProjection = userPrivateFields.reduce(
   {}
 );
 
+// TODO: Move to 'users/lib/usersUtils.js'
 export function filterUserPrivateFields(app) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(app));
@@ -31,6 +32,7 @@ export const applicationRolesInOrganization = [
   'viewer',
 ];
 
+// TODO: Move to 'apps/lib/appsUtils.js'
 export function isAppAlreadyBuild(application) {
   return (
     application &&

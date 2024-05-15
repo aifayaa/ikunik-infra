@@ -12,17 +12,7 @@ export default async (orgId) => {
 
     return await db
       .collection(COLL_USERS)
-      .find(
-        { 'perms.organizations._id': orgId },
-        {
-          projection: {
-            _id: 1,
-            createdAt: 1,
-            profile: 1,
-            perms: 1,
-          },
-        }
-      )
+      .find({ 'perms.organizations._id': orgId })
       .toArray();
   } finally {
     client.close();

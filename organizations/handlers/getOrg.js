@@ -5,8 +5,6 @@ import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   ERROR_TYPE_ACCESS,
-  ERROR_TYPE_NOT_FOUND,
-  ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
@@ -40,22 +38,6 @@ export default async (event) => {
     }
 
     const org = await getOrg(orgId);
-    if (!org) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_NOT_FOUND,
-            code: ORGANIZATION_NOT_FOUND_CODE,
-            message: `Cannot found the organization '${orgId}'`,
-            details: {
-              userId,
-              orgId,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
-    }
 
     return response({ code: 200, body: formatResponseBody({ data: org }) });
   } catch (exception) {
