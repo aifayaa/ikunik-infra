@@ -1,7 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 
 const serverlessConfiguration = {
-  service: 'termsOfServices',
+  service: 'purchasableProducts',
   provider: {
     name: 'aws',
     runtime: 'nodejs16.x',
@@ -18,48 +18,73 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    getTos: {
-      handler: 'handlers/getTos.default',
+    validatePurchase: {
+      handler: 'handlers/validatePurchase.default',
       events: [
         {
           http: {
-            path: 'tos',
-            method: 'get',
+            path: 'purchasableProducts/validate',
+            method: 'post',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-          },
-        },
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-            request: {
-              parameters: {
-                paths: {
-                  id: true,
-                },
-              },
             },
           },
         },
       ],
     },
-    createTos: {
-      handler: 'handlers/createTos.default',
+    findPurchasableProduct: {
+      handler: 'handlers/findPurchasableProduct.default',
       events: [
         {
           http: {
-            path: 'tos',
+            path: 'purchasableProducts/',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
+    getPurchasableProduct: {
+      handler: 'handlers/getPurchasableProduct.default',
+      events: [
+        {
+          http: {
+            path: 'purchasableProducts/{id}',
+            method: 'get',
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                paths: {
+                  id: true,
+                },
+              },
+            },
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
+    postPurchasableProduct: {
+      handler: 'handlers/postPurchasableProduct.default',
+      events: [
+        {
+          http: {
+            path: 'purchasableProducts/',
             method: 'post',
             cors: true,
             authorizer: {
@@ -67,16 +92,23 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
           },
         },
       ],
     },
-    updateTos: {
-      handler: 'handlers/updateTos.default',
+    patchPurchasableProduct: {
+      handler: 'handlers/patchPurchasableProduct.default',
       events: [
         {
           http: {
-            path: 'tos/{id}',
+            path: 'purchasableProducts/{id}',
             method: 'patch',
             cors: true,
             authorizer: {
@@ -84,16 +116,23 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
           },
         },
       ],
     },
-    deleteTos: {
-      handler: 'handlers/deleteTos.default',
+    deletePurchasableProduct: {
+      handler: 'handlers/deletePurchasableProduct.default',
       events: [
         {
           http: {
-            path: 'tos/{id}',
+            path: 'purchasableProducts/{id}',
             method: 'delete',
             cors: true,
             authorizer: {
@@ -101,15 +140,21 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
           },
         },
       ],
     },
   },
   plugins: [
-    'serverless-webpack',
-    'serverless-offline',
     'serverless-disable-request-validators',
+    'serverless-webpack',
     'serverless-prune-plugin',
     'serverless-export-env',
   ],
@@ -126,5 +171,4 @@ const serverlessConfiguration = {
     individually: true,
   },
 };
-
 module.exports = serverlessConfiguration;

@@ -1,51 +1,57 @@
 /* eslint-disable no-template-curly-in-string */
 
 const serverlessConfiguration = {
-  service: 'termsOfServices',
+  service: 'media',
   provider: {
     name: 'aws',
     runtime: 'nodejs16.x',
     stage: '${opt:stage, "dev"}',
+    region: '${opt:region, "us-east-1"}',
     memorySize: 128,
     timeout: 30,
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource: '*',
+          },
+        ],
+      },
+    },
     environment: '${file(../env.js)}',
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
-    region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    getTos: {
-      handler: 'handlers/getTos.default',
+    checkUserMedia: {
+      handler: 'handlers/checkUserMedia.default',
+    },
+    getMedium: {
+      handler: 'handlers/getMedium.default',
       events: [
         {
           http: {
-            path: 'tos',
+            path: 'media/{type}/{id}',
             method: 'get',
-            cors: true,
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
-          },
-        },
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'get',
             cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
             request: {
               parameters: {
+                headers: {
+                  Authorization: true,
+                },
                 paths: {
+                  type: true,
                   id: true,
                 },
               },
@@ -54,52 +60,54 @@ const serverlessConfiguration = {
         },
       ],
     },
-    createTos: {
-      handler: 'handlers/createTos.default',
+    postMediumView: {
+      handler: 'handlers/postMediumView.default',
       events: [
         {
           http: {
-            path: 'tos',
+            path: 'media/{type}/{id}/views',
             method: 'post',
-            cors: true,
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                paths: {
+                  type: true,
+                  id: true,
+                },
+              },
             },
           },
         },
       ],
     },
-    updateTos: {
-      handler: 'handlers/updateTos.default',
+    getMediumLockState: {
+      handler: 'handlers/getMediumLockState.default',
       events: [
         {
           http: {
-            path: 'tos/{id}',
-            method: 'patch',
-            cors: true,
+            path: 'media/{type}/{id}/lock',
+            method: 'get',
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
-          },
-        },
-      ],
-    },
-    deleteTos: {
-      handler: 'handlers/deleteTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'delete',
             cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            request: {
+              parameters: {
+                paths: {
+                  type: true,
+                  id: true,
+                },
+              },
             },
           },
         },
@@ -107,11 +115,9 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-webpack',
-    'serverless-offline',
     'serverless-disable-request-validators',
+    'serverless-webpack',
     'serverless-prune-plugin',
-    'serverless-export-env',
   ],
   custom: {
     prune: {
@@ -126,5 +132,4 @@ const serverlessConfiguration = {
     individually: true,
   },
 };
-
 module.exports = serverlessConfiguration;

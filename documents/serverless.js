@@ -1,7 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 
 const serverlessConfiguration = {
-  service: 'termsOfServices',
+  service: 'documents',
   provider: {
     name: 'aws',
     runtime: 'nodejs16.x',
@@ -18,24 +18,29 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    getTos: {
-      handler: 'handlers/getTos.default',
+    getDocuments: {
+      handler: 'handlers/getDocuments.default',
       events: [
         {
           http: {
-            path: 'tos',
+            path: 'documents',
             method: 'get',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
           },
         },
+      ],
+    },
+    getDocument: {
+      handler: 'handlers/getDocument.default',
+      events: [
         {
           http: {
-            path: 'tos/{id}',
+            path: 'documents/{id}',
             method: 'get',
             cors: true,
             authorizer: {
@@ -54,52 +59,25 @@ const serverlessConfiguration = {
         },
       ],
     },
-    createTos: {
-      handler: 'handlers/createTos.default',
+    getDocumentDataLocation: {
+      handler: 'handlers/getDocumentDataLocation.default',
       events: [
         {
           http: {
-            path: 'tos',
-            method: 'post',
+            path: 'documents/{id}/datalocation',
+            method: 'get',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
-          },
-        },
-      ],
-    },
-    updateTos: {
-      handler: 'handlers/updateTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'patch',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-          },
-        },
-      ],
-    },
-    deleteTos: {
-      handler: 'handlers/deleteTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'delete',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
             },
           },
         },
@@ -107,11 +85,9 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-webpack',
-    'serverless-offline',
     'serverless-disable-request-validators',
+    'serverless-webpack',
     'serverless-prune-plugin',
-    'serverless-export-env',
   ],
   custom: {
     prune: {
@@ -126,5 +102,4 @@ const serverlessConfiguration = {
     individually: true,
   },
 };
-
 module.exports = serverlessConfiguration;

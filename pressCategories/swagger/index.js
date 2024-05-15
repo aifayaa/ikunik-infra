@@ -6,7 +6,7 @@ import postCategory from './postCategory';
 import putCategory from './putCategory';
 import removeCategory from './removeCategory';
 
-import yaml from '../serverless.yml';
+import js from '../serverless';
 
 export default (libs, output) => {
   getCategories(libs, output);
@@ -16,5 +16,5 @@ export default (libs, output) => {
   putCategory(libs, output);
   removeCategory(libs, output);
 
-  libs.checks.forMissingAPIs(yaml, output);
+  libs.checks.forMissingAPIs(js, output);
 };
