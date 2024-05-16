@@ -262,8 +262,9 @@ const serverlessConfiguration = {
   },
   plugins: [
     '@cruglobal/serverless-merge-config',
-    'serverless-disable-request-validators',
     'serverless-webpack',
+    'serverless-offline',
+    'serverless-disable-request-validators',
     'serverless-prune-plugin',
     'serverless-export-env',
   ],

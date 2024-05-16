@@ -62,12 +62,13 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-disable-request-validators',
     '@cruglobal/serverless-merge-config',
     'serverless-domain-manager',
-    'serverless-export-env',
     'serverless-webpack',
+    'serverless-offline',
+    'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-export-env',
   ],
   package: {
     individually: true,

@@ -126,11 +126,11 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-disable-request-validators',
-    'serverless-export-env',
-    'serverless-offline',
     'serverless-webpack',
+    'serverless-offline',
+    'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-export-env',
   ],
   custom: {
     prune: {

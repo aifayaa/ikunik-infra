@@ -44,8 +44,9 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-disable-request-validators',
     'serverless-webpack',
+    'serverless-offline',
+    'serverless-disable-request-validators',
     'serverless-prune-plugin',
   ],
   custom: {
