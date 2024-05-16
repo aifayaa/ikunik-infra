@@ -236,7 +236,7 @@ const serverlessConfiguration = {
       },
     },
     preprod: {
-      'eu-west-1': {
+      'eu-west-3': {
         EL_PIPELINE: '1609825954482-wbbflt',
         EL_PIPELINE_REGION: 'eu-west-1',
         S3_VIDEOS_BUCKET: 'video-stream-preprod.crowdaa.com',
