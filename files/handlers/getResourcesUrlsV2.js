@@ -9,7 +9,7 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    await checkPermsForApp(userId, appId, 'admin');
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const resources = Object.keys(resourcesFormats).reduce((acc, platform) => {
       Object.keys(resourcesFormats[platform]).forEach((imageName) => {
