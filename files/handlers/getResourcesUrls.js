@@ -14,7 +14,7 @@ export default async (event) => {
   let { resourceTypes, resourceFormats } = event.queryStringParameters || {};
 
   try {
-    await checkPermsForApp(userId, appId, 'admin');
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!action || allActions.indexOf(action) < 0) {
       throw new Error('mal_formed_request');

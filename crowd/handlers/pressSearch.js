@@ -10,7 +10,7 @@ export default async (event) => {
 
   try {
     queryStringParameters.filterUserInfo = true;
-    await checkPermsForApp(userId, appId, 'admin');
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const pipeline = buildPressPipeline(userId, appId, queryStringParameters);
     const results = await searchPress(pipeline, appId, queryStringParameters);

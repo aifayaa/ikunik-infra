@@ -7,7 +7,7 @@ export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    await checkPermsForApp(userId, appId, 'admin');
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const articleId = event.pathParameters.id;
     const results = await removeArticle(userId, appId, articleId);
