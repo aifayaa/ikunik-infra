@@ -33,11 +33,12 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
+    'serverless-webpack',
+    'serverless-offline',
     'serverless-disable-request-validators',
+    'serverless-prune-plugin',
     'serverless-plugin-bind-deployment-id',
     'serverless-domain-manager',
-    'serverless-webpack',
-    'serverless-prune-plugin',
   ],
   package: {
     individually: true,
