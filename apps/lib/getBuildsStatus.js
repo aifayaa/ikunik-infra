@@ -31,7 +31,6 @@ async function getSetupOrBuildForPlatform(app, platform, { db }) {
       {
         _id: app.builds[platform].pipeline._id,
         appId: app._id,
-        type: 'appSetup',
       },
       { sort: [['createdAt', 1]] }
     );
