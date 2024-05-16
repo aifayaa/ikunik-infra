@@ -9,7 +9,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_ORGANIZATIONS, COLL_USERS, COLL_APPS } = mongoCollections;
 
-export default async (userId, orgId) => {
+export default async (orgId) => {
   const client = await MongoClient.connect();
 
   const db = client.db();
@@ -38,8 +38,8 @@ export default async (userId, orgId) => {
         // Delete orgId from user permissions
         await db
           .collection(COLL_USERS)
-          .updateOne(
-            { _id: userId },
+          .updateMany(
+            {},
             { $pull: { 'perms.organizations': { _id: orgId } } },
             { session }
           );

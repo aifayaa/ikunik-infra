@@ -1,10 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import getVideoThumbLocation from './getVideoThumbLocation';
 
-import yaml from '../serverless.yml';
+import js from '../serverless';
 
 export default (libs, output) => {
   getVideoThumbLocation(libs, output);
 
-  libs.checks.forMissingAPIs(yaml, output);
+  libs.checks.forMissingAPIs(js, output);
 };

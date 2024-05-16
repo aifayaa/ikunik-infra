@@ -234,33 +234,6 @@ const serverlessConfiguration = {
     //     },
     //   ],
     // },
-    inviteUserToOrg: {
-      handler: 'handlers/inviteUserToOrg.default',
-      events: [
-        {
-          http: {
-            path: 'organizations/{id}/invite',
-            method: 'put',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
     changeUserOrgPerms: {
       handler: 'handlers/changeUserOrgPerms.default',
       events: [

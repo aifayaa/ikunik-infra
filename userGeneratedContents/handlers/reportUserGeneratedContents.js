@@ -69,7 +69,7 @@ export default async (event) => {
       );
       await sendEmailToAdmin(lang, subject, body, appId);
     } catch (e) {
-      console.log('Error when sending mail to admin', e);
+      // console.log('Error when sending mail to admin', e);
     }
     return response({ code: 200, body: results });
   } catch (e) {
