@@ -298,7 +298,6 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
-    'serverless-export-env',
   ],
   package: {
     individually: true,
