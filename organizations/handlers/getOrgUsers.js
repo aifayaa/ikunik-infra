@@ -7,6 +7,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import getUserOrgPerms from '../lib/getUserOrgPerms';
+import { filterUserPrivateFields } from '../lib/organizationsUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -42,7 +43,10 @@ export default async (event) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: { items: users, totalCount: users.length },
+        data: {
+          items: users.map((user) => filterUserPrivateFields(user)),
+          totalCount: users.length,
+        },
       }),
     });
   } catch (exception) {

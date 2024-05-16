@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import {
   queueArticleNotifications,
   cleanPendingArticleNotifications,
@@ -11,10 +11,8 @@ export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
     if (!event.body) {
       throw new Error('mal_formed_request');
     }
@@ -53,7 +51,7 @@ export default async (event) => {
       );
     }
     return response({ code: 200, body: requestResults });
-  } catch (e) {
-    return response({ code: 500, message: e.message });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

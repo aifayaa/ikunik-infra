@@ -2,18 +2,14 @@
 import getResourcesUrlsV2, {
   resourcesFormats,
 } from '../lib/getResourcesUrlsV2';
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const resources = Object.keys(resourcesFormats).reduce((acc, platform) => {
       Object.keys(resourcesFormats[platform]).forEach((imageName) => {
@@ -26,7 +22,7 @@ export default async (event) => {
       resources,
     });
     return response({ code: 200, body });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

@@ -30,6 +30,10 @@ export default async (userId, orgId) => {
       );
     }
 
+    if (!(user.perms && user.perms.organizations)) {
+      return user;
+    }
+
     const userOrganizationPerms = user.perms.organizations.find(
       (org) => org._id === orgId
     );
@@ -54,17 +58,9 @@ export default async (userId, orgId) => {
         { $pull: { 'perms.organizations': { _id: orgId } } }
       );
 
-    const updatedUser = await db.collection(COLL_USERS).findOne(
-      { _id: userId },
-      {
-        projection: {
-          _id: 1,
-          createdAt: 1,
-          profile: 1,
-          perms: 1,
-        },
-      }
-    );
+    const updatedUser = await db
+      .collection(COLL_USERS)
+      .findOne({ _id: userId });
 
     return updatedUser;
   } finally {

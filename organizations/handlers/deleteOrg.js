@@ -37,7 +37,7 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const res = await deleteOrg(userId, orgId);
+    const res = await deleteOrg(orgId);
 
     return response({ code: 200, body: formatResponseBody({ data: res }) });
   } catch (exception) {

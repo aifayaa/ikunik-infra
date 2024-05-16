@@ -6,7 +6,6 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-  getApplicationWithOrg,
 } from '../../libs/perms/checkPermsFor';
 
 import putAppInOrg from '../lib/putAppInOrg';
@@ -14,13 +13,13 @@ import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
-  ERROR_TYPE_NOT_FOUND,
-  ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import { isAppAlreadyBuild } from '../lib/organizationsUtils';
+import getApp from '../../apps/lib/getApp';
+import { isApplicationInOrganization } from '../../apps/lib/appsUtils';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = 'admin';
@@ -44,71 +43,57 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     );
   }
 
-  const appPermissionLevel = 'owner';
-  const allowedApp = checkPermsForApp(userId, appId, appPermissionLevel);
+  await checkPermsForApp(userId, appId, ['owner']);
 
-  if (allowedApp) {
+  const application = await getApp(appId);
+  const appInOrganization = isApplicationInOrganization(application);
+
+  if (!appInOrganization) {
     const org = await putAppInOrg(userId, orgId, appId, 'fromUserToOrg');
     return org;
-  }
+  } else {
+    if (isAppAlreadyBuild(application)) {
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        APP_ALREADY_BUILD_CODE,
+        `Application '${appId}' cannot be moved between organizations because already built`,
+        {
+          details: {
+            userId,
+            appId,
+          },
+        }
+      );
+    }
 
-  const application = await getApplicationWithOrg(appId);
-  if (isAppAlreadyBuild(application)) {
-    throw new CrowdaaError(
-      ERROR_TYPE_INTERNAL_EXCEPTION,
-      APP_ALREADY_BUILD_CODE,
-      `Application '${appId}' cannot be moved between organizations because already built`,
-      {
-        details: {
-          userId,
-          appId,
-          appPermissionLevel,
-        },
-      }
+    const applicationOrganizationId =
+      application && application.organization && application.organization._id;
+
+    const allowedOriginOrganization = await checkPermsForOrganization(
+      userId,
+      applicationOrganizationId,
+      orgPermissionLevel
     );
+
+    if (!allowedOriginOrganization) {
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        ORGANIZATION_PERMISSION_CODE,
+        `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${applicationOrganizationId}' which contains the application '${appId}'`,
+        {
+          details: {
+            userId,
+            applicationOrganizationId,
+            orgPermissionLevel,
+            appId,
+          },
+        }
+      );
+    }
+
+    const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
+    return org;
   }
-
-  const applicationOrganizationId =
-    application && application.organization && application.organization._id;
-
-  if (!applicationOrganizationId) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_FOUND,
-      ORGANIZATION_NOT_FOUND_CODE,
-      `Cannot found the organization of application '${appId}'`,
-      {
-        details: {
-          userId,
-          appId,
-        },
-      }
-    );
-  }
-
-  const allowedOriginOrganization = await checkPermsForOrganization(
-    userId,
-    applicationOrganizationId,
-    orgPermissionLevel
-  );
-
-  if (!allowedOriginOrganization) {
-    throw new CrowdaaError(
-      ERROR_TYPE_ACCESS,
-      ORGANIZATION_PERMISSION_CODE,
-      `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${applicationOrganizationId}' which contains the application '${appId}'`,
-      {
-        details: {
-          userId,
-          applicationOrganizationId,
-          orgPermissionLevel,
-          appId,
-        },
-      }
-    );
-  }
-
-  const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
-  return org;
 }
 
 const putAppInOrgSchema = z

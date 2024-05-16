@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import updateTos from '../lib/updateTos';
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -9,10 +8,7 @@ export default async (event) => {
   const tosId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {
       throw new Error('mal_formed_request');
@@ -40,7 +36,7 @@ export default async (event) => {
 
     const tos = await updateTos(appId, tosId, userId, filteredBody);
     return response({ code: 200, body: { tos } });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };
