@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import phoneCleaner from 'phone';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { sendPreviewInfoEmail } from '../lib/sendPreviewInfoEmail';
 import { sendPreviewInfoSMS } from '../lib/sendPreviewInfoSMS';
@@ -15,7 +16,10 @@ export default async (event) => {
 
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     const { email, number } = JSON.parse(event.body);
 
@@ -47,7 +51,7 @@ export default async (event) => {
     const results = await Promise.all(promises);
 
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

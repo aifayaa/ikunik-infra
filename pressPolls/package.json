@@ -7,12 +7,12 @@
   "scripts": {
     "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000"
   },
+  "dependencies": {},
   "devDependencies": {
     "@cruglobal/serverless-merge-config": "^1.1.0",
     "env-cmd": "^10.0.1",
     "esm": "^3.2.25",
-    "serverless": "^3.38.0",
-    "serverless-offline": "^13.5.0",
+    "serverless": "^2.72.3",
     "serverless-webpack": "^5.3.3",
     "webpack": "^4.41.5"
   },

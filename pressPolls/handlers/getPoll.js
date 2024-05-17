@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getPoll from '../lib/getPoll';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -9,9 +10,7 @@ export default async (event) => {
   const params = event.queryStringParameters || {};
 
   try {
-    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
-      dontThrow: true,
-    });
+    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
 
     let poll = await getPoll(pollId, appId, {
       userId,
@@ -41,7 +40,7 @@ export default async (event) => {
     }
 
     return response({ code: 200, body: poll });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

@@ -9,7 +9,7 @@ import reportUserGeneratedContents from './reportUserGeneratedContents';
 import getUserGeneratedContentReports from './getUserGeneratedContentReports';
 import reviewUserGeneratedContents from './reviewUserGeneratedContents';
 
-import js from '../serverless';
+import yaml from '../serverless.yml';
 
 export default (libs, output) => {
   postUserGeneratedContents(libs, output);
@@ -22,5 +22,5 @@ export default (libs, output) => {
   getUserGeneratedContentReports(libs, output);
   reviewUserGeneratedContents(libs, output);
 
-  libs.checks.forMissingAPIs(js, output);
+  libs.checks.forMissingAPIs(yaml, output);
 };

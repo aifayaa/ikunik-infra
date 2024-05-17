@@ -1,12 +1,15 @@
 /* eslint-disable import/no-relative-packages */
 import searchUser from '../lib/searchUser';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     const {
       limit,
@@ -29,7 +32,7 @@ export default async (event) => {
       userId: searchUserId,
     });
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

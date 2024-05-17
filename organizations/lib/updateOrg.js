@@ -10,7 +10,7 @@ import { objGet } from '../../libs/utils';
 
 const { COLL_ORGANIZATIONS } = mongoCollections;
 
-export default async (orgId, name, email, appleTeamId, appleCompanyName) => {
+export default async (orgId, { appleTeamId, appleCompanyName, name }) => {
   const client = await MongoClient.connect();
 
   try {
@@ -18,11 +18,7 @@ export default async (orgId, name, email, appleTeamId, appleCompanyName) => {
     const updates = { $set };
 
     if (name) {
-      $set.name = name;
-    }
-
-    if (name) {
-      $set.email = email;
+      $set.name = name.toUpperCase();
     }
 
     if (appleTeamId) {

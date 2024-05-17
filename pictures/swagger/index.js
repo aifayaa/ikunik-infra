@@ -2,11 +2,11 @@
 import getPicture from './getPicture';
 import getPictureDataLocation from './getPictureDataLocation';
 
-import js from '../serverless';
+import yaml from '../serverless.yml';
 
 export default (libs, output) => {
   getPicture(libs, output);
   getPictureDataLocation(libs, output);
 
-  libs.checks.forMissingAPIs(js, output);
+  libs.checks.forMissingAPIs(yaml, output);
 };

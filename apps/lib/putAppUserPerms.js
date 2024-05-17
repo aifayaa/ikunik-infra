@@ -1,44 +1,41 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import {
-  ERROR_TYPE_NOT_FOUND,
-  USER_ALREADY_EXISTS_CODE,
-} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
 import { indexObjectArrayWithKey } from '../../libs/utils';
 
 const { COLL_APPS } = mongoCollections;
 
-export default async (appId, roles, targetUserId) => {
+export default async (appId, update) => {
   const client = await MongoClient.connect();
 
   try {
     const db = client.db();
 
-    const app = await getApplicationWithinOrg(appId);
+    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
 
     const appsOrganizationUsers = indexObjectArrayWithKey(
       app.organization.users
     );
 
+    const { roles, userId: targetUserId } = update;
+
     if (appsOrganizationUsers[targetUserId]) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        USER_ALREADY_EXISTS_CODE,
-        `The user '${targetUserId}' already exists in application '${appId}'`
-      );
+      throw new Error('user_already_exists');
     }
 
-    await db
+    const commandRes = await db
       .collection(COLL_APPS)
       .findOneAndUpdate(
         { _id: appId },
         { $push: { 'organization.users': { _id: targetUserId, roles } } }
       );
 
-    return await getApplicationWithinOrg(appId);
+    const { ok, value: appUpdated } = commandRes;
+    if (ok !== 1) {
+      throw new Error('update_failed');
+    }
+
+    return appUpdated;
   } finally {
     client.close();
   }

@@ -3,44 +3,38 @@ import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { returnedFieldsFilter } from '../lib/fieldsChecks';
 import createOrg from '../lib/createOrg';
+
+export const createOrgSchema = z.object({
+  name: z
+    .string({
+      required_error: 'name is required',
+      invalid_type_error: 'name must be a string',
+    })
+    .max(80, { message: 'Must be 80 or fewer characters long' })
+    .trim()
+    .required(),
+  appleTeamId: z
+    .string({
+      invalid_type_error: 'appleTeamId must be a string',
+    })
+    .length(10, { message: 'Must be 10 characters long' })
+    .trim(),
+  appleCompanyName: z
+    .string({
+      invalid_type_error: 'appleCompanyName must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .max(1, { message: 'Must be at most 100 character long' }) // Arbitrary length
+    .trim(),
+});
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
 
   try {
     const body = JSON.parse(event.body);
-
-    const createOrgSchema = z.object({
-      name: z
-        .string({
-          required_error: 'name is required',
-          invalid_type_error: 'name must be a string',
-        })
-        .max(80, { message: 'Must be 80 or fewer characters long' })
-        .trim(),
-      email: z
-        .string({
-          required_error: 'email is required',
-        })
-        .email()
-        .trim(),
-      appleTeamId: z
-        .string({
-          invalid_type_error: 'appleTeamId must be a string',
-        })
-        .length(10, { message: 'Must be 10 characters long' })
-        .trim()
-        .optional(),
-      appleCompanyName: z
-        .string({
-          invalid_type_error: 'appleCompanyName must be a string',
-        })
-        .min(1, { message: 'Must be at least 1 character long' })
-        .max(100, { message: 'Must be at most 100 character long' }) // Arbitrary length
-        .trim()
-        .optional(),
-    });
 
     let validatedBody;
     // validation
@@ -52,17 +46,10 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const { name, email, appleTeamId, appleCompanyName } = validatedBody;
-    const org = await createOrg(
-      userId,
-      name,
-      email,
-      appleTeamId,
-      appleCompanyName
-    );
+    const org = await createOrg(userId, validatedBody);
     return response({
       code: 200,
-      body: formatResponseBody({ data: org }),
+      body: formatResponseBody({ data: returnedFieldsFilter(org) }),
     });
   } catch (exception) {
     return handleException(exception);

@@ -1,10 +1,14 @@
 /* eslint-disable import/no-relative-packages */
+import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import {
+  APP_NOT_FOUND_CODE,
+  ERROR_TYPE_NOT_FOUND,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterAppPrivateFields } from './appsUtils';
-import getApp from './getApp';
 
-const { COLL_PIPELINES } = mongoCollections;
+const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
 const ALL_PLATFORMS = ['ios', 'android'];
 
@@ -29,8 +33,9 @@ async function getSetupOrBuildForPlatform(app, platform, { db }) {
   } else {
     const pipeline = await db.collection(COLL_PIPELINES).findOne(
       {
-        _id: app.builds[platform].pipeline._id,
+        _id: app.setup._id,
         appId: app._id,
+        type: 'appSetup',
       },
       { sort: [['createdAt', 1]] }
     );
@@ -48,7 +53,17 @@ export default async (appId, requestedPlatform, { all = false }) => {
   const db = client.db();
 
   try {
-    const app = await getApp(appId);
+    const app = await db
+      .collection(COLL_APPS)
+      .findOne({ _id: appId }, { projection: { setup: 1, builds: 1 } });
+
+    if (!app) {
+      throw new CrowdaaException(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
+        `The application with ID ${appId} was not found`
+      );
+    }
 
     const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;
 

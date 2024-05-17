@@ -1,0 +1,284 @@
+service: auth
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    $<<:
+      - ${file(../env.yml)}
+      - ${file(./env.${self:provider.stage}.${self:provider.region}.yml)}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: '*'
+        - Effect: Allow # See : https://stackoverflow.com/a/60250863
+          Action:
+            - ec2:DescribeNetworkInterfaces
+            - ec2:CreateNetworkInterface
+            - ec2:DeleteNetworkInterface
+            - ec2:DescribeInstances
+            - ec2:AttachNetworkInterface
+          Resource: '*'
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+    restApiResources:
+      /admin: ${cf:admin-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  appleLogin:
+    handler: handlers/appleLogin.default
+    events:
+      - http:
+          path: auth/apple
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  facebookLogin:
+    handler: handlers/facebookLogin.default
+    events:
+      - http:
+          path: auth/facebook
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  forgotPassword:
+    handler: handlers/forgotPassword.default
+    events:
+      - http:
+          path: auth/forgotPassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  login:
+    handler: handlers/login.default
+    events:
+      - http:
+          path: auth/login
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  logout:
+    handler: handlers/logout.default
+    events:
+      - http:
+          path: auth/facebook/logout
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-User-Id
+      - http:
+          path: auth/logout
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-User-Id
+              - X-Auth-Token
+
+  oidcLogin:
+    handler: handlers/oidcLogin.default
+    events:
+      - http:
+          path: auth/oidc
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  periodicSIWATokensCheck:
+    handler: handlers/periodicSIWATokensCheck.default
+
+  register:
+    handler: handlers/register.default
+    events:
+      - http:
+          path: auth/register
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  adminRegister:
+    handler: handlers/adminRegister.default
+    events:
+      - http:
+          path: admin/auth/register
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+    vpc: ${self:custom.vpcConfig.${self:provider.region}}
+
+  resetPassword:
+    handler: handlers/resetPassword.default
+    events:
+      - http:
+          path: auth/resetPassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  changePassword:
+    handler: handlers/changePassword.default
+    events:
+      - http:
+          path: auth/changePassword
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+          request:
+            parameters:
+              headers:
+                Authorization: true
+              paths:
+                id: true
+
+  nftCoinbaseConnect:
+    handler: handlers/nftCoinbaseConnect.default
+    events:
+      - http:
+          path: auth/nft/coinbaseConnect
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  nftSessionsStatus:
+    handler: handlers/nftSessionsStatus.default
+    events:
+      - http:
+          path: auth/nft/sessionsStatus
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  validateEmail:
+    handler: handlers/validateEmail.default
+    events:
+      - http:
+          path: auth/validateEmail
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  sessionChecks:
+    handler: handlers/sessionChecks.default
+    events:
+      - http:
+          path: auth/sessionChecks
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}
+
+  samlLogin:
+    handler: handlers/samlLogin.default
+    events:
+      - http:
+          path: auth/saml/login/{key}
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  samlACSCallback:
+    handler: handlers/samlACSCallback.default
+    events:
+      - http:
+          path: auth/saml/acscallback
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  oauthCallback:
+    handler: handlers/oauthCallback.default
+    events:
+      - http:
+          path: auth/oauth/{id}/callback
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - serverless-disable-request-validators
+  - '@cruglobal/serverless-merge-config'
+  - serverless-export-env
+  - serverless-webpack
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  serverless-disable-request-validators:
+    action: delete
+  vpcConfig:
+    us-east-1:
+      securityGroupIds:
+        - sg-022c00c994d25c46e
+      subnetIds:
+        - subnet-0eef72fa8d060da6e
+    eu-west-3:
+      securityGroupIds:
+        - sg-05867825a09444a43
+      subnetIds:
+        - subnet-0977176abc4c94459
+
+package:
+  individually: true

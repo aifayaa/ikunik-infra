@@ -10,8 +10,7 @@
   "devDependencies": {
     "env-cmd": "^10.0.1",
     "esm": "^3.2.25",
-    "serverless": "^3.38.0",
-    "serverless-offline": "^13.5.0",
+    "serverless": "^2.72.3",
     "serverless-webpack": "^5.3.3",
     "webpack": "^4.41.5"
   },

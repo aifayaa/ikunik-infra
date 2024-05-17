@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import convertLiveStreamRecording from '../lib/convertLiveStreamRecording';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -10,7 +11,10 @@ export default async (event) => {
     const { id: liveStreamId } = event.pathParameters;
     const { recordingRoot } = event.queryStringParameters || {};
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      return response({ code: 403, message: 'access_forbidden' });
+    }
 
     if (!recordingRoot) {
       return response({ code: 400, message: 'missing_payload' });
@@ -22,7 +26,7 @@ export default async (event) => {
       recordingRoot
     );
     return response({ code: 200, body: { ok: success } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

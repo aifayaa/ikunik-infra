@@ -12,8 +12,6 @@
     ],
     "import/prefer-default-export": "off",
     "no-param-reassign": "off",
-    "no-else-return": "off",
-    "no-lonely-if": "off",
     "require-await": "error",
     "no-bitwise": [
       "error",

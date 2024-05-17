@@ -1,0 +1,205 @@
+service: liveStream
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  serverless-disable-request-validators:
+    action: delete
+  dev:
+    us-east-1:
+      IVS_REGION: us-east-1
+      IVS_BUCKET: 'live-streams-recordings-dev'
+      MEDIACONVERT_IAM_ROLE_ARN: 'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-dev'
+  preprod:
+    eu-west-3:
+      IVS_REGION: eu-west-1
+      IVS_BUCKET: 'live-streams-recordings-preprod'
+      MEDIACONVERT_IAM_ROLE_ARN: 'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-preprod'
+  prod:
+    us-east-1:
+      IVS_REGION: us-east-1
+      IVS_BUCKET: 'live-streams-recordings'
+      MEDIACONVERT_IAM_ROLE_ARN: 'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-prod'
+    eu-west-3:
+      IVS_REGION: eu-west-1
+      IVS_BUCKET: 'live-streams-recordings-prod-fr'
+      MEDIACONVERT_IAM_ROLE_ARN: 'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-prod-fr'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: ${opt:stage, "dev"}
+  memorySize: 128
+  timeout: 30
+  environment:
+    $<<: ${file(../env.yml)}
+    IVS_REGION: '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_REGION}'
+    IVS_BUCKET: '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_BUCKET}'
+    MEDIACONVERT_IAM_ROLE_ARN: '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_IAM_ROLE_ARN}'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ivs:*
+          Resource: 'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*'
+        - Effect: Allow
+          Action:
+            - s3:GetBucketLocation
+            - s3:ListBucket
+            - s3:GetObject
+          Resource:
+            - 'arn:aws:s3:::${self:provider.environment.IVS_BUCKET}'
+            - 'arn:aws:s3:::${self:provider.environment.IVS_BUCKET}/*'
+        - Effect: Allow
+          Action:
+            - s3:CreateBucket
+            - s3:ListAllMyBuckets
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - servicequotas:ListServiceQuotas
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - iam:CreateServiceLinkedRole
+            - iam:AttachRolePolicy
+            - iam:PutRolePolicy
+          Resource: 'arn:aws:iam::630176884077:role/aws-service-role/ivs.amazonaws.com/AWSServiceRoleForIVSRecordToS3*'
+        - Effect: Allow
+          Action:
+            - mediaconvert:GetJob
+            - mediaconvert:CreateJob
+          Resource: 'arn:aws:mediaconvert:${self:provider.environment.IVS_REGION}:630176884077:*'
+        - Effect: Allow
+          Action:
+            - mediaconvert:DescribeEndpoints
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - iam:PassRole
+          Resource: '${self:provider.environment.MEDIACONVERT_IAM_ROLE_ARN}'
+  apiGateway:
+    restApiId: ${cf:api-v1-${self:provider.stage}.RestApiId}
+    restApiRootResourceId: ${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}
+  region: ${opt:region, "us-east-1"}
+  deploymentBucket: ms-deployment-${self:provider.region}
+
+functions:
+  expireLiveStreams:
+    handler: handlers/expireLiveStreams.default
+    events:
+      - eventBridge:
+          schedule: rate(1 day)
+
+  createLiveStream:
+    handler: handlers/createLiveStream.default
+    events:
+      - http:
+          path: liveStream
+          method: post
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  getLiveStreams:
+    handler: handlers/getLiveStreams.default
+    events:
+      - http:
+          path: liveStream
+          method: get
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+
+  refreshLiveStream:
+    handler: handlers/refreshLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}/refresh
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  convertLiveStreamRecording:
+    handler: handlers/convertLiveStreamRecording.default
+    events:
+      - http:
+          path: liveStream/{id}/recordingConvert
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  updateLiveStream:
+    handler: handlers/updateLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}
+          method: put
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  deleteLiveStream:
+    handler: handlers/deleteLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}
+          method: delete
+          cors: true
+          authorizer:
+            type: CUSTOM
+            authorizerId: ${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  viewLiveStream:
+    handler: handlers/viewLiveStream.default
+    events:
+      - http:
+          path: liveStream/{id}/view
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+
+  viewLiveStreamRecording:
+    handler: handlers/viewLiveStreamRecording.default
+    events:
+      - http:
+          path: liveStream/{id}/recording
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+
+plugins:
+  - '@cruglobal/serverless-merge-config'
+  - serverless-disable-request-validators
+  - serverless-webpack
+  - serverless-prune-plugin
+  - serverless-export-env

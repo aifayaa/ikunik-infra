@@ -5,7 +5,7 @@ import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
-export default async (userId, name, email, appleTeamId, appleCompanyName) => {
+export default async (userId, { appleTeamId, appleCompanyName, name }) => {
   const client = await MongoClient.connect();
 
   // Documentation, how to use transaction:
@@ -17,8 +17,7 @@ export default async (userId, name, email, appleTeamId, appleCompanyName) => {
     .withSession(async (sessionArg) => {
       await sessionArg.withTransaction(async (session) => {
         const newOrganization = {
-          name,
-          email,
+          name: name.toUpperCase(),
           apple: {
             setupDone: false,
           },
@@ -33,7 +32,7 @@ export default async (userId, name, email, appleTeamId, appleCompanyName) => {
           newOrganization.apple.teamStatus = 'checking';
         }
         if (appleCompanyName) {
-          newOrganization.apple.companyName = appleCompanyName;
+          newOrganization.apple.appleCompanyName = appleCompanyName;
         }
 
         const db = client.db();
