@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
-import { filterUserPrivateFields } from '../lib/appsUtils';
 import getAppUsers from '../lib/getAppUsers';
 
 export default async (event) => {
@@ -10,21 +9,18 @@ export default async (event) => {
   const appId = event.pathParameters.id;
 
   try {
-    const requestedPermissions = ['viewer', 'moderator', 'editor'];
-    await checkPermsForApp(userId, appId, requestedPermissions);
+    if (!userId) throw new Error('no_user_found');
+
+    // Check right for userId to appId
+    const allowed = await checkPermsForApp(userId, appId, 'viewer');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     const users = await getAppUsers(appId);
 
-    return response({
-      code: 200,
-      body: formatResponseBody({
-        data: {
-          items: filterUserPrivateFields(users),
-          totalCount: users.length,
-        },
-      }),
-    });
-  } catch (exception) {
-    return handleException(exception);
+    return response({ code: 200, body: users });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

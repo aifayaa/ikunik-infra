@@ -5,18 +5,13 @@ import { indexObjectArrayWithKey } from '../utils';
 
 import { CrowdaaError } from '../httpResponses/CrowdaaError';
 import {
-  APPLICATION_OUTSIDE_ORGANIZATION_CODE,
-  APPLICATION_PERMISSION_CODE,
-  ERROR_TYPE_ACCESS,
-  ERROR_TYPE_NOT_ALLOWED,
+  APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
-  USER_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
-import getApp from '../../apps/lib/getApp';
-import { CrowdaaException } from '../httpResponses/crowdaaException';
 
-const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
+const { COLL_USERS, COLL_ORGANIZATIONS, COLL_APPS, COLL_WEBSITES } =
+  mongoCollections;
 
 /**
  * Example of user.perms structure :
@@ -180,44 +175,34 @@ async function getUserPermsOnWebsite(userId, websiteId) {
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getUserPermsOnOrganization(db, userId, orgId) {
-  const user = await db
-    .collection(COLL_USERS)
-    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
+async function getUserPermsOnOrganization(userId, orgId) {
+  const client = await MongoClient.connect();
+  try {
+    const [{ superAdmin = false, perms } = {}] = await client
+      .db()
+      .collection(COLL_USERS)
+      .find({ _id: userId })
+      .toArray();
 
-  if (!user) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_FOUND,
-      USER_NOT_FOUND_CODE,
-      `Cannot found the user '${userId}'`
-    );
-  }
-
-  const { superAdmin, perms } = user;
-
-  if (superAdmin) {
-    return { superAdmin, roles: ['owner'] };
-  } else {
-    if (perms && perms.organizations) {
-      const theOrganization = perms.organizations.find(
-        (org) => org._id === orgId
-      );
-
-      if (theOrganization) {
-        return { superAdmin, roles: theOrganization.roles };
-      }
+    if (superAdmin) {
+      return {
+        organizations: [
+          {
+            _id: orgId,
+            roles: ['owner'],
+          },
+        ],
+      };
     }
 
-    return { superAdmin, roles: [] };
+    if (perms) {
+      return perms;
+    }
+
+    return {};
+  } finally {
+    client.close();
   }
-}
-
-function getAppOrgId(app) {
-  return app.organization && app.organization._id;
-}
-
-function isUserSuperAdmin(user) {
-  return user.superAdmin;
 }
 
 /**
@@ -226,54 +211,65 @@ function isUserSuperAdmin(user) {
  * @param {string} appId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-function getUserPermsOnApp(user, app) {
-  const appOrgId = getAppOrgId(app);
-
-  if (isUserSuperAdmin(user)) {
-    return { appOrgId, roles: ['owner'] };
-  }
-
-  if (appOrgId) {
-    const userPerms = app.organization.users.find(
-      (userWk) => userWk._id === user._id
-    );
-
-    if (!userPerms) {
-      return { appOrgId, roles: [] };
-    }
-
-    return { appOrgId, roles: userPerms.roles };
-  } else {
-    const { perms } = user;
-
-    if (!perms || !perms.apps) {
-      return { appOrgId, roles: [] };
-    }
-
-    const userPermsOnApp = perms.apps.find(
-      (appPerms) => appPerms._id === app._id
-    );
-
-    if (!userPermsOnApp) {
-      return { appOrgId, roles: [] };
-    }
-
-    return { appOrgId, roles: userPermsOnApp.roles };
-  }
-}
-
-export async function getApplicationWithinOrg(appId) {
+async function getUserPermsOnApp(userId, appId) {
   const client = await MongoClient.connect();
 
   try {
-    const application = await getApp(appId);
+    const user = await client
+      .db()
+      .collection(COLL_USERS)
+      .findOne(
+        { _id: userId },
+        {
+          projection: {
+            superAdmin: 1,
+            perms: 1,
+          },
+        }
+      );
+
+    const { superAdmin, perms } = user;
+
+    if (superAdmin) {
+      return {
+        apps: [
+          {
+            _id: appId,
+            roles: ['owner'],
+          },
+        ],
+      };
+    }
+
+    if (perms) {
+      return perms;
+    }
+
+    return {};
+  } finally {
+    client.close();
+  }
+}
+
+export async function getApplicationWithOrg(appId) {
+  const client = await MongoClient.connect();
+
+  try {
+    const application = await client
+      .db()
+      .collection(COLL_APPS)
+      .findOne({ _id: appId }, { projection: { organization: 1 } });
+
+    if (!application) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
+        `Cannot found the application '${appId}'`
+      );
+    }
 
     if (!application.organization) {
-      throw new CrowdaaException(
-        ERROR_TYPE_NOT_ALLOWED,
-        APPLICATION_OUTSIDE_ORGANIZATION_CODE,
-        `The application '${appId}' is not in an organization`
-      );
+      return null;
     }
     return application;
   } finally {
@@ -282,8 +278,7 @@ export async function getApplicationWithinOrg(appId) {
 }
 
 export async function getApplicationOrganizationId(appId) {
-  const application = await getApplicationWithinOrg(appId);
-
+  const application = await getApplicationWithOrg(appId);
   return (
     application && application.organization && application.organization._id
   );
@@ -296,120 +291,62 @@ export async function getApplicationOrganizationId(appId) {
  * @param {string} requestedPerm The permission to check for, may be one of: owner, admin, editor, moderator, viewer
  * @returns true for a valid permission, false otherwise
  */
-async function checkPermsForAppAux(db, userId, appId, requestedPerm) {
-  // The application exists
-  const application = await getApp(appId);
+export async function checkPermsForApp(userId, appId, requestedPerm) {
+  const application = await getApplicationWithOrg(appId);
+  const applicationOrganizationId =
+    application && application.organization && application.organization._id;
+  const userPerms = await getUserPermsOnApp(userId, appId);
 
-  const user = await db.collection(COLL_USERS).findOne(
-    { _id: userId },
-    {
-      projection: {
-        superAdmin: 1,
-        perms: 1,
-      },
-    }
-  );
+  const requestedPermsArray = [
+    requestedPerm,
+    ...(APP_PERMS_IMPLIED[requestedPerm] || []),
+  ];
 
-  const userPermsOnApp = getUserPermsOnApp(user, application);
-
-  // If the application is in an organization
-  if (userPermsOnApp.appOrgId) {
-    // Find a match between user organizations and the organization of the application
-    if (user.perms && user.perms.organizations) {
-      const theUserOrgPerms = user.perms.organizations.find(
-        (org) => org._id === userPermsOnApp.appOrgId
-      );
-
-      if (theUserOrgPerms) {
-        // 1. Check if the user is 'owner' or 'admin' of the organization
-        if (
-          theUserOrgPerms.roles.includes('owner') ||
-          theUserOrgPerms.roles.includes('admin')
-        ) {
-          return true;
-        }
-
-        // 2. Else, check if the user has perms on application
-        if (userPermsOnApp.roles.length !== 0) {
-          const requestedPermsArray = [
-            requestedPerm,
-            ...(APP_PERMS_IMPLIED[requestedPerm] || []),
-          ];
-
-          return areArraysIntersecting(
-            userPermsOnApp.roles,
-            requestedPermsArray
-          );
-        }
+  if (userPerms.apps && userPerms.apps.length > 0) {
+    const appsPerms = indexObjectArrayWithKey(userPerms.apps);
+    if (appsPerms[appId]) {
+      if (areArraysIntersecting(appsPerms[appId].roles, requestedPermsArray)) {
+        return true;
       }
     }
   }
-  // If the application is NOT in an organization
-  else {
-    // Else, check if the user has perms on application
-    if (userPermsOnApp.roles.length !== 0) {
-      const requestedPermsArray = [
-        requestedPerm,
-        ...(APP_PERMS_IMPLIED[requestedPerm] || []),
-      ];
 
-      return areArraysIntersecting(userPermsOnApp.roles, requestedPermsArray);
+  if (
+    applicationOrganizationId &&
+    userPerms.organizations &&
+    userPerms.organizations.length > 0
+  ) {
+    const userOrganizationsPerms = indexObjectArrayWithKey(
+      userPerms.organizations
+    );
+
+    if (userOrganizationsPerms[applicationOrganizationId]) {
+      if (
+        areArraysIntersecting(
+          userOrganizationsPerms[applicationOrganizationId].roles,
+          ['owner', 'admin']
+        )
+      ) {
+        return true;
+      }
+
+      const applicationOrganizationUsers = indexObjectArrayWithKey(
+        application.organization.users
+      );
+
+      if (
+        applicationOrganizationUsers[userId] &&
+        areArraysIntersecting(
+          applicationOrganizationUsers[userId].roles,
+          requestedPermsArray
+        )
+      ) {
+        return true;
+      }
     }
   }
 
   return false;
-}
-
-/**
- * Checks for user permissions on an app.
- * @param {string} userId The user ID
- * @param {string} appId The app ID
- * @param {Array<'owner' | 'admin' | 'editor' | 'moderator' | 'viewer'>} requestedPermissions The
- * permission to check for, may be one of: owner, admin, editor, moderator, viewer
- * @param {object} options (facultative) precise if the function throw or not
- * @throws {CrowdaaError} If user is not allowed
- * @returns true for a valid permission, false otherwise
- */
-export async function checkPermsForApp(
-  userId,
-  appId,
-  requestedPermissions,
-  options = { dontThrow: false }
-) {
-  const client = await MongoClient.connect();
-  const db = client.db();
-
-  try {
-    const promisesToRevolve = requestedPermissions.map((permissionToCheck) =>
-      checkPermsForAppAux(db, userId, appId, permissionToCheck)
-    );
-
-    const isAllow = await Promise.all(promisesToRevolve);
-
-    const res = isAllow.some(Boolean);
-    if (options.dontThrow) {
-      return res;
-    }
-
-    if (!res) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        APPLICATION_PERMISSION_CODE,
-        `User '${userId}' is not at least '${requestedPermissions.join(' or ')}' on application '${appId}'`,
-        {
-          details: {
-            userId,
-            appId,
-            requestPermissions: requestedPermissions,
-          },
-        }
-      );
-    }
-
-    return res;
-  } finally {
-    client.close();
-  }
 }
 
 /**
@@ -486,8 +423,8 @@ export const checkPermsForOrganization = async (
 ) => {
   const client = await MongoClient.connect();
 
-  const db = client.db();
-  const organization = await db
+  const organization = await client
+    .db()
     .collection(COLL_ORGANIZATIONS)
     .findOne({ _id: orgId }, { projection: { name: 1 } });
 
@@ -495,30 +432,30 @@ export const checkPermsForOrganization = async (
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
       ORGANIZATION_NOT_FOUND_CODE,
-      `Cannot found the organization '${orgId}'`,
-      {
-        details: {
-          userId,
-          orgId,
-        },
-      }
+      `Cannot found the organization '${orgId}'`
     );
   }
 
-  const { superAdmin, roles } = await getUserPermsOnOrganization(
-    db,
-    userId,
-    orgId
-  );
+  const perms = await getUserPermsOnOrganization(userId, orgId);
 
-  if (superAdmin) {
-    return true;
-  } else {
-    const requestedPermsArray = [
-      requestedPerm,
-      ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
-    ];
+  const requestedPermsArray = [
+    requestedPerm,
+    ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
+  ];
 
-    return areArraysIntersecting(roles, requestedPermsArray);
+  if (perms.organizations && perms.organizations.length > 0) {
+    const orgsPerms = indexObjectArrayWithKey(perms.organizations);
+    if (orgsPerms[orgId]) {
+      if (
+        areArraysIntersecting(
+          orgsPerms[orgId].roles || ['member'],
+          requestedPermsArray
+        )
+      ) {
+        return true;
+      }
+    }
   }
+
+  return false;
 };

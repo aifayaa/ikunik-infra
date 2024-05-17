@@ -24,7 +24,7 @@ function getHighestRoleAux(roles) {
     }
   }
 
-  return organizationRoles.at(-1);
+  return 'member';
 }
 
 async function getHighestRole(db, userId, orgId) {
@@ -44,41 +44,6 @@ function isPermissionStrongerOrEqual(perm0, perm1) {
 
   // Lower ranking is stronger permission
   return perm0Ranking <= perm1Ranking;
-}
-
-export async function isSourceUserAllowToGiveRole(
-  db,
-  sourceUserId,
-  targetUserId,
-  updatedRoles,
-  orgId
-) {
-  const sourceUserHighestRole = await getHighestRole(db, sourceUserId, orgId);
-  const targetUserHighestRole = await getHighestRole(db, targetUserId, orgId);
-
-  // If the sourceUser doesn't have enough permissions to modify the targetUser: exit
-  if (
-    !isPermissionStrongerOrEqual(sourceUserHighestRole, targetUserHighestRole)
-  ) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_ALLOWED,
-      NOT_ENOUGH_PERMISSIONS_CODE,
-      `User '${sourceUserId}' with role '${sourceUserHighestRole}' cannot modify permissions of target ` +
-        `user '${targetUserId}' with role '${targetUserHighestRole}'`
-    );
-  }
-
-  // If the updatedRoles is stronger than the role of sourceUser: exit
-  const highestUpdatedRoles = getHighestRoleAux(updatedRoles);
-  if (
-    !isPermissionStrongerOrEqual(sourceUserHighestRole, highestUpdatedRoles)
-  ) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_ALLOWED,
-      NOT_ENOUGH_PERMISSIONS_CODE,
-      `User '${sourceUserId}' with role '${sourceUserHighestRole}' cannot set the permission '${highestUpdatedRoles}'`
-    );
-  }
 }
 
 // TODO: check the case where the sourceUser is a superAdmin
@@ -102,13 +67,32 @@ export default async (sourceUserId, targetUserId, orgId, updatedRoles) => {
   try {
     const db = client.db();
 
-    const targetUserHighestRole = await isSourceUserAllowToGiveRole(
-      db,
-      sourceUserId,
-      targetUserId,
-      updatedRoles,
-      orgId
-    );
+    const sourceUserHighestRole = await getHighestRole(db, sourceUserId, orgId);
+    const targetUserHighestRole = await getHighestRole(db, targetUserId, orgId);
+
+    // If the sourceUser doesn't have enough permissions to modify the targetUser: exit
+    if (
+      !isPermissionStrongerOrEqual(sourceUserHighestRole, targetUserHighestRole)
+    ) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_ALLOWED,
+        NOT_ENOUGH_PERMISSIONS_CODE,
+        `User '${sourceUserId}' with role '${sourceUserHighestRole}' cannot modify permissions of target ` +
+          `user '${targetUserId}' with role '${targetUserHighestRole}'`
+      );
+    }
+
+    // If the updatedRoles is stronger than the role of sourceUser: exit
+    const highestUpdatedRoles = getHighestRoleAux(updatedRoles);
+    if (
+      !isPermissionStrongerOrEqual(sourceUserHighestRole, highestUpdatedRoles)
+    ) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_ALLOWED,
+        NOT_ENOUGH_PERMISSIONS_CODE,
+        `User '${sourceUserId}' with role '${sourceUserHighestRole}' cannot set the permission '${highestUpdatedRoles}'`
+      );
+    }
 
     // Check the case where the organization orgId will lost an owner.
     // Context:

@@ -1,14 +1,18 @@
 /* eslint-disable import/no-relative-packages */
 import createPoll from '../lib/createPoll';
 import { createFieldChecks } from '../lib/pollsFieldsChecks';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     if (!event.body) {
       throw new Error('mal_formed_request');
@@ -24,7 +28,7 @@ export default async (event) => {
 
     const newPoll = await createPoll(appId, userId, bodyParsed);
     return response({ code: 200, body: newPoll });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

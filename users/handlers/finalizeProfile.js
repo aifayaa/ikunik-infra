@@ -5,7 +5,7 @@ import {
   finalizeProfile,
   finalizedUser,
 } from '../lib/finalizeProfile';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -14,10 +14,7 @@ export default async (event) => {
   const urlUserId = event.pathParameters.id;
 
   try {
-    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
-      dontThrow: true,
-    });
-
+    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
     // Only restricting to self for now, should allow admin users later
     if (userId !== urlUserId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });
@@ -51,7 +48,16 @@ export default async (event) => {
     }
 
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    let code = 500;
+    switch (e.message) {
+      case 'Forbidden':
+        code = 403;
+        break;
+      default:
+        code = 500;
+        break;
+    }
+    return response({ code, message: e.message });
   }
 };

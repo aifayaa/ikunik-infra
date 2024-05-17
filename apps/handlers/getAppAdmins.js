@@ -1,13 +1,17 @@
 /* eslint-disable import/no-relative-packages */
 import getAppAdmins from '../lib/getAppAdmins';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     const rawAdmins = await getAppAdmins(appId);
 
@@ -21,7 +25,7 @@ export default async (event) => {
       lastname: user.profile.lastname,
     }));
     return response({ code: 200, body: admins });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

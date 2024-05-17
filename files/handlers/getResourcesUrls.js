@@ -4,7 +4,8 @@ import getResourcesUrls, {
   allResourceFormats,
   allActions,
 } from '../lib/getResourcesUrls';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -14,7 +15,10 @@ export default async (event) => {
   let { resourceTypes, resourceFormats } = event.queryStringParameters || {};
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     if (!action || allActions.indexOf(action) < 0) {
       throw new Error('mal_formed_request');
@@ -47,7 +51,7 @@ export default async (event) => {
       resourceFormats,
     });
     return response({ code: 200, body });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

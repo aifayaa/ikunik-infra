@@ -1,41 +1,21 @@
 /* eslint-disable import/no-relative-packages */
-import { setOrgDebugPaidChecks } from '../lib/fieldsChecks';
-import setOrgPaid from '../lib/setOrgPaid';
-import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
-  ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
+  setOrgDebugPaidChecks,
+  returnedFieldsFilter,
+} from '../lib/fieldsChecks';
+import setOrgPaid from '../lib/setOrgPaid';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
   const orgId = event.pathParameters.id;
 
   try {
-    const orgPermissionLevel = 'admin';
-    const allowed = await checkPermsForOrganization(
-      userId,
-      orgId,
-      orgPermissionLevel
-    );
+    const allowed = await checkPermsForOrganization(userId, orgId, 'admin');
     if (!allowed) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_ACCESS,
-            code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-            details: {
-              userId,
-              orgId,
-              orgPermissionLevel,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
+      throw new Error('access_forbidden');
     }
 
     if (!event.body) {
@@ -53,8 +33,8 @@ export default async (event) => {
     });
 
     const org = await setOrgPaid(userId, bodyParsed);
-    return response({ code: 200, body: org });
-  } catch (exception) {
-    return handleException(exception);
+    return response({ code: 200, body: returnedFieldsFilter(org) });
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { generateContent, possibleFields } from '../lib/generateContent';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
@@ -8,7 +9,10 @@ export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      return response({ code: 403, message: 'access_forbidden' });
+    }
 
     const { prompts } = JSON.parse(event.body);
 
@@ -34,7 +38,7 @@ export default async (event) => {
         queryId,
       },
     });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

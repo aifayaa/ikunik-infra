@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import reorderCategory from '../lib/reorderCategory';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -8,8 +9,10 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
-
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
     if (!event.body) {
       throw new Error('malformed_request');
     }
@@ -25,7 +28,7 @@ export default async (event) => {
     const reorderResult = await reorderCategory(appId, categoryId, order);
 
     return response({ code: 200, body: reorderResult });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

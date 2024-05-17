@@ -38,6 +38,8 @@ if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
 }
 
 // Set options as a parameter, environment variable, or rc file.
+const fs = require('fs');
+const yaml = require('js-yaml');
 module.require = require('esm')(module /* , options */);
 
 const isEqual = require('lodash/isEqual');
@@ -45,7 +47,6 @@ const omitBy = require('lodash/omitBy');
 const isUndefined = require('lodash/isUndefined');
 const { default: MongoClient } = require('./libs/mongoClient');
 const mongoCollections = require('./libs/mongoCollections.json');
-const apiServerlessData = require('./api-v1/serverless');
 
 /**
  * Checks whether the smaller object is included in the bigger one.
@@ -246,6 +247,12 @@ verbose(
 );
 
 (async () => {
+  const apiServerlessConfig = fs.readFileSync(
+    './api-v1/serverless.yml',
+    'utf8'
+  );
+  const apiServerlessData = yaml.safeLoad(apiServerlessConfig);
+
   const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
 
   const promises = [];

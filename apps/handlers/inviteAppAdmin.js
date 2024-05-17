@@ -1,7 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import inviteAppAdmin from '../lib/inviteAppAdmin';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 
 const { INVITE_MAIL_LANG } = process.env;
 
@@ -9,7 +10,10 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     const { email, firstname, lastname } = JSON.parse(event.body);
 
@@ -38,7 +42,7 @@ export default async (event) => {
       return response({ code: 404, message: 'app_not_found' });
     }
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

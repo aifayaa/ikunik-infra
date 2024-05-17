@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getTasks from '../lib/getTasks';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const stringToBool = (str) => str === 'true';
@@ -10,7 +11,10 @@ export default async (event) => {
 
   try {
     const params = event.queryStringParameters || {};
-    await checkPermsForApp(userId, appId, ['admin']);
+    const allowed = await checkPermsForApp(userId, appId, 'admin');
+    if (!allowed) {
+      throw new Error('access_forbidden');
+    }
 
     const filters = {};
 
@@ -27,7 +31,7 @@ export default async (event) => {
     const { list, count } = tasks;
 
     return response({ code: 200, body: { list, count } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

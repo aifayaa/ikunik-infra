@@ -10,7 +10,6 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import response from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import delUserOrgPerms from '../lib/delUserOrgPerms';
-import { filterUserPrivateFields } from '../lib/organizationsUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -43,10 +42,7 @@ export default async (event) => {
 
     const user = await delUserOrgPerms(targetUserId, orgId);
 
-    return response({
-      code: 200,
-      body: formatResponseBody({ data: filterUserPrivateFields(user) }),
-    });
+    return response({ code: 200, body: formatResponseBody({ data: user }) });
   } catch (exception) {
     if (exception instanceof CrowdaaError) {
       const { type, code, message } = exception;
