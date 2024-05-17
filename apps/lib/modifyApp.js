@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   CANNOT_CHANGE_ANDROID_NAME_CODE,
   CANNOT_CHANGE_IOS_NAME_CODE,
@@ -59,7 +59,7 @@ export default async (appId, update) => {
       if (!lockedFields.androidName) {
         $set['builds.android.name'] = update.androidName;
       } else {
-        throw new CrowdaaException(
+        throw new CrowdaaError(
           ERROR_TYPE_NOT_ALLOWED,
           CANNOT_CHANGE_ANDROID_NAME_CODE,
           `Cannot change the Android name for app ${app.name}`
@@ -70,7 +70,7 @@ export default async (appId, update) => {
       if (!lockedFields.iosName) {
         $set['builds.ios.name'] = update.iosName;
       } else {
-        throw new CrowdaaException(
+        throw new CrowdaaError(
           ERROR_TYPE_NOT_ALLOWED,
           CANNOT_CHANGE_IOS_NAME_CODE,
           `Cannot change the iOS name for app ${app.name}`

@@ -13,7 +13,6 @@ import {
   ORGANIZATION_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
 import getApp from '../../apps/lib/getApp';
-import { CrowdaaException } from '../httpResponses/crowdaaException';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
@@ -261,7 +260,7 @@ export async function getApplicationWithinOrg(appId) {
     const application = await getApp(appId);
 
     if (!application.organization) {
-      throw new CrowdaaException(
+      throw new CrowdaaError(
         ERROR_TYPE_NOT_ALLOWED,
         APPLICATION_OUTSIDE_ORGANIZATION_CODE,
         `The application '${appId}' is not in an organization`
