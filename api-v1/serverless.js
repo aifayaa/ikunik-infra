@@ -184,14 +184,6 @@ const serverlessConfiguration = {
               MetricsEnabled: true,
             },
             {
-              ResourcePath: '/apps/settings',
-              CacheTtlInSeconds: 300,
-              CachingEnabled: true,
-              HttpMethod: 'GET',
-              LoggingLevel: 'INFO',
-              MetricsEnabled: true,
-            },
-            {
               ResourcePath: '/artists/{id}',
               CacheTtlInSeconds: 3600,
               CachingEnabled: true,
