@@ -11,7 +11,6 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
-  USER_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
 import getApp from '../../apps/lib/getApp';
 import { CrowdaaException } from '../httpResponses/crowdaaException';
@@ -147,11 +146,16 @@ async function getOrgIdOfWebsite(websiteId) {
 async function getUserPermsOnWebsite(userId, websiteId) {
   const client = await MongoClient.connect();
   try {
-    const [{ superAdmin = false, perms } = {}] = await client
+    const user = await client
       .db()
       .collection(COLL_USERS)
-      .find({ _id: userId })
-      .toArray();
+      .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
+
+    if (!user) {
+      return false;
+    }
+
+    const [{ superAdmin = false, perms } = {}] = user;
 
     if (superAdmin) {
       return {
@@ -180,19 +184,7 @@ async function getUserPermsOnWebsite(userId, websiteId) {
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-async function getUserPermsOnOrganization(db, userId, orgId) {
-  const user = await db
-    .collection(COLL_USERS)
-    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
-
-  if (!user) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_FOUND,
-      USER_NOT_FOUND_CODE,
-      `Cannot found the user '${userId}'`
-    );
-  }
-
+function getUserPermsOnOrganization(user, orgId) {
   const { superAdmin, perms } = user;
 
   if (superAdmin) {
@@ -291,24 +283,15 @@ export async function getApplicationOrganizationId(appId) {
 
 /**
  * Checks for user permissions on an app.
- * @param {string} userId The user ID
+ * @param {string} db A db instance
+ * @param {string} user The user ID
  * @param {string} appId The app ID
  * @param {string} requestedPerm The permission to check for, may be one of: owner, admin, editor, moderator, viewer
  * @returns true for a valid permission, false otherwise
  */
-async function checkPermsForAppAux(db, userId, appId, requestedPerm) {
+async function checkPermsForAppAux(user, appId, requestedPerm) {
   // The application exists
   const application = await getApp(appId);
-
-  const user = await db.collection(COLL_USERS).findOne(
-    { _id: userId },
-    {
-      projection: {
-        superAdmin: 1,
-        perms: 1,
-      },
-    }
-  );
 
   const userPermsOnApp = getUserPermsOnApp(user, application);
 
@@ -379,9 +362,23 @@ export async function checkPermsForApp(
   const client = await MongoClient.connect();
   const db = client.db();
 
+  const user = await db.collection(COLL_USERS).findOne(
+    { _id: userId },
+    {
+      projection: {
+        superAdmin: 1,
+        perms: 1,
+      },
+    }
+  );
+
+  if (!user) {
+    return false;
+  }
+
   try {
     const promisesToRevolve = requestedPermissions.map((permissionToCheck) =>
-      checkPermsForAppAux(db, userId, appId, permissionToCheck)
+      checkPermsForAppAux(user, appId, permissionToCheck)
     );
 
     const isAllow = await Promise.all(promisesToRevolve);
@@ -505,11 +502,15 @@ export const checkPermsForOrganization = async (
     );
   }
 
-  const { superAdmin, roles } = await getUserPermsOnOrganization(
-    db,
-    userId,
-    orgId
-  );
+  const user = await db
+    .collection(COLL_USERS)
+    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
+
+  if (!user) {
+    return false;
+  }
+
+  const { superAdmin, roles } = getUserPermsOnOrganization(user, orgId);
 
   if (superAdmin) {
     return true;
