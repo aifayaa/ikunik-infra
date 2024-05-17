@@ -11,7 +11,7 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.yml)}',
+    environment: '${file(../env.js)}',
     iam: {
       role: {
         statements: [

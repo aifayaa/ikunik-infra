@@ -24,7 +24,7 @@ export default async (inputUsername, inputPassword, appId, { terminalId }) => {
       terminalId,
     });
 
-    if (!response.client_id) {
+    if (!response.result) {
       throw new Error('missing_access_token');
     }
 
