@@ -22,10 +22,33 @@ export const appPrivateFieldsProjection = appPrivateFields.reduce(
   {}
 );
 
+export const userPrivateFields = ['services', 'perms', 'superAdmin'];
+
+export const userPrivateFieldsProjection = userPrivateFields.reduce(
+  (acc, field) => {
+    acc[field] = 0;
+    return acc;
+  },
+  {}
+);
+
 export function filterAppPrivateFields(app) {
-  const ret = JSON.parse(JSON.stringify(app)); // Deep duplication required to avoid modifying the source
+  // Deep duplication required to avoid modifying the source
+  const ret = JSON.parse(JSON.stringify(app));
 
   appPrivateFields.forEach((field) => {
+    objUnset(ret, field);
+  });
+
+  return ret;
+}
+
+// TODO: Move to 'users/lib/usersUtils.js'
+export function filterUserPrivateFields(app) {
+  // Deep duplication required to avoid modifying the source
+  const ret = JSON.parse(JSON.stringify(app));
+
+  userPrivateFields.forEach((field) => {
     objUnset(ret, field);
   });
 
@@ -64,4 +87,8 @@ export function getAppDefaultBuildFields(name, platform) {
     email: 'support@crowdaa.com',
     version: '0.0.1',
   };
+}
+
+export function isApplicationInOrganization(app) {
+  return (app.organization && app.organization._id) !== undefined;
 }

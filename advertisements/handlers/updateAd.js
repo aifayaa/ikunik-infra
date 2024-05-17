@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import updateAd from '../lib/updateAd';
 import { updateFieldChecks } from '../lib/adsFieldsChecks';
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -10,10 +9,7 @@ export default async (event) => {
   const adId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {
       throw new Error('mal_formed_request');
@@ -29,7 +25,7 @@ export default async (event) => {
 
     const newAd = await updateAd(adId, appId, userId, bodyParsed);
     return response({ code: 200, body: newAd });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

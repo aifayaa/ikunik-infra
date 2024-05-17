@@ -19,8 +19,8 @@ export default async (userId, orgId, appId, originDestination) => {
           // 1. Delete application from the user.perms.apps
           await db
             .collection(COLL_USERS)
-            .updateOne(
-              { _id: userId },
+            .updateMany(
+              {},
               { $pull: { 'perms.apps': { _id: appId } } },
               { session }
             );

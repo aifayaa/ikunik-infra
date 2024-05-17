@@ -4,7 +4,7 @@ import getProfile from './getProfile';
 import generateApiToken from './generateApiToken';
 import getApps from './getApps';
 
-import yaml from '../serverless.yml';
+import js from '../serverless';
 
 export default (libs, output) => {
   getUserPublic(libs, output);
@@ -12,5 +12,5 @@ export default (libs, output) => {
   getProfile(libs, output);
   generateApiToken(libs, output);
 
-  libs.checks.forMissingAPIs(yaml, output);
+  libs.checks.forMissingAPIs(js, output);
 };

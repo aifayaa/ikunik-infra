@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import putCategory from '../lib/putCategory';
-import response from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { actionV2ToAction, actionToActionV2 } from '../lib/actionV2Migration';
 
@@ -11,10 +10,8 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
     if (!event.body) {
       throw new Error('malformed_request');
     }
@@ -79,7 +76,7 @@ export default async (event) => {
     });
 
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response(errorMessage(e));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

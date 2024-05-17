@@ -9,7 +9,7 @@ import publishArticle from './publishArticle';
 import unpublishArticle from './unpublishArticle';
 import removeArticle from './removeArticle';
 
-import yaml from '../serverless';
+import js from '../serverless';
 
 export default (libs, output) => {
   getArticles(libs, output);
@@ -22,5 +22,5 @@ export default (libs, output) => {
   unpublishArticle(libs, output);
   removeArticle(libs, output);
 
-  libs.checks.forMissingAPIs(yaml, output);
+  libs.checks.forMissingAPIs(js, output);
 };
