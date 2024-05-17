@@ -1,7 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import putCategory from '../lib/putCategory';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { actionV2ToAction, actionToActionV2 } from '../lib/actionV2Migration';
 
@@ -76,7 +77,7 @@ export default async (event) => {
     });
 
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

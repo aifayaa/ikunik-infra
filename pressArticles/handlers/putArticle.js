@@ -3,7 +3,7 @@ import removeMd from 'remove-markdown';
 
 import checkActions from '../lib/checks/checkActions';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
 import { queueArticleNotifications } from '../lib/notificationsQueue';
@@ -153,7 +153,7 @@ export default async (event) => {
       }
     }
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

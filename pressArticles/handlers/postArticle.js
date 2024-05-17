@@ -3,7 +3,7 @@ import removeMd from 'remove-markdown';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
 import { queueArticleNotifications } from '../lib/notificationsQueue';
@@ -235,7 +235,7 @@ export default async (event) => {
       }
     }
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

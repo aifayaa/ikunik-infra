@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -19,7 +19,7 @@ export default async (event) => {
 
     const html = mdToHtml(md);
     return response({ code: 200, body: { html } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

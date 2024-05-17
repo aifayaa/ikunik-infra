@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import deleteTos from '../lib/deleteTos';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -12,7 +13,7 @@ export default async (event) => {
 
     const ok = await deleteTos(appId, tosId);
     return response({ code: 200, body: { ok } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import reorderCategory from '../lib/reorderCategory';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -25,7 +26,7 @@ export default async (event) => {
     const reorderResult = await reorderCategory(appId, categoryId, order);
 
     return response({ code: 200, body: reorderResult });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

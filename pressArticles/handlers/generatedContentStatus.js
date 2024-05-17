@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { generatedContentStatus } from '../lib/generatedContentStatus';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -15,7 +16,7 @@ export default async (event) => {
       code: 200,
       body: statusObj,
     });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

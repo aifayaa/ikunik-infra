@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { deletePurchasableProduct } from '../lib/deletePurchasableProduct';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -13,7 +14,7 @@ export default async (event) => {
     // @TODO: ENSURE NOTHING HAS BEEN PURCHASE YET WITH THAT PRODUCT
     const results = await deletePurchasableProduct(appId, userId, productId);
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };
