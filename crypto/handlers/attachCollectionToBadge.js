@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import attachCollectionToBadge from '../lib/attachCollectionToBadge';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -15,7 +16,7 @@ export default async (event) => {
     const results = await attachCollectionToBadge(appId, collectionId, badgeId);
 
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

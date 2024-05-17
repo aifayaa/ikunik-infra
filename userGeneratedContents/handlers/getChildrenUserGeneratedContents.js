@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -58,7 +58,7 @@ export default async (event) => {
       fetchAll
     );
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

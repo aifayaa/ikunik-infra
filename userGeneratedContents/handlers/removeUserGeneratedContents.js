@@ -2,7 +2,7 @@
 import checkOwner from '../../libs/perms/checkOwner';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import removeUserGeneratedContents from '../lib/removeUserGeneratedContents';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -43,7 +43,7 @@ export default async (event) => {
       options
     );
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

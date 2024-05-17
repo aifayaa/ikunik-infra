@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
-import response, { handleException } from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
+import response from '../../libs/httpResponses/response';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -31,7 +32,7 @@ export default async (event) => {
       lang,
     });
     return response({ code: 200, body: { userBadge } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

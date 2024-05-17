@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import getArticlesStats from '../lib/getArticlesStats';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -11,7 +11,7 @@ export default async (event) => {
 
     const stats = await getArticlesStats(appId);
     return response({ code: 200, body: stats });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

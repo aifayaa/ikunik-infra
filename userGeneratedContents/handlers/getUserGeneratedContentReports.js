@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getUserGeneratedContentReports from '../lib/getUserGeneratedContentReports';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -45,7 +46,7 @@ export default async (event) => {
       code: 200,
       body: countOnly ? { totalCount } : { totalCount, items },
     });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage({ message: e.message }));
   }
 };

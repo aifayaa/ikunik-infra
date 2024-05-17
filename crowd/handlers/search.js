@@ -3,7 +3,7 @@ import buildCrowdPipeline from '../lib/pipelines/crowdPipeline';
 import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
 import pressSearch from '../lib/pressSearch';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event) => {
@@ -38,7 +38,7 @@ export default async (event) => {
     );
     const results = await search(pipeline, event.queryStringParameters);
     return response({ code: 200, body: results });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

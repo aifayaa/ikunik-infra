@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
 import {
   queueArticleNotifications,
   cleanPendingArticleNotifications,
@@ -51,7 +51,7 @@ export default async (event) => {
       );
     }
     return response({ code: 200, body: requestResults });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response({ code: 500, message: e.message });
   }
 };

@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import convertLiveStreamRecording from '../lib/convertLiveStreamRecording';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -22,7 +23,7 @@ export default async (event) => {
       recordingRoot
     );
     return response({ code: 200, body: { ok: success } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };

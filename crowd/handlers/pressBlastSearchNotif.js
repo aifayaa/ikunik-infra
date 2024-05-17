@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { ObjectID } from '../../libs/mongoClient';
 
@@ -49,7 +50,7 @@ export default async (event) => {
 
     await lambda.invoke(params).promise();
     return response({ code: 200, body: { operationId } });
-  } catch (exception) {
-    return handleException(exception);
+  } catch (e) {
+    return response(errorMessage(e));
   }
 };
