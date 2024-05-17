@@ -11,7 +11,9 @@ export default async (event) => {
 
   try {
     const params = event.queryStringParameters || {};
-    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
 
     const filters = {};
 

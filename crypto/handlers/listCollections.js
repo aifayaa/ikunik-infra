@@ -8,10 +8,7 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const results = await listCollections(appId);
 

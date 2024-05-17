@@ -8,8 +8,9 @@ export default async (event) => {
   const urlId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (userId !== urlId && !allowed) {
+    await checkPermsForApp(userId, appId, ['admin']);
+
+    if (userId !== urlId) {
       return response({ code: 403, message: 'access_forbidden' });
     }
 

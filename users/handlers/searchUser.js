@@ -6,10 +6,7 @@ import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const {
       limit,

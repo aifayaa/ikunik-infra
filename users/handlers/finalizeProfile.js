@@ -14,7 +14,10 @@ export default async (event) => {
   const urlUserId = event.pathParameters.id;
 
   try {
-    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
+
     // Only restricting to self for now, should allow admin users later
     if (userId !== urlUserId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });

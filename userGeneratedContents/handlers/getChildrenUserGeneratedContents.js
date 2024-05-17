@@ -24,7 +24,10 @@ export default async (event) => {
 
     fetchAll = `${fetchAll}` === 'true';
 
-    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
+    const isModerator = await checkPermsForApp(userId, appId, ['moderator'], {
+      dontThrow: true,
+    });
+
     if (!isModerator) {
       fetchAll = false;
     }

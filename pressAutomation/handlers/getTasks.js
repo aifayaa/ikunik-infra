@@ -11,10 +11,7 @@ export default async (event) => {
 
   try {
     const params = event.queryStringParameters || {};
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const filters = {};
 

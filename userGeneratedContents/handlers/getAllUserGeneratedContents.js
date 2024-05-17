@@ -65,14 +65,7 @@ export default async (event) => {
       typeof reviewed !== 'undefined' ||
       typeof trashed !== 'undefined'
     ) {
-      const isModerator = await checkPermsForApp(userId, appId, 'moderator');
-      if (!isModerator) {
-        const error = new Error(
-          'Unauthorized: this operation require moderator level rights'
-        );
-        error.code = 401;
-        throw error;
-      }
+      await checkPermsForApp(userId, appId, ['moderator']);
     }
 
     const isRaw = raw !== 'false';

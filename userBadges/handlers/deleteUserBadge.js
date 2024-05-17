@@ -9,10 +9,7 @@ export default async (event) => {
   const userBadgeId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     await deleteUserBadge(userBadgeId, appId);
     return response({ code: 200, body: { ok: true } });

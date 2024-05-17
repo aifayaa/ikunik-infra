@@ -8,10 +8,8 @@ export default async (event) => {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
     const { category = null, start, limit } = event.queryStringParameters || {};
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
     const results = await getArticles(category, start, limit, appId, {
       getOrphansArticles: !category,
       onlyPublished: false,

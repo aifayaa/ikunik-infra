@@ -13,7 +13,9 @@ export default async (event) => {
     const urlId = event.pathParameters.id;
     const perms = JSON.parse(event.requestContext.authorizer.perms);
 
-    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
     if (userId !== urlId && !isAdmin) {
       return response({ code: 403, message: 'access_forbidden' });
     }

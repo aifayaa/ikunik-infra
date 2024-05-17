@@ -15,10 +15,7 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
     const { title, message, limit } = JSON.parse(event.body);
 
     if (!(title && message && typeof limit !== 'undefined')) {

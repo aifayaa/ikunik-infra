@@ -6,9 +6,6 @@ import pressSearch from '../lib/pressSearch';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-// To avoid getting a warning with lint
-const jsConsole = console;
-
 export default async (event) => {
   try {
     event.queryStringParameters = event.queryStringParameters || {};
@@ -19,10 +16,7 @@ export default async (event) => {
       event.queryStringParameters.type &&
       event.queryStringParameters.type === 'press'
     ) {
-      const allowed = await checkPermsForApp(userId, appId, 'admin');
-      if (!allowed) {
-        throw new Error('access_forbidden');
-      }
+      await checkPermsForApp(userId, appId, ['admin']);
 
       const pipeline = buildPressPipeline(
         userId,
@@ -45,7 +39,6 @@ export default async (event) => {
     const results = await search(pipeline, event.queryStringParameters);
     return response({ code: 200, body: results });
   } catch (e) {
-    jsConsole.error(e);
     return response({ code: 500, message: e.message });
   }
 };

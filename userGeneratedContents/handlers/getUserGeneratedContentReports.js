@@ -13,11 +13,7 @@ export default async (event) => {
   let { countOnly = false } = event.queryStringParameters || {};
 
   try {
-    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
-
-    if (!isModerator) {
-      throw new Error('insufficient_user_rights');
-    }
+    await checkPermsForApp(userId, appId, ['moderator']);
 
     if (
       /* eslint-disable eqeqeq */

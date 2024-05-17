@@ -23,14 +23,7 @@ export default async (event) => {
 
     // Moderator only allowed parameters
     if (typeof moderator !== 'undefined' || typeof trashed !== 'undefined') {
-      const isModerator = await checkPermsForApp(userId, appId, 'moderator');
-      if (!isModerator) {
-        const error = new Error(
-          'Unauthorized: this operation require moderator level rights'
-        );
-        error.code = 401;
-        throw error;
-      }
+      await checkPermsForApp(userId, appId, ['moderator']);
     }
 
     const results = await getUserGeneratedContents(

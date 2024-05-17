@@ -9,10 +9,7 @@ export default async (event) => {
     const { id: queryId } = event.pathParameters;
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const statusObj = await generatedContentStatus(queryId, { appId, userId });
     return response({

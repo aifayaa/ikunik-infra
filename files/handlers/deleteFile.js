@@ -33,12 +33,10 @@ export default async (event) => {
 
     /* Check delete permissions */
     const fileOfUser = await findFileOfUser(userId, appId, file);
-    const hasPerms = await checkPermsForApp(userId, appId, 'admin');
-    if (!hasPerms) {
-      if (!fileOfUser) {
-        throw new Error('wrong_argument');
-      }
-      return response({ code: 403, message: 'access_forbidden' });
+    await checkPermsForApp(userId, appId, ['admin']);
+
+    if (!fileOfUser) {
+      throw new Error('wrong_argument');
     }
 
     const info = await deleteFile(userId, appId, file);

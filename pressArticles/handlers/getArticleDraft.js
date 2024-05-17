@@ -8,10 +8,8 @@ export default async (event) => {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
     const articleId = event.pathParameters.id;
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
     const results = await getArticleDraft(articleId, appId);
     return response({ code: 200, body: results });
   } catch (e) {

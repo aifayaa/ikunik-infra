@@ -9,10 +9,7 @@ export default async (event) => {
   const adId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const newAd = await getAd(adId, appId);
     return response({ code: 200, body: newAd });

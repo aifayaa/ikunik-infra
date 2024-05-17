@@ -8,7 +8,7 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.yml)}',
+    environment: '${file(../env.js)}',
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:

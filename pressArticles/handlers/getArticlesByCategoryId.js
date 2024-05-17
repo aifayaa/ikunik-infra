@@ -7,10 +7,7 @@ export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const { category = null, start, limit } = event.queryStringParameters || {};
 

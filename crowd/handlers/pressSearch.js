@@ -11,10 +11,7 @@ export default async (event) => {
 
   try {
     queryStringParameters.filterUserInfo = true;
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const pipeline = buildPressPipeline(userId, appId, queryStringParameters);
     const results = await searchPress(pipeline, appId, queryStringParameters);

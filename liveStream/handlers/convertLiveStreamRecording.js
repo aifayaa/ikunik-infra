@@ -11,10 +11,7 @@ export default async (event) => {
     const { id: liveStreamId } = event.pathParameters;
     const { recordingRoot } = event.queryStringParameters || {};
 
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!recordingRoot) {
       return response({ code: 400, message: 'missing_payload' });

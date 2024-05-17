@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import checkOwner from '../../libs/perms/checkOwner';
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
@@ -12,7 +12,9 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
+    const isModerator = await checkPermsForApp(userId, appId, ['moderator'], {
+      dontThrow: true,
+    });
     const userGeneratedContentsId = event.pathParameters.id;
     const bodyParsed = JSON.parse(event.body);
     const { moderated, reason } = bodyParsed;

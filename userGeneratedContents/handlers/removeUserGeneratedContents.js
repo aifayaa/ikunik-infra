@@ -12,7 +12,9 @@ export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    const isModerator = await checkPermsForApp(userId, appId, 'moderator');
+    const isModerator = await checkPermsForApp(userId, appId, ['moderator'], {
+      dontThrow: true,
+    });
     const userGeneratedContentsId = event.pathParameters.id;
 
     let ugc = null;

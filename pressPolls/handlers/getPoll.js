@@ -10,7 +10,9 @@ export default async (event) => {
   const params = event.queryStringParameters || {};
 
   try {
-    const isAdmin = await checkPermsForApp(userId, appId, 'admin');
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
 
     let poll = await getPoll(pollId, appId, {
       userId,

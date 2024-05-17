@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import { patchPurchasableProduct } from '../lib/patchPurchasableProduct';
+import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
@@ -11,10 +11,7 @@ export default async (event) => {
   const productId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {
       throw new Error('missing_payload');

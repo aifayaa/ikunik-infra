@@ -10,7 +10,9 @@ export default async (event) => {
     const { id: articleId } = event.pathParameters;
     const { deviceId = null } = event.queryStringParameters || {};
 
-    const publishedOnly = !(await checkPermsForApp(userId, appId, 'admin'));
+    const publishedOnly = !(await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    }));
 
     const results = await getArticle(articleId, appId, {
       deviceId,

@@ -9,10 +9,7 @@ export default async (event) => {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
     const { id: liveStreamId } = event.pathParameters;
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
 
     const results = await refreshLiveStream(appId, liveStreamId);
     return response({ code: 200, body: results });

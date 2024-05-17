@@ -14,10 +14,9 @@ export default async (event) => {
       from,
       ...extras
     } = event.queryStringParameters || {};
-    const allowed = await checkPermsForApp(userId, appId, 'admin');
-    if (!allowed) {
-      return response({ code: 403, message: 'access_forbidden' });
-    }
+
+    await checkPermsForApp(userId, appId, ['admin']);
+
     const boolExtras = Object.keys(extras).reduce((acc, key) => {
       acc[key] = !!`${extras[key]}`.match(/true/i);
       return acc;

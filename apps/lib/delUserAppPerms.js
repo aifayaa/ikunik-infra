@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -8,20 +9,21 @@ export default async (targetUserId, appId) => {
   const client = await MongoClient.connect();
 
   try {
+    await getApplicationWithinOrg(appId);
+
     const db = client.db();
-    const commandRes = await db
+    await db
       .collection(COLL_APPS)
-      .findOneAndUpdate(
+      .updateOne(
         { _id: appId },
         { $pull: { 'organization.users': { _id: targetUserId } } }
       );
 
-    const { ok, value: appUpdated } = commandRes;
-    if (ok !== 1) {
-      throw new Error('update_failed');
-    }
-
-    return appUpdated;
+    return {
+      deletedResources: {
+        userIds: [targetUserId],
+      },
+    };
   } finally {
     client.close();
   }

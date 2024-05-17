@@ -11,11 +11,10 @@ export default async (event) => {
     const { id: articleId } = event.pathParameters;
     let views = 1;
 
-    const havePerms = await checkPermsForApp(userId, appId, 'admin');
-    if (havePerms) {
-      const bodyParsed = JSON.parse(event.body);
-      ({ views } = bodyParsed);
-    }
+    await checkPermsForApp(userId, appId, ['admin']);
+
+    const bodyParsed = JSON.parse(event.body);
+    ({ views } = bodyParsed);
 
     await incArticleLikesViews(appId, articleId, { views });
     return response({ code: 200, body: true });
