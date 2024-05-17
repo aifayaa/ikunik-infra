@@ -37,7 +37,7 @@ export default function response({ headers = {}, code, body, message, raw }) {
 
 export function handleException(exception) {
   if (exception instanceof CrowdaaError) {
-    const { type, code, message } = exception;
+    const { httpCode, type, code, message } = exception;
     const errorBody = formatResponseBody({
       errors: [
         {
@@ -48,12 +48,12 @@ export function handleException(exception) {
         },
       ],
     });
-    return response({ code: 200, body: errorBody });
+    return response({ code: httpCode, body: errorBody });
   }
 
   if (exception instanceof CrowdaaErrorWithErrorBody) {
-    const { errorBody } = exception;
-    return response({ code: 200, body: errorBody });
+    const { httpCode, errorBody } = exception;
+    return response({ code: httpCode, body: errorBody });
   }
 
   const errorBody = formatResponseBody({

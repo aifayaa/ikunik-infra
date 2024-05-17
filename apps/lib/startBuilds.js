@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaException } from '../../libs/httpResponses/crowdaaException';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
@@ -152,7 +152,7 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
       );
 
     if (!app) {
-      throw new CrowdaaException(
+      throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         APP_NOT_FOUND_CODE,
         `The application with ID ${appId} was not found`
@@ -160,7 +160,7 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
     }
 
     if (!app.organization || !app.organization._id) {
-      throw new CrowdaaException(
+      throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
         MISSING_ORGANIZATION_CODE,
         `The application ${appId} have no organization set`
