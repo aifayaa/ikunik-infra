@@ -10,7 +10,7 @@ import {
 } from '../../libs/perms/checkPermsFor';
 import modifyAppUserPerms from '../lib/modifyAppUserPerms';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,

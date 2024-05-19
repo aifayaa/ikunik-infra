@@ -13,7 +13,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { isAppAlreadyBuild } from '../lib/organizationsUtils';
 import getApp from '../../apps/lib/getApp';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

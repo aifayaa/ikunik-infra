@@ -9,7 +9,7 @@ import {
   getApplicationOrganizationId,
 } from '../../libs/perms/checkPermsFor';
 import putAppUserPerms from '../lib/putAppUserPerms';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   APPLICATION_PERMISSION_CODE,
   ERROR_TYPE_ACCESS,

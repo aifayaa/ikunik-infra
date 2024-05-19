@@ -11,7 +11,7 @@ import {
 import Stripe from 'stripe';
 
 import { handleException } from '../../libs/httpResponses/response';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
   ERROR_TYPE_SETUP,
@@ -52,12 +52,12 @@ export default async (
 
   // console.log('event', event);
   // console.dir(event);
-  console.dir(context);
-  console.dir(callback);
+  // console.dir(context);
+  // console.dir(callback);
 
   try {
     // try {
-    console.info(`Begin`);
+    // console.info(`Begin`);
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -73,9 +73,9 @@ export default async (
       automatic_tax: { enabled: true },
     });
 
-    console.info(`Success`);
+    // console.info(`Success`);
 
-    console.log('session.url', session.url);
+    // console.log('session.url', session.url);
 
     // res.redirect(303, session.url);
     // return response.status(303).send(session.url);

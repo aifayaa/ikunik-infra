@@ -3,7 +3,7 @@ import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { indexObjectArrayWithKey } from '../utils';
 
-import { CrowdaaError } from '../httpResponses/CrowdaaError';
+import { CrowdaaError } from '../httpResponses/CrowdaaError.ts';
 import {
   APPLICATION_OUTSIDE_ORGANIZATION_CODE,
   APPLICATION_PERMISSION_CODE,

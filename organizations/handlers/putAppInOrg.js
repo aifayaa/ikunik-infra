@@ -16,7 +16,7 @@ import {
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import { isAppAlreadyBuild } from '../lib/organizationsUtils';
 import getApp from '../../apps/lib/getApp';
 import { isApplicationInOrganization } from '../../apps/lib/appsUtils';
