@@ -57,21 +57,33 @@ export default async (event, context, callback) => {
     // return response.status(303).send(session.url);
 
     const redirectResponse = {
-      // status: '303',
-      status: '301',
+      statusCode: '303',
+      // statusCode: '301',
       statusDescription: 'See Other',
+      // statusDescription: 'Moved Permanently',
       headers: {
-        location: [
-          {
-            key: 'Location',
-            // value: session.url,
-            value: 'www.google.com',
-          },
-        ],
+        // Location: [
+        //   {
+        //     key: 'Location',
+        //     // value: session.url,
+        //     value: 'www.google.com',
+        //   },
+        // ],
+        Location: session.url, // 'https://www.google.com',
       },
     };
 
-    return callback(null, redirectResponse);
+    callback(null, redirectResponse);
+
+    // const responseC = {
+    //   statusCode: 301,
+    //   headers: {
+    //     Location: 'https://www.gorillastack.com',
+    //   },
+    //   body: '',
+    // };
+
+    // callback(null, responseC);
 
     // } catch (err) {
     //   logger.error(JSON.stringify(err));
