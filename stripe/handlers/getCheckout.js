@@ -57,19 +57,21 @@ export default async (event, context, callback) => {
     // return response.status(303).send(session.url);
 
     const redirectResponse = {
-      status: '303',
+      // status: '303',
+      status: '301',
       statusDescription: 'See Other',
       headers: {
         location: [
           {
             key: 'Location',
-            value: session.url,
+            // value: session.url,
+            value: 'www.google.com',
           },
         ],
       },
     };
 
-    callback(null, redirectResponse);
+    return callback(null, redirectResponse);
 
     // } catch (err) {
     //   logger.error(JSON.stringify(err));
