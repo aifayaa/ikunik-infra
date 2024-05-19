@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_ALLOWED,
   ORGANISATION_APPLE_TEAM_ALREADY_SETUP_CODE,

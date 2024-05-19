@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,

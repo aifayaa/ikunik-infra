@@ -1,72 +1,72 @@
-/* eslint-disable import/no-relative-packages */
-import sinon from 'sinon';
-import { describe, it, before, after } from 'mocha';
-import { expect } from 'chai';
-import * as lib from '../../lib/getAllUserGeneratedContents';
-import handler from '../../handlers/getAllUserGeneratedContents';
+// /* eslint-disable import/no-relative-packages */
+// import sinon from 'sinon';
+// import { describe, it, before, after } from 'mocha';
+// import { expect } from 'chai';
+// import * as lib from '../../lib/getAllUserGeneratedContents';
+// import handler from '../../handlers/getAllUserGeneratedContents';
 
-/** @TODO Re-enable tests. Skipped after permissions checking update */
-describe.skip('handlers - getAllUserGeneratedContents', () => {
-  let stubLib;
+// /** @TODO Re-enable tests. Skipped after permissions checking update */
+// describe.skip('handlers - getAllUserGeneratedContents', () => {
+//   let stubLib;
 
-  const defaultStringParameters = {
-    start: false,
-    limit: false,
-    type: false,
-    userId: false,
-  };
+//   const defaultStringParameters = {
+//     start: false,
+//     limit: false,
+//     type: false,
+//     userId: false,
+//   };
 
-  const event = {
-    requestContext: {
-      authorizer: {
-        perms: JSON.stringify({}),
-        appId: 'crowdaa_app_id',
-      },
-    },
-    queryStringParameters: defaultStringParameters,
-  };
-  const sandbox = sinon.createSandbox();
+//   const event = {
+//     requestContext: {
+//       authorizer: {
+//         perms: JSON.stringify({}),
+//         appId: 'crowdaa_app_id',
+//       },
+//     },
+//     queryStringParameters: defaultStringParameters,
+//   };
+//   const sandbox = sinon.createSandbox();
 
-  describe('lib success', () => {
-    const libResult = { items: [], total: 0 };
+//   describe('lib success', () => {
+//     const libResult = { items: [], total: 0 };
 
-    before(() => {
-      stubLib = sandbox.stub(lib, 'default').returns(libResult);
-    });
+//     before(() => {
+//       stubLib = sandbox.stub(lib, 'default').returns(libResult);
+//     });
 
-    it('should return 200', async () => {
-      const response = await handler(event);
-      expect(response.statusCode).to.eq(200);
-      expect(JSON.parse(response.body)).to.eql([]);
-    });
+//     it('should return 200', async () => {
+//       const response = await handler(event);
+//       expect(response.statusCode).to.eq(200);
+//       expect(JSON.parse(response.body)).to.eql([]);
+//     });
 
-    it('should called with the good args', () => {
-      const { appId } = event.requestContext.authorizer;
-      const { start, limit, type, userId } = event.queryStringParameters;
-      sinon.assert.calledWith(stubLib, appId, start, limit, type, userId);
-    });
+//     it('should called with the good args', () => {
+//       const { appId } = event.requestContext.authorizer;
+//       const { start, limit, type, userId } = event.queryStringParameters;
+//       sinon.assert.calledWith(stubLib, appId, start, limit, type, userId);
+//     });
 
-    after(() => {
-      sandbox.restore();
-    });
-  });
+//     after(() => {
+//       sandbox.restore();
+//     });
+//   });
 
-  describe('lib fail', () => {
-    const libResult = new Error('lib method fail');
+//   describe('lib fail', () => {
+//     const libResult = new Error('lib method fail');
 
-    before(() => {
-      stubLib = sandbox
-        .stub(lib, 'default')
-        .callsFake(() => Promise.reject(libResult));
-    });
+//     before(() => {
+//       stubLib = sandbox
+//         .stub(lib, 'default')
+//         .callsFake(() => Promise.reject(libResult));
+//     });
 
-    it('should return 500', async () => {
-      const response = await handler(event);
-      expect(response.statusCode).to.eq(500);
-    });
+//     it('should return 500', async () => {
+//       const response = await handler(event);
+//       expect(response.statusCode).to.eq(500);
+//     });
 
-    after(() => {
-      sandbox.restore();
-    });
-  });
-});
+//     after(() => {
+//       sandbox.restore();
+//     });
+//   });
+// });

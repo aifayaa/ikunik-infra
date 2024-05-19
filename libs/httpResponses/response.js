@@ -1,4 +1,4 @@
-import { CrowdaaError } from './CrowdaaError';
+import { CrowdaaError } from './CrowdaaError.ts';
 import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,

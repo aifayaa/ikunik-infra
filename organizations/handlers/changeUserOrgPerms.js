@@ -13,7 +13,7 @@ import {
   filterUserPrivateFields,
   organizationRoles,
 } from '../lib/organizationsUtils';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer;
