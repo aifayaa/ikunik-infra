@@ -14,26 +14,6 @@ export const appPrivateFields = [
   'builds.android.firebase',
 ];
 
-export const appPrivateFieldsProjection = appPrivateFields.reduce(
-  (acc, field) => {
-    acc[field] = 0;
-    return acc;
-  },
-  {}
-);
-
-// TODO: Delete this constant and use the one from 'usersUtils.js'
-export const userPrivateFields = ['services', 'perms', 'superAdmin'];
-
-// TODO: Delete this constant and use the one from 'usersUtils.js'
-export const userPrivateFieldsProjection = userPrivateFields.reduce(
-  (acc, field) => {
-    acc[field] = 0;
-    return acc;
-  },
-  {}
-);
-
 export function filterAppPrivateFields(app) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(app));

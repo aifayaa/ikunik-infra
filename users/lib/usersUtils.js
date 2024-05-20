@@ -3,6 +3,14 @@ import { objUnset } from '../../libs/utils';
 
 export const userPrivateFields = ['services', 'perms', 'superAdmin'];
 
+export const userPrivateFieldsProjection = userPrivateFields.reduce(
+  (acc, field) => {
+    acc[field] = 0;
+    return acc;
+  },
+  {}
+);
+
 export function filterUserPrivateFields(app) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(app));
