@@ -15,6 +15,7 @@ export class CrowdaaError extends Error {
     this.name = 'CrowdaaError';
     this.type = type;
     this.code = code;
+    this.message = message;
     this.httpCode = options?.httpCode ? options.httpCode : 200;
     this.details = options?.details ?? options?.details;
   }

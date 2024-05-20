@@ -11,7 +11,7 @@ import {
 import Stripe from 'stripe';
 
 import { handleException } from '../../libs/httpResponses/response';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
   ERROR_TYPE_SETUP,
