@@ -22,8 +22,10 @@ export const appPrivateFieldsProjection = appPrivateFields.reduce(
   {}
 );
 
+// TODO: Delete this constant and use the one from 'usersUtils.js'
 export const userPrivateFields = ['services', 'perms', 'superAdmin'];
 
+// TODO: Delete this constant and use the one from 'usersUtils.js'
 export const userPrivateFieldsProjection = userPrivateFields.reduce(
   (acc, field) => {
     acc[field] = 0;

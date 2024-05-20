@@ -1,7 +1,9 @@
 /* eslint-disable import/no-relative-packages */
 
+// TODO: Delete this constant and use the one from 'usersUtils.js'
 export const userPrivateFields = ['services', 'perms', 'superAdmin'];
 
+// TODO: Delete this constant and use the one from 'usersUtils.js'
 export const userPrivateFieldsProjection = userPrivateFields.reduce(
   (acc, field) => {
     acc[field] = 0;
