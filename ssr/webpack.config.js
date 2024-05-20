@@ -13,4 +13,23 @@ module.exports = {
     filename: '[name].js',
     sourceMapFilename: '[file].map',
   },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: path.resolve(__dirname, '../tsconfig.json'),
+            },
+          },
+        ],
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
 };
