@@ -345,34 +345,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    // TODO: delete this end-point and associate files
-    setOrgPaid: {
-      handler: 'handlers/setOrgPaid.default',
-      events: [
-        {
-          http: {
-            path: 'organizations/{id}/debug/payment',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
     getOrgInvitations: {
       handler: 'handlers/getOrgInvitations.default',
       events: [
