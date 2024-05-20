@@ -9,7 +9,7 @@ import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import filterUserPrivateFields from '../../users/lib/usersUtils';
+import { filterUserPrivateFields } from '../../users/lib/usersUtils';
 import { organizationRoles } from '../lib/organizationsUtils';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
