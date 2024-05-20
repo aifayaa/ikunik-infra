@@ -1,27 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import { objUnset } from '../../libs/utils';
-
-export const userPrivateFields = ['services', 'perms', 'superAdmin'];
-
-export const userPrivateFieldsProjection = userPrivateFields.reduce(
-  (acc, field) => {
-    acc[field] = 0;
-    return acc;
-  },
-  {}
-);
-
-// TODO: Move to 'users/lib/usersUtils.js'
-export function filterUserPrivateFields(app) {
-  // Deep duplication required to avoid modifying the source
-  const ret = JSON.parse(JSON.stringify(app));
-
-  userPrivateFields.forEach((field) => {
-    objUnset(ret, field);
-  });
-
-  return ret;
-}
 
 export const organizationRoles = ['owner', 'admin', 'member'];
 
@@ -32,12 +9,23 @@ export const applicationRolesInOrganization = [
   'viewer',
 ];
 
-// TODO: Move to 'apps/lib/appsUtils.js'
-export function isAppAlreadyBuild(application) {
-  return (
-    application &&
-    application.builds &&
-    ((application.builds.android && application.builds.android.ready) ||
-      (application.builds.ios && application.builds.ios.ready))
-  );
-}
+const isNonEmptyString = (val) => typeof val === 'string' && val.length > 0;
+
+export const createFieldChecks = {
+  name(val) {
+    return isNonEmptyString(val);
+  },
+};
+
+export const putAppFieldChecks = {
+  appId(val) {
+    return isNonEmptyString(val);
+  },
+};
+
+// TODO: associated with : delete this end-point and associate files
+export const setOrgDebugPaidChecks = {
+  paymentOk(val) {
+    return typeof val === 'boolean';
+  },
+};

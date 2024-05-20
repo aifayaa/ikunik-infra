@@ -11,7 +11,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { isAppAlreadyBuild } from '../lib/organizationsUtils';
+import { isAppAlreadyBuild } from '../../apps/lib/appsUtils';
 import getApp from '../../apps/lib/getApp';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 

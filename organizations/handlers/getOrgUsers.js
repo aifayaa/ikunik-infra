@@ -7,7 +7,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import getUserOrgPerms from '../lib/getUserOrgPerms';
-import { filterUserPrivateFields } from '../lib/organizationsUtils';
+import { filterUserPrivateFields } from '../../users/lib/usersUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

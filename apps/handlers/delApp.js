@@ -8,7 +8,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import delApp from '../lib/delApp';
-import { isAppAlreadyBuild } from '../../organizations/lib/organizationsUtils';
+import { isAppAlreadyBuild } from '../lib/appsUtils';
 import getApp from '../lib/getApp';
 
 export default async (event) => {

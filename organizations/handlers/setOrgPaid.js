@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { setOrgDebugPaidChecks } from '../lib/fieldsChecks';
+import { setOrgDebugPaidChecks } from '../lib/organizationsUtils';
 import setOrgPaid from '../lib/setOrgPaid';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
