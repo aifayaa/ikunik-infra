@@ -43,18 +43,6 @@ export function filterAppPrivateFields(app) {
   return ret;
 }
 
-// TODO: Move to 'users/lib/usersUtils.js'
-export function filterUserPrivateFields(app) {
-  // Deep duplication required to avoid modifying the source
-  const ret = JSON.parse(JSON.stringify(app));
-
-  userPrivateFields.forEach((field) => {
-    objUnset(ret, field);
-  });
-
-  return ret;
-}
-
 export function getAppLockedFields(app) {
   return {
     androidName: !(
@@ -91,4 +79,13 @@ export function getAppDefaultBuildFields(name, platform) {
 
 export function isApplicationInOrganization(app) {
   return (app.organization && app.organization._id) !== undefined;
+}
+
+export function isAppAlreadyBuild(application) {
+  return (
+    application &&
+    application.builds &&
+    ((application.builds.android && application.builds.android.ready) ||
+      (application.builds.ios && application.builds.ios.ready))
+  );
 }
