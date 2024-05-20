@@ -345,6 +345,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+    // TODO: delete this end-point and associate files
     setOrgPaid: {
       handler: 'handlers/setOrgPaid.default',
       events: [
