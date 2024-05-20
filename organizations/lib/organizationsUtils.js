@@ -22,10 +22,3 @@ export const putAppFieldChecks = {
     return isNonEmptyString(val);
   },
 };
-
-// TODO: associated with : delete this end-point and associate files
-export const setOrgDebugPaidChecks = {
-  paymentOk(val) {
-    return typeof val === 'boolean';
-  },
-};
