@@ -3,7 +3,7 @@ import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import postCategory from '../lib/postCategory';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { actionV2ToAction, actionToActionV2 } from '../lib/actionV2Migration';
 
 export default async (event) => {

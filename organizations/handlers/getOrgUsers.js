@@ -5,7 +5,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import getUserOrgPerms from '../lib/getUserOrgPerms';
 import { filterUserPrivateFields } from '../../users/lib/usersUtils';
 

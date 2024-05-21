@@ -2,7 +2,7 @@
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { modifyAppSchema } from '../validators/modifyAppSchema.schema';
 import modifyApp from '../lib/modifyApp';
 import { filterAppPrivateFields, getAppLockedFields } from '../lib/appsUtils';

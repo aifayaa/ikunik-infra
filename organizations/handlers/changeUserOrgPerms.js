@@ -2,7 +2,7 @@
 import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
 import {

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import deleteUser from '../lib/deleteUser';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;

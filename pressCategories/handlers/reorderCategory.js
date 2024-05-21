@@ -2,7 +2,7 @@
 import reorderCategory from '../lib/reorderCategory';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { id: categoryId } = event.pathParameters;

@@ -2,7 +2,7 @@
 import { patchPurchasableProduct } from '../lib/patchPurchasableProduct';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 const availableTypes = ['subscription', 'direct'];
 

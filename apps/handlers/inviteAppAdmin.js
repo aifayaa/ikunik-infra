@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import inviteAppAdmin from '../lib/inviteAppAdmin';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 const { INVITE_MAIL_LANG } = process.env;
 

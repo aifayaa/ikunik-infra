@@ -11,7 +11,7 @@ import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
 import articlePrices from '../articlePrices.json';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {

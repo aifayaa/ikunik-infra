@@ -2,7 +2,7 @@
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import refreshLiveStream from '../lib/refreshLiveStream';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {
