@@ -2,7 +2,7 @@
 import getAllUserGeneratedContents from '../lib/getAllUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 const isBooleanStringOrUndefined = (val) =>
   typeof val === 'undefined' || !!(['true', 'false'].indexOf(val) + 1);

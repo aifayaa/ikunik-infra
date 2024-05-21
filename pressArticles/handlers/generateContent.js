@@ -3,7 +3,7 @@ import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { generateContent, possibleFields } from '../lib/generateContent';
 import { getUserLanguage } from '../../libs/intl/intl';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {

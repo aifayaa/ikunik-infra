@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response';
 import { getArticles } from '../lib/getArticles';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {

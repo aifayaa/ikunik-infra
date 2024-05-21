@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import searchUser from '../lib/searchUser';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getAdCounters from '../lib/getAdCounters';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;

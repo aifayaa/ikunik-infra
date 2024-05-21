@@ -6,7 +6,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-} from '../../libs/perms/checkPermsFor';
+} from '../../libs/perms/checkPermsFor.ts';
 
 import putAppInOrg from '../lib/putAppInOrg';
 import {

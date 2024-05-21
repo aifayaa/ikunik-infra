@@ -3,7 +3,7 @@ import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import searchPress from '../lib/pressSearch';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { queryStringParameters = {} } = event;

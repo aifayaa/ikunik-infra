@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getUserGeneratedContents from '../lib/getUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 const isBooleanStringOrUndefined = (val) =>
   typeof val === 'undefined' || !!(['true', 'false'].indexOf(val) + 1);

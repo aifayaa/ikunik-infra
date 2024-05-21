@@ -4,7 +4,7 @@ import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import search from '../lib/search';
 import pressSearch from '../lib/pressSearch';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {

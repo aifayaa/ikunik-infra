@@ -2,7 +2,7 @@
 import delOrgApp from '../lib/delOrgApp';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   APP_NOT_FOUND_CODE,

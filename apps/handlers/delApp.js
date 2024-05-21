@@ -6,7 +6,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import delApp from '../lib/delApp';
 import { isAppAlreadyBuild } from '../lib/appsUtils';
 import getApp from '../lib/getApp';

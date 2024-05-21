@@ -7,7 +7,7 @@ import {
   checkPermsForApp,
   checkPermsForOrganization,
   getApplicationOrganizationId,
-} from '../../libs/perms/checkPermsFor';
+} from '../../libs/perms/checkPermsFor.ts';
 import putAppUserPerms from '../lib/putAppUserPerms';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
