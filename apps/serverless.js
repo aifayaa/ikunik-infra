@@ -615,6 +615,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    checkout: {
+      handler: 'handlers/postAppsIdCheckout.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/checkout',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-webpack',
