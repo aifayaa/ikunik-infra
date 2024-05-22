@@ -252,7 +252,7 @@ function getUserPermsOnApp(user: UserType, app: AppType) {
   const appOrgId = getAppOrgId(app);
 
   if (isUserSuperAdmin(user)) {
-    return { appOrgId, roles: ['owner'] };
+    return { superAdmin: true, appOrgId, roles: ['owner'] };
   }
 
   if (app.organization && app.organization._id) {
@@ -261,15 +261,15 @@ function getUserPermsOnApp(user: UserType, app: AppType) {
     );
 
     if (!userPerms) {
-      return { appOrgId, roles: [] };
+      return { superAdmin: false, appOrgId, roles: [] };
     }
 
-    return { appOrgId, roles: userPerms.roles };
+    return { superAdmin: false, appOrgId, roles: userPerms.roles };
   } else {
     const { perms } = user;
 
     if (!perms || !perms.apps) {
-      return { appOrgId, roles: [] };
+      return { superAdmin: false, appOrgId, roles: [] };
     }
 
     const userPermsOnApp = perms.apps.find(
@@ -277,10 +277,10 @@ function getUserPermsOnApp(user: UserType, app: AppType) {
     );
 
     if (!userPermsOnApp) {
-      return { appOrgId, roles: [] };
+      return { superAdmin: false, appOrgId, roles: [] };
     }
 
-    return { appOrgId, roles: userPermsOnApp.roles };
+    return { superAdmin: false, appOrgId, roles: userPermsOnApp.roles };
   }
 }
 
@@ -327,6 +327,10 @@ async function checkPermsForAppAux(
   const application = await getApp(appId);
 
   const userPermsOnApp = getUserPermsOnApp(user, application);
+
+  if (userPermsOnApp.superAdmin) {
+    return true;
+  }
 
   // If the application is in an organization
   if (userPermsOnApp.appOrgId) {
