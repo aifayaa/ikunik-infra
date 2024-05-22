@@ -5,7 +5,7 @@
   "description": "Crowdaa organizations API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^4.17.2",
+    "mongodb": "^3.5.3",
     "request-promise-native": "^1.0.9",
     "stripe": "^15.7.0",
     "zod": "^3.22.5"

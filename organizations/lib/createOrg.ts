@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import Stripe from 'stripe';
 
-// import MongoClient, { ObjectID } from '../../libs/mongoClient';
-import { MongoClient, ObjectId } from 'mongodb';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
@@ -11,7 +10,7 @@ import {
   MISSING_ENVIRONMENT_VARIABLE_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
-const { STRIPE_SECRET_KEY, MONGO_URL } = process.env;
+const { STRIPE_SECRET_KEY } = process.env;
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
@@ -56,9 +55,9 @@ export default async (
   })();
 
   try {
-    // const client = await MongoClient.connect();
+    const client = await MongoClient.connect();
     // const client = await MongoClient.connect(MONGO_URL!, DEFAULT_OPTS);
-    const client = await MongoClient.connect(MONGO_URL!);
+    // const client = await MongoClient.connect(MONGO_URL!);
 
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
@@ -66,73 +65,77 @@ export default async (
     let sessionRes;
 
     await client
-      .withSession(async (sessionArg) => {
-        await sessionArg.withTransaction(async (session) => {
-          const organizationId = new ObjectId().toString();
-          const organizationCreatedAt = new Date();
-          const organizationCreatedBy = userId;
+      .withSession(
+        async (sessionArg: {
+          withTransaction: (session: unknown) => Promise<void>;
+        }) => {
+          await sessionArg.withTransaction(async (session: unknown) => {
+            const organizationId = new ObjectID().toString();
+            const organizationCreatedAt = new Date();
+            const organizationCreatedBy = userId;
 
-          const customer = await stripe.customers.create({
-            name,
-            email,
-            metadata: {
+            const customer = await stripe.customers.create({
+              name,
+              email,
+              metadata: {
+                _id: organizationId,
+                createdAt: organizationCreatedAt.toISOString(),
+                createdBy: organizationCreatedBy,
+              },
+            });
+
+            customerId = customer.id;
+
+            const newOrganization: OrganizationType = {
               _id: organizationId,
-              createdAt: organizationCreatedAt.toISOString(),
+              name,
+              email,
+              apple: {
+                setupDone: false,
+              },
+              createdAt: organizationCreatedAt,
               createdBy: organizationCreatedBy,
-            },
-          });
+              customerId,
+            };
 
-          customerId = customer.id;
+            if (appleTeamId) {
+              newOrganization.apple.teamId = appleTeamId;
+              newOrganization.apple.teamStatus = 'checking';
+            }
+            if (appleCompanyName) {
+              newOrganization.apple.companyName = appleCompanyName;
+            }
 
-          const newOrganization: OrganizationType = {
-            _id: new ObjectId().toString(),
-            name,
-            email,
-            apple: {
-              setupDone: false,
-            },
-            createdAt: organizationCreatedAt,
-            createdBy: organizationCreatedBy,
-            customerId,
-          };
+            const db = await client.db();
 
-          if (appleTeamId) {
-            newOrganization.apple.teamId = appleTeamId;
-            newOrganization.apple.teamStatus = 'checking';
-          }
-          if (appleCompanyName) {
-            newOrganization.apple.companyName = appleCompanyName;
-          }
+            await db
+              .collection(COLL_ORGANIZATIONS)
+              .insertOne(newOrganization as any, { session });
 
-          const db = client.db();
-
-          await db
-            .collection(COLL_ORGANIZATIONS)
-            .insertOne(newOrganization as any, { session });
-
-          await db.collection(COLL_USERS).updateOne(
-            { _id: userId },
-            {
-              $push: {
-                'perms.organizations': {
-                  _id: newOrganization._id,
-                  roles: ['owner'],
+            await db.collection(COLL_USERS).updateOne(
+              { _id: userId },
+              {
+                $push: {
+                  'perms.organizations': {
+                    _id: newOrganization._id,
+                    roles: ['owner'],
+                  },
                 },
               },
-            },
-            { session }
-          );
+              { session }
+            );
 
-          const { _id: orgId } = newOrganization;
-          await syncCreateOrganizationBaserow(userId, {
-            orgId,
-            name,
-            customerId,
+            const { _id: orgId } = newOrganization;
+            await syncCreateOrganizationBaserow(userId, {
+              orgId,
+              name,
+              customerId,
+            });
+
+            sessionRes = newOrganization;
           });
-
-          sessionRes = newOrganization;
-        });
-      })
+        }
+      )
       .finally(() => {
         client.close();
       });
