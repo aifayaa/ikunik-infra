@@ -21,22 +21,6 @@ import {
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
-const stripe = (() => {
-  if (STRIPE_SECRET_KEY === undefined) {
-    throw new CrowdaaError(
-      ERROR_TYPE_SETUP,
-      MISSING_ENVIRONMENT_VARIABLE_CODE,
-      `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
-      { httpCode: 500 }
-    );
-  }
-
-  return new Stripe(STRIPE_SECRET_KEY, {
-    apiVersion: '2024-04-10',
-    typescript: true,
-  });
-})();
-
 const YOUR_DOMAIN = 'http://localhost:4242';
 
 export default async (
@@ -56,6 +40,22 @@ export default async (
   // console.dir(callback);
 
   try {
+    const stripe = (() => {
+      if (STRIPE_SECRET_KEY === undefined) {
+        throw new CrowdaaError(
+          ERROR_TYPE_SETUP,
+          MISSING_ENVIRONMENT_VARIABLE_CODE,
+          `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
+          { httpCode: 500 }
+        );
+      }
+
+      return new Stripe(STRIPE_SECRET_KEY, {
+        apiVersion: '2024-04-10',
+        typescript: true,
+      });
+    })();
+
     // try {
     // console.info(`Begin`);
 

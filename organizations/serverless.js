@@ -13,6 +13,8 @@ const serverlessConfiguration = {
       ...env,
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
+      STRIPE_SECRET_KEY:
+        '${ssm(us-east-1):/crowdaa_microservices/dev/payment/stripe-secret-key}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
