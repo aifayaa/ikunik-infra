@@ -1,7 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import Stripe from 'stripe';
 
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+// import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import { MongoClient, ObjectId } from 'mongodb';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
@@ -10,7 +11,7 @@ import {
   MISSING_ENVIRONMENT_VARIABLE_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
-const { STRIPE_SECRET_KEY } = process.env;
+const { STRIPE_SECRET_KEY, MONGO_URL } = process.env;
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
@@ -55,7 +56,9 @@ export default async (
   })();
 
   try {
-    const client = await MongoClient.connect();
+    // const client = await MongoClient.connect();
+    // const client = await MongoClient.connect(MONGO_URL!, DEFAULT_OPTS);
+    const client = await MongoClient.connect(MONGO_URL!);
 
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
@@ -63,9 +66,9 @@ export default async (
     let sessionRes;
 
     await client
-      .withSession(async (sessionArg: unknown) => {
-        await sessionArg.withTransaction(async (session: unknown) => {
-          const organizationId = new ObjectID().toString();
+      .withSession(async (sessionArg) => {
+        await sessionArg.withTransaction(async (session) => {
+          const organizationId = new ObjectId().toString();
           const organizationCreatedAt = new Date();
           const organizationCreatedBy = userId;
 
@@ -74,7 +77,7 @@ export default async (
             email,
             metadata: {
               _id: organizationId,
-              createdAt: organizationCreatedAt,
+              createdAt: organizationCreatedAt.toISOString(),
               createdBy: organizationCreatedBy,
             },
           });
@@ -82,14 +85,14 @@ export default async (
           customerId = customer.id;
 
           const newOrganization: OrganizationType = {
-            _id: new ObjectID().toString(),
+            _id: new ObjectId().toString(),
             name,
             email,
             apple: {
               setupDone: false,
             },
-            createdAt: new Date(),
-            createdBy: userId,
+            createdAt: organizationCreatedAt,
+            createdBy: organizationCreatedBy,
             customerId,
           };
 
@@ -105,7 +108,7 @@ export default async (
 
           await db
             .collection(COLL_ORGANIZATIONS)
-            .insertOne(newOrganization, { session });
+            .insertOne(newOrganization as any, { session });
 
           await db.collection(COLL_USERS).updateOne(
             { _id: userId },
