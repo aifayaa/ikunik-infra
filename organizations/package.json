@@ -6,6 +6,7 @@
   "main": "handler.js",
   "dependencies": {
     "request-promise-native": "^1.0.9",
+    "stripe": "^15.7.0",
     "zod": "^3.22.5"
   },
   "devDependencies": {

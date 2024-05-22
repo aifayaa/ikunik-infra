@@ -1,7 +1,16 @@
 /* eslint-disable import/no-relative-packages */
+import Stripe from 'stripe';
+
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_SETUP,
+  MISSING_ENVIRONMENT_VARIABLE_CODE,
+} from '../../libs/httpResponses/errorCodes';
+
+const { STRIPE_SECRET_KEY } = process.env;
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
@@ -16,6 +25,22 @@ export default async (userId, name, email, appleTeamId, appleCompanyName) => {
   await client
     .withSession(async (sessionArg) => {
       await sessionArg.withTransaction(async (session) => {
+        const stripe = (() => {
+          if (STRIPE_SECRET_KEY === undefined) {
+            throw new CrowdaaError(
+              ERROR_TYPE_SETUP,
+              MISSING_ENVIRONMENT_VARIABLE_CODE,
+              `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
+              { httpCode: 500 }
+            );
+          }
+
+          return new Stripe(STRIPE_SECRET_KEY, {
+            apiVersion: '2024-04-10',
+            typescript: true,
+          });
+        })();
+
         const newOrganization = {
           name,
           email,
@@ -27,6 +52,18 @@ export default async (userId, name, email, appleTeamId, appleCompanyName) => {
           createdAt: new Date(),
           createdBy: userId,
         };
+
+        const customer = await stripe.customers.create({
+          name,
+          email,
+          metadata: {
+            _id: new ObjectID().toString(),
+            createdAt: newOrganization.createdAt,
+            createdBy: newOrganization.createdBy,
+          },
+        });
+
+        newOrganization.customer_id = customer.id;
 
         if (appleTeamId) {
           newOrganization.apple.teamId = appleTeamId;
@@ -56,7 +93,11 @@ export default async (userId, name, email, appleTeamId, appleCompanyName) => {
         );
 
         const { _id: orgId } = newOrganization;
-        await syncCreateOrganizationBaserow(userId, { orgId, name });
+        await syncCreateOrganizationBaserow(userId, {
+          orgId,
+          name,
+          customer_id: newOrganization.customer_id,
+        });
 
         sessionRes = newOrganization;
       });
