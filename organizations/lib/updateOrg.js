@@ -43,7 +43,7 @@ export default async (orgId, name, email, appleTeamId, appleCompanyName) => {
       const oldTeamId = objGet(currentOrg, ['apple', 'teamId']);
 
       if (oldTeamId !== appleTeamId) {
-        $set['apple.teamId'] = appleTeamId;
+        $set['apple.teamId'] = appleTeamId.toUpperCase();
         $set['apple.teamStatus'] = 'checking';
         $set['apple.setupDone'] = false;
         updates.$unset = {
