@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
@@ -8,9 +8,9 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import delUserOrgPerms from '../lib/delUserOrgPerms';
-import { filterUserPrivateFields } from '../lib/organizationsUtils';
+import { filterUserPrivateFields } from '../../users/lib/usersUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

@@ -5,7 +5,7 @@ import {
   cleanPendingArticleNotifications,
 } from '../lib/notificationsQueue';
 import { publishArticle } from '../lib/publishArticle';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {

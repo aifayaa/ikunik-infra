@@ -1,8 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
-import { filterUserPrivateFields } from '../lib/appsUtils';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { filterUserPrivateFields } from '../../users/lib/usersUtils';
 import getAppUsers from '../lib/getAppUsers';
 
 export default async (event) => {

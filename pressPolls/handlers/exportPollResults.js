@@ -3,7 +3,7 @@ import getPollResults, { pollResultsToCsv } from '../lib/getPollResults';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
 import { getUserLanguage, intlInit } from '../../libs/intl/intl';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { appId: authorizerAppId, principalId: userId } =

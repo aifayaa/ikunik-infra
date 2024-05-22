@@ -3,7 +3,7 @@ import addUserBadge from '../lib/addUserBadge';
 import fieldChecks from '../lib/badgeFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;

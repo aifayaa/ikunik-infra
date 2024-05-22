@@ -3,7 +3,7 @@ import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import createOrg from '../lib/createOrg';
+import createOrg from '../lib/createOrg.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

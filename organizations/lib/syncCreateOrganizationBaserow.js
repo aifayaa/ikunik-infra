@@ -28,7 +28,7 @@ async function callBaserowAPI(data) {
   return response;
 }
 
-export default async (userId, { orgId, name }) => {
+export default async (userId, { orgId, name, customerId }) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
@@ -38,6 +38,7 @@ export default async (userId, { orgId, name }) => {
       userId,
       orgId,
       name,
+      customerId,
     });
 
     // eslint-disable-next-line no-console

@@ -1,12 +1,12 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_FOUND,
   USER_ALREADY_EXISTS_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
+import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
 import { indexObjectArrayWithKey } from '../../libs/utils';
 
 const { COLL_APPS } = mongoCollections;

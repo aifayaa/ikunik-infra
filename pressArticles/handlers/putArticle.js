@@ -7,7 +7,7 @@ import response from '../../libs/httpResponses/response';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
 import { queueArticleNotifications } from '../lib/notificationsQueue';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 import articlePrices from '../articlePrices.json';
 import { getArticle } from '../lib/getArticle';

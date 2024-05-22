@@ -2,7 +2,7 @@
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
 import response from '../../libs/httpResponses/response';
 import pathToCollection from '../../libs/collections/pathToCollection';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const parentId = event.pathParameters.id;

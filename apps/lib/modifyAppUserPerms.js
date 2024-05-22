@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   AT_LEAST_ONE_ADMIN_CODE,
   ERROR_TYPE_NOT_ALLOWED,
@@ -7,7 +7,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
+import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
 
 const { COLL_APPS } = mongoCollections;

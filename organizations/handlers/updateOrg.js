@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';

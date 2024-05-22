@@ -2,18 +2,16 @@
 import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
 import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import {
-  filterUserPrivateFields,
-  organizationRoles,
-} from '../lib/organizationsUtils';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { filterUserPrivateFields } from '../../users/lib/usersUtils';
+import { organizationRoles } from '../lib/organizationsUtils';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer;

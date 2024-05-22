@@ -2,7 +2,7 @@
 import delOrgApp from '../lib/delOrgApp';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   APP_NOT_FOUND_CODE,
@@ -11,9 +11,9 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { isAppAlreadyBuild } from '../lib/organizationsUtils';
+import { isAppAlreadyBuild } from '../../apps/lib/appsUtils';
 import getApp from '../../apps/lib/getApp';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

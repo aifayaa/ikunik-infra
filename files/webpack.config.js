@@ -14,4 +14,23 @@ module.exports = {
     sourceMapFilename: '[file].map',
   },
   externals: ['sharp'],
+  module: {
+    rules: [
+      {
+        test: /.tsx?$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: path.resolve(__dirname, '../tsconfig.json'),
+            },
+          },
+        ],
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
 };

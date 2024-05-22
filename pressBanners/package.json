@@ -17,6 +17,8 @@
     "serverless": "^3.38.0",
     "serverless-offline": "^13.5.0",
     "serverless-webpack": "^5.3.3",
+    "ts-loader": "^8.4.0",
+    "typescript": "^5.4.5",
     "sinon": "^9.2.0",
     "webpack": "^4.41.5"
   },

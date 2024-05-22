@@ -6,7 +6,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-} from '../../libs/perms/checkPermsFor';
+} from '../../libs/perms/checkPermsFor.ts';
 
 import putAppInOrg from '../lib/putAppInOrg';
 import {
@@ -16,10 +16,12 @@ import {
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import { isAppAlreadyBuild } from '../lib/organizationsUtils';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import getApp from '../../apps/lib/getApp';
-import { isApplicationInOrganization } from '../../apps/lib/appsUtils';
+import {
+  isApplicationInOrganization,
+  isAppAlreadyBuild,
+} from '../../apps/lib/appsUtils';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = 'admin';

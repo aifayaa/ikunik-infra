@@ -1,14 +1,14 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import delApp from '../lib/delApp';
-import { isAppAlreadyBuild } from '../../organizations/lib/organizationsUtils';
+import { isAppAlreadyBuild } from '../lib/appsUtils';
 import getApp from '../lib/getApp';
 
 export default async (event) => {

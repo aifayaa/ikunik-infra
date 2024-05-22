@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
+import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
 
 const { COLL_APPS } = mongoCollections;
 
