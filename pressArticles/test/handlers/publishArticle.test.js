@@ -6,7 +6,7 @@
 // import * as getArticle from '../../lib/getArticle';
 // import * as snsNotifications from '../../lib/snsNotifications';
 // import * as notificationsQueue from '../../lib/notificationsQueue';
-// import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
+// import * as checkPermsFor from '../../../libs/perms/checkPermsFor.ts';
 // import * as lib from '../../lib/publishArticle';
 // import handler from '../../handlers/publishArticle';
 // import prepareNotif from '../../lib/prepareNotifString';

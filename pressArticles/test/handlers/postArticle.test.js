@@ -5,7 +5,7 @@
 // import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 // import { expect } from 'chai';
 
-// import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
+// import * as checkPermsFor from '../../../libs/perms/checkPermsFor.ts';
 // import * as snsNotifications from '../../lib/snsNotifications';
 // import * as notificationsQueue from '../../lib/notificationsQueue';
 // import * as getArticle from '../../lib/getArticle';
