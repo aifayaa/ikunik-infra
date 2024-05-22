@@ -67,13 +67,13 @@ doDeploy() {
       if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
         doAwaitBackgroundTasks 0
       else
-        doAwaitBackgroundTasks 3
+        doAwaitBackgroundTasks 4
       fi
     elif [ -f './serverless.js' ]; then
       if grep -qFe '    Outputs: {' serverless.js && [ "$fullDeploy" = 'full' ]; then
         doAwaitBackgroundTasks 0
       else
-        doAwaitBackgroundTasks 3
+        doAwaitBackgroundTasks 4
       fi
     else
       doAwaitBackgroundTasks 0
