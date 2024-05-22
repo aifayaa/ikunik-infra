@@ -5,12 +5,13 @@
   "description": "Crowdaa organizations API.",
   "main": "handler.js",
   "dependencies": {
-    "mongodb": "^3.5.3",
+    "mongodb": "3.5.3",
     "request-promise-native": "^1.0.9",
     "stripe": "^15.7.0",
     "zod": "^3.22.5"
   },
   "devDependencies": {
+    "@types/mongodb": "3.5.3",
     "serverless": "^3.38.0",
     "serverless-offline": "^13.5.0",
     "serverless-webpack": "^5.3.3",

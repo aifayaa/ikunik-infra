@@ -56,8 +56,6 @@ export default async (
 
   try {
     const client = await MongoClient.connect();
-    // const client = await MongoClient.connect(MONGO_URL!, DEFAULT_OPTS);
-    // const client = await MongoClient.connect(MONGO_URL!);
 
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
@@ -65,77 +63,73 @@ export default async (
     let sessionRes;
 
     await client
-      .withSession(
-        async (sessionArg: {
-          withTransaction: (session: unknown) => Promise<void>;
-        }) => {
-          await sessionArg.withTransaction(async (session: unknown) => {
-            const organizationId = new ObjectID().toString();
-            const organizationCreatedAt = new Date();
-            const organizationCreatedBy = userId;
+      .withSession(async (sessionArg) => {
+        await sessionArg.withTransaction(async (session) => {
+          const organizationId = new ObjectID().toString();
+          const organizationCreatedAt = new Date();
+          const organizationCreatedBy = userId;
 
-            const customer = await stripe.customers.create({
-              name,
-              email,
-              metadata: {
-                _id: organizationId,
-                createdAt: organizationCreatedAt.toISOString(),
-                createdBy: organizationCreatedBy,
-              },
-            });
-
-            customerId = customer.id;
-
-            const newOrganization: OrganizationType = {
+          const customer = await stripe.customers.create({
+            name,
+            email,
+            metadata: {
               _id: organizationId,
-              name,
-              email,
-              apple: {
-                setupDone: false,
-              },
-              createdAt: organizationCreatedAt,
+              createdAt: organizationCreatedAt.toISOString(),
               createdBy: organizationCreatedBy,
-              customerId,
-            };
+            },
+          });
 
-            if (appleTeamId) {
-              newOrganization.apple.teamId = appleTeamId.toUpperCase();
-              newOrganization.apple.teamStatus = 'checking';
-            }
-            if (appleCompanyName) {
-              newOrganization.apple.companyName = appleCompanyName;
-            }
+          customerId = customer.id;
 
-            const db = await client.db();
+          const newOrganization: OrganizationType = {
+            _id: organizationId,
+            name,
+            email,
+            apple: {
+              setupDone: false,
+            },
+            createdAt: organizationCreatedAt,
+            createdBy: organizationCreatedBy,
+            customerId,
+          };
 
-            await db
-              .collection(COLL_ORGANIZATIONS)
-              .insertOne(newOrganization as any, { session });
+          if (appleTeamId) {
+            newOrganization.apple.teamId = appleTeamId.toUpperCase();
+            newOrganization.apple.teamStatus = 'checking';
+          }
+          if (appleCompanyName) {
+            newOrganization.apple.companyName = appleCompanyName;
+          }
 
-            await db.collection(COLL_USERS).updateOne(
-              { _id: userId },
-              {
-                $push: {
-                  'perms.organizations': {
-                    _id: newOrganization._id,
-                    roles: ['owner'],
-                  },
+          const db = await client.db();
+
+          await db
+            .collection(COLL_ORGANIZATIONS)
+            .insertOne(newOrganization as any, { session });
+
+          await db.collection(COLL_USERS).updateOne(
+            { _id: userId },
+            {
+              $push: {
+                'perms.organizations': {
+                  _id: newOrganization._id,
+                  roles: ['owner'],
                 },
               },
-              { session }
-            );
+            },
+            { session }
+          );
 
-            const { _id: orgId } = newOrganization;
-            await syncCreateOrganizationBaserow(userId, {
-              orgId,
-              name,
-              customerId,
-            });
-
-            sessionRes = newOrganization;
+          const { _id: orgId } = newOrganization;
+          await syncCreateOrganizationBaserow(userId, {
+            orgId,
+            name,
+            customerId,
           });
-        }
-      )
+
+          sessionRes = newOrganization;
+        });
+      })
       .finally(() => {
         client.close();
       });
