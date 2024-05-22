@@ -99,7 +99,7 @@ export default async (
             };
 
             if (appleTeamId) {
-              newOrganization.apple.teamId = appleTeamId;
+              newOrganization.apple.teamId = appleTeamId.toUpperCase();
               newOrganization.apple.teamStatus = 'checking';
             }
             if (appleCompanyName) {
