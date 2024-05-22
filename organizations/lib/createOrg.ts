@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_SETUP,
   MISSING_ENVIRONMENT_VARIABLE_CODE,
@@ -14,7 +14,28 @@ const { STRIPE_SECRET_KEY } = process.env;
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
-export default async (userId, name, email, appleTeamId, appleCompanyName) => {
+type OrganizationType = {
+  _id: string;
+  name: string;
+  email: string;
+  apple: {
+    setupDone: boolean;
+    teamId?: string;
+    teamStatus?: string;
+    companyName?: string;
+  };
+  createdAt: Date;
+  createdBy: string;
+  customerId: string;
+};
+
+export default async (
+  userId: string,
+  name: string,
+  email: string,
+  appleTeamId: string,
+  appleCompanyName: string
+) => {
   let customerId;
 
   const stripe = (() => {
@@ -42,33 +63,35 @@ export default async (userId, name, email, appleTeamId, appleCompanyName) => {
     let sessionRes;
 
     await client
-      .withSession(async (sessionArg) => {
-        await sessionArg.withTransaction(async (session) => {
-          const newOrganization = {
-            name,
-            email,
-            apple: {
-              setupDone: false,
-            },
-
-            _id: new ObjectID().toString(),
-            createdAt: new Date(),
-            createdBy: userId,
-          };
+      .withSession(async (sessionArg: unknown) => {
+        await sessionArg.withTransaction(async (session: unknown) => {
+          const organizationId = new ObjectID().toString();
+          const organizationCreatedAt = new Date();
+          const organizationCreatedBy = userId;
 
           const customer = await stripe.customers.create({
             name,
             email,
             metadata: {
-              _id: new ObjectID().toString(),
-              createdAt: newOrganization.createdAt,
-              createdBy: newOrganization.createdBy,
+              _id: organizationId,
+              createdAt: organizationCreatedAt,
+              createdBy: organizationCreatedBy,
             },
           });
 
           customerId = customer.id;
 
-          newOrganization.customer_id = customerId;
+          const newOrganization: OrganizationType = {
+            _id: new ObjectID().toString(),
+            name,
+            email,
+            apple: {
+              setupDone: false,
+            },
+            createdAt: new Date(),
+            createdBy: userId,
+            customerId,
+          };
 
           if (appleTeamId) {
             newOrganization.apple.teamId = appleTeamId;
