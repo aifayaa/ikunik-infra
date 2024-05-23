@@ -1,10 +1,10 @@
-import { CrowdaaError } from './CrowdaaError.js';
+import { CrowdaaError } from './CrowdaaError';
 import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody.js';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes.js';
-import { formatResponseBody } from './formatResponseBody.js';
+import { formatResponseBody } from './formatResponseBody';
 
 type reponseType = {
   headers?: Object;
@@ -49,7 +49,9 @@ export default function response({
   };
 }
 
-export function handleException(exception: Error) {
+//: exception is Error
+
+function handleExceptionAux(exception: Error) {
   if (exception instanceof CrowdaaError) {
     const { httpCode, type, code, message } = exception;
     const errorBody = formatResponseBody({
@@ -81,4 +83,30 @@ export function handleException(exception: Error) {
     ],
   });
   return response({ code: 200, body: errorBody });
+}
+
+// Use a type guard
+// Documentation:
+// https://blog.logrocket.com/how-to-use-type-guards-typescript/
+function isError(exception: unknown | Error): exception is Error {
+  return (exception as Error).message !== undefined;
+}
+
+export function handleException(exception: unknown) {
+  if (isError(exception)) {
+    return handleExceptionAux(exception);
+  } else {
+    return response({
+      code: 200,
+      body: {
+        errors: [
+          {
+            type: ERROR_TYPE_INTERNAL_EXCEPTION,
+            code: UNMANAGED_EXCEPTION_CODE,
+            message: JSON.stringify(exception),
+          },
+        ],
+      },
+    });
+  }
 }

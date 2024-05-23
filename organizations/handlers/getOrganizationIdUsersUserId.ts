@@ -2,17 +2,14 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.js';
+import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes.js';
-import {
-  filterUserPrivateFields,
-  getUser,
-} from '../../users/lib/usersUtils.ts';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import { filterUserPrivateFields, getUser } from '../../users/lib/usersUtils';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer as {
