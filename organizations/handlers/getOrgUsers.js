@@ -10,7 +10,7 @@ import getUserOrgPerms from '../lib/getUserOrgPerms';
 import {
   addUserOrganisationRoles,
   filterUserPrivateFields,
-} from '../../users/lib/usersUtils';
+} from '../../users/lib/usersUtils.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
