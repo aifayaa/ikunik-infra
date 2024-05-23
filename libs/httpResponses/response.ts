@@ -5,6 +5,7 @@ import {
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes.js';
 import { formatResponseBody } from './formatResponseBody';
+import { formatValidationErrorsType } from './formatValidationErrors';
 
 type reponseType = {
   headers?: Object;
@@ -88,13 +89,22 @@ function handleExceptionAux(exception: Error) {
 // Use a type guard
 // Documentation:
 // https://blog.logrocket.com/how-to-use-type-guards-typescript/
-function isError(exception: unknown | Error): exception is Error {
+export function isException(exception: unknown | Error): exception is Error {
   return (exception as Error).message !== undefined;
 }
 
 export function handleException(exception: unknown) {
-  if (isError(exception)) {
-    return handleExceptionAux(exception);
+  return wrapperHandleException(exception, handleExceptionAux);
+}
+
+export function wrapperHandleException(
+  exception: unknown,
+  handleExceptionCB: (
+    exception: Error
+  ) => reponseType | Array<formatValidationErrorsType>
+) {
+  if (isException(exception)) {
+    return handleExceptionCB(exception);
   } else {
     return response({
       code: 200,

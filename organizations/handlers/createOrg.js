@@ -3,7 +3,7 @@ import { z } from 'zod';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import createOrg from '../lib/createOrg.ts';
 

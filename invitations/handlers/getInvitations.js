@@ -1,7 +1,8 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { getInvitations } from '../lib/getInvitations';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { paginationSchema } from '../../libs/schemas/pagination.schema';
@@ -29,9 +30,11 @@ export default async (event) => {
       (invitationDocument) => filterSensitiveProperties(invitationDocument)
     );
 
-    return response({ code: 200, body: invitationDocumentsResult });
-  } catch (error) {
-    // TODO use a logger
-    return response(errorMessage({ message: error.message }));
+    return response({
+      code: 200,
+      body: formatResponseBody({ data: invitationDocumentsResult }),
+    });
+  } catch (exception) {
+    return handleException(exception);
   }
 };
