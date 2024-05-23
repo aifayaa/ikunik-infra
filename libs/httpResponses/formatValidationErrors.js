@@ -20,13 +20,15 @@ export const CUSTOM_CODE = 'CUSTOM_CODE';
  *
  * @param {ZodError} zodError
  */
-export const formatValidationErrors = (zodError) => {
+export function formatValidationErrors(zodError) {
   if (!(zodError instanceof ZodError)) {
-    return {
-      type: ERROR_TYPE_VALIDATION_ERROR,
-      code: VALIDATION_FAILED_CODE,
-      message: zodError.message,
-    };
+    return [
+      {
+        type: ERROR_TYPE_VALIDATION_ERROR,
+        code: VALIDATION_FAILED_CODE,
+        message: zodError.message,
+      },
+    ];
   }
 
   const formattedErrors = zodError.issues.map((issue) => {
@@ -125,4 +127,4 @@ export const formatValidationErrors = (zodError) => {
   });
 
   return formattedErrors;
-};
+}

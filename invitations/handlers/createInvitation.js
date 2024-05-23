@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response.ts';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { createInvitation } from '../lib/createInvitation';
 import { createInvitationSchema } from '../schemas/createInvitation.schema';
@@ -35,8 +36,7 @@ export default async (event) => {
       code: 200,
       body: filterSensitiveProperties(createdInvitationDocument),
     });
-  } catch (error) {
-    // TODO use a logger
-    return response(errorMessage({ message: error.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };
