@@ -51,13 +51,9 @@ MongoClient.connect = async function connectMethodOverride(mongoUrl?: string) {
   }
 
   const client = await originConnect(effectiveMongoUrl, DEFAULT_OPTS);
-
-  const originClose = client.close.bind(client);
-
   client.forceCloseThisConnectionNow = () => {
-    originClose(true);
+    client.close(true);
   };
-
   client.close = () => new Promise((resolve) => resolve());
 
   prevClients[connectArgs] = client;
