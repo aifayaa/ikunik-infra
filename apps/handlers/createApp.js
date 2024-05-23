@@ -7,7 +7,7 @@ import { filterAppPrivateFields } from '../lib/appsUtils';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { putAppInOrgHandlerBody } from '../../organizations/handlers/putAppInOrg';
 
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 

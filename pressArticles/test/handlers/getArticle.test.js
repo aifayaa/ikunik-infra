@@ -3,7 +3,7 @@
 // import { describe, it, before, after, afterEach } from 'mocha';
 // import { expect } from 'chai';
 
-// import * as checkPermsFor from '../../../libs/perms/checkPermsFor.ts';
+// import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
 // import * as lib from '../../lib/getArticle';
 // import handler from '../../handlers/getArticle';
 

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 import mongoCollections from '../../libs/mongoCollections.json';
 

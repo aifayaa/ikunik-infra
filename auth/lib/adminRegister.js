@@ -3,7 +3,7 @@
 // createUser method from
 // https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { crowdaaLogin } from './backends/crowdaaLogin';
 import { crowdaaRegister } from './backends/crowdaaRegister';

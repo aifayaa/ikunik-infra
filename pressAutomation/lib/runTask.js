@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import { getTaskNewsFromTask } from './getTaskNews';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 // import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { intlInit, formatMessage } from '../../libs/intl/intl';

@@ -4,7 +4,7 @@ import {
   APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
 } from '../../libs/httpResponses/errorCodes';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;

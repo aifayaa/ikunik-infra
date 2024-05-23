@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import jwksClient from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const verify = promisify(jwt.verify);

@@ -2,7 +2,7 @@
 import https from 'https';
 import { Configuration, OpenAIApi } from 'openai';
 import Lambda from 'aws-sdk/clients/lambda';
-import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import queryTypes from './openAI-queryTypes.json';
 

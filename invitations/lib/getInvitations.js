@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import { Invitation } from './classes/invitation';
 
 export const getInvitations = async (currentUserId, options) => {

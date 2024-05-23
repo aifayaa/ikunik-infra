@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getFacebookAppToken } from './getFacebookAppToken';
 import { getFacebookLongLiveToken } from './getFacebookLongLiveToken';

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
 import reorderCategory, { reorderCategoriesIn } from './reorderCategory';

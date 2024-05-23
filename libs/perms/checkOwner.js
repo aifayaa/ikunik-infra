@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../mongoClient.ts';
+import MongoClient from '../mongoClient';
 
 export default async (
   appId,
