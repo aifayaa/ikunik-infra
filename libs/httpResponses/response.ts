@@ -88,12 +88,12 @@ function handleExceptionAux(exception: Error) {
 // Use a type guard
 // Documentation:
 // https://blog.logrocket.com/how-to-use-type-guards-typescript/
-function isError(exception: unknown | Error): exception is Error {
+export function isException(exception: unknown | Error): exception is Error {
   return (exception as Error).message !== undefined;
 }
 
 export function handleException(exception: unknown) {
-  if (isError(exception)) {
+  if (isException(exception)) {
     return handleExceptionAux(exception);
   } else {
     return response({

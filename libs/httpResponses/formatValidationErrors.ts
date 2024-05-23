@@ -1,6 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { ZodError, ZodIssueCode } from 'zod';
-import { ERROR_TYPE_VALIDATION_ERROR } from './errorCodes';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_VALIDATION_ERROR,
+  UNMANAGED_EXCEPTION_CODE,
+} from './errorCodes';
+import response, { isException } from './response';
 
 export const VALIDATION_FAILED_CODE = 'VALIDATION_FAILED'; // default
 export const INVALID_TYPE_CODE = 'INVALID_TYPE';
@@ -20,7 +25,7 @@ export const CUSTOM_CODE = 'CUSTOM_CODE';
  *
  * @param {ZodError} zodError
  */
-export function formatValidationErrors(zodError) {
+function formatValidationErrorsAux(zodError: Error) {
   if (!(zodError instanceof ZodError)) {
     return [
       {
@@ -127,4 +132,23 @@ export function formatValidationErrors(zodError) {
   });
 
   return formattedErrors;
+}
+
+export function formatValidationErrors(exception: unknown) {
+  if (isException(exception)) {
+    return formatValidationErrorsAux(exception);
+  } else {
+    return response({
+      code: 200,
+      body: {
+        errors: [
+          {
+            type: ERROR_TYPE_INTERNAL_EXCEPTION,
+            code: UNMANAGED_EXCEPTION_CODE,
+            message: JSON.stringify(exception),
+          },
+        ],
+      },
+    });
+  }
 }
