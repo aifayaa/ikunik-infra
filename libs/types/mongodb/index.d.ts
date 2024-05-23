@@ -76,17 +76,12 @@ export {
 export class MongoClient extends EventEmitter {
   constructor(uri: string, options?: MongoClientOptions);
   /** http://mongodb.github.io/node-mongodb-native/3.1/api/MongoClient.html#.connect */
-
   // BEGIN OVERRIDE THE TYPE DEFINITION
   // static connect(uri: string, callback: MongoCallback<MongoClient>): void;
-  static connect(
-    uri: string,
-    options?: MongoClientOptions
-  ): Promise<MongoClient>;
+  static connect(uri: string, options?: MongoClientOptions): Promise<MongoClient>;
   // static connect(uri: string, options: MongoClientOptions, callback: MongoCallback<MongoClient>): void;
-  static connect(mongoUrl?: string): Promise<MongoClient>;
+  static connect(): Promise<MongoClient>;
   // END   OVERRIDE THE TYPE DEFINITION
-
   // static connect(): void;
   /** http://mongodb.github.io/node-mongodb-native/3.1/api/MongoClient.html#connect */
   connect(): Promise<MongoClient>;
@@ -95,11 +90,6 @@ export class MongoClient extends EventEmitter {
   close(callback: MongoCallback<void>): void;
   close(force?: boolean): Promise<void>;
   close(force: boolean, callback: MongoCallback<void>): void;
-
-  // BEGIN OVERRIDE THE TYPE DEFINITION
-  forceCloseThisConnectionNow(): void;
-  // END   OVERRIDE THE TYPE DEFINITION
-
   /** http://mongodb.github.io/node-mongodb-native/3.1/api/MongoClient.html#db */
   db(dbName?: string, options?: MongoClientCommonOption): Db;
   /** http://mongodb.github.io/node-mongodb-native/3.1/api/MongoClient.html#isConnected */

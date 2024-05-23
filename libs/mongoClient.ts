@@ -25,23 +25,17 @@ const prevClients: { [key: string]: MongoClient | undefined } = {};
 
 const { connect: originConnect } = MongoClient;
 
-MongoClient.connect = async function connectMethodOverride(mongoUrl?: string) {
-  const effectiveMongoUrl = mongoUrl
-    ? mongoUrl
-    : MONGO_URL
-      ? MONGO_URL
-      : undefined;
-
-  if (!effectiveMongoUrl) {
+MongoClient.connect = async function connectMethodOverride() {
+  if (!MONGO_URL) {
     throw new CrowdaaError(
       ERROR_TYPE_SETUP,
       MISSING_ENVIRONMENT_VARIABLE_CODE,
-      `Missing argument mongoUrl: ${mongoUrl}. Missing environment variable MONGO_URL: ${MONGO_URL}`,
+      `Missing environment variable MONGO_URL: ${MONGO_URL}`,
       { httpCode: 500 }
     );
   }
 
-  const connectArgs = JSON.stringify([effectiveMongoUrl, DEFAULT_OPTS]);
+  const connectArgs = JSON.stringify([MONGO_URL, DEFAULT_OPTS]);
 
   const candidatClient = prevClients[connectArgs];
   if (candidatClient) {
@@ -50,10 +44,7 @@ MongoClient.connect = async function connectMethodOverride(mongoUrl?: string) {
     }
   }
 
-  const client = await originConnect(effectiveMongoUrl, DEFAULT_OPTS);
-  client.forceCloseThisConnectionNow = () => {
-    client.close(true);
-  };
+  const client = await originConnect(MONGO_URL, DEFAULT_OPTS);
   client.close = () => new Promise((resolve) => resolve());
 
   prevClients[connectArgs] = client;
