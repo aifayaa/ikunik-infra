@@ -4,7 +4,7 @@ import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
 } from '../../libs/httpResponses/errorCodes';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';

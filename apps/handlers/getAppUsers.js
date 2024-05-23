@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';

@@ -4,7 +4,7 @@ import createApp from '../lib/createApp';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { filterAppPrivateFields } from '../lib/appsUtils';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { putAppInOrgHandlerBody } from '../../organizations/handlers/putAppInOrg';

@@ -6,7 +6,7 @@ import {
   ORGANIZATION_PERMISSION_CODE,
   UNMANAGED_EXCEPTION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import delUserOrgPerms from '../lib/delUserOrgPerms';

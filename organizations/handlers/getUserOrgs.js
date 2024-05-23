@@ -3,7 +3,7 @@ import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
 import getUserOrgs from '../lib/getUserOrgs';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

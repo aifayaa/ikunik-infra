@@ -4,7 +4,7 @@ import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,

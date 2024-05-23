@@ -2,7 +2,7 @@
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import getApp from '../lib/getApp';
 import { filterAppPrivateFields, getAppLockedFields } from '../lib/appsUtils';

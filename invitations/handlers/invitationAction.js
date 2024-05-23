@@ -4,7 +4,7 @@ import response from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { invitationAction } from '../lib/invitationAction';
 import { invitationActionSchema } from '../schemas/invitationAction.schema';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 
 export default async (event) => {

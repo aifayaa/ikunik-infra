@@ -5,7 +5,7 @@ import { formatValidationErrors } from '../../libs/httpResponses/formatValidatio
 import { createInvitation } from '../lib/createInvitation';
 import { createInvitationSchema } from '../schemas/createInvitation.schema';
 import { getUserLanguage } from '../../libs/intl/intl';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {

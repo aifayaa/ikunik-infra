@@ -3,7 +3,7 @@ import delOrgApp from '../lib/delOrgApp';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import {
   APP_ALREADY_BUILD_CODE,

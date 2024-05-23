@@ -5,7 +5,7 @@ import response, {
 } from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
 import {
   ERROR_TYPE_ACCESS,

@@ -3,7 +3,7 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { getInvitations } from '../lib/getInvitations';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { paginationSchema } from '../../libs/schemas/pagination.schema';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
