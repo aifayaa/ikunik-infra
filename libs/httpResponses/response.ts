@@ -5,6 +5,7 @@ import {
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes.js';
 import { formatResponseBody } from './formatResponseBody';
+import { formatValidationErrorsType } from './formatValidationErrors';
 
 type reponseType = {
   headers?: Object;
@@ -93,8 +94,17 @@ export function isException(exception: unknown | Error): exception is Error {
 }
 
 export function handleException(exception: unknown) {
+  return wrapperHandleException(exception, handleExceptionAux);
+}
+
+export function wrapperHandleException(
+  exception: unknown,
+  handleExceptionCB: (
+    exception: Error
+  ) => reponseType | Array<formatValidationErrorsType>
+) {
   if (isException(exception)) {
-    return handleExceptionAux(exception);
+    return handleExceptionCB(exception);
   } else {
     return response({
       code: 200,
