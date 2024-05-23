@@ -43,7 +43,7 @@ module.require = require('esm')(module /* , options */);
 const isEqual = require('lodash/isEqual');
 const omitBy = require('lodash/omitBy');
 const isUndefined = require('lodash/isUndefined');
-const { default: MongoClient } = require('./libs/mongoClient');
+const { default: MongoClient } = require('./libs/mongoClient.ts');
 const mongoCollections = require('./libs/mongoCollections.json');
 const apiServerlessData = require('./api-v1/serverless');
 
