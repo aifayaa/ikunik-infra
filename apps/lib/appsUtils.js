@@ -50,10 +50,10 @@ export function getAppLockedFields(app) {
 
 export function getAppDefaultBuildFields(name, platform) {
   const packageIdSuffix = Random.randomString(
-    10,
+    11,
     'abcdefghijklmnopqrstuvwxyz0123456789'
   );
-  const packageId = `com.crowdaa.app.${packageIdSuffix}`;
+  const packageId = `com.crowdaa.${packageIdSuffix}`;
 
   return {
     name,
