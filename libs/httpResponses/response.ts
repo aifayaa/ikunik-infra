@@ -1,10 +1,10 @@
-import { CrowdaaError } from './CrowdaaError.js';
+import { CrowdaaError } from './CrowdaaError';
 import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody.js';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes.js';
-import { formatResponseBody } from './formatResponseBody.js';
+import { formatResponseBody } from './formatResponseBody';
 
 type reponseType = {
   headers?: Object;

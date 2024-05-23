@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.js';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
