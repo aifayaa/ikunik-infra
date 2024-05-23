@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;

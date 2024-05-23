@@ -3,7 +3,7 @@
  *  NEVER EVER ADD A HANDLER RETURNING RESULTS FROM
  * THAT LIB TO THE END USER, ONLY USE IN OTHER LIBS
  * * * * * * * * * * * * * * * * * * * * * * * * */
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;

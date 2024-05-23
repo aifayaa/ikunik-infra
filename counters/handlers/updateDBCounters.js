@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import updateDBCounter from '../lib/updateDBCounter';
-import { ObjectID } from '../../libs/mongoClient';
+import { ObjectID } from '../../libs/mongoClient.ts';
 
 export default async (updates) => {
   try {

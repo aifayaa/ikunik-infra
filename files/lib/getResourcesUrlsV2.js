@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import AWS from 'aws-sdk';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
 

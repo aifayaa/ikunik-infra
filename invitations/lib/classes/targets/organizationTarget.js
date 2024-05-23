@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { formatMessage, intlInit } from '../../../../libs/intl/intl';
 import { capitalize } from '../../../../libs/utils';
-import { checkPermsForOrganization } from '../../../../libs/perms/checkPermsFor';
+import { checkPermsForOrganization } from '../../../../libs/perms/checkPermsFor.ts';
 import {
   invitationTargetTypes,
   invitationOrganizationRoles,

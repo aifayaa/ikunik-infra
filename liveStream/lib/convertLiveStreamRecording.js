@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import MediaConvert from 'aws-sdk/clients/mediaconvert';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { IVS_BUCKET, IVS_REGION, MEDIACONVERT_IAM_ROLE_ARN } = process.env;

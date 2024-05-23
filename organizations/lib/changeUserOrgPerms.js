@@ -5,7 +5,7 @@ import {
   NOT_ENOUGH_PERMISSIONS_CODE,
   AT_LEAST_ONE_OWNER_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { organizationRoles } from './organizationsUtils';
 

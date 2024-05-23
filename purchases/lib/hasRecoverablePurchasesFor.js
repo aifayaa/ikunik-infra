@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import { getRecoverablePurchasesFor } from './getRecoverablePurchasesFor';
 
 export const hasRecoverablePurchasesFor = async (appId, deviceId, userId) => {

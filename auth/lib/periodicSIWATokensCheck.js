@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import S3 from 'aws-sdk/clients/s3';
 import { JWT, JWK } from 'jose';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { S3_APPS_RESSOURCES_REGION, S3_APPS_RESSOURCES } = process.env;

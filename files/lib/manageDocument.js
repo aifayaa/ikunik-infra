@@ -5,7 +5,7 @@ import S3 from 'aws-sdk/clients/s3';
 import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 
 const { S3_PICTURES_BUCKET, CDN_DOMAIN_NAME } = process.env;
 

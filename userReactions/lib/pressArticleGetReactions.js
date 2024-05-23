@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import defaultReactions from '../../libs/defaultReactions';
 import getDBCounters from '../../counters/lib/getDBCounters';
 import mongoCollections from '../../libs/mongoCollections.json';

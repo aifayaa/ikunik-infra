@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
-import MongoClient from '../mongoClient';
+import MongoClient from '../mongoClient.ts';
 import { OpenSeaApi } from '../opensea';
 import mongoCollections from '../mongoCollections.json';
 

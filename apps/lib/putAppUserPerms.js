@@ -4,7 +4,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   USER_ALREADY_EXISTS_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
 import { indexObjectArrayWithKey } from '../../libs/utils';

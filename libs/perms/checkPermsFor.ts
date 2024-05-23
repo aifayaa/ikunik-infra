@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../mongoClient.js';
+import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 import { indexObjectArrayWithKey } from '../utils.js';
 
@@ -176,7 +176,7 @@ async function getOrgIdOfWebsite(websiteId: string) {
 async function getUserPermsOnWebsite(userId: string, websiteId: string) {
   const client = await MongoClient.connect();
   try {
-    const user: UserType = await client
+    const user: UserType | null = await client
       .db()
       .collection(COLL_USERS)
       .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });

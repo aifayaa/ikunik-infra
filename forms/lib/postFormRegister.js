@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
 import { formatMessage, intlInit } from '../../libs/intl/intl';

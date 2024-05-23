@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
 import iap from 'in-app-purchase';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { addBalance } from '../../userBalances/lib/addBalance';
 import { setBalance } from '../../userBalances/lib/setBalance';

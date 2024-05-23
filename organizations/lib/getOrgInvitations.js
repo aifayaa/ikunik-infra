@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { invitationPrivateFieldsProjection } from '../../invitations/utils/invitationPrivateFieldsProjection';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_INVITATIONS } = mongoCollections;
