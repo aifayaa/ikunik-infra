@@ -9,6 +9,6 @@
     "allowJs": true,
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "users/lib/usersUtils.js"],
+  "include": ["**/*.ts"],
   "exclude": ["**/node_modules", "**/old_modules", "**/tmp"]
 }

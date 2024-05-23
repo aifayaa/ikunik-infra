@@ -2,10 +2,11 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objUnset } from '../../libs/utils';
+import { UserType } from './userEntity';
 
 const { COLL_USERS } = mongoCollections;
 
-export async function getUser(userId) {
+export async function getUser(userId: string) {
   const client = await MongoClient.connect();
 
   const db = client.db();
@@ -24,10 +25,10 @@ export const userPrivateFieldsProjection = userPrivateFields.reduce(
     acc[field] = 0;
     return acc;
   },
-  {}
+  {} as { [key: string]: number }
 );
 
-export function filterUserPrivateFields(user) {
+export function filterUserPrivateFields(user: UserType) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(user));
 
@@ -38,8 +39,8 @@ export function filterUserPrivateFields(user) {
   return ret;
 }
 
-export function addUserOrganisationRoles(user, orgId) {
-  const candidateOrganization = user.perms.organizations.find(
+export function addUserOrganisationRoles(user: UserType, orgId: string) {
+  const candidateOrganization = user.perms?.organizations?.find(
     (org) => org._id === orgId
   );
 
