@@ -34,7 +34,9 @@ export default async (event) => {
 
     return response({
       code: 200,
-      body: filterSensitiveProperties(createdInvitationDocument),
+      body: formatResponseBody({
+        data: filterSensitiveProperties(createdInvitationDocument),
+      }),
     });
   } catch (exception) {
     return handleException(exception);
