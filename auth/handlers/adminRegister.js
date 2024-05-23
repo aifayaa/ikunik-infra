@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
 import uuidv4 from 'uuid/v4';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { adminRegister } from '../lib/adminRegister';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 

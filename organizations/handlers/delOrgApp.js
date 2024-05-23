@@ -1,6 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import delOrgApp from '../lib/delOrgApp';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import {

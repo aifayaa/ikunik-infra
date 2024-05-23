@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { getTos } from '../lib/getTos';
 import { getHtmlResults } from '../htmlResults';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;

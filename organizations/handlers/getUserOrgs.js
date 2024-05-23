@@ -1,5 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import getUserOrgs from '../lib/getUserOrgs';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 

@@ -2,7 +2,7 @@
 import createAd from '../lib/createAd';
 import { createFieldChecks } from '../lib/adsFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {

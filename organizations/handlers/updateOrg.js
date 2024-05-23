@@ -2,7 +2,9 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import updateOrg from '../lib/updateOrg';

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import getBadge from '../lib/getUserBadge';
 import { unsetContentPermissions } from '../../contentPermissions/lib/unsetContentPermissions';
 import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';

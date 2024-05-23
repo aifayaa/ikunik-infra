@@ -3,7 +3,7 @@ import getResourcesUrlsV2, {
   resourcesFormats,
 } from '../lib/getResourcesUrlsV2';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {

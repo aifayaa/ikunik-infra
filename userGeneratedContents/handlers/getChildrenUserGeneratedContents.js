@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getChildrenUserGeneratedContents from '../lib/getChildrenUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import pathToCollection from '../../libs/collections/pathToCollection';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

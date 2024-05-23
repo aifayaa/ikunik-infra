@@ -5,7 +5,9 @@ import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import delApp from '../lib/delApp';
 import { isAppAlreadyBuild } from '../lib/appsUtils';

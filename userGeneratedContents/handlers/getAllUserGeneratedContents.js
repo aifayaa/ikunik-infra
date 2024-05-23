@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getAllUserGeneratedContents from '../lib/getAllUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

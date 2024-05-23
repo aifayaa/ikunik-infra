@@ -4,7 +4,9 @@ import {
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import deleteOrg from '../lib/deleteOrg';
 

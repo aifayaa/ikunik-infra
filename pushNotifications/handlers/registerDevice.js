@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import registerDevice from '../lib/registerDevice';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   try {

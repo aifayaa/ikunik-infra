@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import deleteFile from '../lib/deleteFile';
 import findFileOfUser from '../lib/findFileOfUser';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';

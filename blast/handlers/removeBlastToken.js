@@ -2,7 +2,7 @@
 import validator from 'validator';
 import Lambda from 'aws-sdk/clients/lambda';
 import removeBlastToken from '../lib/removeBlastToken';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 const { REGION, STAGE } = process.env;
 

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { invitationAction } from '../lib/invitationAction';
 import { invitationActionSchema } from '../schemas/invitationAction.schema';

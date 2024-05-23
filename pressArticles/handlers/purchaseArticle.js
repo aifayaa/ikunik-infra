@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
 import articlePrices from '../articlePrices.json';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { addBalance } from '../../userBalances/lib/addBalance';
 import { getArticle } from '../lib/getArticle';
 import { getBalance } from '../../userBalances/lib/getBalance';

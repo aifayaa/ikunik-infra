@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import createLiveStream from '../lib/createLiveStream';
 import checks from '../lib/checks';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';

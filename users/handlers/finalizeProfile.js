@@ -5,7 +5,7 @@ import {
   finalizeProfile,
   finalizedUser,
 } from '../lib/finalizeProfile';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

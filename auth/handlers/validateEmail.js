@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { validateEmail } from '../lib/validateEmail';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 

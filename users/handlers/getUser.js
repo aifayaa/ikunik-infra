@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getUser from '../lib/getUser';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async ({ userId }) => {
   try {

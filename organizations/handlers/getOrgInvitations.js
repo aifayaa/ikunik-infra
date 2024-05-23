@@ -1,7 +1,9 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import getOrgInvitations from '../lib/getOrgInvitations';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';

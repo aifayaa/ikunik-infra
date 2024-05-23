@@ -7,7 +7,7 @@ import buildPipeline from '../../crowd/lib/pipelines/pressPipeline';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import logBlast from '../lib/pressLogBlast';
 import pressSearch from '../../crowd/lib/pressSearch';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 const MAXIMUM_DATA_FETCHED_PER_PAGE = 500;
 const UPDATE_STATUS_INTERVAL = 5000;

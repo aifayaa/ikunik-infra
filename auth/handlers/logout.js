@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { removeLoginToken } from '../lib/removeLoginToken';
 
 export default async (event) => {

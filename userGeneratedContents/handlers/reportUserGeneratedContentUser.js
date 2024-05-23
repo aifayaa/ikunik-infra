@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import reportUserGeneratedContentUser from '../lib/reportUserGeneratedContentUser';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import emailTemplate from '../lib/emailUgcUserReportTemplate';
 import { getUserLanguage } from '../../libs/intl/intl';
