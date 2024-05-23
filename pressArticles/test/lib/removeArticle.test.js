@@ -2,7 +2,7 @@
 import sinon from 'sinon';
 import { before, describe, it, after } from 'mocha';
 import { expect } from 'chai';
-import MongoClient from '../../../libs/mongoClient';
+import MongoClient from '../../../libs/mongoClient.ts';
 import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { removeArticle } from '../../lib/removeArticle';

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../mongoClient';
+import MongoClient from '../mongoClient.ts';
 import mongoCollections from '../mongoCollections.json';
 
 const { COLL_USERS, COLL_PERM_GROUPS } = mongoCollections;

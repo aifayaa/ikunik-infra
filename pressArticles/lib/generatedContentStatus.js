@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_AI_QUERIES } = mongoCollections;

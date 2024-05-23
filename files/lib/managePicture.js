@@ -4,7 +4,7 @@ import AWS from 'aws-sdk';
 import Sharp from 'sharp';
 import heicDecode from 'heic-decode';
 import path from 'path';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 

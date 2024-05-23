@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import badgePrices from '../badgePrices.json';
 

@@ -4,7 +4,7 @@
 // import { expect } from 'chai';
 // import iap from 'in-app-purchase';
 // import handler from '../../handlers/validatePurchase';
-// import MongoClient from '../../../libs/mongoClient';
+// import MongoClient from '../../../libs/mongoClient.ts';
 // import mongoCollections from '../../../libs/mongoCollections.json';
 // import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 // import * as addBalanceLib from '../../../userBalances/lib/addBalance';

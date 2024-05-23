@@ -6,7 +6,7 @@ import fs from 'fs';
 import https from 'https';
 import Lambda from 'aws-sdk/clients/lambda';
 
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';

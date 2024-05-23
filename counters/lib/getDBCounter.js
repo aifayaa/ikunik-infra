@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_COUNTERS } = mongoCollections;

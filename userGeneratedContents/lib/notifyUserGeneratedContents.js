@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;

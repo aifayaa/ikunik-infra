@@ -5,7 +5,7 @@ import { expect } from 'chai';
 
 import AWSMock from 'aws-sdk-mock';
 import AWS from 'aws-sdk';
-import MongoClient from '../../../libs/mongoClient';
+import MongoClient from '../../../libs/mongoClient.ts';
 import mongoCollections from '../../../libs/mongoCollections.json';
 
 import { sendNotificationTo } from '../../lib/snsNotifications';

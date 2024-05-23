@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import callTLY from '../../libs/backends/t.ly';
 import mongoCollections from '../../libs/mongoCollections.json';
 

@@ -4,7 +4,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   ORGANISATION_APPLE_TEAM_ALREADY_SETUP_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
 

@@ -3,7 +3,7 @@ import Lambda from 'aws-sdk/clients/lambda';
 import response from '../../libs/httpResponses/response';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import { ObjectID } from '../../libs/mongoClient';
+import { ObjectID } from '../../libs/mongoClient.ts';
 
 const { REGION, STAGE } = process.env;
 

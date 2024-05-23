@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 /* This .json is required since this file will be included from other microservices,

@@ -2,7 +2,7 @@
 import saml2 from 'saml2-js';
 import request from 'request-promise-native';
 import xmlParser from 'fast-xml-parser';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_APPS, COLL_SAML_LOGINS } = mongoCollections;

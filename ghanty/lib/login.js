@@ -4,7 +4,7 @@ import fs from 'fs';
 import https from 'https';
 import QRCode from 'qrcode';
 
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
 import Random from '../../libs/account_utils/random';
