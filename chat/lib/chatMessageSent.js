@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import Lambda from 'aws-sdk/clients/lambda';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { ChatEngineAPI } from '../../libs/backends/chatengine';
 

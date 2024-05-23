@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_USERS } = mongoCollections;

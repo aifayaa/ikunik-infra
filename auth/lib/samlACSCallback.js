@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import xmlParser from 'fast-xml-parser';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import Random from '../../libs/account_utils/random';
 import hashLoginToken from './hashLoginToken';
 import mongoCollections from '../../libs/mongoCollections.json';

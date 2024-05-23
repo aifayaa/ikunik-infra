@@ -5,7 +5,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   NOT_ENOUGH_PERMISSIONS_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';

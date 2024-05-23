@@ -4,7 +4,7 @@ import check from 'check-types';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import uuidv4 from 'uuid/v4';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { SNS_REGION, SNS_KEY_ID, SNS_SECRET } = process.env;

@@ -18,9 +18,5 @@
     "request-promise-native": "^1.0.9",
     "sinon": "^9.2.0",
     "zod": "^3.22.5"
-  },
-  "devDependencies": {
-    "ts-loader": "^8.4.0",
-    "typescript": "^5.4.5"
   }
 }

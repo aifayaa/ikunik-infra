@@ -7,8 +7,8 @@ phases:
   pre_build:
     commands:
       - cd .
-      - npm i
 
   build:
     commands:
-      - node --loader=ts-node/esm ./prepare.js dev "$AWS_REGION" verbose,remove
+      - npm i
+      - ./prepare.js dev "$AWS_REGION" verbose,remove

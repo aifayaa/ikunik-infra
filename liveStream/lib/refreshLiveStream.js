@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import S3 from 'aws-sdk/clients/s3';
 import MediaConvert from 'aws-sdk/clients/mediaconvert';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
 

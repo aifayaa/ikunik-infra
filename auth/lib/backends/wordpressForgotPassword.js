@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../../libs/mongoClient.ts';
+import MongoClient from '../../../libs/mongoClient';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 
 export const wordpressForgotPassword = async (email, app) => {

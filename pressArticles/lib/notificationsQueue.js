@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import Lambda from 'aws-sdk/clients/lambda';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import prepareNotif from './prepareNotifString';
 

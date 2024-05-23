@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 export default async (userId, contentId, appId) => {

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import { ChatEngineAPI } from '../../libs/backends/chatengine';
 import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random';

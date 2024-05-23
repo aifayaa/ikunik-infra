@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import IVS from 'aws-sdk/clients/ivs';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { IVS_REGION } = process.env;

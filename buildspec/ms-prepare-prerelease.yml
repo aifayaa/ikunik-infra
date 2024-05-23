@@ -8,4 +8,4 @@ phases:
   build:
     commands:
       - npm i
-      - node --loader=ts-node/esm ./prepare.js preprod "$AWS_REGION" verbose,remove
+      - ./prepare.js preprod "$AWS_REGION" verbose,remove

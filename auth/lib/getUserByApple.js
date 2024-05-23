@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import jwt from 'jsonwebtoken';
 import request from 'request-promise-native';
 import Random from '../../libs/account_utils/random';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';

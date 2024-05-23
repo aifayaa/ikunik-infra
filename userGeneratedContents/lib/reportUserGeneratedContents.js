@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import uuid from 'uuid';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_USER_GENERATED_CONTENTS, COLL_USER_GENERATED_CONTENTS_REPORTS } =

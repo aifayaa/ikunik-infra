@@ -6,7 +6,7 @@ import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import MongoClient, { ObjectID } from '../../libs/mongoClient.ts';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objSet } from '../../libs/utils';
 import { filterAppPrivateFields, getAppDefaultBuildFields } from './appsUtils';

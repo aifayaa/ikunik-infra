@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../../libs/mongoCollections.json';
-import { ObjectID } from '../../../libs/mongoClient.ts';
+import { ObjectID } from '../../../libs/mongoClient';
 
 const { COLL_CHATENGINE_ROOM_USERS } = mongoCollections;
 

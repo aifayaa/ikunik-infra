@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import uuid from 'uuid';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import getAppSettings from '../../apps/lib/getAppSettings';
 

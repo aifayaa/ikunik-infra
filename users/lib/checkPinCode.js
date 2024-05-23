@@ -2,7 +2,7 @@
 import phoneCleaner from 'phone';
 import SNS from 'aws-sdk/clients/sns';
 import get from 'lodash/get';
-import MongoClient from '../../libs/mongoClient.ts';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { SNS_KEY_ID, SNS_REGION, SNS_SECRET, SNS_TOPIC } = process.env;

@@ -2,7 +2,7 @@
 // import sinon from 'sinon';
 // import { describe, it, before, after } from 'mocha';
 // import { expect } from 'chai';
-// import * as checkPermsFor from '../../../libs/perms/checkPermsFor.ts';
+// import * as checkPermsFor from '../../../libs/perms/checkPermsFor';
 // import * as lib from '../../lib/getUserGeneratedContentReports';
 // import handler from '../../handlers/getUserGeneratedContentReports';
 
