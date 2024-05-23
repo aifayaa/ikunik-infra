@@ -6,7 +6,9 @@ module.exports = {
   stats: 'errors-only',
   target: 'node',
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
-  devtool: 'nosources-source-map',
+  devtool: slsw.lib.webpack.isLocal
+    ? 'eval-source-map'
+    : 'nosources-source-map',
   output: {
     libraryTarget: 'commonjs2',
     path: path.join(__dirname, '.webpack'),
