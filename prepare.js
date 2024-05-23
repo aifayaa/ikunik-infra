@@ -1,5 +1,4 @@
-#!/usr/bin/env bun
-// #!/usr/bin/env node
+#!/usr/bin/env node
 /* eslint-disable no-console */
 
 const STAGE = process.argv[2];
