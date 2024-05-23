@@ -1,11 +1,11 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { createInvitation } from '../lib/createInvitation';
 import { createInvitationSchema } from '../schemas/createInvitation.schema';
 import { getUserLanguage } from '../../libs/intl/intl';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {

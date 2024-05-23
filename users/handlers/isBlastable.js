@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getEndpoints from '../lib/getEndpoints';
 import getUser from '../lib/getUser';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   try {

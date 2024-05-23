@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import deleteUserBadge from '../lib/deleteUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {

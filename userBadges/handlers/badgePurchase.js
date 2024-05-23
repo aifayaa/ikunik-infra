@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
 import badgePrices from '../badgePrices.json';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { setBalance } from '../../userBalances/lib/setBalance';
 import getBadge from '../lib/getUserBadge';
 import notifyPurchaseBackend from '../lib/notifyPurchaseBackend';

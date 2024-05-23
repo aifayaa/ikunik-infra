@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getDocumentUrl from '../lib/getDocumentDataLocation';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   try {

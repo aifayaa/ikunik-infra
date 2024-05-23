@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import sessionChecks from '../lib/sessionChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 

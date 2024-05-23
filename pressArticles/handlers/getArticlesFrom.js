@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import getArticlesFrom from '../lib/getArticlesFrom';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

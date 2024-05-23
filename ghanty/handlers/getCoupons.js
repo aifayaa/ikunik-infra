@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getCoupons from '../lib/getCoupons';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;

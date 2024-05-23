@@ -1,8 +1,10 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import getBuildsStatus from '../lib/getBuildsStatus';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

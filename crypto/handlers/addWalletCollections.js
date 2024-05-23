@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import addWalletCollections from '../lib/addWalletCollections';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

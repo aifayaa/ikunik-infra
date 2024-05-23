@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { typeCheck } from 'type-check';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { register } from '../lib/register';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 

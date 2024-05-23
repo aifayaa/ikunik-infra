@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import vote from '../lib/vote';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;

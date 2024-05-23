@@ -1,6 +1,8 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import getUserApps from '../lib/getUserApps';
 
 export default async (event) => {

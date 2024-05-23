@@ -1,13 +1,27 @@
-import { CrowdaaError } from './CrowdaaError.ts';
-import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody';
+import { CrowdaaError } from './CrowdaaError.js';
+import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody.js';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   UNMANAGED_EXCEPTION_CODE,
-} from './errorCodes';
-import { formatResponseBody } from './formatResponseBody';
+} from './errorCodes.js';
+import { formatResponseBody } from './formatResponseBody.js';
+
+type reponseType = {
+  headers?: Object;
+  code?: number;
+  body?: string | Object;
+  message?: string;
+  raw?: string;
+};
 
 /* eslint-disable import/no-relative-packages */
-export default function response({ headers = {}, code, body, message, raw }) {
+export default function response({
+  headers = {},
+  code = 500,
+  body,
+  message,
+  raw,
+}: reponseType) {
   if (!body && !message) {
     message = 'http_error_missing_response_arguments';
   }
@@ -25,7 +39,7 @@ export default function response({ headers = {}, code, body, message, raw }) {
   }
 
   return {
-    statusCode: code || 500,
+    statusCode: code,
     body: respBody,
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -35,7 +49,7 @@ export default function response({ headers = {}, code, body, message, raw }) {
   };
 }
 
-export function handleException(exception) {
+export function handleException(exception: Error) {
   if (exception instanceof CrowdaaError) {
     const { httpCode, type, code, message } = exception;
     const errorBody = formatResponseBody({

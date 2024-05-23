@@ -3,7 +3,7 @@ import AVAILABLE_TYPES from '../userGeneratedContentsTypes.json';
 import emailTemplate from '../lib/emailUgcNotifyTemplate';
 import pathToCollection from '../../libs/collections/pathToCollection';
 import postUserGeneratedContents from '../lib/postUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import { getUserLanguage } from '../../libs/intl/intl';
 import mongoCollections from '../../libs/mongoCollections.json';

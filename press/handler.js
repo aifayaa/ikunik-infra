@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../libs/httpResponses/response';
+import response from '../libs/httpResponses/response.ts';
 
 export const handleGetPress = () =>
   new Promise((resolve) => {

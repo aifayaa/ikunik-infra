@@ -1,6 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import phoneCleaner from 'phone';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { sendPreviewInfoEmail } from '../lib/sendPreviewInfoEmail';
 import { sendPreviewInfoSMS } from '../lib/sendPreviewInfoSMS';

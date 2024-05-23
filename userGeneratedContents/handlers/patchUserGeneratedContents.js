@@ -4,7 +4,7 @@ import checkOwner from '../../libs/perms/checkOwner';
 import emailTemplate from '../lib/emailUgcNotifyTemplate';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import patchUserGeneratedContents from '../lib/patchUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import sendEmailToAdmin from '../lib/sendEmailToAdmin';
 import { getUserLanguage } from '../../libs/intl/intl';
 import mongoCollections from '../../libs/mongoCollections.json';

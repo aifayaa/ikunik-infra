@@ -1,9 +1,9 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { getInvitation } from '../lib/getInvitation';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 

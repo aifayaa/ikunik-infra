@@ -3,7 +3,7 @@ import removeMd from 'remove-markdown';
 import defaultSettings from '../lib/xmlParsing/settings/default.json';
 import getInfos from '../lib/xmlParsing/getInfos';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
 import { queueArticleNotifications } from '../lib/notificationsQueue';

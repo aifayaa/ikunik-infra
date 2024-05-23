@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import getAppPreview from '../lib/getAppPreview';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const { id: previewKey } = event.pathParameters;

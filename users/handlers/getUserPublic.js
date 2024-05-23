@@ -3,7 +3,7 @@ import pick from 'lodash/pick';
 import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
 import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import allPerms from '../../account/lib/allPerms';
 

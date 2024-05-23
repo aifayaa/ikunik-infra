@@ -1,6 +1,8 @@
 /* eslint-disable import/no-relative-packages */
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import response, { handleException } from '../../libs/httpResponses/response';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { filterAppPrivateFields } from '../lib/appsUtils';
 import delUserAppPerms from '../lib/delUserAppPerms';
