@@ -7,7 +7,10 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import getUserOrgPerms from '../lib/getUserOrgPerms';
-import { filterUserPrivateFields } from '../../users/lib/usersUtils';
+import {
+  addUserOrganisationRoles,
+  filterUserPrivateFields,
+} from '../../users/lib/usersUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -44,7 +47,9 @@ export default async (event) => {
       code: 200,
       body: formatResponseBody({
         data: {
-          items: users.map((user) => filterUserPrivateFields(user)),
+          items: users.map((user) =>
+            filterUserPrivateFields(addUserOrganisationRoles(user, orgId))
+          ),
           totalCount: users.length,
         },
       }),
