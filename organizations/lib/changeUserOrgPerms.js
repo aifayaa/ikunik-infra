@@ -7,30 +7,13 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { organizationRoles } from './organizationsUtils';
+import {
+  getHighestRole,
+  getHighestRoleAux,
+  organizationRoles,
+} from './organizationsUtils';
 
 const { COLL_USERS } = mongoCollections;
-
-async function getUserPermsOnOrg(db, userId, orgId) {
-  const user = await db.collection(COLL_USERS).findOne({ _id: userId });
-
-  return user.perms.organizations.find((org) => org._id === orgId).roles;
-}
-
-function getHighestRoleAux(roles) {
-  for (const role of organizationRoles) {
-    if (roles.includes(role)) {
-      return role;
-    }
-  }
-
-  return organizationRoles.at(-1);
-}
-
-async function getHighestRole(db, userId, orgId) {
-  const userRoles = await getUserPermsOnOrg(db, userId, orgId);
-  return getHighestRoleAux(userRoles);
-}
 
 /**
  * Compare permisions

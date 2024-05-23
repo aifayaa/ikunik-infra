@@ -13,6 +13,12 @@ import {
   ORGANIZATION_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes.js';
 import getApp from '../../apps/lib/getApp.js';
+import { UserType } from '../../users/lib/userEntity';
+import {
+  AppsPermType,
+  AppsPermWithoutOwnerType,
+  OrganizationPermType,
+} from './permEntities';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
@@ -95,19 +101,6 @@ An organization admin:
 An organization member:
   - can READ any resource within the organization
  */
-
-type AppsPermType = 'owner' | 'admin' | 'editor' | 'moderator' | 'viewer';
-type AppsPermWithoutOwnerType = 'admin' | 'editor' | 'moderator' | 'viewer';
-type OrganizationPermType = 'owner' | 'admin' | 'member';
-
-type UserType = {
-  _id: string;
-  superAdmin?: boolean;
-  perms: {
-    apps?: Array<{ _id: string; roles: Array<AppsPermType> }>;
-    organizations?: Array<{ _id: string; roles: Array<OrganizationPermType> }>;
-  };
-};
 
 type AppType = {
   _id: string;

@@ -2,7 +2,7 @@
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import { filterUserPrivateFields } from '../../users/lib/usersUtils';
+import { filterUserPrivateFields } from '../../users/lib/usersUtils.ts';
 import getAppUsers from '../lib/getAppUsers';
 
 export default async (event) => {
