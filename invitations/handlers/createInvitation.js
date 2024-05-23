@@ -2,7 +2,7 @@
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { createInvitation } from '../lib/createInvitation';
 import { createInvitationSchema } from '../schemas/createInvitation.schema';
 import { getUserLanguage } from '../../libs/intl/intl';

@@ -5,7 +5,7 @@ import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import updateOrg from '../lib/updateOrg';
 import {
