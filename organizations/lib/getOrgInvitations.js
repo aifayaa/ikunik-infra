@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { invitationStatuses } from '../../invitations/const/invitations';
 import { invitationPrivateFieldsProjection } from '../../invitations/utils/invitationPrivateFieldsProjection';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -18,17 +19,24 @@ export default async (orgId, options) => {
     projection: invitationPrivateFieldsProjection,
   };
 
+  const filter = {
+    'target.organizationId': orgId,
+    status: {
+      $ne: invitationStatuses.CANCELED,
+    },
+  };
+
   try {
     const items = await client
       .db()
       .collection(COLL_INVITATIONS)
-      .find({ 'target.organizationId': orgId }, findOptions)
+      .find(filter, findOptions)
       .toArray();
 
     const totalCount = await client
       .db()
       .collection(COLL_INVITATIONS)
-      .countDocuments({ 'target.organizationId': orgId });
+      .countDocuments(filter);
     return {
       totalCount,
       items,
