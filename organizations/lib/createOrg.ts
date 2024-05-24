@@ -26,7 +26,7 @@ type OrganizationType = {
   };
   createdAt: Date;
   createdBy: string;
-  customerId: string;
+  stripeCustomerId: string;
 };
 
 export default async (
@@ -36,7 +36,7 @@ export default async (
   appleTeamId: string,
   appleCompanyName: string
 ) => {
-  let customerId;
+  let stripeCustomerId: string | undefined;
 
   const stripe = (() => {
     if (STRIPE_SECRET_KEY === undefined) {
@@ -62,7 +62,7 @@ export default async (
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
     // Return result of transaction by side effect
-    let sessionRes;
+    let sessionRes: OrganizationType | undefined;
 
     await client
       .withSession(
@@ -84,7 +84,7 @@ export default async (
               },
             });
 
-            customerId = customer.id;
+            stripeCustomerId = customer.id;
 
             const newOrganization: OrganizationType = {
               _id: organizationId,
@@ -95,7 +95,7 @@ export default async (
               },
               createdAt: organizationCreatedAt,
               createdBy: organizationCreatedBy,
-              customerId,
+              stripeCustomerId,
             };
 
             if (appleTeamId) {
@@ -129,7 +129,7 @@ export default async (
             await syncCreateOrganizationBaserow(userId, {
               orgId,
               name,
-              customerId,
+              stripeCustomerId,
             });
 
             sessionRes = newOrganization;
@@ -144,8 +144,8 @@ export default async (
   } catch (exception) {
     // If something wrong happen and the Stripe customer_id has been created,
     // -> delete it
-    if (customerId) {
-      await stripe.customers.del(customerId);
+    if (stripeCustomerId) {
+      await stripe.customers.del(stripeCustomerId);
     }
 
     throw exception;
