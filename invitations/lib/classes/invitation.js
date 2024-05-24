@@ -268,7 +268,7 @@ export class Invitation {
       }
       if (
         invitationDocument.expiredAt &&
-        new Date(invitationDocument.expiredAt) > new Date()
+        new Date(invitationDocument.expiredAt) < new Date()
       ) {
         return undefined;
       }
