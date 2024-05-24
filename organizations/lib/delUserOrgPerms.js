@@ -31,7 +31,7 @@ export default async (userId, orgId) => {
     }
 
     if (!(user.perms && user.perms.organizations)) {
-      return user;
+      return;
     }
 
     const userOrganizationPerms = user.perms.organizations.find(
@@ -57,12 +57,6 @@ export default async (userId, orgId) => {
         { _id: userId },
         { $pull: { 'perms.organizations': { _id: orgId } } }
       );
-
-    const updatedUser = await db
-      .collection(COLL_USERS)
-      .findOne({ _id: userId });
-
-    return updatedUser;
   } finally {
     client.close();
   }
