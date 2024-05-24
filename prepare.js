@@ -495,6 +495,12 @@ verbose(
       ],
       [COLL_PRESS_DRAFTS]: [
         {
+          name: 'crowdaa_drafts_by_appid',
+          key: {
+            appId: 1,
+          },
+        },
+        {
           name: 'crowdaa_drafts_by_articleid',
           key: {
             articleId: 1,
