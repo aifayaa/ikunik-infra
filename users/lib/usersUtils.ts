@@ -1,4 +1,9 @@
 /* eslint-disable import/no-relative-packages */
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  USER_NOT_FOUND_CODE,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objUnset } from '../../libs/utils';
@@ -6,16 +11,29 @@ import { UserType } from './userEntity';
 
 const { COLL_USERS } = mongoCollections;
 
-export async function getUserAdminPerms(userId: string) {
+export async function getUser(userId: string, options: Object = {}) {
   const client = await MongoClient.connect();
 
   const db = client.db();
 
   const user = await db
     .collection(COLL_USERS)
-    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
+    .findOne({ _id: userId }, options);
+
+  // If the target user is not found, Error
+  if (!user) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      USER_NOT_FOUND_CODE,
+      `Cannot found user '${userId}'`
+    );
+  }
 
   return user;
+}
+
+export async function getUserAdminPerms(userId: string) {
+  return getUser(userId, { projection: { superAdmin: 1, perms: 1 } });
 }
 
 export const userPrivateFields = ['services', 'perms', 'superAdmin'];

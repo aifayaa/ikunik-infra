@@ -26,7 +26,7 @@ export default async (userId, orgId) => {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         USER_NOT_FOUND_CODE,
-        `User '${userId} is not found in organization '${orgId}'.`
+        `User '${userId}' is not found in organization '${orgId}'.`
       );
     }
 
