@@ -26,12 +26,12 @@ export default async (userId, orgId) => {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         USER_NOT_FOUND_CODE,
-        `User '${userId} is not found in organization '${orgId}'.`
+        `User '${userId}' is not found in organization '${orgId}'.`
       );
     }
 
     if (!(user.perms && user.perms.organizations)) {
-      return user;
+      return;
     }
 
     const userOrganizationPerms = user.perms.organizations.find(
@@ -57,12 +57,6 @@ export default async (userId, orgId) => {
         { _id: userId },
         { $pull: { 'perms.organizations': { _id: orgId } } }
       );
-
-    const updatedUser = await db
-      .collection(COLL_USERS)
-      .findOne({ _id: userId });
-
-    return updatedUser;
   } finally {
     client.close();
   }

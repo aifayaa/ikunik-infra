@@ -8,7 +8,12 @@ import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes.js';
-import { filterUserPrivateFields, getUser } from '../../users/lib/usersUtils';
+import {
+  addUserOrganisationRoles,
+  filterUserPrivateFields,
+  getUser,
+  getUserAdminPerms,
+} from '../../users/lib/usersUtils';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -21,6 +26,8 @@ export default async (event: APIGatewayProxyEvent) => {
   };
 
   try {
+    const user = await getUser(targetUserId);
+
     const orgPermissionLevel = 'member';
     const allowedOrgSourceUser = await checkPermsForOrganization(
       sourceUserId,
@@ -62,11 +69,11 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    const user = await getUser(targetUserId);
-
     return response({
       code: 200,
-      body: formatResponseBody({ data: filterUserPrivateFields(user) }),
+      body: formatResponseBody({
+        data: filterUserPrivateFields(addUserOrganisationRoles(user, orgId)),
+      }),
     });
   } catch (exception) {
     return handleException(exception);
