@@ -34,19 +34,19 @@ export class EmailMethod extends AbstractMethod {
   }
 
   static async sendNotification({ userEmail, title, template, parameters }) {
-    if (process.env.STAGE === 'dev') {
-      // eslint-disable-next-line no-console
-      console.log('**** DEV environment: email sending disabled ****');
-      // eslint-disable-next-line no-console
-      console.log('Send email to: ', userEmail);
-      // eslint-disable-next-line no-console
-      console.log('Email title: ', title);
-      // eslint-disable-next-line no-console
-      console.log('Email template: ', template);
-      // eslint-disable-next-line no-console
-      console.log('Email parameters: ', parameters);
-      return;
-    }
+    // if (process.env.STAGE === 'dev') {
+    //   // eslint-disable-next-line no-console
+    //   console.log('**** DEV environment: email sending disabled ****');
+    //   // eslint-disable-next-line no-console
+    //   console.log('Send email to: ', userEmail);
+    //   // eslint-disable-next-line no-console
+    //   console.log('Email title: ', title);
+    //   // eslint-disable-next-line no-console
+    //   console.log('Email template: ', template);
+    //   // eslint-disable-next-line no-console
+    //   console.log('Email parameters: ', parameters);
+    //   return;
+    // }
 
     await sendEmailMailgunTemplate(
       'No reply <support@crowdaa.com>',
