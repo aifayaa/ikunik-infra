@@ -6,7 +6,7 @@ import { UserType } from './userEntity';
 
 const { COLL_USERS } = mongoCollections;
 
-export async function getUser(userId: string) {
+export async function getUserAdminPerms(userId: string) {
   const client = await MongoClient.connect();
 
   const db = client.db();

@@ -8,7 +8,10 @@ import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes.js';
-import { filterUserPrivateFields, getUser } from '../../users/lib/usersUtils';
+import {
+  filterUserPrivateFields,
+  getUserAdminPerms,
+} from '../../users/lib/usersUtils';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -62,7 +65,7 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    const user = await getUser(targetUserId);
+    const user = await getUserAdminPerms(targetUserId);
 
     return response({
       code: 200,
