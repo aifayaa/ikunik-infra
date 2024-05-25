@@ -23,7 +23,7 @@ import {
   isApplicationInOrganization,
   isAppAlreadyBuild,
   getApp,
-} from '../../apps/lib/appsUtils';
+} from '../../apps/lib/appsUtils.ts';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = 'admin';

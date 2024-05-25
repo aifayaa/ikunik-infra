@@ -13,7 +13,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { getApp, isAppAlreadyBuild } from '../../apps/lib/appsUtils';
+import { getApp, isAppAlreadyBuild } from '../../apps/lib/appsUtils.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {

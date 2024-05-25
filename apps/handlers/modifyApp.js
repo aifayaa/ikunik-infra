@@ -7,7 +7,10 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { modifyAppSchema } from '../validators/modifyAppSchema.schema';
 import modifyApp from '../lib/modifyApp';
-import { filterAppPrivateFields, getAppLockedFields } from '../lib/appsUtils';
+import {
+  filterAppPrivateFields,
+  getAppLockedFields,
+} from '../lib/appsUtils.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

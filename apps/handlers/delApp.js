@@ -10,7 +10,7 @@ import response, {
 } from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import delApp from '../lib/delApp';
-import { getApp, isAppAlreadyBuild } from '../lib/appsUtils';
+import { getApp, isAppAlreadyBuild } from '../lib/appsUtils.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

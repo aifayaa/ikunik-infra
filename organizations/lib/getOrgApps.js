@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { appPrivateFieldsProjection } from '../../apps/lib/appsUtils';
+import { appPrivateFieldsProjection } from '../../apps/lib/appsUtils.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 

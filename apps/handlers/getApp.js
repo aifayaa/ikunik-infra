@@ -8,7 +8,7 @@ import {
   filterAppPrivateFields,
   getApp,
   getAppLockedFields,
-} from '../lib/appsUtils';
+} from '../lib/appsUtils.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
