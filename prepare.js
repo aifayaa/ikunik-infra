@@ -499,6 +499,7 @@ verbose(
           key: {
             appId: 1,
           },
+          opts: makeOpts(),
         },
         {
           name: 'crowdaa_drafts_by_articleid',
