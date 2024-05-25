@@ -46,7 +46,7 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const app = getApp(appId);
+    const app = await getApp(appId);
 
     if (
       app.organization === undefined ||
