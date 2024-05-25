@@ -78,7 +78,7 @@ export default async (
               name,
               email,
               metadata: {
-                _id: organizationId,
+                organizationId: organizationId,
                 createdAt: organizationCreatedAt.toISOString(),
                 createdBy: organizationCreatedBy,
               },
