@@ -8,7 +8,7 @@ import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import deleteOrg from '../lib/deleteOrg';
+import deleteOrg from '../lib/deleteOrg.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
