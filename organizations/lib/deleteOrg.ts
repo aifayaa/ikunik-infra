@@ -1,13 +1,13 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.js';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_NOT_ALLOWED,
   ORGANISATION_STILL_CONTAINS_APPLICATION_CODE,
-} from '../../libs/httpResponses/errorCodes.js';
-import MongoClient from '../../libs/mongoClient.js';
+} from '../../libs/httpResponses/errorCodes';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getStripeClient } from '../../libs/stripe.js';
-import { OrganizationType } from './organizationEntity.js';
+import { getStripeClient } from '../../libs/stripe';
+import { OrganizationType } from './organizationEntity';
 
 const { COLL_ORGANIZATIONS, COLL_USERS, COLL_APPS } = mongoCollections;
 
