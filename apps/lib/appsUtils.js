@@ -1,6 +1,40 @@
 /* eslint-disable import/no-relative-packages */
 import { objGet, objUnset } from '../../libs/utils';
 import Random from '../../libs/account_utils/random';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import {
+  APP_NOT_FOUND_CODE,
+  ERROR_TYPE_NOT_FOUND,
+} from '../../libs/httpResponses/errorCodes';
+
+const { COLL_APPS } = mongoCollections;
+
+export async function getApp(appId) {
+  const client = await MongoClient.connect();
+  try {
+    const db = client.db();
+    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+
+    if (!app) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
+        `The application '${appId}' is not found`,
+        {
+          details: {
+            appId,
+          },
+        }
+      );
+    }
+
+    return app;
+  } finally {
+    client.close();
+  }
+}
 
 export const appPrivateFields = [
   'credentials',

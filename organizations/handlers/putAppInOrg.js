@@ -19,10 +19,10 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
-import getApp from '../../apps/lib/getApp';
 import {
   isApplicationInOrganization,
   isAppAlreadyBuild,
+  getApp,
 } from '../../apps/lib/appsUtils';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {

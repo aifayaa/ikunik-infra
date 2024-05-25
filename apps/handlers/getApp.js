@@ -4,8 +4,11 @@ import response, {
 } from '../../libs/httpResponses/response.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import getApp from '../lib/getApp';
-import { filterAppPrivateFields, getAppLockedFields } from '../lib/appsUtils';
+import {
+  filterAppPrivateFields,
+  getApp,
+  getAppLockedFields,
+} from '../lib/appsUtils';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
