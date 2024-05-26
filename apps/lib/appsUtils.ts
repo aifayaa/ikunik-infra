@@ -1,6 +1,41 @@
 /* eslint-disable import/no-relative-packages */
 import { objGet, objUnset } from '../../libs/utils';
 import Random from '../../libs/account_utils/random';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  APP_NOT_FOUND_CODE,
+  ERROR_TYPE_NOT_FOUND,
+} from '../../libs/httpResponses/errorCodes';
+import { AppType } from './appEntity';
+
+const { COLL_APPS } = mongoCollections;
+
+export async function getApp(appId: string): Promise<AppType> {
+  const client = await MongoClient.connect();
+  try {
+    const db = client.db();
+    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+
+    if (!app) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        APP_NOT_FOUND_CODE,
+        `The application '${appId}' is not found`,
+        {
+          details: {
+            appId,
+          },
+        }
+      );
+    }
+
+    return app;
+  } finally {
+    client.close();
+  }
+}
 
 export const appPrivateFields = [
   'credentials',
@@ -19,10 +54,10 @@ export const appPrivateFieldsProjection = appPrivateFields.reduce(
     acc[field] = 0;
     return acc;
   },
-  {}
+  {} as { [key: string]: number }
 );
 
-export function filterAppPrivateFields(app) {
+export function filterAppPrivateFields(app: AppType) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(app));
 
@@ -33,7 +68,7 @@ export function filterAppPrivateFields(app) {
   return ret;
 }
 
-export function getAppLockedFields(app) {
+export function getAppLockedFields(app: AppType) {
   return {
     androidName: !(
       !objGet(app, ['builds', 'android', 'ready']) &&
@@ -48,7 +83,7 @@ export function getAppLockedFields(app) {
   };
 }
 
-export function getAppDefaultBuildFields(name, platform) {
+export function getAppDefaultBuildFields(name: string, platform: string) {
   const packageIdSuffix = Random.randomString(
     11,
     'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -67,15 +102,15 @@ export function getAppDefaultBuildFields(name, platform) {
   };
 }
 
-export function isApplicationInOrganization(app) {
+export function isApplicationInOrganization(app: AppType) {
   return (app.organization && app.organization._id) !== undefined;
 }
 
-export function isAppAlreadyBuild(application) {
+export function isAppAlreadyBuild(app: AppType) {
   return (
-    application &&
-    application.builds &&
-    ((application.builds.android && application.builds.android.ready) ||
-      (application.builds.ios && application.builds.ios.ready))
+    app &&
+    app.builds &&
+    ((app.builds.android && app.builds.android.ready) ||
+      (app.builds.ios && app.builds.ios.ready))
   );
 }

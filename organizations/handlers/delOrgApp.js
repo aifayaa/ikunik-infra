@@ -13,8 +13,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { isAppAlreadyBuild } from '../../apps/lib/appsUtils';
-import getApp from '../../apps/lib/getApp';
+import { getApp, isAppAlreadyBuild } from '../../apps/lib/appsUtils.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {
@@ -46,7 +45,7 @@ export default async (event) => {
       return response({ code: 200, body: errorBody });
     }
 
-    const app = getApp(appId);
+    const app = await getApp(appId);
 
     if (
       app.organization === undefined ||

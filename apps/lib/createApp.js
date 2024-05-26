@@ -4,7 +4,7 @@ import MongoClient from '../../libs/mongoClient';
 import Random from '../../libs/account_utils/random';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateAppBaserow from './syncCreateAppBaserow';
-import { getAppDefaultBuildFields } from './appsUtils';
+import { getAppDefaultBuildFields } from './appsUtils.ts';
 
 const { ADMIN_APP } = process.env;
 

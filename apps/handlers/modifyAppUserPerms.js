@@ -17,7 +17,7 @@ import {
   ERROR_TYPE_ACCESS,
   ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { filterAppPrivateFields } from '../lib/appsUtils';
+import { filterAppPrivateFields } from '../lib/appsUtils.ts';
 
 export default async (event) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer;

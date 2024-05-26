@@ -19,11 +19,11 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
-import getApp from '../../apps/lib/getApp';
 import {
   isApplicationInOrganization,
   isAppAlreadyBuild,
-} from '../../apps/lib/appsUtils';
+  getApp,
+} from '../../apps/lib/appsUtils.ts';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = 'admin';

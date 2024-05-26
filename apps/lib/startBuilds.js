@@ -9,7 +9,10 @@ import {
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objSet } from '../../libs/utils';
-import { filterAppPrivateFields, getAppDefaultBuildFields } from './appsUtils';
+import {
+  filterAppPrivateFields,
+  getAppDefaultBuildFields,
+} from './appsUtils.ts';
 
 const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 

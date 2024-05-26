@@ -4,7 +4,7 @@ import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import { filterAppPrivateFields } from '../lib/appsUtils';
+import { filterAppPrivateFields } from '../lib/appsUtils.ts';
 import delUserAppPerms from '../lib/delUserAppPerms';
 
 export default async (event) => {

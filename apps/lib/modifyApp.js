@@ -8,7 +8,7 @@ import {
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet, objSet } from '../../libs/utils';
-import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils';
+import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils.ts';
 
 const { COLL_APPS } = mongoCollections;
 

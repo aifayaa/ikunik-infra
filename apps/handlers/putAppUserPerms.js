@@ -16,7 +16,7 @@ import {
   APPLICATION_PERMISSION_CODE,
   ERROR_TYPE_ACCESS,
 } from '../../libs/httpResponses/errorCodes';
-import { filterAppPrivateFields } from '../lib/appsUtils';
+import { filterAppPrivateFields } from '../lib/appsUtils.ts';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
 
 /**
