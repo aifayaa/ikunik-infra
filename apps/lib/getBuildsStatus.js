@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { filterAppPrivateFields } from './appsUtils.ts';
-import getApp from './getApp';
+import { filterAppPrivateFields, getApp } from './appsUtils.ts';
 
 const { COLL_PIPELINES } = mongoCollections;
 
