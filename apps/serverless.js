@@ -617,7 +617,7 @@ const serverlessConfiguration = {
         },
       ],
     },
-    checkout: {
+    stripeCheckout: {
       handler: 'handlers/postAppsIdCheckout.default',
       events: [
         {
@@ -636,6 +636,47 @@ const serverlessConfiguration = {
                   Authorization: true,
                 },
               },
+            },
+          },
+        },
+      ],
+    },
+    stripeResumeSubscription: {
+      handler: 'handlers/postAppsIdResumeSubscription.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/resumeSubscription',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    stripeWebhook: {
+      handler: 'handlers/postAppsWebhook.default',
+      events: [
+        {
+          http: {
+            path: 'apps/webhook',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
           },
         },

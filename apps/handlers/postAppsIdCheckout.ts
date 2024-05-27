@@ -1,45 +1,37 @@
 /* eslint-disable import/no-relative-packages */
-// import stripe from ('stripe')(
-//   'sk_test_51LBJZKKD2Srbl7Iomp6ag5TPCImTUfKOJGxzb7MPFfgBhgaN36c0C9FHzAvUTj4kuWXRx2B5dhQamqFxKZNJAepW00vwksLCFx'
-// );
 import { APIGatewayProxyEvent } from 'aws-lambda';
-
-import Stripe from 'stripe';
 
 import response, { handleException } from '../../libs/httpResponses/response';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
-  ERROR_TYPE_SETUP,
   ERROR_TYPE_STRIPE,
-  MISSING_ENVIRONMENT_VARIABLE_CODE,
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_APPLICATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
 import { getOrganization } from '../../organizations/lib/organizationsUtils';
-
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+import { getStripeClient } from '../../libs/stripe';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const YOUR_DOMAIN = 'http://localhost:4242';
 
-export default async (
-  event: APIGatewayProxyEvent
-  // context: Context,
-  // callback: APIGatewayProxyCallback
-) => {
-  const { principalId: currentUserId } =
-    (event.requestContext || {}).authorizer || {};
-  const appId = event.pathParameters?.id!;
-  // let invitationId = event.pathParameters.id;
-  // const { method, path } = request;
-  // const logger = generateLogger({ msgPrefix: `[${method} ${path}] ` });
-
-  // console.log('event', event);
-  // console.dir(event);
-  // console.dir(context);
-  // console.dir(callback);
+export default async (event: APIGatewayProxyEvent) => {
+  const { principalId: userId } = (event.requestContext || {}).authorizer || {};
+  const appId = event.pathParameters?.id;
 
   try {
+    if (!appId) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_APPLICATION_CODE,
+        `Path parameter appId is not defined: '${appId}'`
+      );
+    }
+
+    await checkPermsForApp(userId, appId, ['admin']);
+
     const app = await getApp(appId);
 
     const appOrgId = getApplicationOrganizationId(app);
@@ -48,23 +40,8 @@ export default async (
 
     const { stripeCustomerId } = org;
 
-    const stripe = (() => {
-      if (STRIPE_SECRET_KEY === undefined) {
-        throw new CrowdaaError(
-          ERROR_TYPE_SETUP,
-          MISSING_ENVIRONMENT_VARIABLE_CODE,
-          `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
-          { httpCode: 500 }
-        );
-      }
+    const stripe = getStripeClient();
 
-      return new Stripe(STRIPE_SECRET_KEY, {
-        apiVersion: '2024-04-10',
-        typescript: true,
-      });
-    })();
-
-    // const customerId = 'cus_QBJUFNFm3ya1AW';
     const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
 
     // const subscription = await stripe.subscriptions.create({
@@ -113,7 +90,13 @@ export default async (
       payment_method_collection: 'always',
       // ERROR: You can not pass ... in `setup` mode
       subscription_data: {
-        trial_period_days: 30,
+        // trial_period_days: 30,
+        metadata: {
+          initial: 'true',
+          appId,
+        },
+        // ERROR : The `proration_behavior` parameter can only be passed if a `billing_cycle_anchor` exists.
+        // proration_behavior: 'none',
       },
     });
 
