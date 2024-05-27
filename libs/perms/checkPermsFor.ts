@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../mongoClient.js';
 import mongoCollections from '../mongoCollections.json';
-import { indexObjectArrayWithKey } from '../utils.js';
 
 import { CrowdaaError } from '../httpResponses/CrowdaaError';
 import {
@@ -12,13 +11,10 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes.js';
-import getApp from '../../apps/lib/getApp.js';
 import { UserType } from '../../users/lib/userEntity';
-import {
-  AppsPermType,
-  AppsPermWithoutOwnerType,
-  OrganizationPermType,
-} from './permEntities';
+import { AppsPermType, OrganizationPermType } from './permEntities';
+import { getApp } from '../../apps/lib/appsUtils.js';
+import { AppType } from '../../apps/lib/appEntity.js';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
@@ -101,17 +97,6 @@ An organization admin:
 An organization member:
   - can READ any resource within the organization
  */
-
-type AppType = {
-  _id: string;
-  organization?: {
-    _id: string;
-    users: Array<{
-      _id: string;
-      roles: Array<AppsPermWithoutOwnerType>;
-    }>;
-  };
-};
 
 const APP_PERMS_IMPLIED = {
   owner: [],
