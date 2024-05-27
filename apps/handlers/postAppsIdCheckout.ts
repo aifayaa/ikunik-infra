@@ -18,6 +18,7 @@ import {
 import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
 import { getOrganization } from '../../organizations/lib/organizationsUtils';
 import { getStripeClient } from '../../libs/stripe';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
@@ -28,8 +29,7 @@ export default async (
   // context: Context,
   // callback: APIGatewayProxyCallback
 ) => {
-  const { principalId: currentUserId } =
-    (event.requestContext || {}).authorizer || {};
+  const { principalId: userId } = (event.requestContext || {}).authorizer || {};
   const appId = event.pathParameters?.id!;
   // let invitationId = event.pathParameters.id;
   // const { method, path } = request;
@@ -41,6 +41,8 @@ export default async (
   // console.dir(callback);
 
   try {
+    await checkPermsForApp(userId, appId, ['admin']);
+
     const app = await getApp(appId);
 
     const appOrgId = getApplicationOrganizationId(app);
@@ -103,6 +105,7 @@ export default async (
         // trial_period_days: 30,
         metadata: {
           initial: 'true',
+          appId,
         },
         // ERROR : The `proration_behavior` parameter can only be passed if a `billing_cycle_anchor` exists.
         // proration_behavior: 'none',
