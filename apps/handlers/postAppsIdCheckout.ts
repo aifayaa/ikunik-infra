@@ -17,6 +17,7 @@ import {
 
 import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
 import { getOrganization } from '../../organizations/lib/organizationsUtils';
+import { getStripeClient } from '../../libs/stripe';
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
@@ -48,21 +49,7 @@ export default async (
 
     const { stripeCustomerId } = org;
 
-    const stripe = (() => {
-      if (STRIPE_SECRET_KEY === undefined) {
-        throw new CrowdaaError(
-          ERROR_TYPE_SETUP,
-          MISSING_ENVIRONMENT_VARIABLE_CODE,
-          `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
-          { httpCode: 500 }
-        );
-      }
-
-      return new Stripe(STRIPE_SECRET_KEY, {
-        apiVersion: '2024-04-10',
-        typescript: true,
-      });
-    })();
+    const stripe = getStripeClient();
 
     // const customerId = 'cus_QBJUFNFm3ya1AW';
     const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
@@ -113,7 +100,12 @@ export default async (
       payment_method_collection: 'always',
       // ERROR: You can not pass ... in `setup` mode
       subscription_data: {
-        trial_period_days: 30,
+        // trial_period_days: 30,
+        metadata: {
+          initial: 'true',
+        },
+        // ERROR : The `proration_behavior` parameter can only be passed if a `billing_cycle_anchor` exists.
+        // proration_behavior: 'none',
       },
     });
 
