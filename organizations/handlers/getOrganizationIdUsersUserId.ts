@@ -5,16 +5,10 @@ import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
-  ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes.js';
-import {
   addUserOrganisationRoles,
   filterUserPrivateFields,
   getUser,
-  getUserAdminPerms,
 } from '../../users/lib/usersUtils';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer as {
@@ -29,45 +23,16 @@ export default async (event: APIGatewayProxyEvent) => {
     const user = await getUser(targetUserId);
 
     const orgPermissionLevel = 'member';
-    const allowedOrgSourceUser = await checkPermsForOrganization(
+    await checkPermsForOrganization(
       sourceUserId,
       orgId,
       orgPermissionLevel
     );
-    if (!allowedOrgSourceUser) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${sourceUserId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-        {
-          details: {
-            userId: sourceUserId,
-            orgId,
-            orgPermissionLevel,
-          },
-        }
-      );
-    }
-
-    const allowedOrgTargetUser = await checkPermsForOrganization(
+    await checkPermsForOrganization(
       targetUserId,
       orgId,
       orgPermissionLevel
     );
-    if (!allowedOrgTargetUser) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${targetUserId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-        {
-          details: {
-            userId: targetUserId,
-            orgId,
-            orgPermissionLevel,
-          },
-        }
-      );
-    }
 
     return response({
       code: 200,

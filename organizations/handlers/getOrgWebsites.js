@@ -9,10 +9,7 @@ export default async (event) => {
   const orgId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForOrganization(userId, orgId, 'member');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForOrganization(userId, orgId, 'member');
 
     const websites = await getOrgWebsites(orgId);
     return response({ code: 200, body: websites });

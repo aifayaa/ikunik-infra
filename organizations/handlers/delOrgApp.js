@@ -8,10 +8,8 @@ import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   APP_NOT_FOUND_CODE,
-  ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_FOUND,
-  ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { getApp, isAppAlreadyBuild } from '../../apps/lib/appsUtils.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
@@ -22,28 +20,7 @@ export default async (event) => {
 
   try {
     const orgPermissionLevel = 'admin';
-    const allowed = await checkPermsForOrganization(
-      userId,
-      orgId,
-      orgPermissionLevel
-    );
-    if (!allowed) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_ACCESS,
-            code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-            details: {
-              userId,
-              orgId,
-              orgPermissionLevel,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
-    }
+    await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const app = await getApp(appId);
 

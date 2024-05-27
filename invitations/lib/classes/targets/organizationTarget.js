@@ -40,15 +40,7 @@ export class OrganizationTarget extends AbstractTarget {
   async checkIsOrganizationAdmin(user) {
     if (!user) throw new Error('user_not_found');
 
-    const allowed = await checkPermsForOrganization(
-      user._id,
-      this.organizationId,
-      'admin'
-    );
-
-    if (!allowed) {
-      throw new Error('invitation_current_user_insufficient_rights');
-    }
+    await checkPermsForOrganization(user._id, this.organizationId, 'admin');
   }
 
   // should be protected or private
