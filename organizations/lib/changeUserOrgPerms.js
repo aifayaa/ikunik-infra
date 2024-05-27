@@ -11,7 +11,7 @@ import {
   getHighestRole,
   getHighestRoleAux,
   organizationRoles,
-} from './organizationsUtils';
+} from './organizationsUtils.ts';
 
 const { COLL_USERS } = mongoCollections;
 

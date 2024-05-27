@@ -2,11 +2,7 @@
 // import stripe from ('stripe')(
 //   'sk_test_51LBJZKKD2Srbl7Iomp6ag5TPCImTUfKOJGxzb7MPFfgBhgaN36c0C9FHzAvUTj4kuWXRx2B5dhQamqFxKZNJAepW00vwksLCFx'
 // );
-import {
-  APIGatewayProxyCallback,
-  APIGatewayProxyEvent,
-  Context,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import Stripe from 'stripe';
 
@@ -19,6 +15,9 @@ import {
   MISSING_ENVIRONMENT_VARIABLE_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
+import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
+import { getOrganization } from '../../organizations/lib/organizationsUtils';
+
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
 const YOUR_DOMAIN = 'http://localhost:4242';
@@ -30,6 +29,7 @@ export default async (
 ) => {
   const { principalId: currentUserId } =
     (event.requestContext || {}).authorizer || {};
+  const appId = event.pathParameters?.id!;
   // let invitationId = event.pathParameters.id;
   // const { method, path } = request;
   // const logger = generateLogger({ msgPrefix: `[${method} ${path}] ` });
@@ -40,6 +40,14 @@ export default async (
   // console.dir(callback);
 
   try {
+    const app = await getApp(appId);
+
+    const appOrgId = getApplicationOrganizationId(app);
+
+    const org = await getOrganization(appOrgId);
+
+    const { stripeCustomerId } = org;
+
     const stripe = (() => {
       if (STRIPE_SECRET_KEY === undefined) {
         throw new CrowdaaError(
@@ -56,7 +64,7 @@ export default async (
       });
     })();
 
-    const customerId = 'cus_QAHYySkXr0yBh5';
+    // const customerId = 'cus_QBJUFNFm3ya1AW';
     const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
 
     // const subscription = await stripe.subscriptions.create({
@@ -78,34 +86,35 @@ export default async (
 
     const session = await stripe.checkout.sessions.create({
       billing_address_collection: 'auto',
-      customer: customerId,
+      customer: stripeCustomerId,
       // ERROR: You can not pass ... in `setup` mode
-      // line_items: [
-      //   {
-      //     // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-      //     price: priceId,
-      //     quantity: 1,
-      //   },
-      // ],
-      mode: 'setup', // Save payment details to charge your customers later.
+      line_items: [
+        {
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      // mode: 'setup', // Save payment details to charge your customers later.
+      mode: 'subscription',
       success_url: `${YOUR_DOMAIN}/success.html`,
       cancel_url: `${YOUR_DOMAIN}/cancel.html`,
       currency: 'EUR',
       // automatic_tax: { enabled: true },
       // ERROR: You cannot collect consent to your terms of service unless a
       // URL is set in the Stripe Dashboard
-      // consent_collection: {
-      //   payment_method_reuse_agreement: {
-      //     position: 'auto',
-      //   },
-      //   terms_of_service: 'required',
-      // },
+      consent_collection: {
+        payment_method_reuse_agreement: {
+          position: 'auto',
+        },
+        terms_of_service: 'required',
+      },
       // ERROR: You can only set `payment_method_collection` in `subscription` mode.
-      // payment_method_collection: 'always',
+      payment_method_collection: 'always',
       // ERROR: You can not pass ... in `setup` mode
-      // subscription_data: {
-      //   trial_period_days: 30,
-      // },
+      subscription_data: {
+        trial_period_days: 30,
+      },
     });
 
     // console.info(`Success`);
@@ -123,16 +132,6 @@ export default async (
       );
     }
 
-    // const redirectResponse = {
-    //   statusCode: 303,
-    //   statusDescription: 'See Other',
-    //   headers: {
-    //     Location: session.url,
-    //   },
-    //   body: '',
-    // };
-
-    // callback(null, redirectResponse);
     return response({ code: 200, body: { url: session.url } });
   } catch (exception) {
     return handleException(exception);

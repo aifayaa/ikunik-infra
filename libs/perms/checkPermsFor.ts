@@ -281,14 +281,6 @@ export async function getApplicationWithinOrg(appId: string) {
   }
 }
 
-export async function getApplicationOrganizationId(appId: string) {
-  const application = await getApplicationWithinOrg(appId);
-
-  return (
-    application && application.organization && application.organization._id
-  );
-}
-
 /**
  * Checks for user permissions on an app.
  * @param {string} user A user object
