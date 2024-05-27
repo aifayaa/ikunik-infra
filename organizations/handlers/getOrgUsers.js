@@ -1,8 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import {
-  ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import response, {
   handleException,
@@ -20,28 +16,7 @@ export default async (event) => {
 
   try {
     const orgPermissionLevel = 'member';
-    const allowedOrg = await checkPermsForOrganization(
-      userId,
-      orgId,
-      orgPermissionLevel
-    );
-    if (!allowedOrg) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_ACCESS,
-            code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-            details: {
-              userId,
-              orgId,
-              orgPermissionLevel,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
-    }
+    await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const users = await getUserOrgPerms(orgId);
 

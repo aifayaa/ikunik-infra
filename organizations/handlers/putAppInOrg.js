@@ -13,9 +13,7 @@ import {
 import putAppInOrg from '../lib/putAppInOrg';
 import {
   APP_ALREADY_BUILD_CODE,
-  ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
-  ORGANIZATION_PERMISSION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
@@ -27,25 +25,7 @@ import {
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = 'admin';
-  const allowedOrg = await checkPermsForOrganization(
-    userId,
-    orgId,
-    orgPermissionLevel
-  );
-  if (!allowedOrg) {
-    throw new CrowdaaError(
-      ERROR_TYPE_ACCESS,
-      ORGANIZATION_PERMISSION_CODE,
-      `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-      {
-        details: {
-          userId,
-          orgId,
-          orgPermissionLevel,
-        },
-      }
-    );
-  }
+  await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
   await checkPermsForApp(userId, appId, ['owner']);
 
@@ -73,27 +53,11 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     const applicationOrganizationId =
       application && application.organization && application.organization._id;
 
-    const allowedOriginOrganization = await checkPermsForOrganization(
+    await checkPermsForOrganization(
       userId,
       applicationOrganizationId,
       orgPermissionLevel
     );
-
-    if (!allowedOriginOrganization) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${applicationOrganizationId}' which contains the application '${appId}'`,
-        {
-          details: {
-            userId,
-            applicationOrganizationId,
-            orgPermissionLevel,
-            appId,
-          },
-        }
-      );
-    }
 
     const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
     return org;

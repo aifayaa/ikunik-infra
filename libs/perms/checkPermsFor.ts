@@ -10,6 +10,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
+  ORGANIZATION_PERMISSION_CODE,
 } from '../httpResponses/errorCodes.js';
 import { UserType } from '../../users/lib/userEntity';
 import { AppsPermType, OrganizationPermType } from './permEntities';
@@ -527,6 +528,19 @@ export const checkPermsForOrganization = async (
       ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
     ];
 
-    return areArraysIntersecting(roles, requestedPermsArray);
+    if (!areArraysIntersecting(roles, requestedPermsArray)) {
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        ORGANIZATION_PERMISSION_CODE,
+        `User '${userId}' is not at least '${requestedPermsArray.join(' or ')}' on organization '${orgId}'`,
+        {
+          details: {
+            userId,
+            orgId,
+            requestPermissions: requestedPermsArray,
+          },
+        }
+      )
+    } else return true;
   }
 };

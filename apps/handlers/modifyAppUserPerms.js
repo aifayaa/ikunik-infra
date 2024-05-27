@@ -11,11 +11,6 @@ import {
 } from '../../libs/perms/checkPermsFor.ts';
 import modifyAppUserPerms from '../lib/modifyAppUserPerms';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
-import {
-  ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
 import {
   filterAppPrivateFields,
   getApp,
@@ -54,45 +49,17 @@ export default async (event) => {
     const orgId = getApplicationOrganizationId(app);
 
     const organizationPermissionLevel = 'member';
-    const organizationUserSourceAllowed = await checkPermsForOrganization(
+    await checkPermsForOrganization(
       sourceUserId,
       orgId,
       organizationPermissionLevel
     );
-    if (!organizationUserSourceAllowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${sourceUserId}' is not at least '${organizationPermissionLevel}' on organization '${orgId}'`,
-        {
-          details: {
-            sourceUserId,
-            orgId,
-            organizationPermissionLevel,
-          },
-        }
-      );
-    }
 
-    const organizationTargetUserAllowed = await checkPermsForOrganization(
+    await checkPermsForOrganization(
       targetUserId,
       orgId,
       organizationPermissionLevel
     );
-    if (!organizationTargetUserAllowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${targetUserId}' is not at least '${organizationPermissionLevel}' on organization '${orgId}'`,
-        {
-          details: {
-            targetUserId,
-            orgId,
-            organizationPermissionLevel,
-          },
-        }
-      );
-    }
 
     const modifiedApp = await modifyAppUserPerms(
       sourceUserId,
