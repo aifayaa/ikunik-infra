@@ -63,7 +63,7 @@ export default async (
       line_items: [
         {
           // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: 'price_1P0iF0KD2Srbl7Io3kX935WH',
+          price: 'price_1PJxzGKD2Srbl7IorqAOemUE',
           quantity: 1,
         },
       ],
