@@ -13,8 +13,8 @@ import {
 } from '../httpResponses/errorCodes.js';
 import { UserType } from '../../users/lib/userEntity';
 import { AppsPermType, OrganizationPermType } from './permEntities';
-import { getApp } from '../../apps/lib/appsUtils.js';
-import { AppType } from '../../apps/lib/appEntity.js';
+import { getApp } from '../../apps/lib/appsUtils';
+import { AppType } from '../../apps/lib/appEntity';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
