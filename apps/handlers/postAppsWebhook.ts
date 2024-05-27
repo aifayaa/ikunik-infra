@@ -6,13 +6,21 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import Stripe from 'stripe';
 
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+  wrapperHandleException,
+} from '../../libs/httpResponses/response';
 import { getStripeClient } from '../../libs/stripe';
 
 import { checkBodyIsPresent } from '../../libs/httpResponses/checks';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
+  ERROR_TYPE_STRIPE,
+} from '../../libs/httpResponses/errorCodes';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -35,19 +43,29 @@ export default async (event: APIGatewayProxyEvent) => {
         STRIPE_WEBHOOK_SECRET
       );
     } catch (exception) {
-      return response({
-        code: 400,
-        body: formatResponseBody({
-          errors: [
-            {
-              type: 'STRIPE_WEEKHOOK',
-              code: '400',
-              message: `Webhook Error: ${exception.message}`,
-              details: exception.stack,
-            },
-          ],
-        }),
+      wrapperHandleException(exception, (exception) => {
+        return response({
+          code: 400,
+          body: formatResponseBody({
+            errors: [
+              {
+                type: 'STRIPE_WEEKHOOK',
+                code: '400',
+                message: `Webhook Error: ${exception.message}`,
+                details: exception.stack,
+              },
+            ],
+          }),
+        });
       });
+    }
+
+    if (!stripeEvent) {
+      throw new CrowdaaError(
+        ERROR_TYPE_STRIPE,
+        CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
+        `The Stripe event is not defined`
+      );
     }
 
     // console.log('stripeEvent.type', stripeEvent.type);
