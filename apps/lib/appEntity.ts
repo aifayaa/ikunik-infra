@@ -1,4 +1,4 @@
-import { OrganizationPermType } from '../../libs/perms/permEntities';
+import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
 export type AppType = {
   _id: string;
@@ -84,6 +84,6 @@ export type AppType = {
   firebaseProjectId?: Object;
   organization?: {
     _id: string;
-    users: [{ id_: string; roles: Array<OrganizationPermType> }];
+    users: [{ _id: string; roles: Array<AppsPermWithoutOwnerType> }];
   };
 };
