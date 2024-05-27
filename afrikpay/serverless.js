@@ -29,7 +29,7 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region:
-      '${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}',
+      '${opt:region, file(../api-v1/serverless.js):custom.region.${self:provider.stage}, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
@@ -103,10 +103,11 @@ const serverlessConfiguration = {
     // },
   },
   plugins: [
-    'serverless-disable-request-validators',
-    '@cruglobal/serverless-merge-config',
     'serverless-webpack',
+    'serverless-offline',
+    'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    '@cruglobal/serverless-merge-config',
   ],
   package: { individually: true },
 };
