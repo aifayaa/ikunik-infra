@@ -24,9 +24,9 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const YOUR_DOMAIN = 'http://localhost:4242';
 
 export default async (
-  event: APIGatewayProxyEvent,
-  context: Context,
-  callback: APIGatewayProxyCallback
+  event: APIGatewayProxyEvent
+  // context: Context,
+  // callback: APIGatewayProxyCallback
 ) => {
   const { principalId: currentUserId } =
     (event.requestContext || {}).authorizer || {};
@@ -56,21 +56,56 @@ export default async (
       });
     })();
 
-    // try {
-    // console.info(`Begin`);
+    const customerId = 'cus_QAHYySkXr0yBh5';
+    const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
+
+    // const subscription = await stripe.subscriptions.create({
+    //   customer: customerId,
+    //   items: [
+    //     {
+    //       price: priceId,
+    //     },
+    //   ],
+    //   collection_method: 'charge_automatically',
+    //   // current_period_start: ,
+    //   trial_period_days: 30,
+    //   // billing_cycle_anchor: ,
+    //   // COnfiguration of Stripe Connect
+    //   // transfer_data: ,
+    // });
+
+    // console.log('subscription', subscription);
 
     const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: 'price_1PJxzGKD2Srbl7IorqAOemUE',
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
+      billing_address_collection: 'auto',
+      customer: customerId,
+      // ERROR: You can not pass ... in `setup` mode
+      // line_items: [
+      //   {
+      //     // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+      //     price: priceId,
+      //     quantity: 1,
+      //   },
+      // ],
+      mode: 'setup', // Save payment details to charge your customers later.
       success_url: `${YOUR_DOMAIN}/success.html`,
       cancel_url: `${YOUR_DOMAIN}/cancel.html`,
-      automatic_tax: { enabled: true },
+      currency: 'EUR',
+      // automatic_tax: { enabled: true },
+      // ERROR: You cannot collect consent to your terms of service unless a
+      // URL is set in the Stripe Dashboard
+      // consent_collection: {
+      //   payment_method_reuse_agreement: {
+      //     position: 'auto',
+      //   },
+      //   terms_of_service: 'required',
+      // },
+      // ERROR: You can only set `payment_method_collection` in `subscription` mode.
+      // payment_method_collection: 'always',
+      // ERROR: You can not pass ... in `setup` mode
+      // subscription_data: {
+      //   trial_period_days: 30,
+      // },
     });
 
     // console.info(`Success`);
@@ -98,7 +133,7 @@ export default async (
     // };
 
     // callback(null, redirectResponse);
-    return response({code: 200, body: {url: session.url}})
+    return response({ code: 200, body: { url: session.url } });
   } catch (exception) {
     return handleException(exception);
   }
