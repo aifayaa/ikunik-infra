@@ -7,24 +7,14 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import Stripe from 'stripe';
 
 import response, { handleException } from '../../libs/httpResponses/response';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import {
-  CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
-  ERROR_TYPE_SETUP,
-  ERROR_TYPE_STRIPE,
-  MISSING_ENVIRONMENT_VARIABLE_CODE,
-} from '../../libs/httpResponses/errorCodes';
-
-import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
-import { getOrganization } from '../../organizations/lib/organizationsUtils';
 import { getStripeClient } from '../../libs/stripe';
 
 import { checkBodyIsPresent } from '../../libs/httpResponses/checks';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-
-const YOUR_DOMAIN = 'http://localhost:4242';
+const { COLL_APPS } = mongoCollections;
 
 const STRIPE_WEBHOOK_SECRET =
   'whsec_f87467f40045df67affa6b33de01b7b1d8da6d41bc480facacbd3d8fcae7ec71';
@@ -62,10 +52,26 @@ export default async (event: APIGatewayProxyEvent) => {
 
     // console.log('stripeEvent.type', stripeEvent.type);
 
-    // if (stripeEvent.type === 'customer.subscription.created') {
-    //   console.log('STRIPEEVENT.type', stripeEvent.type);
-    //   console.log('stripeEvent', stripeEvent);
-    // }
+    if (stripeEvent.type === 'customer.subscription.created') {
+      console.log('STRIPEEVENT.type', stripeEvent.type);
+      console.log('stripeEvent', stripeEvent);
+
+      const client = await MongoClient.connect();
+
+      const db = client.db();
+      const {
+        metadata: { appId },
+      } = stripeEvent.data.object;
+
+      await db.collection(COLL_APPS).updateOne(
+        { _id: appId },
+        {
+          $set: {
+            stripeSubscriptionId: stripeEvent.data.object.id,
+          },
+        }
+      );
+    }
 
     if (stripeEvent.type === 'customer.subscription.updated') {
       console.log('STRIPEEVENT.type', stripeEvent.type);
@@ -83,7 +89,7 @@ export default async (event: APIGatewayProxyEvent) => {
           metadata: {
             initial: 'false',
           },
-          // Suspense the current subscription
+          // Suspense the subscription
           pause_collection: {
             behavior: 'mark_uncollectible',
           },

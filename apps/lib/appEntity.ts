@@ -86,4 +86,5 @@ export type AppType = {
     _id: string;
     users: [{ _id: string; roles: Array<AppsPermWithoutOwnerType> }];
   };
+  stripeSubscriptionId?: string;
 };
