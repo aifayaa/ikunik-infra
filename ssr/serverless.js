@@ -62,7 +62,6 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    '@cruglobal/serverless-merge-config',
     'serverless-domain-manager',
     'serverless-webpack',
     'serverless-offline',

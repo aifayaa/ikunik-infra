@@ -107,7 +107,6 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
-    '@cruglobal/serverless-merge-config',
   ],
   package: { individually: true },
 };
