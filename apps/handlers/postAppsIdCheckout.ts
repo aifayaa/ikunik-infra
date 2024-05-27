@@ -10,7 +10,7 @@ import {
 
 import Stripe from 'stripe';
 
-import { handleException } from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
@@ -88,16 +88,17 @@ export default async (
       );
     }
 
-    const redirectResponse = {
-      statusCode: 303,
-      statusDescription: 'See Other',
-      headers: {
-        Location: session.url,
-      },
-      body: '',
-    };
+    // const redirectResponse = {
+    //   statusCode: 303,
+    //   statusDescription: 'See Other',
+    //   headers: {
+    //     Location: session.url,
+    //   },
+    //   body: '',
+    // };
 
-    callback(null, redirectResponse);
+    // callback(null, redirectResponse);
+    return response({code: 200, body: {url: session.url}})
   } catch (exception) {
     return handleException(exception);
   }
