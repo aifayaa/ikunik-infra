@@ -15,7 +15,7 @@ import {
   addUserOrganisationRoles,
   filterUserPrivateFields,
 } from '../../users/lib/usersUtils.ts';
-import { organizationRoles } from '../lib/organizationsUtils';
+import { organizationRoles } from '../lib/organizationsUtils.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {

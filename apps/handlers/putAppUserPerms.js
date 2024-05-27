@@ -8,7 +8,6 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-  getApplicationOrganizationId,
 } from '../../libs/perms/checkPermsFor.ts';
 import putAppUserPerms from '../lib/putAppUserPerms';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
@@ -16,8 +15,12 @@ import {
   APPLICATION_PERMISSION_CODE,
   ERROR_TYPE_ACCESS,
 } from '../../libs/httpResponses/errorCodes';
-import { filterAppPrivateFields } from '../lib/appsUtils.ts';
-import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
+import {
+  filterAppPrivateFields,
+  getApp,
+  getApplicationOrganizationId,
+} from '../lib/appsUtils.ts';
+import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
 
 /**
  * As the source user must be an 'admin' of the application, he can give
@@ -56,7 +59,8 @@ export default async (event) => {
 
     await checkPermsForApp(sourceUserId, appId, ['admin']);
 
-    const orgId = await getApplicationOrganizationId(appId);
+    const app = await getApp(appId);
+    const orgId = getApplicationOrganizationId(app);
 
     const organizationPermissionLevel = 'member';
     const organizationUserSourceAllowed = await checkPermsForOrganization(
@@ -99,12 +103,12 @@ export default async (event) => {
       );
     }
 
-    const app = await putAppUserPerms(appId, roles, targetUserId);
+    const modifiedApp = await putAppUserPerms(appId, roles, targetUserId);
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: filterAppPrivateFields(app),
+        data: filterAppPrivateFields(modifiedApp),
       }),
     });
   } catch (exception) {

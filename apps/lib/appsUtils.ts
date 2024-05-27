@@ -7,6 +7,8 @@ import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_ORGANIZATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { AppType } from './appEntity';
 
@@ -104,6 +106,20 @@ export function getAppDefaultBuildFields(name: string, platform: string) {
 
 export function isApplicationInOrganization(app: AppType) {
   return (app.organization && app.organization._id) !== undefined;
+}
+
+export function getApplicationOrganizationId(app: AppType) {
+  const appOrgId = app.organization?._id;
+
+  if (!appOrgId) {
+    throw new CrowdaaError(
+      ERROR_TYPE_VALIDATION_ERROR,
+      MISSING_ORGANIZATION_CODE,
+      `App '${app._id}' do not have an organization`
+    );
+  }
+
+  return appOrgId;
 }
 
 export function isAppAlreadyBuild(app: AppType) {
