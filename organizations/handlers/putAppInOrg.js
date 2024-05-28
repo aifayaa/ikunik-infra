@@ -14,7 +14,7 @@ import putAppInOrg from '../lib/putAppInOrg';
 import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
@@ -25,7 +25,7 @@ import {
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = 'admin';
-  await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
+  await checkPermsForOrganization(userId, orgId, [orgPermissionLevel]);
 
   await checkPermsForApp(userId, appId, ['owner']);
 
