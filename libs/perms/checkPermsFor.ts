@@ -10,7 +10,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
-  ORGANIZATION_PERMISSION_CODE,
+  ORGANIZATION_PERMISSION_CODE
 } from '../httpResponses/errorCodes.js';
 import { UserType } from '../../users/lib/userEntity';
 import { AppsPermType, OrganizationPermType } from './permEntities';
