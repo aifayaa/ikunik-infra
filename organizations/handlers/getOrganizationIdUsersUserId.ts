@@ -9,6 +9,7 @@ import {
   filterUserPrivateFields,
   getUser,
 } from '../../users/lib/usersUtils';
+import { OrganizationPermType } from '../../libs/perms/permEntities';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer as {
@@ -22,7 +23,7 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     const user = await getUser(targetUserId);
 
-    const orgPermissionLevel = 'member';
+    const orgPermissionLevel: OrganizationPermType[] = ['member'];
     await checkPermsForOrganization(
       sourceUserId,
       orgId,

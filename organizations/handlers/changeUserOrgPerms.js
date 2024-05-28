@@ -37,14 +37,14 @@ export default async (event) => {
     }
 
     const { roles } = validatedBody;
-    const orgPermissionLevelSourceUser = 'admin';
+    const orgPermissionLevelSourceUser = ['admin'];
     await checkPermsForOrganization(
       sourceUserId,
       orgId,
       orgPermissionLevelSourceUser
     );
 
-    const orgPermissionLevelTargetUser = 'member';
+    const orgPermissionLevelTargetUser = ['member'];
     await checkPermsForOrganization(
       targetUserId,
       orgId,
