@@ -24,16 +24,8 @@ export default async (event: APIGatewayProxyEvent) => {
     const user = await getUser(targetUserId);
 
     const orgPermissionLevel: OrganizationPermType[] = ['member'];
-    await checkPermsForOrganization(
-      sourceUserId,
-      orgId,
-      orgPermissionLevel
-    );
-    await checkPermsForOrganization(
-      targetUserId,
-      orgId,
-      orgPermissionLevel
-    );
+    await checkPermsForOrganization(sourceUserId, orgId, orgPermissionLevel);
+    await checkPermsForOrganization(targetUserId, orgId, orgPermissionLevel);
 
     return response({
       code: 200,
