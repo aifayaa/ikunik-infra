@@ -24,8 +24,8 @@ import {
 } from '../../apps/lib/appsUtils.ts';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
-  const orgPermissionLevel = 'admin';
-  await checkPermsForOrganization(userId, orgId, [orgPermissionLevel]);
+  const orgPermissionLevel = ['admin'];
+  await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
   await checkPermsForApp(userId, appId, ['owner']);
 
