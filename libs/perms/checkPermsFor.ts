@@ -481,13 +481,13 @@ export async function checkPermsForApp(
  * Checks for user permissions on an organization.
  * @param {string} userId The user ID
  * @param {string} orgId The organization ID
- * @param {string} requestedPerm The permission to check for, may be one of : owner, admin, member
+ * @param {string[]} requestedPerms The permission to check for, could be one or several of : owner, admin, member
  * @returns true for a valid permission, false otherwise
  */
 export const checkPermsForOrganization = async (
   userId: string,
   orgId: string,
-  requestedPerm: OrganizationPermType
+  requestedPerms: OrganizationPermType[]
 ) => {
   const client = await MongoClient.connect();
 
@@ -523,10 +523,10 @@ export const checkPermsForOrganization = async (
   if (superAdmin) {
     return true;
   } else {
-    const requestedPermsArray = [
-      requestedPerm,
-      ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
-    ];
+    const requestedPermsArray = requestedPerms.flatMap((perm) => [
+      perm,
+      ...(ORGANIZATION_PERMS_IMPLIED[perm] || []),
+    ]);
 
     if (!areArraysIntersecting(roles, requestedPermsArray)) {
       throw new CrowdaaError(
@@ -540,7 +540,9 @@ export const checkPermsForOrganization = async (
             requestPermissions: requestedPermsArray,
           },
         }
-      )
-    } else return true;
+      );
+    }
+
+    return true;
   }
 };
