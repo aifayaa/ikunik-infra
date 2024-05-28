@@ -4,7 +4,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   NOT_ENOUGH_PERMISSIONS_CODE,
   AT_LEAST_ONE_OWNER_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import {

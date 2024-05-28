@@ -5,7 +5,7 @@ import {
   ERROR_TYPE_FORBIDDEN,
   ERROR_TYPE_NOT_FOUND,
   USER_NOT_FOUND_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
