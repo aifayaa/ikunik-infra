@@ -5,7 +5,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objSet } from '../../libs/utils';
