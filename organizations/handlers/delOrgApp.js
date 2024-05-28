@@ -10,7 +10,7 @@ import {
   APP_NOT_FOUND_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_FOUND,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import { getApp, isAppAlreadyBuild } from '../../apps/lib/appsUtils.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 

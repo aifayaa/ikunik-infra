@@ -11,7 +11,7 @@ export default async (event) => {
   const orgId = event.pathParameters.id;
 
   try {
-    const orgPermissionLevel = 'owner';
+    const orgPermissionLevel = ['owner'];
     await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const res = await deleteOrg(orgId);
