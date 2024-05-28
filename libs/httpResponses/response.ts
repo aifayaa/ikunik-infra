@@ -3,7 +3,7 @@ import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody.js';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   UNMANAGED_EXCEPTION_CODE,
-} from './errorCodes.js';
+} from './errorCodes';
 import { formatResponseBody } from './formatResponseBody';
 import { formatValidationErrorsType } from './formatValidationErrors';
 

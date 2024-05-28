@@ -11,7 +11,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
-} from '../httpResponses/errorCodes.js';
+} from '../httpResponses/errorCodes';
 import { UserType } from '../../users/lib/userEntity';
 import { AppsPermType, OrganizationPermType } from './permEntities';
 import { getApp } from '../../apps/lib/appsUtils';
