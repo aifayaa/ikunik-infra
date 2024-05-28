@@ -48,7 +48,7 @@ export default async (event) => {
     const app = await getApp(appId);
     const orgId = getApplicationOrganizationId(app);
 
-    const organizationPermissionLevel = 'member';
+    const organizationPermissionLevel = ['member'];
     await checkPermsForOrganization(
       sourceUserId,
       orgId,

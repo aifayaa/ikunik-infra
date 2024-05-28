@@ -9,7 +9,7 @@ export default async (event) => {
   const orgId = event.pathParameters.id;
 
   try {
-    await checkPermsForOrganization(userId, orgId, 'member');
+    await checkPermsForOrganization(userId, orgId, ['member']);
 
     const websites = await getOrgWebsites(orgId);
     return response({ code: 200, body: websites });

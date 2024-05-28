@@ -87,7 +87,7 @@ export default async (event) => {
       return response({ code: 200, body });
     }
 
-    const orgPermissionLevel = 'admin';
+    const orgPermissionLevel = ['admin'];
     await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const result = await getOrgInvitations(orgId, queryStringParameters);

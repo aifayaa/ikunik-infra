@@ -15,7 +15,7 @@ export default async (event) => {
   const { id: orgId } = event.pathParameters;
 
   try {
-    const orgPermissionLevel = 'member';
+    const orgPermissionLevel = ['member'];
     await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const users = await getUserOrgPerms(orgId);

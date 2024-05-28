@@ -19,7 +19,7 @@ export default async (event) => {
   const { id: orgId, appId } = event.pathParameters;
 
   try {
-    const orgPermissionLevel = 'admin';
+    const orgPermissionLevel = ['admin'];
     await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const app = await getApp(appId);
