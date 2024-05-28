@@ -3,7 +3,7 @@ import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_FOUND,
   USER_ALREADY_EXISTS_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
