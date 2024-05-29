@@ -38,7 +38,11 @@ export default async (event) => {
 
     return response({
       code: 200,
-      body: formatResponseBody({ data: modifiedCount }),
+      body: formatResponseBody({
+        data: {
+          modifiedCount,
+        },
+      }),
     });
   } catch (exception) {
     return handleException(exception);
