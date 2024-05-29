@@ -24,11 +24,13 @@ if [ -n "$MODIFIED_FILES" ]; then
     echo "Modified files found."
 
     for file in $MODIFIED_FILES; do
+        config_file=""
         # Find the nearest webpack.config.js file
-        config_file=$(find "$(dirname "$file")" -name 'webpack.config.js' | head -n 1)
-        if [ -z "$config_file" ]; then
-            config_file=$(find "$(dirname "$file")"/.. -name 'webpack.config.js' | head -n 1)
-        fi
+        current_dir=$(dirname "$file")
+        while [ "$current_dir" != "/"  ] && [ -z "$config_file" ]; do
+            config_file=$(find "$current_dir" -maxdepth 1 -name 'webpack.config.js' | head -n 1)
+            current_dir=$(dirname "$current_dir")
+        done
 
         # If a webpack.config.js file was found and it's not already in the array, add it to the array
         if [ -n "$config_file" ]; then
