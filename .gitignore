@@ -7,3 +7,6 @@ tmp
 
 # config directory
 .vscode
+
+# eslint js & ts files scan
+eslintOutput.log
