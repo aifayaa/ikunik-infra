@@ -91,6 +91,23 @@ const serverlessConfiguration = {
         },
       ],
     },
+    declineInvitation: {
+      handler: 'handlers/declineInvitation.default',
+      events: [
+        {
+          http: {
+            path: 'invitations/{id}/decline',
+            method: 'put',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
     invitationAction: {
       handler: 'handlers/invitationAction.default',
       events: [
