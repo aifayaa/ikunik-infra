@@ -57,7 +57,6 @@ export class PendingStatus extends AbstractStatus {
 
   async updateDeclined(invitationId, userId) {
     const user = await this.getUser(userId);
-    if (!user) throw new Error('invitation_invited_user_not_found');
 
     const updateInvitationRes = await this.mongoClient
       .db()
@@ -67,7 +66,7 @@ export class PendingStatus extends AbstractStatus {
         {
           $set: {
             status: invitationStatuses.DECLINED,
-            toUserId: user._id,
+            toUserId: user ? user._id : undefined,
             updatedAt: new Date().toISOString(),
           },
         }
@@ -236,14 +235,6 @@ export class PendingStatus extends AbstractStatus {
     if (challengeCode !== this.challengeCode) {
       throw new Error('invitation_invalid_challengeCode');
     }
-
-    const invitingUser = await this.getInvitingUser();
-    if (invitingUser._id === currentUserId) {
-      throw new Error('invitation_unauthorized_action');
-    }
-
-    const user = await this.getUser(currentUserId);
-    await this.target.checkUserCanDecline(user);
 
     const modifiedCount = await this.updateDeclined(
       invitationId,
