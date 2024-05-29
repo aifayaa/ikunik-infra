@@ -189,7 +189,7 @@ async function getUserPermsOnWebsite(userId: string, websiteId: string) {
 
 /**
  * Returns user permissions.
- * @param {string} userId The user ID
+ * @param {UserType} userId The user ID
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
@@ -522,11 +522,9 @@ export async function checkPermsForOrganization(
   }
 
   try {
-    const promisesToRevolve = requestedPerms.map((permToCheck) => {
-      checkPermsForOrganizationAux(user, orgId, permToCheck);
-    });
-
-    const isAllow = await Promise.all(promisesToRevolve);
+    const isAllow = requestedPerms.map((permToCheck) =>
+      checkPermsForOrganizationAux(user, orgId, permToCheck)
+    );
 
     const res = isAllow.some(Boolean);
     if (options.dontThrow) {
@@ -556,12 +554,12 @@ export async function checkPermsForOrganization(
 
 /**
  * Checks for user permissions on an organization.
- * @param {string} user A user object
+ * @param {UserType} user A user object
  * @param {string} orgId An organization ID
  * @param {string} requestedPerm A permission to check for, may be one of : owner, admin, member
  * @returns true for a valid permission, false otherwise
  */
-async function checkPermsForOrganizationAux(
+function checkPermsForOrganizationAux(
   user: UserType,
   orgId: string,
   requestedPerm: OrganizationPermType
