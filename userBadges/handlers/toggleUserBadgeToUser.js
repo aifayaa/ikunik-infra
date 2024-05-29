@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import toggleUserBadgeToUser from '../lib/toggleUserBadgeToUser';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { getUserLanguage } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

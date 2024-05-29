@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getAppSettings from '../lib/getAppSettings';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;

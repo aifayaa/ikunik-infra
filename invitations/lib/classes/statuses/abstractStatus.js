@@ -16,6 +16,20 @@ import mongoCollections from '../../../../libs/mongoCollections.json';
 
 const { COLL_USERS } = mongoCollections;
 
+const getAppRegion = () => {
+  const { CROWDAA_REGION, STAGE } = process.env;
+
+  if (['dev', 'preprod'].includes(STAGE)) {
+    return `crowdaa-${STAGE}-${CROWDAA_REGION}`;
+  }
+
+  if (STAGE === 'prod') {
+    return `crowdaa-${CROWDAA_REGION}`;
+  }
+
+  return undefined;
+};
+
 export class AbstractStatus {
   constructor({ mongoClient }) {
     this.mongoClient = mongoClient;
@@ -82,7 +96,7 @@ export class AbstractStatus {
   static generateInvitationUrl(invitationId, challengeCode) {
     let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
     if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
-      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?challengeCode=${challengeCode}`;
+      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?challengeCode=${challengeCode}&appRegion=${getAppRegion()}`;
     }
     return url;
   }

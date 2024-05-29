@@ -3,7 +3,7 @@ import AWS from 'aws-sdk/';
 import managePicture from '../lib/managePicture';
 import manageVideo from '../lib/manageVideo';
 import manageDocument from '../lib/manageDocument';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import getCollectionFromContentType from '../lib/getCollectionFromContentType';
 import mongoCollections from '../../libs/mongoCollections.json';
 

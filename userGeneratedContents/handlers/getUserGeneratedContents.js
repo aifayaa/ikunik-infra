@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getUserGeneratedContents from '../lib/getUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 const isBooleanStringOrUndefined = (val) =>

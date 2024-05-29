@@ -62,7 +62,6 @@
     "zod": "^3.22.5"
   },
   "devDependencies": {
-    "@cruglobal/serverless-merge-config": "^1.1.0",
     "@types/aws-lambda": "^8.10.138",
     "aws-sdk-mock": "^5.0.0",
     "chai": "^4.2.0",

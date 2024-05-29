@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import getLiveStream from '../lib/getLiveStream';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { formatMessage, intlInit, getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {

@@ -2,7 +2,7 @@
 import checkOwner from '../../libs/perms/checkOwner';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import removeUserGeneratedContents from '../lib/removeUserGeneratedContents';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

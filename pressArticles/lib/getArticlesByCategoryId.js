@@ -83,6 +83,8 @@ export const getArticlesByCategoryId = async (
         $or: [
           {
             categoryId,
+          },
+          {
             categoriesId: categoryId,
           },
         ],

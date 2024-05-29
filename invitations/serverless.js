@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'invitations',
@@ -8,7 +9,11 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+      CROWDAA_REGION:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
+    },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
@@ -56,7 +61,7 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
             request: {
               parameters: {
@@ -80,17 +85,24 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-                paths: {
-                  id: true,
-                },
-              },
+          },
+        },
+      ],
+    },
+    declineInvitation: {
+      handler: 'handlers/declineInvitation.default',
+      events: [
+        {
+          http: {
+            path: 'invitations/{id}/decline',
+            method: 'put',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
           },
         },
@@ -139,6 +151,24 @@ const serverlessConfiguration = {
     },
     'serverless-disable-request-validators': {
       action: 'delete',
+    },
+    dev: {
+      'us-east-1': {
+        CROWDAA_REGION: 'us',
+      },
+    },
+    preprod: {
+      'eu-west-3': {
+        CROWDAA_REGION: 'fr',
+      },
+    },
+    prod: {
+      'us-east-1': {
+        CROWDAA_REGION: 'us',
+      },
+      'eu-west-3': {
+        CROWDAA_REGION: 'fr',
+      },
     },
   },
   package: {

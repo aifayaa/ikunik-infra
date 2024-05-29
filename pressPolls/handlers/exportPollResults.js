@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getPollResults, { pollResultsToCsv } from '../lib/getPollResults';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { getUserLanguage, intlInit } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

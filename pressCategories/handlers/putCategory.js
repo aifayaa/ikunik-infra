@@ -2,7 +2,7 @@
 import handlerCategoryChecks from '../lib/handlerCategoryChecks';
 import putCategory from '../lib/putCategory';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { actionV2ToAction, actionToActionV2 } from '../lib/actionV2Migration';
 

@@ -6,7 +6,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { addBalance } from '../../userBalances/lib/addBalance';
 import { setBalance } from '../../userBalances/lib/setBalance';
 import { addPurchaseHistory } from '../lib/addPurchaseHistory';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import articlePrices from '../../pressArticles/articlePrices.json';
 import badgePrices from '../../userBadges/badgePrices.json';
 

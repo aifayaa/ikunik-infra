@@ -1,5 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import sendBlastUsersPush from '../lib/sendBlastUsersPush';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

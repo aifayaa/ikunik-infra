@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import viewPdf from '../../lib/leQuotidien/viewPdf';
-import response from '../../../libs/httpResponses/response';
+import response from '../../../libs/httpResponses/response.ts';
 import errorMessage from '../../../libs/httpResponses/errorMessage';
 
 const { LEQUOTIDIEN_APP_ID } = process.env;

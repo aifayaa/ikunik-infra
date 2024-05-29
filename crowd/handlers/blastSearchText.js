@@ -3,7 +3,7 @@ import Lambda from 'aws-sdk/clients/lambda';
 import phone from 'phone';
 import queue from 'async/queue';
 import buildPipeline from '../lib/pipelines/crowdPipeline';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import search from '../lib/search';
 
 const { REGION, STAGE } = process.env;

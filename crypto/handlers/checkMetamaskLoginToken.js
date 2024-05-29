@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import checkMetamaskLoginToken from '../lib/checkMetamaskLoginToken';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 
 export default async (event) => {

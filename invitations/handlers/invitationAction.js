@@ -1,10 +1,11 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { invitationAction } from '../lib/invitationAction';
 import { invitationActionSchema } from '../schemas/invitationAction.schema';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 
 export default async (event) => {
@@ -35,9 +36,15 @@ export default async (event) => {
       parameters
     );
 
-    return response({ code: 200, body: { modifiedCount } });
-  } catch (error) {
-    // TODO use a logger
-    return response(errorMessage({ message: error.message }));
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: {
+          modifiedCount,
+        },
+      }),
+    });
+  } catch (exception) {
+    return handleException(exception);
   }
 };

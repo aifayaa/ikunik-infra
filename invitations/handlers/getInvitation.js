@@ -1,9 +1,10 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { getInvitation } from '../lib/getInvitation';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
@@ -26,10 +27,11 @@ export default async (event) => {
 
     return response({
       code: 200,
-      body: filterSensitiveProperties(invitationDocument),
+      body: formatResponseBody({
+        data: filterSensitiveProperties(invitationDocument),
+      }),
     });
-  } catch (error) {
-    // TODO use a logger
-    return response(errorMessage({ message: error.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };

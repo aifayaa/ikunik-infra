@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import getOrgWebsites from '../lib/getOrgWebsites';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
@@ -9,10 +9,7 @@ export default async (event) => {
   const orgId = event.pathParameters.id;
 
   try {
-    const allowed = await checkPermsForOrganization(userId, orgId, 'member');
-    if (!allowed) {
-      throw new Error('access_forbidden');
-    }
+    await checkPermsForOrganization(userId, orgId, ['member']);
 
     const websites = await getOrgWebsites(orgId);
     return response({ code: 200, body: websites });

@@ -4,11 +4,11 @@ import {
   AT_LEAST_ONE_ADMIN_CODE,
   ERROR_TYPE_NOT_ALLOWED,
   NOT_ENOUGH_PERMISSIONS_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
-import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
+import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
 
 const { COLL_APPS } = mongoCollections;
 

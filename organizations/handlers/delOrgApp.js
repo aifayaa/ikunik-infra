@@ -1,18 +1,17 @@
 /* eslint-disable import/no-relative-packages */
 import delOrgApp from '../lib/delOrgApp';
-import response, { handleException } from '../../libs/httpResponses/response';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   APP_NOT_FOUND_CODE,
-  ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_FOUND,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
-import { isAppAlreadyBuild } from '../../apps/lib/appsUtils';
-import getApp from '../../apps/lib/getApp';
+} from '../../libs/httpResponses/errorCodes.ts';
+import { getApp, isAppAlreadyBuild } from '../../apps/lib/appsUtils.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 
 export default async (event) => {
@@ -20,31 +19,10 @@ export default async (event) => {
   const { id: orgId, appId } = event.pathParameters;
 
   try {
-    const orgPermissionLevel = 'admin';
-    const allowed = await checkPermsForOrganization(
-      userId,
-      orgId,
-      orgPermissionLevel
-    );
-    if (!allowed) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_ACCESS,
-            code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-            details: {
-              userId,
-              orgId,
-              orgPermissionLevel,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
-    }
+    const orgPermissionLevel = ['admin'];
+    await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
-    const app = getApp(appId);
+    const app = await getApp(appId);
 
     if (
       app.organization === undefined ||

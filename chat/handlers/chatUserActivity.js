@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import chatUserActivity from '../lib/chatUserActivity';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const userId = event.requestContext.authorizer.principalId;

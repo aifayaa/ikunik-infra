@@ -236,6 +236,60 @@ const serverlessConfiguration = {
     //     },
     //   ],
     // },
+    getOrgUsers: {
+      handler: 'handlers/getOrgUsers.default',
+      events: [
+        {
+          http: {
+            path: 'organizations/{id}/users',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getOrganizationIdUsersUserId: {
+      handler: 'handlers/getOrganizationIdUsersUserId.default',
+      events: [
+        {
+          http: {
+            path: 'organizations/{id}/users/{userId}',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     changeUserOrgPerms: {
       handler: 'handlers/changeUserOrgPerms.default',
       events: [
@@ -285,33 +339,6 @@ const serverlessConfiguration = {
                 paths: {
                   id: true,
                   userId: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    getOrgUsers: {
-      handler: 'handlers/getOrgUsers.default',
-      events: [
-        {
-          http: {
-            path: 'organizations/{id}/users',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-                paths: {
-                  id: true,
                 },
               },
             },

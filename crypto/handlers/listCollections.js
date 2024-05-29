@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import listCollections from '../lib/listCollections';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 

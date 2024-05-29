@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import badgeSelfRequest from '../lib/badgeSelfRequest';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { getUserLanguage } from '../../libs/intl/intl';
 
 export default async (event) => {

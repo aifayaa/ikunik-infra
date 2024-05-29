@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import incrementAdCounter from '../lib/incrementAdCounter';
 import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   const { resource } = event;

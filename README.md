@@ -2,6 +2,8 @@
 
 # Development environment
 
+We use Node 16.
+
 Install the following plugin in VSCode:
 | Extension name | Extension identifier |
 | ------ | ------ |

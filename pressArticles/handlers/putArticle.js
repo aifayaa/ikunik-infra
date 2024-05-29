@@ -3,7 +3,7 @@ import removeMd from 'remove-markdown';
 
 import checkActions from '../lib/checks/checkActions';
 import mdToHtml from '../lib/mdParsing/mdToHtml';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
 import { queueArticleNotifications } from '../lib/notificationsQueue';

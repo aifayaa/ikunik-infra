@@ -3,7 +3,7 @@ import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_ALLOWED,
   ORGANISATION_APPLE_TEAM_ALREADY_SETUP_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
@@ -43,7 +43,7 @@ export default async (orgId, name, email, appleTeamId, appleCompanyName) => {
       const oldTeamId = objGet(currentOrg, ['apple', 'teamId']);
 
       if (oldTeamId !== appleTeamId) {
-        $set['apple.teamId'] = appleTeamId;
+        $set['apple.teamId'] = appleTeamId.toUpperCase();
         $set['apple.teamStatus'] = 'checking';
         $set['apple.setupDone'] = false;
         updates.$unset = {

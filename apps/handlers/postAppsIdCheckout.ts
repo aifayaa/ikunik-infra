@@ -1,76 +1,103 @@
 /* eslint-disable import/no-relative-packages */
-// import stripe from ('stripe')(
-//   'sk_test_51LBJZKKD2Srbl7Iomp6ag5TPCImTUfKOJGxzb7MPFfgBhgaN36c0C9FHzAvUTj4kuWXRx2B5dhQamqFxKZNJAepW00vwksLCFx'
-// );
-import {
-  APIGatewayProxyCallback,
-  APIGatewayProxyEvent,
-  Context,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
-import Stripe from 'stripe';
-
-import { handleException } from '../../libs/httpResponses/response';
+import response, { handleException } from '../../libs/httpResponses/response';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
-  ERROR_TYPE_SETUP,
   ERROR_TYPE_STRIPE,
-  MISSING_ENVIRONMENT_VARIABLE_CODE,
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_APPLICATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
+import { getOrganization } from '../../organizations/lib/organizationsUtils';
+import { getStripeClient } from '../../libs/stripe';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 const YOUR_DOMAIN = 'http://localhost:4242';
 
-export default async (
-  event: APIGatewayProxyEvent,
-  context: Context,
-  callback: APIGatewayProxyCallback
-) => {
-  const { principalId: currentUserId } =
-    (event.requestContext || {}).authorizer || {};
-  // let invitationId = event.pathParameters.id;
-  // const { method, path } = request;
-  // const logger = generateLogger({ msgPrefix: `[${method} ${path}] ` });
-
-  // console.log('event', event);
-  // console.dir(event);
-  // console.dir(context);
-  // console.dir(callback);
+export default async (event: APIGatewayProxyEvent) => {
+  const { principalId: userId } = (event.requestContext || {}).authorizer || {};
+  const appId = event.pathParameters?.id;
 
   try {
-    const stripe = (() => {
-      if (STRIPE_SECRET_KEY === undefined) {
-        throw new CrowdaaError(
-          ERROR_TYPE_SETUP,
-          MISSING_ENVIRONMENT_VARIABLE_CODE,
-          `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
-          { httpCode: 500 }
-        );
-      }
+    if (!appId) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_APPLICATION_CODE,
+        `Path parameter appId is not defined: '${appId}'`
+      );
+    }
 
-      return new Stripe(STRIPE_SECRET_KEY, {
-        apiVersion: '2024-04-10',
-        typescript: true,
-      });
-    })();
+    await checkPermsForApp(userId, appId, ['admin']);
 
-    // try {
-    // console.info(`Begin`);
+    const app = await getApp(appId);
+
+    const appOrgId = getApplicationOrganizationId(app);
+
+    const org = await getOrganization(appOrgId);
+
+    const { stripeCustomerId } = org;
+
+    const stripe = getStripeClient();
+
+    const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
+
+    // const subscription = await stripe.subscriptions.create({
+    //   customer: customerId,
+    //   items: [
+    //     {
+    //       price: priceId,
+    //     },
+    //   ],
+    //   collection_method: 'charge_automatically',
+    //   // current_period_start: ,
+    //   trial_period_days: 30,
+    //   // billing_cycle_anchor: ,
+    //   // COnfiguration of Stripe Connect
+    //   // transfer_data: ,
+    // });
+
+    // console.log('subscription', subscription);
 
     const session = await stripe.checkout.sessions.create({
+      billing_address_collection: 'auto',
+      customer: stripeCustomerId,
+      // ERROR: You can not pass ... in `setup` mode
       line_items: [
         {
           // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: 'price_1P0iF0KD2Srbl7Io3kX935WH',
+          price: priceId,
           quantity: 1,
         },
       ],
+      // mode: 'setup', // Save payment details to charge your customers later.
       mode: 'subscription',
       success_url: `${YOUR_DOMAIN}/success.html`,
       cancel_url: `${YOUR_DOMAIN}/cancel.html`,
-      automatic_tax: { enabled: true },
+      currency: 'EUR',
+      // automatic_tax: { enabled: true },
+      // ERROR: You cannot collect consent to your terms of service unless a
+      // URL is set in the Stripe Dashboard
+      consent_collection: {
+        payment_method_reuse_agreement: {
+          position: 'auto',
+        },
+        terms_of_service: 'required',
+      },
+      // ERROR: You can only set `payment_method_collection` in `subscription` mode.
+      payment_method_collection: 'always',
+      // ERROR: You can not pass ... in `setup` mode
+      subscription_data: {
+        // trial_period_days: 30,
+        metadata: {
+          initial: 'true',
+          appId,
+        },
+        // ERROR : The `proration_behavior` parameter can only be passed if a `billing_cycle_anchor` exists.
+        // proration_behavior: 'none',
+      },
     });
 
     // console.info(`Success`);
@@ -88,16 +115,7 @@ export default async (
       );
     }
 
-    const redirectResponse = {
-      statusCode: 303,
-      statusDescription: 'See Other',
-      headers: {
-        Location: session.url,
-      },
-      body: '',
-    };
-
-    callback(null, redirectResponse);
+    return response({ code: 200, body: { url: session.url } });
   } catch (exception) {
     return handleException(exception);
   }

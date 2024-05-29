@@ -2,7 +2,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils';
-import { appPrivateFieldsProjection } from './appsUtils';
+import { appPrivateFieldsProjection } from './appsUtils.ts';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 

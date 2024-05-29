@@ -4,33 +4,16 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   NOT_ENOUGH_PERMISSIONS_CODE,
   AT_LEAST_ONE_OWNER_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { organizationRoles } from './organizationsUtils';
+import {
+  getHighestRole,
+  getHighestRoleAux,
+  organizationRoles,
+} from './organizationsUtils.ts';
 
 const { COLL_USERS } = mongoCollections;
-
-async function getUserPermsOnOrg(db, userId, orgId) {
-  const user = await db.collection(COLL_USERS).findOne({ _id: userId });
-
-  return user.perms.organizations.find((org) => org._id === orgId).roles;
-}
-
-function getHighestRoleAux(roles) {
-  for (const role of organizationRoles) {
-    if (roles.includes(role)) {
-      return role;
-    }
-  }
-
-  return organizationRoles.at(-1);
-}
-
-async function getHighestRole(db, userId, orgId) {
-  const userRoles = await getUserPermsOnOrg(db, userId, orgId);
-  return getHighestRoleAux(userRoles);
-}
 
 /**
  * Compare permisions

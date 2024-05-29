@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import isMediaLocked from '../lib/isMediaLocked';
 import getMedium from '../lib/getMedium';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
   try {

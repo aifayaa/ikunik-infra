@@ -14,7 +14,6 @@
     "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "@cruglobal/serverless-merge-config": "^1.1.0",
     "serverless": "^3.38.0",
     "serverless-offline": "^13.5.0",
     "serverless-webpack": "^5.3.3",

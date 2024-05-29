@@ -2,7 +2,7 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import phone from 'phone';
 import getUser from '../lib/getUser';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 const lambda = new Lambda({
   region: process.env.REGION,

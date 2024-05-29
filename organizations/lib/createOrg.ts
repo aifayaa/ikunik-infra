@@ -1,33 +1,11 @@
 /* eslint-disable import/no-relative-packages */
-import Stripe from 'stripe';
-
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateOrganizationBaserow from './syncCreateOrganizationBaserow';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import {
-  ERROR_TYPE_SETUP,
-  MISSING_ENVIRONMENT_VARIABLE_CODE,
-} from '../../libs/httpResponses/errorCodes';
-
-const { STRIPE_SECRET_KEY } = process.env;
+import { OrganizationType } from './organizationEntity';
+import { getStripeClient } from '../../libs/stripe';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
-
-type OrganizationType = {
-  _id: string;
-  name: string;
-  email: string;
-  apple: {
-    setupDone: boolean;
-    teamId?: string;
-    teamStatus?: string;
-    companyName?: string;
-  };
-  createdAt: Date;
-  createdBy: string;
-  customerId: string;
-};
 
 export default async (
   userId: string,
@@ -36,33 +14,31 @@ export default async (
   appleTeamId: string,
   appleCompanyName: string
 ) => {
-  let customerId;
+  const stripe = getStripeClient();
 
-  const stripe = (() => {
-    if (STRIPE_SECRET_KEY === undefined) {
-      throw new CrowdaaError(
-        ERROR_TYPE_SETUP,
-        MISSING_ENVIRONMENT_VARIABLE_CODE,
-        `Missing environment variable STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}`,
-        { httpCode: 500 }
-      );
-    }
+  const client = await MongoClient.connect();
 
-    return new Stripe(STRIPE_SECRET_KEY, {
-      apiVersion: '2024-04-10',
-      typescript: true,
-    });
-  })();
+  const organizationId = new ObjectID().toString();
+  const organizationCreatedAt = new Date();
+  const organizationCreatedBy = userId;
+
+  const customer = await stripe.customers.create({
+    name,
+    email,
+    metadata: {
+      organizationId: organizationId,
+      createdAt: organizationCreatedAt.toISOString(),
+      createdBy: organizationCreatedBy,
+    },
+  });
+
+  const stripeCustomerId = customer.id;
 
   try {
-    const client = await MongoClient.connect();
-    // const client = await MongoClient.connect(MONGO_URL!, DEFAULT_OPTS);
-    // const client = await MongoClient.connect(MONGO_URL!);
-
     // Documentation, how to use transaction:
     // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
     // Return result of transaction by side effect
-    let sessionRes;
+    let sessionRes: OrganizationType | undefined;
 
     await client
       .withSession(
@@ -70,22 +46,6 @@ export default async (
           withTransaction: (session: unknown) => Promise<void>;
         }) => {
           await sessionArg.withTransaction(async (session: unknown) => {
-            const organizationId = new ObjectID().toString();
-            const organizationCreatedAt = new Date();
-            const organizationCreatedBy = userId;
-
-            const customer = await stripe.customers.create({
-              name,
-              email,
-              metadata: {
-                _id: organizationId,
-                createdAt: organizationCreatedAt.toISOString(),
-                createdBy: organizationCreatedBy,
-              },
-            });
-
-            customerId = customer.id;
-
             const newOrganization: OrganizationType = {
               _id: organizationId,
               name,
@@ -95,11 +55,11 @@ export default async (
               },
               createdAt: organizationCreatedAt,
               createdBy: organizationCreatedBy,
-              customerId,
+              stripeCustomerId,
             };
 
             if (appleTeamId) {
-              newOrganization.apple.teamId = appleTeamId;
+              newOrganization.apple.teamId = appleTeamId.toUpperCase();
               newOrganization.apple.teamStatus = 'checking';
             }
             if (appleCompanyName) {
@@ -129,7 +89,7 @@ export default async (
             await syncCreateOrganizationBaserow(userId, {
               orgId,
               name,
-              customerId,
+              stripeCustomerId,
             });
 
             sessionRes = newOrganization;
@@ -142,11 +102,8 @@ export default async (
 
     return sessionRes;
   } catch (exception) {
-    // If something wrong happen and the Stripe customer_id has been created,
-    // -> delete it
-    if (customerId) {
-      await stripe.customers.del(customerId);
-    }
+    // If something wrong happens during the organization creation: delete the linked Stripe account
+    await stripe.customers.del(stripeCustomerId);
 
     throw exception;
   }

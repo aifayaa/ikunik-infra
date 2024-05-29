@@ -1,8 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import response, { handleException } from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import {
   checkPermsForApp,
   checkPermsForOrganization,
@@ -11,39 +13,19 @@ import {
 import putAppInOrg from '../lib/putAppInOrg';
 import {
   APP_ALREADY_BUILD_CODE,
-  ERROR_TYPE_ACCESS,
   ERROR_TYPE_INTERNAL_EXCEPTION,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
-import getApp from '../../apps/lib/getApp';
 import {
   isApplicationInOrganization,
   isAppAlreadyBuild,
-} from '../../apps/lib/appsUtils';
+  getApp,
+} from '../../apps/lib/appsUtils.ts';
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
-  const orgPermissionLevel = 'admin';
-  const allowedOrg = await checkPermsForOrganization(
-    userId,
-    orgId,
-    orgPermissionLevel
-  );
-  if (!allowedOrg) {
-    throw new CrowdaaError(
-      ERROR_TYPE_ACCESS,
-      ORGANIZATION_PERMISSION_CODE,
-      `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-      {
-        details: {
-          userId,
-          orgId,
-          orgPermissionLevel,
-        },
-      }
-    );
-  }
+  const orgPermissionLevel = ['admin'];
+  await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
   await checkPermsForApp(userId, appId, ['owner']);
 
@@ -71,27 +53,11 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     const applicationOrganizationId =
       application && application.organization && application.organization._id;
 
-    const allowedOriginOrganization = await checkPermsForOrganization(
+    await checkPermsForOrganization(
       userId,
       applicationOrganizationId,
       orgPermissionLevel
     );
-
-    if (!allowedOriginOrganization) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${userId}' is not at least '${orgPermissionLevel}' on organization '${applicationOrganizationId}' which contains the application '${appId}'`,
-        {
-          details: {
-            userId,
-            applicationOrganizationId,
-            orgPermissionLevel,
-            appId,
-          },
-        }
-      );
-    }
 
     const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
     return org;

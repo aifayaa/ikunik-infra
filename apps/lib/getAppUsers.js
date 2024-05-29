@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationOrganizationId } from '../../libs/perms/checkPermsFor.ts';
+import { getApp, getApplicationOrganizationId } from './appsUtils.ts';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -11,7 +11,8 @@ export default async (appId) => {
   try {
     const db = client.db();
 
-    const orgId = await getApplicationOrganizationId(appId);
+    const app = await getApp(appId);
+    const orgId = getApplicationOrganizationId(app);
 
     // Check if a user is linked to this appId
     const $or = [{ 'perms.apps._id': appId }];

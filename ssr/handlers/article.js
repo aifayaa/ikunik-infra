@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import get from 'lodash/get';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import getAppFromName from '../lib/getAppFromName';
 import { getArticle } from '../../pressArticles/lib/getArticle';
 import meta from '../lib/meta';

@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../mongoClient.js';
 import mongoCollections from '../mongoCollections.json';
-import { indexObjectArrayWithKey } from '../utils.js';
 
 import { CrowdaaError } from '../httpResponses/CrowdaaError';
 import {
@@ -11,8 +10,12 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
-} from '../httpResponses/errorCodes.js';
-import getApp from '../../apps/lib/getApp.js';
+  ORGANIZATION_PERMISSION_CODE,
+} from '../httpResponses/errorCodes';
+import { UserType } from '../../users/lib/userEntity';
+import { AppsPermType, OrganizationPermType } from './permEntities';
+import { getApp } from '../../apps/lib/appsUtils';
+import { AppType } from '../../apps/lib/appEntity';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
@@ -95,30 +98,6 @@ An organization admin:
 An organization member:
   - can READ any resource within the organization
  */
-
-type AppsPermType = 'owner' | 'admin' | 'editor' | 'moderator' | 'viewer';
-type AppsPermWithoutOwnerType = 'admin' | 'editor' | 'moderator' | 'viewer';
-type OrganizationPermType = 'owner' | 'admin' | 'member';
-
-type UserType = {
-  _id: string;
-  superAdmin?: boolean;
-  perms: {
-    apps?: Array<{ _id: string; roles: Array<AppsPermType> }>;
-    organizations?: Array<{ _id: string; roles: Array<OrganizationPermType> }>;
-  };
-};
-
-type AppType = {
-  _id: string;
-  organization?: {
-    _id: string;
-    users: Array<{
-      _id: string;
-      roles: Array<AppsPermWithoutOwnerType>;
-    }>;
-  };
-};
 
 const APP_PERMS_IMPLIED = {
   owner: [],
@@ -210,7 +189,7 @@ async function getUserPermsOnWebsite(userId: string, websiteId: string) {
 
 /**
  * Returns user permissions.
- * @param {string} userId The user ID
+ * @param {UserType} userId The user ID
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
@@ -301,14 +280,6 @@ export async function getApplicationWithinOrg(appId: string) {
   } finally {
     client.close();
   }
-}
-
-export async function getApplicationOrganizationId(appId: string) {
-  const application = await getApplicationWithinOrg(appId);
-
-  return (
-    application && application.organization && application.organization._id
-  );
 }
 
 /**
@@ -510,17 +481,20 @@ export async function checkPermsForApp(
  * Checks for user permissions on an organization.
  * @param {string} userId The user ID
  * @param {string} orgId The organization ID
- * @param {string} requestedPerm The permission to check for, may be one of : owner, admin, member
+ * @param {Array<OrganizationPermType>} requestedPerms The permission to check for, may be one or several of : owner, admin, member
+ * @param {object} options (facultative) precise if the function throw or not
+ * @throws {CrowdaaError} If user is not allowed
  * @returns true for a valid permission, false otherwise
  */
-export const checkPermsForOrganization = async (
+export async function checkPermsForOrganization(
   userId: string,
   orgId: string,
-  requestedPerm: OrganizationPermType
-) => {
+  requestedPerms: Array<OrganizationPermType>,
+  options = { dontThrow: false }
+) {
   const client = await MongoClient.connect();
-
   const db = client.db();
+
   const organization = await db
     .collection(COLL_ORGANIZATIONS)
     .findOne({ _id: orgId }, { projection: { name: 1 } });
@@ -547,16 +521,59 @@ export const checkPermsForOrganization = async (
     return false;
   }
 
+  try {
+    const isAllow = requestedPerms.map((permToCheck) =>
+      checkPermsForOrganizationAux(user, orgId, permToCheck)
+    );
+
+    const res = isAllow.some(Boolean);
+    if (options.dontThrow) {
+      return res;
+    }
+
+    if (!res) {
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        ORGANIZATION_PERMISSION_CODE,
+        `User '${userId}' is not at least '${requestedPerms.join(' or ')}' on organization '${orgId}'`,
+        {
+          details: {
+            userId,
+            orgId,
+            requestPermissions: requestedPerms,
+          },
+        }
+      );
+    }
+
+    return res;
+  } finally {
+    client.close();
+  }
+}
+
+/**
+ * Checks for user permissions on an organization.
+ * @param {UserType} user A user object
+ * @param {string} orgId An organization ID
+ * @param {string} requestedPerm A permission to check for, may be one of : owner, admin, member
+ * @returns true for a valid permission, false otherwise
+ */
+function checkPermsForOrganizationAux(
+  user: UserType,
+  orgId: string,
+  requestedPerm: OrganizationPermType
+) {
   const { superAdmin, roles } = getUserPermsOnOrganization(user, orgId);
 
   if (superAdmin) {
     return true;
-  } else {
-    const requestedPermsArray = [
-      requestedPerm,
-      ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
-    ];
-
-    return areArraysIntersecting(roles, requestedPermsArray);
   }
-};
+
+  const requestedPermsArray = [
+    requestedPerm,
+    ...(ORGANIZATION_PERMS_IMPLIED[requestedPerm] || []),
+  ];
+
+  return areArraysIntersecting(roles, requestedPermsArray);
+}

@@ -1,14 +1,12 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import getOrgInvitations from '../lib/getOrgInvitations';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
-import {
-  ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -89,29 +87,8 @@ export default async (event) => {
       return response({ code: 200, body });
     }
 
-    const orgPermissionLevel = 'admin';
-    const allowed = await checkPermsForOrganization(
-      userId,
-      orgId,
-      orgPermissionLevel
-    );
-    if (!allowed) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_ACCESS,
-            code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${userId}' is not at least '${orgPermissionLevel}' on organization ${orgId}`,
-            details: {
-              userId,
-              orgId,
-              orgPermissionLevel,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
-    }
+    const orgPermissionLevel = ['admin'];
+    await checkPermsForOrganization(userId, orgId, orgPermissionLevel);
 
     const result = await getOrgInvitations(orgId, queryStringParameters);
     return response({

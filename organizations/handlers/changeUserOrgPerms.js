@@ -1,17 +1,17 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import response, { handleException } from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
 import {
-  ERROR_TYPE_ACCESS,
-  ORGANIZATION_PERMISSION_CODE,
-} from '../../libs/httpResponses/errorCodes';
-import { filterUserPrivateFields } from '../../users/lib/usersUtils';
-import { organizationRoles } from '../lib/organizationsUtils';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+  addUserOrganisationRoles,
+  filterUserPrivateFields,
+} from '../../users/lib/usersUtils.ts';
+import { organizationRoles } from '../lib/organizationsUtils.ts';
 
 export default async (event) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer;
@@ -37,49 +37,19 @@ export default async (event) => {
     }
 
     const { roles } = validatedBody;
-    const orgPermissionLevel = 'admin';
-    const sourceUserAllowed = await checkPermsForOrganization(
+    const orgPermissionLevelSourceUser = ['admin'];
+    await checkPermsForOrganization(
       sourceUserId,
       orgId,
-      orgPermissionLevel
+      orgPermissionLevelSourceUser
     );
-    if (!sourceUserAllowed) {
-      const errorBody = formatResponseBody({
-        errors: [
-          {
-            type: ERROR_TYPE_ACCESS,
-            code: ORGANIZATION_PERMISSION_CODE,
-            message: `User '${sourceUserId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-            details: {
-              sourceUserId,
-              orgId,
-              orgPermissionLevel,
-            },
-          },
-        ],
-      });
-      return response({ code: 200, body: errorBody });
-    }
 
-    const targetUserAllowed = await checkPermsForOrganization(
+    const orgPermissionLevelTargetUser = ['member'];
+    await checkPermsForOrganization(
       targetUserId,
       orgId,
-      orgPermissionLevel
+      orgPermissionLevelTargetUser
     );
-    if (!targetUserAllowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_ACCESS,
-        ORGANIZATION_PERMISSION_CODE,
-        `User '${targetUserId}' is not at least '${orgPermissionLevel}' on organization '${orgId}'`,
-        {
-          details: {
-            targetUserId,
-            orgId,
-            orgPermissionLevel,
-          },
-        }
-      );
-    }
 
     const user = await changeUserOrgPerms(
       sourceUserId,
@@ -90,7 +60,9 @@ export default async (event) => {
 
     return response({
       code: 200,
-      body: formatResponseBody({ data: filterUserPrivateFields(user) }),
+      body: formatResponseBody({
+        data: filterUserPrivateFields(addUserOrganisationRoles(user, orgId)),
+      }),
     });
   } catch (exception) {
     return handleException(exception);

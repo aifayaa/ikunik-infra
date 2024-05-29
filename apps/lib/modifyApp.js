@@ -4,11 +4,11 @@ import {
   CANNOT_CHANGE_ANDROID_NAME_CODE,
   CANNOT_CHANGE_IOS_NAME_CODE,
   ERROR_TYPE_NOT_ALLOWED,
-} from '../../libs/httpResponses/errorCodes';
+} from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet, objSet } from '../../libs/utils';
-import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils';
+import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils.ts';
 
 const { COLL_APPS } = mongoCollections;
 

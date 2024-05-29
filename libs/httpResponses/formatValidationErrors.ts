@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { ZodError, ZodIssueCode } from 'zod';
 import { ERROR_TYPE_VALIDATION_ERROR } from './errorCodes';
+import { wrapperHandleException } from './response';
 
 export const VALIDATION_FAILED_CODE = 'VALIDATION_FAILED'; // default
 export const INVALID_TYPE_CODE = 'INVALID_TYPE';
@@ -14,24 +15,38 @@ export const TOO_BIG_CODE = 'TOO_BIG';
 export const NOT_MULTIPLE_OF_CODE = 'NOT_MULTIPLE_OF';
 export const CUSTOM_CODE = 'CUSTOM_CODE';
 
+export type formatValidationErrorsType = {
+  type: string;
+  code: string;
+  message: string;
+  path?: (string | number)[];
+  details?: Object;
+};
+
+// TODO: Should directly return a response
+// -> Refactor every call to this handler
 /**
  * See https://github.com/colinhacks/zod/blob/master/ERROR_HANDLING.md
  * for error details
  *
  * @param {ZodError} zodError
  */
-export const formatValidationErrors = (zodError) => {
+function formatValidationErrorsAux(
+  zodError: Error
+): Array<formatValidationErrorsType> {
   if (!(zodError instanceof ZodError)) {
-    return {
-      type: ERROR_TYPE_VALIDATION_ERROR,
-      code: VALIDATION_FAILED_CODE,
-      message: zodError.message,
-    };
+    return [
+      {
+        type: ERROR_TYPE_VALIDATION_ERROR,
+        code: VALIDATION_FAILED_CODE,
+        message: zodError.message,
+      },
+    ];
   }
 
   const formattedErrors = zodError.issues.map((issue) => {
     let code;
-    let details;
+    let details: Object = {};
 
     switch (issue.code) {
       case ZodIssueCode.invalid_type:
@@ -125,4 +140,8 @@ export const formatValidationErrors = (zodError) => {
   });
 
   return formattedErrors;
-};
+}
+
+export function formatValidationErrors(exception: unknown) {
+  return wrapperHandleException(exception, formatValidationErrorsAux);
+}

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 import supportedFormatsExtensions from '../supportedFormatsExtensions.json';
 
 const supportedFormats = Object.keys(supportedFormatsExtensions).reduce(

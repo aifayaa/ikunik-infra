@@ -1,6 +1,8 @@
 /* eslint-disable import/no-relative-packages */
 import getAppStatus from '../lib/getAppStatus';
-import response, { handleException } from '../../libs/httpResponses/response';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {

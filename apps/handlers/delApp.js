@@ -3,13 +3,14 @@ import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
-} from '../../libs/httpResponses/errorCodes';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import response, { handleException } from '../../libs/httpResponses/response';
+} from '../../libs/httpResponses/errorCodes.ts';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import delApp from '../lib/delApp';
-import { isAppAlreadyBuild } from '../lib/appsUtils';
-import getApp from '../lib/getApp';
+import { getApp, isAppAlreadyBuild } from '../lib/appsUtils.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

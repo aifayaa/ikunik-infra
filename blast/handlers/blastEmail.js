@@ -5,7 +5,7 @@ import getBalanceForBlast from '../lib/getBalanceForBlast';
 import logBlast from '../lib/logBlast';
 import removeBlastToken from '../lib/removeBlastToken';
 import getBuilds from '../../apps/lib/getAppBuilds';
-import response from '../../libs/httpResponses/response';
+import response from '../../libs/httpResponses/response.ts';
 
 // To avoid getting a warning with lint
 const jsConsole = console;
