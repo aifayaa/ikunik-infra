@@ -18,16 +18,20 @@ export default async (loginXmlData) => {
       ignoreAttributes: false,
     });
 
+    const requestId = parsedResponse['saml2p:Response']['@_InResponseTo'];
+    const expiresAt = { $gte: new Date() };
     const samlLoginRequest = await client
       .db()
       .collection(COLL_SAML_LOGINS)
       .findOne({
-        requestId: parsedResponse['saml2p:Response']['@_InResponseTo'],
-        expiresAt: { $gte: new Date() },
+        requestId,
+        expiresAt,
       });
 
     if (!samlLoginRequest) {
-      throw new Error('Login request not found or expired');
+      throw new Error(
+        `Login request not found or expired. requestId '${requestId}', expiresAt '${expiresAt}', parsedResponse['saml2p:Response'] '${parsedResponse['saml2p:Response']}'`
+      );
     }
 
     const { appId, loginParameters } = samlLoginRequest;
