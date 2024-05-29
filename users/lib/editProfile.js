@@ -7,11 +7,18 @@ const { COLL_APPS, COLL_PICTURES, COLL_USERS } = mongoCollections;
 export default async (
   userId,
   appId,
-  { username, avatar: avatarId, ...extraFields }
+  { username, firstname, lastname, avatar: avatarId, ...extraFields }
 ) => {
   const $set = {
     'profile.username': `${username}`,
   };
+  if (firstname) {
+    $set['profile.firstname'] = firstname;
+  }
+  if (lastname) {
+    $set['profile.lastname'] = lastname;
+  }
+
   const client = await MongoClient.connect();
   const db = client.db();
 
