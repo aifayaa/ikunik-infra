@@ -144,8 +144,8 @@ const serverlessConfiguration = {
       awaxDev: 'mg.crowdaa.com',
     },
     DASHBOARD_V2_DOMAIN: {
-      dev: 'app-dev.crowdaa.com',
-      preprod: 'app-preprod.crowdaa.com',
+      dev: 'app.crowdaa.com',
+      preprod: 'app.crowdaa.com',
       prod: 'app.crowdaa.com',
     },
   },
