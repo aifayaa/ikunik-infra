@@ -1,10 +1,11 @@
 api-v1
 account
+admin
 apps
 organizations
-admin
 auth
 ssr
+invitations
 
 counters
 blockedContents
