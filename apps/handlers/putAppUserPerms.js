@@ -44,10 +44,8 @@ export default async (event) => {
     let validatedBody;
     try {
       validatedBody = putAppUserPermsSchema.parse(body);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const errorBody = formatResponseBody({ errors });
-      return response({ code: 200, body: errorBody });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const { roles, userId: targetUserId } = validatedBody;

@@ -15,7 +15,6 @@ import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
 } from '../../libs/httpResponses/errorCodes.ts';
-import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
 import {
   isApplicationInOrganization,
@@ -87,10 +86,8 @@ export default async (event) => {
     let validatedBody;
     try {
       validatedBody = putAppInOrgSchema.parse(body);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const errorBody = formatResponseBody({ errors });
-      throw new CrowdaaErrorWithErrorBody(errorBody);
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const { appId } = validatedBody;
