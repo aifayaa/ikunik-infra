@@ -14,12 +14,17 @@ export default async (loginXmlData) => {
   const client = await MongoClient.connect();
 
   try {
+    // TODO: remove 'console.log()'
+    console.log('loginXmlData', loginXmlData);
     const parsedResponse = xmlParser.parse(loginXmlData, {
       ignoreAttributes: false,
     });
+    console.log('parsedResponse', parsedResponse);
 
     const requestId = parsedResponse['saml2p:Response']['@_InResponseTo'];
+    console.log('requestId', requestId);
     const expiresAt = { $gte: new Date() };
+    console.log('expiresAt', expiresAt);
     const samlLoginRequest = await client
       .db()
       .collection(COLL_SAML_LOGINS)
@@ -28,6 +33,7 @@ export default async (loginXmlData) => {
         expiresAt,
       });
 
+    console.log('samlLoginRequest', samlLoginRequest);
     if (!samlLoginRequest) {
       throw new Error(
         `Login request not found or expired. requestId '${requestId}', expiresAt '${expiresAt}', parsedResponse['saml2p:Response'] '${parsedResponse['saml2p:Response']}'`
