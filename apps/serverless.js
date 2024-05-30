@@ -641,12 +641,12 @@ const serverlessConfiguration = {
         },
       ],
     },
-    stripeResumeSubscription: {
-      handler: 'handlers/postAppsIdResumeSubscription.default',
+    stripeEnableSubscription: {
+      handler: 'handlers/postAppsIdEnableSubscription.default',
       events: [
         {
           http: {
-            path: 'apps/{id}/resumeSubscription',
+            path: 'apps/{id}/enableSubscription',
             method: 'post',
             cors: true,
             authorizer: {
