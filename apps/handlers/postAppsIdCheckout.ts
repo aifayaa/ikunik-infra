@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { z } from 'zod';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import response, { handleException } from '../../libs/httpResponses/response';
@@ -8,12 +9,15 @@ import {
   ERROR_TYPE_STRIPE,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_APPLICATION_CODE,
+  MISSING_BODY_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
 import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
 import { getOrganization } from '../../organizations/lib/organizationsUtils';
 import { getStripeClient } from '../../libs/stripe';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 const YOUR_DOMAIN = 'http://localhost:4242';
 
@@ -30,6 +34,39 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
+    if (!event.body) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_BODY_CODE,
+        `Body is missing from the request`
+      );
+    }
+
+    const enableSubscriptionSchema = z.object({
+      success_url: z
+        .string({
+          required_error: 'success_url is required',
+          invalid_type_error: 'success_url must be a string',
+        })
+        .trim(),
+      cancel_url: z
+        .string({
+          required_error: 'cancel_url is required',
+          invalid_type_error: 'cancel_url must be a string',
+        })
+        .trim(),
+    });
+
+    const body = JSON.parse(event.body);
+
+    let validatedBody;
+    // validation
+    try {
+      validatedBody = enableSubscriptionSchema.parse(body);
+    } catch (exception) {
+      return formatValidationErrors(exception);
+    }
+
     await checkPermsForApp(userId, appId, ['admin']);
 
     const app = await getApp(appId);
@@ -44,22 +81,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
 
-    // const subscription = await stripe.subscriptions.create({
-    //   customer: customerId,
-    //   items: [
-    //     {
-    //       price: priceId,
-    //     },
-    //   ],
-    //   collection_method: 'charge_automatically',
-    //   // current_period_start: ,
-    //   trial_period_days: 30,
-    //   // billing_cycle_anchor: ,
-    //   // COnfiguration of Stripe Connect
-    //   // transfer_data: ,
-    // });
-
-    // console.log('subscription', subscription);
+    const { success_url, cancel_url } = validatedBody;
 
     const session = await stripe.checkout.sessions.create({
       billing_address_collection: 'auto',
@@ -74,8 +96,8 @@ export default async (event: APIGatewayProxyEvent) => {
       ],
       // mode: 'setup', // Save payment details to charge your customers later.
       mode: 'subscription',
-      success_url: `${YOUR_DOMAIN}/success.html`,
-      cancel_url: `${YOUR_DOMAIN}/cancel.html`,
+      success_url: success_url,
+      cancel_url: cancel_url,
       currency: 'EUR',
       // automatic_tax: { enabled: true },
       // ERROR: You cannot collect consent to your terms of service unless a

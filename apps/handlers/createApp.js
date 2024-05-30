@@ -11,7 +11,6 @@ import { putAppInOrgHandlerBody } from '../../organizations/handlers/putAppInOrg
 
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { CrowdaaErrorWithErrorBody } from '../../libs/httpResponses/CrowdaaErrorWithErrorBody';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -52,10 +51,8 @@ export default async (event) => {
           orgId: true,
         })
         .parse(body);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const errorBody = formatResponseBody({ errors });
-      throw new CrowdaaErrorWithErrorBody(errorBody);
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const { name, protocol, orgId } = validatedBody;

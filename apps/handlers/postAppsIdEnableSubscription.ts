@@ -14,8 +14,6 @@ import { getApp } from '../lib/appsUtils';
 import { getStripeClient } from '../../libs/stripe';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
-const YOUR_DOMAIN = 'http://localhost:4242';
-
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: userId } = (event.requestContext || {}).authorizer || {};
   const appId = event.pathParameters?.id;

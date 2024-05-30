@@ -16,10 +16,8 @@ export default async (event) => {
   try {
     try {
       invitationId = makeIdSchema('invitationId').parse(invitationId);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
     // access to the invitation is determined in a step further
     const invitationDocument = await getInvitation(currentUserId, invitationId);

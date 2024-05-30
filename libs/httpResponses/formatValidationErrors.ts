@@ -1,7 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { ZodError, ZodIssueCode } from 'zod';
 import { ERROR_TYPE_VALIDATION_ERROR } from './errorCodes';
-import { wrapperHandleException } from './response';
+import response, { wrapperHandleException } from './response';
+import { formatResponseBody } from './formatResponseBody';
 
 export const VALIDATION_FAILED_CODE = 'VALIDATION_FAILED'; // default
 export const INVALID_TYPE_CODE = 'INVALID_TYPE';
@@ -142,6 +143,12 @@ function formatValidationErrorsAux(
   return formattedErrors;
 }
 
+function formatValidationErrorsResponse(zodError: Error) {
+  const errors = formatValidationErrorsAux(zodError);
+  const errorBody = formatResponseBody({ errors });
+  return response({ code: 200, body: errorBody });
+}
+
 export function formatValidationErrors(exception: unknown) {
-  return wrapperHandleException(exception, formatValidationErrorsAux);
+  return wrapperHandleException(exception, formatValidationErrorsResponse);
 }
