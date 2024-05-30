@@ -1,32 +1,20 @@
 /* eslint-disable import/no-relative-packages */
+import { appPrivateFieldsProjection } from '../../apps/lib/appsUtils.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-
-const { ADMIN_APP } = process.env;
+import { objGet } from '../../libs/utils';
 
 const { COLL_APPS, COLL_USERS, COLL_WEBSITES } = mongoCollections;
 
 function appendPipelineFilters(pipeline, sortBy, sortOrder) {
-  pipeline.push(
-    {
-      $lookup: {
-        from: COLL_WEBSITES,
-        localField: '_id',
-        foreignField: 'appId',
-        as: 'websites',
-      },
+  pipeline.push({
+    $lookup: {
+      from: COLL_WEBSITES,
+      localField: '_id',
+      foreignField: 'appId',
+      as: 'websites',
     },
-    {
-      $project: {
-        _id: 1,
-        name: 1,
-        'websites._id': 1,
-        'websites.dns.internal.name': 1,
-        'websites.ssl.domains': 1,
-        'websites.type': 1,
-      },
-    }
-  );
+  });
   if (sortBy && sortOrder) {
     pipeline.push({ $sort: { [sortBy]: sortOrder === 'desc' ? -1 : 1 } });
   }
@@ -34,57 +22,61 @@ function appendPipelineFilters(pipeline, sortBy, sortOrder) {
   return pipeline;
 }
 
-export default async (userId, { sortBy, sortOrder } = {}) => {
+export default async (userId) => {
   const client = await MongoClient.connect();
   try {
-    const user = await client
-      .db()
-      .collection(COLL_USERS)
-      .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
+    const db = client.db();
+    const user = await db.collection(COLL_USERS).findOne({ _id: userId });
 
     if (user.superAdmin) {
-      const collection = COLL_APPS;
-      const pipeline = [
-        {
-          $match: { _id: { $ne: ADMIN_APP } },
-        },
-      ];
-      const appsOwnedByUser = await client
-        .db()
-        .collection(collection)
-        .aggregate(appendPipelineFilters(pipeline, sortBy, sortOrder), {
-          collation: { locale: 'en' },
-        })
-        .toArray();
-      return appsOwnedByUser;
-    }
-
-    if (user.perms && user.perms.apps && user.perms.apps.length > 0) {
-      const appIds = user.perms.apps.map(({ _id }) => _id).filter((x) => x);
-      const collection = COLL_APPS;
-      const apps = await client
-        .db()
-        .collection(collection)
+      const allApps = await db
+        .collection(COLL_APPS)
         .aggregate(
           appendPipelineFilters(
-            [
-              {
-                $match: {
-                  _id: { $in: appIds },
-                },
-              },
-            ],
-            sortBy,
-            sortOrder
-          ),
-          { collation: { locale: 'en' } }
+            [{ $project: appPrivateFieldsProjection }],
+            'name',
+            -1
+          )
         )
         .toArray();
 
-      return apps;
+      return allApps;
     }
 
-    return [];
+    const appsIds = objGet(user, ['perms', 'apps'], []).map(({ _id }) => _id);
+    const orgsIds = objGet(user, ['perms', 'organizations'], []).map(
+      ({ _id }) => _id
+    );
+
+    const $or = [];
+    if (appsIds.length > 0) {
+      $or.push({ _id: { $in: appsIds } });
+    }
+    if (orgsIds.length > 0) {
+      $or.push({ 'organization._id': { $in: orgsIds } });
+    }
+
+    if ($or.length === 0) return [];
+
+    const apps = await db
+      .collection(COLL_APPS)
+      .aggregate(
+        appendPipelineFilters(
+          [
+            {
+              $match: {
+                $or,
+              },
+            },
+            { $project: appPrivateFieldsProjection },
+          ],
+          'name',
+          -1
+        )
+      )
+      .toArray();
+
+    return apps;
   } finally {
     client.close();
   }
