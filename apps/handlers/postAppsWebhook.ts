@@ -21,6 +21,10 @@ import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
   ERROR_TYPE_STRIPE,
 } from '../../libs/httpResponses/errorCodes';
+import {
+  getStripeSubscriptionMetadata,
+  isStripeSubcriptionStatus,
+} from '../lib/appsUtils';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -68,8 +72,6 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    // console.log('stripeEvent.type', stripeEvent.type);
-
     if (stripeEvent.type === 'customer.subscription.created') {
       console.log('STRIPEEVENT.type', stripeEvent.type);
       console.log('stripeEvent', stripeEvent);
@@ -94,28 +96,49 @@ export default async (event: APIGatewayProxyEvent) => {
     if (stripeEvent.type === 'customer.subscription.updated') {
       console.log('STRIPEEVENT.type', stripeEvent.type);
       console.log('stripeEvent', stripeEvent);
-      const {
-        id,
-        metadata: { initial },
-      } = stripeEvent.data.object;
+      const { id: stripeSubscriptionId, metadata } = stripeEvent.data.object;
 
-      console.log('initial', initial);
+      const crowdaaStatus = metadata.crowdaaStatus;
 
-      if (initial === 'true') {
+      if (
+        isStripeSubcriptionStatus(crowdaaStatus) ||
+        crowdaaStatus === 'initial'
+      ) {
         console.log('trigger suspense update => update metadata');
-        await stripe.subscriptions.update(id, {
-          metadata: {
-            initial: 'false',
-          },
-          // Suspense the subscription
-          pause_collection: {
-            behavior: 'mark_uncollectible',
-          },
+        const updatedSubscription = await stripe.subscriptions.update(
+          stripeSubscriptionId,
+          {
+            metadata: {
+              ...metadata,
+              ...getStripeSubscriptionMetadata('hold'),
+            },
+            // Suspense the subscription
+            pause_collection: {
+              behavior: 'mark_uncollectible',
+            },
+          }
+        );
+
+        return response({
+          code: 200,
+          body: formatResponseBody({
+            data: {
+              message: 'Subscription updated',
+              details: { updatedSubscription },
+            },
+          }),
         });
       }
     }
 
-    return response({ code: 200, body: 'Ok' });
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: {
+          message: 'Ok',
+        },
+      }),
+    });
   } catch (exception) {
     // console.log('exception', exception);
     return handleException(exception);

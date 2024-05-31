@@ -14,6 +14,37 @@ import { AppType } from './appEntity';
 
 const { COLL_APPS } = mongoCollections;
 
+type stripeSubcriptionStatusType = 'initial' | 'hold' | 'active';
+
+const allStripeSubcriptionStatusType = ['initial', 'hold', 'active'];
+
+// Use a type guard
+// Documentation:
+// https://blog.logrocket.com/how-to-use-type-guards-typescript/
+export function isStripeSubcriptionStatus(
+  status: string | stripeSubcriptionStatusType
+): status is stripeSubcriptionStatusType {
+  return allStripeSubcriptionStatusType.includes(status);
+}
+
+export function getStripeSubscriptionMetadata(
+  status: stripeSubcriptionStatusType
+): {
+  crowdaaStatus: stripeSubcriptionStatusType;
+} {
+  switch (status) {
+    case 'initial': {
+      return { crowdaaStatus: 'initial' };
+    }
+    case 'hold': {
+      return { crowdaaStatus: 'hold' };
+    }
+    case 'active': {
+      return { crowdaaStatus: 'active' };
+    }
+  }
+}
+
 export async function getApp(appId: string): Promise<AppType> {
   const client = await MongoClient.connect();
   try {
