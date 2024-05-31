@@ -74,7 +74,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     if (stripeEvent.type === 'customer.subscription.created') {
       console.log('STRIPEEVENT.type', stripeEvent.type);
-      console.log('stripeEvent', stripeEvent);
+      // console.log('stripeEvent', stripeEvent);
 
       const client = await MongoClient.connect();
 
@@ -95,16 +95,16 @@ export default async (event: APIGatewayProxyEvent) => {
 
     if (stripeEvent.type === 'customer.subscription.updated') {
       console.log('STRIPEEVENT.type', stripeEvent.type);
-      console.log('stripeEvent', stripeEvent);
+      // console.log('stripeEvent', stripeEvent);
       const { id: stripeSubscriptionId, metadata } = stripeEvent.data.object;
 
       const crowdaaStatus = metadata.crowdaaStatus;
 
       if (
-        isStripeSubcriptionStatus(crowdaaStatus) ||
+        isStripeSubcriptionStatus(crowdaaStatus) &&
         crowdaaStatus === 'initial'
       ) {
-        console.log('trigger suspense update => update metadata');
+        // console.log('trigger suspense update => update metadata');
         const updatedSubscription = await stripe.subscriptions.update(
           stripeSubscriptionId,
           {
