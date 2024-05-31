@@ -1,47 +1,86 @@
 #!/bin/bash
 
-if [ ! -d "tmp/webpackCheck/webpack" ]; then
-    mkdir -p tmp/webpackCheck/webpack
-else
-    rm -rf tmp/webpackCheck/webpack/*
-fi
+ORIGIN_COMMIT="origin/dev"
 
-# Get the list of modified files from git status
-MODIFIED_FILES=$(git status --porcelain | grep '^ M' | awk '{print $2}')
+usage() {
+  echo "usage : ./webpackCheck.sh [PARAMS...] [-- EXTRA...]"
+  echo ""
+  echo "    Launch webpack compilation of modified modules between an origin commit and"
+  echo "    the current working directory"
+  echo ""
+  echo "    Parameters:"
+  echo ""
+  echo "      -h --help : Display this help text"
+  echo "      --originCommit : The source commit to compare to. Defaults to 'origin/dev'"
+  echo ""
+  echo "    Examples:"
+  echo "      ./webpackCheck.sh"
+  echo "      ./webpackCheck.sh --originCommit origin/dev"
+  echo ""
+}
 
-# Initialize an empty array to store unique config file paths
-declare -a UNIQUE_CONFIG_PATHS=()
+while [ "$1" != '' ] && [ "$1" != '--' ]; do
+  PARAM=$1
+  VALUE=$2
+  case $PARAM in
+  -h | --help)
+    usage
+    exit
+    ;;
+  --originCommit)
+    ORIGIN_COMMIT=$VALUE
+    ;;
+  *)
+    echo "ERROR: unknown parameter \"$PARAM\""
+    usage
+    exit 1
+    ;;
+  esac
+  shift
+  shift
+done
 
-if [ -n "$MODIFIED_FILES" ]; then
-    echo "Modified files found."
+shift
+EXTRA=$@
 
-    for file in $MODIFIED_FILES; do
-        config_file=""
-        # Find the nearest webpack.config.js file
-        current_dir=$(dirname "$file")
-        while [ "$current_dir" != "/"  ] && [ -z "$config_file" ]; do
-            config_file=$(find "$current_dir" -maxdepth 1 -name 'webpack.config.js' | head -n 1)
-            current_dir=$(dirname "$current_dir")
-        done
+echo "ORIGIN_COMMIT=${ORIGIN_COMMIT}"
+echo ""
 
-        # If a webpack.config.js file was found and it's not already in the array, add it to the array
-        if [ -n "$config_file" ]; then
-            if [[ ! " ${UNIQUE_CONFIG_PATHS[@]} " =~ " ${config_file} " ]]; then
-                UNIQUE_CONFIG_PATHS+=("$config_file")
-                echo "$config_file"
-            fi
-        fi
-    done
-  
-    # Webpack compile if modified files have been found
-    for config_path in "${UNIQUE_CONFIG_PATHS[@]}"; do
-        echo "Running webpack for config file: $config_path..."
-        echo "$(dirname "$config_path")"
-        cd "$(dirname "$config_path")" && npx sls webpack -o ../tmp/webpackCheck/webpack/ > ../tmp/webpackCheck/webpackOuput.log
-        cd ..
-    done
+# Independance current directory position to call the script
+rootDir=$(dirname $(readlink -f $0))
+cd ${rootDir}
 
-else
-  echo "No modified files found."
+outDir=${rootDir}/tmp/webpackCheck
+echo "Output directory: ${outDir}"
+
+# Reset output directory
+rm -rf $outDir ; mkdir -p $outDir
+
+# Retrieve the list of modules to check
+modulesToCheck=$(for file in $(git diff ${ORIGIN_COMMIT} --name-only --diff-filter=ACMRT) ; do dirname $file ; done | cut -d"/" -f1 | uniq | grep -v "\.")
+
+echo "Modules to check: [${modulesToCheck}]"
+
+FAILED_MODULES=""
+res=0
+# Do a webpack compilation in each module
+for module in ${modulesToCheck}; do
+    echo "Running webpack for module: ${module} ..."
+    echo "Module: ${module}"
+    cd ${module} && npx sls webpack -o ${outDir}/webpack > ${outDir}/webpackOuput.log
+    if [ $? -ne 0 ] ; then
+      echo "ERROR: Webpack compilation failed in '${module}'"
+      FAILED_MODULES="${FAILED_MODULES} ${module}"
+      res=1
+    fi
+    cd ..
+done
+
+if [ $res -eq 1 ] ; then
+  echo "ERROR: compilation failure in"
+  for module in ${FAILDES_MODULES} ; do 
+    echo "  - ${module}"
+  done
+  false
 fi
 
