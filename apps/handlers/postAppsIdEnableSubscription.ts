@@ -53,6 +53,7 @@ export default async (event: APIGatewayProxyEvent) => {
           // Resume the subscription
           billing_cycle_anchor: 'now',
           pause_collection: '',
+          proration_behavior: 'none',
           metadata: {
             ...stripeSubscription.metadata,
             ...getStripeSubscriptionMetadata('active'),
