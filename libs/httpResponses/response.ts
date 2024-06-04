@@ -113,7 +113,7 @@ export function handleException(exception: unknown) {
 
 export function wrapperHandleException(
   exception: unknown,
-  handleExceptionCB: (exception: Error) => reponseType //  | Array<formatValidationErrorsType>
+  handleExceptionCB: (exception: Error) => reponseType
 ) {
   if (isException(exception)) {
     return handleExceptionCB(exception);
@@ -130,12 +130,5 @@ export function wrapperHandleException(
         ],
       },
     });
-    // return [
-    //   {
-    //     type: ERROR_TYPE_INTERNAL_EXCEPTION,
-    //     code: UNMANAGED_EXCEPTION_CODE,
-    //     message: JSON.stringify(exception),
-    //   },
-    // ];
   }
 }
