@@ -641,12 +641,12 @@ const serverlessConfiguration = {
         },
       ],
     },
-    stripeResumeSubscription: {
-      handler: 'handlers/postAppsIdResumeSubscription.default',
+    stripeEnableSubscription: {
+      handler: 'handlers/postAppsIdEnableSubscription.default',
       events: [
         {
           http: {
-            path: 'apps/{id}/resumeSubscription',
+            path: 'apps/{id}/enableSubscription',
             method: 'post',
             cors: true,
             authorizer: {
@@ -671,6 +671,23 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'apps/webhook',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
+    stripeMeasure: {
+      handler: 'handlers/postAppsMeasure.default',
+      events: [
+        {
+          http: {
+            path: 'apps/measure',
             method: 'post',
             cors: true,
             authorizer: {

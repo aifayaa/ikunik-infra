@@ -81,10 +81,8 @@ export default async (event) => {
 
     try {
       queryStringParameters = paginationSchema.parse(queryStringParameters);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const orgPermissionLevel = ['admin'];

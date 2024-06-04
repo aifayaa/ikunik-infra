@@ -21,6 +21,10 @@ import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
   ERROR_TYPE_STRIPE,
 } from '../../libs/httpResponses/errorCodes';
+import {
+  getStripeSubscriptionMetadata,
+  isStripeSubcriptionStatus,
+} from '../lib/appsUtils';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -68,54 +72,110 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    // console.log('stripeEvent.type', stripeEvent.type);
-
     if (stripeEvent.type === 'customer.subscription.created') {
       console.log('STRIPEEVENT.type', stripeEvent.type);
-      console.log('stripeEvent', stripeEvent);
+      // console.log('stripeEvent', stripeEvent);
 
       const client = await MongoClient.connect();
 
-      const db = client.db();
-      const {
-        metadata: { appId },
-      } = stripeEvent.data.object;
+      console.log('stripeEvent.data', stripeEvent.data);
+      console.log('stripeEvent.data.object', stripeEvent.data.object);
 
+      const subscription = stripeEvent.data.object;
+
+      const { metadata } = subscription;
+
+      const { appId, crowdaaStatus } = metadata;
+
+      const stripeSubscriptionId = subscription.id;
+
+      const db = client.db();
       await db.collection(COLL_APPS).updateOne(
         { _id: appId },
         {
           $set: {
-            stripeSubscriptionId: stripeEvent.data.object.id,
+            stripeSubscriptionId: subscription.id,
           },
         }
       );
-    }
 
-    if (stripeEvent.type === 'customer.subscription.updated') {
-      console.log('STRIPEEVENT.type', stripeEvent.type);
-      console.log('stripeEvent', stripeEvent);
-      const {
-        id,
-        metadata: { initial },
-      } = stripeEvent.data.object;
+      if (
+        isStripeSubcriptionStatus(crowdaaStatus) &&
+        crowdaaStatus === 'initial'
+      ) {
+        // console.log('trigger suspense update => update metadata');
+        const updatedSubscription = await stripe.subscriptions.update(
+          stripeSubscriptionId,
+          {
+            metadata: {
+              ...metadata,
+              ...getStripeSubscriptionMetadata('hold'),
+            },
+            // Suspense the subscription
+            pause_collection: {
+              behavior: 'mark_uncollectible',
+            },
+          }
+        );
 
-      console.log('initial', initial);
-
-      if (initial === 'true') {
-        console.log('trigger suspense update => update metadata');
-        await stripe.subscriptions.update(id, {
-          metadata: {
-            initial: 'false',
-          },
-          // Suspense the subscription
-          pause_collection: {
-            behavior: 'mark_uncollectible',
-          },
+        return response({
+          code: 200,
+          body: formatResponseBody({
+            data: {
+              message: 'Subscription updated',
+              details: { updatedSubscription },
+            },
+          }),
         });
       }
     }
 
-    return response({ code: 200, body: 'Ok' });
+    if (stripeEvent.type === 'customer.subscription.updated') {
+      console.log('STRIPEEVENT.type', stripeEvent.type);
+      // console.log('stripeEvent', stripeEvent);
+      // const { id: stripeSubscriptionId, metadata } = stripeEvent.data.object;
+
+      // const crowdaaStatus = metadata.crowdaaStatus;
+
+      // if (
+      //   isStripeSubcriptionStatus(crowdaaStatus) &&
+      //   crowdaaStatus === 'initial'
+      // ) {
+      //   // console.log('trigger suspense update => update metadata');
+      //   const updatedSubscription = await stripe.subscriptions.update(
+      //     stripeSubscriptionId,
+      //     {
+      //       metadata: {
+      //         ...metadata,
+      //         ...getStripeSubscriptionMetadata('hold'),
+      //       },
+      //       // Suspense the subscription
+      //       pause_collection: {
+      //         behavior: 'mark_uncollectible',
+      //       },
+      //     }
+      //   );
+
+      //   return response({
+      //     code: 200,
+      //     body: formatResponseBody({
+      //       data: {
+      //         message: 'Subscription updated',
+      //         details: { updatedSubscription },
+      //       },
+      //     }),
+      //   });
+      // }
+    }
+
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: {
+          message: 'Ok',
+        },
+      }),
+    });
   } catch (exception) {
     // console.log('exception', exception);
     return handleException(exception);

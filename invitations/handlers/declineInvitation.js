@@ -23,10 +23,8 @@ export default async (event) => {
       invitationId = makeIdSchema('invitationId').parse(invitationId);
 
       parameters = invitationActionSchema.parse(parameters);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     // current user right to update an invitation is determined in a step further

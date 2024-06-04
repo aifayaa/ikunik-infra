@@ -48,10 +48,8 @@ export default async (event) => {
     // validation
     try {
       validatedBody = createOrgSchema.parse(body);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const errorBody = formatResponseBody({ errors });
-      return response({ code: 200, body: errorBody });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const { name, email, appleTeamId, appleCompanyName } = validatedBody;

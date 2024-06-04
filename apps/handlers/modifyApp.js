@@ -24,10 +24,8 @@ export default async (event) => {
 
     try {
       modifyAppSchema.parse(update);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const app = await modifyApp(appId, update);
