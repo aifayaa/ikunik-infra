@@ -84,7 +84,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const stripe = getStripeClient();
 
-    const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
+    const priceId = 'price_1PNTqoKD2Srbl7IolMUv2lHG';
 
     const { success_url, cancel_url } = validatedBody;
 
@@ -96,7 +96,7 @@ export default async (event: APIGatewayProxyEvent) => {
         {
           // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
           price: priceId,
-          quantity: 1,
+          // quantity: 1,
         },
       ],
       // mode: 'setup', // Save payment details to charge your customers later.
