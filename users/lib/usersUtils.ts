@@ -6,6 +6,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { OrganizationPermType } from '../../libs/perms/permEntities';
 import { objUnset } from '../../libs/utils';
 import { UserType } from './userEntity';
 
@@ -57,7 +58,15 @@ export function filterUserPrivateFields(user: UserType) {
   return ret;
 }
 
-export function addUserOrganisationRoles(user: UserType, orgId: string) {
+export function addUserOrganisationRoles(
+  user: UserType,
+  orgId: string
+): UserType & { roles: Array<OrganizationPermType> } {
+  const { superAdmin } = user;
+  if (superAdmin) {
+    return { ...user, roles: ['owner'] };
+  }
+
   const candidateOrganization = user.perms?.organizations?.find(
     (org) => org._id === orgId
   );
