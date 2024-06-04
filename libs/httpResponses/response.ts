@@ -50,7 +50,15 @@ export default function response({
   };
 }
 
-//: exception is Error
+export function formatResponseError(exception: CrowdaaError) {
+  const { type, code, message } = exception;
+  return {
+    type,
+    code,
+    message,
+    details: exception.details || exception.stack,
+  };
+}
 
 function handleExceptionAux(exception: Error) {
   if (exception instanceof CrowdaaError) {
@@ -93,15 +101,19 @@ export function isException(exception: unknown | Error): exception is Error {
   return (exception as Error).message !== undefined;
 }
 
+export function isCrowdaaError(
+  exception: unknown | CrowdaaError
+): exception is CrowdaaError {
+  return exception instanceof CrowdaaError;
+}
+
 export function handleException(exception: unknown) {
   return wrapperHandleException(exception, handleExceptionAux);
 }
 
 export function wrapperHandleException(
   exception: unknown,
-  handleExceptionCB: (
-    exception: Error
-  ) => reponseType //  | Array<formatValidationErrorsType>
+  handleExceptionCB: (exception: Error) => reponseType
 ) {
   if (isException(exception)) {
     return handleExceptionCB(exception);
@@ -118,12 +130,5 @@ export function wrapperHandleException(
         ],
       },
     });
-    // return [
-    //   {
-    //     type: ERROR_TYPE_INTERNAL_EXCEPTION,
-    //     code: UNMANAGED_EXCEPTION_CODE,
-    //     message: JSON.stringify(exception),
-    //   },
-    // ];
   }
 }

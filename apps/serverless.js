@@ -682,6 +682,23 @@ const serverlessConfiguration = {
         },
       ],
     },
+    stripeMeasure: {
+      handler: 'handlers/postAppsMeasure.default',
+      events: [
+        {
+          http: {
+            path: 'apps/measure',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-webpack',

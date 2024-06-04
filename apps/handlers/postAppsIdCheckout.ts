@@ -12,12 +12,15 @@ import {
   MISSING_BODY_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
-import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
+import {
+  getApp,
+  getApplicationOrganizationId,
+  getStripeSubscriptionMetadata,
+} from '../lib/appsUtils';
 import { getOrganization } from '../../organizations/lib/organizationsUtils';
 import { getStripeClient } from '../../libs/stripe';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 const YOUR_DOMAIN = 'http://localhost:4242';
 
@@ -42,20 +45,22 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    const enableSubscriptionSchema = z.object({
-      success_url: z
-        .string({
-          required_error: 'success_url is required',
-          invalid_type_error: 'success_url must be a string',
-        })
-        .trim(),
-      cancel_url: z
-        .string({
-          required_error: 'cancel_url is required',
-          invalid_type_error: 'cancel_url must be a string',
-        })
-        .trim(),
-    });
+    const enableSubscriptionSchema = z
+      .object({
+        success_url: z
+          .string({
+            required_error: 'success_url is required',
+            invalid_type_error: 'success_url must be a string',
+          })
+          .trim(),
+        cancel_url: z
+          .string({
+            required_error: 'cancel_url is required',
+            invalid_type_error: 'cancel_url must be a string',
+          })
+          .trim(),
+      })
+      .required();
 
     const body = JSON.parse(event.body);
 
@@ -79,7 +84,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const stripe = getStripeClient();
 
-    const priceId = 'price_1PJxzGKD2Srbl7IorqAOemUE';
+    const priceId = 'price_1PNTqoKD2Srbl7IolMUv2lHG';
 
     const { success_url, cancel_url } = validatedBody;
 
@@ -91,7 +96,7 @@ export default async (event: APIGatewayProxyEvent) => {
         {
           // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
           price: priceId,
-          quantity: 1,
+          // quantity: 1,
         },
       ],
       // mode: 'setup', // Save payment details to charge your customers later.
@@ -114,7 +119,7 @@ export default async (event: APIGatewayProxyEvent) => {
       subscription_data: {
         // trial_period_days: 30,
         metadata: {
-          initial: 'true',
+          ...getStripeSubscriptionMetadata('initial'),
           appId,
         },
         // ERROR : The `proration_behavior` parameter can only be passed if a `billing_cycle_anchor` exists.

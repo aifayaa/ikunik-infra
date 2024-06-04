@@ -10,9 +10,10 @@ import {
   SUBSCRIPTION_NOT_FOUND_CODE,
 } from '../../libs/httpResponses/errorCodes';
 
-import { getApp } from '../lib/appsUtils';
+import { getApp, getStripeSubscriptionMetadata } from '../lib/appsUtils';
 import { getStripeClient } from '../../libs/stripe';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: userId } = (event.requestContext || {}).authorizer || {};
@@ -41,13 +42,44 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const stripe = getStripeClient();
 
-    await stripe.subscriptions.update(app.stripeSubscriptionId, {
-      // Resume the subscription
-      billing_cycle_anchor: 'now',
-      pause_collection: '',
-    });
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      app.stripeSubscriptionId
+    );
 
-    return response({ code: 200, body: 'Ok' });
+    if (stripeSubscription.metadata.crowdaaStatus === 'hold') {
+      const updatedSubscription = await stripe.subscriptions.update(
+        app.stripeSubscriptionId,
+        {
+          // Resume the subscription
+          billing_cycle_anchor: 'now',
+          pause_collection: '',
+          proration_behavior: 'none',
+          metadata: {
+            ...stripeSubscription.metadata,
+            ...getStripeSubscriptionMetadata('active'),
+          },
+        }
+      );
+
+      return response({
+        code: 200,
+        body: formatResponseBody({
+          data: {
+            message: 'Subscription updated',
+            details: { updatedSubscription },
+          },
+        }),
+      });
+    }
+
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: {
+          message: 'Ok',
+        },
+      }),
+    });
   } catch (exception) {
     return handleException(exception);
   }
