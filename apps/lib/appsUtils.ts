@@ -117,10 +117,9 @@ export function getAppLockedFields(app: AppType) {
 }
 
 export function getAppDefaultBuildFields(name: string, platform: string) {
-  const packageIdSuffix = Random.randomString(
-    11,
-    'abcdefghijklmnopqrstuvwxyz0123456789'
-  );
+  const packageIdSuffix =
+    Random.randomString(1, 'abcdefghijklmnopqrstuvwxyz') +
+    Random.randomString(10, 'abcdefghijklmnopqrstuvwxyz0123456789');
   const packageId = `com.crowdaa.${packageIdSuffix}`;
 
   return {
