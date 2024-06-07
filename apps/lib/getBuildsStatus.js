@@ -42,7 +42,18 @@ async function getSetupOrBuildForPlatform(app, platform, { db }) {
   };
 }
 
+function truncateError(pipeline) {
+  const { error } = pipeline;
+  if (error) {
+    const truncatedError = error.slice(0, 2048);
+    return { ...pipeline, error: truncatedError };
+  } else {
+    return pipeline;
+  }
+}
+
 export default async (appId, requestedPlatform, { all = false }) => {
+  console.log('getBuildsStatus: handler');
   const client = await MongoClient.connect();
   const db = client.db();
 
@@ -52,7 +63,18 @@ export default async (appId, requestedPlatform, { all = false }) => {
     const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;
 
     const promises = platforms.map(async (platform) => {
-      const ret = await getSetupOrBuildForPlatform(app, platform, { db });
+      let ret = await getSetupOrBuildForPlatform(app, platform, { db });
+      ret = {
+        ...ret,
+        pipeline: {
+          ...ret.pipeline,
+          current: truncateError(ret.pipeline.current),
+        },
+        build: {
+          ...ret.build,
+          pipeline: truncateError(ret.pipeline.current),
+        },
+      };
 
       if (all) {
         const pipelines = await db
@@ -66,7 +88,8 @@ export default async (appId, requestedPlatform, { all = false }) => {
           )
           .toArray();
 
-        ret.pipelines = pipelines;
+        // Limit the size of the error field to avoid timeout
+        ret.pipelines = pipelines.map(truncateError);
       }
 
       return ret;
