@@ -42,6 +42,16 @@ async function getSetupOrBuildForPlatform(app, platform, { db }) {
   };
 }
 
+function truncateError(pipeline) {
+  const { error } = pipeline;
+  if (error) {
+    const truncatedError = error.slice(0, 2048);
+    return { ...pipeline, error: truncatedError };
+  } else {
+    return pipeline;
+  }
+}
+
 export default async (appId, requestedPlatform, { all = false }) => {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -52,7 +62,33 @@ export default async (appId, requestedPlatform, { all = false }) => {
     const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;
 
     const promises = platforms.map(async (platform) => {
-      const ret = await getSetupOrBuildForPlatform(app, platform, { db });
+      let ret = await getSetupOrBuildForPlatform(app, platform, { db });
+      // Limit the error field size of 'pipeline.current'
+      if (ret && ret.pipeline && ret.pipeline.current) {
+        ret = {
+          ...ret,
+          pipeline: {
+            ...ret.pipeline,
+            current: truncateError(ret.pipeline.current),
+          },
+        };
+      }
+      // Limit the error field size of 'build.pipeline'
+      if (ret && ret.build && ret.build.pipeline) {
+        ret = {
+          ...ret,
+          build: {
+            ...ret.build,
+            pipeline: truncateError(ret.build.pipeline),
+          },
+        };
+      }
+      // Limit the error field size of 'pipeline.steps'
+      if (ret && ret.pipeline && ret.pipeline.steps) {
+        for (const key of Object.keys(ret.pipeline.steps)) {
+          ret.pipeline.steps[key] = truncateError(ret.pipeline.steps[key]);
+        }
+      }
 
       if (all) {
         const pipelines = await db
@@ -66,7 +102,8 @@ export default async (appId, requestedPlatform, { all = false }) => {
           )
           .toArray();
 
-        ret.pipelines = pipelines;
+        // Limit the size of the error field to avoid timeout
+        ret.pipelines = pipelines.map(truncateError);
       }
 
       return ret;
