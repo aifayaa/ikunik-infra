@@ -64,17 +64,35 @@ export default async (appId, requestedPlatform, { all = false }) => {
 
     const promises = platforms.map(async (platform) => {
       let ret = await getSetupOrBuildForPlatform(app, platform, { db });
-      ret = {
-        ...ret,
-        pipeline: {
-          ...ret.pipeline,
-          current: truncateError(ret.pipeline.current),
-        },
-        build: {
-          ...ret.build,
-          pipeline: truncateError(ret.pipeline.current),
-        },
-      };
+      // ret = {
+      //   ...ret,
+      //   pipeline: {
+      //     ...ret.pipeline,
+      //     current: truncateError(ret.pipeline.current),
+      //   },
+      //   build: {
+      //     ...ret.build,
+      //     pipeline: truncateError(ret.build.pipeline),
+      //   },
+      // };
+      if (ret && ret.pipeline && ret.pipeline.current) {
+        ret = {
+          ...ret,
+          pipeline: {
+            ...ret.pipeline,
+            current: truncateError(ret.pipeline.current),
+          },
+        };
+      }
+      if (ret && ret.build && ret.build.pipeline) {
+        ret = {
+          ...ret,
+          build: {
+            ...ret.build,
+            pipeline: truncateError(ret.build.pipeline),
+          },
+        };
+      }
 
       if (all) {
         const pipelines = await db
