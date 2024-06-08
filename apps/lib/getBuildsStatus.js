@@ -104,6 +104,8 @@ export default async (appId, requestedPlatform, { all = false }) => {
             },
             { sort: [['createdAt', -1]] }
           )
+          // Arbitrary limit the number of pipeline to retrieve
+          .limit(5)
           .toArray();
 
         // Limit the size of the error field to avoid timeout
