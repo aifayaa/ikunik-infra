@@ -588,6 +588,7 @@ const serverlessConfiguration = {
     },
     getBuildsStatus: {
       handler: 'handlers/getBuildsStatus.default',
+      memorySize: 512,
       events: [
         {
           http: {
