@@ -53,7 +53,6 @@ function truncateError(pipeline) {
 }
 
 export default async (appId, requestedPlatform, { all = false }) => {
-  console.log('getBuildsStatus: handler');
   const client = await MongoClient.connect();
   const db = client.db();
 
@@ -64,17 +63,7 @@ export default async (appId, requestedPlatform, { all = false }) => {
 
     const promises = platforms.map(async (platform) => {
       let ret = await getSetupOrBuildForPlatform(app, platform, { db });
-      // ret = {
-      //   ...ret,
-      //   pipeline: {
-      //     ...ret.pipeline,
-      //     current: truncateError(ret.pipeline.current),
-      //   },
-      //   build: {
-      //     ...ret.build,
-      //     pipeline: truncateError(ret.build.pipeline),
-      //   },
-      // };
+      // Limit the error field size of 'pipeline.current'
       if (ret && ret.pipeline && ret.pipeline.current) {
         ret = {
           ...ret,
@@ -84,6 +73,7 @@ export default async (appId, requestedPlatform, { all = false }) => {
           },
         };
       }
+      // Limit the error field size of 'build.pipeline'
       if (ret && ret.build && ret.build.pipeline) {
         ret = {
           ...ret,
@@ -92,6 +82,12 @@ export default async (appId, requestedPlatform, { all = false }) => {
             pipeline: truncateError(ret.build.pipeline),
           },
         };
+      }
+      // Limit the error field size of 'pipeline.steps'
+      if (ret && ret.pipeline && ret.pipeline.steps) {
+        for (const key of Object.keys(ret.pipeline.steps)) {
+          ret.pipeline.steps[key] = truncateError(ret.pipeline.steps[key]);
+        }
       }
 
       if (all) {
@@ -104,8 +100,6 @@ export default async (appId, requestedPlatform, { all = false }) => {
             },
             { sort: [['createdAt', -1]] }
           )
-          // Arbitrary limit the number of pipeline to retrieve
-          .limit(5)
           .toArray();
 
         // Limit the size of the error field to avoid timeout
