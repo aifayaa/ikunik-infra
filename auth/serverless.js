@@ -29,6 +29,8 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}',
       S3_APPS_RESSOURCES:
         '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
+      CROWDAA_REGION:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
     },
     iam: {
       role: {
@@ -438,6 +440,7 @@ const serverlessConfiguration = {
         REACT_APP_API_URL: 'https://dev-api.aws.crowdaa.com/v1',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources-dev',
         S3_APPS_RESSOURCES_REGION: 'us-east-1',
+        CROWDAA_REGION: 'us',
       },
     },
     preprod: {
@@ -453,6 +456,7 @@ const serverlessConfiguration = {
         REACT_APP_API_URL: 'https://preprod-api.aws.crowdaa.com/v1',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources-preprod',
         S3_APPS_RESSOURCES_REGION: 'eu-west-3',
+        CROWDAA_REGION: 'fr',
       },
     },
     prod: {
@@ -469,6 +473,7 @@ const serverlessConfiguration = {
         REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
         S3_APPS_RESSOURCES_REGION: 'eu-west-3',
+        CROWDAA_REGION: 'fr',
       },
       'us-east-1': {
         FACEBOOK_CLIENT_ID: 1669225803297816,
@@ -482,6 +487,7 @@ const serverlessConfiguration = {
         REACT_APP_API_URL: 'https://api.aws.crowdaa.com/v1',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources',
         S3_APPS_RESSOURCES_REGION: 'us-east-1',
+        CROWDAA_REGION: 'us',
       },
     },
   },
