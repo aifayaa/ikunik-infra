@@ -64,6 +64,8 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
       STRIPE_SECRET_KEY:
         '${ssm(us-east-1):/crowdaa_microservices/dev/payment/stripe-secret-key}',
+      CROWDAA_REGION:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
