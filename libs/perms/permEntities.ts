@@ -5,10 +5,6 @@ export type AppsPermType =
   | 'moderator'
   | 'viewer';
 
-export type AppsPermWithoutOwnerType =
-  | 'admin'
-  | 'editor'
-  | 'moderator'
-  | 'viewer';
+export type AppsPermWithoutOwnerType = Omit<AppsPermType, 'owner'>;
 
 export type OrganizationPermType = 'owner' | 'admin' | 'member';

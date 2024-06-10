@@ -328,7 +328,7 @@ async function checkPermsForAppAux(
           ];
 
           return areArraysIntersecting(
-            userPermsOnApp.roles,
+            userPermsOnApp.roles as string[],
             requestedPermsArray
           );
         }
@@ -344,7 +344,10 @@ async function checkPermsForAppAux(
         ...(APP_PERMS_IMPLIED[requestedPerm] || []),
       ];
 
-      return areArraysIntersecting(userPermsOnApp.roles, requestedPermsArray);
+      return areArraysIntersecting(
+        userPermsOnApp.roles as string[],
+        requestedPermsArray
+      );
     }
   }
 
