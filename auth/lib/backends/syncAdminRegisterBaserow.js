@@ -4,7 +4,9 @@ import request from 'request-promise-native';
 const { CROWDAA_REGION, STAGE } = process.env;
 
 const BASEROW_URL =
-  'http://automation.operations.aws.crowdaa.com/webhook/createCustomerCrowdaa-pod769-an7i9e-40eind-m3du';
+  STAGE === 'prod'
+    ? 'http://automation.operations.aws.crowdaa.com/webhook/createCustomerCrowdaa-pod769-an7i9e-40eind-m3du'
+    : 'http://automation.operations.aws.crowdaa.com/webhook-test/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9';
 const BASEROW_METHOD = 'POST';
 
 async function callBaserowAPI(data) {

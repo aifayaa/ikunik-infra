@@ -5,7 +5,6 @@ import {
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes';
 import { formatResponseBody } from './formatResponseBody';
-import { formatValidationErrorsType } from './formatValidationErrors';
 
 type reponseType = {
   headers?: Object;
@@ -38,9 +37,10 @@ export default function response({
   } else {
     respBody = JSON.stringify({ message });
   }
+  const statusCode = typeof code === 'number' ? code : 500;
 
   return {
-    statusCode: code,
+    statusCode,
     body: respBody,
     headers: {
       'Access-Control-Allow-Origin': '*',
