@@ -1,11 +1,12 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApp, getApplicationUsers } from './appsUtils.ts';
+import { UserType } from '../../users/lib/userEntity';
+import { getApp, getApplicationUsers } from './appsUtils';
 
 const { COLL_USERS } = mongoCollections;
 
-export default async (appId) => {
+export default async (appId: string) => {
   const client = await MongoClient.connect();
 
   try {
@@ -14,12 +15,12 @@ export default async (appId) => {
     const app = await getApp(appId);
     const appUsersId = getApplicationUsers(app).map((user) => user._id);
 
-    const users = await db
+    const users = (await db
       .collection(COLL_USERS)
       .find({
         _id: { $in: appUsersId },
       })
-      .toArray();
+      .toArray()) as UserType[];
 
     return users;
   } finally {

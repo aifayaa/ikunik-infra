@@ -1,30 +1,39 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
+import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
+import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import {
   checkPermsForApp,
   checkPermsForOrganization,
-} from '../../libs/perms/checkPermsFor.ts';
-import { getApp, getApplicationOrganizationId } from '../lib/appsUtils.ts';
+} from '../../libs/perms/checkPermsFor';
+import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
 import putAppUserPerms from '../lib/putAppUserPerms';
-import response, {
-  handleException,
-} from '../../libs/httpResponses/response.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
+import response, { handleException } from '../../libs/httpResponses/response';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   addUserApplicationRoles,
   filterUserPrivateFields,
   getUser,
-} from '../../users/lib/usersUtils.ts';
+} from '../../users/lib/usersUtils';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import {
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_BODY_CODE,
+} from '../../libs/httpResponses/errorCodes';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import { OrganizationPermType } from '../../libs/perms/permEntities';
 
 /**
  * As the source user must be an 'admin' of the application, he can give
  * any roles to the target user.
  */
-export default async (event) => {
-  const { principalId: sourceUserId } = event.requestContext.authorizer;
-  const { id: appId } = event.pathParameters;
+export default async (event: APIGatewayProxyEvent) => {
+  const { principalId: sourceUserId } = event.requestContext.authorizer as {
+    principalId: string;
+  };
+  const { id: appId } = event.pathParameters as {
+    id: string;
+  };
 
   try {
     const putAppUserPermsSchema = z
@@ -38,6 +47,14 @@ export default async (event) => {
           .trim(),
       })
       .required();
+
+    if (!event.body) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_BODY_CODE,
+        `Body is missing from the request`
+      );
+    }
 
     // Validate the body of the request
     const body = JSON.parse(event.body);
@@ -56,7 +73,7 @@ export default async (event) => {
     const app = await getApp(appId);
     const orgId = getApplicationOrganizationId(app);
 
-    const organizationPermissionLevel = ['member'];
+    const organizationPermissionLevel = ['member'] as OrganizationPermType[];
     await checkPermsForOrganization(
       sourceUserId,
       orgId,

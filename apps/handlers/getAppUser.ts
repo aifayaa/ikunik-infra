@@ -8,7 +8,6 @@ import {
   addUserApplicationRoles,
   filterUserPrivateFields,
 } from '../../users/lib/usersUtils';
-import getAppUsers from '../lib/getAppUsers.js';
 import { UserType } from '../../users/lib/userEntity';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
@@ -17,6 +16,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import getAppUsers from '../lib/getAppUsers';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: userId } = event.requestContext.authorizer as {
@@ -36,8 +36,6 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, requestedPermissions);
 
     const users = await getAppUsers(appId);
-    const app = await getApp(appId);
-
     const userCandidate = users.find(
       (userWk: UserType) => userWk._id === targetUserId
     );
@@ -49,6 +47,8 @@ export default async (event: APIGatewayProxyEvent) => {
         `Cannot found user '${userId}' in application '${appId}'`
       );
     }
+
+    const app = await getApp(appId);
 
     return response({
       code: 200,

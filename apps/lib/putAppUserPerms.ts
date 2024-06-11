@@ -1,18 +1,21 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_NOT_FOUND,
   USER_ALREADY_EXISTS_CODE,
-} from '../../libs/httpResponses/errorCodes.ts';
-import MongoClient from '../../libs/mongoClient';
+} from '../../libs/httpResponses/errorCodes';
+import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
-import { indexObjectArrayWithKey } from '../../libs/utils';
-// import getAppUsers from './getAppUsers';
+import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
+import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
 const { COLL_APPS } = mongoCollections;
 
-export default async (appId, roles, targetUserId) => {
+export default async (
+  appId: string,
+  roles: Array<AppsPermWithoutOwnerType>,
+  targetUserId: string
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -20,11 +23,11 @@ export default async (appId, roles, targetUserId) => {
 
     const app = await getApplicationWithinOrg(appId);
 
-    const appsOrganizationUsers = indexObjectArrayWithKey(
-      app.organization.users
+    const userCandidate = app.organization?.users.find(
+      (user) => user._id === targetUserId
     );
 
-    if (appsOrganizationUsers[targetUserId]) {
+    if (!userCandidate) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         USER_ALREADY_EXISTS_CODE,
