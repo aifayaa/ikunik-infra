@@ -55,7 +55,7 @@ export const applicationRolesInOrganization = [
   'editor',
   'moderator',
   'viewer',
-];
+] as [string, ...string[]];
 
 async function getUserPermsOnOrg(db: any, userId: string, orgId: string) {
   const user: UserType = await db

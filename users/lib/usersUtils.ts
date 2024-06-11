@@ -53,7 +53,10 @@ export const userPrivateFieldsProjection = userPrivateFields.reduce(
 
 export function filterUserPrivateFields(user: UserType) {
   // Deep duplication required to avoid modifying the source
-  const ret = JSON.parse(JSON.stringify(user));
+  const ret = JSON.parse(JSON.stringify(user)) as Omit<
+    UserType,
+    'services' | 'perms' | 'superAdmin'
+  >;
 
   userPrivateFields.forEach((field) => {
     objUnset(ret, field);
