@@ -8,7 +8,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
 import { indexObjectArrayWithKey } from '../../libs/utils';
-import getAppUsers from './getAppUsers';
+// import getAppUsers from './getAppUsers';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -39,9 +39,7 @@ export default async (appId, roles, targetUserId) => {
         { $push: { 'organization.users': { _id: targetUserId, roles } } }
       );
 
-    return (await getAppUsers(appId)).find(
-      (userWk) => userWk._id === targetUserId
-    );
+    return await getApplicationWithinOrg(appId);
   } finally {
     client.close();
   }

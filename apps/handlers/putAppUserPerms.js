@@ -15,6 +15,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.
 import {
   addUserApplicationRoles,
   filterUserPrivateFields,
+  getUser,
 } from '../../users/lib/usersUtils.ts';
 
 /**
@@ -68,8 +69,8 @@ export default async (event) => {
       organizationPermissionLevel
     );
 
-    const user = await putAppUserPerms(appId, roles, targetUserId);
-    const updatedApp = await getApp(appId);
+    const updatedApp = await putAppUserPerms(appId, roles, targetUserId);
+    const user = await getUser(targetUserId);
 
     return response({
       code: 200,
