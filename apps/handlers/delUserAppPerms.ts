@@ -23,9 +23,7 @@ export default async (event: APIGatewayProxyEvent) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: {
-          items: deletedResources,
-        },
+        data: deletedResources,
       }),
     });
   } catch (exception) {

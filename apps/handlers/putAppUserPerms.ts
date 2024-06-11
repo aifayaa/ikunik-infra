@@ -38,7 +38,9 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     const putAppUserPermsSchema = z
       .object({
-        roles: z.array(z.enum(applicationRolesInOrganization)),
+        roles: z.array(
+          z.enum(applicationRolesInOrganization as [string, ...string[]])
+        ),
         userId: z
           .string({
             required_error: 'userId is required',
