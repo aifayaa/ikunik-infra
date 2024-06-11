@@ -11,17 +11,18 @@ import {
 } from '../../libs/perms/checkPermsFor';
 import modifyAppUserPerms from '../lib/modifyAppUserPerms';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
-import {
-  filterAppPrivateFields,
-  getApp,
-  getApplicationOrganizationId,
-} from '../lib/appsUtils';
+import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_BODY_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { OrganizationPermType } from '../../libs/perms/permEntities';
+import {
+  addUserApplicationRoles,
+  filterUserPrivateFields,
+  getUser,
+} from '../../users/lib/usersUtils';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer as {
@@ -80,17 +81,20 @@ export default async (event: APIGatewayProxyEvent) => {
       organizationPermissionLevel
     );
 
-    const modifiedApp = await modifyAppUserPerms(
+    const updatedApp = await modifyAppUserPerms(
       sourceUserId,
       targetUserId,
       appId,
       roles
     );
+    const user = await getUser(targetUserId);
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: filterAppPrivateFields(modifiedApp),
+        data: {
+          ...filterUserPrivateFields(addUserApplicationRoles(updatedApp, user)),
+        },
       }),
     });
   } catch (exception) {
