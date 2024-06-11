@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { AppType } from '../../apps/lib/appEntity';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_NOT_FOUND,
@@ -6,7 +7,10 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { OrganizationPermType } from '../../libs/perms/permEntities';
+import {
+  AppsPermWithoutOwnerType,
+  OrganizationPermType,
+} from '../../libs/perms/permEntities';
 import { objUnset } from '../../libs/utils';
 import { UserType } from './userEntity';
 
@@ -67,14 +71,35 @@ export function addUserOrganisationRoles(
     return { ...user, roles: ['owner'] };
   }
 
-  const candidateOrganization = user.perms?.organizations?.find(
+  const organizationCandidate = user.perms?.organizations?.find(
     (org) => org._id === orgId
   );
 
-  if (!candidateOrganization) {
+  if (!organizationCandidate) {
     return { ...user, roles: [] };
   } else {
-    const { roles } = candidateOrganization;
+    const { roles } = organizationCandidate;
+    return { ...user, roles };
+  }
+}
+
+export function addUserApplicationRoles(
+  app: AppType,
+  user: UserType
+): UserType & { roles: Array<AppsPermWithoutOwnerType> } {
+  const { superAdmin } = user;
+  if (superAdmin) {
+    return { ...user, roles: ['admin'] };
+  }
+
+  const userCandidate = app.organization?.users.find(
+    (userWk) => userWk._id === user._id
+  );
+
+  if (!userCandidate) {
+    return { ...user, roles: [] };
+  } else {
+    const { roles } = userCandidate;
     return { ...user, roles };
   }
 }
