@@ -40,7 +40,6 @@ export default async (appId) => {
           },
         ],
       })
-      .project({ 'profile.email': 1 })
       .toArray();
 
     return users;

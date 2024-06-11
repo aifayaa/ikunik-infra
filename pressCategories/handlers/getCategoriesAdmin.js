@@ -12,7 +12,8 @@ export default async (event) => {
   const fetchMaxOrder = fetchMaxOrderParameter.toLowerCase() === 'true';
 
   try {
-    await checkPermsForApp(userId, appId, ['viewer']);
+    const requestedPermissions = ['viewer', 'moderator', 'editor'];
+    await checkPermsForApp(userId, appId, requestedPermissions);
 
     if (parentId === 'null') {
       parentId = null;
