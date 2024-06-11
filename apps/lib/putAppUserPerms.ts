@@ -27,7 +27,7 @@ export default async (
       (user) => user._id === targetUserId
     );
 
-    if (!userCandidate) {
+    if (userCandidate) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         USER_ALREADY_EXISTS_CODE,
