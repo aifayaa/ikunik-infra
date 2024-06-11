@@ -152,6 +152,20 @@ export function getApplicationOrganizationId(app: AppType) {
   return appOrgId;
 }
 
+export function getApplicationUsers(app: AppType) {
+  const users = app.organization?.users;
+
+  if (!users) {
+    throw new CrowdaaError(
+      ERROR_TYPE_VALIDATION_ERROR,
+      MISSING_ORGANIZATION_CODE,
+      `App '${app._id}' do not have an organization`
+    );
+  }
+
+  return users;
+}
+
 export function isAppAlreadyBuild(app: AppType) {
   return (
     app &&
