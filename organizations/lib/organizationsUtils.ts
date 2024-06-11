@@ -13,7 +13,10 @@ import {
   USER_NO_PERMISSIONS_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { UserType } from '../../users/lib/userEntity';
-import { OrganizationPermType } from '../../libs/perms/permEntities';
+import {
+  AppsPermWithoutOwnerType,
+  OrganizationPermType,
+} from '../../libs/perms/permEntities';
 
 const { COLL_USERS, COLL_ORGANIZATIONS } = mongoCollections;
 
@@ -55,7 +58,7 @@ export const applicationRolesInOrganization = [
   'editor',
   'moderator',
   'viewer',
-];
+] as AppsPermWithoutOwnerType[];
 
 async function getUserPermsOnOrg(db: any, userId: string, orgId: string) {
   const user: UserType = await db

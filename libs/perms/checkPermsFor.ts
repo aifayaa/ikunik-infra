@@ -15,7 +15,7 @@ import {
 import { UserType } from '../../users/lib/userEntity';
 import { AppsPermType, OrganizationPermType } from './permEntities';
 import { getApp } from '../../apps/lib/appsUtils';
-import { AppType } from '../../apps/lib/appEntity';
+import { AppInOrgType, AppType } from '../../apps/lib/appEntity';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
@@ -276,7 +276,7 @@ export async function getApplicationWithinOrg(appId: string) {
         `The application '${appId}' is not in an organization`
       );
     }
-    return application;
+    return application as AppInOrgType;
   } finally {
     client.close();
   }

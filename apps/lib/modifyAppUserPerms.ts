@@ -1,35 +1,56 @@
 /* eslint-disable import/no-relative-packages */
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   AT_LEAST_ONE_ADMIN_CODE,
   ERROR_TYPE_NOT_ALLOWED,
+  ERROR_TYPE_NOT_FOUND,
   NOT_ENOUGH_PERMISSIONS_CODE,
-} from '../../libs/httpResponses/errorCodes.ts';
+  USER_NOT_FOUND_CODE,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor.ts';
-import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
+import { getApplicationWithinOrg } from '../../libs/perms/checkPermsFor';
+import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
+import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
+import { AppType } from './appEntity';
 
 const { COLL_APPS } = mongoCollections;
 
-async function getUserPermsOnApplication(db, userId, appId) {
-  const application = await db.collection(COLL_APPS).findOne({ _id: appId });
+async function getUserPermsOnApplication(
+  db: any,
+  userId: string,
+  appId: string
+) {
+  const application = (await db
+    .collection(COLL_APPS)
+    .findOne({ _id: appId })) as AppType | undefined;
 
-  return application.organization.users.find((user) => user._id === userId)
-    .roles;
+  const roles = application?.organization?.users.find(
+    (user) => user._id === userId
+  )?.roles;
+
+  if (!roles) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      USER_NOT_FOUND_CODE,
+      `Cannot find user '${userId}' in application '${appId}'`
+    );
+  }
+
+  return roles;
 }
 
-function getHighestRoleAux(roles) {
+function getHighestRoleAux(roles: AppsPermWithoutOwnerType[]) {
   for (const role of applicationRolesInOrganization) {
     if (roles.includes(role)) {
       return role;
     }
   }
 
-  return applicationRolesInOrganization.at(-1);
+  return applicationRolesInOrganization.at(-1)!;
 }
 
-async function getHighestRole(db, userId, appId) {
+async function getHighestRole(db: any, userId: string, appId: string) {
   const userRoles = await getUserPermsOnApplication(db, userId, appId);
   return getHighestRoleAux(userRoles);
 }
@@ -40,7 +61,10 @@ async function getHighestRole(db, userId, appId) {
  * @param {string} perm1 A permission, may be 'owner', 'admin' or 'member'
  * @returns true, if 'perm0' is stronger than 'perm1'
  */
-function isPermissionStrongerOrEqual(perm0, perm1) {
+function isPermissionStrongerOrEqual(
+  perm0: AppsPermWithoutOwnerType,
+  perm1: AppsPermWithoutOwnerType
+) {
   const perm0Ranking = applicationRolesInOrganization.indexOf(perm0);
   const perm1Ranking = applicationRolesInOrganization.indexOf(perm1);
 
@@ -49,11 +73,11 @@ function isPermissionStrongerOrEqual(perm0, perm1) {
 }
 
 export async function isSourceUserAllowToGiveRole(
-  db,
-  sourceUserId,
-  targetUserId,
-  updatedRoles,
-  appId
+  db: any,
+  sourceUserId: string,
+  targetUserId: string,
+  updatedRoles: AppsPermWithoutOwnerType[],
+  appId: string
 ) {
   const sourceUserHighestRole = await getHighestRole(db, sourceUserId, appId);
   const targetUserHighestRole = await getHighestRole(db, targetUserId, appId);
@@ -101,7 +125,12 @@ export async function isSourceUserAllowToGiveRole(
  * @param {string[]} updatedRoles The array of permissions to apply to targetUserId.
  *                                Contains 'admin', 'editor', 'moderator' or 'viewer'
  */
-export default async (sourceUserId, targetUserId, appId, updatedRoles) => {
+export default async (
+  sourceUserId: string,
+  targetUserId: string,
+  appId: string,
+  updatedRoles: AppsPermWithoutOwnerType[]
+) => {
   const client = await MongoClient.connect();
 
   try {
