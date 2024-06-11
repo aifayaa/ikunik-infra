@@ -1,11 +1,18 @@
 /* eslint-disable import/no-relative-packages */
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
+// import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
+// import response, {
+//   handleException,
+// } from '../../libs/httpResponses/response.ts';
+// import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+// import { filterAppPrivateFields } from '../lib/appsUtils.ts';
+import delUserAppPerms from '../lib/delUserAppPerms';
+
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { filterAppPrivateFields } from '../lib/appsUtils.ts';
-import delUserAppPerms from '../lib/delUserAppPerms';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;

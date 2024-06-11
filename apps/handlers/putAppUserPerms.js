@@ -1,21 +1,21 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import response, {
-  handleException,
-} from '../../libs/httpResponses/response.ts';
+import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import {
   checkPermsForApp,
   checkPermsForOrganization,
 } from '../../libs/perms/checkPermsFor.ts';
+import { getApp, getApplicationOrganizationId } from '../lib/appsUtils.ts';
 import putAppUserPerms from '../lib/putAppUserPerms';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import {
-  filterAppPrivateFields,
-  getApp,
-  getApplicationOrganizationId,
-} from '../lib/appsUtils.ts';
-import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils.ts';
+  addUserApplicationRoles,
+  filterUserPrivateFields,
+} from '../../users/lib/usersUtils.ts';
 
 /**
  * As the source user must be an 'admin' of the application, he can give
@@ -68,12 +68,15 @@ export default async (event) => {
       organizationPermissionLevel
     );
 
-    const modifiedApp = await putAppUserPerms(appId, roles, targetUserId);
+    const user = await putAppUserPerms(appId, roles, targetUserId);
+    const updatedApp = await getApp(appId);
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: filterAppPrivateFields(modifiedApp),
+        data: {
+          ...filterUserPrivateFields(addUserApplicationRoles(updatedApp, user)),
+        },
       }),
     });
   } catch (exception) {
