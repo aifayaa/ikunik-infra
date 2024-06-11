@@ -1,52 +1,44 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+
+import response, { handleException } from '../../libs/httpResponses/response';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   checkPermsForApp,
   checkPermsForOrganization,
 } from '../../libs/perms/checkPermsFor';
+import modifyAppUserPerms from '../lib/modifyAppUserPerms';
+import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
 import { getApp, getApplicationOrganizationId } from '../lib/appsUtils';
-import putAppUserPerms from '../lib/putAppUserPerms';
-import response, { handleException } from '../../libs/httpResponses/response';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_BODY_CODE,
+} from '../../libs/httpResponses/errorCodes';
+import { OrganizationPermType } from '../../libs/perms/permEntities';
 import {
   addUserApplicationRoles,
   filterUserPrivateFields,
   getUser,
 } from '../../users/lib/usersUtils';
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import {
-  ERROR_TYPE_VALIDATION_ERROR,
-  MISSING_BODY_CODE,
-} from '../../libs/httpResponses/errorCodes';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import { OrganizationPermType } from '../../libs/perms/permEntities';
 
-/**
- * As the source user must be an 'admin' of the application, he can give
- * any roles to the target user.
- */
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: sourceUserId } = event.requestContext.authorizer as {
     principalId: string;
   };
-  const { id: appId } = event.pathParameters as {
+  const { id: appId, userId: targetUserId } = event.pathParameters as {
     id: string;
+    userId: string;
   };
 
   try {
-    const putAppUserPermsSchema = z
+    const modifyAppUserPermsSchema = z
       .object({
         roles: z.array(
           z.enum(applicationRolesInOrganization as [string, ...string[]])
         ),
-        userId: z
-          .string({
-            required_error: 'userId is required',
-            invalid_type_error: 'userId must be a string',
-          })
-          .trim(),
       })
       .required();
 
@@ -63,13 +55,14 @@ export default async (event: APIGatewayProxyEvent) => {
 
     let validatedBody;
     try {
-      validatedBody = putAppUserPermsSchema.parse(body);
+      validatedBody = modifyAppUserPermsSchema.parse(body);
     } catch (exception) {
       return formatValidationErrors(exception);
     }
 
-    const { roles, userId: targetUserId } = validatedBody;
+    const { roles } = validatedBody;
 
+    // Check right for sourceUserId to appId
     await checkPermsForApp(sourceUserId, appId, ['admin']);
 
     const app = await getApp(appId);
@@ -88,7 +81,12 @@ export default async (event: APIGatewayProxyEvent) => {
       organizationPermissionLevel
     );
 
-    const updatedApp = await putAppUserPerms(appId, roles, targetUserId);
+    const updatedApp = await modifyAppUserPerms(
+      sourceUserId,
+      targetUserId,
+      appId,
+      roles
+    );
     const user = await getUser(targetUserId);
 
     return response({

@@ -1,5 +1,10 @@
 import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
+type OrganizationFieldType = {
+  _id: string;
+  users: [{ _id: string; roles: Array<AppsPermWithoutOwnerType> }];
+};
+
 export type AppType = {
   _id: string;
   key: string;
@@ -82,9 +87,8 @@ export type AppType = {
   credentials?: Object;
   appleAccounts?: Object;
   firebaseProjectId?: Object;
-  organization?: {
-    _id: string;
-    users: [{ _id: string; roles: Array<AppsPermWithoutOwnerType> }];
-  };
+  organization?: OrganizationFieldType;
   stripeSubscriptionId?: string;
 };
+
+export type AppInOrgType = AppType & { organization: OrganizationFieldType };
