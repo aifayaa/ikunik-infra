@@ -65,6 +65,10 @@ async function getUserPermsOnOrg(db: any, userId: string, orgId: string) {
     .collection(COLL_USERS)
     .findOne({ _id: userId });
 
+  if (user.superAdmin) {
+    return ['owner'] as OrganizationPermType[];
+  }
+
   if (!user.perms) {
     throw new CrowdaaError(
       ERROR_TYPE_NOT_ALLOWED,

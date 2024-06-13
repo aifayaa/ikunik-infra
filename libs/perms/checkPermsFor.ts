@@ -498,6 +498,18 @@ export async function checkPermsForOrganization(
   const client = await MongoClient.connect();
   const db = client.db();
 
+  const user = await db
+    .collection(COLL_USERS)
+    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
+
+  if (!user) {
+    return false;
+  }
+
+  if (user.superAdmin) {
+    return true;
+  }
+
   const organization = await db
     .collection(COLL_ORGANIZATIONS)
     .findOne({ _id: orgId }, { projection: { name: 1 } });
@@ -514,14 +526,6 @@ export async function checkPermsForOrganization(
         },
       }
     );
-  }
-
-  const user = await db
-    .collection(COLL_USERS)
-    .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
-
-  if (!user) {
-    return false;
   }
 
   try {
