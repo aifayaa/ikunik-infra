@@ -167,10 +167,22 @@ export function getApplicationUsers(app: AppType) {
 }
 
 export function isAppAlreadyBuild(app: AppType) {
+  const runningStates = ['queued', 'starting', 'running'];
+
   return (
     app &&
     app.builds &&
-    ((app.builds.android && app.builds.android.ready) ||
-      (app.builds.ios && app.builds.ios.ready))
+    ((app.builds.android &&
+      // Either an Android version has been built
+      (app.builds.android.ready ||
+        // Or an Android version is building
+        (app.builds.android.pipeline &&
+          runningStates.includes(app.builds.android.pipeline.status)))) ||
+      (app.builds.ios &&
+        // Either an iOS version has been built
+        (app.builds.ios.ready ||
+          // Or an iOS version is building
+          (app.builds.ios.pipeline &&
+            runningStates.includes(app.builds.ios.pipeline.status)))))
   );
 }
