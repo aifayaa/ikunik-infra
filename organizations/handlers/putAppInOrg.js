@@ -10,7 +10,7 @@ import {
   checkPermsForOrganization,
 } from '../../libs/perms/checkPermsFor.ts';
 
-import putAppInOrg from '../lib/putAppInOrg';
+import { putAppInOrgOrgToOrg, putAppInOrgUserToOrg } from '../lib/putAppInOrg';
 import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
@@ -38,7 +38,7 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const appInOrganization = isApplicationInOrganization(application);
 
   if (!appInOrganization) {
-    const org = await putAppInOrg(userId, orgId, appId, 'fromUserToOrg');
+    const org = await putAppInOrgUserToOrg(userId, orgId, appId);
     return org;
   } else {
     const sourceOrgId = application.organization._id;
@@ -73,46 +73,54 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
       orgPermissionLevel
     );
 
-    // TODO: use a transaction
-    const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
+    let org;
+    const client = await MongoClient.connect();
+    const db = client.db();
+    // Documentation, how to use transaction:
+    // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+    await client
+      .withSession(async (sessionArg) => {
+        await sessionArg.withTransaction(async (session) => {
+          org = await putAppInOrgOrgToOrg(userId, orgId, appId, db, session);
 
-    // After the transfer of the application between organisation
-    // If the source organisation doesn't have build applications anymore,
-    // -> Unlock its teamId
-    // -> If the source organization has a locked teamId
-    //    -> Lock the teamId of the destination organisation
-    if (sourceOrg.apple.setupDone) {
-      const appsAlreadyBuildStatus = (await getOrgApps(sourceOrgId)).map(
-        isAppAlreadyBuild
-      );
+          // After the transfer of the application between organisation
+          // If the source organisation doesn't have build applications anymore,
+          // -> Unlock its teamId
+          // -> If the source organization has a locked teamId
+          //    -> Lock the teamId of the destination organisation
+          if (sourceOrg.apple.setupDone) {
+            const appsAlreadyBuildStatus = (await getOrgApps(sourceOrgId)).map(
+              isAppAlreadyBuild
+            );
 
-      const hasAtLeastOneBuiltApplication =
-        appsAlreadyBuildStatus.some(Boolean);
+            const hasAtLeastOneBuiltApplication =
+              appsAlreadyBuildStatus.some(Boolean);
 
-      const client = await MongoClient.connect();
-      if (!hasAtLeastOneBuiltApplication) {
-        await client
-          .db()
-          .collection(COLL_ORGANIZATIONS)
-          .updateOne(
-            { _id: sourceOrgId },
-            {
-              $set: { 'apple.setupDone': false },
+            if (!hasAtLeastOneBuiltApplication) {
+              await db.collection(COLL_ORGANIZATIONS).updateOne(
+                { _id: sourceOrgId },
+                {
+                  $set: { 'apple.setupDone': false },
+                }
+              );
             }
-          );
-      }
 
-      // In any case, locks the destination organization teamId
-      await client
-        .db()
-        .collection(COLL_ORGANIZATIONS)
-        .updateOne(
-          { _id: orgId },
-          {
-            $set: { 'apple.setupDone': true, 'apple.teamStatus': 'valid' },
+            // In any case, locks the destination organization teamId
+            await db.collection(COLL_ORGANIZATIONS).updateOne(
+              { _id: orgId },
+              {
+                $set: {
+                  'apple.setupDone': true,
+                  'apple.teamStatus': 'valid',
+                },
+              }
+            );
           }
-        );
-    }
+        });
+      })
+      .finally(() => {
+        client.close();
+      });
 
     return org;
   }
