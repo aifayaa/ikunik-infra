@@ -5,12 +5,14 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
+  APPLICATION_OUTSIDE_ORGANIZATION_CODE,
   APP_NOT_FOUND_CODE,
+  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { AppType } from './appEntity';
+import { AppInOrgType, AppType } from './appEntity';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -138,6 +140,17 @@ export function isApplicationInOrganization(app: AppType) {
   return (app.organization && app.organization._id) !== undefined;
 }
 
+export function assertApplicationInOrganization(app: AppType): AppInOrgType {
+  if (!isApplicationInOrganization(app)) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_ALLOWED,
+      APPLICATION_OUTSIDE_ORGANIZATION_CODE,
+      `Application '${app._id}' is not in an organization`
+    );
+  }
+  return app as AppInOrgType;
+}
+
 export function getApplicationOrganizationId(app: AppType) {
   const appOrgId = app.organization?._id;
 
@@ -167,10 +180,22 @@ export function getApplicationUsers(app: AppType) {
 }
 
 export function isAppAlreadyBuild(app: AppType) {
+  const runningStates = ['queued', 'starting', 'running'];
+
   return (
     app &&
     app.builds &&
-    ((app.builds.android && app.builds.android.ready) ||
-      (app.builds.ios && app.builds.ios.ready))
+    ((app.builds.android &&
+      // Either an Android version has been built
+      (app.builds.android.ready ||
+        // Or an Android version is building
+        (app.builds.android.pipeline &&
+          runningStates.includes(app.builds.android.pipeline.status)))) ||
+      (app.builds.ios &&
+        // Either an iOS version has been built
+        (app.builds.ios.ready ||
+          // Or an iOS version is building
+          (app.builds.ios.pipeline &&
+            runningStates.includes(app.builds.ios.pipeline.status)))))
   );
 }
