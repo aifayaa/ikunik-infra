@@ -70,6 +70,11 @@ export type AppType = {
       ready: boolean;
       googleApiData?: Object;
       firebase?: Object;
+      pipeline?: {
+        _id: string;
+        status: string;
+        date: string;
+      };
     };
     ios: {
       name: string;
@@ -81,6 +86,11 @@ export type AppType = {
       email: string;
       version: string;
       ready: boolean;
+      pipeline?: {
+        _id: string;
+        status: string;
+        date: string;
+      };
     };
   };
   backend?: Object;

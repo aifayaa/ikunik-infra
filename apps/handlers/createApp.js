@@ -7,7 +7,7 @@ import response, {
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { filterAppPrivateFields } from '../lib/appsUtils.ts';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
-import { putAppInOrgHandlerBody } from '../../organizations/handlers/putAppInOrg';
+import { putAppInOrgHandlerBody } from '../../organizations/handlers/putAppInOrg.ts';
 
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
