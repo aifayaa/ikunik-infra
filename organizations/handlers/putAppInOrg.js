@@ -10,7 +10,10 @@ import {
   checkPermsForOrganization,
 } from '../../libs/perms/checkPermsFor.ts';
 
-import { putAppInOrgOrgToOrg, putAppInOrgUserToOrg } from '../lib/putAppInOrg';
+import {
+  putAppInOrgOrgToOrg,
+  putAppInOrgUserToOrg,
+} from '../lib/putAppInOrg.ts';
 import {
   APP_ALREADY_BUILD_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
