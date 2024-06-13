@@ -21,6 +21,12 @@ import {
   isAppAlreadyBuild,
   getApp,
 } from '../../apps/lib/appsUtils.ts';
+import { getOrganization } from '../lib/organizationsUtils.ts';
+import getOrgApps from '../lib/getOrgApps';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_ORGANIZATIONS } = mongoCollections;
 
 export async function putAppInOrgHandlerBody(userId, orgId, appId) {
   const orgPermissionLevel = ['admin'];
@@ -35,18 +41,27 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
     const org = await putAppInOrg(userId, orgId, appId, 'fromUserToOrg');
     return org;
   } else {
+    const sourceOrgId = application.organization._id;
+    const sourceOrg = await getOrganization(sourceOrgId);
+    const destinationOrg = await getOrganization(orgId);
+
+    const sourceTeamId = sourceOrg.apple.teamId;
+    const destinationTeamId = destinationOrg.apple.teamId;
+
     if (isAppAlreadyBuild(application)) {
-      throw new CrowdaaError(
-        ERROR_TYPE_INTERNAL_EXCEPTION,
-        APP_ALREADY_BUILD_CODE,
-        `Application '${appId}' cannot be moved between organizations because already built`,
-        {
-          details: {
-            userId,
-            appId,
-          },
-        }
-      );
+      if (sourceTeamId && sourceTeamId !== destinationTeamId) {
+        throw new CrowdaaError(
+          ERROR_TYPE_INTERNAL_EXCEPTION,
+          APP_ALREADY_BUILD_CODE,
+          `Application '${appId}' cannot be moved from source organization '${sourceOrgId}' to destination organization '${orgId}' because the teamId don't match: (source teamId) '${sourceTeamId}' != '${destinationTeamId}' (destination teamId)`,
+          {
+            details: {
+              userId,
+              appId,
+            },
+          }
+        );
+      }
     }
 
     const applicationOrganizationId =
@@ -58,7 +73,47 @@ export async function putAppInOrgHandlerBody(userId, orgId, appId) {
       orgPermissionLevel
     );
 
+    // TODO: use a transaction
     const org = await putAppInOrg(userId, orgId, appId, 'fromOrgToOrg');
+
+    // After the transfer of the application between organisation
+    // If the source organisation doesn't have build applications anymore,
+    // -> Unlock its teamId
+    // -> If the source organization has a locked teamId
+    //    -> Lock the teamId of the destination organisation
+    if (sourceOrg.apple.setupDone) {
+      const appsAlreadyBuildStatus = (await getOrgApps(sourceOrgId)).map(
+        isAppAlreadyBuild
+      );
+
+      const hasAtLeastOneBuiltApplication =
+        appsAlreadyBuildStatus.some(Boolean);
+
+      const client = await MongoClient.connect();
+      if (!hasAtLeastOneBuiltApplication) {
+        await client
+          .db()
+          .collection(COLL_ORGANIZATIONS)
+          .updateOne(
+            { _id: sourceOrgId },
+            {
+              $set: { 'apple.setupDone': false },
+            }
+          );
+      }
+
+      // In any case, locks the destination organization teamId
+      await client
+        .db()
+        .collection(COLL_ORGANIZATIONS)
+        .updateOne(
+          { _id: orgId },
+          {
+            $set: { 'apple.setupDone': true, 'apple.teamStatus': 'valid' },
+          }
+        );
+    }
+
     return org;
   }
 }
