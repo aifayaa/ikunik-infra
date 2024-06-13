@@ -5,12 +5,14 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
+  APPLICATION_OUTSIDE_ORGANIZATION_CODE,
   APP_NOT_FOUND_CODE,
+  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { AppType } from './appEntity';
+import { AppInOrgType, AppType } from './appEntity';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -136,6 +138,17 @@ export function getAppDefaultBuildFields(name: string, platform: string) {
 
 export function isApplicationInOrganization(app: AppType) {
   return (app.organization && app.organization._id) !== undefined;
+}
+
+export function assertApplicationInOrganization(app: AppType): AppInOrgType {
+  if (!isApplicationInOrganization(app)) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_ALLOWED,
+      APPLICATION_OUTSIDE_ORGANIZATION_CODE,
+      `Application '${app._id}' is not in an organization`
+    );
+  }
+  return app as AppInOrgType;
 }
 
 export function getApplicationOrganizationId(app: AppType) {
