@@ -14,7 +14,11 @@ import { JWT } from 'jose';
 
 const { COLL_APPS } = mongoCollections;
 
-type EnvType = { PLAYLISTS_WORDPRESS_URL: string };
+type EnvType = {
+  STAGE: string;
+  REGION: string;
+  PLAYLISTS_WORDPRESS_URL: string;
+};
 type JWTBaseType = {
   iat: number;
   exp: number;
@@ -24,7 +28,7 @@ type JWTBaseType = {
   sub?: string;
 };
 
-const { PLAYLISTS_WORDPRESS_URL } = process.env as EnvType;
+const { STAGE, REGION, PLAYLISTS_WORDPRESS_URL } = process.env as EnvType;
 
 export class WordpressPlaylistQueryManager {
   _app: AppType;
@@ -71,6 +75,7 @@ export class WordpressPlaylistQueryManager {
         },
       };
 
+      console.log('REQUEST', params);
       let response = await request(params);
 
       if (typeof response === 'string') {
@@ -123,6 +128,7 @@ export class WordpressPlaylistQueryManager {
       },
     };
 
+    console.log('REQUEST', params);
     let response = await request(params);
 
     if (typeof response === 'string') {
@@ -135,14 +141,17 @@ export class WordpressPlaylistQueryManager {
 
 async function createPlaylistUrl(app: AppType) {
   if (!app.credentials || !app.credentials.wordpressPlaylists) {
-    const username = app._id;
+    const username = `${STAGE}-${REGION}-${app._id}`;
     const password = random.secret(63);
     const email = `admin+${app._id}@crowdaa.com`;
 
     const params = {
       method: 'POST',
       uri: `${PLAYLISTS_WORDPRESS_URL}/custom/v1/register`,
-      headers: {},
+      headers: {
+        Authorization:
+          'L2?pQL`V7i<Pe9MW2JXinVq=GPp@MSeL!GLaqy~q$EKU^j@AMRpdYxGZQ77g',
+      },
       json: {
         username,
         password,
@@ -150,6 +159,7 @@ async function createPlaylistUrl(app: AppType) {
       },
     };
 
+    console.log('REQUEST', params);
     let response = await request(params);
 
     if (typeof response === 'string') {
