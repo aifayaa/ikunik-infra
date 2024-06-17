@@ -55,7 +55,8 @@ export type AppType = {
     };
     iap?: Object;
     userDataCollection?: Object;
-    platformApplicationArns?: Object;
+    platformApplicationArns?: object;
+    playlistManagementUrl?: string;
   };
   builds: {
     android: {
@@ -94,7 +95,16 @@ export type AppType = {
     };
   };
   backend?: Object;
-  credentials?: Object;
+  credentials?: {
+    wordpressPlaylists?: {
+      baseUrl: string;
+      username: string;
+      password: string;
+      email: string;
+      sessionToken: string;
+      autoLoginToken: string;
+    };
+  };
   appleAccounts?: Object;
   firebaseProjectId?: Object;
   organization?: OrganizationFieldType;
