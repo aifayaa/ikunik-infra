@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.138",
+    "@types/request-promise-native": "^1.0.21",
     "aws-sdk-mock": "^5.0.0",
     "chai": "^4.2.0",
     "chmod-webpack-plugin": "^0.1.3",

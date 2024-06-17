@@ -720,6 +720,56 @@ const serverlessConfiguration = {
         },
       ],
     },
+    activateWPPlaylists: {
+      handler: 'handlers/postAppsIdActivateWPPlaylists.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/activateWPPlaylists',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getWPPlaylists: {
+      handler: 'handlers/getAppsIdWPPlaylists.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/wpPlaylists',
+            method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-webpack',
