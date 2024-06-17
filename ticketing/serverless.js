@@ -1,0 +1,130 @@
+/* eslint-disable no-template-curly-in-string */
+
+const serverlessConfiguration = {
+  service: 'ticketing',
+  custom: {
+    prune: {
+      automatic: true,
+      number: 3,
+    },
+    'serverless-disable-request-validators': {
+      action: 'delete',
+    },
+  },
+  provider: {
+    name: 'aws',
+    runtime: 'nodejs16.x',
+    stage: '${opt:stage, "dev"}',
+    memorySize: 128,
+    timeout: 30,
+    environment: '${file(../env.js)}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource: '*',
+          },
+        ],
+      },
+    },
+    apiGateway: {
+      restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
+      restApiRootResourceId:
+        '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
+      restApiResources: {
+        '/press': '${cf:press-${self:provider.stage}.RestApiRootResourceId}',
+        '/admin/press':
+          '${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}',
+      },
+    },
+    region: '${opt:region, "us-east-1"}',
+    deploymentBucket: 'ms-deployment-${self:provider.region}',
+  },
+  functions: {
+    createBookable: {
+      handler: 'handlers/createBookable.default',
+      events: [
+        {
+          http: {
+            path: 'bookables',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    updateBookable: {
+      handler: 'handlers/updateBookable.default',
+      events: [
+        {
+          http: {
+            path: 'bookables/{id}',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getBookable: {
+      handler: 'handlers/getBookable.default',
+      events: [
+        {
+          http: {
+            path: 'bookables/{id}',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+  plugins: [
+    'serverless-webpack',
+    'serverless-offline',
+    'serverless-disable-request-validators',
+    'serverless-prune-plugin',
+    'serverless-export-env',
+  ],
+  package: {
+    individually: true,
+  },
+};
+module.exports = serverlessConfiguration;
