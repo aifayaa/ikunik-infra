@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
-import { UserProfileType } from '../../../users/lib/userEntity';
+import { UTMType, UserProfileType } from '../../../users/lib/userEntity';
 
 const { CROWDAA_REGION, STAGE } = process.env;
 
@@ -36,18 +36,18 @@ export default async (
     email,
     username,
     profile,
-    referer,
+    utm,
   }: {
     email: string;
     username: string;
     profile: UserProfileType;
-    referer?: string;
+    utm?: UTMType;
   }
 ) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
-    const extra = referer ? { referer } : {};
+    const extra = utm ? { utm } : {};
     const resp = await callBaserowAPI({
       ...{
         region: CROWDAA_REGION,
@@ -69,7 +69,7 @@ export default async (
       email,
       username,
       profile,
-      referer,
+      utm,
     });
   }
   // }

@@ -5,7 +5,7 @@
 
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { UserProfileType } from '../../users/lib/userEntity';
+import { UTMType, UserProfileType } from '../../users/lib/userEntity';
 import { crowdaaLogin } from './backends/crowdaaLogin';
 import { crowdaaRegister } from './backends/crowdaaRegister';
 import syncAdminRegisterBaserow from './backends/syncAdminRegisterBaserow';
@@ -20,13 +20,13 @@ export const adminRegister = async ({
   username,
   password,
   profile,
-  referer,
+  utm,
 }: {
   email: string;
   username: string;
   password: string;
   profile: UserProfileType;
-  referer?: string;
+  utm?: UTMType;
 }) => {
   const client = await MongoClient.connect();
 
@@ -36,7 +36,7 @@ export const adminRegister = async ({
     const app = await appsCollection.findOne({ _id: ADMIN_APP });
     if (!app) throw new Error('app_not_found');
 
-    await crowdaaRegister(username, email, password, app, profile, referer);
+    await crowdaaRegister(username, email, password, app, profile, utm);
 
     const ret = await crowdaaLogin(username, email, password, app);
 
@@ -46,7 +46,7 @@ export const adminRegister = async ({
       email,
       username,
       profile,
-      referer,
+      utm,
     });
 
     return ret;

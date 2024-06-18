@@ -37,6 +37,14 @@ export type UserProfileType = {
   affiliateCode?: string;
 };
 
+export type UTMType = {
+  campaign?: string;
+  medium?: string;
+  source?: string;
+  term?: string;
+  content?: string;
+};
+
 export type UserType = {
   _id: string;
   services: {

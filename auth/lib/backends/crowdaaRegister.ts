@@ -5,6 +5,7 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import checkForCaseInsensitiveUserDuplicates from '../checkForCaseInsensitiveUserDuplicates';
 import { hashPassword } from '../password';
 import { AppType } from '../../../apps/lib/appEntity';
+import { UTMType } from '../../../users/lib/userEntity';
 
 const { COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 
@@ -14,7 +15,7 @@ export const crowdaaRegister = async (
   password: string,
   app: AppType,
   profile = {},
-  referer?: string
+  utm?: UTMType
 ) => {
   const client = await MongoClient.connect();
   const { _id: appId } = app;
@@ -67,7 +68,7 @@ export const crowdaaRegister = async (
         await badgesCollection.find({ appId, isDefault: true }).toArray()
       ).map((badge: { _id: string }) => ({ id: badge._id }));
 
-      const extra = referer ? { referer } : {};
+      const extra = utm ? { utm } : {};
       const newUser = {
         ...{
           _id: userId,

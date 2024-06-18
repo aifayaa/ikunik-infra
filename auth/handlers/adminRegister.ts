@@ -18,7 +18,7 @@ export default async (event: APIGatewayProxyEvent) => {
       password,
       username = null,
       profile = {},
-      referer = null,
+      utm = {},
     } = JSON.parse(event.body);
 
     if (!(typeof email === 'string' && typeof password === 'string')) {
@@ -36,7 +36,7 @@ export default async (event: APIGatewayProxyEvent) => {
       username: username || uuidv4(),
       password,
       profile,
-      referer,
+      utm,
     });
 
     return response({ code: 200, body: ret });
