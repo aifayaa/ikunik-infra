@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
-import Random from '../../libs/account_utils/random';
+import Random from '../../libs/account_utils/random.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateAppBaserow from './syncCreateAppBaserow';
 import { getAppDefaultBuildFields } from './appsUtils.ts';

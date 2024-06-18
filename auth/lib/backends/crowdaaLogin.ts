@@ -4,18 +4,28 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import { checkPassword } from '../password';
 import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
+import { AppType } from '../../../apps/lib/appEntity';
 
 const { ADMIN_APP } = process.env;
 
 const { COLL_USERS } = mongoCollections;
 
-export const crowdaaLogin = async (username, rawEmail, password, app) => {
+export const crowdaaLogin = async (
+  username: string,
+  rawEmail: string,
+  password: string,
+  app: AppType
+) => {
   const client = await MongoClient.connect();
   try {
     const usersCollection = client.db().collection(COLL_USERS);
     const email = rawEmail && rawEmail.toLowerCase();
     const { _id: appId } = app;
-    const selector = { appId };
+    const selector: {
+      appId: string;
+      'emails.address'?: string;
+      username?: string;
+    } = { appId };
 
     if (email) {
       selector['emails.address'] = email;
@@ -27,7 +37,9 @@ export const crowdaaLogin = async (username, rawEmail, password, app) => {
     if (!user) {
       if (appId !== ADMIN_APP && app.settings.press.env.apiKeyCanBeChanged) {
         userIsAdminForPreview = true;
-        selector.appId = ADMIN_APP;
+        if (ADMIN_APP) {
+          selector.appId = ADMIN_APP;
+        }
         user = await usersCollection.findOne(selector);
       }
 

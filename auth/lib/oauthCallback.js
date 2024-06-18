@@ -8,8 +8,8 @@ import Lambda from 'aws-sdk/clients/lambda';
 
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import Random from '../../libs/account_utils/random';
-import hashLoginToken from './hashLoginToken';
+import Random from '../../libs/account_utils/random.ts';
+import hashLoginToken from './hashLoginToken.ts';
 
 const SUCCESS_URL = 'https://crowdaa.com/api/oauth/callback/success';
 

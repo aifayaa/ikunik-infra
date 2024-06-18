@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunHtml } from '../../libs/email/sendEmailMailgun';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
-import random from '../../libs/account_utils/random';
+import random from '../../libs/account_utils/random.ts';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 

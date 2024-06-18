@@ -3,12 +3,13 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { UserType } from '../../users/lib/userEntity';
 
 const { COLL_USERS } = mongoCollections;
 
 const bcryptRounds = 10;
 
-const sha256 = (value) =>
+const sha256 = (value: crypto.BinaryLike) =>
   crypto.createHash('sha256').update(value).digest('hex');
 
 // extracted from meteor accounts-password module
@@ -19,7 +20,9 @@ const sha256 = (value) =>
 //  - String (the plaintext password)
 //  - Object with 'digest' and 'algorithm' keys. 'algorithm' must be "sha-256".
 //
-export const getPasswordString = (password) => {
+export const getPasswordString = (
+  password: string | { algorithm: string; digest: string }
+) => {
   if (typeof password === 'string') {
     password = sha256(password);
   } else {
@@ -39,13 +42,15 @@ export const getPasswordString = (password) => {
 // SHA256 before bcrypt) or an object with properties `digest` and
 // `algorithm` (in which case we bcrypt `password.digest`).
 //
-export const hashPassword = (password) => {
+export const hashPassword = (
+  password: string | { algorithm: string; digest: string }
+) => {
   password = getPasswordString(password);
   return bcrypt.hash(password, bcryptRounds);
 };
 
 // Extract the number of rounds used in the specified bcrypt hash.
-export const getRoundsFromBcryptHash = (hash) => {
+export const getRoundsFromBcryptHash = (hash?: string) => {
   let rounds;
   if (hash) {
     const hashSegments = hash.split('$');
@@ -56,24 +61,32 @@ export const getRoundsFromBcryptHash = (hash) => {
   return rounds;
 };
 
-export const checkPassword = async (user, password, { mongoClient } = {}) => {
+export const checkPassword = async (
+  user: UserType,
+  password: string | { algorithm: string; digest: string },
+  { mongoClient }: { mongoClient?: unknown } = {}
+) => {
   const formattedPassword = getPasswordString(password);
-  const hash = user.services.password.bcrypt;
+  const hash = user.services.password?.bcrypt;
   const hashRounds = getRoundsFromBcryptHash(hash);
 
-  if (!(await bcrypt.compare(formattedPassword, hash))) {
+  if (hash && !(await bcrypt.compare(formattedPassword, hash))) {
     throw new Error('incorrect_password');
   } else if (hash && bcryptRounds !== hashRounds) {
     // The password checks out, but the user's bcrypt hash needs to be updated.
 
     const openClient = !!mongoClient;
 
+    let mongoClientInstance;
+
     if (openClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = await MongoClient.connect();
+      mongoClientInstance = await MongoClient.connect();
+    } else {
+      mongoClientInstance = mongoClient;
     }
     try {
-      await mongoClient
+      await mongoClientInstance
         .db()
         .collection(COLL_USERS)
         .updateOne(
@@ -89,7 +102,7 @@ export const checkPassword = async (user, password, { mongoClient } = {}) => {
         );
     } finally {
       if (openClient) {
-        mongoClient.close();
+        mongoClientInstance.close();
       }
     }
   }

@@ -2,7 +2,7 @@
 import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import Random from '../../libs/account_utils/random';
+import Random from '../../libs/account_utils/random.ts';
 import { filterOutput } from './utils';
 
 const { IVS_BUCKET, IVS_REGION, STAGE } = process.env;

@@ -1,11 +1,11 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../../libs/mongoClient';
 import mongoCollections from '../../../libs/mongoCollections.json';
-import hashLoginToken from '../hashLoginToken';
-import Random from '../../../libs/account_utils/random';
+import hashLoginToken from '../hashLoginToken.ts';
+import Random from '../../../libs/account_utils/random.ts';
 import { WordpressAPI } from '../../../libs/backends/wordpress';
 import { syncUserBadges } from '../../../libs/wordpress/wordpressApiSync';
-import { hashPassword } from '../password';
+import { hashPassword } from '../password.ts';
 
 const {
   COLL_EXTERNAL_PURCHASES,

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import Random from '../../libs/account_utils/random';
+import Random from '../../libs/account_utils/random.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { fetchPollCounters } from './getPoll';

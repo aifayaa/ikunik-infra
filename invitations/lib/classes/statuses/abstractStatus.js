@@ -96,7 +96,7 @@ export class AbstractStatus {
   static generateInvitationUrl(invitationId, challengeCode) {
     let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
     if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
-      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?challengeCode=${challengeCode}&appRegion=${getAppRegion()}`;
+      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?challengeCode=${challengeCode}&appRegion=${getAppRegion()}&utm_source=invitation`;
     }
     return url;
   }

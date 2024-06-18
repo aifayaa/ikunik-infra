@@ -54,7 +54,7 @@ const BASE64_CHARS =
  * @locus Anywhere
  * @param {Number} n Length of the string
  */
-const hexString = (digits) => {
+const hexString = (digits: number) => {
   const numBytes = Math.ceil(digits / 2);
   let bytes;
   // Try to get cryptographically strong randomness. Fall back to
@@ -87,13 +87,13 @@ const fraction = () => {
  * @locus Anywhere
  * @param {Array|String} arrayOrString Array or string to choose from
  */
-const choice = (arrayOrString) => {
+const choice = (arrayOrString: Array<unknown> | String) => {
   const index = Math.floor(fraction() * arrayOrString.length);
   if (typeof arrayOrString === 'string') return arrayOrString.substr(index, 1);
   return arrayOrString[index];
 };
 
-const randomString = (charsCount, alphabet) => {
+const randomString = (charsCount: number, alphabet: string) => {
   const digits = [];
   for (let i = 0; i < charsCount; i += 1) {
     digits[i] = choice(alphabet);
@@ -109,7 +109,7 @@ const randomString = (charsCount, alphabet) => {
  * @param {Number} [n] Optional length of the identifier in characters
  *   (defaults to 17)
  */
-const id = (charsCount) => {
+const id = (charsCount?: number) => {
   // 17 characters is around 96 bits of entropy, which is the amount of
   // state in the Alea PRNG.
   if (charsCount === undefined) charsCount = 17;
@@ -126,7 +126,7 @@ const id = (charsCount) => {
  * @param {Number} [n] Optional length of the secret string (defaults to 43
  *   characters, or 256 bits of entropy)
  */
-const secret = (charsCount) => {
+const secret = (charsCount?: number) => {
   // Default to 256 bits of entropy, or 43 characters at 6 bits per
   // character.
   if (charsCount === undefined) charsCount = 43;

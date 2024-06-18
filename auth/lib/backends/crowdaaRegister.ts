@@ -4,15 +4,18 @@ import Random from '../../../libs/account_utils/random';
 import mongoCollections from '../../../libs/mongoCollections.json';
 import checkForCaseInsensitiveUserDuplicates from '../checkForCaseInsensitiveUserDuplicates';
 import { hashPassword } from '../password';
+import { AppType } from '../../../apps/lib/appEntity';
+import { UTMType } from '../../../users/lib/userEntity';
 
 const { COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 
 export const crowdaaRegister = async (
-  username,
-  rawEmail,
-  password,
-  app,
-  profile = {}
+  username: string,
+  rawEmail: string,
+  password: string,
+  app: AppType,
+  profile = {},
+  utm?: UTMType
 ) => {
   const client = await MongoClient.connect();
   const { _id: appId } = app;
@@ -63,25 +66,29 @@ export const crowdaaRegister = async (
 
       const badges = (
         await badgesCollection.find({ appId, isDefault: true }).toArray()
-      ).map((badge) => ({ id: badge._id }));
+      ).map((badge: { _id: string }) => ({ id: badge._id }));
 
+      const extra = utm ? { utm } : {};
       const newUser = {
-        _id: userId,
-        createdAt: new Date(),
-        username,
-        emails: [{ address: email }],
-        services: {
-          password: {
-            bcrypt: hashed,
-          },
-        },
-        appId,
-        profile: {
-          ...profile,
+        ...{
+          _id: userId,
+          createdAt: new Date(),
           username,
-          email,
+          emails: [{ address: email }],
+          services: {
+            password: {
+              bcrypt: hashed,
+            },
+          },
+          appId,
+          profile: {
+            ...profile,
+            username,
+            email,
+          },
+          badges,
         },
-        badges,
+        ...extra,
       };
 
       // Perform a case insensitive check before insert
