@@ -104,9 +104,7 @@ export default async function postLoginChecks(
           url,
           dataMapping,
           jsonataQuery = null,
-          on = {} as {
-            'saml-login': boolean;
-          },
+          on = {},
         } = collectSettings;
 
         if (!on[checksOn]) {

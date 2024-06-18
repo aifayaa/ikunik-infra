@@ -64,7 +64,8 @@ export type AppType = {
         [key: string]: string;
       };
       on?: {
-        'saml-login': boolean;
+        'saml-login'?: boolean;
+        'admin-register'?: boolean;
       };
       jsonataQuery?: string;
       extraRequestFields?: {
