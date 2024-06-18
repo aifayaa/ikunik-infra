@@ -2,7 +2,7 @@
 import get from 'lodash/get';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { hashPassword } from './password';
+import { hashPassword } from './password.ts';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 

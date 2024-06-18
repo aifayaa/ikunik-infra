@@ -78,12 +78,12 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
       response = JSON.parse(response);
     }
 
-    console.log('ACCNTS', response);
+    // console.log('ACCNTS', response);
 
     let wallets = [];
 
     const promises = response.data.map(async ({ id: accountId }) => {
-      console.log('LXFOR', accountId);
+      // console.log('LXFOR', accountId);
       params = {
         method: 'GET',
         uri: `https://api.coinbase.com/v2/accounts/${accountId}/addresses`,
@@ -97,16 +97,16 @@ export const nftCoinbaseConnect = async (userId, code, appId) => {
       if (typeof response === 'string') {
         response = JSON.parse(response);
       }
-      console.log('WLET1', response);
+      // console.log('WLET1', response);
 
       wallets = wallets.concat(response.data);
     });
 
     await Promise.all(promises);
 
-    console.log('WALALETZ', wallets);
+    // console.log('WALALETZ', wallets);
     wallets = wallets.map(({ address }) => address);
-    console.log('WALLALETZ2', wallets);
+    // console.log('WALLALETZ2', wallets);
 
     const action = {};
     if (!user.crypto || !user.crypto.wallets || !user.crypto.wallets.ETH) {
