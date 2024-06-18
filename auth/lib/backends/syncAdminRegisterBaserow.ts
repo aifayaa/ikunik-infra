@@ -36,18 +36,28 @@ export default async (
     email,
     username,
     profile,
-  }: { email: string; username: string; profile: UserProfileType }
+    referer,
+  }: {
+    email: string;
+    username: string;
+    profile: UserProfileType;
+    referer?: string;
+  }
 ) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
+    const extra = referer ? { referer } : {};
     const resp = await callBaserowAPI({
-      region: CROWDAA_REGION,
-      stage: STAGE,
-      userId,
-      email,
-      username,
-      profile,
+      ...{
+        region: CROWDAA_REGION,
+        stage: STAGE,
+        userId,
+        email,
+        username,
+        profile,
+      },
+      ...extra,
     });
 
     // eslint-disable-next-line no-console
@@ -59,6 +69,7 @@ export default async (
       email,
       username,
       profile,
+      referer,
     });
   }
   // }

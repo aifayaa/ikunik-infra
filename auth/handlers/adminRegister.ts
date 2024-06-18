@@ -15,15 +15,16 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const {
       email,
-      username = null,
       password,
+      username = null,
       profile = {},
+      referer = null,
     } = JSON.parse(event.body);
 
-    if (!(typeof email !== 'string' && typeof password !== 'string')) {
+    if (!(typeof email === 'string' && typeof password === 'string')) {
       throw new Error('wrong_argument_type');
     }
-    if (!(typeof profile !== 'object')) {
+    if (!(typeof profile === 'object')) {
       throw new Error('wrong_argument_type');
     }
     if (password.length < PASSWORD_MIN_LENGTH) {
@@ -35,6 +36,7 @@ export default async (event: APIGatewayProxyEvent) => {
       username: username || uuidv4(),
       password,
       profile,
+      referer,
     });
 
     return response({ code: 200, body: ret });

@@ -20,11 +20,13 @@ export const adminRegister = async ({
   username,
   password,
   profile,
+  referer,
 }: {
   email: string;
   username: string;
   password: string;
   profile: UserProfileType;
+  referer?: string;
 }) => {
   const client = await MongoClient.connect();
 
@@ -34,7 +36,7 @@ export const adminRegister = async ({
     const app = await appsCollection.findOne({ _id: ADMIN_APP });
     if (!app) throw new Error('app_not_found');
 
-    await crowdaaRegister(username, email, password, app, profile);
+    await crowdaaRegister(username, email, password, app, profile, referer);
 
     const ret = await crowdaaLogin(username, email, password, app);
 
@@ -44,6 +46,7 @@ export const adminRegister = async ({
       email,
       username,
       profile,
+      referer,
     });
 
     return ret;

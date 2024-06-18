@@ -13,7 +13,8 @@ export const crowdaaRegister = async (
   rawEmail: string,
   password: string,
   app: AppType,
-  profile = {}
+  profile = {},
+  referer?: string
 ) => {
   const client = await MongoClient.connect();
   const { _id: appId } = app;
@@ -66,23 +67,27 @@ export const crowdaaRegister = async (
         await badgesCollection.find({ appId, isDefault: true }).toArray()
       ).map((badge: { _id: string }) => ({ id: badge._id }));
 
+      const extra = referer ? { referer } : {};
       const newUser = {
-        _id: userId,
-        createdAt: new Date(),
-        username,
-        emails: [{ address: email }],
-        services: {
-          password: {
-            bcrypt: hashed,
-          },
-        },
-        appId,
-        profile: {
-          ...profile,
+        ...{
+          _id: userId,
+          createdAt: new Date(),
           username,
-          email,
+          emails: [{ address: email }],
+          services: {
+            password: {
+              bcrypt: hashed,
+            },
+          },
+          appId,
+          profile: {
+            ...profile,
+            username,
+            email,
+          },
+          badges,
         },
-        badges,
+        ...extra,
       };
 
       // Perform a case insensitive check before insert
