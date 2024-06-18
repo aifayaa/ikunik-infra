@@ -63,7 +63,6 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.138",
-    "@types/request-promise-native": "^1.0.21",
     "@types/bcryptjs": "^2.4.6",
     "@types/request-promise-native": "^1.0.21",
     "aws-sdk-mock": "^5.0.0",

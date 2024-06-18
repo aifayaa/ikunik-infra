@@ -54,8 +54,24 @@ export type AppType = {
       };
     };
     iap?: Object;
-    userDataCollection?: Object;
-    platformApplicationArns?: object;
+    userDataCollection?: Array<{
+      url: string;
+      dataMapping: {
+        [key: string]: string;
+      };
+      method?: string;
+      headers?: {
+        [key: string]: string;
+      };
+      on?: {
+        'saml-login': boolean;
+      };
+      jsonataQuery?: string;
+      extraRequestFields?: {
+        [key: string]: string;
+      };
+    }>;
+    platformApplicationArns?: Object;
     playlistManagementUrl?: string;
   };
   builds: {
