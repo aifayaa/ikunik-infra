@@ -8,20 +8,20 @@ const { COLL_USERS } = mongoCollections;
   from meteor string_utils
    https://github.com/meteor/meteor/blob/devel/packages/meteor/string_utils.js
 */
-const escapeRegExp = (string) =>
-  String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegExp = (str: string) =>
+  String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /*
   based on meteor accounts-password module
   method generateCasePermutationsForString from
   https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 */
-const generateCasePermutationsForString = (string) => {
+const generateCasePermutationsForString = (str: string) => {
   // Generates permutations of all case variations of a given string.
   let permutations = [''];
-  for (let i = 0; i < string.length; i += 1) {
-    const ch = string.charAt(i);
-    permutations = [].concat(
+  for (let i = 0; i < str.length; i += 1) {
+    const ch = str.charAt(i);
+    permutations = ([] as string[]).concat(
       ...permutations.map((prefix) => {
         const lowerCaseChar = ch.toLowerCase();
         const upperCaseChar = ch.toUpperCase();
@@ -41,21 +41,22 @@ const generateCasePermutationsForString = (string) => {
   method selectorForFastCaseInsensitiveLookup from
   https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 */
-const selectorForFastCaseInsensitiveLookup = (fieldName, string, appId) => {
+const selectorForFastCaseInsensitiveLookup = (
+  fieldName: string,
+  str: string,
+  appId: string
+) => {
   // Performance seems to improve up to 4 prefix characters
-  const prefix = string.substring(0, Math.min(string.length, 4));
+  const prefix = str.substring(0, Math.min(str.length, 4));
   const orClause = generateCasePermutationsForString(prefix).map(
     (prefixPermutation) => {
-      const selector = {};
+      const selector: { [key: string]: unknown } = {};
       selector[fieldName] = new RegExp(`^${escapeRegExp(prefixPermutation)}`);
       return selector;
     }
   );
-  const caseInsensitiveClause = {};
-  caseInsensitiveClause[fieldName] = new RegExp(
-    `^${escapeRegExp(string)}$`,
-    'i'
-  );
+  const caseInsensitiveClause: { [key: string]: unknown } = {};
+  caseInsensitiveClause[fieldName] = new RegExp(`^${escapeRegExp(str)}$`, 'i');
   return {
     $and: [{ $or: orClause }, caseInsensitiveClause, { appId }],
   };
@@ -67,21 +68,29 @@ const selectorForFastCaseInsensitiveLookup = (fieldName, string, appId) => {
   https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_server.js
 */
 export default async (
-  appId,
-  fieldName,
-  displayName,
-  fieldValue,
-  { errorMessage, mongoClient, ownUserId } = {}
+  appId: string,
+  fieldName: string,
+  displayName: string,
+  fieldValue: string,
+  {
+    errorMessage,
+    mongoClient,
+    ownUserId,
+  }: { errorMessage?: string; mongoClient?: unknown; ownUserId?: string } = {}
 ) => {
+  let mongoClientInstance;
   if (fieldValue) {
     const noClient = !mongoClient;
 
     if (noClient) {
       // initiate mongodb connection if no client given in options
-      mongoClient = await MongoClient.connect();
+      // mongoClient = await MongoClient.connect();
+      mongoClientInstance = await MongoClient.connect();
+    } else {
+      mongoClientInstance = mongoClient;
     }
     try {
-      const matchedUsers = await mongoClient
+      const matchedUsers = await mongoClientInstance
         .db()
         .collection(COLL_USERS)
         .find(
@@ -102,7 +111,7 @@ export default async (
       }
     } finally {
       if (noClient) {
-        mongoClient.close();
+        mongoClientInstance.close();
       }
     }
   }
