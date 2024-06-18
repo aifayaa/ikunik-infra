@@ -4,14 +4,15 @@ import Random from '../../../libs/account_utils/random';
 import mongoCollections from '../../../libs/mongoCollections.json';
 import checkForCaseInsensitiveUserDuplicates from '../checkForCaseInsensitiveUserDuplicates';
 import { hashPassword } from '../password';
+import { AppType } from '../../../apps/lib/appEntity';
 
 const { COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 
 export const crowdaaRegister = async (
-  username,
-  rawEmail,
-  password,
-  app,
+  username: string,
+  rawEmail: string,
+  password: string,
+  app: AppType,
   profile = {}
 ) => {
   const client = await MongoClient.connect();
@@ -63,7 +64,7 @@ export const crowdaaRegister = async (
 
       const badges = (
         await badgesCollection.find({ appId, isDefault: true }).toArray()
-      ).map((badge) => ({ id: badge._id }));
+      ).map((badge: { _id: string }) => ({ id: badge._id }));
 
       const newUser = {
         _id: userId,
