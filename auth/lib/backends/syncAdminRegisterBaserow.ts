@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
+import { UserProfileType } from '../../../users/lib/userEntity';
 
 const { CROWDAA_REGION, STAGE } = process.env;
 
@@ -35,7 +36,7 @@ export default async (
     email,
     username,
     profile,
-  }: { email: string; username: string; profile: Object }
+  }: { email: string; username: string; profile: UserProfileType }
 ) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only

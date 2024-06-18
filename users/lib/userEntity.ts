@@ -3,7 +3,7 @@ import {
   OrganizationPermType,
 } from '../../libs/perms/permEntities';
 
-type UserProfileType = {
+export type UserProfileType = {
   username: string | number;
   avatar?: string;
   avatarId?: string;

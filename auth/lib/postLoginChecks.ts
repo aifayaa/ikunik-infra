@@ -52,7 +52,7 @@ function objGet(
 export default async function postLoginChecks(
   ret: { [key: string]: unknown },
   app: AppType,
-  checksOn: 'saml-login'
+  checksOn: 'saml-login' | 'admin-register'
 ) {
   const client = await MongoClient.connect();
 
