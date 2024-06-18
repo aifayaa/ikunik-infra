@@ -7,7 +7,7 @@ import QRCode from 'qrcode';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
-import Random from '../../libs/account_utils/random';
+import Random from '../../libs/account_utils/random.ts';
 import MetricsTimer from './metricsTimer';
 import hashLoginToken from '../../auth/lib/hashLoginToken';
 

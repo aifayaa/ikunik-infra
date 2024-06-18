@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { sendEmailMailgunTemplate } from '../../libs/email/sendEmailMailgun';
 import { register } from '../../auth/lib/register';
-import Random from '../../libs/account_utils/random';
+import Random from '../../libs/account_utils/random.ts';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { indexObjectArrayWithKey, objGet } from '../../libs/utils';
 
