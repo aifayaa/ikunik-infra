@@ -26,6 +26,7 @@
     "uuid": "^3.4.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "chai": "^4.2.0",
     "esm": "^3.2.25",
     "mocha": "^8.1.3",
