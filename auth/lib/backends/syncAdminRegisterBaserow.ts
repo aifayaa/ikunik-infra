@@ -9,7 +9,7 @@ const BASEROW_URL =
     : 'http://automation.operations.aws.crowdaa.com/webhook-test/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9';
 const BASEROW_METHOD = 'POST';
 
-async function callBaserowAPI(data) {
+async function callBaserowAPI(data: Object) {
   const uri = BASEROW_URL;
   const params = {
     method: BASEROW_METHOD,
@@ -29,7 +29,14 @@ async function callBaserowAPI(data) {
   return response;
 }
 
-export default async (userId, { email, username, profile }) => {
+export default async (
+  userId: string,
+  {
+    email,
+    username,
+    profile,
+  }: { email: string; username: string; profile: Object }
+) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
