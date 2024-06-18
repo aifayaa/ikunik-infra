@@ -53,7 +53,7 @@ export type AppType = {
         tabOrder: string;
       };
     };
-    iap?: Object;
+    iap?: object;
     userDataCollection?: Array<{
       url: string;
       dataMapping: {
@@ -72,7 +72,7 @@ export type AppType = {
         [key: string]: string;
       };
     }>;
-    platformApplicationArns?: Object;
+    platformApplicationArns?: object;
     playlistManagementUrl?: string;
   };
   builds: {
@@ -86,8 +86,8 @@ export type AppType = {
       email: string;
       version: string;
       ready: boolean;
-      googleApiData?: Object;
-      firebase?: Object;
+      googleApiData?: object;
+      firebase?: object;
       pipeline?: {
         _id: string;
         status: string;
@@ -111,7 +111,7 @@ export type AppType = {
       };
     };
   };
-  backend?: Object;
+  backend?: object;
   credentials?: {
     wordpressPlaylists?: {
       baseUrl: string;
@@ -122,8 +122,8 @@ export type AppType = {
       autoLoginToken: string;
     };
   };
-  appleAccounts?: Object;
-  firebaseProjectId?: Object;
+  appleAccounts?: object;
+  firebaseProjectId?: object;
   organization?: OrganizationFieldType;
   stripeSubscriptionId?: string;
 };
