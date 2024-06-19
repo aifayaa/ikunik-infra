@@ -6,8 +6,8 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { wordpressRegister } from './backends/wordpressRegister';
-import { crowdaaRegister } from './backends/crowdaaRegister';
-import postLoginChecks from './postLoginChecks';
+import { crowdaaRegister } from './backends/crowdaaRegister.ts';
+import postLoginChecks from './postLoginChecks.ts';
 
 const { ADMIN_APP } = process.env;
 

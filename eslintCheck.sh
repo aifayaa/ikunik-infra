@@ -1,31 +1,55 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Create output folders if they not exist
-if [ ! -d "tmp/eslintCheck" ]; then
-    mkdir -p tmp/eslintCheck
-fi
+ORIGIN_COMMIT="origin/dev"
 
-# Get the list of modified files from git status
-MODIFIED_FILES=$(git status --porcelain | grep '^ M' | awk '{print $2}')
+usage() {
+    echo "usage : ./eslintCheck.sh [--originCommit <ORIGIN_COMMIT>] [-- EXTRA...]"
+    echo ""
+    echo "    Launch eslint on modified files in $(js) directory between an origin commit and"
+    echo "    the current working directory"
+    echo ""
+    echo "    Parameters:"
+    echo ""
+    echo "      -h --help : Display this help text"
+    echo "      --originCommit : The source commit to compare to. Defaults to 'origin/dev'"
+    echo ""
+    echo "    Examples:"
+    echo "      ./eslintCheck.sh"
+    echo "      ./eslintCheck.sh --originCommit origin/dev"
+    echo ""
+}
 
-# Find modified JS and TS files
-JS_TS_FILES=$(echo "$MODIFIED_FILES" | grep -E '\.js$|\.ts$')
+while [ "$1" != '' ] && [ "$1" != '--' ]; do
+    PARAM=$1
+    VALUE=$2
+    case $PARAM in
+    -h | --help)
+        usage
+        exit
+        ;;
+    --originCommit)
+        ORIGIN_COMMIT=$VALUE
+        ;;
+    *)
+        echo "ERROR: unknown parameter \"$PARAM\""
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+    shift
+done
 
-# Initialize an empty array to store unique config file paths
-declare -a UNIQUE_CONFIG_PATHS=()
+# shift
+EXTRA=$@
 
-if [ -n "$MODIFIED_FILES" ]; then
-    echo "Modified files found."
+echo "ORIGIN_COMMIT=${ORIGIN_COMMIT}"
+echo "EXTRA=${EXTRA}"
+echo ""
 
-    # eslint Check if modified Js or Ts files have been found
-    if [ -n "$JS_TS_FILES" ]; then
-        echo "Modified JS/TS files found. Running eslint..."
-        echo "$JS_TS_FILES" | xargs npx eslint > tmp/eslintCheck/eslintOutput.log
-    else
-        echo "No modified JS or TS files found."
-    fi
+modifiedFiles=$(for file in $(git diff ${ORIGIN_COMMIT} --name-only --diff-filter=ACMRT); do echo $file; done | grep -e "js$" | grep -v -e "^\." -e "package" -e "\.sh$")
 
-else
-  echo "No modified files found."
-fi
-
+for file in $modifiedFiles; do
+    echo "INFO: Eslint check on ${file}"
+    npx eslint ${file}
+done

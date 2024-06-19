@@ -2,8 +2,8 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { AfrikPayApi } from '../../libs/backends/afrikpay';
-import Random from '../../libs/account_utils/random';
-import hashLoginToken from '../../auth/lib/hashLoginToken';
+import Random from '../../libs/account_utils/random.ts';
+import hashLoginToken from '../../auth/lib/hashLoginToken.ts';
 
 const { COLL_APPS, COLL_USERS, COLL_USER_BADGES } = mongoCollections;
 

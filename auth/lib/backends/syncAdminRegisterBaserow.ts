@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
+import { UTMType, UserProfileType } from '../../../users/lib/userEntity';
 
 const { CROWDAA_REGION, STAGE } = process.env;
 
@@ -9,7 +10,7 @@ const BASEROW_URL =
     : 'http://automation.operations.aws.crowdaa.com/webhook-test/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9';
 const BASEROW_METHOD = 'POST';
 
-async function callBaserowAPI(data) {
+async function callBaserowAPI(data: Object) {
   const uri = BASEROW_URL;
   const params = {
     method: BASEROW_METHOD,
@@ -29,17 +30,34 @@ async function callBaserowAPI(data) {
   return response;
 }
 
-export default async (userId, { email, username, profile }) => {
+export default async (
+  userId: string,
+  {
+    email,
+    username,
+    profile,
+    utm,
+  }: {
+    email: string;
+    username: string;
+    profile: UserProfileType;
+    utm?: UTMType;
+  }
+) => {
   // if (STAGE === 'prod') {
   // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
+    const extra = utm ? { utm } : {};
     const resp = await callBaserowAPI({
-      region: CROWDAA_REGION,
-      stage: STAGE,
-      userId,
-      email,
-      username,
-      profile,
+      ...{
+        region: CROWDAA_REGION,
+        stage: STAGE,
+        userId,
+        email,
+        username,
+        profile,
+      },
+      ...extra,
     });
 
     // eslint-disable-next-line no-console
@@ -51,6 +69,7 @@ export default async (userId, { email, username, profile }) => {
       email,
       username,
       profile,
+      utm,
     });
   }
   // }

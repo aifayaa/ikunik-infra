@@ -1,10 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import xmlParser from 'fast-xml-parser';
 import MongoClient from '../../libs/mongoClient';
-import Random from '../../libs/account_utils/random';
-import hashLoginToken from './hashLoginToken';
+import Random from '../../libs/account_utils/random.ts';
+import hashLoginToken from './hashLoginToken.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
-import postLoginChecks from './postLoginChecks';
+import postLoginChecks from './postLoginChecks.ts';
 import { WordpressAPI } from '../../libs/backends/wordpress';
 
 const { COLL_APPS, COLL_SAML_LOGINS, COLL_USERS, COLL_USER_BADGES } =

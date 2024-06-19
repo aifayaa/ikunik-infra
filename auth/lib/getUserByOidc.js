@@ -4,7 +4,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import verifyJwt from './verifyJsonWebToken';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
-import Random from '../../libs/account_utils/random';
+import Random from '../../libs/account_utils/random.ts';
 
 const { COLL_USERS } = mongoCollections;
 
