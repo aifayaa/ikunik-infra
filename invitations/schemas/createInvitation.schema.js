@@ -21,7 +21,11 @@ const organizationTargetSchema = baseTargetSchema
     type: z.literal(invitationTargetTypes.ORGANIZATION),
     organizationId: makeIdSchema('organizationId'),
     role: z.enum(
-      [invitationOrganizationRoles.ADMIN, invitationOrganizationRoles.MEMBER],
+      [
+        invitationOrganizationRoles.OWNER,
+        invitationOrganizationRoles.ADMIN,
+        invitationOrganizationRoles.MEMBER,
+      ],
       {
         required_error: 'role is required',
       }

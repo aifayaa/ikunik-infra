@@ -9,6 +9,7 @@ export const invitationMethodTypes = {
 };
 
 export const invitationOrganizationRoles = {
+  OWNER: 'owner',
   ADMIN: 'admin',
   MEMBER: 'member',
 };

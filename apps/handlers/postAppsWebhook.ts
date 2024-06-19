@@ -53,7 +53,7 @@ export default async (event: APIGatewayProxyEvent) => {
           body: formatResponseBody({
             errors: [
               {
-                type: 'STRIPE_WEEKHOOK',
+                type: 'STRIPE_WEBHOOK',
                 code: '400',
                 message: `Webhook Error: ${exception.message}`,
                 details: exception.stack,

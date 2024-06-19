@@ -18,10 +18,8 @@ export default async (event) => {
     // validation
     try {
       parsedInvitation = createInvitationSchema.parse(parsedInvitation);
-    } catch (err) {
-      const errors = formatValidationErrors(err);
-      const body = formatResponseBody({ errors });
-      return response({ code: 200, body });
+    } catch (exception) {
+      return formatValidationErrors(exception);
     }
 
     const currentUserLocale = getUserLanguage(event.headers);
