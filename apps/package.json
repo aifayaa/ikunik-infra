@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.749.0",
+    "jose": "^2.0.7",
     "phone": "^2.4.15",
     "request-promise-native": "^1.0.8",
     "stripe": "^15.7.0",
