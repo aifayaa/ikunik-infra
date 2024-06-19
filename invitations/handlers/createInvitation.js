@@ -13,6 +13,7 @@ export default async (event) => {
   const { principalId: currentUserId } = event.requestContext.authorizer;
 
   try {
+    console.log('PASS 0');
     let parsedInvitation = JSON.parse(event.body);
 
     // validation
