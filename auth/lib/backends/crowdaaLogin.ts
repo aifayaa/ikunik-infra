@@ -5,6 +5,7 @@ import { checkPassword } from '../password';
 import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
 import { AppType } from '../../../apps/lib/appEntity';
+import { filterUserPrivateFields } from '../../../users/lib/usersUtils';
 
 const { ADMIN_APP } = process.env;
 
@@ -125,6 +126,7 @@ export const crowdaaLogin = async (
       userId: user._id,
       previewForAdmin: user.previewForAdmin,
       authToken: token,
+      user: filterUserPrivateFields(user),
     };
   } finally {
     client.close();
