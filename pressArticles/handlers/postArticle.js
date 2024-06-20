@@ -78,13 +78,14 @@ export default async (event) => {
           eventStartDate,
           feedPicture,
           hideFromFeed,
+          html = null,
           isEvent,
           isPoll,
           isWebview,
           likes,
           md = '',
           mediaCaptions,
-          pdfs = [],
+          pdfs =[],
           pdfsOpenButton = '',
           pictures,
           productId,
@@ -107,7 +108,9 @@ export default async (event) => {
           html = md;
         } else {
           plainText = removeMd(md.replace(/(\s{4})\s*/g, '$1'));
-          html = mdToHtml(md);
+          if (typeof html !== 'string') {
+            html = mdToHtml(md);
+          }
         }
         break;
       }
