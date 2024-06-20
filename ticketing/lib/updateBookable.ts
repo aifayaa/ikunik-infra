@@ -9,7 +9,6 @@ export type UpdateBookableType = {
   name?: string;
   description?: string;
   disabled?: boolean;
-  trashed?: boolean;
   'limits.notBefore'?: string;
   'limits.notAfter'?: string;
   'limits.maxTickets'?: number;

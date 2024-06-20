@@ -8,7 +8,6 @@ export type BookableType = {
   updatedBy?: string;
   description: string;
   disabled: boolean;
-  trashed: boolean;
   limits: {
     notBefore: string | Date;
     notAfter: string | Date;

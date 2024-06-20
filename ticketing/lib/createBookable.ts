@@ -9,7 +9,6 @@ export type CreateBookableType = {
   name: string;
   description: string;
   disabled: boolean;
-  trashed: boolean;
   limits: {
     notBefore: string;
     notAfter: string;

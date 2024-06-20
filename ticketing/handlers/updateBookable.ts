@@ -22,7 +22,6 @@ export const createBookableSchema = z.object({
     .max(2000, { message: 'Must be 2000 or fewer characters long' })
     .trim(),
   disabled: z.boolean(),
-  trashed: z.boolean(),
   'limits.notBefore': z
     .string({
       required_error: 'limits.notBefore is required',
@@ -69,7 +68,6 @@ export default async (event: any) => {
           name: true,
           description: true,
           disabled: true,
-          trashed: true,
           'limits.notBefore': true,
           'limits.notAfter': true,
           'limits.maxTickets': true,

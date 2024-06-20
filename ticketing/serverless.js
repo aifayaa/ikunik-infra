@@ -73,7 +73,7 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'bookables/{id}',
-            method: 'post',
+            method: 'patch',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
@@ -98,6 +98,54 @@ const serverlessConfiguration = {
           http: {
             path: 'bookables/{id}',
             method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getBookables: {
+      handler: 'handlers/getBookables.default',
+      events: [
+        {
+          http: {
+            path: 'bookables',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    deleteBookable: {
+      handler: 'handlers/deleteBookable.default',
+      events: [
+        {
+          http: {
+            path: 'bookables/{id}',
+            method: 'delete',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
