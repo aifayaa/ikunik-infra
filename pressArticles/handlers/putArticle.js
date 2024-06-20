@@ -53,7 +53,7 @@ export default async (event) => {
       videoPlayMode,
       videos,
     } = bodyParsed;
-    let { actions } = bodyParsed;
+    let { actions, html = null } = bodyParsed;
 
     if (!actions) {
       actions = [];
@@ -86,7 +86,11 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
-    const html = isWebview || isPoll ? md : mdToHtml(md);
+    if (isWebview || isPoll) {
+      html = md;
+    } else if (typeof html !== 'string') {
+      html = mdToHtml(md);
+    }
     const plainText =
       isWebview || isPoll ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
 
