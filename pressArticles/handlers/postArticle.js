@@ -85,7 +85,7 @@ export default async (event) => {
           likes,
           md = '',
           mediaCaptions,
-          pdfs =[],
+          pdfs = [],
           pdfsOpenButton = '',
           pictures,
           productId,
