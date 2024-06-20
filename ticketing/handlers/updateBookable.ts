@@ -6,7 +6,7 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import { z } from 'zod';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 
-export const createBookableSchema = z.object({
+export const updateBookableSchema = z.object({
   name: z
     .string({
       required_error: 'name is required',
@@ -63,7 +63,7 @@ export default async (event: any) => {
     let validatedBody;
     // validation
     try {
-      validatedBody = createBookableSchema
+      validatedBody = updateBookableSchema
         .partial({
           name: true,
           description: true,

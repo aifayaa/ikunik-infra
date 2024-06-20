@@ -163,6 +163,78 @@ const serverlessConfiguration = {
         },
       ],
     },
+    createTickets: {
+      handler: 'handlers/createTickets.default',
+      events: [
+        {
+          http: {
+            path: 'ticket',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getTicket: {
+      handler: 'handlers/getTicket.default',
+      events: [
+        {
+          http: {
+            path: 'ticket/{id}',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    scanTicket: {
+      handler: 'handlers/scanTicket.default',
+      events: [
+        {
+          http: {
+            path: 'ticket/{id}',
+            method: 'put',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-webpack',

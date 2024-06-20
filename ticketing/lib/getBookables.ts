@@ -14,7 +14,7 @@ export type GetBookablesParams = {
 
 type GetBookablesInternalDbMatchType = {
   appId: string;
-  $or?: [{ name: RegExp }, { description: RegExp }];
+  $or?: [{ name: RegExp }?, { description: RegExp }?];
   'limits.notAfter'?: {
     $gte: Date;
   };
