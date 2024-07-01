@@ -8,3 +8,10 @@ export type AppsPermType =
 export type AppsPermWithoutOwnerType = Omit<AppsPermType, 'owner'>;
 
 export type OrganizationPermType = 'owner' | 'admin' | 'member';
+
+// The lower ranking, the higher role privilege
+export const OrganizationPermRanking: OrganizationPermType[] = [
+  'owner',
+  'admin',
+  'member',
+];
