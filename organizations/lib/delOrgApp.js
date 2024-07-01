@@ -2,11 +2,11 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import getOrg from './getOrg';
-import getOrgApps from './getOrgApps';
+import getOrgApps from './getOrgApps.ts';
 
 const { COLL_USERS, COLL_APPS } = mongoCollections;
 
-export default async (orgId, appId, newOwner) => {
+export default async (orgId, appId, newOwnerId) => {
   const client = await MongoClient.connect();
 
   // Documentation, how to use transaction:
@@ -19,7 +19,7 @@ export default async (orgId, appId, newOwner) => {
         await db
           .collection(COLL_USERS)
           .updateOne(
-            { _id: newOwner },
+            { _id: newOwnerId },
             { $push: { 'perms.apps': { _id: appId, roles: ['owner'] } } },
             { session }
           );
@@ -39,6 +39,6 @@ export default async (orgId, appId, newOwner) => {
     });
 
   const org = await getOrg(orgId);
-  const apps = await getOrgApps(orgId);
+  const apps = await getOrgApps(orgId, newOwnerId);
   return { ...org, apps };
 };

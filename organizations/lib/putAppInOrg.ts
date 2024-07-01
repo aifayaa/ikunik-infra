@@ -2,7 +2,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import getOrg from './getOrg.js';
-import getOrgApps from './getOrgApps.js';
+import getOrgApps from './getOrgApps';
 
 const { COLL_USERS, COLL_APPS } = mongoCollections;
 
@@ -53,7 +53,7 @@ export async function putAppInOrgUserToOrg(
     });
 
   const org = await getOrg(orgId);
-  const apps = await getOrgApps(orgId);
+  const apps = await getOrgApps(orgId, userId);
   return { ...org, apps };
 }
 
@@ -99,6 +99,6 @@ export async function putAppInOrgOrgToOrg(
   );
 
   const org = await getOrg(orgId);
-  const apps = await getOrgApps(orgId);
+  const apps = await getOrgApps(orgId, userId);
   return { ...org, apps };
 }

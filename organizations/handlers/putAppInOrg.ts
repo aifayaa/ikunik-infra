@@ -21,15 +21,15 @@ import {
   isAppAlreadyBuild,
   getApp,
   assertApplicationInOrganization,
+  appPrivateFieldsProjection,
 } from '../../apps/lib/appsUtils';
 import { getOrganization } from '../lib/organizationsUtils';
-import getOrgApps from '../lib/getOrgApps';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { OrganizationPermType } from '../../libs/perms/permEntities';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
-const { COLL_ORGANIZATIONS } = mongoCollections;
+const { COLL_ORGANIZATIONS, COLL_APPS } = mongoCollections;
 
 export async function putAppInOrgHandlerBody(
   userId: string,
@@ -101,7 +101,15 @@ export async function putAppInOrgHandlerBody(
             //    -> Lock the teamId of the destination organisation
             if (sourceOrg.apple.setupDone) {
               const appsAlreadyBuildStatus = (
-                await getOrgApps(sourceOrgId)
+                await client
+                  .collection(COLL_APPS)
+                  .find(
+                    { 'organization._id': sourceOrgId },
+                    {
+                      projection: appPrivateFieldsProjection,
+                    }
+                  )
+                  .toArray()
               ).map(isAppAlreadyBuild);
 
               const hasAtLeastOneBuiltApplication =

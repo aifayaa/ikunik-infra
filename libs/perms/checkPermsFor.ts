@@ -13,7 +13,11 @@ import {
   ORGANIZATION_PERMISSION_CODE,
 } from '../httpResponses/errorCodes';
 import { UserType } from '../../users/lib/userEntity';
-import { AppsPermType, OrganizationPermType } from './permEntities';
+import {
+  AppsPermType,
+  OrganizationPermType,
+  OrganizationPermRanking,
+} from './permEntities';
 import { getApp } from '../../apps/lib/appsUtils';
 import { AppInOrgType, AppType } from '../../apps/lib/appEntity';
 
@@ -189,27 +193,53 @@ async function getUserPermsOnWebsite(userId: string, websiteId: string) {
 
 /**
  * Returns user permissions.
+ * @param {OrganizationPermType[]} roles The user list of roles on organisation
+ * @returns The highest role from the input roles
+ */
+export function getUserOrganizationHighestRole(roles: OrganizationPermType[]) {
+  // The lower ranking, the higher role privilege
+  const lowestRanking = Math.min(
+    ...roles
+      .map((role: OrganizationPermType) => {
+        // const ro: OrganizationPermType = 'owner';
+        return OrganizationPermRanking.indexOf(role);
+      })
+      .filter((ind) => ind > -1)
+  );
+
+  console.log('lowestRanking', lowestRanking);
+  console.log(
+    'OrganizationPermRanking[lowestRanking]',
+    OrganizationPermRanking[lowestRanking]
+  );
+
+  // return lowestRanking;
+  return OrganizationPermRanking[lowestRanking];
+}
+
+/**
+ * Returns user permissions.
  * @param {UserType} userId The user ID
  * @param {string} orgId The app ID
  * @returns An object of permissions (stored in the user as user.perms)
  */
-function getUserPermsOnOrganization(user: UserType, orgId: string) {
+export function getUserPermsOnOrganization(user: UserType, orgId: string) {
   const { superAdmin, perms } = user;
 
   if (superAdmin) {
-    return { superAdmin, roles: ['owner'] };
+    return { superAdmin, roles: ['owner'] as OrganizationPermType[] };
   } else {
     if (perms && perms.organizations) {
-      const theOrganization = perms.organizations.find(
+      const candidateOrganization = perms.organizations.find(
         (org) => org._id === orgId
       );
 
-      if (theOrganization) {
-        return { superAdmin, roles: theOrganization.roles };
+      if (candidateOrganization) {
+        return { superAdmin: false, roles: candidateOrganization.roles };
       }
     }
 
-    return { superAdmin, roles: [] };
+    return { superAdmin: false, roles: [] as OrganizationPermType[] };
   }
 }
 
