@@ -79,6 +79,7 @@ export default async (appId, userId) => {
           description,
           color,
           management,
+          privacyPolicyUrl,
           storeProductId,
           subscriptionUrl,
         }) => {
@@ -88,6 +89,7 @@ export default async (appId, userId) => {
             description,
             color,
             management,
+            privacyPolicyUrl,
             storeProductId,
             subscriptionUrl,
           };
