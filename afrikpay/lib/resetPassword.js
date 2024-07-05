@@ -16,7 +16,7 @@ export default async (appId, { oldPassword, newPassword }, { terminalId }) => {
     await afrikPayApi.renewLoginTokenIfNeeded(client);
 
     const response = await afrikPayApi.call(
-      '/api/secure/mobile/reset-password/change/v1',
+      '/api/unsecure/mobile/password/change/v1',
       {
         method: 'POST',
         body: {
