@@ -18,7 +18,7 @@ export default async (
     access,
     color = '#FFFFFF',
     description = '',
-    privacyPolicyLink = '',
+    privacyPolicyUrl = '',
     isDefault,
     management,
     name,
@@ -64,7 +64,7 @@ export default async (
       isDefault,
       management,
       name,
-      privacyPolicyLink,
+      privacyPolicyUrl,
       subscriptionUrl,
       validationUrl,
     };

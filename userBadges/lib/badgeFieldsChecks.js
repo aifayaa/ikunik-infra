@@ -48,7 +48,7 @@ export default {
     }
     return true;
   },
-  privacyPolicyLink(val) {
+  privacyPolicyUrl(val) {
     if (typeof val !== 'string' && val !== undefined) {
       return false;
     }
