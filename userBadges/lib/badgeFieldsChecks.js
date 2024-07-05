@@ -36,4 +36,28 @@ export default {
   name(val) {
     return typeof val === 'string' && !!val;
   },
+  color(val) {
+    if (typeof val !== 'string' && val !== undefined) {
+      return false;
+    }
+    return true;
+  },
+  description(val) {
+    if (typeof val !== 'string' && val !== undefined) {
+      return false;
+    }
+    return true;
+  },
+  privacyPolicyLink(val) {
+    if (typeof val !== 'string' && val !== undefined) {
+      return false;
+    }
+    return true;
+  },
+  productId(val) {
+    if (typeof val !== 'string' && val !== undefined) {
+      return false;
+    }
+    return true;
+  },
 };

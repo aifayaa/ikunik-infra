@@ -16,6 +16,7 @@ export default async (
     isDefault,
     management,
     name,
+    privacyPolicyLink = null,
     productId: storeProductId,
     subscriptionUrl = null,
     validationUrl = '',
@@ -85,6 +86,9 @@ export default async (
 
     if (subscriptionUrl !== null) {
       $set.subscriptionUrl = subscriptionUrl;
+    }
+    if (privacyPolicyLink !== null) {
+      $set.privacyPolicyLink = privacyPolicyLink;
     }
 
     await client.db().collection(COLL_USER_BADGES).updateOne(
