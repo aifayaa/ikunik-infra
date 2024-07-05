@@ -29,7 +29,7 @@ export default async (
     const afrikPayApi = new AfrikPayApi(app);
 
     const registerResp = await afrikPayApi.call(
-      '/api/unsecure/partner/register',
+      '/api/unsecure/partner/register/v1',
       {
         method: 'POST',
         body: {
