@@ -27,7 +27,7 @@ handleError() {
 
 doServerless() {
   command="$1"
-  npx serverless "$command" --stage "$STAGE" --region "$REGION"
+  npx --node-arg='--max-old-space-size=8192' serverless "$command" --stage "$STAGE" --region "$REGION"
 }
 
 doCreateDomain() {
