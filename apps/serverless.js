@@ -23,6 +23,7 @@ const serverlessConfiguration = {
         REACT_APP_AUTH_URL: 'https://dev-auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://dev-blog.crowdaa.com',
         CROWDAA_REGION: 'us',
+        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-dev',
       },
     },
     preprod: {
@@ -31,6 +32,7 @@ const serverlessConfiguration = {
         REACT_APP_AUTH_URL: 'https://depreprodv-auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://preprod-blog.crowdaa.com',
         CROWDAA_REGION: 'fr',
+        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-preprod',
       },
     },
     prod: {
@@ -39,12 +41,14 @@ const serverlessConfiguration = {
         REACT_APP_AUTH_URL: 'https://auth.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog.crowdaa.com',
         CROWDAA_REGION: 'us',
+        S3_APPS_RESSOURCES: 'crowdaa-apps-resources',
       },
       'eu-west-3': {
         INVITE_MAIL_LANG: 'fr',
         REACT_APP_AUTH_URL: 'https://auth-fr.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog-fr.crowdaa.com',
         CROWDAA_REGION: 'fr',
+        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
       },
     },
   },
@@ -67,6 +71,8 @@ const serverlessConfiguration = {
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
       PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.net/wp-json',
+      S3_APPS_RESSOURCES:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -78,6 +84,19 @@ const serverlessConfiguration = {
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['s3:GetObject'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*',
+            ],
+          },
+        ],
+      },
+    },
   },
   functions: {
     createApp: {
@@ -752,6 +771,31 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'apps/{id}/wpPlaylists',
+            method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    downloadBundle: {
+      handler: 'handlers/downloadBundle.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/downloadBundle',
             method: 'GET',
             cors: true,
             authorizer: {
