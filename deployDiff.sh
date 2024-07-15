@@ -4,7 +4,7 @@ export STAGE="$1"
 export REGION="$2"
 
 export BACKUP_EXTENSION='.bak'
-export NODE_OPTIONS='--max_old_space_size=8192'
+export NODE_OPTIONS='--max_old_space_size=4096'
 
 if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
   echo "MISSING STAGE ($STAGE) OR REGION ($REGION) PARAMETER" 1>&2
