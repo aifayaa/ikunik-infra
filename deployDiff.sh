@@ -4,7 +4,7 @@ export STAGE="$1"
 export REGION="$2"
 
 export BACKUP_EXTENSION='.bak'
-export NODE_OPTIONS='--max_old_space_size=6144'
+export NODE_OPTIONS='--max_old_space_size=8192'
 
 if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
   echo "MISSING STAGE ($STAGE) OR REGION ($REGION) PARAMETER" 1>&2
@@ -68,13 +68,13 @@ doDeploy() {
       if grep -qFe '  Outputs:' serverless.yml && [ "$fullDeploy" = 'full' ]; then
         doAwaitBackgroundTasks 0
       else
-        doAwaitBackgroundTasks 3
+        doAwaitBackgroundTasks 1
       fi
     elif [ -f './serverless.js' ]; then
       if grep -qFe '    Outputs: {' serverless.js && [ "$fullDeploy" = 'full' ]; then
         doAwaitBackgroundTasks 0
       else
-        doAwaitBackgroundTasks 2
+        doAwaitBackgroundTasks 1
       fi
     else
       doAwaitBackgroundTasks 0
