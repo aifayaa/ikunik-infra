@@ -4,6 +4,7 @@ export STAGE="$1"
 export REGION="$2"
 
 export BACKUP_EXTENSION='.bak'
+export NODE_OPTIONS='--max_old_space_size=8192'
 
 if [ -z "$STAGE" ] || [ -z "$REGION" ]; then
   echo "MISSING STAGE ($STAGE) OR REGION ($REGION) PARAMETER" 1>&2
@@ -27,7 +28,7 @@ handleError() {
 
 doServerless() {
   command="$1"
-  npx --node-arg='--max-old-space-size=8192' serverless "$command" --stage "$STAGE" --region "$REGION"
+  npx serverless "$command" --stage "$STAGE" --region "$REGION"
 }
 
 doCreateDomain() {
