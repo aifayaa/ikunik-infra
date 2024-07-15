@@ -4,12 +4,14 @@ STAGE="$1"
 REGION="$2"
 ALL="$3"
 
+export NODE_OPTIONS='--max_old_space_size=4096'
+
 usage() {
   echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
   echo "    Deploy all microservices for a STAGE on a REGION"
-  echo "    STAGE can be dev, preprod, prod, awax, awaxDev"
-  echo "    REGION must be set to one of the possible regions for the API, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions for a list of all regions"
+  echo "    STAGE can be dev, preprod, prod"
+  echo "    REGION must be set to eu-west-3, us-east-1. One of the possible regions for the API, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions for a list of all regions"
   echo "    ALL Set to the value « ALL » to deploy all microservices, even those who are not currently being worked on"
 }
 
@@ -23,7 +25,7 @@ runSlsDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npx --node-arg=--max-old-space-size=2000 sls deploy --stage "$STAGE" --region "$REGION"
+  npx sls deploy --stage "$STAGE" --region "$REGION"
   cd ..
 }
 
@@ -48,6 +50,7 @@ runSlsDeployFor 'api-v1'
 runSlsDeployFor 'account'
 runSlsDeployFor 'apps'
 runSlsDeployFor 'admin'
+runSlsDeployFor 'organizations'
 
 # requires root api only
 runSlsDeployFor 'auth'
