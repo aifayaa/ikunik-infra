@@ -1,8 +1,13 @@
 import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
+export type OrganizationFieldUserType = {
+  _id: string;
+  roles: Array<AppsPermWithoutOwnerType>;
+};
+
 type OrganizationFieldType = {
   _id: string;
-  users: [{ _id: string; roles: Array<AppsPermWithoutOwnerType> }];
+  users: Array<OrganizationFieldUserType>;
 };
 
 export type AppType = {

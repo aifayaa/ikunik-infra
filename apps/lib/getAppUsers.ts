@@ -13,7 +13,7 @@ export default async (appId: string) => {
     const db = client.db();
 
     const app = await getApp(appId);
-    const appUsersId = getApplicationUsers(app).map((user) => user._id);
+    const appUsersId = (await getApplicationUsers(app)).map((user) => user._id);
 
     const users = (await db
       .collection(COLL_USERS)

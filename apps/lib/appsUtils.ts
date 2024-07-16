@@ -12,9 +12,9 @@ import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_ORGANIZATION_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { AppInOrgType, AppType } from './appEntity';
+import { AppInOrgType, AppType, OrganizationFieldUserType } from './appEntity';
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 type stripeSubcriptionStatusType = 'initial' | 'hold' | 'active';
 
@@ -165,7 +165,26 @@ export function getApplicationOrganizationId(app: AppType) {
   return appOrgId;
 }
 
-export function getApplicationUsers(app: AppType) {
+async function keepOnlyAdminUser(users: Array<OrganizationFieldUserType>) {
+  const usersId = users.map((user) => user._id);
+
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  const adminUsersId = (
+    await db
+      .collection(COLL_USERS)
+      .find(
+        { _id: { $in: usersId }, appId: process.env.ADMIN_APP },
+        { projection: { _id: 1 } }
+      )
+      .toArray()
+  ).map((user: { _id: string }) => user._id);
+
+  return users.filter((user) => adminUsersId.includes(user._id));
+}
+
+export async function getApplicationUsers(app: AppType) {
   const users = app.organization?.users;
 
   if (!users) {
@@ -176,7 +195,7 @@ export function getApplicationUsers(app: AppType) {
     );
   }
 
-  return users;
+  return await keepOnlyAdminUser(users);
 }
 
 export function isAppAlreadyBuild(app: AppType) {
