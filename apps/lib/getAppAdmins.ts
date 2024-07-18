@@ -53,7 +53,7 @@ export default async (
         indexObjectArrayWithKey(appOrgAdmins, '_id', admins);
       }
 
-      const appOrgUsersIds = getApplicationUsers(app);
+      const appOrgUsersIds = await getApplicationUsers(app);
 
       if (appOrgUsersIds.length > 0) {
         const appOrgUsers = await db
