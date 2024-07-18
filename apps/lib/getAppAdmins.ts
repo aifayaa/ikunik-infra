@@ -2,7 +2,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { indexObjectArrayWithKey } from '../../libs/utils';
-import { getApplicationUsers, isApplicationInOrganization } from './appsUtils';
+import { getApplicationUsers } from './appsUtils';
 
 const { ADMIN_APP } = process.env;
 
