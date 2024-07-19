@@ -39,6 +39,12 @@ export default async (appId, allSettings = false) => {
       settings: {
         public: application.settings.public,
         press: {
+          env: objGet(application, 'settings.press.env', false),
+          moderationRequired: objGet(
+            application,
+            'settings.press.moderationRequired',
+            false
+          ),
           reactions: {
             articles: objGet(
               application,
