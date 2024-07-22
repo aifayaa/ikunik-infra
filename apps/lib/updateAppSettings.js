@@ -34,6 +34,7 @@ function objGet(obj, keys, dft) {
 
 const allowedSettings = [
   'press.chatNotificationsEnabled',
+  'press.env.appThemeColorPrimary',
   'press.env.articleFromCommunityDateFormat',
   'press.env.articleFromFeedDateFormat',
   'press.env.biometrics',

@@ -23,6 +23,7 @@ export type AppType = {
       moderationRequired: boolean;
       env: {
         apiKeyCanBeChanged: boolean;
+        appThemeColorPrimary: string;
         articleFromCommunityDateFormat: string;
         articleFromFeedDateFormat: string;
         biometrics: boolean;
