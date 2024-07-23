@@ -11,24 +11,6 @@ const serverlessConfiguration = {
     'serverless-disable-request-validators': {
       action: 'delete',
     },
-    dev: {
-      'us-east-1': {
-        CROWDAA_REGION: 'us',
-      },
-    },
-    preprod: {
-      'eu-west-3': {
-        CROWDAA_REGION: 'fr',
-      },
-    },
-    prod: {
-      'us-east-1': {
-        CROWDAA_REGION: 'us',
-      },
-      'eu-west-3': {
-        CROWDAA_REGION: 'fr',
-      },
-    },
   },
   provider: {
     name: 'aws',
@@ -38,9 +20,6 @@ const serverlessConfiguration = {
     timeout: 30,
     environment: {
       ...env,
-      CROWDAA_STAGE: '${self:provider.stage}',
-      CROWDAA_REGION:
-        '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -95,57 +74,6 @@ const serverlessConfiguration = {
                   id: true,
                 },
               },
-            },
-          },
-        },
-      ],
-    },
-    createTos: {
-      handler: 'handlers/createTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-          },
-        },
-      ],
-    },
-    updateTos: {
-      handler: 'handlers/updateTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'patch',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-          },
-        },
-      ],
-    },
-    deleteTos: {
-      handler: 'handlers/deleteTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'delete',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
           },
         },
