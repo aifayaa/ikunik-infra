@@ -143,7 +143,7 @@ function formatValidationErrorsAux(
   return formattedErrors;
 }
 
-function formatValidationErrorsResponse(zodError: Error) {
+export function formatValidationErrorsResponse(zodError: Error) {
   const errors = formatValidationErrorsAux(zodError);
   const errorBody = formatResponseBody({ errors });
   return response({ code: 200, body: errorBody });
