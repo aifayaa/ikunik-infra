@@ -1,14 +1,26 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'termsOfServices',
+  custom: {
+    prune: {
+      automatic: true,
+      number: 3,
+    },
+    'serverless-disable-request-validators': {
+      action: 'delete',
+    },
+  },
   provider: {
     name: 'aws',
     runtime: 'nodejs16.x',
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+    },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
@@ -54,57 +66,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    createTos: {
-      handler: 'handlers/createTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-          },
-        },
-      ],
-    },
-    updateTos: {
-      handler: 'handlers/updateTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'patch',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-          },
-        },
-      ],
-    },
-    deleteTos: {
-      handler: 'handlers/deleteTos.default',
-      events: [
-        {
-          http: {
-            path: 'tos/{id}',
-            method: 'delete',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-          },
-        },
-      ],
-    },
   },
   plugins: [
     'serverless-webpack',
@@ -113,15 +74,6 @@ const serverlessConfiguration = {
     'serverless-prune-plugin',
     'serverless-export-env',
   ],
-  custom: {
-    prune: {
-      automatic: true,
-      number: 3,
-    },
-    'serverless-disable-request-validators': {
-      action: 'delete',
-    },
-  },
   package: {
     individually: true,
   },

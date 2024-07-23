@@ -1,3 +1,4 @@
+import { ZodError } from 'zod';
 import { CrowdaaError } from './CrowdaaError';
 import { CrowdaaErrorWithErrorBody } from './CrowdaaErrorWithErrorBody.js';
 import {
@@ -5,6 +6,7 @@ import {
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes';
 import { formatResponseBody } from './formatResponseBody';
+import { formatValidationErrorsResponse } from './formatValidationErrors';
 
 type reponseType = {
   headers?: Object;
@@ -61,23 +63,39 @@ export function formatResponseError(exception: CrowdaaError) {
 }
 
 function handleExceptionAux(exception: Error) {
-  if (exception instanceof CrowdaaError) {
-    const { httpCode, type, code, message } = exception;
+  if (
+    exception instanceof ZodError ||
+    exception.constructor.name === 'ZodError'
+  ) {
+    return formatValidationErrorsResponse(exception);
+  }
+
+  if (
+    exception instanceof CrowdaaError ||
+    exception.constructor.name === 'CrowdaaError'
+  ) {
+    const crowdaaException = exception as CrowdaaError;
+    const { httpCode, type, code, message } = crowdaaException;
     const errorBody = formatResponseBody({
       errors: [
         {
           type,
           code,
           message,
-          details: exception.details || exception.stack,
+          details: crowdaaException.details || crowdaaException.stack,
         },
       ],
     });
     return response({ code: httpCode, body: errorBody });
   }
 
-  if (exception instanceof CrowdaaErrorWithErrorBody) {
-    const { httpCode, errorBody } = exception;
+  if (
+    exception instanceof CrowdaaErrorWithErrorBody ||
+    exception.constructor.name === 'CrowdaaErrorWithErrorBody'
+  ) {
+    const crowdaaExceptionWithErrorBody =
+      exception as CrowdaaErrorWithErrorBody;
+    const { httpCode, errorBody } = crowdaaExceptionWithErrorBody;
     return response({ code: httpCode, body: errorBody });
   }
 
