@@ -28,19 +28,6 @@ const serverlessConfiguration = {
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
-    iam: {
-      role: {
-        statements: [
-          {
-            Effect: 'Allow',
-            Action: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
-            Resource: [
-              'arn:aws:s3:::${self:provider.environment.S3_BUCKET_TOS}/*',
-            ],
-          },
-        ],
-      },
-    },
   },
   functions: {
     getTos: {
