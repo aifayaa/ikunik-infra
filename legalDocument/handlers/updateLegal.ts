@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import updateTos from '../lib/updateLegal';
+import updateLegal from '../lib/updateLegal';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { APIGatewayProxyEvent } from 'aws-lambda';
@@ -18,12 +18,29 @@ export default async (event: APIGatewayProxyEvent) => {
     appId: string;
     principalId: string;
   };
-  const { id: tosId } = event.pathParameters as {
-    id: string;
-  };
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
+
+    const updateLegalPathParametersSchema = z
+      .object({
+        type: z.enum(
+          documentTypes as [LegalDocumentType, ...LegalDocumentType[]]
+        ),
+        id: z
+          .string({
+            required_error: 'id path parameter is required',
+            invalid_type_error: 'id must be a string',
+          })
+          .trim(),
+      })
+      .required();
+
+    const validatedPathParameters = updateLegalPathParametersSchema.parse(
+      event.pathParameters
+    );
+
+    const { type, id: legalDocumentId } = validatedPathParameters;
 
     const updateLegalSchema = z.object({
       title: z
@@ -38,9 +55,6 @@ export default async (event: APIGatewayProxyEvent) => {
           invalid_type_error: 'html must be a string',
         })
         .trim(),
-      type: z.enum(
-        documentTypes as [LegalDocumentType, ...LegalDocumentType[]]
-      ),
       outdated: z.boolean(),
       required: z.boolean(),
     });
@@ -63,9 +77,9 @@ export default async (event: APIGatewayProxyEvent) => {
       return formatValidationErrors(exception);
     }
 
-    const { title, html, type, outdated, required } = validatedBody;
+    const { title, html, outdated, required } = validatedBody;
 
-    const tos = await updateTos(appId, tosId, userId, {
+    const tos = await updateLegal(appId, legalDocumentId, userId, {
       title,
       html,
       type,

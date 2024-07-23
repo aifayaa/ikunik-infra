@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import createTos from '../lib/createLegal';
+import createLegal from '../lib/createLegal';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
@@ -9,7 +9,6 @@ import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_BODY_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { LegalDocumentType, documentTypes } from '../lib/type';
 
@@ -22,7 +21,21 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const createCreateSchema = z
+    const createLegalPathParametersSchema = z
+      .object({
+        type: z.enum(
+          documentTypes as [LegalDocumentType, ...LegalDocumentType[]]
+        ),
+      })
+      .required();
+
+    const validatedPathParameters = createLegalPathParametersSchema.parse(
+      event.pathParameters
+    );
+
+    const { type } = validatedPathParameters;
+
+    const createLegalBodySchema = z
       .object({
         title: z
           .string({
@@ -36,10 +49,6 @@ export default async (event: APIGatewayProxyEvent) => {
             invalid_type_error: 'html must be a string',
           })
           .trim(),
-        type: z
-          .enum(documentTypes as [LegalDocumentType, ...LegalDocumentType[]])
-          .optional()
-          .default('tos'),
         outdated: z.boolean().optional().default(false),
         required: z.boolean().optional().default(true),
       })
@@ -56,16 +65,11 @@ export default async (event: APIGatewayProxyEvent) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    try {
-      validatedBody = createCreateSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = createLegalBodySchema.parse(body);
 
-    const { title, html, type, outdated, required } = validatedBody;
+    const { title, html, outdated, required } = validatedBody;
 
-    const newTos = await createTos(appId, title, html, {
+    const newTos = await createLegal(appId, title, html, {
       userId,
       type,
       outdated,

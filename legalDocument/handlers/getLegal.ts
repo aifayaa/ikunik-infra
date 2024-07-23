@@ -60,11 +60,11 @@ export default async (event: APIGatewayProxyEvent) => {
       event.queryStringParameters
     );
 
-    const { type, id: tosId, outdated, required } = options;
+    const { type, id: legalDocumentId, outdated, required } = options;
 
     const legalDocument = await getLegal(appId, {
       type,
-      tosId,
+      legalDocumentId,
       outdated,
       required,
     });

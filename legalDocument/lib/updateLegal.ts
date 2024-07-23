@@ -8,7 +8,7 @@ const { COLL_TOS } = mongoCollections;
 
 export default async (
   appId: string,
-  tosId: string,
+  legalDocumentId: string,
   userId: string,
   fieldsToSet: {
     title?: string;
@@ -22,7 +22,7 @@ export default async (
   try {
     const { title, html, type } = fieldsToSet;
     if (title && html && type) {
-      const s3Filepath = computeS3Filepath(tosId, appId, type);
+      const s3Filepath = computeS3Filepath(legalDocumentId, appId, type);
       await writeS3TosBucket(s3Filepath, title, html);
     }
 
@@ -30,7 +30,7 @@ export default async (
       .db()
       .collection(COLL_TOS)
       .updateOne(
-        { _id: tosId, appId },
+        { _id: legalDocumentId, appId },
         {
           $set: {
             ...fieldsToSet,
@@ -43,7 +43,7 @@ export default async (
     const modifiedTos = await client
       .db()
       .collection(COLL_TOS)
-      .findOne({ _id: tosId, appId });
+      .findOne({ _id: legalDocumentId, appId });
 
     return modifiedTos;
   } finally {

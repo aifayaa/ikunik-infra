@@ -14,7 +14,7 @@ const { COLL_TOS } = mongoCollections;
 export default async function (
   appId: string,
   options: {
-    tosId?: string;
+    legalDocumentId?: string;
     type?: LegalDocumentType;
     outdated?: boolean;
     required?: boolean;
@@ -44,8 +44,8 @@ export default async function (
       }
     }
 
-    if (options.tosId) {
-      query._id = options.tosId;
+    if (options.legalDocumentId) {
+      query._id = options.legalDocumentId;
     }
 
     if (options.outdated !== undefined) {
@@ -61,14 +61,14 @@ export default async function (
     }
 
     const DBCollection = client.db().collection(COLL_TOS);
-    if (options.tosId) {
+    if (options.legalDocumentId) {
       const res = await DBCollection.findOne(query);
 
       if (!res) {
         throw new CrowdaaError(
           ERROR_TYPE_NOT_FOUND,
           LEGAL_DOCUMENT_NOT_FOUND_CODE,
-          `Cannot found legal document '${options.tosId}' for application '${appId}'\n` +
+          `Cannot found legal document '${options.legalDocumentId}' for application '${appId}'\n` +
             `options: ${util.inspect(options)}`
         );
       }
