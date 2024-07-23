@@ -28,9 +28,8 @@ function computeOptions(
     id: z.string().optional(),
   });
 
-  let validatedParameters;
   if (pathParameters) {
-    validatedParameters = getLegalParametersSchema.parse(pathParameters);
+    const validatedParameters = getLegalParametersSchema.parse(pathParameters);
     options = { ...options, ...validatedParameters };
   }
 

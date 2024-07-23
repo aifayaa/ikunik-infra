@@ -10,7 +10,6 @@ import {
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_BODY_CODE,
 } from '../../libs/httpResponses/errorCodes';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -70,12 +69,7 @@ export default async (event: APIGatewayProxyEvent) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    try {
-      validatedBody = updateLegalSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = updateLegalSchema.parse(body);
 
     const { title, html, outdated, required } = validatedBody;
 
