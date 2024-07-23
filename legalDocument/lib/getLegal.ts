@@ -1,11 +1,17 @@
 /* eslint-disable import/no-relative-packages */
+import util from 'util';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  LEGAL_DOCUMENT_NOT_FOUND_CODE,
+} from '../../libs/httpResponses/errorCodes';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { LegalDocumentType } from './type';
 
 const { COLL_TOS } = mongoCollections;
 
-export const getTos = async (
+export default async function (
   appId: string,
   options: {
     tosId?: string;
@@ -13,7 +19,7 @@ export const getTos = async (
     outdated?: boolean;
     required?: boolean;
   }
-) => {
+) {
   const client = await MongoClient.connect();
 
   try {
@@ -56,9 +62,17 @@ export const getTos = async (
 
     const DBCollection = client.db().collection(COLL_TOS);
     if (options.tosId) {
-      return await DBCollection.findOne(query, {
-        sort: { createdAt: -1 },
-      });
+      const res = await DBCollection.findOne(query);
+
+      if (!res) {
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_FOUND,
+          LEGAL_DOCUMENT_NOT_FOUND_CODE,
+          `Cannot found legal document '${options.tosId}' for application '${appId}'\n` +
+            `options: ${util.inspect(options)}`
+        );
+      }
+      return res;
     } else {
       return await DBCollection.find(query, {
         sort: { createdAt: -1 },
@@ -67,4 +81,4 @@ export const getTos = async (
   } finally {
     client.close();
   }
-};
+}

@@ -5,7 +5,7 @@ import {
   APIGatewayProxyEventPathParameters,
   APIGatewayProxyEventQueryStringParameters,
 } from 'aws-lambda';
-import { getTos } from '../lib/getLegal';
+import getLegal from '../lib/getLegal';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { LegalDocumentType, documentTypes } from '../lib/type';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
@@ -62,7 +62,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const { type, id: tosId, outdated, required } = options;
 
-    const legalDocument = await getTos(appId, {
+    const legalDocument = await getLegal(appId, {
       type,
       tosId,
       outdated,
