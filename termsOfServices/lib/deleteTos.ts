@@ -2,15 +2,10 @@
 import AWS from 'aws-sdk';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import {
-  ERROR_TYPE_SETUP,
-  MISSING_ENVIRONMENT_VARIABLE_CODE,
-} from '../../libs/httpResponses/errorCodes';
+import { getEnvironmentVariable } from '../../libs/check';
+import { computeS3Filepath } from './utils';
 
 const { COLL_TOS } = mongoCollections;
-
-const { S3_BUCKET_TOS } = process.env;
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -19,17 +14,14 @@ const s3 = new AWS.S3({
 export default async (appId: string, tosId: string) => {
   const client = await MongoClient.connect();
   try {
-    await client.db().collection(COLL_TOS).deleteOne({ _id: tosId, appId });
+    const mongoResponse = await client
+      .db()
+      .collection(COLL_TOS)
+      .deleteOne({ _id: tosId, appId });
+    const { deletedCount } = mongoResponse;
 
-    const s3Filepath = `${appId}/${tosId}.html`;
-
-    if (!S3_BUCKET_TOS) {
-      throw new CrowdaaError(
-        ERROR_TYPE_SETUP,
-        MISSING_ENVIRONMENT_VARIABLE_CODE,
-        `Missing environment variable S3_BUCKET_TOS: ${S3_BUCKET_TOS}`
-      );
-    }
+    const s3Filepath = computeS3Filepath(tosId, appId, 'tos');
+    const S3_BUCKET_TOS = getEnvironmentVariable('S3_BUCKET_TOS');
 
     await s3
       .deleteObject({
@@ -40,7 +32,7 @@ export default async (appId: string, tosId: string) => {
 
     return {
       deletedResources: {
-        tosIds: [tosId],
+        tosIds: deletedCount ? [tosId] : [],
       },
     };
   } finally {

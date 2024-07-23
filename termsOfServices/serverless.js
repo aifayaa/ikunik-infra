@@ -3,6 +3,33 @@ const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'termsOfServices',
+  custom: {
+    prune: {
+      automatic: true,
+      number: 3,
+    },
+    'serverless-disable-request-validators': {
+      action: 'delete',
+    },
+    dev: {
+      'us-east-1': {
+        CROWDAA_REGION: 'us',
+      },
+    },
+    preprod: {
+      'eu-west-3': {
+        CROWDAA_REGION: 'fr',
+      },
+    },
+    prod: {
+      'us-east-1': {
+        CROWDAA_REGION: 'us',
+      },
+      'eu-west-3': {
+        CROWDAA_REGION: 'fr',
+      },
+    },
+  },
   provider: {
     name: 'aws',
     runtime: 'nodejs16.x',
@@ -11,6 +38,9 @@ const serverlessConfiguration = {
     timeout: 30,
     environment: {
       ...env,
+      CROWDAA_STAGE: '${self:provider.stage}',
+      CROWDAA_REGION:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -129,15 +159,6 @@ const serverlessConfiguration = {
     'serverless-prune-plugin',
     'serverless-export-env',
   ],
-  custom: {
-    prune: {
-      automatic: true,
-      number: 3,
-    },
-    'serverless-disable-request-validators': {
-      action: 'delete',
-    },
-  },
   package: {
     individually: true,
   },
