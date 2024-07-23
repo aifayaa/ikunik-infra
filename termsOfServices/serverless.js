@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'termsOfServices',
@@ -8,7 +9,9 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+    },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
@@ -16,6 +19,19 @@ const serverlessConfiguration = {
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['s3:GetObject', 's3:PutObject'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.S3_BUCKET_TOS}/*',
+            ],
+          },
+        ],
+      },
+    },
   },
   functions: {
     getTos: {
