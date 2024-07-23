@@ -2,6 +2,12 @@
 import AWS from 'aws-sdk';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { DocumentType } from './type';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_SETUP,
+  MISSING_ENVIRONMENT_VARIABLE_CODE,
+} from '../../libs/httpResponses/errorCodes';
 
 const { COLL_TOS } = mongoCollections;
 
@@ -12,10 +18,20 @@ const s3 = new AWS.S3({
 });
 
 export default async (
-  appId,
-  title,
-  html,
-  { userId, type, outdated, required }
+  appId: string,
+  title: string,
+  html: string,
+  {
+    userId,
+    type,
+    outdated,
+    required,
+  }: {
+    userId: string;
+    type: DocumentType;
+    outdated: boolean;
+    required: boolean;
+  }
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -36,6 +52,14 @@ export default async (
 
     const documentContent = `${htmlWrapperHead}<h1>${title}</h1>${html}${htmlWrapperTail}`;
 
+    if (!S3_BUCKET_TOS) {
+      throw new CrowdaaError(
+        ERROR_TYPE_SETUP,
+        MISSING_ENVIRONMENT_VARIABLE_CODE,
+        `Missing environment variable S3_BUCKET_TOS: ${S3_BUCKET_TOS}`
+      );
+    }
+
     await s3
       .putObject({
         Bucket: S3_BUCKET_TOS,
@@ -47,7 +71,6 @@ export default async (
       .promise();
 
     const s3GeneratedUrl = `https://${S3_BUCKET_TOS}.s3.amazonaws.com/${s3Filepath}`;
-    // console.log('s3Response', s3Response);
 
     const newTos = {
       _id: documentId,
@@ -67,8 +90,6 @@ export default async (
     // console.log('newTosInDB:', mongoResponse);
     // const document = mongoResponse.ops[0];
     // console.log('document:', document);
-
-    // const { _id: tosId } = document;
 
     return newTos;
   } finally {
