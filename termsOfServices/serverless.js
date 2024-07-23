@@ -24,7 +24,7 @@ const serverlessConfiguration = {
         statements: [
           {
             Effect: 'Allow',
-            Action: ['s3:GetObject', 's3:PutObject'],
+            Action: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
             Resource: [
               'arn:aws:s3:::${self:provider.environment.S3_BUCKET_TOS}/*',
             ],
