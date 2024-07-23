@@ -93,8 +93,9 @@ function handleExceptionAux(exception: Error) {
     exception instanceof CrowdaaErrorWithErrorBody ||
     exception.constructor.name === 'CrowdaaErrorWithErrorBody'
   ) {
-    const crowdaaException = exception as CrowdaaErrorWithErrorBody;
-    const { httpCode, errorBody } = crowdaaException;
+    const crowdaaExceptionWithErrorBody =
+      exception as CrowdaaErrorWithErrorBody;
+    const { httpCode, errorBody } = crowdaaExceptionWithErrorBody;
     return response({ code: httpCode, body: errorBody });
   }
 
