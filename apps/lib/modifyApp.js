@@ -97,6 +97,10 @@ export default async (appId, update) => {
     if (update.androidDescription) {
       $set['builds.android.description'] = update.androidDescription;
     }
+    if (update.androidSplashScreenBackgroundColor) {
+      $set['builds.android.splashScreenBackgroundColor'] =
+        update.androidSplashScreenBackgroundColor;
+    }
 
     await db.collection(COLL_APPS).findOneAndUpdate({ _id: appId }, { $set });
 
