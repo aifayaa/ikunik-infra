@@ -63,6 +63,18 @@ export const modifyAppSchema = z
         .trim()
         .min(1, { message: 'androidEmail must be 1 or more characters long' })
     ),
+    androidSplashScreenBackgroundColor: z.optional(
+      z
+        .string({
+          invalid_type_error:
+            'androidSplashScreenBackgroundColor must be a string',
+        })
+        .trim()
+        .regex(
+          /^#[0-9a-fA-F]{6}$/,
+          'androidSplashScreenBackgroundColor must be in hexadecimal format'
+        )
+    ),
   })
   // do not allow unrecognized keys (the ones that are not defined by the object above)
   .strict();
