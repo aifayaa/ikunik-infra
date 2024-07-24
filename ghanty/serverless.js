@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'ghanty',
@@ -10,6 +11,9 @@ const serverlessConfiguration = {
     'serverless-disable-request-validators': {
       action: 'delete',
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',
@@ -17,7 +21,10 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+      NODE_OPTIONS: '--enable-source-maps',
+    },
     iam: {
       role: {
         statements: [
@@ -293,7 +300,7 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-webpack',
+    'serverless-esbuild',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
