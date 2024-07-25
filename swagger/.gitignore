@@ -2,7 +2,7 @@
 node_modules
 jspm_packages
 
-# Webpack directories
-.webpack
+# ESBuild directories
+.esbuild
 
 /dist
