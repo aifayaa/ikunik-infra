@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
-import getAppAdmins from '../../apps/lib/getAppAdmins';
+import getAppAdmins from '../../apps/lib/getAppAdmins.ts';
 import { objGet } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
