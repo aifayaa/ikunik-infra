@@ -183,7 +183,9 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
     ...headers,
   };
 
+  console.log('MyFidApi params', params);
   let response = await request(params);
+  console.log('MyFidApi response', response);
 
   if (typeof response === 'string') {
     response = JSON.parse(response);
