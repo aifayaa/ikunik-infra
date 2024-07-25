@@ -11,8 +11,8 @@ export default async (event) => {
       throw new Error('forbidden');
     }
 
-    await deleteAccount(appId, userId);
-    return response({ code: 200, body: { ok: true } });
+    const deleteResponse = await deleteAccount(appId, userId);
+    return response({ code: 200, body: deleteResponse });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
   }

@@ -27,38 +27,18 @@ export default async (appId, userId) => {
     await fidApi.renewLoginTokenIfNeeded(client);
     metricsTimer.print('renewLoginTokenIfNeeded');
 
-    // metricsTimer.start();
-    // const response = await fidApi.call(`/...`, {
-    //   method: 'POST',
-    //   body: {
-    //     addressCity,
-    //     addressCountry,
-    //     addressLine1,
-    //     addressLine2,
-    //     addressPostalCode,
-    //     allowEmail,
-    //     allowSms,
-    //     birthday,
-    //     civility,
-    //     email,
-    //     favoriteBrand1,
-    //     favoriteBrand2,
-    //     favoriteBrand3,
-    //     favoriteShopArea,
-    //     firstname,
-    //     idClient,
-    //     lastname,
-    //     mobilePhone,
-    //   },
-    // });
-    // metricsTimer.print('POST ...', { data? });
+    metricsTimer.start();
+    const response = await fidApi.call(`/api/users/${userId}`, {
+      method: 'DELETE',
+    });
+    metricsTimer.print(`DELETE /api/users/${userId}`);
 
     await deleteUser(userId, appId);
 
     await metricsTimer.save(client);
 
-    // return (response);
-    return true;
+    return response;
+    // return true;
   } finally {
     client.close();
   }
