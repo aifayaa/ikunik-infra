@@ -79,6 +79,36 @@ export type AppType = {
       };
     }>;
     platformApplicationArns?: object;
+    myfidbackend?: {
+      apiUrl: string;
+      apiHeaders: {
+        'Ocp-Apim-Subscription-Key': string;
+      };
+      apiLoginUrl: string;
+      apiLoginBody: {
+        grant_type: string;
+        client_id: string;
+        client_secret: string;
+        scope: string;
+      };
+      apiAccessToken: {
+        value: string;
+        expires: Date;
+        tokenType: string;
+      };
+      accountApiAccessBody: {
+        grant_type: string;
+        client_id: string;
+        client_secret: string;
+      };
+      accountApiAccessToken: {
+        value: string;
+        expires: Date;
+        tokenType: string;
+        accountApiUrl: string;
+      };
+      resetPasswordApiUrl: string;
+    };
     playlistManagementUrl?: string;
   };
   builds: {

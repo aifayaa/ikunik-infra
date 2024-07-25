@@ -11,9 +11,6 @@ const serverlessConfiguration = {
     'serverless-disable-request-validators': {
       action: 'delete',
     },
-    esbuild: {
-      config: '../esbuild.config.cjs',
-    },
   },
   provider: {
     name: 'aws',
@@ -92,6 +89,23 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+          },
+        },
+      ],
+    },
+    getResetPasswordURL: {
+      handler: 'handlers/getResetPasswordURL.default',
+      events: [
+        {
+          http: {
+            path: 'ghanty/myfid/getResetPasswordURL',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
           },
         },
