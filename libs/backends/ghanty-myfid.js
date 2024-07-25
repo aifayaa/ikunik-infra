@@ -160,6 +160,7 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
   } = options;
 
   const uri = `${this.myfidbackend.apiUrl}${path}`;
+  console.log('call uri', uri);
   const params = {
     method,
     uri,

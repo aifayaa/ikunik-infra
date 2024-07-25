@@ -97,6 +97,23 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getResetPasswordURL: {
+      handler: 'handlers/getResetPasswordURL.default',
+      events: [
+        {
+          http: {
+            path: 'ghanty/myfid/getResetPasswordURL',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
     resetPassword: {
       handler: 'handlers/resetPassword.default',
       events: [
