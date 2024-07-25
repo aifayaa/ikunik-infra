@@ -52,6 +52,8 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.LEQUOTIDIEN_AWS_SECRET, "NONE"}',
       LEQUOTIDIEN_BUCKET_PDF:
         '${self:custom.${self:provider.stage}.LEQUOTIDIEN_BUCKET_PDF, "NONE"}',
+      FONTAWESOME_API_KEY:
+        '${ssm(us-east-1):/crowdaa_microservices/global/fontawesome/api-key}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -119,6 +121,30 @@ const serverlessConfiguration = {
             path: 'providers/lequotidien/validateArticleAccess',
             method: 'get',
             cors: true,
+          },
+        },
+      ],
+    },
+    provFontAwesomeGetSessionToken: {
+      handler: 'handlers/fontawesome/getSessionToken.default',
+      events: [
+        {
+          http: {
+            path: 'providers/fontawesome/sessionToken',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  pdfId: true,
+                },
+              },
+            },
           },
         },
       ],
