@@ -63,7 +63,7 @@ const serverlessConfiguration = {
   },
   plugins: [
     'serverless-domain-manager',
-    'serverless-webpack',
+    'serverless-esbuild',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',

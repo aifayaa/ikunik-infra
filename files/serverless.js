@@ -204,7 +204,7 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-webpack',
+    'serverless-esbuild',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
@@ -218,10 +218,8 @@ const serverlessConfiguration = {
     'serverless-disable-request-validators': {
       action: 'delete',
     },
-    webpack: {
-      includeModules: {
-        forceInclude: ['sharp'],
-      },
+    esbuild: {
+      external: ['sharp'],
     },
     dev: {
       'us-east-1': {
