@@ -107,6 +107,7 @@ export type AppType = {
         tokenType: string;
         accountApiUrl: string;
       };
+      resetPasswordApiUrl: string;
     };
     playlistManagementUrl?: string;
   };

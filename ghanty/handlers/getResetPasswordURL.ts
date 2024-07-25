@@ -11,13 +11,9 @@ export default async (event: APIGatewayProxyEvent) => {
 
   try {
     const app = await getApp(appId);
-    const apiUrl =
-      app &&
-      app.settings &&
-      app.settings.myfidbackend &&
-      app.settings.myfidbackend.apiUrl
-        ? `${app.settings.myfidbackend.apiUrl}/reset`
-        : '/#';
+
+    const candidateApiUrl = app.settings.myfidbackend?.resetPasswordApiUrl;
+    const apiUrl = candidateApiUrl ? candidateApiUrl : '/#';
 
     return response({
       code: 200,
