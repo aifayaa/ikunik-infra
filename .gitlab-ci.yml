@@ -184,25 +184,6 @@ pushDevToAWS:
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
 
-pushTestsToAWS:
-  image: python:latest
-  stage: push
-  variables:
-    S3_BUCKET_NAME: 'crowdaa-ci/ms/dev/in'
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq zip
-  script:
-    - pip install awscli
-    - git fetch
-    - git diff --dirstat=files,0 origin/dev^ -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
-    - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
-    - rm -f diffList
-    - if [ "$CI_FORCE_PUSH_TO" = "$CI_COMMIT_BRANCH" ] || grep -qe '^libs$' folderList; then cp deployOrderList folderList; fi
-    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
-    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
-  rules:
-    - if: $CI_COMMIT_BRANCH == "feat/webpack-esbuild-replacement"
-
 pushDevToPreprodAWS:
   image: python:latest
   stage: push
