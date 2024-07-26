@@ -73,12 +73,7 @@ eslint:
   image: node:16
   stage: lint
   before_script:
-    - |
-      if [ $CI_PIPELINE_SOURCE = "merge_request_event" ]; then
-        git diff --dirstat=files,0 "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq | grep -v .vscode | grep -v old_modules > folderList || true
-      else
-        git diff --dirstat=files,0 "origin/$CI_COMMIT_BRANCH"^ | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq | grep -v .vscode | grep -v old_modules > folderList || true
-      fi
+    - find -mindepth 2 -maxdepth 2 -type f -name 'package.json' | cut -d'/' -f2 | sort | grep -v old_modules > folderList || true
     - npm i
     - npm run install
   script:
