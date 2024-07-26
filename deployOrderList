@@ -3,6 +3,7 @@ account
 admin
 apps
 appsBuilds
+appsTranslations
 organizations
 auth
 ssr
