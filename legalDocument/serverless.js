@@ -2,7 +2,7 @@
 const env = require('../env');
 
 const serverlessConfiguration = {
-  service: 'termsOfServices',
+  service: 'legalDocument',
   custom: {
     prune: {
       automatic: true,
