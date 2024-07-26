@@ -2,6 +2,7 @@ api-v1
 account
 admin
 apps
+appsBuilds
 organizations
 auth
 ssr
