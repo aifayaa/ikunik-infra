@@ -389,19 +389,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getAppBuilds: {
-      handler: 'handlers/getAppBuilds.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/builds',
-            method: 'get',
-            cors: true,
-            request: { parameters: { paths: { id: true } } },
-          },
-        },
-      ],
-    },
     getAppPreview: {
       handler: 'handlers/getAppPreview.default',
       events: [
@@ -630,56 +617,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    startBuilds: {
-      handler: 'handlers/startBuilds.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/builds/v2',
-            method: 'put',
-            cors: true,
-            request: { parameters: { paths: { id: true } } },
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-          },
-        },
-      ],
-    },
-    getBuildsStatus: {
-      handler: 'handlers/getBuildsStatus.default',
-      memorySize: 512,
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/builds/v2',
-            method: 'get',
-            cors: true,
-            request: { parameters: { paths: { id: true } } },
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-          },
-        },
-        {
-          http: {
-            path: 'apps/{id}/builds/v2/{platform}',
-            method: 'get',
-            cors: true,
-            request: { parameters: { paths: { id: true, platform: true } } },
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-          },
-        },
-      ],
-    },
     stripeCheckout: {
       handler: 'handlers/postAppsIdCheckout.default',
       events: [
@@ -845,6 +782,19 @@ const serverlessConfiguration = {
     'serverless-prune-plugin',
     'serverless-export-env',
   ],
+  resources: {
+    Outputs: {
+      RestApiRootResourceId: {
+        Description: 'Api Gateway apps ID',
+        Value: {
+          Ref: 'ApiGatewayResourceApps',
+        },
+        Export: {
+          Name: '${self:service}:${self:provider.stage}:RestApiRootResourceId',
+        },
+      },
+    },
+  },
 };
 
 module.exports = serverlessConfiguration;
