@@ -5,11 +5,13 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 export default async (event: APIGatewayProxyEvent) => {
-  const { appId } = event.requestContext.authorizer as {
+  const { appId: authorizerAppId } = event.requestContext.authorizer as {
     appId: string;
   };
+  const pathAppId = event.pathParameters?.id;
+
   try {
-    const translations = await getAppTranslations(appId);
+    const translations = await getAppTranslations(pathAppId || authorizerAppId);
 
     return response({
       code: 200,

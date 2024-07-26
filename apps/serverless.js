@@ -183,28 +183,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getAppTranslations: {
-      handler: 'handlers/getAppTranslations.default',
-      events: [
-        {
-          http: {
-            path: 'apps/translations',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-            request: {
-              parameters: {
-                headers: { Authorization: true },
-              },
-            },
-          },
-        },
-      ],
-    },
     getAppAllSettings: {
       handler: 'handlers/getAppAllSettings.default',
       events: [
@@ -791,6 +769,15 @@ const serverlessConfiguration = {
         },
         Export: {
           Name: '${self:service}:${self:provider.stage}:RestApiRootResourceId',
+        },
+      },
+      RestApiAppsIdResourceId: {
+        Description: 'Api Gateway app ID',
+        Value: {
+          Ref: 'ApiGatewayResourceAppsIdVar',
+        },
+        Export: {
+          Name: '${self:service}:${self:provider.stage}:RestApiAppsIdResourceId',
         },
       },
     },

@@ -2,7 +2,7 @@
 const env = require('../env');
 
 const serverlessConfiguration = {
-  service: 'appsBuilds',
+  service: 'appsTranslations',
   custom: {
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
@@ -62,64 +62,62 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    getAppBuilds: {
-      handler: 'handlers/getAppBuilds.default',
+    getAppTranslations: {
+      handler: 'handlers/getAppTranslations.default',
       events: [
         {
           http: {
-            path: 'apps/{id}/builds',
+            path: 'apps/translations',
             method: 'get',
             cors: true,
-            request: { parameters: { paths: { id: true } } },
-          },
-        },
-      ],
-    },
-    startBuilds: {
-      handler: 'handlers/startBuilds.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/builds/v2',
-            method: 'put',
-            cors: true,
-            request: { parameters: { paths: { id: true } } },
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
-          },
-        },
-      ],
-    },
-    getBuildsStatus: {
-      handler: 'handlers/getBuildsStatus.default',
-      memorySize: 512,
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/builds/v2',
-            method: 'get',
-            cors: true,
-            request: { parameters: { paths: { id: true } } },
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
             },
           },
         },
         {
           http: {
-            path: 'apps/{id}/builds/v2/{platform}',
+            path: 'apps/{id}/translations',
             method: 'get',
             cors: true,
-            request: { parameters: { paths: { id: true, platform: true } } },
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
+            },
+          },
+        },
+      ],
+    },
+    patchAppTranslations: {
+      handler: 'handlers/patchAppTranslations.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/translations',
+            method: 'patch',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: { Authorization: true },
+              },
             },
           },
         },
