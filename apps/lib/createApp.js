@@ -5,6 +5,7 @@ import Random from '../../libs/account_utils/random.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateAppBaserow from './syncCreateAppBaserow';
 import { getAppDefaultBuildFields } from './appsUtils.ts';
+import { objSet } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
 
@@ -79,7 +80,12 @@ async function checkIfUserIsFromRootApp(db, userId) {
   }
 }
 
-async function createApp(db, name, userId, inputProtocol) {
+async function createApp(
+  db,
+  name,
+  userId,
+  { protocol: inputProtocol, themeColorPrimary }
+) {
   const apiKey = Random.id(42); // AWS makes it 40, let's make it 42 to have a tiny difference. And because 42!
   const key = apiKey;
   const appId = uuid.v4();
@@ -106,19 +112,34 @@ async function createApp(db, name, userId, inputProtocol) {
       ios: getAppDefaultBuildFields(name, 'ios'),
     },
   };
+
+  if (themeColorPrimary) {
+    objSet(
+      toInsert,
+      ['settings', 'press', 'env', 'appThemeColorPrimary'],
+      themeColorPrimary
+    );
+  }
   await db.collection(COLL_APPS).insertOne(toInsert);
 
   return toInsert;
 }
 
-export default async (name, userId, { protocol = null } = {}) => {
+export default async (
+  name,
+  userId,
+  { protocol = null, themeColorPrimary = null } = {}
+) => {
   const client = await MongoClient.connect();
   try {
     const db = client.db();
 
     await checkIfUserIsFromRootApp(db, userId);
 
-    const app = await createApp(db, name, userId, protocol);
+    const app = await createApp(db, name, userId, {
+      protocol,
+      themeColorPrimary,
+    });
     const { _id: appId, key: apiKey } = app;
 
     await addUserAsAppOwner(db, userId, appId);

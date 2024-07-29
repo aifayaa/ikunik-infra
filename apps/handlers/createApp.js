@@ -34,6 +34,12 @@ export const createAppSchema = z.object({
     })
     .min(1, { message: 'Must be at least 1 character long' })
     .trim(),
+  themeColorPrimary: z
+    .string({
+      invalid_type_error: 'themeColorPrimary must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .trim(),
 });
 
 export default async (event) => {
@@ -49,15 +55,16 @@ export default async (event) => {
         .partial({
           protocol: true,
           orgId: true,
+          themeColorPrimary: true,
         })
         .parse(body);
     } catch (exception) {
       return formatValidationErrors(exception);
     }
 
-    const { name, protocol, orgId } = validatedBody;
+    const { name, protocol, orgId, themeColorPrimary } = validatedBody;
 
-    const app = await createApp(name, userId, { protocol });
+    const app = await createApp(name, userId, { protocol, themeColorPrimary });
 
     // If no orgId is precise as input: return the created app
     if (!orgId) {
