@@ -12,7 +12,7 @@ import { objSet } from '../../libs/utils';
 import {
   filterAppPrivateFields,
   getAppDefaultBuildFields,
-} from './appsUtils.ts';
+} from '../../apps/lib/appsUtils.ts';
 
 const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 

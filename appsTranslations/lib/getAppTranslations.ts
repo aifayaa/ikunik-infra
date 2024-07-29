@@ -2,7 +2,7 @@
 import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet } from '../../libs/utils.js';
-import { getApp } from './appsUtils';
+import { getApp } from '../../apps/lib/appsUtils.js';
 
 const { COLL_USERS } = mongoCollections;
 

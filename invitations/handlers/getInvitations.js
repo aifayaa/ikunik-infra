@@ -5,7 +5,7 @@ import response, {
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { getInvitations } from '../lib/getInvitations';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
-import { paginationSchema } from '../../libs/schemas/pagination.schema';
+import { paginationSchema } from '../../libs/schemas/paginationSchema';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
 
 export default async (event) => {

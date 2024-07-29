@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'ghanty',
@@ -17,7 +18,10 @@ const serverlessConfiguration = {
     stage: '${opt:stage, "dev"}',
     memorySize: 128,
     timeout: 30,
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+      NODE_OPTIONS: '--enable-source-maps',
+    },
     iam: {
       role: {
         statements: [
@@ -85,6 +89,23 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+          },
+        },
+      ],
+    },
+    getResetPasswordURL: {
+      handler: 'handlers/getResetPasswordURL.default',
+      events: [
+        {
+          http: {
+            path: 'ghanty/myfid/getResetPasswordURL',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
           },
         },
@@ -293,7 +314,7 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-webpack',
+    'serverless-esbuild',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
