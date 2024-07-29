@@ -73,15 +73,31 @@ export async function getApp(appId: string): Promise<AppType> {
 }
 
 export const appPrivateFields = [
-  'credentials',
   'appleAccounts',
+  'backend',
+  'builds.android.firebase',
+  'builds.android.googleApiData',
+  'credentials.apple.clientSecret',
+  'credentials.apple.expireTime',
+  'credentials.apple.keyId',
+  'credentials.chatengine.privateKey',
+  'credentials.facebook.appSecret',
+  'credentials.wordpressPlaylists.autoLoginToken',
+  'credentials.wordpressPlaylists.email',
+  'credentials.wordpressPlaylists.password',
+  'credentials.wordpressPlaylists.sessionToken',
+  'credentials.wordpressPlaylists.username',
   'firebaseProjectId',
   'settings.iap',
-  'settings.userDataCollection',
   'settings.platformApplicationArns',
-  'backend',
-  'builds.android.googleApiData',
-  'builds.android.firebase',
+  'settings.userDataCollection',
+
+  // Not included/public, may be needed by the dashboard :
+  // 'credentials.apple.clientId',
+  // 'credentials.chatengine.publicKey',
+  // 'credentials.facebook.appId',
+  // 'credentials.facebook.permissions',
+  // 'credentials.wordpressPlaylists.baseUrl',
 ];
 
 export const appPrivateFieldsProjection = appPrivateFields.reduce(
