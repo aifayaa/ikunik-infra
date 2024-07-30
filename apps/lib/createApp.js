@@ -137,6 +137,10 @@ async function createApp(
         toInsert.icon.largeUrl = picture.largeUrl;
         toInsert.icon.pictureUrl = picture.pictureUrl;
       }
+
+      await db
+        .collection(COLL_PICTURES)
+        .updateOne({ _id: iconId }, { $set: { appId } });
     }
   }
 
