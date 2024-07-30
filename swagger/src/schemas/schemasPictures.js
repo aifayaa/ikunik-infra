@@ -6,12 +6,6 @@ export default (libs, output) => {
     createdAt: libs.make.outParam('The image creation date', 'string', true, {
       example: '1970-12-31T23:59:59.000Z',
     }),
-    thumbFileObj_ID: libs.make.outParam(
-      'The thumbnail ID, if any',
-      'string',
-      false
-    ),
-    profil_ID: libs.make.outParam('The profile ID, if any', 'string', false),
     appId: libs.make.schemaRef('schemas', 'fieldAppId'),
     description: libs.make.outParam(
       'The image description, if any',
