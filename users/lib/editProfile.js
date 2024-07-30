@@ -46,6 +46,12 @@ export default async (
 
     if (user.appId === ADMIN_APP && email) {
       if (email) {
+        const userWithEmail = await db
+          .collection(COLL_USERS)
+          .findOne({ appId, 'emails.address': email });
+        if (userWithEmail) {
+          throw new Error('email_already_exists');
+        }
         $set['emails.0.address'] = email;
       }
     }
