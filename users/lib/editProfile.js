@@ -2,21 +2,35 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
+const { ADMIN_APP } = process.env;
+
 const { COLL_APPS, COLL_PICTURES, COLL_USERS } = mongoCollections;
 
 export default async (
   userId,
   appId,
-  { username, firstname, lastname, avatar: avatarId, ...extraFields }
+  {
+    username,
+    firstname,
+    lastname,
+    avatar: avatarId,
+    '@email': email,
+    ...extraFields
+  }
 ) => {
   const $set = {
     'profile.username': `${username}`,
   };
+  const $unset = {};
   if (firstname) {
     $set['profile.firstname'] = firstname;
+  } else if (firstname === null) {
+    $unset['profile.firstname'] = '';
   }
   if (lastname) {
     $set['profile.lastname'] = lastname;
+  } else if (lastname === null) {
+    $unset['profile.lastname'] = '';
   }
 
   const client = await MongoClient.connect();
@@ -28,6 +42,18 @@ export default async (
       .findOne({ _id: userId, appId });
     if (!user) {
       throw new Error('user_not_found');
+    }
+
+    if (user.appId === ADMIN_APP && email) {
+      if (email) {
+        const userWithEmail = await db
+          .collection(COLL_USERS)
+          .findOne({ appId, 'emails.address': email });
+        if (userWithEmail) {
+          throw new Error('email_already_exists');
+        }
+        $set['emails.0.address'] = email;
+      }
     }
 
     const app = await db.collection(COLL_APPS).findOne({ _id: appId });
@@ -56,7 +82,11 @@ export default async (
       });
 
       Object.keys(user.profile).forEach((key) => {
-        $set[`profile.${key}`] = user.profile[key];
+        if (extraFields[key] === null) {
+          $unset[`profile.${key}`] = '';
+        } else {
+          $set[`profile.${key}`] = user.profile[key];
+        }
       });
     }
 
@@ -70,6 +100,16 @@ export default async (
 
       $set['profile.avatarId'] = avatarId;
       $set['profile.avatar'] = avatarObj.mediumUrl;
+    } else if (avatarId === null) {
+      $unset['profile.avatarId'] = '';
+      $unset['profile.avatar'] = '';
+    }
+
+    const updates = {
+      $set,
+    };
+    if (Object.keys($unset).length > 0) {
+      updates.$unset = $unset;
     }
 
     const { matchedCount } = await db.collection(COLL_USERS).updateOne(
@@ -77,9 +117,7 @@ export default async (
         _id: userId,
         appId,
       },
-      {
-        $set,
-      }
+      updates
     );
 
     return !!matchedCount;
