@@ -102,14 +102,17 @@ export default async (appId, update) => {
         .collection(COLL_PICTURES)
         .findOne({ _id: update.iconId });
       if (picture) {
-        const url =
+        const haveUrl =
           picture.thumbUrl ||
           picture.mediumUrl ||
           picture.largeUrl ||
           picture.pictureUrl;
-        if (url) {
-          $set['icon.id'] = update.iconId;
-          $set['icon.url'] = url;
+        if (haveUrl) {
+          $set['icon._id'] = update.iconId;
+          $set['icon.thumbUrl'] = picture.thumbUrl;
+          $set['icon.mediumUrl'] = picture.mediumUrl;
+          $set['icon.largeUrl'] = picture.largeUrl;
+          $set['icon.pictureUrl'] = picture.pictureUrl;
         }
       }
     }

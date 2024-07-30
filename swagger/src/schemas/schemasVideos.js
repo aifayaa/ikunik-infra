@@ -13,12 +13,6 @@ export default (libs, output) => {
       true,
       { example: 'b5dcc350-1052-4349-a271-859e44e2f80c' }
     ),
-    thumbFileObj_ID: libs.make.outParam(
-      'The thumbnail ID, if any',
-      'string',
-      false
-    ),
-    profil_ID: libs.make.outParam('The profile ID, if any', 'string', false),
     description: libs.make.outParam(
       'The image description, if any',
       'string',
@@ -48,11 +42,6 @@ export default (libs, output) => {
     ),
     largeWidth: libs.make.outParam(
       'The file width of the large version of this picture',
-      'integer',
-      true
-    ),
-    likes: libs.make.outParam(
-      'The number of likes for this picture',
       'integer',
       true
     ),
@@ -127,6 +116,5 @@ export default (libs, output) => {
       'integer',
       true
     ),
-    title: libs.make.outParam('The image title, if any', 'string', false),
   });
 };

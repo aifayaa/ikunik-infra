@@ -122,7 +122,6 @@ export default async (event) => {
         filename: name,
         isPublished: true,
         status: uploadStatus.READY,
-        thumbFileObj_ID: null,
         thumbFilename,
         thumbUrl,
         url,

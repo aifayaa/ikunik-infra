@@ -40,6 +40,12 @@ export const createAppSchema = z.object({
     })
     .min(1, { message: 'Must be at least 1 character long' })
     .trim(),
+  iconId: z
+    .string({
+      invalid_type_error: 'iconId must be a string',
+    })
+    .min(1, { message: 'Must be at least 1 character long' })
+    .trim(),
 });
 
 export default async (event) => {
@@ -53,8 +59,9 @@ export default async (event) => {
     try {
       validatedBody = createAppSchema
         .partial({
-          protocol: true,
+          iconId: true,
           orgId: true,
+          protocol: true,
           themeColorPrimary: true,
         })
         .parse(body);
@@ -62,9 +69,13 @@ export default async (event) => {
       return formatValidationErrors(exception);
     }
 
-    const { name, protocol, orgId, themeColorPrimary } = validatedBody;
+    const { name, protocol, orgId, themeColorPrimary, iconId } = validatedBody;
 
-    const app = await createApp(name, userId, { protocol, themeColorPrimary });
+    const app = await createApp(name, userId, {
+      protocol,
+      themeColorPrimary,
+      iconId,
+    });
 
     // If no orgId is precise as input: return the created app
     if (!orgId) {

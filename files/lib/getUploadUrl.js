@@ -69,7 +69,6 @@ export default async (userId, appId, files, metadata) => {
       createdAt: new Date(),
       fromUserId: userId,
       appId,
-      isPublished: false,
       status: uploadStatus.UPLOADING,
       sourceKey: key,
       name: path.basename(name),

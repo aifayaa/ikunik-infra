@@ -132,34 +132,26 @@ export default async (bucket, object, file) => {
     }
 
     const pictureDoc = Object.assign(document, {
-      description: '',
-      isPublished: true,
-      largeFileObj_ID: null,
       largeFilename: null,
       largeHeight: 0,
       largeUrl: null,
       largeWidth: 0,
-      likes: 0,
-      mediumFileObj_ID: null,
       mediumFilename: null,
       mediumHeight: 0,
       mediumUrl: null,
       mediumWidth: 0,
-      pictureFileObj_ID: null,
       pictureFilename: object.key,
       pictureUrl: null,
-      profil_ID: null,
-      project_ID: null,
-      selectedGenres: [],
       status: uploadStatus.ENCODING,
-      thumbFileObj_ID: null,
       thumbFilename: null,
       thumbHeight: 0,
       thumbUrl: null,
       thumbWidth: 0,
-      title: title || '',
-      views: 0,
     });
+
+    if (title) {
+      document.title = title;
+    }
 
     await client
       .db()

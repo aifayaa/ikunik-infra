@@ -9,7 +9,7 @@ import { objSet } from '../../libs/utils';
 
 const { ADMIN_APP } = process.env;
 
-const { COLL_APPS, COLL_USERS } = mongoCollections;
+const { COLL_APPS, COLL_USERS, COLL_PICTURES } = mongoCollections;
 
 const DEFAULT_APP_SETTINGS = {
   press: {
@@ -84,7 +84,7 @@ async function createApp(
   db,
   name,
   userId,
-  { protocol: inputProtocol, themeColorPrimary }
+  { protocol: inputProtocol, themeColorPrimary, iconId }
 ) {
   const apiKey = Random.id(42); // AWS makes it 40, let's make it 42 to have a tiny difference. And because 42!
   const key = apiKey;
@@ -120,6 +120,26 @@ async function createApp(
       themeColorPrimary
     );
   }
+
+  if (iconId) {
+    const picture = await db.collection(COLL_PICTURES).findOne({ _id: iconId });
+    if (picture) {
+      const haveUrl =
+        picture.thumbUrl ||
+        picture.mediumUrl ||
+        picture.largeUrl ||
+        picture.pictureUrl;
+      if (haveUrl) {
+        toInsert.icon = {};
+        toInsert.icon._id = iconId;
+        toInsert.icon.thumbUrl = picture.thumbUrl;
+        toInsert.icon.mediumUrl = picture.mediumUrl;
+        toInsert.icon.largeUrl = picture.largeUrl;
+        toInsert.icon.pictureUrl = picture.pictureUrl;
+      }
+    }
+  }
+
   await db.collection(COLL_APPS).insertOne(toInsert);
 
   return toInsert;
@@ -128,7 +148,7 @@ async function createApp(
 export default async (
   name,
   userId,
-  { protocol = null, themeColorPrimary = null } = {}
+  { protocol = null, themeColorPrimary = null, iconId = null } = {}
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -139,6 +159,7 @@ export default async (
     const app = await createApp(db, name, userId, {
       protocol,
       themeColorPrimary,
+      iconId,
     });
     const { _id: appId, key: apiKey } = app;
 
