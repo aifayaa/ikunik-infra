@@ -13,6 +13,7 @@ import {
   filterAppPrivateFields,
   getAppDefaultBuildFields,
 } from '../../apps/lib/appsUtils.ts';
+import syncStartAppBuildBaserow from './syncStartAppBuildBaserow';
 
 const { COLL_APPS, COLL_PIPELINES } = mongoCollections;
 
@@ -21,7 +22,7 @@ const ALL_PLATFORMS = ['ios', 'android'];
 const RUNNING_TIMEOUT_DELAY = 6 * 60 * 60 * 1000;
 const STARTING_TIMEOUT_DELAY = 1 * 60 * 60 * 1000;
 
-async function startSetupOrBuildForPlatform(app, platform, { client }) {
+async function startSetupOrBuildForPlatform(app, platform, { client, userId }) {
   const now = new Date();
 
   if (!app.builds || !app.builds[platform]) {
@@ -131,13 +132,15 @@ async function startSetupOrBuildForPlatform(app, platform, { client }) {
 
   const filteredApp = filterAppPrivateFields(app);
 
+  await syncStartAppBuildBaserow({ appId: app._id, userId, platform });
+
   return {
     started: true,
     build: filteredApp.builds[platform],
   };
 }
 
-export default async (appId, { platforms = ALL_PLATFORMS }) => {
+export default async (appId, { platforms = ALL_PLATFORMS, userId }) => {
   const client = await MongoClient.connect();
   try {
     const app = await client
@@ -171,7 +174,10 @@ export default async (appId, { platforms = ALL_PLATFORMS }) => {
     }
 
     const promises = platforms.map(async (platform) => {
-      const ret = await startSetupOrBuildForPlatform(app, platform, { client });
+      const ret = await startSetupOrBuildForPlatform(app, platform, {
+        client,
+        userId,
+      });
 
       return ret;
     });
