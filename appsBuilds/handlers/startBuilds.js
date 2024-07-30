@@ -15,7 +15,7 @@ export default async (event) => {
 
     const { platforms } = event.body ? JSON.parse(event.body) : {};
 
-    const startBuildResult = await startBuilds(appId, { platforms });
+    const startBuildResult = await startBuilds(appId, { platforms, userId });
 
     return response({
       code: 200,
