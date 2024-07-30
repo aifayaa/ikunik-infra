@@ -10,7 +10,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet, objSet } from '../../libs/utils';
 import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils.ts';
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_APPS, COLL_PICTURES } = mongoCollections;
 
 export default async (appId, update) => {
   const client = await MongoClient.connect();
@@ -97,9 +97,24 @@ export default async (appId, update) => {
     if (update.androidDescription) {
       $set['builds.android.description'] = update.androidDescription;
     }
-    if (update.androidSplashScreenBackgroundColor) {
-      $set['builds.android.splashScreenBackgroundColor'] =
-        update.androidSplashScreenBackgroundColor;
+    if (update.iconId) {
+      const picture = await db
+        .collection(COLL_PICTURES)
+        .findOne({ _id: update.iconId });
+      if (picture) {
+        const haveUrl =
+          picture.thumbUrl ||
+          picture.mediumUrl ||
+          picture.largeUrl ||
+          picture.pictureUrl;
+        if (haveUrl) {
+          $set['icon._id'] = update.iconId;
+          $set['icon.thumbUrl'] = picture.thumbUrl;
+          $set['icon.mediumUrl'] = picture.mediumUrl;
+          $set['icon.largeUrl'] = picture.largeUrl;
+          $set['icon.pictureUrl'] = picture.pictureUrl;
+        }
+      }
     }
 
     await db.collection(COLL_APPS).findOneAndUpdate({ _id: appId }, { $set });

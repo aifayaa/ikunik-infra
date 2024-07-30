@@ -75,6 +75,14 @@ export const modifyAppSchema = z
           'androidSplashScreenBackgroundColor must be in hexadecimal format'
         )
     ),
+    iconId: z.optional(
+      z
+        .string({
+          invalid_type_error: 'icon must be a string',
+        })
+        .trim()
+        .min(1, { message: 'icon must be 1 or more characters long' })
+    ),
   })
   // do not allow unrecognized keys (the ones that are not defined by the object above)
   .strict();
