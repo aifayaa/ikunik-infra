@@ -10,8 +10,8 @@ import { getApp } from './appsUtils';
 
 const { S3_APPS_RESSOURCES } = process.env;
 
-const DESTINATION_SCREENSHOT__DIR_KEY_PATH = 'screenshots';
-const DESTINATION_SCREENSHOT_KEY_PATH = `${DESTINATION_SCREENSHOT__DIR_KEY_PATH}/screenshots.zip`;
+const DESTINATION_SCREENSHOTS_DIR_KEY_PATH = 'screenshots';
+const DESTINATION_SCREENSHOTS_ZIP_KEY_PATH = `${DESTINATION_SCREENSHOTS_DIR_KEY_PATH}/screenshots.zip`;
 const LOCAL_ZIP_PATH = '/tmp/screenshots.zip';
 
 const s3 = new AWS.S3({
@@ -27,7 +27,7 @@ export default async (appId: string, validityDuration: number) => {
     const screenshotFiles = await s3
       .listObjects({
         Bucket: S3_APPS_RESSOURCES as string,
-        Prefix: `${appId}/${DESTINATION_SCREENSHOT__DIR_KEY_PATH}`,
+        Prefix: `${appId}/${DESTINATION_SCREENSHOTS_DIR_KEY_PATH}`,
       })
       .promise();
 
@@ -35,7 +35,16 @@ export default async (appId: string, validityDuration: number) => {
       return null;
     }
 
-    const screenshotFilesInfos = screenshotFiles.Contents;
+    const screenshotFilesInfos = screenshotFiles.Contents.filter(({ Key }) => {
+      if (!Key || !Key.match(/\.(jpe?g|png)$/)) {
+        return false;
+      }
+      return true;
+    });
+
+    if (screenshotFilesInfos.length === 0) {
+      return null;
+    }
 
     await new Promise(
       (resolve: (value?: any) => void, reject: (reason: any) => void) => {
@@ -89,13 +98,13 @@ export default async (appId: string, validityDuration: number) => {
       .putObject({
         Body: input,
         Bucket: S3_APPS_RESSOURCES as string,
-        Key: `${appId}/${DESTINATION_SCREENSHOT_KEY_PATH}`,
+        Key: `${appId}/${DESTINATION_SCREENSHOTS_ZIP_KEY_PATH}`,
       })
       .promise();
 
     const s3Params = {
       Bucket: S3_APPS_RESSOURCES,
-      Key: `${appId}/${DESTINATION_SCREENSHOT_KEY_PATH}`,
+      Key: `${appId}/${DESTINATION_SCREENSHOTS_ZIP_KEY_PATH}`,
       Expires: validityDuration,
     };
     console.log('s3Params', s3Params);
