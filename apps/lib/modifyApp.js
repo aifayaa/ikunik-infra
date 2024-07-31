@@ -97,6 +97,10 @@ export default async (appId, update) => {
     if (update.androidDescription) {
       $set['builds.android.description'] = update.androidDescription;
     }
+    if (update.androidSplashScreenBackgroundColor) {
+      $set['builds.android.splashScreenBackgroundColor'] =
+        update.androidSplashScreenBackgroundColor;
+    }
     if (update.iconId) {
       const picture = await db
         .collection(COLL_PICTURES)
