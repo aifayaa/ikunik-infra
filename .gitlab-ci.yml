@@ -1,12 +1,31 @@
 stages:
   - createRelease
   - prepareDatabase
+  - manualMRDeploy
   - lint
   - test
   - incrementVersion
   - push
   - buildApiDoc
   - deployApiDoc
+
+variables:
+  STAGE: # For the manualMRDeploy step
+    description: 'The environment where to deploy'
+    value: 'dev'
+    options:
+      - 'dev'
+      - 'preprod'
+      - 'prod'
+  REGION: # For the manualMRDeploy step
+    description: 'The AWS region where to deploy'
+    value: 'us-east-1'
+    options:
+      - 'us-east-1'
+      - 'eu-west-3'
+  MODULES: # For the manualMRDeploy step
+    description: 'The space-separated list of modules to deploy ; when empty, uses the diff with the target branch'
+    value: ''
 
 createRelease:
   image: node:16
@@ -67,6 +86,31 @@ preparePreprodDatabase:
     - ./crowdaa_utils/js/bin/cloneDatabase --operation "${OPERATION:-prod_to_preprod}" --drop --tempDir "$PWD/db-clone-temp"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/i
+      when: manual
+
+manualMRDeploy:
+  image: node:16
+  stage: manualMRDeploy
+  allow_failure: true
+  before_script:
+    - npm i
+    - npm run install
+  script:
+    - git diff --dirstat=files,0 "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq | grep -v .vscode | grep -v old_modules > diffList || true
+    - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
+    - modulesList=$(cat folderList)
+    - modulesList="${MODULES:-$modulesList}"
+    - ccount=$(echo "$modulesList" | wc -c)
+    - if [ "x$modulesList" = "x" ]; then echo "No modules found to deploy!"; exit 1; fi
+    - |
+      for i in "$modulesList"; do
+        echo "Deploying '$i'"
+        cd "$i"
+        npx sls deploy --stage "$STAGE" --region "$REGION"
+        cd ..
+      done
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
 
 eslint:
