@@ -94,6 +94,12 @@ const serverlessConfiguration = {
               'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*',
             ],
           },
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource:
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-networkRequest',
+          },
         ],
       },
     },
