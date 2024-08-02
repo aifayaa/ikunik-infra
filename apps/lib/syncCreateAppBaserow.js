@@ -32,6 +32,11 @@ export default async (userId, { appId, name, apiKey }) => {
               apiKey,
             },
           },
+          options: {
+            retries: 5,
+            sleepBetweenRetries: 30 * 1000,
+            logErrors: true,
+          },
         }),
       })
       .promise();
