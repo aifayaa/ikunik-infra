@@ -71,6 +71,18 @@ const serverlessConfiguration = {
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource:
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-networkRequest',
+          },
+        ],
+      },
+    },
   },
   functions: {
     getAppBuilds: {
