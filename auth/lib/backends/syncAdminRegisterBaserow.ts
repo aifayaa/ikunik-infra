@@ -1,6 +1,11 @@
 /* eslint-disable import/no-relative-packages */
-import request from 'request-promise-native';
+import Lambda from 'aws-sdk/clients/lambda';
 import { UTMType, UserProfileType } from '../../../users/lib/userEntity';
+import { RequestOptionsType } from '../../../asyncLambdas/lib/networkRequest';
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 const { CROWDAA_REGION, STAGE } = process.env;
 
@@ -9,26 +14,6 @@ const BASEROW_URL =
     ? 'http://automation.operations.aws.crowdaa.com/webhook/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9'
     : 'http://automation.operations.aws.crowdaa.com/webhook-test/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9';
 const BASEROW_METHOD = 'POST';
-
-async function callBaserowAPI(data: Object) {
-  const uri = BASEROW_URL;
-  const params = {
-    method: BASEROW_METHOD,
-    uri,
-    headers: {},
-    json: data,
-  };
-
-  const rawResponse = await request(params);
-
-  let response = rawResponse;
-
-  if (typeof rawResponse === 'string') {
-    response = JSON.parse(response);
-  }
-
-  return response;
-}
 
 export default async (
   userId: string,
@@ -44,27 +29,37 @@ export default async (
     utm?: UTMType;
   }
 ) => {
-  // if (STAGE === 'prod') {
-  // if (CROWDAA_REGION === 'fr') { // For debug purposes only
   try {
     const extra = utm ? { utm } : {};
-    const resp = await callBaserowAPI({
-      ...{
-        region: CROWDAA_REGION,
-        stage: STAGE,
-        userId,
-        email,
-        username,
-        profile,
-      },
-      ...extra,
-    });
-
-    // eslint-disable-next-line no-console
-    console.log('DEBUG Baserow API response', resp);
+    await lambda
+      .invokeAsync({
+        FunctionName: `asyncLambdas-${process.env.STAGE}-networkRequest`,
+        InvokeArgs: JSON.stringify({
+          request: {
+            method: BASEROW_METHOD,
+            uri: BASEROW_URL,
+            headers: {},
+            json: {
+              region: CROWDAA_REGION,
+              stage: STAGE,
+              userId,
+              email,
+              username,
+              profile,
+              ...extra,
+            },
+          },
+          options: {
+            retries: 5,
+            sleepBetweenRetries: 30 * 1000,
+            logErrors: true,
+          },
+        } as RequestOptionsType),
+      })
+      .promise();
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.log('DEBUG Baserow API response error', e, 'for :', {
+    console.log('DEBUG Baserow API lambda call error', e, 'for :', {
       userId,
       email,
       username,
@@ -72,5 +67,4 @@ export default async (
       utm,
     });
   }
-  // }
 };

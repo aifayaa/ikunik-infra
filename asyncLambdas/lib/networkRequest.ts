@@ -11,13 +11,15 @@ export type RequestParametersType = {
 
 export type RequestOptionsType = {
   retries?: number;
+  sleepBetweenRetries?: number;
+  logErrors?: boolean;
 };
 
 export default async (
   requestData: RequestParametersType,
-  requestOptions?: RequestOptionsType
+  requestOptions: RequestOptionsType = {}
 ) => {
-  const retries = (requestOptions && requestOptions.retries) || 0;
+  const retries = requestOptions.retries || 0;
 
   for (
     let tryCount = 0, success = false;
@@ -28,6 +30,14 @@ export default async (
       await request(requestData);
       success = true;
     } catch (e) {
+      if (requestOptions.logErrors) {
+        console.error('Error running query', requestData, '=>', e);
+      }
+      if (requestOptions.sleepBetweenRetries) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, requestOptions.sleepBetweenRetries);
+        });
+      }
       /* Skip */
     }
   }
