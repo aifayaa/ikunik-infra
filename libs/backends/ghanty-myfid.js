@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { ofetch } from 'ofetch';
 import request from 'request-promise-native';
 import mongoCollections from '../mongoCollections.json';
 
@@ -185,9 +186,40 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
 
   let response = await request(params);
 
-  if (typeof response === 'string') {
+  if (typeof response === 'string' && response.length === 0) {
+    response = {};
+  }
+
+  if (typeof response === 'string' && 2 <= response.length) {
     response = JSON.parse(response);
   }
+
+  return response;
+};
+
+MyFidApi.prototype.callFetchRaw = async function calloFetch(
+  path,
+  options = {}
+) {
+  const { body = null, headers = {}, method = 'GET' } = options;
+
+  const uri = `${this.myfidbackend.apiUrl}${path}`;
+  const effectiveOptions = {};
+  effectiveOptions.method = method;
+  effectiveOptions.body = body;
+  effectiveOptions.headers = {
+    ...headers,
+    ...this.myfidbackend.apiHeaders,
+  };
+
+  if (this.myfidbackend.apiAccessToken.value) {
+    effectiveOptions.headers.Authorization = `${this.myfidbackend.apiAccessToken.tokenType} ${this.myfidbackend.apiAccessToken.value}`;
+  }
+
+  const response = await ofetch.raw(uri, {
+    parseResponse: (txt) => txt,
+    ...effectiveOptions,
+  });
 
   return response;
 };
