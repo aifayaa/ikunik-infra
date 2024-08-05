@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { ofetch } from 'ofetch';
 import request from 'request-promise-native';
 import mongoCollections from '../mongoCollections.json';
 
@@ -183,13 +184,78 @@ MyFidApi.prototype.call = async function call(path, options = {}) {
     ...headers,
   };
 
-  console.log('MyFidApi params', params);
   let response = await request(params);
-  console.log('MyFidApi response', response);
 
-  if (typeof response === 'string') {
+  if (typeof response === 'string' && response.length === 0) {
+    response = {};
+  }
+
+  if (typeof response === 'string' && 2 <= response.length) {
     response = JSON.parse(response);
   }
+
+  return response;
+};
+
+MyFidApi.prototype.callFetchRaw = async function calloFetch(
+  path,
+  options = {}
+) {
+  const { body = null, headers = {}, method = 'GET' } = options;
+
+  const uri = `${this.myfidbackend.apiUrl}${path}`;
+  // const params = {
+  //   method,
+  //   uri,
+  //   headers: { ...this.myfidbackend.apiHeaders },
+  // };
+  const effectiveOptions = {};
+  effectiveOptions.method = method;
+  effectiveOptions.body = body;
+  effectiveOptions.headers = {
+    ...headers,
+    ...this.myfidbackend.apiHeaders,
+  };
+
+  if (this.myfidbackend.apiAccessToken.value) {
+    // params.headers.Authorization = `${this.myfidbackend.apiAccessToken.tokenType} ${this.myfidbackend.apiAccessToken.value}`;
+    effectiveOptions.headers.Authorization = `${this.myfidbackend.apiAccessToken.tokenType} ${this.myfidbackend.apiAccessToken.value}`;
+  }
+
+  // params.headers = {
+  //   ...params.headers,
+  //   ...headers,
+  // };
+
+  // let response;
+  // if (effectiveOptions.method === 'DELETE') {
+  //   // params.uri = 'https://www.google.com';
+  //   response = await ofetch.raw('https://www.google.com', {
+  //     parseResponse: (txt) => txt,
+  //     ...effectiveOptions,
+  //   });
+  // } else {
+  //   // response = await request(params);
+  //   response = await ofetch.raw(uri, {
+  //     parseResponse: (txt) => txt,
+  //     ...effectiveOptions,
+  //   });
+  // }
+  const response = await ofetch.raw(uri, {
+    parseResponse: (txt) => txt,
+    ...effectiveOptions,
+  });
+  // console.log('MyFidApi fidResponse', response);
+  // console.log('MyFidApi typeof fidResponse', typeof response);
+  // console.log(response);
+
+  // if (typeof response === 'string' && response.length === 0) {
+  //   response = {};
+  // }
+
+  // if (typeof response === 'string' && 2 <= response.length) {
+  //   response = JSON.parse(response);
+  // }
 
   return response;
 };
