@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-// import util from 'util';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { MyFidApi } from '../../libs/backends/ghanty-myfid';
@@ -34,10 +33,6 @@ export default async (appId, userId, options = {}) => {
     const response = await fidApi.call(
       `/users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page}`
     );
-    // console.log(
-    //   `end-point: /users/${user.username}/proposals?pageSize=${pageSize}&pageNumber=${page}`
-    // );
-    // console.log('response:', util.inspect(response));
     metricsTimer.print('GET proposals', {
       pageSize,
       page,
