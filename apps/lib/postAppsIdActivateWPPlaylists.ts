@@ -64,7 +64,7 @@ export class WordpressPlaylistQueryManager {
     const jwtSettings = JWT.decode(sessionToken) as JWTBaseType;
 
     const expiredAfter = Date.now() / 1000 - this.EXPIRES_DELAY;
-    if (!jwtSettings.exp || jwtSettings.exp >= expiredAfter) {
+    if (!jwtSettings.exp || expiredAfter >= jwtSettings.exp) {
       const params = {
         method: 'POST',
         uri: `${baseUrl}/custom/v1/token`,
@@ -75,7 +75,6 @@ export class WordpressPlaylistQueryManager {
         },
       };
 
-      console.log('REQUEST', params);
       let response = await request(params);
 
       if (typeof response === 'string') {
@@ -92,10 +91,8 @@ export class WordpressPlaylistQueryManager {
         { _id: this._app._id },
         {
           $set: {
-            'credentials.wordpressPlaylists': {
-              sessionToken: token,
-              autoLoginToken: autologin_code,
-            },
+            'credentials.wordpressPlaylists.sessionToken': token,
+            'credentials.wordpressPlaylists.autoLoginToken': autologin_code,
             'settings.playlistManagementUrl': autologin_url,
           },
         }
@@ -118,6 +115,8 @@ export class WordpressPlaylistQueryManager {
       );
     }
 
+    await this.ensureTokenValidity();
+
     const { sessionToken, baseUrl } = this._app.credentials.wordpressPlaylists;
 
     const params = {
@@ -128,7 +127,6 @@ export class WordpressPlaylistQueryManager {
       },
     };
 
-    console.log('REQUEST', params);
     let response = await request(params);
 
     if (typeof response === 'string') {
@@ -159,7 +157,6 @@ async function createPlaylistUrl(app: AppType) {
       },
     };
 
-    console.log('REQUEST', params);
     let response = await request(params);
 
     if (typeof response === 'string') {
