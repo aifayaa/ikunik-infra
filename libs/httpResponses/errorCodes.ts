@@ -47,3 +47,5 @@ export const UNMANAGED_EXCEPTION_CODE = 'UNMANAGED_EXCEPTION';
 
 export const ERROR_TYPE_FORBIDDEN = 'Forbidden';
 export const DELETE_OWNER_CODE = 'DELETE_OWNER_CODE';
+
+export const ERROR_TYPE_FOREIGN_API = 'Foreign API';
