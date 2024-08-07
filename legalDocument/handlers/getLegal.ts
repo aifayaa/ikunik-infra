@@ -15,16 +15,16 @@ function computeOptions(
   queryStringParameters: APIGatewayProxyEventQueryStringParameters | null
 ) {
   let options: {
-    type?: LegalDocumentType;
+    // type?: LegalDocumentType;
     id?: string;
     outdated?: boolean;
     required?: boolean;
   } = {};
 
   const getLegalParametersSchema = z.object({
-    type: z
-      .enum(documentTypes as [LegalDocumentType, ...LegalDocumentType[]])
-      .optional(),
+    // type: z
+    //   .enum(documentTypes as [LegalDocumentType, ...LegalDocumentType[]])
+    //   .optional(),
     id: z.string().optional(),
   });
 
@@ -59,10 +59,10 @@ export default async (event: APIGatewayProxyEvent) => {
       event.queryStringParameters
     );
 
-    const { type, id: legalDocumentId, outdated, required } = options;
+    const { id: legalDocumentId, outdated, required } = options;
 
     const legalDocument = await getLegal(appId, {
-      type,
+      // type,
       legalDocumentId,
       outdated,
       required,
