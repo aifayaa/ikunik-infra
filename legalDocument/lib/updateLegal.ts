@@ -40,12 +40,12 @@ export default async (
         }
       );
 
-    const modifiedTos = await client
+    const modifiedLegalDocument = await client
       .db()
       .collection(COLL_TOS)
       .findOne({ _id: legalDocumentId, appId });
 
-    return modifiedTos;
+    return modifiedLegalDocument;
   } finally {
     client.close();
   }

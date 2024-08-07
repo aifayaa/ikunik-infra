@@ -29,6 +29,9 @@ const serverlessConfiguration = {
         CROWDAA_REGION: 'fr',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',
@@ -81,19 +84,7 @@ const serverlessConfiguration = {
         },
         {
           http: {
-            path: 'legal/{type}',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-          },
-        },
-        {
-          http: {
-            path: 'legal/{type}/{id}',
+            path: 'legal/{id}',
             method: 'get',
             cors: true,
             authorizer: {
@@ -117,7 +108,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'legal/{type}',
+            path: 'legal',
             method: 'post',
             cors: true,
             authorizer: {
@@ -134,7 +125,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'legal/{type}/{id}',
+            path: 'legal/{id}',
             method: 'patch',
             cors: true,
             authorizer: {
@@ -151,7 +142,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'legal/{type}/{id}',
+            path: 'legal/{id}',
             method: 'delete',
             cors: true,
             authorizer: {
