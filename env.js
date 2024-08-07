@@ -23,6 +23,7 @@ module.exports = {
   MAILGUN_FROM: 'postmaster',
   MINIMUM_PAYOUT: 600,
   MONGO_URL: '${cf:api-v1-${self:provider.stage}.MongoURL}',
+  NODE_OPTIONS: '--enable-source-maps',
   REGION: '${self:provider.region}',
   S3_ACCESS_KEY_ID: 'AKIAI3H2I7ZIK4ARL2NA',
   S3_BUCKET: 'crowdaa-user-content',
