@@ -21,20 +21,6 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    // const createLegalPathParametersSchema = z
-    //   .object({
-    //     type: z.enum(
-    //       documentTypes as [LegalDocumentType, ...LegalDocumentType[]]
-    //     ),
-    //   })
-    //   .required();
-
-    // const validatedPathParameters = createLegalPathParametersSchema.parse(
-    //   event.pathParameters
-    // );
-
-    // const { type } = validatedPathParameters;
-
     const createLegalBodySchema = z
       .object({
         type: z.enum(
@@ -71,7 +57,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const { type, title, html, outdated, required } = validatedBody;
 
-    const newTos = await createLegal(appId, title, html, {
+    const newLegalDocument = await createLegal(appId, title, html, {
       userId,
       type,
       outdated,
@@ -81,7 +67,7 @@ export default async (event: APIGatewayProxyEvent) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: newTos,
+        data: newLegalDocument,
       }),
     });
   } catch (exception) {
