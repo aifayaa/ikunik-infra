@@ -70,7 +70,7 @@ const serverlessConfiguration = {
         '${ssm(us-east-1):/crowdaa_microservices/dev/payment/stripe-secret-key}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
-      PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.net/wp-json',
+      PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.com/wp-json',
       S3_APPS_RESSOURCES:
         '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
     },
