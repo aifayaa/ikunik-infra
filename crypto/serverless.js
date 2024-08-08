@@ -29,6 +29,9 @@ const serverlessConfiguration = {
         METAMASK_LOGIN_DOMAIN: 'metamask-fr.crowdaa.com',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

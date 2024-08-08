@@ -53,6 +53,9 @@ const serverlessConfiguration = {
         IOS_APP_ID: 1074256465,
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

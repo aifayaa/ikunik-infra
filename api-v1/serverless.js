@@ -148,6 +148,9 @@ const serverlessConfiguration = {
       preprod: 'app.crowdaa.com',
       prod: 'app.crowdaa.com',
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   //   See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
   //   restApiBasePathMapping:

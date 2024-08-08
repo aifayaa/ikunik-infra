@@ -33,6 +33,9 @@ const serverlessConfiguration = {
         REACT_APP_PRESS_SERVICE_URL: 'https://blog-fr.crowdaa.com',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',
