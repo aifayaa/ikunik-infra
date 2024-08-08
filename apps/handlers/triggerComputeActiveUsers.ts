@@ -6,8 +6,12 @@ import MongoClient from '@libs/mongoClient.js';
 import mongoCollections from '@libs/mongoCollections.json';
 import { isUserSuperAdmin } from '@libs/perms/checkPermsFor';
 
-import { ERROR_TYPE_NOT_ALLOWED, NOT_ENOUGH_PERMISSIONS_CODE } from '@libs/httpResponses/errorCodes';
+import {
+  ERROR_TYPE_NOT_ALLOWED,
+  NOT_ENOUGH_PERMISSIONS_CODE,
+} from '@libs/httpResponses/errorCodes';
 import { UserType } from '@users/lib/userEntity';
+import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 const { COLL_USERS } = mongoCollections;
 
 type ResponseBody = {
@@ -49,9 +53,13 @@ export default async (event: TriggerComputeActiveUsersLambdaEvent) => {
   );
 
   try {
+    // This code is not executed
+    trowExceptionUntestedCode20240808();
+
     if (isAPIGatewayProxyEvent(event)) {
       // considering http called
-      const { principalId: userId } = (event.requestContext || {}).authorizer || {};
+      const { principalId: userId } =
+        (event.requestContext || {}).authorizer || {};
       const user: UserType = await db
         .collection(COLL_USERS)
         .findOne({ _id: userId });
@@ -61,12 +69,15 @@ export default async (event: TriggerComputeActiveUsersLambdaEvent) => {
           ERROR_TYPE_NOT_ALLOWED,
           NOT_ENOUGH_PERMISSIONS_CODE,
           'Insufficient permissions'
-        )
+        );
       }
     }
     // else considering triggered
 
-    const crowdaaErrors = await triggerComputeActiveUsers({ day: yesterdayDate, db });
+    const crowdaaErrors = await triggerComputeActiveUsers({
+      day: yesterdayDate,
+      db,
+    });
     let body: ResponseBody;
     if (crowdaaErrors.length > 0) {
       body = {

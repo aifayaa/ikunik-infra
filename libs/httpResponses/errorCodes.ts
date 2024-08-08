@@ -61,3 +61,6 @@ export const ERROR_TYPE_FOREIGN_API = 'Foreign API';
 export const ERROR_TYPE_COMPUTE_ACTIVE_USERS = 'ComputeActiveUsers';
 export const CALL_COMPUTE_ACTIVE_USERS_FOR_DAY_CODE =
   'CALL_COMPUTE_ACTIVE_USERS_FOR_DAY';
+
+export const ERROR_TYPE_UNTESTED_CODE = 'UntestedCode';
+export const DONT_USE_THIS_CODE = 'DONT_USE_THIS_CODE';

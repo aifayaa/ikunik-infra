@@ -1,12 +1,12 @@
+/*eslint allowUnreachableCode: "true"*/
+import { z } from 'zod';
 import { getApp } from '@apps/lib/appsUtils';
 import { putComputeActiveUsersForDay } from '@apps/lib/putComputeActiveUsersForDay';
 import MongoClient from '@libs/mongoClient.js';
-import {
-  type PutComputeActiveUsersForDaySchema,
-  putComputeActiveUsersForDaySchema,
-} from '@apps/validators/putComputeActiveUsersForDay.schema';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
+  DONT_USE_THIS_CODE,
+  ERROR_TYPE_UNTESTED_CODE,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_APPLICATION_CODE,
   MISSING_BODY_CODE,
@@ -15,6 +15,7 @@ import { formatValidationErrors } from '@libs/httpResponses/formatValidationErro
 import response, { handleException } from '@libs/httpResponses/response';
 import { checkPermsForApp } from '@libs/perms/checkPermsFor';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 
 type PutComputeActiveUsersForDayLambdaParams = {
   appId: string;
@@ -31,16 +32,33 @@ function isAPIGatewayProxyEvent(
   return (event as APIGatewayProxyEvent).httpMethod !== undefined;
 }
 
-let client: any; // TODO type
-let db: any; // TODO type
-
 export default async (event: PutComputeActiveUsersForDayLambdaEvent) => {
-  if (!client) client = await MongoClient.connect();
-  if (!db) db = client.db();
-  let appId: string | undefined;
-  let day: Date;
+  const client = await MongoClient.connect();
+
+  const putComputeActiveUsersForDaySchema = z
+    .object({
+      day: z.string().datetime(),
+      appId: z
+        .string({
+          required_error: 'appId is required',
+          invalid_type_error: 'appId must be a string',
+        })
+        .max(100, { message: 'Must be 100 or fewer characters long' }),
+    })
+    .strict();
+
+  type PutComputeActiveUsersForDayType = z.infer<
+    typeof putComputeActiveUsersForDaySchema
+  >;
 
   try {
+    // This code is not executed
+    trowExceptionUntestedCode20240808();
+
+    const db = client.db();
+    let appId: string | undefined;
+    let day: Date;
+
     if (isAPIGatewayProxyEvent(event)) {
       // the function is http called
       const { principalId: userId } =
@@ -63,9 +81,8 @@ export default async (event: PutComputeActiveUsersForDayLambdaEvent) => {
         );
       }
 
-      let validatedBody: PutComputeActiveUsersForDaySchema = JSON.parse(
-        event.body
-      );
+      let validatedBody: z.infer<typeof putComputeActiveUsersForDaySchema> =
+        JSON.parse(event.body);
       validatedBody.appId = appId;
 
       try {
@@ -77,7 +94,7 @@ export default async (event: PutComputeActiveUsersForDayLambdaEvent) => {
       await checkPermsForApp(userId, appId, ['admin']);
     } else {
       // the function is directly invoked
-      let validatedComputeParameters: PutComputeActiveUsersForDaySchema;
+      let validatedComputeParameters: PutComputeActiveUsersForDayType;
 
       try {
         validatedComputeParameters =
@@ -95,11 +112,11 @@ export default async (event: PutComputeActiveUsersForDayLambdaEvent) => {
       appId,
       subscriptionId: app.stripe?.subscriptionId,
       day,
-      db
+      db,
     });
     return response({ code: 200, body: { count } });
-  } catch (err) {
-    handleException(err);
+  } catch (exception) {
+    return handleException(exception);
   } finally {
     await client.close();
   }

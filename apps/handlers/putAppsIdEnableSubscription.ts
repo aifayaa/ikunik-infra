@@ -19,12 +19,16 @@ import {
 import { getStripeClient } from '@libs/stripe';
 import { checkPermsForApp } from '@libs/perms/checkPermsFor';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: userId } = (event.requestContext || {}).authorizer || {};
   const appId = event.pathParameters?.id;
 
   try {
+    // This code is not executed
+    trowExceptionUntestedCode20240808();
+
     if (!appId) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,

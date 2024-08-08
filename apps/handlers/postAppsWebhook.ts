@@ -21,6 +21,7 @@ import {
 } from '@apps/lib/appsUtils';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
 import { AppType } from '@apps/lib/appEntity';
+import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -34,6 +35,9 @@ let db: any; // TODO type
 
 export default async (event: APIGatewayProxyEvent) => {
   try {
+    // This code is not executed
+    trowExceptionUntestedCode20240808();
+
     const payload = checkBodyIsPresent(event.body);
 
     /*

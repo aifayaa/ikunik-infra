@@ -166,7 +166,7 @@ export type AppType = {
     meterId?: string;
     priceId?: string;
     subscriptionId?: string;
-  }
+  };
 };
 
 export type AppInOrgType = AppType & { organization: OrganizationFieldType };

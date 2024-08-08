@@ -19,6 +19,7 @@ import { postAppsIdCheckout } from '@apps/lib/postAppsIdCheckout';
 import { getApp, getApplicationOrganizationId } from '@apps/lib/appsUtils';
 import { isEmpty } from 'lodash';
 import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
+import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 
 let client: any; // TODO type
 let db: any; // TODO type
@@ -31,6 +32,9 @@ export default async (event: APIGatewayProxyEvent) => {
   if (!db) db = client.db();
 
   try {
+    // This code is not executed
+    trowExceptionUntestedCode20240808();
+
     if (!appId) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
