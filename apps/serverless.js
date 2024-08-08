@@ -70,11 +70,11 @@ const serverlessConfiguration = {
       REACT_APP_PRESS_SERVICE_URL:
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
       STRIPE_SECRET_KEY:
-        '${ssm(us-east-1):/crowdaa_microservices/dev/payment/stripe-secret-key}',
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/stripe-secret-key}',
       STRIPE_WEBHOOK_SECRET_KEY:
-        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
       BASEROW_API_ACCESS_TOKEN:
-        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
       PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.com/wp-json',
@@ -608,12 +608,12 @@ const serverlessConfiguration = {
       ],
     },
     stripeCheckout: {
-      handler: 'handlers/putAppsIdCheckout.default',
+      handler: 'handlers/postAppsIdCheckout.default',
       events: [
         {
           http: {
             path: 'apps/{id}/checkout',
-            method: 'PUT',
+            method: 'POST',
             cors: true,
             authorizer: {
               type: 'CUSTOM',

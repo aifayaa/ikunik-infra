@@ -2,7 +2,7 @@ import { Lambda } from 'aws-sdk';
 import { AppType } from '@apps/lib/appEntity';
 import mongoCollections from '@libs/mongoCollections.json';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
-import { CALL_COMPUTE_ACTIVE_USERS_FOR_DAY_CODE, ERROR_TYPE_COMPUTE_ACTIVE_USERS_ERROR } from '@libs/httpResponses/errorCodes';
+import { CALL_COMPUTE_ACTIVE_USERS_FOR_DAY_CODE, ERROR_TYPE_COMPUTE_ACTIVE_USERS } from '@libs/httpResponses/errorCodes';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -69,7 +69,7 @@ export const triggerComputeActiveUsers = async ({
         } catch (err) {
           crowdaaErrors.push(
             new CrowdaaError(
-              ERROR_TYPE_COMPUTE_ACTIVE_USERS_ERROR,
+              ERROR_TYPE_COMPUTE_ACTIVE_USERS,
               CALL_COMPUTE_ACTIVE_USERS_FOR_DAY_CODE,
               'Failed call putComputeActiveUsersForDay',
               {

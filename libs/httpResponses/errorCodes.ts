@@ -58,6 +58,6 @@ export const DELETE_OWNER_CODE = 'DELETE_OWNER_CODE';
 
 export const ERROR_TYPE_FOREIGN_API = 'Foreign API';
 
-export const ERROR_TYPE_COMPUTE_ACTIVE_USERS_ERROR = 'ComputeActiveUsers';
+export const ERROR_TYPE_COMPUTE_ACTIVE_USERS = 'ComputeActiveUsers';
 export const CALL_COMPUTE_ACTIVE_USERS_FOR_DAY_CODE =
   'CALL_COMPUTE_ACTIVE_USERS_FOR_DAY';
