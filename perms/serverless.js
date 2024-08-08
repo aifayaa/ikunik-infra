@@ -61,6 +61,9 @@ const serverlessConfiguration = {
     'serverless-disable-request-validators': {
       action: 'delete',
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   package: {
     individually: true,
