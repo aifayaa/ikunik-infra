@@ -27,7 +27,6 @@
     "serverless-esbuild": "^1.52.1",
     "serverless-offline": "^13.5.0",
     "sinon": "^9.2.0",
-    "tsconfig-paths-webpack-plugin": "^4.1.0",
     "ts-loader": "^8.4.0",
     "typescript": "^5.4.5",
     "webpack": "^4.41.5"
