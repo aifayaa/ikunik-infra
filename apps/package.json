@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "aws-sdk": "^2.749.0",
+    "axios": "^1.7.2",
     "jose": "^2.0.7",
+    "lodash": "^4.17.15",
     "phone": "^2.4.15",
     "request-promise-native": "^1.0.8",
     "stripe": "^15.7.0",
@@ -25,6 +27,7 @@
     "serverless-esbuild": "^1.52.1",
     "serverless-offline": "^13.5.0",
     "sinon": "^9.2.0",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
     "ts-loader": "^8.4.0",
     "typescript": "^5.4.5",
     "webpack": "^4.41.5"

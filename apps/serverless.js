@@ -71,6 +71,10 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
       STRIPE_SECRET_KEY:
         '${ssm(us-east-1):/crowdaa_microservices/dev/payment/stripe-secret-key}',
+      STRIPE_WEBHOOK_SECRET_KEY:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
+      BASEROW_API_ACCESS_TOKEN:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
       PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.com/wp-json',
@@ -100,8 +104,7 @@ const serverlessConfiguration = {
           {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
-            Resource:
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-networkRequest',
+            Resource: '*',
           },
         ],
       },
@@ -605,12 +608,12 @@ const serverlessConfiguration = {
       ],
     },
     stripeCheckout: {
-      handler: 'handlers/postAppsIdCheckout.default',
+      handler: 'handlers/putAppsIdCheckout.default',
       events: [
         {
           http: {
             path: 'apps/{id}/checkout',
-            method: 'post',
+            method: 'PUT',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
@@ -619,6 +622,7 @@ const serverlessConfiguration = {
             },
             request: {
               parameters: {
+                paths: { id: true },
                 headers: {
                   Authorization: true,
                 },
@@ -629,12 +633,12 @@ const serverlessConfiguration = {
       ],
     },
     stripeEnableSubscription: {
-      handler: 'handlers/postAppsIdEnableSubscription.default',
+      handler: 'handlers/putAppsIdEnableSubscription.default',
       events: [
         {
           http: {
             path: 'apps/{id}/enableSubscription',
-            method: 'post',
+            method: 'PUT',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
@@ -643,6 +647,7 @@ const serverlessConfiguration = {
             },
             request: {
               parameters: {
+                paths: { id: true },
                 headers: {
                   Authorization: true,
                 },
@@ -658,23 +663,6 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'apps/webhook',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-          },
-        },
-      ],
-    },
-    stripeMeasure: {
-      handler: 'handlers/postAppsMeasure.default',
-      events: [
-        {
-          http: {
-            path: 'apps/measure',
             method: 'post',
             cors: true,
             authorizer: {
@@ -743,6 +731,62 @@ const serverlessConfiguration = {
           http: {
             path: 'apps/{id}/downloadBundle',
             method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    triggerComputeActiveUsers: {
+      handler: 'handlers/triggerComputeActiveUsers.default',
+      timeout: 600,
+      events: [
+        {
+          http: {
+            path: 'apps/triggerComputeActiveUsers',
+            method: 'PUT',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+        {
+          eventBridge: {
+            schedule: 'cron(0 0 * * ? *)', // Every day at midnight
+          },
+        },
+      ],
+    },
+    putComputeActiveUsersForDay: {
+      handler: 'handlers/putComputeActiveUsersForDay.default',
+      timeout: 300,
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/computeActiveUsersForDay',
+            method: 'PUT',
             cors: true,
             authorizer: {
               type: 'CUSTOM',

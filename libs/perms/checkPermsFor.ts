@@ -248,7 +248,7 @@ function getAppOrgId(app: AppType) {
   return app.organization && app.organization._id;
 }
 
-function isUserSuperAdmin(user: UserType) {
+export function isUserSuperAdmin(user: UserType) {
   return user.superAdmin;
 }
 

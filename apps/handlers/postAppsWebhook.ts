@@ -1,39 +1,40 @@
-/* eslint-disable import/no-relative-packages */
-// import stripe from ('stripe')(
-//   'sk_test_51LBJZKKD2Srbl7Iomp6ag5TPCImTUfKOJGxzb7MPFfgBhgaN36c0C9FHzAvUTj4kuWXRx2B5dhQamqFxKZNJAepW00vwksLCFx'
-// );
 import { APIGatewayProxyEvent } from 'aws-lambda';
-
 import Stripe from 'stripe';
 
 import response, {
   handleException,
   wrapperHandleException,
-} from '../../libs/httpResponses/response';
-import { getStripeClient } from '../../libs/stripe';
-
-import { checkBodyIsPresent } from '../../libs/httpResponses/checks';
-import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
-import MongoClient from '../../libs/mongoClient';
-import mongoCollections from '../../libs/mongoCollections.json';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
+} from '@libs/httpResponses/response';
+import { getStripeClient } from '@libs/stripe';
+import { checkBodyIsPresent } from '@libs/httpResponses/checks';
+import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import MongoClient from '@libs/mongoClient.js';
+import mongoCollections from '@libs/mongoCollections.json';
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
   ERROR_TYPE_STRIPE,
-} from '../../libs/httpResponses/errorCodes';
+} from '@libs/httpResponses/errorCodes';
 import {
   getStripeSubscriptionMetadata,
   isStripeSubcriptionStatus,
-} from '../lib/appsUtils';
+} from '@apps/lib/appsUtils';
 
 const { COLL_APPS } = mongoCollections;
 
-const STRIPE_WEBHOOK_SECRET =
-  'whsec_f87467f40045df67affa6b33de01b7b1d8da6d41bc480facacbd3d8fcae7ec71';
+const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
+  // webhook secret created by the stripe cli when locally listening for events
+  ? 'whsec_f87467f40045df67affa6b33de01b7b1d8da6d41bc480facacbd3d8fcae7ec71'
+  : String(process.env.STRIPE_WEBHOOK_SECRET_KEY);
 
 export default async (event: APIGatewayProxyEvent) => {
   try {
     const payload = checkBodyIsPresent(event.body);
+
+    /*
+      TODO check request originates from allowed domains and ip https://docs.stripe.com/ips
+      is it possible to filter ip addresses in the API gateway configuration ?
+    */
 
     const stripe = getStripeClient();
 
@@ -71,16 +72,18 @@ export default async (event: APIGatewayProxyEvent) => {
         `The Stripe event is not defined`
       );
     }
-
+    /* 
+      TODO: 
+      - should we check stripeEvent.livemode ? https://docs.stripe.com/webhooks#live-and-test-mode
+      - save every stripe event that were handled? we might receive the same event multiple times,
+      by doing so, we can check every time and ensure that each event is handled only once.
+      - check if operations (db access, computing, etc) we apply takes too long and might cause
+      stripe to consider ?
+    */
     if (stripeEvent.type === 'customer.subscription.created') {
-      console.log('STRIPEEVENT.type', stripeEvent.type);
-      // console.log('stripeEvent', stripeEvent);
-
+      // TODO use appropriate logger
+      console.log('Received event customer.subscription.created', stripeEvent);
       const client = await MongoClient.connect();
-
-      console.log('stripeEvent.data', stripeEvent.data);
-      console.log('stripeEvent.data.object', stripeEvent.data.object);
-
       const subscription = stripeEvent.data.object;
 
       const { metadata } = subscription;
@@ -90,20 +93,20 @@ export default async (event: APIGatewayProxyEvent) => {
       const stripeSubscriptionId = subscription.id;
 
       const db = client.db();
-      await db.collection(COLL_APPS).updateOne(
+      const { matchedCount } = await db.collection(COLL_APPS).updateOne(
         { _id: appId },
         {
           $set: {
-            stripeSubscriptionId: subscription.id,
+            'stripe.subscriptionId': subscription.id,
           },
         }
       );
 
       if (
+        matchedCount === 1 && // make sure the app still exist
         isStripeSubcriptionStatus(crowdaaStatus) &&
         crowdaaStatus === 'initial'
       ) {
-        // console.log('trigger suspense update => update metadata');
         const updatedSubscription = await stripe.subscriptions.update(
           stripeSubscriptionId,
           {
@@ -111,15 +114,21 @@ export default async (event: APIGatewayProxyEvent) => {
               ...metadata,
               ...getStripeSubscriptionMetadata('hold'),
             },
-            // Suspense the subscription
+            // Suspend the subscription
             pause_collection: {
-              behavior: 'mark_uncollectible',
+              behavior: 'void',
             },
           }
         );
+        // TODO use appropriate logger
+        console.log('Paused subscription payment collection', {
+          appId,
+          updatedSubscription,
+        });
 
         return response({
           code: 200,
+          // body does not seem necessary for the webhook response
           body: formatResponseBody({
             data: {
               message: 'Subscription updated',
@@ -127,49 +136,30 @@ export default async (event: APIGatewayProxyEvent) => {
             },
           }),
         });
+      } else {
+        // TODO check if we need to throw an error to make stripe send the event again
+        // TODO use appropriate logger
+        console.warn('Could not pause subscription payment collection', {
+          appId,
+          matchedCount,
+          subscription,
+        });
       }
+    } else if (stripeEvent.type === 'customer.subscription.updated') {
+      // NOTE subscription updated event is fired when payment collection is "paused/resumed"
+
+      // TODO use appropriate logger
+      console.log('Received event customer.subscription.updated', stripeEvent);
+
+      // TODO check subscription payment collection has been resumed or paused
+      // and remove/grant access to the associated app?
     }
-
-    if (stripeEvent.type === 'customer.subscription.updated') {
-      console.log('STRIPEEVENT.type', stripeEvent.type);
-      // console.log('stripeEvent', stripeEvent);
-      // const { id: stripeSubscriptionId, metadata } = stripeEvent.data.object;
-
-      // const crowdaaStatus = metadata.crowdaaStatus;
-
-      // if (
-      //   isStripeSubcriptionStatus(crowdaaStatus) &&
-      //   crowdaaStatus === 'initial'
-      // ) {
-      //   // console.log('trigger suspense update => update metadata');
-      //   const updatedSubscription = await stripe.subscriptions.update(
-      //     stripeSubscriptionId,
-      //     {
-      //       metadata: {
-      //         ...metadata,
-      //         ...getStripeSubscriptionMetadata('hold'),
-      //       },
-      //       // Suspense the subscription
-      //       pause_collection: {
-      //         behavior: 'mark_uncollectible',
-      //       },
-      //     }
-      //   );
-
-      //   return response({
-      //     code: 200,
-      //     body: formatResponseBody({
-      //       data: {
-      //         message: 'Subscription updated',
-      //         details: { updatedSubscription },
-      //       },
-      //     }),
-      //   });
-      // }
-    }
+    
+    // TODO handle payment failure
 
     return response({
       code: 200,
+      // body does not seem necessary for the webhook response
       body: formatResponseBody({
         data: {
           message: 'Ok',
@@ -177,7 +167,6 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
-    // console.log('exception', exception);
     return handleException(exception);
   }
 };

@@ -161,7 +161,12 @@ export type AppType = {
   appleAccounts?: object;
   firebaseProjectId?: object;
   organization?: OrganizationFieldType;
-  stripeSubscriptionId?: string;
+  stripe?: {
+    checkoutSessionId?: string;
+    meterId?: string;
+    priceId?: string;
+    subscriptionId?: string;
+  }
 };
 
 export type AppInOrgType = AppType & { organization: OrganizationFieldType };
