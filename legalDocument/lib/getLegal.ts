@@ -15,7 +15,6 @@ export default async function (
   appId: string,
   options: {
     legalDocumentId?: string;
-    type?: LegalDocumentType;
     outdated?: boolean;
     required?: boolean;
   }
@@ -25,7 +24,6 @@ export default async function (
   try {
     const query: {
       appId: string;
-      type?: LegalDocumentType;
       _id?: string;
       $or?: Array<object>;
       outdated?: boolean;
@@ -35,14 +33,6 @@ export default async function (
     };
 
     const $or: Array<object> = [];
-    if (options.type) {
-      if (options.type === 'tos') {
-        $or.push({ type: 'tos' });
-        $or.push({ type: { $exists: false } });
-      } else {
-        query.type = options.type;
-      }
-    }
 
     if (options.legalDocumentId) {
       query._id = options.legalDocumentId;
