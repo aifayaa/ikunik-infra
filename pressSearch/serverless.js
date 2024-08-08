@@ -96,6 +96,9 @@ const serverlessConfiguration = {
     querystrings: {
       text: false,
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   resources: {
     Resources: {

@@ -116,6 +116,9 @@ const serverlessConfiguration = {
       stage: '${self:provider.stage}',
       createRoute53Record: true,
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
 };
 module.exports = serverlessConfiguration;

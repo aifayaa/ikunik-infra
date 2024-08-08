@@ -219,7 +219,7 @@ const serverlessConfiguration = {
       action: 'delete',
     },
     esbuild: {
-      external: ['sharp'],
+      config: '../esbuild.config.cjs',
     },
     dev: {
       'us-east-1': {

@@ -41,6 +41,9 @@ const serverlessConfiguration = {
           'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-prod-fr',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

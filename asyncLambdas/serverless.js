@@ -48,6 +48,9 @@ const serverlessConfiguration = {
         subnetIds: ['subnet-0977176abc4c94459'],
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   package: {
     individually: true,

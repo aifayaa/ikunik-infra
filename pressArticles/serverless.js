@@ -49,6 +49,9 @@ const serverlessConfiguration = {
           'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

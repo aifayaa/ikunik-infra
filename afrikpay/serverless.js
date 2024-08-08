@@ -4,6 +4,9 @@ const serverlessConfiguration = {
   custom: {
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

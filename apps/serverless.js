@@ -51,6 +51,9 @@ const serverlessConfiguration = {
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

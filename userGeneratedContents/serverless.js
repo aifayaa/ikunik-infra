@@ -33,6 +33,9 @@ const serverlessConfiguration = {
         REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',
