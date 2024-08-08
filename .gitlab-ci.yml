@@ -6,8 +6,8 @@ stages:
   - test
   - incrementVersion
   - push
-  - buildApiDoc
-  - deployApiDoc
+  # - buildApiDoc
+  # - deployApiDoc
 
 variables:
   STAGE: # For the manualMRDeploy step
@@ -288,113 +288,113 @@ pushProdFrToAWS:
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-.*/
 
-buildDevApiDoc:
-  image: node:16
-  stage: buildApiDoc
-  before_script:
-    - npm i
-    - npm run install
-  script:
-    - cd swagger
-    - npm run build
-    - cd ..
-  rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
-      changes:
-        - '*/swagger/*'
-        - swagger/**/*
-  artifacts:
-    expire_in: 1 hrs
-    paths:
-      - swagger/dist/
+# buildDevApiDoc:
+#   image: node:16
+#   stage: buildApiDoc
+#   before_script:
+#     - npm i
+#     - npm run install
+#   script:
+#     - cd swagger
+#     - npm run build
+#     - cd ..
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "dev"
+#       changes:
+#         - '*/swagger/*'
+#         - swagger/**/*
+#   artifacts:
+#     expire_in: 1 hrs
+#     paths:
+#       - swagger/dist/
 
-deployDevApiDoc:
-  image: python:latest
-  stage: deployApiDoc
-  variables:
-    S3_BUCKET_NAME: 'dev-api.crowdaa.com'
-  before_script:
-    - pip install awscli
-  script:
-    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
-  dependencies:
-    - buildDevApiDoc
-  rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
-      changes:
-        - '*/swagger/*'
-        - swagger/**/*
+# deployDevApiDoc:
+#   image: python:latest
+#   stage: deployApiDoc
+#   variables:
+#     S3_BUCKET_NAME: 'dev-api.crowdaa.com'
+#   before_script:
+#     - pip install awscli
+#   script:
+#     - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+#   dependencies:
+#     - buildDevApiDoc
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "dev"
+#       changes:
+#         - '*/swagger/*'
+#         - swagger/**/*
 
-buildPreprodApiDoc:
-  image: node:16
-  stage: buildApiDoc
-  before_script:
-    - npm i
-    - npm run install
-  script:
-    - cd swagger
-    - npm run build:prod
-    - cd ..
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
-      changes:
-        - '*/swagger/*'
-        - swagger/**/*
-  artifacts:
-    expire_in: 1 hrs
-    paths:
-      - swagger/dist/
+# buildPreprodApiDoc:
+#   image: node:16
+#   stage: buildApiDoc
+#   before_script:
+#     - npm i
+#     - npm run install
+#   script:
+#     - cd swagger
+#     - npm run build:prod
+#     - cd ..
+#   rules:
+#     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
+#       changes:
+#         - '*/swagger/*'
+#         - swagger/**/*
+#   artifacts:
+#     expire_in: 1 hrs
+#     paths:
+#       - swagger/dist/
 
-deployPreprodApiDoc:
-  image: python:latest
-  stage: deployApiDoc
-  variables:
-    S3_BUCKET_NAME: 'preprod-api.crowdaa.com'
-  before_script:
-    - pip install awscli
-  script:
-    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
-  dependencies:
-    - buildPreprodApiDoc
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
-      changes:
-        - '*/swagger/*'
-        - swagger/**/*
+# deployPreprodApiDoc:
+#   image: python:latest
+#   stage: deployApiDoc
+#   variables:
+#     S3_BUCKET_NAME: 'preprod-api.crowdaa.com'
+#   before_script:
+#     - pip install awscli
+#   script:
+#     - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+#   dependencies:
+#     - buildPreprodApiDoc
+#   rules:
+#     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
+#       changes:
+#         - '*/swagger/*'
+#         - swagger/**/*
 
-buildProdApiDoc:
-  image: node:16
-  stage: buildApiDoc
-  before_script:
-    - npm i
-    - npm run install
-  script:
-    - cd swagger
-    - npm run build:prod
-    - cd ..
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/
-      changes:
-        - '*/swagger/*'
-        - swagger/**/*
-  artifacts:
-    expire_in: 1 hrs
-    paths:
-      - swagger/dist/
+# buildProdApiDoc:
+#   image: node:16
+#   stage: buildApiDoc
+#   before_script:
+#     - npm i
+#     - npm run install
+#   script:
+#     - cd swagger
+#     - npm run build:prod
+#     - cd ..
+#   rules:
+#     - if: $CI_COMMIT_TAG =~ /^release-.*/
+#       changes:
+#         - '*/swagger/*'
+#         - swagger/**/*
+#   artifacts:
+#     expire_in: 1 hrs
+#     paths:
+#       - swagger/dist/
 
-deployProdApiDoc:
-  image: python:latest
-  stage: deployApiDoc
-  variables:
-    S3_BUCKET_NAME: 'api.crowdaa.com'
-  before_script:
-    - pip install awscli
-  script:
-    - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
-  dependencies:
-    - buildProdApiDoc
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/
-      changes:
-        - '*/swagger/*'
-        - swagger/**/*
+# deployProdApiDoc:
+#   image: python:latest
+#   stage: deployApiDoc
+#   variables:
+#     S3_BUCKET_NAME: 'api.crowdaa.com'
+#   before_script:
+#     - pip install awscli
+#   script:
+#     - aws s3 cp swagger/dist/ s3://${S3_BUCKET_NAME}/ --recursive
+#   dependencies:
+#     - buildProdApiDoc
+#   rules:
+#     - if: $CI_COMMIT_TAG =~ /^release-.*/
+#       changes:
+#         - '*/swagger/*'
+#         - swagger/**/*
