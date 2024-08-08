@@ -212,6 +212,9 @@ const serverlessConfiguration = {
       track: false,
       type: false,
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
 };
 module.exports = serverlessConfiguration;

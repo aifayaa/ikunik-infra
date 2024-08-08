@@ -25,6 +25,9 @@ const serverlessConfiguration = {
       LEQUOTIDIEN_AWS_SECRET: 'a7aMITbP56fAYhk+Hps3xkBfPRHI9KcIj5rkTDSu',
       LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf',
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',

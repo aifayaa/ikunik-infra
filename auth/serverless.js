@@ -490,6 +490,9 @@ const serverlessConfiguration = {
         CROWDAA_REGION: 'us',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   package: {
     individually: true,

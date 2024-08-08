@@ -29,6 +29,9 @@ const serverlessConfiguration = {
         REACT_APP_CROWD_SERVICE_URL: 'https://crowd-fr.crowdaa.com',
       },
     },
+    esbuild: {
+      config: '../esbuild.config.cjs',
+    },
   },
   provider: {
     name: 'aws',
