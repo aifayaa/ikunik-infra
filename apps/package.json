@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "aws-sdk": "^2.749.0",
+    "axios": "^1.7.2",
     "jose": "^2.0.7",
+    "lodash": "^4.17.15",
     "phone": "^2.4.15",
     "request-promise-native": "^1.0.8",
     "stripe": "^15.7.0",

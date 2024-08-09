@@ -70,7 +70,11 @@ const serverlessConfiguration = {
       REACT_APP_PRESS_SERVICE_URL:
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
       STRIPE_SECRET_KEY:
-        '${ssm(us-east-1):/crowdaa_microservices/dev/payment/stripe-secret-key}',
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/stripe-secret-key}',
+      STRIPE_WEBHOOK_SECRET_KEY:
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
+      BASEROW_API_ACCESS_TOKEN:
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
       PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.com/wp-json',
@@ -100,8 +104,7 @@ const serverlessConfiguration = {
           {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
-            Resource:
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-networkRequest',
+            Resource: '*',
           },
         ],
       },
@@ -604,88 +607,76 @@ const serverlessConfiguration = {
         },
       ],
     },
-    stripeCheckout: {
-      handler: 'handlers/postAppsIdCheckout.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/checkout',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    stripeEnableSubscription: {
-      handler: 'handlers/postAppsIdEnableSubscription.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/enableSubscription',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    stripeWebhook: {
-      handler: 'handlers/postAppsWebhook.default',
-      events: [
-        {
-          http: {
-            path: 'apps/webhook',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-          },
-        },
-      ],
-    },
-    stripeMeasure: {
-      handler: 'handlers/postAppsMeasure.default',
-      events: [
-        {
-          http: {
-            path: 'apps/measure',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-          },
-        },
-      ],
-    },
+    // 2024/08/08: Integration of Pascal's work
+    // stripeCheckout: {
+    //   handler: 'handlers/postAppsIdCheckout.default',
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/{id}/checkout',
+    //         method: 'POST',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+    //         },
+    //         request: {
+    //           parameters: {
+    //             paths: { id: true },
+    //             headers: {
+    //               Authorization: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
+    // 2024/08/08: Integration of Pascal's work
+    // stripeEnableSubscription: {
+    //   handler: 'handlers/putAppsIdEnableSubscription.default',
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/{id}/enableSubscription',
+    //         method: 'PUT',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+    //         },
+    //         request: {
+    //           parameters: {
+    //             paths: { id: true },
+    //             headers: {
+    //               Authorization: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
+    // 2024/08/08: Integration of Pascal's work
+    // stripeWebhook: {
+    //   handler: 'handlers/postAppsWebhook.default',
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/webhook',
+    //         method: 'post',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
     activateWPPlaylists: {
       handler: 'handlers/postAppsIdActivateWPPlaylists.default',
       events: [
@@ -761,6 +752,64 @@ const serverlessConfiguration = {
         },
       ],
     },
+    // 2024/08/08: Integration of Pascal's work
+    // triggerComputeActiveUsers: {
+    //   handler: 'handlers/triggerComputeActiveUsers.default',
+    //   timeout: 600,
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/triggerComputeActiveUsers',
+    //         method: 'PUT',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+    //         },
+    //         request: {
+    //           parameters: {
+    //             headers: {
+    //               Authorization: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     {
+    //       eventBridge: {
+    //         schedule: 'cron(0 0 * * ? *)', // Every day at midnight
+    //       },
+    //     },
+    //   ],
+    // },
+    // 2024/08/08: Integration of Pascal's work
+    // putComputeActiveUsersForDay: {
+    //   handler: 'handlers/putComputeActiveUsersForDay.default',
+    //   timeout: 300,
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/{id}/computeActiveUsersForDay',
+    //         method: 'PUT',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+    //         },
+    //         request: {
+    //           parameters: {
+    //             paths: { id: true },
+    //             headers: {
+    //               Authorization: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
   },
   plugins: [
     'serverless-esbuild',

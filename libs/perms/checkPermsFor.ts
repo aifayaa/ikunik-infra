@@ -11,6 +11,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
+  USER_NOT_FOUND_CODE,
 } from '../httpResponses/errorCodes';
 import { UserType } from '../../users/lib/userEntity';
 import {
@@ -247,7 +248,7 @@ function getAppOrgId(app: AppType) {
   return app.organization && app.organization._id;
 }
 
-function isUserSuperAdmin(user: UserType) {
+export function isUserSuperAdmin(user: UserType) {
   return user.superAdmin;
 }
 
@@ -414,7 +415,15 @@ export async function checkPermsForApp(
   );
 
   if (!user) {
-    return false;
+    if (options.dontThrow) {
+      return false;
+    } else {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        USER_NOT_FOUND_CODE,
+        `Cannot found user '${userId}' in application '${appId}'`
+      );
+    }
   }
 
   try {

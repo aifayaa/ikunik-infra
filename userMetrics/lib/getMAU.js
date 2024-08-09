@@ -41,6 +41,53 @@ export async function getNbActiveUsers(db, appId, startDate, endDate) {
   return { count };
 }
 
+export async function getNbActiveUsersForDay({
+  db,
+  appId,
+  fromStartingDay,
+  day,
+}) {
+  let dayDate = new Date(day);
+  dayDate = new Date(
+    Date.UTC(
+      dayDate.getUTCFullYear(),
+      dayDate.getUTCMonth(),
+      dayDate.getUTCDate()
+    )
+  );
+
+  let nextDayDate = new Date(dayDate);
+  nextDayDate = new Date(
+    Date.UTC(
+      nextDayDate.getUTCFullYear(),
+      nextDayDate.getUTCMonth(),
+      nextDayDate.getUTCDate() + 1
+    )
+  );
+
+  let fromStartingDayDate = new Date(fromStartingDay);
+  fromStartingDayDate = new Date(
+    Date.UTC(
+      fromStartingDayDate.getUTCFullYear(),
+      fromStartingDayDate.getUTCMonth(),
+      fromStartingDayDate.getUTCDate()
+    )
+  );
+
+  const [{ count: countUsersUntilDay }, { count: countUsersUntilPreviousDay }] =
+    await Promise.all([
+      getNbActiveUsers(db, appId, fromStartingDayDate, nextDayDate),
+      getNbActiveUsers(db, appId, fromStartingDayDate, dayDate),
+    ]);
+
+  const usersCountForDay =
+    countUsersUntilDay > countUsersUntilPreviousDay
+      ? countUsersUntilDay - countUsersUntilPreviousDay
+      : 0;
+
+  return usersCountForDay;
+}
+
 export default async (appId, { month, year }) => {
   /* Mongo client */
   const client = await MongoClient.connect();

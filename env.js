@@ -6,6 +6,7 @@ module.exports = {
   AUTH_PASS: 'fL9lAwCNRO8O',
   AUTH_SMTP: 'ssl0.ovh.net',
   AUTH_USER: 'services@crowdaa.com',
+  BASEROW_URL: 'https://baserow.crowdaa.com',
   CROWDAA_FEES: 0.2,
   // be careful when referencing with file(): the resolution is relative to the file that imports this one
   DASHBOARD_V2_DOMAIN:
