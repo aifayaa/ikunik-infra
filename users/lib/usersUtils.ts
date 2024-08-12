@@ -41,7 +41,7 @@ export async function getUserAdminPerms(userId: string) {
   return getUser(userId, { projection: { superAdmin: 1, perms: 1 } });
 }
 
-export const userPrivateFields = ['services', 'perms', 'superAdmin'];
+export const userPrivateFields = ['services', 'perms'];
 
 export const userPrivateFieldsProjection = userPrivateFields.reduce(
   (acc, field) => {
@@ -55,7 +55,7 @@ export function filterUserPrivateFields(user: UserType) {
   // Deep duplication required to avoid modifying the source
   const ret = JSON.parse(JSON.stringify(user)) as Omit<
     UserType,
-    'services' | 'perms' | 'superAdmin'
+    'services' | 'perms'
   >;
 
   userPrivateFields.forEach((field) => {
