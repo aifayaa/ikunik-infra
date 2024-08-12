@@ -5,6 +5,8 @@ import mongoCollections from '../mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;
 
+const GHANTY_ENVIRONMENT = 'staging';
+
 function MyFidApi(app) {
   if (!(this instanceof MyFidApi)) {
     return new MyFidApi(app);
@@ -15,7 +17,7 @@ function MyFidApi(app) {
   }
 
   this.app = app;
-  this.myfidbackend = { ...app.settings.myfidbackend };
+  this.myfidbackend = { ...app.settings.myfidbackend[GHANTY_ENVIRONMENT] };
 }
 
 MyFidApi.prototype.isApiLoggedIn = function isApiLoggedIn() {
@@ -87,7 +89,7 @@ MyFidApi.prototype.renewAPITokenIfNeeded = async function renewAPITokenIfNeeded(
       { _id: this.app._id },
       {
         $set: {
-          'settings.myfidbackend.apiAccessToken':
+          [`settings.myfidbackend.${GHANTY_ENVIRONMENT}.apiAccessToken`]:
             this.myfidbackend.apiAccessToken,
         },
       }
@@ -143,7 +145,7 @@ MyFidApi.prototype.renewLoginTokenIfNeeded =
         { _id: this.app._id },
         {
           $set: {
-            'settings.myfidbackend.accountApiAccessToken':
+            [`settings.myfidbackend.${GHANTY_ENVIRONMENT}.accountApiAccessToken`]:
               this.myfidbackend.accountApiAccessToken,
           },
         }
