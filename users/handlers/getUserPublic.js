@@ -31,6 +31,7 @@ export default async (event) => {
       'optIn',
       'previewForAdmin',
       'settings',
+      'superAdmin',
     ]);
     results.perms = isAdmin ? allPerms : perms;
     try {
