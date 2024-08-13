@@ -401,6 +401,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    openSessionAs: {
+      handler: 'handlers/openSessionAs.default',
+      events: [
+        {
+          http: {
+            path: 'auth/openSessionAs',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',

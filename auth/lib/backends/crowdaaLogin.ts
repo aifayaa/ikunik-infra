@@ -15,7 +15,12 @@ export const crowdaaLogin = async (
   username: string,
   rawEmail: string,
   password: string,
-  app: AppType
+  app: AppType,
+  {
+    noPasswordCheck = false,
+  }: {
+    noPasswordCheck?: boolean;
+  } = {}
 ) => {
   const client = await MongoClient.connect();
   try {
@@ -50,15 +55,18 @@ export const crowdaaLogin = async (
     }
 
     if (
-      !user.services ||
-      !user.services.password ||
-      !user.services.password.bcrypt
+      !noPasswordCheck &&
+      (!user.services ||
+        !user.services.password ||
+        !user.services.password.bcrypt)
     ) {
       throw new Error('User has no password set"');
     }
 
-    // throw error if check fail
-    await checkPassword(user, password, { mongoClient: client });
+    if (!noPasswordCheck) {
+      // throw error if check fail
+      await checkPassword(user, password, { mongoClient: client });
+    }
 
     const token = Random.secret();
 
