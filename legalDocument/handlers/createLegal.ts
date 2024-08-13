@@ -38,6 +38,12 @@ export default async (event: APIGatewayProxyEvent) => {
             invalid_type_error: 'html must be a string',
           })
           .trim(),
+        markdown: z
+          .string({
+            required_error: 'markdown is required',
+            invalid_type_error: 'markdown must be a string',
+          })
+          .trim(),
         outdated: z.boolean().optional().default(false),
         required: z.boolean().optional().default(true),
       })
@@ -55,9 +61,12 @@ export default async (event: APIGatewayProxyEvent) => {
     const body = JSON.parse(event.body);
     const validatedBody = createLegalBodySchema.parse(body);
 
-    const { type, title, html, outdated, required } = validatedBody;
+    const { type, title, html, markdown, outdated, required } = validatedBody;
 
-    const newLegalDocument = await createLegal(appId, title, html, {
+    const newLegalDocument = await createLegal(appId, {
+      title,
+      html,
+      markdown,
       userId,
       type,
       outdated,

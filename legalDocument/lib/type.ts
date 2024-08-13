@@ -9,6 +9,7 @@ export type LegalDocumentContentType = {
   appId: string;
   title: string;
   html: string;
+  markdown: string;
   type: LegalDocumentType;
   outdated: boolean;
   required: boolean;

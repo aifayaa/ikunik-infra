@@ -8,14 +8,18 @@ const { COLL_TOS } = mongoCollections;
 
 export default async (
   appId: string,
-  title: string,
-  html: string,
   {
+    title,
+    html,
+    markdown,
     userId,
     type,
     outdated,
     required,
   }: {
+    title: string;
+    html: string;
+    markdown: string;
     userId: string;
     type: LegalDocumentType;
     outdated: boolean;
@@ -35,6 +39,7 @@ export default async (
       url: s3GeneratedUrl,
       appId,
       title,
+      markdown,
       html,
       type,
       outdated,
