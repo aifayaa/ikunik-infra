@@ -12,6 +12,7 @@ import {
   ORGANIZATION_NOT_FOUND_CODE,
   ORGANIZATION_PERMISSION_CODE,
   USER_NOT_FOUND_CODE,
+  SUPERADMIN_PERMISSION_CODE,
 } from '../httpResponses/errorCodes';
 import { UserType } from '../../users/lib/userEntity';
 import {
@@ -383,6 +384,48 @@ async function checkPermsForAppAux(
   }
 
   return false;
+}
+
+/**
+ * Checks whether a user is a superAdmin.
+ * @param {string} userId The user ID
+ * @returns true for a valid superAdmin user, false otherwise
+ */
+export async function checkPermsIsSuperAdmin(
+  userId: string,
+  options = { dontThrow: false }
+) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  const user = await db.collection(COLL_USERS).findOne(
+    { _id: userId, appId: process.env.ADMIN_APP },
+    {
+      projection: {
+        superAdmin: 1,
+      },
+    }
+  );
+
+  const isSuperAdmin = user && user.superAdmin;
+  if (isSuperAdmin) {
+    return true;
+  }
+
+  if (options.dontThrow) {
+    return false;
+  }
+
+  throw new CrowdaaError(
+    ERROR_TYPE_ACCESS,
+    SUPERADMIN_PERMISSION_CODE,
+    `User '${userId}' is not a superadmin`,
+    {
+      details: {
+        userId,
+      },
+    }
+  );
 }
 
 /**
