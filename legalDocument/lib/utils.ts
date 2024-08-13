@@ -44,7 +44,6 @@ export async function writeS3TosBucket(
   await s3
     .putObject({
       Bucket: S3_BUCKET_TOS,
-      ACL: 'public-read',
       Body: documentContent,
       ContentType: 'text/html',
       Key: s3Filepath,

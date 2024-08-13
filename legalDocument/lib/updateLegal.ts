@@ -13,6 +13,7 @@ export default async (
   fieldsToSet: {
     title?: string;
     html?: string;
+    markdown?: string;
     type?: LegalDocumentType;
     outdated?: boolean;
     required?: boolean;

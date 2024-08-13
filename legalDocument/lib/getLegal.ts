@@ -62,11 +62,13 @@ export default async function (
             `options: ${util.inspect(options)}`
         );
       }
+
       return res;
     } else {
-      return await DBCollection.find(query, {
+      const res = await DBCollection.find(query, {
         sort: { createdAt: -1 },
       }).toArray();
+      return { items: res };
     }
   } finally {
     client.close();
