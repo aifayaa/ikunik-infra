@@ -399,7 +399,7 @@ export async function checkPermsIsSuperAdmin(
   const db = client.db();
 
   const user = await db.collection(COLL_USERS).findOne(
-    { _id: userId, appId: process.env.DEFAULT_APP },
+    { _id: userId, appId: process.env.ADMIN_APP },
     {
       projection: {
         superAdmin: 1,
