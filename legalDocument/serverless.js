@@ -59,7 +59,6 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
             Resource: [
-              'arn:aws:s3:::${self:provider.environment.S3_BUCKET_TOS}',
               'arn:aws:s3:::${self:provider.environment.S3_BUCKET_TOS}/*',
             ],
           },
@@ -116,7 +115,6 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-              // '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
@@ -134,7 +132,6 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-              // '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
@@ -152,7 +149,6 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-              // '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },
