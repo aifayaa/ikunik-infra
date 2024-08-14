@@ -78,82 +78,12 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
             },
           },
         },
-        // {
-        //   http: {
-        //     path: 'legal/{id}',
-        //     method: 'get',
-        //     cors: true,
-        //     authorizer: {
-        //       type: 'CUSTOM',
-        //       authorizerId:
-        //         '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-        //     },
-        //     request: {
-        //       parameters: {
-        //         paths: {
-        //           id: true,
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
       ],
     },
-    // createLegal: {
-    //   handler: 'handlers/createLegal.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'legal',
-    //         method: 'post',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
-    // updateLegal: {
-    //   handler: 'handlers/updateLegal.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'legal/{id}',
-    //         method: 'patch',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
-    // deleteLegal: {
-    //   handler: 'handlers/deleteLegal.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'legal/{id}',
-    //         method: 'delete',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
   },
   plugins: [
     'serverless-esbuild',
