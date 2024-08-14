@@ -1,10 +1,16 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+
+// import MongoClient from '@libs/mongoClient.js';
+// import mongoCollections from '@libs/mongoCollections.json';
 import response, { handleException } from '@libs/httpResponses/response';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import { getApp } from '@apps/lib/appsUtils';
+
+// const { COLL_APPS } = mongoCollections;
 
 const allPlans = {
-  freePlanId: {
-    _id: 'freePlanId',
+  freeFeaturePlanId: {
+    _id: 'freeFeaturePlanId',
     tags: ['free'],
     features: {
       mau: {
@@ -22,8 +28,8 @@ const allPlans = {
       theme: true,
     },
   },
-  midPlanId: {
-    _id: 'midPlanId',
+  midFeaturePlanId: {
+    _id: 'midFeaturePlanId',
     tags: ['mid'],
     features: {
       mau: {
@@ -43,8 +49,8 @@ const allPlans = {
       playlists: true,
     },
   },
-  proPlanId: {
-    _id: 'proPlanId',
+  proFeaturePlanId: {
+    _id: 'proFeaturePlanId',
     tags: ['pro'],
     features: {
       mau: true,
@@ -63,14 +69,23 @@ const allPlans = {
   },
 };
 
+// let client: any; // TODO type
+// let db: any; // TODO type
+
 export default async (event: APIGatewayProxyEvent) => {
   const { appId } = event.requestContext.authorizer as { appId: string };
 
   try {
+    const app = await getApp(appId);
+
+    console.log('app', app);
+
+    const planId = app.featurePlan ? app.featurePlan._id : 'freeFeaturePlanId';
+
     return response({
       code: 200,
       body: formatResponseBody({
-        data: allPlans['freePlanId'],
+        data: allPlans[planId],
       }),
     });
   } catch (exception) {

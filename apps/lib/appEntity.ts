@@ -167,6 +167,7 @@ export type AppType = {
     priceId?: string;
     subscriptionId?: string;
   };
+  featurePlan?: { _id: string };
 };
 
 export type AppInOrgType = AppType & { organization: OrganizationFieldType };
