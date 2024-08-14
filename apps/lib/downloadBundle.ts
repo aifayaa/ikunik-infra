@@ -23,7 +23,7 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    getApp(appId);
+    await getApp(appId);
 
     const s3Params = {
       Bucket: S3_APPS_RESSOURCES,
