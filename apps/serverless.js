@@ -96,9 +96,16 @@ const serverlessConfiguration = {
         statements: [
           {
             Effect: 'Allow',
-            Action: ['s3:GetObject'],
+            Action: ['s3:GetObject', 's3:PutObject'],
             Resource: [
               'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*',
+            ],
+          },
+          {
+            Effect: 'Allow',
+            Action: ['s3:ListBucket'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}',
             ],
           },
           {
@@ -810,6 +817,31 @@ const serverlessConfiguration = {
     //     },
     //   ],
     // },
+    downloadScreenshots: {
+      handler: 'handlers/downloadScreenshots.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/downloadScreenshots',
+            method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
