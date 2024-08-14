@@ -101,7 +101,7 @@ export async function putAppInOrgHandlerBody(
             //    -> Lock the teamId of the destination organisation
             if (sourceOrg.apple.setupDone) {
               const appsAlreadyBuildStatus = (
-                await client
+                await db
                   .collection(COLL_APPS)
                   .find(
                     { 'organization._id': sourceOrgId },
