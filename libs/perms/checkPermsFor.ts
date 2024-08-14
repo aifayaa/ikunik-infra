@@ -464,7 +464,7 @@ export async function checkPermsForApp(
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         USER_NOT_FOUND_CODE,
-        `Cannot found user '${userId}' in application '${appId}'`
+        `Cannot found user '${userId}'`
       );
     }
   }
@@ -584,14 +584,6 @@ export async function checkPermsForOrganization(
     .collection(COLL_USERS)
     .findOne({ _id: userId }, { projection: { superAdmin: 1, perms: 1 } });
 
-  if (!user) {
-    return false;
-  }
-
-  if (user.superAdmin) {
-    return true;
-  }
-
   const organization = await db
     .collection(COLL_ORGANIZATIONS)
     .findOne({ _id: orgId }, { projection: { name: 1 } });
@@ -600,14 +592,24 @@ export async function checkPermsForOrganization(
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
       ORGANIZATION_NOT_FOUND_CODE,
-      `Cannot found the organization '${orgId}'`,
-      {
-        details: {
-          userId,
-          orgId,
-        },
-      }
+      `Cannot found the organization '${orgId}'`
     );
+  }
+
+  if (!user) {
+    if (options.dontThrow) {
+      return false;
+    } else {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        USER_NOT_FOUND_CODE,
+        `Cannot found user '${userId}'`
+      );
+    }
+  }
+
+  if (user.superAdmin) {
+    return true;
   }
 
   try {
