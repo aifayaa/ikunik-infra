@@ -96,10 +96,16 @@ manualMRDeploy:
     - npm i
     - npm run install
   script:
-    - commitsInTargetButNotInHead=$(git log --oneline "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME..origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | wc -l)
+    - branchName=$(date '+%s')
+    - while [ "${#branchName}" -lt 30 ]; do branchName="$branchName$RANDOM"; done
+    - branchName="tmp-$branchName"
+    - git checkout -b "$branchName"
+    - commitsInTargetButNotInHead=$(git log --oneline "$branchName..origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | wc -l)
     - |
       if [ "$commitsInTargetButNotInHead" -gt 0 ]; then
         echo "Attempting rebase from $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME to origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME ($commitsInTargetButNotInHead extra commits in target branch)"
+        git config --global user.email "bot@crowdaa.com"
+        git config --global user.name "Crowdaa Bot"
         git rebase origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
       fi
     - git diff --dirstat=files,0 "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq | grep -v .vscode | grep -v old_modules > diffList || true
