@@ -15,3 +15,7 @@ export function getEnvironmentVariable(variableName: string) {
   }
   return environmentVariable;
 }
+
+export function isDefined(value: unknown): value is NonNullable<typeof value> {
+  return value !== undefined && value !== null;
+}

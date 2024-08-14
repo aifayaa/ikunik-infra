@@ -7,7 +7,6 @@ import {
 } from 'aws-lambda';
 import getLegal from '../lib/getLegal';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { LegalDocumentType, documentTypes } from '../lib/type';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 
 function computeOptions(
