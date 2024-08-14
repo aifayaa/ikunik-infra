@@ -70,20 +70,7 @@ export default async (event: APIGatewayProxyEvent) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: {
-          _id: 'fakeUniqueId9740',
-          tags: ['free'],
-          features: {
-            mau: {
-              max: 1000,
-              resetPeriod: 'month',
-            },
-            appCollaborators: {
-              max: 3,
-            },
-            pushNotifications: true,
-          },
-        },
+        data: allPlans['freePlanId'],
       }),
     });
   } catch (exception) {
