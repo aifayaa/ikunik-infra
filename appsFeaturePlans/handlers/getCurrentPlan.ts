@@ -222,7 +222,8 @@ function isAFeatureResetPeriodWindow(
 
 function computeDates(
   resetPeriod: FeatureResetPeriodType,
-  resetPeriodWindow: FeatureResetPeriodWindowType
+  resetPeriodWindow: FeatureResetPeriodWindowType,
+  startSubscriptionDate?: Date
 ) {
   function resetWatch(date: Date, referenceDate?: Date) {
     const resDate = new Date(date);
@@ -244,12 +245,6 @@ function computeDates(
 
     return resDate;
   }
-
-  // TODO: get it through arguments
-  // Set it to yesterday
-  const startSubscriptionDate = new Date(
-    new Date().getTime() - 24 * 60 * 60 * 1000
-  );
 
   switch (resetPeriodWindow) {
     case 'fixed': {
@@ -296,6 +291,14 @@ function computeDates(
     case 'rolling': {
       switch (resetPeriod) {
         case 'week': {
+          if (!isDefined(startSubscriptionDate)) {
+            throw new CrowdaaError(
+              ERROR_TYPE_VALIDATION_ERROR,
+              FEATURE_SPECIFICATION_NOT_VALID_CODE,
+              `When resetPeriodWindow is 'rolling', startSubscriptionDate is required: '${startSubscriptionDate}'`
+            );
+          }
+
           let startDate = new Date();
 
           // Return to the same day of the week as 'startSubscriptionDate'
@@ -311,6 +314,14 @@ function computeDates(
           return [startDate, resetDate];
         }
         case 'month': {
+          if (!isDefined(startSubscriptionDate)) {
+            throw new CrowdaaError(
+              ERROR_TYPE_VALIDATION_ERROR,
+              FEATURE_SPECIFICATION_NOT_VALID_CODE,
+              `When resetPeriodWindow is 'rolling', startSubscriptionDate is required: '${startSubscriptionDate}'`
+            );
+          }
+
           const today = new Date();
 
           let startDateCandidate = new Date(startSubscriptionDate);
@@ -349,6 +360,14 @@ function computeDates(
           return [startDate, resetDate];
         }
         case 'year': {
+          if (!isDefined(startSubscriptionDate)) {
+            throw new CrowdaaError(
+              ERROR_TYPE_VALIDATION_ERROR,
+              FEATURE_SPECIFICATION_NOT_VALID_CODE,
+              `When resetPeriodWindow is 'rolling', startSubscriptionDate is required: '${startSubscriptionDate}'`
+            );
+          }
+
           const today = new Date();
 
           let startDateCandidate = new Date(startSubscriptionDate);
@@ -460,9 +479,17 @@ function computeFeaturePlan(plan: FeaturePlanType) {
         isDefined(resetPeriod) &&
         isDefined(effectiveResetPeriodWindow)
       ) {
+        // TODO: retrieve 'startSubscriptionDate' from Stripe
+        // Relevant only for rolling window
+        // Arbitrarily set it to yesterday
+        const startSubscriptionDate = new Date(
+          new Date().getTime() - 24 * 60 * 60 * 1000
+        );
+
         const [startDate, resetDate] = computeDates(
           resetPeriod,
-          effectiveResetPeriodWindow
+          effectiveResetPeriodWindow,
+          startSubscriptionDate
         );
 
         computedFeatures[featureId] = {
