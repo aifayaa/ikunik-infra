@@ -42,16 +42,36 @@ export default async (userId) => {
 
     if ($or.length === 0) return [];
 
-    const apps = await db
-      .collection(COLL_APPS)
-      .find(
-        {
-          $or,
-        },
-        { projection: appPrivateFieldsProjection }
-      )
-      .sort(APPS_SORT)
-      .toArray();
+    const getAppsWhere = (where) =>
+      db
+        .collection(COLL_APPS)
+        .find(where, { projection: appPrivateFieldsProjection })
+        .toArray();
+
+    const appsFromId =
+      appsIds.length > 0 ? await getAppsWhere({ _id: { $in: appsIds } }) : [];
+
+    const appsFromOrgsWhere = {
+      'organization._id': { $in: orgsIds },
+      _id: { $nin: appsIds },
+    };
+    const appsFromOrgs =
+      orgsIds.length > 0 ? await getAppsWhere(appsFromOrgsWhere) : [];
+    const apps = appsFromId.concat(appsFromOrgs).sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return b.createdAt - a.createdAt;
+      } else if (b.createdAt) {
+        return 1;
+      } else if (a.createdAt) {
+        return -1;
+      } else if (a.name > b.name) {
+        return 1;
+      } else if (a.name < b.name) {
+        return -1;
+      }
+
+      return 0;
+    });
 
     return apps;
   } finally {
