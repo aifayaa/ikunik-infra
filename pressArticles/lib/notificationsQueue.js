@@ -38,9 +38,11 @@ export const queueArticleNotifications = async (
       appId,
     });
 
-    if (!title && !content) {
-      content = content || prepareNotif(article.plainText);
+    if (!title) {
       title = title || prepareNotif(article.title, 60, false);
+    }
+    if (!content) {
+      content = content || prepareNotif(article.plainText);
     }
 
     const response = await lambda
