@@ -28,6 +28,9 @@ handleError() {
 
 doServerless() {
   command="$1"
+  if [ "$sleepDuration" -gt 0 ] && [ -n "$sleepDuration" ]; then
+    sleep "$sleepDuration"
+  fi
   npx serverless "$command" --stage "$STAGE" --region "$REGION"
 }
 
@@ -53,11 +56,11 @@ doAwaitBackgroundTasks() {
 
 doDeploy() {
   fullDeploy="$1"
-  pids=""
 
   for folder in $(<$folders); do
     echo "___________ Deploying $folder on $STAGE / $REGION ___________"
     cd "$folder"
+    sleepDuration=$(node -e 'console.log(Math.random() * 5)')
     case "$folder" in
     libs) echo 'libs folder skipped' ;;
     api-v1 | ssr) (doServerlessDomain "$fullDeploy" 2>&1 || handleError "$folder") | addLogs "$folder" & ;;
