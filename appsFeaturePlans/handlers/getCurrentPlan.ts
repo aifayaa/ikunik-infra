@@ -533,7 +533,7 @@ function computeFeaturePlan(plan: FeaturePlanType) {
 }
 
 export default async (event: APIGatewayProxyEvent) => {
-  const { appId } = event.requestContext.authorizer as { appId: string };
+  const { id: appId } = event.pathParameters as { id: string };
 
   try {
     const app = await getApp(appId);

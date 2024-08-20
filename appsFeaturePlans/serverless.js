@@ -49,6 +49,11 @@ const serverlessConfiguration = {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
+      restApiResources: {
+        '/apps': '${cf:apps-${self:provider.stage}.RestApiRootResourceId}',
+        '/apps/{id}':
+          '${cf:apps-${self:provider.stage}.RestApiAppsIdResourceId}',
+      },
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
@@ -72,13 +77,21 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'plans/current',
+            path: 'apps/{id}/plans/current',
             method: 'get',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
             },
           },
         },
