@@ -7,95 +7,19 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { isDefined } from '@libs/check';
 import { AppType } from '@apps/lib/appEntity';
-
-export type FeaturePlanIdType =
-  | 'oldFeaturePlanId'
-  | 'freeFeaturePlanId'
-  | 'proFeaturePlanId'
-  | 'entertainmentFeaturePlanId';
-const allPlanTypes: FeaturePlanIdType[] = [
-  'oldFeaturePlanId',
-  'freeFeaturePlanId',
-  'proFeaturePlanId',
-  'entertainmentFeaturePlanId',
-];
-
-export type FeatureIdType =
-  | 'appAnalytics'
-  | 'appTabs'
-  | 'appTheme'
-  | 'appUsers'
-  | 'badges'
-  | 'chat'
-  | 'collaborators'
-  | 'community'
-  | 'liveStreams'
-  | 'playlists'
-  | 'polls'
-  | 'translations';
-const allFeatureIds: FeatureIdType[] = [
-  'appAnalytics',
-  'appTabs',
-  'appTheme',
-  'appUsers',
-  'badges',
-  'chat',
-  'collaborators',
-  'community',
-  'liveStreams',
-  'playlists',
-  'polls',
-  'translations',
-];
-
-export type FeatureResetPeriodType = 'week' | 'month' | 'year';
-const allFeatureResetPeriod: FeatureResetPeriodType[] = [
-  'week',
-  'month',
-  'year',
-];
-
-export type FeatureResetPeriodWindowType = 'rolling' | 'fixed';
-const allFeatureResetPeriodWindow: FeatureResetPeriodWindowType[] = [
-  'rolling',
-  'fixed',
-];
-
-export type FeatureSpecificationType =
-  | boolean
-  | {
-      maxCount: number;
-      maxDuration?: number;
-      resetPeriod?: FeatureResetPeriodType;
-      resetPeriodWindow?: FeatureResetPeriodWindowType;
-      isSoft?: boolean;
-    };
-
-export type ComputedFeatureSpecificationType =
-  | boolean
-  | {
-      maxCount: number;
-      currentUsage: number;
-      isSoft?: boolean;
-    }
-  | {
-      maxCount: number;
-      currentUsage: number;
-      resetPeriod: FeatureResetPeriodType;
-      currentPeriod: {
-        startDate: string;
-        resetDate: string;
-      };
-      maxDuration?: number;
-      resetPeriodWindow?: FeatureResetPeriodWindowType;
-      isSoft?: boolean;
-    };
-
-export type FeaturePlanType = {
-  _id: FeaturePlanIdType;
-  tags: string[];
-  features: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
-};
+import { getApp } from '@apps/lib/appsUtils';
+import {
+  allFeatureIds,
+  allFeatureResetPeriod,
+  allFeatureResetPeriodWindow,
+  allPlanTypes,
+  ComputedFeatureSpecificationType,
+  FeatureIdType,
+  FeaturePlanIdType,
+  FeaturePlanType,
+  FeatureResetPeriodType,
+  FeatureResetPeriodWindowType,
+} from './planTypes';
 
 const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   oldFeaturePlanId: {
@@ -510,6 +434,27 @@ function computeFeaturePlan(
 }
 
 export function getCurrentPlanForApp(app: AppType) {
+  const planId = app.featurePlan ? app.featurePlan._id : 'oldFeaturePlanId';
+  if (!isAPlan(planId)) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      FEATURE_PLAN_NOT_FOUND_CODE,
+      `Feature plan id ${planId} not found`
+    );
+  }
+
+  const computedPlan = computeFeaturePlan(
+    allPlans[planId],
+    app.featurePlan as FeaturePlanType,
+    app.createdAt
+  );
+
+  return computedPlan;
+}
+
+export async function getCurrentPlanForAppId(appId: string) {
+  const app = await getApp(appId);
+
   const planId = app.featurePlan ? app.featurePlan._id : 'oldFeaturePlanId';
   if (!isAPlan(planId)) {
     throw new CrowdaaError(
