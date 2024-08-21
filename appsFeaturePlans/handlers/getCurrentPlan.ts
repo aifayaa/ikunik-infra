@@ -13,10 +13,12 @@ import {
 import { isDefined } from '@libs/check';
 
 type FeaturePlanIdType =
+  | 'oldFeaturePlanId'
   | 'freeFeaturePlanId'
   | 'proFeaturePlanId'
   | 'entertainmentFeaturePlanId';
 const allPlanTypes: FeaturePlanIdType[] = [
+  'oldFeaturePlanId',
   'freeFeaturePlanId',
   'proFeaturePlanId',
   'entertainmentFeaturePlanId',
@@ -100,6 +102,24 @@ type FeaturePlanType = {
 };
 
 const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
+  oldFeaturePlanId: {
+    _id: 'oldFeaturePlanId',
+    tags: ['old'],
+    features: {
+      appAnalytics: true,
+      badges: true,
+      chat: true,
+      collaborators: true,
+      community: true,
+      liveStreams: true,
+      appTabs: true,
+      playlists: true,
+      polls: true,
+      appTheme: true,
+      translations: true,
+      appUsers: true,
+    },
+  },
   freeFeaturePlanId: {
     _id: 'freeFeaturePlanId',
     tags: ['free'],
@@ -109,6 +129,9 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       chat: false,
       collaborators: {
         maxCount: 1,
+        resetPeriod: 'month',
+        resetPeriodWindow: 'fixed',
+        isSoft: false,
       },
       community: false,
       liveStreams: false,
@@ -119,6 +142,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       translations: false,
       appUsers: {
         maxCount: 1000,
+        isSoft: true,
       },
     },
   },
@@ -131,7 +155,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       chat: true,
       collaborators: true,
       community: true,
-      liveStreams: false,
+      liveStreams: true, // TODO Limit me later!!!
       appTabs: true,
       playlists: true,
       polls: true,
@@ -139,6 +163,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       translations: true,
       appUsers: {
         maxCount: 10000,
+        isSoft: true,
       },
     },
   },
@@ -159,6 +184,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       translations: true,
       appUsers: {
         maxCount: 100000,
+        isSoft: true,
       },
     },
   },
@@ -378,8 +404,17 @@ function computeDates(
   }
 }
 
-function computeFeaturePlan(plan: FeaturePlanType) {
-  const { features } = plan;
+function computeFeaturePlan(
+  plan: FeaturePlanType,
+  appPlan: FeaturePlanType | undefined,
+  appCreatedAt: Date
+) {
+  const { features: planFeatures } = plan;
+  const { features: appPlanFeatures } = appPlan || {};
+  const features = {
+    ...planFeatures,
+    ...appPlanFeatures,
+  };
 
   const computedFeatures: Partial<
     Record<FeatureIdType, ComputedFeatureSpecificationType>
@@ -399,60 +434,24 @@ function computeFeaturePlan(plan: FeaturePlanType) {
     } else if (typeof feature === 'object') {
       const { maxCount, resetPeriod, resetPeriodWindow, isSoft } = feature;
 
-      if (isDefined(maxCount)) {
-        if (!Number.isInteger(maxCount)) {
-          throw new CrowdaaError(
-            ERROR_TYPE_VALIDATION_ERROR,
-            FEATURE_SPECIFICATION_NOT_VALID_CODE,
-            `[featureId:'${featureId}'] Spec maxCount is not valid: '${maxCount}')`
-          );
-        }
-      }
-
-      if (isDefined(resetPeriod)) {
-        if (!isAFeatureResetPeriod(resetPeriod)) {
-          throw new CrowdaaError(
-            ERROR_TYPE_VALIDATION_ERROR,
-            FEATURE_SPECIFICATION_NOT_VALID_CODE,
-            `[featureId:'${featureId}'] Spec resetPeriod is not valid: '${resetPeriod}')`
-          );
-        }
-      }
-
-      if (isDefined(resetPeriodWindow)) {
-        if (!isAFeatureResetPeriodWindow(resetPeriodWindow)) {
-          throw new CrowdaaError(
-            ERROR_TYPE_VALIDATION_ERROR,
-            FEATURE_SPECIFICATION_NOT_VALID_CODE,
-            `[featureId:'${featureId}'] Spec resetPeriodWindow is not valid: '${resetPeriodWindow}')`
-          );
-        }
-      }
-
-      if (isDefined(isSoft)) {
-        if (!(typeof isSoft === 'boolean')) {
-          throw new CrowdaaError(
-            ERROR_TYPE_VALIDATION_ERROR,
-            FEATURE_SPECIFICATION_NOT_VALID_CODE,
-            `[featureId:'${featureId}'] Spec isSoft is not valid: '${isSoft}')`
-          );
-        }
-      }
-
       const resetPeriodWindowDefault: FeatureResetPeriodWindowType = 'rolling';
       const effectiveResetPeriodWindow =
         resetPeriodWindow ?? resetPeriodWindowDefault;
+
       if (
         isDefined(maxCount) &&
+        Number.isInteger(maxCount) &&
         isDefined(resetPeriod) &&
-        isDefined(effectiveResetPeriodWindow)
+        isAFeatureResetPeriod(resetPeriod) &&
+        isDefined(resetPeriodWindow) &&
+        isAFeatureResetPeriodWindow(resetPeriodWindow)
       ) {
         // TODO: retrieve 'startSubscriptionDate' from Stripe
         // Relevant only for rolling window
-        // Arbitrarily set it to yesterday
-        const startSubscriptionDate = new Date(
-          new Date().getTime() - 24 * 60 * 60 * 1000
-        );
+        // Use appCreatedAt for free apps anyway
+        // Arbitrarily set it to yesterday for now
+        const startSubscriptionDate =
+          appCreatedAt || new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
         const [startDate, resetDate] = computeDates(
           resetPeriod,
@@ -461,38 +460,52 @@ function computeFeaturePlan(plan: FeaturePlanType) {
         );
 
         computedFeatures[featureId] = {
-          ...feature,
+          maxCount,
+          resetPeriod,
+          resetPeriodWindow,
           currentUsage: 5000,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
           },
         };
-      } else if (isDefined(maxCount) && isDefined(resetPeriod)) {
+
+        if (isDefined(isSoft) && typeof isSoft === 'boolean') {
+          computedFeatures[featureId].isSoft = isSoft;
+        }
+      } else if (
+        isDefined(maxCount) &&
+        Number.isInteger(maxCount) &&
+        isDefined(resetPeriod) &&
+        isAFeatureResetPeriod(resetPeriod)
+      ) {
         const [startDate, resetDate] = computeDates(
           resetPeriod,
           resetPeriodWindowDefault
         );
 
         computedFeatures[featureId] = {
-          ...feature,
+          maxCount,
+          resetPeriod,
           currentUsage: 5000,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
           },
         };
-      } else if (typeof maxCount === 'number') {
+
+        if (isDefined(isSoft) && typeof isSoft === 'boolean') {
+          computedFeatures[featureId].isSoft = isSoft;
+        }
+      } else if (isDefined(maxCount) && Number.isInteger(maxCount)) {
         computedFeatures[featureId] = {
-          ...feature,
+          maxCount,
           currentUsage: 5000,
         };
-      } else {
-        throw new CrowdaaError(
-          ERROR_TYPE_VALIDATION_ERROR,
-          FEATURE_SPECIFICATION_NOT_VALID_CODE,
-          `Feature specification for feature:'${featureId}' is not valid (maxCount:'${maxCount}', resetPeriod:'${resetPeriod}', resetPeriodWindow:'${resetPeriodWindow}', isSoft:'${isSoft}')`
-        );
+
+        if (isDefined(isSoft) && typeof isSoft === 'boolean') {
+          computedFeatures[featureId].isSoft = isSoft;
+        }
       }
     }
   }
@@ -506,7 +519,7 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     const app = await getApp(appId);
 
-    const planId = app.featurePlan ? app.featurePlan._id : 'freeFeaturePlanId';
+    const planId = app.featurePlan ? app.featurePlan._id : 'oldFeaturePlanId';
     if (!isAPlan(planId)) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
@@ -515,7 +528,11 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    const computedPlan = computeFeaturePlan(allPlans[planId]);
+    const computedPlan = computeFeaturePlan(
+      allPlans[planId],
+      app.featurePlan as FeaturePlanType,
+      app.createdAt
+    );
 
     return response({
       code: 200,
