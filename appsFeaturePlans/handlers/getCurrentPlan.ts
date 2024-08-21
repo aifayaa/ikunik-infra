@@ -14,40 +14,40 @@ import { isDefined } from '@libs/check';
 
 type FeaturePlanIdType =
   | 'freeFeaturePlanId'
-  | 'midFeaturePlanId'
-  | 'proFeaturePlanId';
+  | 'proFeaturePlanId'
+  | 'entertainmentFeaturePlanId';
 const allPlanTypes: FeaturePlanIdType[] = [
   'freeFeaturePlanId',
-  'midFeaturePlanId',
   'proFeaturePlanId',
+  'entertainmentFeaturePlanId',
 ];
 
 type FeatureIdType =
-  | 'mau'
-  | 'appCollaborators'
-  | 'organizationCollaborators'
-  | 'pushNotifications'
-  | 'theme'
-  | 'polls'
+  | 'appAnalytics'
+  | 'appTabs'
+  | 'appTheme'
+  | 'appUsers'
+  | 'badges'
   | 'chat'
+  | 'collaborators'
   | 'community'
+  | 'liveStreams'
   | 'playlists'
-  | 'iap'
-  | 'analytics'
-  | 'support';
+  | 'polls'
+  | 'translations';
 const allFeatureIds: FeatureIdType[] = [
-  'mau',
-  'appCollaborators',
-  'organizationCollaborators',
-  'pushNotifications',
-  'theme',
-  'polls',
+  'appAnalytics',
+  'appTabs',
+  'appTheme',
+  'appUsers',
+  'badges',
   'chat',
+  'collaborators',
   'community',
+  'liveStreams',
   'playlists',
-  'iap',
-  'analytics',
-  'support',
+  'polls',
+  'translations',
 ];
 
 type FeatureResetPeriodType = 'week' | 'month' | 'year';
@@ -104,75 +104,21 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
     _id: 'freeFeaturePlanId',
     tags: ['free'],
     features: {
-      mau: true,
-      appCollaborators: {
-        maxCount: 3,
+      appAnalytics: false,
+      badges: false,
+      chat: false,
+      collaborators: {
+        maxCount: 1,
       },
-      organizationCollaborators: {
+      community: false,
+      liveStreams: false,
+      appTabs: false,
+      playlists: false,
+      polls: false,
+      appTheme: false,
+      translations: false,
+      appUsers: {
         maxCount: 1000,
-        resetPeriod: 'week',
-      },
-      pushNotifications: {
-        maxCount: 1000,
-        resetPeriod: 'month',
-      },
-      theme: {
-        maxCount: 1000,
-        resetPeriod: 'year',
-      },
-      polls: {
-        maxCount: 1000,
-        resetPeriod: 'week',
-        resetPeriodWindow: 'fixed',
-      },
-      chat: true,
-      community: {
-        maxCount: 1000,
-        resetPeriod: 'month',
-        resetPeriodWindow: 'fixed',
-      },
-      playlists: {
-        maxCount: 1000,
-        resetPeriod: 'year',
-        resetPeriodWindow: 'fixed',
-      },
-    },
-  },
-  midFeaturePlanId: {
-    _id: 'midFeaturePlanId',
-    tags: ['mid'],
-    features: {
-      mau: true,
-      appCollaborators: {
-        maxCount: 30,
-      },
-      organizationCollaborators: {
-        maxCount: 50000,
-        resetPeriod: 'week',
-      },
-      pushNotifications: {
-        maxCount: 50000,
-        resetPeriod: 'month',
-      },
-      theme: {
-        maxCount: 50000,
-        resetPeriod: 'year',
-      },
-      polls: {
-        maxCount: 50000,
-        resetPeriod: 'week',
-        resetPeriodWindow: 'fixed',
-      },
-      chat: true,
-      community: {
-        maxCount: 50000,
-        resetPeriod: 'month',
-        resetPeriodWindow: 'fixed',
-      },
-      playlists: {
-        maxCount: 50000,
-        resetPeriod: 'year',
-        resetPeriodWindow: 'fixed',
       },
     },
   },
@@ -180,18 +126,40 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
     _id: 'proFeaturePlanId',
     tags: ['pro'],
     features: {
-      mau: true,
-      appCollaborators: true,
-      organizationCollaborators: true,
-      pushNotifications: true,
-      theme: true,
-      polls: true,
+      appAnalytics: true,
+      badges: true,
       chat: true,
+      collaborators: true,
       community: true,
+      liveStreams: false,
+      appTabs: true,
       playlists: true,
-      iap: true,
-      analytics: true,
-      support: true,
+      polls: true,
+      appTheme: true,
+      translations: true,
+      appUsers: {
+        maxCount: 10000,
+      },
+    },
+  },
+  entertainmentFeaturePlanId: {
+    _id: 'entertainmentFeaturePlanId',
+    tags: ['entertainment'],
+    features: {
+      appAnalytics: true,
+      badges: true,
+      chat: true,
+      collaborators: true,
+      community: true,
+      liveStreams: true,
+      appTabs: true,
+      playlists: true,
+      polls: true,
+      appTheme: true,
+      translations: true,
+      appUsers: {
+        maxCount: 100000,
+      },
     },
   },
 };
