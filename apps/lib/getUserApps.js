@@ -32,15 +32,9 @@ export default async (userId) => {
       ({ _id }) => _id
     );
 
-    const $or = [];
-    if (appsIds.length > 0) {
-      $or.push({ _id: { $in: appsIds } });
+    if (appsIds.length === 0 && orgsIds.length === 0) {
+      return [];
     }
-    if (orgsIds.length > 0) {
-      $or.push({ 'organization._id': { $in: orgsIds } });
-    }
-
-    if ($or.length === 0) return [];
 
     const getAppsWhere = (where) =>
       db
