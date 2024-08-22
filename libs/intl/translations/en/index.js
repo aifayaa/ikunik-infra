@@ -126,6 +126,9 @@ export default {
       title_error: '<h4>Failed renewals</h4>',
       title_success: '<h4>Successful renewals</h4>',
     },
+    userQuotaExceeded: {
+      title: 'User quota exceeded for app {{app.name}}',
+    },
   },
   crypto: {
     metamaskSendLoginUrl: {

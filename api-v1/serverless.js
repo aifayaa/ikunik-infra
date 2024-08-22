@@ -120,6 +120,18 @@ const serverlessConfiguration = {
       awaxDev: {
         'eu-west-1': 'crowdaa_app_id',
       },
+      crowdaaRegion: {
+        dev: {
+          'us-east-1': 'us',
+        },
+        preprod: {
+          'eu-west-3': 'fr',
+        },
+        prod: {
+          'us-east-1': 'us',
+          'eu-west-3': 'fr',
+        },
+      },
     },
     customDomain: {
       basePath: 'v1',

@@ -3,7 +3,7 @@ import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun';
 
 export type MailgunEmailParametersType = {
   from?: string;
-  email: string;
+  to: string;
   subject: string;
   template: string;
   vars?: {
@@ -34,7 +34,7 @@ export default async (
     try {
       await sendEmailMailgunTemplate(
         requestData.from || 'No reply <support@crowdaa.com>',
-        requestData.email,
+        requestData.to,
         requestData.subject,
         requestData.template,
         requestData.vars || {},

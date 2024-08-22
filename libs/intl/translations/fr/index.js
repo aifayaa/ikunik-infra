@@ -109,6 +109,9 @@ export default {
       html: passwordChangedEmailHtml,
       title: 'Mot de passe changé',
     },
+    userQuotaExceeded: {
+      title: "Quota d'utilisateurs dépassé pour l'app {{app.name}}",
+    },
   },
   crypto: {
     metamaskSendLoginUrl: {

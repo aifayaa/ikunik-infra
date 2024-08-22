@@ -7,6 +7,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
+import checkAppPlanForUsersLimits from './checkAppPlanForUsersLimits.ts';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -21,14 +22,13 @@ export const getUserByApple = async (
   const client = await MongoClient.connect();
   try {
     const db = client.db();
-    const app = await db.collection(COLL_APPS).findOne(
-      {
-        _id: appId,
-      },
-      {
-        projection: { 'credentials.apple': true, 'builds.ios.packageId': true },
-      }
-    );
+    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+
+    const allowed = await checkAppPlanForUsersLimits(app, { db });
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
+    }
 
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {

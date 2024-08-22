@@ -22,6 +22,16 @@ const serverlessConfiguration = {
       vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
+    sendEmailMailgun: {
+      handler: 'handlers/sendEmailMailgun.default',
+      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
+      timeout: 600,
+    },
+    sendEmailTemplate: {
+      handler: 'handlers/sendEmailTemplate.default',
+      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
+      timeout: 600,
+    },
   },
   plugins: [
     'serverless-esbuild',
