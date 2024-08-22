@@ -425,9 +425,14 @@ verbose(
       ],
       [COLL_APPS]: [
         {
-          name: 'crowdaa_app_preview_key',
+          name: 'crowdaa_apps_preview_key',
           key: { 'settings.previewKey': 1 },
           opts: makeOpts('unique', 'sparse'),
+        },
+        {
+          name: 'crowdaa_apps_org_id',
+          key: { 'organization._id': 1 },
+          opts: makeOpts('sparse'),
         },
       ],
       [COLL_PRESS_CATEGORIES]: [
