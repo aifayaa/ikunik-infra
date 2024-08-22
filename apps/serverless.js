@@ -614,76 +614,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    // 2024/08/08: Integration of Pascal's work
-    // stripeCheckout: {
-    //   handler: 'handlers/postAppsIdCheckout.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'apps/{id}/checkout',
-    //         method: 'POST',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-    //         },
-    //         request: {
-    //           parameters: {
-    //             paths: { id: true },
-    //             headers: {
-    //               Authorization: true,
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
-    // 2024/08/08: Integration of Pascal's work
-    // stripeEnableSubscription: {
-    //   handler: 'handlers/putAppsIdEnableSubscription.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'apps/{id}/enableSubscription',
-    //         method: 'PUT',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-    //         },
-    //         request: {
-    //           parameters: {
-    //             paths: { id: true },
-    //             headers: {
-    //               Authorization: true,
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
-    // 2024/08/08: Integration of Pascal's work
-    // stripeWebhook: {
-    //   handler: 'handlers/postAppsWebhook.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'apps/webhook',
-    //         method: 'post',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
     activateWPPlaylists: {
       handler: 'handlers/postAppsIdActivateWPPlaylists.default',
       events: [
@@ -759,6 +689,101 @@ const serverlessConfiguration = {
         },
       ],
     },
+    downloadScreenshots: {
+      handler: 'handlers/downloadScreenshots.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/downloadScreenshots',
+            method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    // 2024/08/08: Integration of Pascal's work
+    stripeCheckout: {
+      handler: 'handlers/postAppsIdCheckout.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/checkout',
+            method: 'POST',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    // 2024/08/08: Integration of Pascal's work
+    // stripeEnableSubscription: {
+    //   handler: 'handlers/putAppsIdEnableSubscription.default',
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/{id}/enableSubscription',
+    //         method: 'PUT',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+    //         },
+    //         request: {
+    //           parameters: {
+    //             paths: { id: true },
+    //             headers: {
+    //               Authorization: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
+    // 2024/08/08: Integration of Pascal's work
+    // stripeWebhook: {
+    //   handler: 'handlers/postAppsWebhook.default',
+    //   events: [
+    //     {
+    //       http: {
+    //         path: 'apps/webhooks/stripe',
+    //         method: 'post',
+    //         cors: true,
+    //         authorizer: {
+    //           type: 'CUSTOM',
+    //           authorizerId:
+    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
     // 2024/08/08: Integration of Pascal's work
     // triggerComputeActiveUsers: {
     //   handler: 'handlers/triggerComputeActiveUsers.default',
@@ -817,31 +842,6 @@ const serverlessConfiguration = {
     //     },
     //   ],
     // },
-    downloadScreenshots: {
-      handler: 'handlers/downloadScreenshots.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/downloadScreenshots',
-            method: 'GET',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
   },
   plugins: [
     'serverless-esbuild',

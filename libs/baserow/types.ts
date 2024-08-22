@@ -3,7 +3,7 @@ export type BaserowPaginatedResponse<T> = {
   next: string | null;
   previous: string | null;
   results: T[];
-}
+};
 
 export type BaserowAffiliate = {
   id: string;
@@ -20,6 +20,4 @@ export type BaserowAffiliate = {
    * "Stripe Account ID"
    */
   field_4637: string | null;
-
-  // TODO add other fields when actually used
-}
+};
