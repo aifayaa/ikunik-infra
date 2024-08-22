@@ -1,5 +1,6 @@
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
+  APP_NOT_FOUND_CODE,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   FEATURE_PLAN_NOT_FOUND_CODE,
@@ -454,21 +455,15 @@ export function getCurrentPlanForApp(app: AppType) {
 
 export async function getCurrentPlanForAppId(appId: string) {
   const app = await getApp(appId);
-
-  const planId = app.featurePlan ? app.featurePlan._id : 'oldFeaturePlanId';
-  if (!isAPlan(planId)) {
+  if (!app) {
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
-      FEATURE_PLAN_NOT_FOUND_CODE,
-      `Feature plan id ${planId} not found`
+      APP_NOT_FOUND_CODE,
+      `App id ${appId} not found`
     );
   }
 
-  const computedPlan = computeFeaturePlan(
-    allPlans[planId],
-    app.featurePlan as FeaturePlanType,
-    app.createdAt
-  );
+  const computedPlan = getCurrentPlanForApp(app);
 
   return computedPlan;
 }
