@@ -24,15 +24,15 @@ export const getUserByApple = async (
     const db = client.db();
     const app = await db.collection(COLL_APPS).findOne({ _id: appId });
 
-    const allowed = await checkAppPlanForUsersLimits(app, { db });
-
-    if (!allowed) {
-      throw new Error('app_limits_exceeded');
-    }
-
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {
       throw new Error('missing_credentials');
+    }
+
+    const allowed = await checkAppPlanForUsersLimits(app);
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
     }
 
     // verify token given by client

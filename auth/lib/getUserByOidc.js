@@ -5,12 +5,19 @@ import verifyJwt from './verifyJsonWebToken';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import Random from '../../libs/account_utils/random.ts';
+import checkAppPlanForUsersLimits from './checkAppPlanForUsersLimits.ts';
 
 const { COLL_USERS } = mongoCollections;
 
 export const getUserByOidc = async (identityToken, appId) => {
   const client = await MongoClient.connect();
   try {
+    const allowed = await checkAppPlanForUsersLimits(appId);
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
+    }
+
     // TODO: verify identityToken
     const decodedIdToken = await verifyJwt(identityToken, appId, {
       mongoClient: client,

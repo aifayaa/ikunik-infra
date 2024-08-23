@@ -20,11 +20,15 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-async function checkAppPlanForUsersLimits(app: AppType) {
+async function checkAppPlanForUsersLimits(app: AppType | string) {
   const client = await MongoClient.connect();
   const db = client.db();
 
   try {
+    if (typeof app === 'string') {
+      app = (await db.collection(COLL_USERS).findOne({ _id: app })) as AppType;
+    }
+
     const appPlan = getCurrentPlanForApp(app);
 
     if (appPlan.features.appUsers === true) {

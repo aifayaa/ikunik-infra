@@ -8,6 +8,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { wordpressRegister } from './backends/wordpressRegister';
 import { crowdaaRegister } from './backends/crowdaaRegister.ts';
 import postLoginChecks from './postLoginChecks.ts';
+import checkAppPlanForUsersLimits from './checkAppPlanForUsersLimits.ts';
 
 const { ADMIN_APP } = process.env;
 
@@ -27,6 +28,12 @@ export const register = async (
 
     const app = await appsCollection.findOne({ _id: appId });
     if (!app) throw new Error('app_not_found');
+
+    const allowed = await checkAppPlanForUsersLimits(app);
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
+    }
 
     let ret;
 
