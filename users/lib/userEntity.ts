@@ -52,6 +52,7 @@ export type UserType = {
       bcrypt: string;
     };
   };
+  emails: [{ address: string }];
   superAdmin?: boolean;
   profile: UserProfileType;
   perms?: {

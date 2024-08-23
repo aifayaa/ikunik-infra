@@ -8,6 +8,7 @@ import { getFacebookUserProfile } from './getFacebookUserProfile';
 import { getFacebookSettings } from './getFacebookSettings';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -24,6 +25,24 @@ export const getUserByFacebook = async (userToken, appId) => {
   const client = await MongoClient.connect();
   let userId; // will be retrieved from db or set on user created
   try {
+    const allowed = await checkAppPlanForLimitIncrease(
+      appId,
+      'appUsers',
+      async () => {
+        const usersCount = await client
+          .db()
+          .collection(COLL_USERS)
+          .find({ appId })
+          .count();
+
+        return usersCount;
+      }
+    );
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
+    }
+
     const collection = await client.db().collection(COLL_USERS);
     const user = await collection.findOne({
       'services.facebook.id': fbUserId,

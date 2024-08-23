@@ -12,6 +12,7 @@ import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
 import articlePrices from '../articlePrices.json';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
   try {
@@ -180,6 +181,11 @@ export default async (event) => {
     if (likes < 0) likes = 0;
     views = parseInt(views, 10) || 0;
     if (views < 0) views = 0;
+
+    const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
+    if (!allowed) {
+      badges = [];
+    }
 
     let results = await postArticle({
       actions,

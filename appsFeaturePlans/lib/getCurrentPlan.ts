@@ -14,6 +14,8 @@ import {
   allFeatureResetPeriod,
   allFeatureResetPeriodWindow,
   allPlanTypes,
+  AppFeaturePlanType,
+  ComputedFeaturePlanType,
   ComputedFeatureSpecificationType,
   FeatureIdType,
   FeaturePlanIdType,
@@ -327,15 +329,16 @@ function computeDates(
 
 function computeFeaturePlan(
   plan: FeaturePlanType,
-  appPlan: FeaturePlanType | undefined,
+  appPlan: AppFeaturePlanType | undefined,
   appCreatedAt: Date
 ) {
   const { features: planFeatures } = plan;
-  const { features: appPlanFeatures } = appPlan || {};
+  const { features: appPlanFeatures = {} } = appPlan || {};
   const features = {
     ...planFeatures,
     ...appPlanFeatures,
   };
+  const appFeatureData = appPlan?.featuresData || {};
 
   const computedFeatures: Partial<
     Record<FeatureIdType, ComputedFeatureSpecificationType>
@@ -431,7 +434,11 @@ function computeFeaturePlan(
     }
   }
 
-  return { ...plan, features: computedFeatures };
+  return {
+    ...plan,
+    features: computedFeatures,
+    featureData: appFeatureData,
+  } as ComputedFeaturePlanType;
 }
 
 export function getCurrentPlanForApp(app: AppType) {

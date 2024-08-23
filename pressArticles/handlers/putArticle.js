@@ -11,6 +11,7 @@ import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 import articlePrices from '../articlePrices.json';
 import { getArticle } from '../lib/getArticle';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
   try {
@@ -28,7 +29,6 @@ export default async (event) => {
     const {
       articleId,
       authorName,
-      badges,
       badgesAllow,
       categoriesId,
       categoryId,
@@ -53,7 +53,7 @@ export default async (event) => {
       videoPlayMode,
       videos,
     } = bodyParsed;
-    let { actions, html = null } = bodyParsed;
+    let { badges, actions, html = null } = bodyParsed;
 
     if (!actions) {
       actions = [];
@@ -93,6 +93,11 @@ export default async (event) => {
     }
     const plainText =
       isWebview || isPoll ? md : removeMd(md.replace(/(\s{4})\s*/g, '$1'));
+
+    const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
+    if (!allowed) {
+      badges = [];
+    }
 
     const results = await putArticle({
       actions,

@@ -61,6 +61,17 @@ export type FeatureSpecificationType =
       isSoft?: boolean;
     };
 
+export type FeatureAppDataType = {
+  softFeatureExceeded?: {
+    at: Date;
+    lastReminder: Date;
+    remindersCount: number;
+  };
+};
+
+export const PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS =
+  1 * 24 * 60 * 60 * 1000;
+
 export type ComputedFeatureSpecificationType =
   | boolean
   | {
@@ -85,4 +96,18 @@ export type FeaturePlanType = {
   _id: FeaturePlanIdType;
   tags: string[];
   features: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
+};
+
+export type AppFeaturePlanType = {
+  _id: FeaturePlanIdType;
+  tags?: string[];
+  features?: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
+  featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
+};
+
+export type ComputedFeaturePlanType = {
+  _id: FeaturePlanIdType;
+  tags: string[];
+  features: Partial<Record<FeatureIdType, ComputedFeatureSpecificationType>>;
+  featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
 };
