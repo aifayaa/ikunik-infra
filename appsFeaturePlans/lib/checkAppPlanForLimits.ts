@@ -10,49 +10,53 @@ import {
 } from 'asyncLambdas/lib/sendEmailMailgun';
 import { UserType } from '@users/lib/userEntity';
 import { formatMessage } from '@libs/intl/intl';
-import { PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS } from 'appsFeaturePlans/lib/planTypes';
+import {
+  FeatureIdType,
+  PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS,
+} from 'appsFeaturePlans/lib/planTypes';
 
 const { REGION, CROWDAA_REGION } = process.env;
 
-const { COLL_USERS, COLL_APPS } = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 const lambda = new Lambda({
   region: REGION,
 });
 
-async function checkAppPlanForUsersLimits(app: AppType | string) {
+async function checkAppPlanForLimits(
+  app: AppType | string,
+  feature: FeatureIdType,
+  getCount: () => Promise<number>
+) {
   const client = await MongoClient.connect();
   const db = client.db();
 
   try {
     if (typeof app === 'string') {
-      app = (await db.collection(COLL_USERS).findOne({ _id: app })) as AppType;
+      app = (await db.collection(COLL_APPS).findOne({ _id: app })) as AppType;
     }
 
     const appPlan = getCurrentPlanForApp(app);
 
-    if (appPlan.features.appUsers === true) {
+    if (appPlan.features[feature] === true) {
       return true;
     }
-    if (!appPlan.features.appUsers) {
+    if (!appPlan.features[feature]) {
       return false;
     }
 
-    const { maxCount, isSoft = false } = appPlan.features.appUsers;
+    const { maxCount, isSoft = false } = appPlan.features[feature];
 
-    const usersCount = await db
-      .collection(COLL_USERS)
-      .find({ appId: app._id })
-      .count();
+    const count = await getCount();
 
-    if (usersCount >= maxCount) {
+    if (count >= maxCount) {
       if (!isSoft) {
         return false;
       }
 
-      if (app?.featurePlan?.featuresData?.appUsers?.softFeatureExceeded) {
+      if (app?.featurePlan?.featuresData?.[feature]?.softFeatureExceeded) {
         const { lastReminder } =
-          app.featurePlan.featuresData.appUsers.softFeatureExceeded;
+          app.featurePlan.featuresData[feature].softFeatureExceeded;
 
         const diff = Date.now() - lastReminder.getTime();
         if (diff < PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS) {
@@ -81,13 +85,15 @@ async function checkAppPlanForUsersLimits(app: AppType | string) {
             email: {
               from: 'No Reply <support@crowdaa.com>',
               to: appAdminsEmails.join(','),
-              subject: formatMessage('auth:userQuotaExceeded.title', { app }),
-              template: `plan_user_quota_exceeded_${CROWDAA_REGION}`,
+              subject: formatMessage(`general:quotaExceeded.${feature}.title`, {
+                app,
+              }),
+              template: `plan_${feature}_quota_exceeded_${CROWDAA_REGION}`,
               vars: {
                 app_id: app._id,
                 app_name: app.name,
                 quota: maxCount,
-                count: usersCount,
+                count,
               },
               extra: {},
             } as MailgunEmailParametersType,
@@ -101,12 +107,12 @@ async function checkAppPlanForUsersLimits(app: AppType | string) {
         .promise();
 
       const { at = new Date(), remindersCount = 0 } =
-        app?.featurePlan?.featuresData?.appUsers?.softFeatureExceeded || {};
+        app?.featurePlan?.featuresData?.[feature]?.softFeatureExceeded || {};
       db.collection(COLL_APPS).updateOne(
         { _id: app._id },
         {
           $set: {
-            'app.featurePlan.featuresData.appUsers.softFeatureExceeded': {
+            [`app.featurePlan.featuresData.${feature}.softFeatureExceeded`]: {
               at,
               lastReminder: new Date(),
               remindersCount: remindersCount + 1,
@@ -120,4 +126,4 @@ async function checkAppPlanForUsersLimits(app: AppType | string) {
   }
 }
 
-export default checkAppPlanForUsersLimits;
+export default checkAppPlanForLimits;

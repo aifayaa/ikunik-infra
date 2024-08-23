@@ -8,11 +8,11 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { wordpressRegister } from './backends/wordpressRegister';
 import { crowdaaRegister } from './backends/crowdaaRegister.ts';
 import postLoginChecks from './postLoginChecks.ts';
-import checkAppPlanForUsersLimits from './checkAppPlanForUsersLimits.ts';
+import checkAppPlanForLimits from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 const { ADMIN_APP } = process.env;
 
-const { COLL_APPS } = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 export const register = async (
   rawEmail,
@@ -29,7 +29,15 @@ export const register = async (
     const app = await appsCollection.findOne({ _id: appId });
     if (!app) throw new Error('app_not_found');
 
-    const allowed = await checkAppPlanForUsersLimits(app);
+    const allowed = await checkAppPlanForLimits(appId, 'appUsers', async () => {
+      const usersCount = await client
+        .db()
+        .collection(COLL_USERS)
+        .find({ appId })
+        .count();
+
+      return usersCount;
+    });
 
     if (!allowed) {
       throw new Error('app_limits_exceeded');

@@ -84,6 +84,11 @@ export default {
       30: '30th',
       31: '31st',
     },
+    quotaExceeded: {
+      appUsers: {
+        title: 'User quota exceeded for app {{app.name}}',
+      },
+    },
   },
   apps: {
     app_preview_email: {
@@ -125,9 +130,6 @@ export default {
       title: '[{{stage}}/{{region}}] SIWA periodic renewal summary',
       title_error: '<h4>Failed renewals</h4>',
       title_success: '<h4>Successful renewals</h4>',
-    },
-    userQuotaExceeded: {
-      title: 'User quota exceeded for app {{app.name}}',
     },
   },
   crypto: {
