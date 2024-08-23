@@ -25,9 +25,13 @@ import {
 } from './planTypes';
 
 const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
-  oldFeaturePlanId: {
-    _id: 'oldFeaturePlanId',
-    tags: ['old'],
+  legacyFeaturePlanId: {
+    _id: 'legacyFeaturePlanId',
+    tags: ['legacy'],
+    name: {
+      fr: 'Pionniers',
+      en: 'Early adopter',
+    },
     features: {
       appAnalytics: true,
       badges: true,
@@ -46,6 +50,10 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   freeFeaturePlanId: {
     _id: 'freeFeaturePlanId',
     tags: ['free'],
+    name: {
+      fr: 'Gratuit',
+      en: 'Free',
+    },
     features: {
       appAnalytics: false,
       badges: false,
@@ -72,6 +80,10 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   proFeaturePlanId: {
     _id: 'proFeaturePlanId',
     tags: ['pro'],
+    name: {
+      fr: 'Pro',
+      en: 'Pro',
+    },
     features: {
       appAnalytics: true,
       badges: true,
@@ -93,6 +105,10 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   entertainmentFeaturePlanId: {
     _id: 'entertainmentFeaturePlanId',
     tags: ['entertainment'],
+    name: {
+      fr: 'Divertissement',
+      en: 'Entertainment',
+    },
     features: {
       appAnalytics: true,
       badges: true,
@@ -442,7 +458,7 @@ function computeFeaturePlan(
 }
 
 export function getCurrentPlanForApp(app: AppType) {
-  const planId = app.featurePlan ? app.featurePlan._id : 'oldFeaturePlanId';
+  const planId = app.featurePlan ? app.featurePlan._id : 'legacyFeaturePlanId';
   if (!isAPlan(planId)) {
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,

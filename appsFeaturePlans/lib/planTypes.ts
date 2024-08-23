@@ -1,10 +1,10 @@
 export type FeaturePlanIdType =
-  | 'oldFeaturePlanId'
+  | 'legacyFeaturePlanId'
   | 'freeFeaturePlanId'
   | 'proFeaturePlanId'
   | 'entertainmentFeaturePlanId';
 export const allPlanTypes: FeaturePlanIdType[] = [
-  'oldFeaturePlanId',
+  'legacyFeaturePlanId',
   'freeFeaturePlanId',
   'proFeaturePlanId',
   'entertainmentFeaturePlanId',
@@ -92,15 +92,19 @@ export type ComputedFeatureSpecificationType =
       isSoft?: boolean;
     };
 
+type PlanLocalizedNameType = Record<string, string>;
+
 export type FeaturePlanType = {
   _id: FeaturePlanIdType;
   tags: string[];
+  name: PlanLocalizedNameType;
   features: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
 };
 
 export type AppFeaturePlanType = {
   _id: FeaturePlanIdType;
   tags?: string[];
+  name?: PlanLocalizedNameType;
   features?: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
   featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
 };
@@ -108,6 +112,7 @@ export type AppFeaturePlanType = {
 export type ComputedFeaturePlanType = {
   _id: FeaturePlanIdType;
   tags: string[];
+  name: PlanLocalizedNameType;
   features: Partial<Record<FeatureIdType, ComputedFeatureSpecificationType>>;
   featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
 };
