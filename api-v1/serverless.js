@@ -120,18 +120,6 @@ const serverlessConfiguration = {
       awaxDev: {
         'eu-west-1': 'crowdaa_app_id',
       },
-      crowdaaRegion: {
-        dev: {
-          'us-east-1': 'us',
-        },
-        preprod: {
-          'eu-west-3': 'fr',
-        },
-        prod: {
-          'us-east-1': 'us',
-          'eu-west-3': 'fr',
-        },
-      },
     },
     customDomain: {
       basePath: 'v1',
@@ -162,6 +150,18 @@ const serverlessConfiguration = {
     },
     esbuild: {
       config: '../esbuild.config.cjs',
+    },
+    crowdaaRegion: {
+      dev: {
+        'us-east-1': 'us',
+      },
+      preprod: {
+        'eu-west-3': 'fr',
+      },
+      prod: {
+        'us-east-1': 'us',
+        'eu-west-3': 'fr',
+      },
     },
   },
   //   See https://github.com/serverless/serverless/issues/4029#issuecomment-386045929
