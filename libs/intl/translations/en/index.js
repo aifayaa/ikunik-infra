@@ -85,7 +85,7 @@ export default {
       31: '31st',
     },
     quotaExceeded: {
-      appUsers: {
+      activeUsers: {
         title: 'User quota exceeded for app {{app.name}}',
       },
     },

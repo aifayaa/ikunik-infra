@@ -8,6 +8,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -30,16 +31,12 @@ export const getUserByApple = async (
     }
 
     const allowed = await checkAppPlanForLimitIncrease(
-      appId,
-      'appUsers',
+      app,
+      'activeUsers',
       async () => {
-        const usersCount = await client
-          .db()
-          .collection(COLL_USERS)
-          .find({ appId })
-          .count();
+        const activeUsers = await getAppActiveUsers(app);
 
-        return usersCount;
+        return activeUsers.count;
       }
     );
 

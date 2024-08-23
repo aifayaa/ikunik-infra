@@ -9,6 +9,7 @@ import { getFacebookSettings } from './getFacebookSettings';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -27,15 +28,11 @@ export const getUserByFacebook = async (userToken, appId) => {
   try {
     const allowed = await checkAppPlanForLimitIncrease(
       appId,
-      'appUsers',
-      async () => {
-        const usersCount = await client
-          .db()
-          .collection(COLL_USERS)
-          .find({ appId })
-          .count();
+      'activeUsers',
+      async (app) => {
+        const activeUsers = await getAppActiveUsers(app);
 
-        return usersCount;
+        return activeUsers.count;
       }
     );
 

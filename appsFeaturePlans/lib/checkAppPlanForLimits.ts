@@ -26,7 +26,7 @@ const lambda = new Lambda({
 export async function checkAppPlanForLimitIncrease(
   app: AppType | string,
   feature: FeatureIdType,
-  getCount: () => Promise<number>
+  getCount: (app: AppType) => Promise<number>
 ) {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -47,7 +47,7 @@ export async function checkAppPlanForLimitIncrease(
 
     const { maxCount, isSoft = false } = appPlan.features[feature];
 
-    const count = await getCount();
+    const count = await getCount(app);
 
     if (count >= maxCount) {
       if (!isSoft) {
