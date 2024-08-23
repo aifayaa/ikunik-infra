@@ -44,7 +44,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       polls: true,
       appTheme: true,
       translations: true,
-      appUsers: true,
+      activeUsers: true,
     },
   },
   freeFeaturePlanId: {
@@ -71,7 +71,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       polls: false,
       appTheme: false,
       translations: false,
-      appUsers: {
+      activeUsers: {
         maxCount: 1000,
         isSoft: true,
       },
@@ -96,7 +96,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       polls: true,
       appTheme: true,
       translations: true,
-      appUsers: {
+      activeUsers: {
         maxCount: 10000,
         isSoft: true,
       },
@@ -121,7 +121,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       polls: true,
       appTheme: true,
       translations: true,
-      appUsers: {
+      activeUsers: {
         maxCount: 100000,
         isSoft: true,
       },
@@ -153,10 +153,11 @@ function isAFeatureResetPeriodWindow(
   );
 }
 
-function computeDates(
+export function computePlanDates(
   resetPeriod: FeatureResetPeriodType,
   resetPeriodWindow: FeatureResetPeriodWindowType,
-  startSubscriptionDate?: Date
+  startSubscriptionDate?: Date,
+  now: Date = new Date()
 ) {
   function resetWatch(date: Date, referenceDate?: Date) {
     const resDate = new Date(date);
@@ -183,7 +184,7 @@ function computeDates(
     case 'fixed': {
       switch (resetPeriod) {
         case 'week': {
-          let startDate = new Date();
+          let startDate = now;
 
           // Return to Monday
           while (startDate.getDay() !== 1) {
@@ -197,7 +198,7 @@ function computeDates(
           return [startDate, resetDate];
         }
         case 'month': {
-          let startDate = new Date();
+          let startDate = now;
           // Return to the beginning of the month
           startDate.setDate(1);
           startDate = resetWatch(startDate);
@@ -208,7 +209,7 @@ function computeDates(
           return [startDate, resetDate];
         }
         case 'year': {
-          let startDate = new Date();
+          let startDate = now;
           // Return to the beginning of the year
           startDate.setMonth(0);
           startDate.setDate(1);
@@ -232,7 +233,7 @@ function computeDates(
             );
           }
 
-          let startDate = new Date();
+          let startDate = now;
 
           // Return to the same day of the week as 'startSubscriptionDate'
           while (startDate.getDay() !== startSubscriptionDate.getDay()) {
@@ -255,7 +256,7 @@ function computeDates(
             );
           }
 
-          const today = new Date();
+          const today = now;
 
           let startDateCandidate = new Date(startSubscriptionDate);
           let startDatePlusOneMonthCandidate = new Date(startDateCandidate);
@@ -301,7 +302,7 @@ function computeDates(
             );
           }
 
-          const today = new Date();
+          const today = now;
 
           let startDateCandidate = new Date(startSubscriptionDate);
           let startDatePlusOneMonthCandidate = new Date(startDateCandidate);
@@ -355,6 +356,7 @@ function computeFeaturePlan(
     ...appPlanFeatures,
   };
   const appFeatureData = appPlan?.featuresData || {};
+  const startedAt = appPlan?.startedAt || appCreatedAt;
 
   const computedFeatures: Partial<
     Record<FeatureIdType, ComputedFeatureSpecificationType>
@@ -391,9 +393,9 @@ function computeFeaturePlan(
         // Use appCreatedAt for free apps anyway
         // Arbitrarily set it to yesterday for now
         const startSubscriptionDate =
-          appCreatedAt || new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+          startedAt || new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
-        const [startDate, resetDate] = computeDates(
+        const [startDate, resetDate] = computePlanDates(
           resetPeriod,
           effectiveResetPeriodWindow,
           startSubscriptionDate
@@ -403,7 +405,7 @@ function computeFeaturePlan(
           maxCount,
           resetPeriod,
           resetPeriodWindow,
-          currentUsage: 5000,
+          currentUsage: 5000, // TODO: Compute me for real
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
@@ -419,7 +421,7 @@ function computeFeaturePlan(
         isDefined(resetPeriod) &&
         isAFeatureResetPeriod(resetPeriod)
       ) {
-        const [startDate, resetDate] = computeDates(
+        const [startDate, resetDate] = computePlanDates(
           resetPeriod,
           resetPeriodWindowDefault
         );
@@ -454,9 +456,13 @@ function computeFeaturePlan(
     ...plan,
     features: computedFeatures,
     featureData: appFeatureData,
+    startedAt,
   } as ComputedFeaturePlanType;
 }
 
+// TODO Do not compute currentUsage for internal use
+// (so avoid using this function, create a new one maybe,
+// or add a parameter to set which feature needs to be computed)
 export function getCurrentPlanForApp(app: AppType) {
   const planId = app.featurePlan ? app.featurePlan._id : 'legacyFeaturePlanId';
   if (!isAPlan(planId)) {

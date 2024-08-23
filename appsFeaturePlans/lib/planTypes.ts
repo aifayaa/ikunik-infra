@@ -14,7 +14,7 @@ export type FeatureIdType =
   | 'appAnalytics'
   | 'appTabs'
   | 'appTheme'
-  | 'appUsers'
+  | 'activeUsers'
   | 'badges'
   | 'chat'
   | 'collaborators'
@@ -27,7 +27,7 @@ export const allFeatureIds: FeatureIdType[] = [
   'appAnalytics',
   'appTabs',
   'appTheme',
-  'appUsers',
+  'activeUsers',
   'badges',
   'chat',
   'collaborators',
@@ -107,6 +107,7 @@ export type AppFeaturePlanType = {
   name?: PlanLocalizedNameType;
   features?: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
   featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
+  startedAt?: Date;
 };
 
 export type ComputedFeaturePlanType = {
@@ -115,4 +116,5 @@ export type ComputedFeaturePlanType = {
   name: PlanLocalizedNameType;
   features: Partial<Record<FeatureIdType, ComputedFeatureSpecificationType>>;
   featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
+  startedAt?: Date;
 };

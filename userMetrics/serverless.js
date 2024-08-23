@@ -59,8 +59,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getMAU: {
-      handler: 'handlers/getMAU.default',
+    getAppActiveUsers: {
+      handler: 'handlers/getAppActiveUsers.default',
       events: [
         {
           http: {

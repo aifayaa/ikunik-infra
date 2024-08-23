@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import getMAU from '../../userMetrics/lib/getMAU';
+import getMAU from '../../userMetrics/lib/getAppActiveUsers';
 
 const { COLL_APPS } = mongoCollections;
 

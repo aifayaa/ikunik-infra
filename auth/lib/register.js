@@ -9,10 +9,11 @@ import { wordpressRegister } from './backends/wordpressRegister';
 import { crowdaaRegister } from './backends/crowdaaRegister.ts';
 import postLoginChecks from './postLoginChecks.ts';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
 
 const { ADMIN_APP } = process.env;
 
-const { COLL_APPS, COLL_USERS } = mongoCollections;
+const { COLL_APPS } = mongoCollections;
 
 export const register = async (
   rawEmail,
@@ -30,16 +31,12 @@ export const register = async (
     if (!app) throw new Error('app_not_found');
 
     const allowed = await checkAppPlanForLimitIncrease(
-      appId,
-      'appUsers',
+      app,
+      'activeUsers',
       async () => {
-        const usersCount = await client
-          .db()
-          .collection(COLL_USERS)
-          .find({ appId })
-          .count();
+        const activeUsers = await getAppActiveUsers(app);
 
-        return usersCount;
+        return activeUsers.count;
       }
     );
 
