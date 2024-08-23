@@ -3,7 +3,7 @@ import deleteUserBadge from '../lib/deleteUserBadge';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import { checkAppPlanForLimitUpdate } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -12,7 +12,7 @@ export default async (event) => {
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const allowed = await checkAppPlanForLimitUpdate(appId, 'badges');
+    const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
 
     if (!allowed) {
       throw new Error('app_limits_exceeded');

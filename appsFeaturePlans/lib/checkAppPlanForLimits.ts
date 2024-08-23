@@ -128,7 +128,7 @@ export async function checkAppPlanForLimitIncrease(
   }
 }
 
-export async function checkAppPlanForLimitUpdate(
+export async function checkAppPlanForLimitAccess(
   app: AppType | string,
   feature: FeatureIdType
 ) {
