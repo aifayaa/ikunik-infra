@@ -5,22 +5,26 @@ import verifyJwt from './verifyJsonWebToken';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import Random from '../../libs/account_utils/random.ts';
-import checkAppPlanForLimits from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 const { COLL_USERS } = mongoCollections;
 
 export const getUserByOidc = async (identityToken, appId) => {
   const client = await MongoClient.connect();
   try {
-    const allowed = await checkAppPlanForLimits(appId, 'appUsers', async () => {
-      const usersCount = await client
-        .db()
-        .collection(COLL_USERS)
-        .find({ appId })
-        .count();
+    const allowed = await checkAppPlanForLimitIncrease(
+      appId,
+      'appUsers',
+      async () => {
+        const usersCount = await client
+          .db()
+          .collection(COLL_USERS)
+          .find({ appId })
+          .count();
 
-      return usersCount;
-    });
+        return usersCount;
+      }
+    );
 
     if (!allowed) {
       throw new Error('app_limits_exceeded');

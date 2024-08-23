@@ -23,7 +23,7 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-async function checkAppPlanForLimits(
+export async function checkAppPlanForLimitIncrease(
   app: AppType | string,
   feature: FeatureIdType,
   getCount: () => Promise<number>
@@ -121,9 +121,36 @@ async function checkAppPlanForLimits(
         }
       );
     }
+
+    return true;
   } finally {
     client.close();
   }
 }
 
-export default checkAppPlanForLimits;
+export async function checkAppPlanForLimitUpdate(
+  app: AppType | string,
+  feature: FeatureIdType
+) {
+  const client = await MongoClient.connect();
+  const db = client.db();
+
+  try {
+    if (typeof app === 'string') {
+      app = (await db.collection(COLL_APPS).findOne({ _id: app })) as AppType;
+    }
+
+    const appPlan = getCurrentPlanForApp(app);
+
+    if (appPlan.features[feature] === true) {
+      return true;
+    }
+    if (!appPlan.features[feature]) {
+      return false;
+    }
+
+    return true;
+  } finally {
+    client.close();
+  }
+}

@@ -7,7 +7,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
-import checkAppPlanForLimits from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -29,15 +29,19 @@ export const getUserByApple = async (
       throw new Error('missing_credentials');
     }
 
-    const allowed = await checkAppPlanForLimits(appId, 'appUsers', async () => {
-      const usersCount = await client
-        .db()
-        .collection(COLL_USERS)
-        .find({ appId })
-        .count();
+    const allowed = await checkAppPlanForLimitIncrease(
+      appId,
+      'appUsers',
+      async () => {
+        const usersCount = await client
+          .db()
+          .collection(COLL_USERS)
+          .find({ appId })
+          .count();
 
-      return usersCount;
-    });
+        return usersCount;
+      }
+    );
 
     if (!allowed) {
       throw new Error('app_limits_exceeded');
