@@ -174,6 +174,7 @@ export type AppType = {
   featurePlan?: {
     _id: string;
     featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
+    startedAt: Date;
   };
 };
 

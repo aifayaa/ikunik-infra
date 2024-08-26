@@ -475,7 +475,7 @@ export function getCurrentPlanForApp(app: AppType) {
 
   const computedPlan = computeFeaturePlan(
     allPlans[planId],
-    app.featurePlan as FeaturePlanType,
+    app.featurePlan as AppFeaturePlanType,
     app.createdAt
   );
 
