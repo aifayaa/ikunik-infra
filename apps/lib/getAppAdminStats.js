@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import getMAU from '../../userMetrics/lib/getMAU';
+import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -46,12 +46,7 @@ export default async (appId) => {
       return false;
     }
 
-    const now = new Date();
-    now.setMonth(now.getMonth() - 1);
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
-
-    const mau = await getMAU(appId, { month, year });
+    const mau = await getAppActiveUsers(appId, { period: -1 });
 
     return {
       builds: buildsInfos.builds || {},

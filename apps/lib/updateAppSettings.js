@@ -3,6 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { formatMessage, intlInit } from '../../libs/intl/intl';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
+import { getCurrentPlanForApp } from '../../appsFeaturePlans/lib/getCurrentPlan.ts';
 
 const { COLL_APPS } = mongoCollections;
 
@@ -32,7 +33,7 @@ function objGet(obj, keys, dft) {
   return ret;
 }
 
-const allowedSettings = [
+const allAllowedSettings = [
   'press.chatNotificationsEnabled',
   'press.env.appThemeColorPrimary',
   'press.env.articleFromCommunityDateFormat',
@@ -75,7 +76,32 @@ export default async (appId, settings) => {
 
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
 
-    allowedSettings.forEach((key) => {
+    const appPlan = getCurrentPlanForApp(app);
+
+    const deniedSettings = [];
+
+    if (appPlan.features.appTabs !== true) {
+      deniedSettings.push('press.env.startTab', 'press.env.tabOrder');
+    }
+    if (appPlan.features.appTheme !== true) {
+      deniedSettings.push('press.env.appThemeColorPrimary');
+    }
+    if (appPlan.features.chat !== true) {
+      deniedSettings.push('press.chatNotificationsEnabled');
+    }
+    if (appPlan.features.community !== true) {
+      deniedSettings.push(
+        'press.env.articleFromCommunityDateFormat',
+        'press.env.communityArticleCommentsEnabled',
+        'press.env.communityArticleDateFormat',
+        'press.env.communityArticleShareEnabled'
+      );
+    }
+    const currentlyAllowedSettings = allAllowedSettings.filter(
+      (setting) => deniedSettings.indexOf(setting) < 0
+    );
+
+    currentlyAllowedSettings.forEach((key) => {
       const val = objGet(settings, key, null);
       if (val !== null) {
         $set[`settings.${key}`] = val;

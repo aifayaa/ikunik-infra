@@ -7,6 +7,8 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -21,18 +23,25 @@ export const getUserByApple = async (
   const client = await MongoClient.connect();
   try {
     const db = client.db();
-    const app = await db.collection(COLL_APPS).findOne(
-      {
-        _id: appId,
-      },
-      {
-        projection: { 'credentials.apple': true, 'builds.ios.packageId': true },
-      }
-    );
+    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
 
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {
       throw new Error('missing_credentials');
+    }
+
+    const allowed = await checkAppPlanForLimitIncrease(
+      app,
+      'activeUsers',
+      async () => {
+        const activeUsers = await getAppActiveUsers(app);
+
+        return activeUsers.count;
+      }
+    );
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
     }
 
     // verify token given by client

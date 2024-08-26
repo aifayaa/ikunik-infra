@@ -1,0 +1,20 @@
+{
+  "name": "appsfeatureplans",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crowdaa Feature Plans API.",
+  "main": "handler.js",
+  "scripts": {},
+  "devDependencies": {
+    "aws-sdk": "^2.749.0",
+    "aws-sdk-mock": "^5.0.0",
+    "lodash": "^4.17.15",
+    "serverless": "^3.38.0",
+    "serverless-esbuild": "^1.52.1",
+    "serverless-offline": "^13.5.0",
+    "typescript": "^5.4.5",
+    "zod": "^3.23.8"
+  },
+  "author": "Crowdaa",
+  "license": "UNLICENSED"
+}

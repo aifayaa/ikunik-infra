@@ -50,10 +50,8 @@ export const putComputeActiveUsersForDay = async ({
   if (
     subscription.status === 'canceled' ||
     !subscription.metadata?.crowdaaStatus ||
-    (
-      isStripeSubcriptionStatus(subscription.metadata?.crowdaaStatus) &&
-      subscription.metadata?.crowdaaStatus !== 'active'
-    )
+    (isStripeSubcriptionStatus(subscription.metadata?.crowdaaStatus) &&
+      subscription.metadata?.crowdaaStatus !== 'active')
   ) {
     throw new CrowdaaError(
       ERROR_TYPE_STRIPE,
@@ -100,23 +98,17 @@ export const putComputeActiveUsersForDay = async ({
       timestamp: Math.floor(day.getTime() / 1000),
     });
     // TODO use appropriate logger
-    console.log(
-      'Stripe meter event created',
-      {
-        appId,
-        day,
-        meterEvent
-      }
-    );
+    console.log('Stripe meter event created', {
+      appId,
+      day,
+      meterEvent,
+    });
   } else {
     // TODO use appropriate logger
-    console.log(
-      'Skipped stripe meter event creation (no active user)',
-      {
-        appId,
-        day
-      }
-    );
+    console.log('Skipped stripe meter event creation (no active user)', {
+      appId,
+      day,
+    });
   }
 
   return activeUsersCount;

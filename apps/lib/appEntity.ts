@@ -1,3 +1,7 @@
+import {
+  FeatureAppDataType,
+  FeatureIdType,
+} from 'appsFeaturePlans/lib/planTypes';
 import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
 export type OrganizationFieldUserType = {
@@ -166,6 +170,11 @@ export type AppType = {
     meterId?: string;
     priceId?: string;
     subscriptionId?: string;
+  };
+  featurePlan?: {
+    _id: string;
+    featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
+    startedAt: Date;
   };
 };
 

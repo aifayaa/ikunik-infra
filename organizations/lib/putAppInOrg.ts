@@ -31,17 +31,26 @@ export async function putAppInOrgUserToOrg(
               { session }
             );
 
+          const org = await getOrg(orgId);
           // 2. Add the application to thedestination organization
           //    and set the current user as 'admin'
+          const $set = {
+            organization: {
+              _id: orgId,
+              users: [{ _id: userId, roles: ['admin'] }],
+            },
+          } as { organization: object; featurePlan?: object };
+
+          if (org.defaultFeaturePlan) {
+            $set.featurePlan = {
+              ...org.defaultFeaturePlan,
+              startedAt: new Date(),
+            };
+          }
           await db.collection(COLL_APPS).updateOne(
             { _id: appId },
             {
-              $set: {
-                organization: {
-                  _id: orgId,
-                  users: [{ _id: userId, roles: ['admin'] }],
-                },
-              },
+              $set,
             },
             { session }
           );
@@ -83,17 +92,26 @@ export async function putAppInOrgOrgToOrg(
     { session }
   );
 
+  const destOrg = await getOrg(orgId);
   // 2. Add the application to thedestination organization
   //    and set the current user as 'admin'
+  const $set = {
+    organization: {
+      _id: orgId,
+      users: [{ _id: userId, roles: ['admin'] }],
+    },
+  } as { organization: object; featurePlan?: object };
+
+  if (destOrg.defaultFeaturePlan) {
+    $set.featurePlan = {
+      ...destOrg.defaultFeaturePlan,
+      startedAt: new Date(),
+    };
+  }
   await db.collection(COLL_APPS).updateOne(
     { _id: appId },
     {
-      $set: {
-        organization: {
-          _id: orgId,
-          users: [{ _id: userId, roles: ['admin'] }],
-        },
-      },
+      $set,
     },
     { session }
   );

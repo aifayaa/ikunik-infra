@@ -34,6 +34,7 @@ export default async ({ headers, methodArn, requestContext }) => {
       opts.userId = user.id;
       opts.perms = user.perms;
       opts.loginToken = user.loginToken;
+      opts.superAdmin = user.superAdmin;
       jsConsole.info('allow', authorizationToken, user.id);
       return generatePolicy('allow', methodArn, opts);
     }

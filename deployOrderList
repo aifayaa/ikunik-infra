@@ -9,6 +9,7 @@ organizations
 auth
 ssr
 invitations
+appsFeaturePlans
 
 counters
 blockedContents

@@ -25,6 +25,7 @@ export default async ({ headers, methodArn, requestContext }) => {
         profileId,
         userId: user.id,
         perms: user.perms,
+        superAdmin: user.superAdmin,
         appId: app._id,
       });
     }

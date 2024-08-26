@@ -73,9 +73,10 @@ export default async (hashedToken, appId) => {
     /* if no appId, we cant determine user perms */
     if (!appId) {
       return {
-        id: user && user._id,
+        id: user._id,
         loginToken,
         perms: user.superAdmin ? allPerms : {},
+        superAdmin: user.superAdmin,
       };
     }
 
@@ -105,6 +106,7 @@ export default async (hashedToken, appId) => {
       id: user && user._id,
       loginToken,
       perms: user.superAdmin ? allPerms : perms,
+      superAdmin: user.superAdmin,
     };
   } finally {
     client.close();

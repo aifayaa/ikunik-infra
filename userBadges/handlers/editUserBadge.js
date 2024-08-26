@@ -4,9 +4,14 @@ import fieldChecks from '../lib/badgeFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
   const userBadgeId = event.pathParameters.id;
 
   try {
@@ -23,6 +28,14 @@ export default async (event) => {
 
       if (!cb(bodyParsed[field])) throw new Error('mal_formed_request');
     });
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
+
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
+    }
 
     const userBadge = await editUserBadge(userBadgeId, appId, bodyParsed, {
       userId,

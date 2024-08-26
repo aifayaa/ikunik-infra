@@ -23,6 +23,7 @@ export default async (hashedToken) => {
       projection: {
         _id: 1,
         'services.resume.loginTokens': 1,
+        superAdmin: 1,
       },
     });
 

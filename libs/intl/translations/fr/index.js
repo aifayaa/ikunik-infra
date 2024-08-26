@@ -81,6 +81,11 @@ export default {
       30: '30',
       31: '31',
     },
+    quotaExceeded: {
+      activeUsers: {
+        title: "Quota d'utilisateurs dépassé pour l'app {{app.name}}",
+      },
+    },
   },
   apps: {
     app_preview_email: {

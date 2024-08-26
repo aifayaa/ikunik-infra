@@ -32,9 +32,6 @@ export default async (event: APIGatewayProxyEvent) => {
   if (!db) db = client.db();
 
   try {
-    // This code is not executed
-    trowExceptionUntestedCode20240808();
-
     if (!appId) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,

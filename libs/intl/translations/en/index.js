@@ -84,6 +84,11 @@ export default {
       30: '30th',
       31: '31st',
     },
+    quotaExceeded: {
+      activeUsers: {
+        title: 'User quota exceeded for app {{app.name}}',
+      },
+    },
   },
   apps: {
     app_preview_email: {

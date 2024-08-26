@@ -15,7 +15,10 @@ export default async ({ headers, methodArn }) => {
     const user = await authorizeUser(hashedLoginToken);
     if (user) {
       jsConsole.info('allow', authorizationToken, user._id);
-      return generatePolicy('allow', methodArn, { userId: user._id });
+      return generatePolicy('allow', methodArn, {
+        userId: user._id,
+        superAdmin: user.superAdmin,
+      });
     }
     jsConsole.info('deny', authorizationToken);
     return generatePolicy('deny', methodArn);

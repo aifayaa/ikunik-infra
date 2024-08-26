@@ -5,9 +5,14 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { actionV2ToAction, actionToActionV2 } from '../lib/actionV2Migration';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
@@ -18,7 +23,6 @@ export default async (event) => {
     const parsedBody = JSON.parse(event.body);
     handlerCategoryChecks(parsedBody);
     const {
-      badges,
       badgesAllow,
       color,
       forcedAuthor,
@@ -33,7 +37,7 @@ export default async (event) => {
       reversedFlowStart,
       rssFeedUrl,
     } = parsedBody;
-    let { action = '', action_v2: actionV2 = null } = parsedBody;
+    let { badges, action = '', action_v2: actionV2 = null } = parsedBody;
 
     if (!actionV2 && action) {
       actionV2 = actionToActionV2(action);
@@ -46,6 +50,13 @@ export default async (event) => {
       action = `/pdf/${encodeURIComponent(action.substring(5))}`;
     } else if (!action) {
       action = '';
+    }
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
+      if (!allowed) {
+        badges = [];
+      }
     }
 
     const results = await postCategory({

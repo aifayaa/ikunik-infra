@@ -2,7 +2,7 @@
 export default (
   Effect,
   _Resource,
-  { userId, profileId, roles, perms, appId, loginToken } = {}
+  { userId, profileId, roles, perms, appId, loginToken, superAdmin = null } = {}
 ) => {
   const policy = {
     principalId: userId,
@@ -31,6 +31,9 @@ export default (
   }
   if (appId) {
     policy.context.appId = appId;
+  }
+  if (superAdmin !== null) {
+    policy.context.superAdmin = superAdmin;
   }
   if (profileId) {
     policy.context.profileId = profileId;

@@ -17,6 +17,7 @@ export default async ({ headers, methodArn }) => {
       jsConsole.info('allow', authorizationToken, user._id);
       return generatePolicy('allow', methodArn, {
         userId: user._id,
+        superAdmin: user.superAdmin,
         loginToken,
       });
     }
