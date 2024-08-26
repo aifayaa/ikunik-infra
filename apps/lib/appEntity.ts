@@ -14,6 +14,35 @@ type OrganizationFieldType = {
   users: Array<OrganizationFieldUserType>;
 };
 
+export type StripeSubscriptionType = {
+  id: string;
+  canceledAt?: Date;
+  createdAt: Date;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  customer: string;
+  endedAt?: Date;
+  items: Array<{
+    id: string;
+    price: {
+      id: string;
+      currency: string;
+      unitAmount: number | null;
+    };
+  }>;
+  latestInvoice: string;
+  livemode: boolean;
+  nextPendingInvoiceItemInvoice?: Date;
+  status: string;
+  transferData?: {
+    destination: string;
+    amountPercent: number | null;
+  };
+  trialEnd?: Date;
+  trialStart?: Date;
+  updatedAt?: Date;
+};
+
 export type AppType = {
   _id: string;
   key: string;
@@ -166,10 +195,7 @@ export type AppType = {
   firebaseProjectId?: object;
   organization?: OrganizationFieldType;
   stripe?: {
-    checkoutSessionId?: string;
-    meterId?: string;
-    priceId?: string;
-    subscriptionId?: string;
+    subscription?: StripeSubscriptionType;
   };
   featurePlan?: {
     _id: string;
