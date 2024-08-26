@@ -45,7 +45,14 @@ export async function setCurrentPlanForAppId(
       );
     }
 
-    const startedAt = startDate ? new Date(startDate) : new Date();
+    let startedAt = startDate && new Date(startDate);
+    if (!startedAt) {
+      if (app.featurePlan && app.featurePlan.startedAt) {
+        startedAt = app.featurePlan.startedAt;
+      } else {
+        startedAt = new Date();
+      }
+    }
 
     await db.collection(COLL_APPS).findOne(
       { _id: appId },
