@@ -1,3 +1,8 @@
+import {
+  FeatureAppDataType,
+  FeatureIdType,
+} from 'appsFeaturePlans/lib/planTypes';
+
 export type OrganizationType = {
   _id: string;
   name: string;
@@ -11,4 +16,8 @@ export type OrganizationType = {
   createdAt: Date;
   createdBy: string;
   stripeCustomerId: string;
+  defaultFeaturePlan?: {
+    _id: string;
+    featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
+  };
 };
