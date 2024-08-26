@@ -9,15 +9,19 @@ const { COLL_USER_METRICS } = mongoCollections;
 // period = -1 => previous billing period
 // period = -2 => previous previous billing period
 // etc.
-export async function getAppActiveUsers(app, { period = 0, now = new Date() }) {
+export async function getAppActiveUsers(
+  app,
+  { period = 0, now = new Date() } = {}
+) {
   const client = await MongoClient.connect();
 
   try {
     const db = client.db();
 
-    const planDate = app.featurePlan
-      ? app.featurePlan.startDate
-      : app.createdAt;
+    const planDate =
+      app.featurePlan && app.featurePlan.startedAt
+        ? app.featurePlan.startedAt
+        : app.createdAt;
     const targetDate = new Date(now);
     if (period !== 0) {
       targetDate.setTime(planDate.getTime()); // Copy the plan date
