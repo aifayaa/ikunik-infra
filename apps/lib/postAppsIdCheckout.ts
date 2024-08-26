@@ -66,7 +66,6 @@ export const postAppsIdCheckout = async ({
   checkoutSessionCancelUrl,
 }: PostAppsIdCheckoutParams): Promise<string | null> => {
   const stripe = getStripeClient();
-  // let appUpdate: Record<string, string> = {};
   let sessionUrl: string | null = null;
 
   try {

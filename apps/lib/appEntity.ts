@@ -166,10 +166,6 @@ export type AppType = {
   firebaseProjectId?: object;
   organization?: OrganizationFieldType;
   stripe?: {
-    // checkoutSessionId?: string;
-    // meterId?: string;
-    // priceId?: string;
-    // subscriptionId?: string;
     subscription?: {
       id: string;
       createdAt: string;

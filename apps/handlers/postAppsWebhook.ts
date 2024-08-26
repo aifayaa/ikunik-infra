@@ -287,7 +287,6 @@ async function customerSubscriptionHelperHandler(
           ...extractedSubscriptionData,
         };
 
-    // console.log('dbSubscription effectiveSubscription', effectiveSubscription);
     await db.collection(COLL_APPS).updateOne(
       { _id: appId },
       {
@@ -309,7 +308,6 @@ async function customerSubscriptionHelperHandler(
           ...extractedSubscriptionData,
         };
 
-    // console.log('!dbSubscription effectiveSubscription', effectiveSubscription);
     await db.collection(COLL_APPS).updateOne(
       { _id: appId },
       {
