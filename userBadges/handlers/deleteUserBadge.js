@@ -6,16 +6,22 @@ import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
   const userBadgeId = event.pathParameters.id;
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
 
-    if (!allowed) {
-      throw new Error('app_limits_exceeded');
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
     }
 
     await deleteUserBadge(userBadgeId, appId);

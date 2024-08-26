@@ -23,8 +23,8 @@ export default async (hashedToken, appId) => {
     const user = await client
       .db()
       .collection(COLL_USERS)
-      .findOne(conds, { projection: { _id: 1 } });
-    return user && user._id;
+      .findOne(conds, { projection: { _id: 1, superAdmin: 1 } });
+    return user;
   } finally {
     client.close();
   }

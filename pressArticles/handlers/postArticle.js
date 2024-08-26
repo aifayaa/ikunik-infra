@@ -16,7 +16,11 @@ import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppP
 
 export default async (event) => {
   try {
-    const { appId, principalId: userId } = event.requestContext.authorizer;
+    const {
+      appId,
+      principalId: userId,
+      superAdmin,
+    } = event.requestContext.authorizer;
 
     await checkPermsForApp(userId, appId, ['admin']);
 
@@ -182,9 +186,11 @@ export default async (event) => {
     views = parseInt(views, 10) || 0;
     if (views < 0) views = 0;
 
-    const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
-    if (!allowed) {
-      badges = [];
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'badges');
+      if (!allowed) {
+        badges = [];
+      }
     }
 
     let results = await postArticle({

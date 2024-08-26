@@ -11,7 +11,11 @@ import mongoCollections from '../../libs/mongoCollections.json';
 const { COLL_USER_BADGES } = mongoCollections;
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
@@ -28,28 +32,30 @@ export default async (event) => {
       if (!cb(bodyParsed[field])) throw new Error('mal_formed_request');
     });
 
-    const allowed = await checkAppPlanForLimitIncrease(
-      appId,
-      'badges',
-      async () => {
-        const client = await MongoClient.connect();
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitIncrease(
+        appId,
+        'badges',
+        async () => {
+          const client = await MongoClient.connect();
 
-        try {
-          const count = await client
-            .db()
-            .collection(COLL_USER_BADGES)
-            .find({ appId })
-            .count();
+          try {
+            const count = await client
+              .db()
+              .collection(COLL_USER_BADGES)
+              .find({ appId })
+              .count();
 
-          return count;
-        } finally {
-          client.close();
+            return count;
+          } finally {
+            client.close();
+          }
         }
-      }
-    );
+      );
 
-    if (!allowed) {
-      throw new Error('app_limits_exceeded');
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
     }
 
     const userBadge = await addUserBadge(userId, appId, bodyParsed);

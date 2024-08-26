@@ -23,12 +23,20 @@ export default async (hashedToken, appId) => {
     const user = await client
       .db()
       .collection(COLL_USERS)
-      .findOne(conds, { projection: { _id: 1, roles: 1, profil_ID: 1 } });
+      .findOne(conds, {
+        projection: {
+          _id: 1,
+          roles: 1,
+          profil_ID: 1,
+          superAdmin: 1,
+        },
+      });
     user.roles = user.roles || [];
     if (user && user.profil_ID) user.roles.push('artist');
     return {
       id: user && user._id,
       roles: user && user.roles,
+      superAdmin: user && user.superAdmin,
     };
   } finally {
     client.close();

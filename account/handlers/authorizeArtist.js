@@ -17,12 +17,13 @@ export default async ({ headers, methodArn, requestContext }) => {
     const loginToken = authorizationToken.split(' ')[1];
     const hashedLoginToken = hashLoginToken(loginToken);
     const app = await getAppFromKey(apiKey);
-    const userId = await authorizeArtist(hashedLoginToken, app._id);
-    const profileId = userId && (await getProfile(userId, app._id));
-    if (userId && profileId) {
-      jsConsole.info('allow', authorizationToken, userId);
+    const user = await authorizeArtist(hashedLoginToken, app._id);
+    const profileId = user && (await getProfile(user._id, app._id));
+    if (user && profileId) {
+      jsConsole.info('allow', authorizationToken, user._id);
       return generatePolicy('allow', methodArn, {
-        userId,
+        userId: user._id,
+        superAdmin: user.superAdmin,
         appId: app._id,
         profileId,
       });
