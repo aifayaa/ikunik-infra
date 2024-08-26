@@ -6,6 +6,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import syncCreateAppBaserow from './syncCreateAppBaserow';
 import { getAppDefaultBuildFields } from './appsUtils.ts';
 import { objSet } from '../../libs/utils';
+import { DEFAULT_NEW_APP_PLAN_ID } from '../../appsFeaturePlans/lib/getCurrentPlan.ts';
 
 const { ADMIN_APP } = process.env;
 
@@ -110,6 +111,10 @@ async function createApp(
     builds: {
       android: getAppDefaultBuildFields(name, 'android'),
       ios: getAppDefaultBuildFields(name, 'ios'),
+    },
+    featurePlan: {
+      _id: DEFAULT_NEW_APP_PLAN_ID,
+      startedAt: new Date(),
     },
   };
 

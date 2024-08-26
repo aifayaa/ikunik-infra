@@ -129,6 +129,10 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   },
 };
 
+export const DEFAULT_NEW_APP_PLAN_ID = 'freeFeaturePlanId' as FeaturePlanIdType;
+export const DEFAULT_OLD_APP_PLAN_ID =
+  'legacyFeaturePlanId' as FeaturePlanIdType;
+
 function isAPlan(plan: string): plan is FeaturePlanIdType {
   return allPlanTypes.includes(plan as FeaturePlanIdType);
 }
@@ -479,7 +483,9 @@ function computeFeaturePlan(
 // (so avoid using this function, create a new one maybe,
 // or add a parameter to set which feature needs to be computed)
 export function getCurrentPlanForApp(app: AppType) {
-  const planId = app.featurePlan ? app.featurePlan._id : 'legacyFeaturePlanId';
+  const planId = app.featurePlan
+    ? app.featurePlan._id
+    : DEFAULT_OLD_APP_PLAN_ID;
   if (!isAPlan(planId)) {
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
