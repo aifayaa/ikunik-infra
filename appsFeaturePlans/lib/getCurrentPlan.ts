@@ -153,6 +153,27 @@ function isAFeatureResetPeriodWindow(
   );
 }
 
+/**
+ * Use year/month from now and apply it to startSubscriptionDate
+ * If it wraps to the next month, cap it to the current month.
+ */
+function useNowMonthYearAndCapMonth(startSubscriptionDate: Date, now: Date) {
+  const computedDate = new Date(startSubscriptionDate.getTime());
+  computedDate.setFullYear(now.getFullYear());
+  computedDate.setMonth(now.getMonth());
+
+  if (computedDate.getMonth() !== now.getMonth()) {
+    // It wrappet to next month (31st not possible on given month for ex.), cap it by the target month
+    computedDate.setDate(1);
+    computedDate.setHours(0);
+    computedDate.setMinutes(0);
+    computedDate.setSeconds(0);
+    computedDate.setMilliseconds(-1); // Wrap back to previous month
+  }
+
+  return computedDate;
+}
+
 export function computePlanDates(
   resetPeriod: FeatureResetPeriodType,
   resetPeriodWindow: FeatureResetPeriodWindowType,
@@ -180,11 +201,13 @@ export function computePlanDates(
     return resDate;
   }
 
+  const getNow = () => new Date(now.getTime());
+
   switch (resetPeriodWindow) {
     case 'fixed': {
       switch (resetPeriod) {
         case 'week': {
-          let startDate = now;
+          let startDate = getNow();
 
           // Return to Monday
           while (startDate.getDay() !== 1) {
@@ -198,7 +221,7 @@ export function computePlanDates(
           return [startDate, resetDate];
         }
         case 'month': {
-          let startDate = now;
+          let startDate = getNow();
           // Return to the beginning of the month
           startDate.setDate(1);
           startDate = resetWatch(startDate);
@@ -209,7 +232,7 @@ export function computePlanDates(
           return [startDate, resetDate];
         }
         case 'year': {
-          let startDate = now;
+          let startDate = getNow();
           // Return to the beginning of the year
           startDate.setMonth(0);
           startDate.setDate(1);
@@ -233,7 +256,7 @@ export function computePlanDates(
             );
           }
 
-          let startDate = now;
+          let startDate = getNow();
 
           // Return to the same day of the week as 'startSubscriptionDate'
           while (startDate.getDay() !== startSubscriptionDate.getDay()) {
@@ -256,42 +279,34 @@ export function computePlanDates(
             );
           }
 
-          const today = now;
-
-          let startDateCandidate = new Date(startSubscriptionDate);
-          let startDatePlusOneMonthCandidate = new Date(startDateCandidate);
-          startDatePlusOneMonthCandidate.setMonth(
-            startDatePlusOneMonthCandidate.getMonth() + 1
+          const computedDate = useNowMonthYearAndCapMonth(
+            startSubscriptionDate,
+            now
           );
 
-          let searchAttempt = 0;
-          const MAX_SEARCH_ATTEMPTS = 1000;
-          while (
-            !(
-              startDateCandidate <= today &&
-              today < startDatePlusOneMonthCandidate
-            )
-          ) {
-            startDateCandidate.setMonth(startDateCandidate.getMonth() + 1);
-            startDatePlusOneMonthCandidate.setMonth(
-              startDatePlusOneMonthCandidate.getMonth() + 1
+          if (computedDate.getTime() <= now.getTime()) {
+            // We have the start date, compute the end
+            const nextMonth = new Date(now.getTime());
+            nextMonth.setDate(32);
+            const startDate = computedDate;
+            const resetDate = useNowMonthYearAndCapMonth(
+              startSubscriptionDate,
+              nextMonth
             );
-            searchAttempt += 1;
 
-            if (MAX_SEARCH_ATTEMPTS < searchAttempt) {
-              throw new CrowdaaError(
-                ERROR_TYPE_VALIDATION_ERROR,
-                FEATURE_SPECIFICATION_NOT_VALID_CODE,
-                `Cannot find month window startSubscriptionDate:'${startSubscriptionDate}', today:'${today}', resetPeriod: '${resetPeriod}', resetPeriodWindow:'${resetPeriodWindow}'`
-              );
-            }
+            return [startDate, resetDate];
+          } else {
+            // We have the end date, compute the start
+            const prevMonth = new Date(now.getTime());
+            prevMonth.setDate(-1);
+            const startDate = useNowMonthYearAndCapMonth(
+              startSubscriptionDate,
+              prevMonth
+            );
+            const resetDate = computedDate;
+
+            return [startDate, resetDate];
           }
-
-          const startDate = startDateCandidate;
-          const resetDate = new Date(startDate);
-          resetDate.setMonth(resetDate.getMonth() + 1);
-
-          return [startDate, resetDate];
         }
         case 'year': {
           if (!isDefined(startSubscriptionDate)) {
@@ -302,7 +317,7 @@ export function computePlanDates(
             );
           }
 
-          const today = now;
+          const today = getNow();
 
           let startDateCandidate = new Date(startSubscriptionDate);
           let startDatePlusOneMonthCandidate = new Date(startDateCandidate);
