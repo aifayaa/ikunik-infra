@@ -21,6 +21,7 @@ import {
 import { UserType } from '@users/lib/userEntity';
 import { isString } from 'lodash';
 import { getBaserowAffiliate } from '@libs/baserow/getBaserowAffiliate';
+import { getUser } from '@users/lib/usersUtils';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -65,7 +66,7 @@ export const postAppsIdCheckout = async ({
   checkoutSessionCancelUrl,
 }: PostAppsIdCheckoutParams): Promise<string | null> => {
   const stripe = getStripeClient();
-  let appUpdate: Record<string, string> = {};
+  // let appUpdate: Record<string, string> = {};
   let sessionUrl: string | null = null;
 
   try {
@@ -102,22 +103,7 @@ export const postAppsIdCheckout = async ({
     //   }
     // }
 
-    const user: UserType = await db
-      .collection(COLL_USERS)
-      .findOne({ _id: userId });
-
-    if (!user) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        USER_NOT_FOUND_CODE,
-        'Cannot find user',
-        {
-          details: {
-            userId,
-          },
-        }
-      );
-    }
+    const user = await getUser(userId);
 
     if (
       isString(user.profile.affiliateCode) &&
@@ -194,6 +180,7 @@ export const postAppsIdCheckout = async ({
 
     const appOrgId = getApplicationOrganizationId(app);
 
+    // TODO: update tax id for 'prod' environment
     // for now the tax to apply: France/Reunion: 8.5%, Other countries: 0%
     const taxRateIds =
       process.env.STAGE === 'prod'
@@ -304,14 +291,14 @@ export const postAppsIdCheckout = async ({
       subscription_data: subscriptionData,
     });
 
-    appUpdate['stripe.checkoutSessionId'] = session.id;
+    // appUpdate['stripe.checkoutSessionId'] = session.id;
     sessionUrl = session.url;
-    await db.collection(COLL_APPS).updateOne(
-      { _id: app._id },
-      {
-        $set: appUpdate,
-      }
-    );
+    // await db.collection(COLL_APPS).updateOne(
+    //   { _id: app._id },
+    //   {
+    //     $set: appUpdate,
+    //   }
+    // );
   } finally {
   }
 

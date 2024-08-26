@@ -166,10 +166,41 @@ export type AppType = {
   firebaseProjectId?: object;
   organization?: OrganizationFieldType;
   stripe?: {
-    checkoutSessionId?: string;
-    meterId?: string;
-    priceId?: string;
-    subscriptionId?: string;
+    // checkoutSessionId?: string;
+    // meterId?: string;
+    // priceId?: string;
+    // subscriptionId?: string;
+    subscription?: {
+      id: string;
+      createdAt: string;
+      currentPeriodStart: string;
+      currentPeriodEnd: string;
+      customer: string;
+      endedAt?: string;
+      items: Array<{
+        id: string;
+        plan: {
+          id: string;
+        };
+        price: {
+          id: string;
+          currency: string;
+          unitAmount: number;
+        };
+      }>;
+      latestInvoice: string;
+      livemode: boolean;
+      nextPendingInvoiceItemInvoice?: string;
+      status: string;
+      transferData?: {
+        destination: string;
+        amount_percent: number;
+      };
+      trialEnd?: string;
+      trialStart?: string;
+      updatedAt: string;
+      deletedAt: string;
+    };
   };
   featurePlan?: {
     _id: string;
