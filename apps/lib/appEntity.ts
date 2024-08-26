@@ -194,8 +194,7 @@ export type AppType = {
       };
       trialEnd?: string;
       trialStart?: string;
-      updatedAt: string;
-      deletedAt: string;
+      updatedAt?: string;
     };
   };
   featurePlan?: {
