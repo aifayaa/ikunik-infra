@@ -175,9 +175,6 @@ export type AppType = {
       endedAt?: string;
       items: Array<{
         id: string;
-        plan: {
-          id: string;
-        };
         price: {
           id: string;
           currency: string;
