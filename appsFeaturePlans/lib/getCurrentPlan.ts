@@ -517,9 +517,6 @@ async function computeFeaturePlan(
   } as ComputedFeaturePlanType;
 }
 
-// TODO Do not compute currentUsage for internal use
-// (so avoid using this function, create a new one maybe,
-// or add a parameter to set which feature needs to be computed)
 export async function getCurrentPlanForApp(
   app: AppType,
   computeUsageFor: boolean | FeatureIdType[] = false
