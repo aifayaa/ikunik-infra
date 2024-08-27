@@ -20,6 +20,7 @@ export type FeatureIdType =
   | 'collaborators'
   | 'community'
   | 'liveStreams'
+  | 'liveStreamDuration'
   | 'playlists'
   | 'polls'
   | 'translations';
@@ -33,6 +34,7 @@ export const allFeatureIds: FeatureIdType[] = [
   'collaborators',
   'community',
   'liveStreams',
+  'liveStreamDuration',
   'playlists',
   'polls',
   'translations',

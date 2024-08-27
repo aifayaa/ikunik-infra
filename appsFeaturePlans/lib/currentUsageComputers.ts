@@ -10,8 +10,9 @@ const { COLL_USER_BADGES, COLL_LIVE_STREAMS, COLL_PRESS_POLLS } =
 
 type CurrentUsageComputerType = (app: AppType) => Promise<number>;
 
-export const currentUsageComputers: Partial<
-  Record<FeatureIdType, CurrentUsageComputerType>
+export const currentUsageComputers: Record<
+  FeatureIdType,
+  CurrentUsageComputerType
 > = {
   // Not measurable :
   appAnalytics: (_app: AppType) => {
@@ -40,6 +41,9 @@ export const currentUsageComputers: Partial<
 
   // Measurable :
   playlists: async (_app: AppType) => {
+    return 0; // TODO Implement me later
+  },
+  liveStreamDuration: async (_app: AppType) => {
     return 0; // TODO Implement me later
   },
   activeUsers: async (app: AppType) => {

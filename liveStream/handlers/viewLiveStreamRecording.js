@@ -2,12 +2,19 @@
 import getLiveStream from '../lib/getLiveStream';
 import response from '../../libs/httpResponses/response.ts';
 import { formatMessage, intlInit, getUserLanguage } from '../../libs/intl/intl';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
   try {
     const { id } = event.pathParameters;
     const [appId, liveStreamId] = id.split(',');
     const { recordingId } = event.queryStringParameters || {};
+
+    const allowed = await checkAppPlanForLimitAccess(appId, 'liveStreams');
+
+    if (!allowed) {
+      throw new Error('app_limits_exceeded');
+    }
 
     const liveStream = await getLiveStream(appId, liveStreamId);
 
