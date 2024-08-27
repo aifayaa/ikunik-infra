@@ -5,7 +5,7 @@ import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import getAppAdmins from '@apps/lib/getAppAdmins';
 
-const { COLL_USER_BADGES, COLL_LIVE_STREAM, COLL_PRESS_POLLS } =
+const { COLL_USER_BADGES, COLL_LIVE_STREAMS, COLL_PRESS_POLLS } =
   mongoCollections;
 
 type CurrentUsageComputerType = (app: AppType) => Promise<number>;
@@ -81,7 +81,7 @@ export const currentUsageComputers: Partial<
     try {
       const count = await client
         .db()
-        .collection(COLL_LIVE_STREAM)
+        .collection(COLL_LIVE_STREAMS)
         .find({ appId: app._id })
         .count();
 
