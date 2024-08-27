@@ -21,25 +21,26 @@ export default async (
 ) => {
   const client = await MongoClient.connect();
   try {
+    const $set = {
+      ...fieldsToSet,
+      url: '' as string | undefined,
+      updatedAt: new Date(),
+      updatedBy: userId,
+    };
     const { title, html, type } = fieldsToSet;
     if (title && html && type) {
       const s3Filepath = computeS3Filepath(legalDocumentId, appId, type);
-      await writeS3TosBucket(s3Filepath, title, html);
+      $set.url = await writeS3TosBucket(s3Filepath, title, html);
+    } else {
+      delete $set.url;
     }
 
-    await client
-      .db()
-      .collection(COLL_TOS)
-      .updateOne(
-        { _id: legalDocumentId, appId },
-        {
-          $set: {
-            ...fieldsToSet,
-            updatedAt: new Date(),
-            updatedBy: userId,
-          },
-        }
-      );
+    await client.db().collection(COLL_TOS).updateOne(
+      { _id: legalDocumentId, appId },
+      {
+        $set,
+      }
+    );
 
     const modifiedLegalDocument = await client
       .db()
