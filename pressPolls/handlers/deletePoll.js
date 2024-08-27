@@ -3,12 +3,25 @@ import deletePoll from '../lib/deletePoll';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
   const pollId = event.pathParameters.id;
 
   try {
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'polls');
+
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
+    }
+
     await checkPermsForApp(userId, appId, ['admin']);
 
     const newPoll = await deletePoll(pollId, appId);

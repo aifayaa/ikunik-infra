@@ -4,16 +4,28 @@ import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { getUserLanguage, intlInit } from '../../libs/intl/intl';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
-  const { appId: authorizerAppId, principalId: userId } =
-    event.requestContext.authorizer;
+  const {
+    appId: authorizerAppId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
   const pollId = event.pathParameters.id;
 
   try {
     await checkPermsForApp(userId, authorizerAppId, ['admin']);
 
     const { exportToken = null, appId } = event.queryStringParameters || {};
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'polls');
+
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
+    }
 
     if (!exportToken) {
       throw new Error('access_forbidden');
