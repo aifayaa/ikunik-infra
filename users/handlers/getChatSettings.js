@@ -1,8 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import getChatSettings from '../lib/getChatSettings';
 import response from '../../libs/httpResponses/response.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
+  const { superAdmin } = event.requestContext.authorizer;
   const userId = event.requestContext.authorizer.principalId;
   const { appId } = event.requestContext.authorizer;
   const urlId = event.pathParameters.id;
@@ -10,6 +12,13 @@ export default async (event) => {
   try {
     if (userId !== urlId) {
       throw new Error('Forbidden');
+    }
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'chat');
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
     }
 
     const settings = await getChatSettings(userId, appId);
