@@ -3,6 +3,7 @@ import getAppTranslations from '../lib/getAppTranslations';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
+import { checkAppPlanForLimitAccess } from 'appsFeaturePlans/lib/checkAppPlanForLimits';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { appId: authorizerAppId } = event.requestContext.authorizer as {
@@ -11,7 +12,14 @@ export default async (event: APIGatewayProxyEvent) => {
   const pathAppId = event.pathParameters?.id;
 
   try {
-    const translations = await getAppTranslations(pathAppId || authorizerAppId);
+    const appId = pathAppId || authorizerAppId;
+
+    const allowed = await checkAppPlanForLimitAccess(appId, 'translations');
+
+    let translations = {};
+    if (allowed) {
+      translations = await getAppTranslations(appId);
+    }
 
     return response({
       code: 200,
