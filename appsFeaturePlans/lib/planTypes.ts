@@ -11,7 +11,6 @@ export const allPlanTypes: FeaturePlanIdType[] = [
 ];
 
 export type FeatureIdType =
-  | 'appAnalytics'
   | 'appTabs'
   | 'appTheme'
   | 'activeUsers'
@@ -25,7 +24,6 @@ export type FeatureIdType =
   | 'polls'
   | 'translations';
 export const allFeatureIds: FeatureIdType[] = [
-  'appAnalytics',
   'appTabs',
   'appTheme',
   'activeUsers',

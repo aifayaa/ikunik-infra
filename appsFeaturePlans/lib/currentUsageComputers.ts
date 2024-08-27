@@ -15,10 +15,6 @@ export const currentUsageComputers: Record<
   CurrentUsageComputerType
 > = {
   // Not measurable :
-  appAnalytics: (_app: AppType) => {
-    return Promise.resolve(0);
-  },
-
   appTabs: (_app: AppType) => {
     return Promise.resolve(0);
   },

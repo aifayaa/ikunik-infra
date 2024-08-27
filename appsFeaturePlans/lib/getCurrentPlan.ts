@@ -33,7 +33,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Early adopter',
     },
     features: {
-      appAnalytics: true,
       badges: true,
       chat: true,
       collaborators: true,
@@ -56,7 +55,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Free',
     },
     features: {
-      appAnalytics: false,
       badges: false,
       chat: false,
       collaborators: {
@@ -87,7 +85,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Pro',
     },
     features: {
-      appAnalytics: true,
       badges: true,
       chat: true,
       collaborators: true,
@@ -113,7 +110,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Entertainment',
     },
     features: {
-      appAnalytics: true,
       badges: true,
       chat: true,
       collaborators: true,
