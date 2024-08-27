@@ -463,10 +463,20 @@ async function computeFeaturePlan(
           resetPeriodWindowDefault
         );
 
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
           resetPeriod,
-          currentUsage: 5000,
+          currentUsage,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
@@ -477,9 +487,19 @@ async function computeFeaturePlan(
           computedFeatures[featureId].isSoft = isSoft;
         }
       } else if (isDefined(maxCount) && Number.isInteger(maxCount)) {
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
-          currentUsage: 5000,
+          currentUsage,
         };
 
         if (isDefined(isSoft) && typeof isSoft === 'boolean') {
