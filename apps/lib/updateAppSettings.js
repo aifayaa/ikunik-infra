@@ -76,7 +76,7 @@ export default async (appId, settings) => {
 
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
 
-    const appPlan = getCurrentPlanForApp(app);
+    const appPlan = await getCurrentPlanForApp(app);
 
     const deniedSettings = [];
 

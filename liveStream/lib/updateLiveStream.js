@@ -6,7 +6,7 @@ import { filterOutput } from './utils';
 
 const { IVS_REGION, STAGE } = process.env;
 
-const { COLL_LIVE_STREAM } = mongoCollections;
+const { COLL_LIVE_STREAMS } = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -27,7 +27,7 @@ export default async (appId, liveStreamId, { name, startDateTime }) => {
 
     const dbLiveStream = await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .findOne(query);
 
     if (!dbLiveStream) {
@@ -69,7 +69,7 @@ export default async (appId, liveStreamId, { name, startDateTime }) => {
     if (Object.keys(update).length >= 0) {
       await client
         .db()
-        .collection(COLL_LIVE_STREAM)
+        .collection(COLL_LIVE_STREAMS)
         .updateOne({ _id: liveStreamId }, { $set: update });
     }
 

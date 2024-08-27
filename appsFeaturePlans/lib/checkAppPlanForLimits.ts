@@ -36,7 +36,7 @@ export async function checkAppPlanForLimitIncrease(
       app = (await db.collection(COLL_APPS).findOne({ _id: app })) as AppType;
     }
 
-    const appPlan = getCurrentPlanForApp(app);
+    const appPlan = await getCurrentPlanForApp(app);
 
     if (appPlan.features[feature] === true) {
       return true;
@@ -140,7 +140,7 @@ export async function checkAppPlanForLimitAccess(
       app = (await db.collection(COLL_APPS).findOne({ _id: app })) as AppType;
     }
 
-    const appPlan = getCurrentPlanForApp(app);
+    const appPlan = await getCurrentPlanForApp(app);
 
     if (appPlan.features[feature] === true) {
       return true;

@@ -1,6 +1,7 @@
 import {
   FeatureAppDataType,
   FeatureIdType,
+  FeatureSpecificationType,
 } from 'appsFeaturePlans/lib/planTypes';
 import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
@@ -199,8 +200,9 @@ export type AppType = {
   };
   featurePlan?: {
     _id: string;
-    featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
     startedAt: Date;
+    features?: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
+    featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
   };
 };
 

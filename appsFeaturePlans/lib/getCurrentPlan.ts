@@ -14,7 +14,6 @@ import {
   allFeatureResetPeriod,
   allFeatureResetPeriodWindow,
   allPlanTypes,
-  AppFeaturePlanType,
   ComputedFeaturePlanType,
   ComputedFeatureSpecificationType,
   FeatureIdType,
@@ -23,6 +22,7 @@ import {
   FeatureResetPeriodType,
   FeatureResetPeriodWindowType,
 } from './planTypes';
+import { currentUsageComputers } from './currentUsageComputers';
 
 const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   legacyFeaturePlanId: {
@@ -369,11 +369,13 @@ export function computePlanDates(
   }
 }
 
-function computeFeaturePlan(
+async function computeFeaturePlan(
   plan: FeaturePlanType,
-  appPlan: AppFeaturePlanType | undefined,
-  appCreatedAt: Date
+  app: AppType,
+  computeUsageFor: boolean | FeatureIdType[]
 ) {
+  const appPlan = app.featurePlan;
+  const appCreatedAt = app.createdAt;
   const { features: planFeatures } = plan;
   const { features: appPlanFeatures = {} } = appPlan || {};
   const features = {
@@ -426,11 +428,21 @@ function computeFeaturePlan(
           startSubscriptionDate
         );
 
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
           resetPeriod,
           resetPeriodWindow,
-          currentUsage: 5000, // TODO: Compute me for real
+          currentUsage,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
@@ -451,10 +463,20 @@ function computeFeaturePlan(
           resetPeriodWindowDefault
         );
 
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
           resetPeriod,
-          currentUsage: 5000,
+          currentUsage,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
@@ -465,9 +487,19 @@ function computeFeaturePlan(
           computedFeatures[featureId].isSoft = isSoft;
         }
       } else if (isDefined(maxCount) && Number.isInteger(maxCount)) {
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
-          currentUsage: 5000,
+          currentUsage,
         };
 
         if (isDefined(isSoft) && typeof isSoft === 'boolean') {
@@ -485,10 +517,10 @@ function computeFeaturePlan(
   } as ComputedFeaturePlanType;
 }
 
-// TODO Do not compute currentUsage for internal use
-// (so avoid using this function, create a new one maybe,
-// or add a parameter to set which feature needs to be computed)
-export function getCurrentPlanForApp(app: AppType) {
+export async function getCurrentPlanForApp(
+  app: AppType,
+  computeUsageFor: boolean | FeatureIdType[] = false
+) {
   const planId = app.featurePlan
     ? app.featurePlan._id
     : DEFAULT_OLD_APP_PLAN_ID;
@@ -500,16 +532,19 @@ export function getCurrentPlanForApp(app: AppType) {
     );
   }
 
-  const computedPlan = computeFeaturePlan(
+  const computedPlan = await computeFeaturePlan(
     allPlans[planId],
-    app.featurePlan as AppFeaturePlanType,
-    app.createdAt
+    app,
+    computeUsageFor
   );
 
   return computedPlan;
 }
 
-export async function getCurrentPlanForAppId(appId: string) {
+export async function getCurrentPlanForAppId(
+  appId: string,
+  computeUsageFor: boolean | FeatureIdType[] = false
+) {
   const app = await getApp(appId);
   if (!app) {
     throw new CrowdaaError(
@@ -519,7 +554,7 @@ export async function getCurrentPlanForAppId(appId: string) {
     );
   }
 
-  const computedPlan = getCurrentPlanForApp(app);
+  const computedPlan = await getCurrentPlanForApp(app, computeUsageFor);
 
   return computedPlan;
 }
