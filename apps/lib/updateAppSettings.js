@@ -66,7 +66,7 @@ const allAllowedSettings = [
   'press.moderationRequired',
 ];
 
-export default async (appId, settings) => {
+export default async (appId, settings, isSuperAdmin = false) => {
   const client = await MongoClient.connect();
 
   try {
@@ -76,27 +76,29 @@ export default async (appId, settings) => {
 
     const app = await client.db().collection(COLL_APPS).findOne({ _id: appId });
 
-    const appPlan = await getCurrentPlanForApp(app);
-
     const deniedSettings = [];
+    if (!isSuperAdmin) {
+      const appPlan = await getCurrentPlanForApp(app);
 
-    if (appPlan.features.appTabs !== true) {
-      deniedSettings.push('press.env.startTab', 'press.env.tabOrder');
+      if (appPlan.features.appTabs !== true) {
+        deniedSettings.push('press.env.startTab', 'press.env.tabOrder');
+      }
+      if (appPlan.features.appTheme !== true) {
+        deniedSettings.push('press.env.appThemeColorPrimary');
+      }
+      if (appPlan.features.chat !== true) {
+        deniedSettings.push('press.chatNotificationsEnabled');
+      }
+      if (appPlan.features.community !== true) {
+        deniedSettings.push(
+          'press.env.articleFromCommunityDateFormat',
+          'press.env.communityArticleCommentsEnabled',
+          'press.env.communityArticleDateFormat',
+          'press.env.communityArticleShareEnabled'
+        );
+      }
     }
-    if (appPlan.features.appTheme !== true) {
-      deniedSettings.push('press.env.appThemeColorPrimary');
-    }
-    if (appPlan.features.chat !== true) {
-      deniedSettings.push('press.chatNotificationsEnabled');
-    }
-    if (appPlan.features.community !== true) {
-      deniedSettings.push(
-        'press.env.articleFromCommunityDateFormat',
-        'press.env.communityArticleCommentsEnabled',
-        'press.env.communityArticleDateFormat',
-        'press.env.communityArticleShareEnabled'
-      );
-    }
+
     const currentlyAllowedSettings = allAllowedSettings.filter(
       (setting) => deniedSettings.indexOf(setting) < 0
     );

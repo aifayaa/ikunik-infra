@@ -6,14 +6,18 @@ import response, {
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin = false,
+  } = event.requestContext.authorizer;
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const settings = JSON.parse(event.body);
 
-    const results = await updateAppSettings(appId, settings);
+    const results = await updateAppSettings(appId, settings, superAdmin);
 
     return response({ code: 200, body: results });
   } catch (exception) {
