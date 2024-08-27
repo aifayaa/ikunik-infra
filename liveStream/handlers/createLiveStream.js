@@ -3,10 +3,44 @@ import response from '../../libs/httpResponses/response.ts';
 import createLiveStream from '../lib/createLiveStream';
 import checks from '../lib/checks';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import MongoClient from '../../libs/mongoClient';
+import mongoCollections from '../../libs/mongoCollections.json';
+
+const { COLL_LIVE_STREAMS } = mongoCollections;
 
 export default async (event) => {
   try {
-    const { appId, principalId: userId } = event.requestContext.authorizer;
+    const {
+      appId,
+      principalId: userId,
+      superAdmin,
+    } = event.requestContext.authorizer;
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitIncrease(
+        appId,
+        'liveStreams',
+        async () => {
+          const client = await MongoClient.connect();
+
+          try {
+            const count = await client
+              .db()
+              .collection(COLL_LIVE_STREAMS)
+              .find({ appId })
+              .count();
+
+            return count;
+          } finally {
+            client.close();
+          }
+        }
+      );
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
+    }
 
     await checkPermsForApp(userId, appId, ['admin']);
 

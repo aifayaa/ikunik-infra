@@ -39,6 +39,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       collaborators: true,
       community: true,
       liveStreams: true,
+      liveStreamDuration: true,
       appTabs: true,
       playlists: true,
       polls: true,
@@ -66,6 +67,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       },
       community: false,
       liveStreams: false,
+      liveStreamDuration: false,
       appTabs: false,
       playlists: false,
       polls: false,
@@ -90,7 +92,8 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       chat: true,
       collaborators: true,
       community: true,
-      liveStreams: true, // TODO Limit me later!!!
+      liveStreams: true,
+      liveStreamDuration: true, // TODO Limit me later!!!
       appTabs: true,
       playlists: true,
       polls: true,
@@ -116,6 +119,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       collaborators: true,
       community: true,
       liveStreams: true,
+      liveStreamDuration: true,
       appTabs: true,
       playlists: true,
       polls: true,
