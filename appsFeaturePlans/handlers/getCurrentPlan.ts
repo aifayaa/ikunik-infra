@@ -8,7 +8,7 @@ export default async (event: APIGatewayProxyEvent) => {
   const { id: appId } = event.pathParameters as { id: string };
 
   try {
-    const computedPlan = await getCurrentPlanForAppId(appId);
+    const computedPlan = await getCurrentPlanForAppId(appId, true);
 
     return response({
       code: 200,
