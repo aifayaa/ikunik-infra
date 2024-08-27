@@ -4,11 +4,45 @@ import { createFieldChecks } from '../lib/pollsFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import mongoCollections from '../../libs/mongoCollections.json';
+import MongoClient from '../../libs/mongoClient';
+
+const { COLL_PRESS_POLLS } = mongoCollections;
 
 export default async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer;
 
   try {
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitIncrease(
+        appId,
+        'liveStreams',
+        async () => {
+          const client = await MongoClient.connect();
+
+          try {
+            const count = await client
+              .db()
+              .collection(COLL_PRESS_POLLS)
+              .find({ appId })
+              .count();
+
+            return count;
+          } finally {
+            client.close();
+          }
+        }
+      );
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
+    }
+
     await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {
