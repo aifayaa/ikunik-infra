@@ -1,29 +1,11 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient.js';
-import mongoCollections from '../../libs/mongoCollections.json';
 import { UserType } from '../../users/lib/userEntity';
-import { getApp, getApplicationUsers } from './appsUtils';
-
-const { COLL_USERS } = mongoCollections;
+import getAppAdmins from './getAppAdmins.js';
 
 export default async (appId: string) => {
-  const client = await MongoClient.connect();
+  const users = (await getAppAdmins(appId, {
+    userProjection: null,
+  })) as UserType[];
 
-  try {
-    const db = client.db();
-
-    const app = await getApp(appId);
-    const appUsersId = (await getApplicationUsers(app)).map((user) => user._id);
-
-    const users = (await db
-      .collection(COLL_USERS)
-      .find({
-        _id: { $in: appUsersId },
-      })
-      .toArray()) as UserType[];
-
-    return users;
-  } finally {
-    client.close();
-  }
+  return users;
 };
