@@ -41,12 +41,6 @@ function isCheckoutSessionCompletedEvent(
   return stripeEvent.type === 'checkout.session.completed';
 }
 
-function isCustomerSubscriptionCreatedEvent(
-  stripeEvent: Stripe.Event
-): stripeEvent is Stripe.CustomerSubscriptionCreatedEvent {
-  return stripeEvent.type === 'customer.subscription.created';
-}
-
 function isCustomerSubscriptionUpdatedEvent(
   stripeEvent: Stripe.Event
 ): stripeEvent is Stripe.CustomerSubscriptionUpdatedEvent {
@@ -242,7 +236,6 @@ function extractSubscriptionData(
 
 async function customerSubscriptionHelperHandler(
   stripeEvent:
-    | Stripe.CustomerSubscriptionCreatedEvent
     | Stripe.CustomerSubscriptionUpdatedEvent
     | Stripe.CustomerSubscriptionDeletedEvent,
   db: any,
@@ -262,45 +255,6 @@ async function customerSubscriptionHelperHandler(
   const extractedSubscriptionData = extractSubscriptionData(subscription);
 
   const app = await getApp(appId);
-
-  if (isCustomerSubscriptionCreatedEvent(stripeEvent)) {
-    const effectiveSubscription: StripeSubscriptionType = moreFields
-      ? {
-          ...extractedSubscriptionData,
-          ...moreFields,
-        }
-      : {
-          ...extractedSubscriptionData,
-        };
-
-    const $set = {
-      'stripe.subscription': effectiveSubscription,
-    } as {
-      'stripe.subscription': StripeSubscriptionType;
-      'featurePlan._id'?: string;
-      'featurePlan.startedAt'?: Date;
-    };
-
-    const featurePlanId = getFeaturePlanIdFromStripePriceId(
-      extractedSubscriptionData.items[0].price.id
-    );
-
-    if (featurePlanId) {
-      $set['featurePlan._id'] = featurePlanId;
-      $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
-    } else {
-      console.warn(
-        `Cannot find featurePlanId for stripePriceId '${extractedSubscriptionData.items[0].price.id}'`
-      );
-    }
-
-    return await db.collection(COLL_APPS).updateOne(
-      { _id: appId },
-      {
-        $set,
-      }
-    );
-  }
 
   const dbSubscription = app.stripe?.subscription;
 
@@ -346,7 +300,6 @@ async function customerSubscriptionHelperHandler(
       extractedSubscriptionData.items[0].price.id
     );
 
-    let featurePlanId = 'freeFeaturePlanId';
     if (!candidatureFeaturePlanId) {
       await db.collection(COLL_APPS).updateOne(
         { _id: appId },
@@ -360,9 +313,11 @@ async function customerSubscriptionHelperHandler(
         UNKNOWN_PRICE_ID_CODE,
         `Cannot find featurePlanId for stripePriceId '${extractedSubscriptionData.items[0].price.id}'`
       );
-    } else {
-      featurePlanId = candidatureFeaturePlanId;
     }
+
+    const featurePlanId = candidatureFeaturePlanId
+      ? candidatureFeaturePlanId
+      : 'freeFeaturePlanId';
 
     $set['featurePlan._id'] = featurePlanId;
     $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
@@ -375,7 +330,7 @@ async function customerSubscriptionHelperHandler(
     );
   }
 
-  if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
+  if (isCustomerSubscriptionDeletedEvent(stripeEvent)) {
     let effectiveSubscription: StripeSubscriptionType;
     if (dbSubscription && dbSubscription.id === subscription.id) {
       effectiveSubscription = moreFields
@@ -427,13 +382,6 @@ async function customerSubscriptionHelperHandler(
       }
     );
   }
-}
-
-async function customerSubscriptionCreatedHandler(
-  stripeEvent: Stripe.CustomerSubscriptionCreatedEvent,
-  db: any
-) {
-  await customerSubscriptionHelperHandler(stripeEvent, db);
 }
 
 async function customerSubscriptionUpdatedHandler(
@@ -495,10 +443,6 @@ export default async (event: APIGatewayProxyEvent) => {
       await paymentFailedHandler(stripeEvent, db);
     }
 
-    if (isCustomerSubscriptionCreatedEvent(stripeEvent)) {
-      await customerSubscriptionCreatedHandler(stripeEvent, db);
-    }
-
     if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
       await customerSubscriptionUpdatedHandler(stripeEvent, db);
     }
@@ -517,10 +461,6 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
-    // console.log('exception', exception);
-    if ((exception as CrowdaaError).httpCode) {
-      (exception as CrowdaaError).httpCode = 400;
-    }
     return handleException(exception);
   } finally {
     client?.close();
