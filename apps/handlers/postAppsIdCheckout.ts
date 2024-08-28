@@ -72,8 +72,8 @@ export default async (event: APIGatewayProxyEvent) => {
           .trim(),
         featurePlanId: z
           .string({
-            required_error: 'planId is required',
-            invalid_type_error: 'planId must be a string',
+            required_error: 'featurePlanId is required',
+            invalid_type_error: 'featurePlanId must be a string',
           })
           .trim(),
       })
