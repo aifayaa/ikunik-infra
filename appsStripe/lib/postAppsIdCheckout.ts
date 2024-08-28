@@ -49,9 +49,9 @@ type MetadataType = {
 };
 
 // const TEST_PRICE_ID_FREE = 'price_1PqGBkKD2Srbl7IoT2G7sIrD';
-const TEST_PRICE_ID_PRO = 'price_1PqAowKD2Srbl7IoasO1tMm1';
-const TEST_TAXE_RATE_ID_FR = 'txr_1PqUDiKD2Srbl7IoAoc5dKUM';
-const TEST_TAXE_RATE_ID_US = 'txr_1PqU9SKD2Srbl7IoeMoB7mt5';
+const TEST_PRICE_ID_PRO = 'price_1Psm6LKD2Srbl7IouRke2m7H';
+const TEST_TAXE_RATE_ID_FR = 'txr_1Psm6NKD2Srbl7IoR5hA2w5g';
+const TEST_TAXE_RATE_ID_US = 'txr_1Psm6PKD2Srbl7Io0TmyO7hY';
 
 // The app document SHOULD NOT store:
 //  - stripe priceId
