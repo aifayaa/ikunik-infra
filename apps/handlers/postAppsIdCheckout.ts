@@ -5,6 +5,7 @@ import {
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_STRIPE,
   ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_PLAN_ID_CODE,
   MISSING_APPLICATION_CODE,
   MISSING_BODY_CODE,
   STRIPE_CUSTOMER_ID_NOT_FOUND_CODE,
@@ -20,6 +21,10 @@ import { getApp, getApplicationOrganizationId } from '@apps/lib/appsUtils';
 import { isEmpty } from 'lodash';
 import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
 import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
+import {
+  allPlanTypes,
+  FeaturePlanIdType,
+} from 'appsFeaturePlans/lib/planTypes';
 
 let client: any; // TODO type
 let db: any; // TODO type
@@ -50,19 +55,25 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const enableSubscriptionSchema = z
       .object({
-        success_url: z
+        successUrl: z
           .string({
-            required_error: 'success_url is required',
-            invalid_type_error: 'success_url must be a string',
+            required_error: 'successUrl is required',
+            invalid_type_error: 'successUrl must be a string',
           })
           .url()
           .trim(),
-        cancel_url: z
+        cancelUrl: z
           .string({
-            required_error: 'cancel_url is required',
-            invalid_type_error: 'cancel_url must be a string',
+            required_error: 'successUrl is required',
+            invalid_type_error: 'successUrl must be a string',
           })
           .url()
+          .trim(),
+        featurePlanId: z
+          .string({
+            required_error: 'planId is required',
+            invalid_type_error: 'planId must be a string',
+          })
           .trim(),
       })
       .required();
@@ -75,6 +86,25 @@ export default async (event: APIGatewayProxyEvent) => {
       validatedBody = enableSubscriptionSchema.parse(body);
     } catch (exception) {
       return formatValidationErrors(exception);
+    }
+
+    const { successUrl, cancelUrl, featurePlanId } = validatedBody;
+
+    if (!allPlanTypes.includes(featurePlanId as FeaturePlanIdType)) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_PLAN_ID_CODE,
+        `Invalid planId: '${featurePlanId}'`
+      );
+    }
+
+    // TODO: to remove when necessary plan are covered
+    if (featurePlanId !== 'proFeaturePlanId') {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_PLAN_ID_CODE,
+        `Invalid planId: '${featurePlanId}'. Only 'proFeaturePlanId' is currently supported`
+      );
     }
 
     await checkPermsForApp(userId, appId, ['admin']);
@@ -92,16 +122,16 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    const sessionUrl = await postAppsIdCheckout({
+    const session = await postAppsIdCheckout({
       stripeCustomerId,
       userId,
       app,
-      db,
-      checkoutSessionCancelUrl: validatedBody.cancel_url,
-      checkoutSessionSuccessUrl: validatedBody.success_url,
+      featurePlanId,
+      checkoutSessionCancelUrl: cancelUrl,
+      checkoutSessionSuccessUrl: successUrl,
     });
 
-    if (!sessionUrl) {
+    if (!session.url) {
       throw new CrowdaaError(
         ERROR_TYPE_STRIPE,
         CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
@@ -109,7 +139,7 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    return response({ code: 200, body: { url: sessionUrl } });
+    return response({ code: 200, body: session });
   } catch (exception) {
     return handleException(exception);
   } finally {
