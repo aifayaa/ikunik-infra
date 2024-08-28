@@ -89,7 +89,7 @@ export default async (appId, settings, isSuperAdmin = false) => {
       if (appPlan.features.chat !== true) {
         deniedSettings.push('press.chatNotificationsEnabled');
       }
-      if (appPlan.features.community !== true) {
+      if (appPlan.features.crowd !== true) {
         deniedSettings.push(
           'press.env.articleFromCommunityDateFormat',
           'press.env.communityArticleCommentsEnabled',

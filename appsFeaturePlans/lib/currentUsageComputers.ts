@@ -18,19 +18,15 @@ export const currentUsageComputers: Record<
   appTabs: (_app: AppType) => {
     return Promise.resolve(0);
   },
-
   appTheme: (_app: AppType) => {
     return Promise.resolve(0);
   },
-
   chat: (_app: AppType) => {
     return Promise.resolve(0);
   },
-
-  community: (_app: AppType) => {
+  crowd: (_app: AppType) => {
     return Promise.resolve(0);
   },
-
   translations: (_app: AppType) => {
     return Promise.resolve(0);
   },
