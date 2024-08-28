@@ -25,6 +25,7 @@ import {
   allPlanTypes,
   FeaturePlanIdType,
 } from 'appsFeaturePlans/lib/planTypes';
+import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
 
 let client: any; // TODO type
 let db: any; // TODO type
@@ -139,7 +140,12 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    return response({ code: 200, body: session });
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: session,
+      }),
+    });
   } catch (exception) {
     return handleException(exception);
   } finally {
