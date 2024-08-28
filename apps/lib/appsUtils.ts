@@ -195,15 +195,22 @@ async function keepOnlyAdminUser(users: Array<OrganizationFieldUserType>) {
   return users.filter((user) => adminUsersId.includes(user._id));
 }
 
-export async function getApplicationUsers(app: AppType) {
+export async function getApplicationUsers(
+  app: AppType,
+  throwOnNoOrg: boolean = true
+) {
   const users = app.organization?.users;
 
   if (!users) {
-    throw new CrowdaaError(
-      ERROR_TYPE_VALIDATION_ERROR,
-      MISSING_ORGANIZATION_CODE,
-      `App '${app._id}' do not have an organization`
-    );
+    if (throwOnNoOrg) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_ORGANIZATION_CODE,
+        `App '${app._id}' do not have an organization`
+      );
+    } else {
+      return [];
+    }
   }
 
   return await keepOnlyAdminUser(users);

@@ -16,11 +16,13 @@ export default async (
       'emails.address': 1,
       'profile.firstname': 1,
       'profile.lastname': 1,
-    },
+    } as object | null,
     includeSuperAdmins = false,
   } = {}
 ) => {
   const client = await MongoClient.connect();
+
+  const queryOpts = userProjection ? { projection: userProjection } : {};
 
   try {
     const db = client.db();
@@ -46,14 +48,14 @@ export default async (
               },
             },
           },
-          { projection: userProjection }
+          queryOpts
         )
         .toArray();
       if (appOrgAdmins.length > 0) {
         indexObjectArrayWithKey(appOrgAdmins, '_id', admins);
       }
 
-      const appOrgUsersIds = await getApplicationUsers(app);
+      const appOrgUsersIds = await getApplicationUsers(app, false);
 
       if (appOrgUsersIds.length > 0) {
         const appOrgUsers = await db
@@ -64,7 +66,7 @@ export default async (
               appId: ADMIN_APP,
               'perms.orgs._id': app.organization._id,
             },
-            { projection: userProjection }
+            queryOpts
           )
           .toArray();
         if (appOrgUsers.length > 0) {
@@ -75,10 +77,7 @@ export default async (
 
     const directAdminsList = await db
       .collection(COLL_USERS)
-      .find(
-        { appId: ADMIN_APP, 'perms.apps._id': app._id },
-        { projection: userProjection }
-      )
+      .find({ appId: ADMIN_APP, 'perms.apps._id': app._id }, queryOpts)
       .toArray();
 
     if (directAdminsList.length > 0) {
@@ -88,10 +87,7 @@ export default async (
     if (includeSuperAdmins) {
       const superAdminsList = await db
         .collection(COLL_USERS)
-        .find(
-          { appId: ADMIN_APP, superAdmin: true },
-          { projection: userProjection }
-        )
+        .find({ appId: ADMIN_APP, superAdmin: true }, queryOpts)
         .toArray();
 
       if (superAdminsList.length > 0) {
