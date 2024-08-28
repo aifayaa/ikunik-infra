@@ -23,6 +23,12 @@ const serverlessConfiguration = {
     timeout: 30,
     environment: {
       ...env,
+      STRIPE_SECRET_KEY:
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/stripe-secret-key}',
+      STRIPE_WEBHOOK_SECRET_KEY:
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
+      BASEROW_API_ACCESS_TOKEN:
+        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
