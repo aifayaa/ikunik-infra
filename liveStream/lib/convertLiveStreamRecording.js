@@ -5,7 +5,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { IVS_BUCKET, IVS_REGION, MEDIACONVERT_IAM_ROLE_ARN } = process.env;
 
-const { COLL_LIVE_STREAM } = mongoCollections;
+const { COLL_LIVE_STREAMS } = mongoCollections;
 
 const mediaconvert = new MediaConvert({
   apiVersion: '2017-08-29',
@@ -41,7 +41,7 @@ export default async (appId, liveStreamId, recordingRoot) => {
     };
     const dbLiveStream = await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .findOne(dbQuery, {
         projection: { _id: 1, 'recordings.$': 1, conversions: 1 },
       });
@@ -153,7 +153,7 @@ export default async (appId, liveStreamId, recordingRoot) => {
 
     await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .updateOne(dbQuery, {
         $set: {
           'recordings.$': dbRecord,

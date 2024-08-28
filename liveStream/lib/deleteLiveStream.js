@@ -5,7 +5,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { IVS_REGION } = process.env;
 
-const { COLL_LIVE_STREAM } = mongoCollections;
+const { COLL_LIVE_STREAMS } = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -17,7 +17,7 @@ export default async (appId, liveStreamId) => {
   try {
     const dbLiveStream = await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .findOne({
         _id: liveStreamId,
         appId,
@@ -61,7 +61,7 @@ export default async (appId, liveStreamId) => {
 
     await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .deleteOne({ _id: liveStreamId });
 
     return true;

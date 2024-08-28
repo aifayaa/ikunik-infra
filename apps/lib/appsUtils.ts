@@ -57,12 +57,7 @@ export async function getApp(appId: string): Promise<AppType> {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         APP_NOT_FOUND_CODE,
-        `The application '${appId}' is not found`,
-        {
-          details: {
-            appId,
-          },
-        }
+        `The application '${appId}' is not found`
       );
     }
 

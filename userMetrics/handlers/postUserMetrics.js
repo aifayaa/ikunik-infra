@@ -2,6 +2,8 @@
 import postUserMetrics from '../lib/postUserMetrics';
 import response from '../../libs/httpResponses/response.ts';
 import AVAILABLE_TYPES from '../userMetrics.json';
+import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
+import getAppActiveUsers from './getAppActiveUsers';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
@@ -11,6 +13,12 @@ export default async (event) => {
     throw new Error('missing_payload');
   }
   try {
+    // Soft limit, do not discard metrics on limit exceeded
+    await checkAppPlanForLimitIncrease(appId, 'activeUsers', async (app) => {
+      const activeUsers = await getAppActiveUsers(app);
+      return activeUsers.count;
+    });
+
     /* Retrieve body data and parse it */
     const bodyParsed = JSON.parse(event.body);
     const {

@@ -5,7 +5,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { IVS_REGION } = process.env;
 
-const { COLL_LIVE_STREAM } = mongoCollections;
+const { COLL_LIVE_STREAMS } = mongoCollections;
 
 const ivs = new IVS({
   apiVersion: '2020-07-14',
@@ -41,7 +41,7 @@ async function expireLiveStream(dbLiveStream, client) {
 
   await client
     .db()
-    .collection(COLL_LIVE_STREAM)
+    .collection(COLL_LIVE_STREAMS)
     .updateOne({ _id: dbLiveStream._id }, { $set: { expired: true } });
 }
 
@@ -53,7 +53,7 @@ export default async () => {
 
     await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .find({
         provider: 'aws-ivs',
         expireDateTime: { $lt: new Date() },

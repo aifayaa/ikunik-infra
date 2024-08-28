@@ -16,9 +16,14 @@ import {
 import { z } from 'zod';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { filterAppPrivateFields } from '../../apps/lib/appsUtils';
+import { checkAppPlanForLimitAccess } from 'appsFeaturePlans/lib/checkAppPlanForLimits';
 
 export default async (event: APIGatewayProxyEvent) => {
-  const { principalId: userId } = (event.requestContext || {}).authorizer || {};
+  const { principalId: userId, superAdmin } = event.requestContext
+    .authorizer as {
+    principalId: string;
+    superAdmin?: boolean;
+  };
   const appId = event.pathParameters?.id;
 
   try {
@@ -28,6 +33,14 @@ export default async (event: APIGatewayProxyEvent) => {
         MISSING_APPLICATION_CODE,
         `Path parameter appId is not defined: '${appId}'`
       );
+    }
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'translations');
+
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
     }
 
     if (!event.body) {

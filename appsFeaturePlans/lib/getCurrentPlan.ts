@@ -14,7 +14,6 @@ import {
   allFeatureResetPeriod,
   allFeatureResetPeriodWindow,
   allPlanTypes,
-  AppFeaturePlanType,
   ComputedFeaturePlanType,
   ComputedFeatureSpecificationType,
   FeatureIdType,
@@ -23,6 +22,7 @@ import {
   FeatureResetPeriodType,
   FeatureResetPeriodWindowType,
 } from './planTypes';
+import { currentUsageComputers } from './currentUsageComputers';
 
 const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   legacyFeaturePlanId: {
@@ -33,12 +33,12 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Early adopter',
     },
     features: {
-      appAnalytics: true,
       badges: true,
       chat: true,
       collaborators: true,
-      community: true,
+      crowd: true,
       liveStreams: true,
+      liveStreamDuration: true,
       appTabs: true,
       playlists: true,
       polls: true,
@@ -55,7 +55,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Free',
     },
     features: {
-      appAnalytics: false,
       badges: false,
       chat: false,
       collaborators: {
@@ -64,8 +63,9 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
         resetPeriodWindow: 'fixed',
         isSoft: false,
       },
-      community: false,
+      crowd: false,
       liveStreams: false,
+      liveStreamDuration: false,
       appTabs: false,
       playlists: false,
       polls: false,
@@ -85,12 +85,12 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Pro',
     },
     features: {
-      appAnalytics: true,
       badges: true,
       chat: true,
       collaborators: true,
-      community: true,
-      liveStreams: true, // TODO Limit me later!!!
+      crowd: true,
+      liveStreams: true,
+      liveStreamDuration: true, // TODO Limit me later!!!
       appTabs: true,
       playlists: true,
       polls: true,
@@ -110,12 +110,12 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       en: 'Entertainment',
     },
     features: {
-      appAnalytics: true,
       badges: true,
       chat: true,
       collaborators: true,
-      community: true,
+      crowd: true,
       liveStreams: true,
+      liveStreamDuration: true,
       appTabs: true,
       playlists: true,
       polls: true,
@@ -161,12 +161,35 @@ function isAFeatureResetPeriodWindow(
  * Use year/month from now and apply it to startSubscriptionDate
  * If it wraps to the next month, cap it to the current month.
  */
-function useNowMonthYearAndCapMonth(startSubscriptionDate: Date, now: Date) {
+function useCappedMonthAndYear(startSubscriptionDate: Date, now: Date) {
   const computedDate = new Date(startSubscriptionDate.getTime());
   computedDate.setFullYear(now.getFullYear());
   computedDate.setMonth(now.getMonth());
 
   if (computedDate.getMonth() !== now.getMonth()) {
+    // It wrappet to next month (31st not possible on given month for ex.), cap it by the target month
+    computedDate.setDate(1);
+    computedDate.setHours(0);
+    computedDate.setMinutes(0);
+    computedDate.setSeconds(0);
+    computedDate.setMilliseconds(-1); // Wrap back to previous month
+  }
+
+  return computedDate;
+}
+
+/**
+ * Use year from now and apply it to startSubscriptionDate
+ * If it wraps to the next month, cap it to the current month.
+ */
+function useCappedYear(startSubscriptionDate: Date, now: Date) {
+  const computedDate = new Date(startSubscriptionDate.getTime());
+  computedDate.setFullYear(now.getFullYear());
+
+  if (
+    computedDate.getFullYear() !== now.getFullYear() ||
+    computedDate.getMonth() !== startSubscriptionDate.getMonth()
+  ) {
     // It wrappet to next month (31st not possible on given month for ex.), cap it by the target month
     computedDate.setDate(1);
     computedDate.setHours(0);
@@ -283,17 +306,17 @@ export function computePlanDates(
             );
           }
 
-          const computedDate = useNowMonthYearAndCapMonth(
+          const computedDate = useCappedMonthAndYear(
             startSubscriptionDate,
             now
           );
 
           if (computedDate.getTime() <= now.getTime()) {
             // We have the start date, compute the end
-            const nextMonth = new Date(now.getTime());
+            const nextMonth = new Date(now);
             nextMonth.setDate(32);
             const startDate = computedDate;
-            const resetDate = useNowMonthYearAndCapMonth(
+            const resetDate = useCappedMonthAndYear(
               startSubscriptionDate,
               nextMonth
             );
@@ -301,9 +324,9 @@ export function computePlanDates(
             return [startDate, resetDate];
           } else {
             // We have the end date, compute the start
-            const prevMonth = new Date(now.getTime());
+            const prevMonth = new Date(now);
             prevMonth.setDate(-1);
-            const startDate = useNowMonthYearAndCapMonth(
+            const startDate = useCappedMonthAndYear(
               startSubscriptionDate,
               prevMonth
             );
@@ -321,53 +344,38 @@ export function computePlanDates(
             );
           }
 
-          const today = getNow();
+          const computedDate = useCappedYear(startSubscriptionDate, now);
 
-          let startDateCandidate = new Date(startSubscriptionDate);
-          let startDatePlusOneMonthCandidate = new Date(startDateCandidate);
-          startDatePlusOneMonthCandidate.setFullYear(
-            startDatePlusOneMonthCandidate.getFullYear() + 1
-          );
+          if (computedDate.getTime() <= now.getTime()) {
+            // We have the start date, compute the end
+            const nextMonth = new Date(now);
+            nextMonth.setDate(32);
+            const startDate = computedDate;
+            const resetDate = useCappedYear(startSubscriptionDate, nextMonth);
 
-          let searchAttempt = 0;
-          const MAX_SEARCH_ATTEMPTS = 100;
-          while (
-            startDateCandidate <= today &&
-            today < startDatePlusOneMonthCandidate
-          ) {
-            startDateCandidate.setFullYear(
-              startDateCandidate.getFullYear() + 1
-            );
-            startDatePlusOneMonthCandidate.setFullYear(
-              startDatePlusOneMonthCandidate.getFullYear() + 1
-            );
-            searchAttempt += 1;
+            return [startDate, resetDate];
+          } else {
+            // We have the end date, compute the start
+            const prevMonth = new Date(now);
+            prevMonth.setDate(-1);
+            const startDate = useCappedYear(startSubscriptionDate, prevMonth);
+            const resetDate = computedDate;
 
-            if (MAX_SEARCH_ATTEMPTS < searchAttempt) {
-              throw new CrowdaaError(
-                ERROR_TYPE_VALIDATION_ERROR,
-                FEATURE_SPECIFICATION_NOT_VALID_CODE,
-                `Cannot find month window startSubscriptionDate:'${startSubscriptionDate}', today:'${today}', resetPeriod: '${resetPeriod}', resetPeriodWindow:'${resetPeriodWindow}'`
-              );
-            }
+            return [startDate, resetDate];
           }
-
-          const startDate = startDateCandidate;
-          const resetDate = new Date(startDate);
-          resetDate.setFullYear(resetDate.getFullYear() + 1);
-
-          return [startDate, resetDate];
         }
       }
     }
   }
 }
 
-function computeFeaturePlan(
+async function computeFeaturePlan(
   plan: FeaturePlanType,
-  appPlan: AppFeaturePlanType | undefined,
-  appCreatedAt: Date
+  app: AppType,
+  computeUsageFor: boolean | FeatureIdType[]
 ) {
+  const appPlan = app.featurePlan;
+  const appCreatedAt = app.createdAt;
   const { features: planFeatures } = plan;
   const { features: appPlanFeatures = {} } = appPlan || {};
   const features = {
@@ -420,11 +428,21 @@ function computeFeaturePlan(
           startSubscriptionDate
         );
 
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
           resetPeriod,
           resetPeriodWindow,
-          currentUsage: 5000, // TODO: Compute me for real
+          currentUsage,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
@@ -445,10 +463,20 @@ function computeFeaturePlan(
           resetPeriodWindowDefault
         );
 
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
           resetPeriod,
-          currentUsage: 5000,
+          currentUsage,
           currentPeriod: {
             startDate: startDate.toISOString(),
             resetDate: resetDate.toISOString(),
@@ -459,9 +487,19 @@ function computeFeaturePlan(
           computedFeatures[featureId].isSoft = isSoft;
         }
       } else if (isDefined(maxCount) && Number.isInteger(maxCount)) {
+        let currentUsage = 0;
+        if (
+          (computeUsageFor === true ||
+            (computeUsageFor instanceof Array &&
+              computeUsageFor.indexOf(featureId) >= 0)) &&
+          currentUsageComputers[featureId]
+        ) {
+          currentUsage = await currentUsageComputers[featureId](app);
+        }
+
         computedFeatures[featureId] = {
           maxCount,
-          currentUsage: 5000,
+          currentUsage,
         };
 
         if (isDefined(isSoft) && typeof isSoft === 'boolean') {
@@ -479,10 +517,10 @@ function computeFeaturePlan(
   } as ComputedFeaturePlanType;
 }
 
-// TODO Do not compute currentUsage for internal use
-// (so avoid using this function, create a new one maybe,
-// or add a parameter to set which feature needs to be computed)
-export function getCurrentPlanForApp(app: AppType) {
+export async function getCurrentPlanForApp(
+  app: AppType,
+  computeUsageFor: boolean | FeatureIdType[] = false
+) {
   const planId = app.featurePlan
     ? app.featurePlan._id
     : DEFAULT_OLD_APP_PLAN_ID;
@@ -494,16 +532,19 @@ export function getCurrentPlanForApp(app: AppType) {
     );
   }
 
-  const computedPlan = computeFeaturePlan(
+  const computedPlan = await computeFeaturePlan(
     allPlans[planId],
-    app.featurePlan as AppFeaturePlanType,
-    app.createdAt
+    app,
+    computeUsageFor
   );
 
   return computedPlan;
 }
 
-export async function getCurrentPlanForAppId(appId: string) {
+export async function getCurrentPlanForAppId(
+  appId: string,
+  computeUsageFor: boolean | FeatureIdType[] = false
+) {
   const app = await getApp(appId);
   if (!app) {
     throw new CrowdaaError(
@@ -513,7 +554,7 @@ export async function getCurrentPlanForAppId(appId: string) {
     );
   }
 
-  const computedPlan = getCurrentPlanForApp(app);
+  const computedPlan = await getCurrentPlanForApp(app, computeUsageFor);
 
   return computedPlan;
 }

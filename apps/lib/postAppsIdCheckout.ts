@@ -1,14 +1,14 @@
 import Stripe from 'stripe';
 import { isEmpty } from 'lodash';
-import mongoCollections from '@libs/mongoCollections.json';
+// import mongoCollections from '@libs/mongoCollections.json';
 import { AppType } from './appEntity';
-import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
-import {
-  ERROR_TYPE_NOT_FOUND,
-  USER_NOT_FOUND_CODE,
-  ERROR_TYPE_STRIPE,
-  STRIPE_VALID_SUBSCRIPTION_ALREADY_EXIST_CODE,
-} from '@libs/httpResponses/errorCodes';
+// import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+// import {
+//   ERROR_TYPE_NOT_FOUND,
+//   USER_NOT_FOUND_CODE,
+//   ERROR_TYPE_STRIPE,
+//   STRIPE_VALID_SUBSCRIPTION_ALREADY_EXIST_CODE,
+// } from '@libs/httpResponses/errorCodes';
 import {
   // getMeterEventName,
   // getPriceLookupKey,
@@ -18,17 +18,19 @@ import {
   getApplicationOrganizationId,
   // getStripeSubscriptionMetadata,
 } from './appsUtils';
-import { UserType } from '@users/lib/userEntity';
+// import { UserType } from '@users/lib/userEntity';
 import { isString } from 'lodash';
 import { getBaserowAffiliate } from '@libs/baserow/getBaserowAffiliate';
+import { getUser } from '@users/lib/usersUtils';
+import { FeaturePlanIdType } from 'appsFeaturePlans/lib/planTypes';
 
-const { COLL_APPS, COLL_USERS } = mongoCollections;
+// const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 type PostAppsIdCheckoutParams = {
   stripeCustomerId: string;
   userId: string;
   app: AppType;
-  db: any; // TODO type
+  featurePlanId: FeaturePlanIdType;
   checkoutSessionSuccessUrl: string;
   checkoutSessionCancelUrl: string;
 };
@@ -60,13 +62,12 @@ export const postAppsIdCheckout = async ({
   stripeCustomerId,
   userId,
   app,
-  db,
+  featurePlanId,
   checkoutSessionSuccessUrl,
   checkoutSessionCancelUrl,
-}: PostAppsIdCheckoutParams): Promise<string | null> => {
+}: PostAppsIdCheckoutParams) => {
   const stripe = getStripeClient();
-  let appUpdate: Record<string, string> = {};
-  let sessionUrl: string | null = null;
+  let session: Stripe.Checkout.Session | null = null;
 
   try {
     // // do not recreate a checkout session if not necessary
@@ -102,22 +103,7 @@ export const postAppsIdCheckout = async ({
     //   }
     // }
 
-    const user: UserType = await db
-      .collection(COLL_USERS)
-      .findOne({ _id: userId });
-
-    if (!user) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        USER_NOT_FOUND_CODE,
-        'Cannot find user',
-        {
-          details: {
-            userId,
-          },
-        }
-      );
-    }
+    const user = await getUser(userId);
 
     if (
       isString(user.profile.affiliateCode) &&
@@ -194,6 +180,7 @@ export const postAppsIdCheckout = async ({
 
     const appOrgId = getApplicationOrganizationId(app);
 
+    // TODO: update tax id for 'prod' environment
     // for now the tax to apply: France/Reunion: 8.5%, Other countries: 0%
     const taxRateIds =
       process.env.STAGE === 'prod'
@@ -256,7 +243,7 @@ export const postAppsIdCheckout = async ({
     //     },
     //   };
 
-    const session = await stripe.checkout.sessions.create({
+    session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       line_items: [
         {
@@ -304,16 +291,16 @@ export const postAppsIdCheckout = async ({
       subscription_data: subscriptionData,
     });
 
-    appUpdate['stripe.checkoutSessionId'] = session.id;
-    sessionUrl = session.url;
-    await db.collection(COLL_APPS).updateOne(
-      { _id: app._id },
-      {
-        $set: appUpdate,
-      }
-    );
+    // appUpdate['stripe.checkoutSessionId'] = session.id;
+    // sessionUrl = session.url;
+    // await db.collection(COLL_APPS).updateOne(
+    //   { _id: app._id },
+    //   {
+    //     $set: appUpdate,
+    //   }
+    // );
   } finally {
   }
 
-  return sessionUrl;
+  return { url: session.url, expiresAt: new Date(session.expires_at * 1000) };
 };

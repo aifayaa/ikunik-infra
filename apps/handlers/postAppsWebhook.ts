@@ -1,10 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import Stripe from 'stripe';
 
-import response, {
-  handleException,
-  wrapperHandleException,
-} from '@libs/httpResponses/response';
+import response, { handleException } from '@libs/httpResponses/response';
 import { getStripeClient } from '@libs/stripe';
 import { checkBodyIsPresent } from '@libs/httpResponses/checks';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
@@ -12,19 +9,18 @@ import MongoClient from '@libs/mongoClient.js';
 import mongoCollections from '@libs/mongoCollections.json';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
-  CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
+  APP_ID_NOT_FOUND_CODE,
   ERROR_TYPE_STRIPE,
+  UNKNOWN_PRICE_ID_CODE,
+  WEBHOOK_ERROR_CODE,
 } from '@libs/httpResponses/errorCodes';
-import {
-  getStripeSubscriptionMetadata,
-  isStripeSubcriptionStatus,
-} from '@apps/lib/appsUtils';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
-import { AppType } from '@apps/lib/appEntity';
+import { getApp } from '@apps/lib/appsUtils';
+import { StripeSubscriptionType } from '@apps/lib/appEntity';
+import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
 import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 
 const { COLL_APPS } = mongoCollections;
-
 const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
   ? // webhook secret created by the stripe cli when locally listening for events
     'whsec_f87467f40045df67affa6b33de01b7b1d8da6d41bc480facacbd3d8fcae7ec71'
@@ -33,17 +29,437 @@ const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
 let client: any; // TODO type
 let db: any; // TODO type
 
+function isInvoicePaymentFailedEvent(
+  stripeEvent: Stripe.Event
+): stripeEvent is Stripe.InvoicePaymentFailedEvent {
+  return stripeEvent.type === 'invoice.payment_failed';
+}
+
+function isCheckoutSessionCompletedEvent(
+  stripeEvent: Stripe.Event
+): stripeEvent is Stripe.CheckoutSessionCompletedEvent {
+  return stripeEvent.type === 'checkout.session.completed';
+}
+
+function isCustomerSubscriptionCreatedEvent(
+  stripeEvent: Stripe.Event
+): stripeEvent is Stripe.CustomerSubscriptionCreatedEvent {
+  return stripeEvent.type === 'customer.subscription.created';
+}
+
+function isCustomerSubscriptionUpdatedEvent(
+  stripeEvent: Stripe.Event
+): stripeEvent is Stripe.CustomerSubscriptionUpdatedEvent {
+  return stripeEvent.type === 'customer.subscription.updated';
+}
+
+function isCustomerSubscriptionDeletedEvent(
+  stripeEvent: Stripe.Event
+): stripeEvent is Stripe.CustomerSubscriptionDeletedEvent {
+  return stripeEvent.type === 'customer.subscription.deleted';
+}
+
+async function paymentFailedHandler(
+  stripeEvent: Stripe.InvoicePaymentFailedEvent,
+  db: any
+) {
+  const invoice = stripeEvent.data.object;
+
+  if (invoice.subscription_details?.metadata?.appId) {
+    // make sure the app still exist and this event is intended for the right crowdaa region (fr or us)
+    // const app: AppType = await db
+    //   .collection(COLL_APPS)
+    //   .findOne({ _id: invoice.subscription_details?.metadata?.appId });
+
+    // Check if the associated app still exist
+    await getApp(invoice.subscription_details?.metadata?.appId);
+
+    // console.log('Received event invoice.payment_failed', stripeEvent);
+    const stripeDashboardUrl =
+      process.env.STAGE === 'prod'
+        ? 'https://dashboard.stripe.com'
+        : 'https://dashboard.stripe.com/test';
+
+    console.error(
+      `Invoice payment failed. Check ${stripeDashboardUrl}/invoices/${invoice.id}`,
+      {
+        stripeEvent,
+      }
+    );
+
+    if (process.env.STAGE === 'prod') {
+      try {
+        await sendEmailMailgunTemplate(
+          'No reply <support@crowdaa.com>',
+          'connect@crowdaa.com',
+          '[Stripe Payment Error] An invoice payment failed',
+          'internal_raw_mail',
+          {
+            body: `Invoice (id ${invoice.id}) payment failed (attempt ${invoice.attempt_count}). You can check ${stripeDashboardUrl}/invoices/${invoice.id}`,
+          }
+        );
+      } catch (err) {
+        console.error('Could not send invoice payment failure email');
+      }
+    }
+  } else {
+    console.warn(
+      'Received event invoice.payment_failed but could not find associated appId',
+      stripeEvent
+    );
+  }
+}
+
+async function checkoutSessionCompletedHandler(
+  stripeEvent: Stripe.CheckoutSessionCompletedEvent,
+  db: any
+) {
+  const checkoutSession = stripeEvent.data.object;
+  // console.log('checkoutSession', checkoutSession);
+
+  const appId = checkoutSession.metadata?.appId;
+  if (!appId) {
+    throw new CrowdaaError(
+      ERROR_TYPE_STRIPE,
+      APP_ID_NOT_FOUND_CODE,
+      `Cannot found appId in metadata of checkoutSession: '${checkoutSession.id}'`
+    );
+  }
+
+  const createdAt = new Date(checkoutSession.created * 1000).toISOString();
+
+  await db.collection(COLL_APPS).updateOne(
+    { _id: appId },
+    {
+      $push: {
+        'stripe.checkoutSession': {
+          id: checkoutSession.id,
+          status: checkoutSession.status,
+          mode: checkoutSession.mode,
+          createdAt,
+        },
+      },
+    }
+  );
+}
+
+function extractSubscriptionData(
+  subscription: Stripe.Subscription
+): StripeSubscriptionType {
+  const canceledAt = subscription.canceled_at
+    ? new Date(subscription.canceled_at * 1000)
+    : null;
+  const createdAt = new Date(subscription.created * 1000);
+  const currentPeriodStart = new Date(subscription.current_period_start * 1000);
+  const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+  const customer = subscription.customer;
+  const endedAt = subscription.ended_at
+    ? new Date(subscription.ended_at * 1000)
+    : null;
+  const items = subscription.items.data.map((item: Stripe.SubscriptionItem) => {
+    return {
+      id: item.id,
+      price: {
+        id: item.price.id,
+        currency: item.price.currency,
+        unitAmount: item.price.unit_amount,
+      },
+    };
+  });
+  const latestInvoice = subscription.latest_invoice;
+  const livemode = subscription.livemode;
+  const nextPendingInvoiceItemInvoice =
+    subscription.next_pending_invoice_item_invoice
+      ? new Date(subscription.next_pending_invoice_item_invoice * 1000)
+      : null;
+  const status = subscription.status;
+  const transferData = subscription.transfer_data;
+  const trialEnd = subscription.trial_end
+    ? new Date(subscription.trial_end * 1000)
+    : null;
+  const trialStart = subscription.trial_start
+    ? new Date(subscription.trial_start * 1000)
+    : null;
+
+  const subscriptionRecord = {
+    id: subscription.id,
+    createdAt,
+    currentPeriodStart,
+    currentPeriodEnd,
+    items,
+    livemode,
+    status,
+  } as StripeSubscriptionType;
+
+  if (canceledAt) {
+    subscriptionRecord.canceledAt = canceledAt;
+  }
+  if (customer) {
+    if (typeof customer === 'string') {
+      subscriptionRecord.customer = customer;
+    } else {
+      subscriptionRecord.customer = customer.id;
+    }
+  }
+
+  if (endedAt) {
+    subscriptionRecord.endedAt = endedAt;
+  }
+  if (latestInvoice) {
+    if (typeof latestInvoice === 'string') {
+      subscriptionRecord.latestInvoice = latestInvoice;
+    } else {
+      subscriptionRecord.latestInvoice = latestInvoice.id;
+    }
+  }
+  if (nextPendingInvoiceItemInvoice) {
+    subscriptionRecord.nextPendingInvoiceItemInvoice =
+      nextPendingInvoiceItemInvoice;
+  }
+  if (transferData) {
+    const destination = transferData.destination;
+    subscriptionRecord.transferData = {} as {
+      destination: string;
+      amountPercent: number;
+    };
+    if (typeof destination === 'string') {
+      subscriptionRecord.transferData.destination = destination;
+    } else {
+      subscriptionRecord.transferData.destination = destination.id;
+    }
+    subscriptionRecord.transferData.amountPercent = transferData.amount_percent;
+  }
+  if (trialEnd) {
+    subscriptionRecord.trialEnd = trialEnd;
+  }
+  if (trialStart) {
+    subscriptionRecord.trialStart = trialStart;
+  }
+
+  return subscriptionRecord;
+}
+
+async function customerSubscriptionHelperHandler(
+  stripeEvent:
+    | Stripe.CustomerSubscriptionCreatedEvent
+    | Stripe.CustomerSubscriptionUpdatedEvent
+    | Stripe.CustomerSubscriptionDeletedEvent,
+  db: any,
+  moreFields?: Record<string, string>
+) {
+  const subscription = stripeEvent.data.object;
+
+  const appId = subscription.metadata?.appId;
+  if (!appId) {
+    throw new CrowdaaError(
+      ERROR_TYPE_STRIPE,
+      APP_ID_NOT_FOUND_CODE,
+      `Cannot found appId in metadata of checkoutSession: '${subscription.id}'`
+    );
+  }
+
+  const extractedSubscriptionData = extractSubscriptionData(subscription);
+
+  const app = await getApp(appId);
+
+  if (isCustomerSubscriptionCreatedEvent(stripeEvent)) {
+    const effectiveSubscription: StripeSubscriptionType = moreFields
+      ? {
+          ...extractedSubscriptionData,
+          ...moreFields,
+        }
+      : {
+          ...extractedSubscriptionData,
+        };
+
+    const $set = {
+      'stripe.subscription': effectiveSubscription,
+    } as {
+      'stripe.subscription': StripeSubscriptionType;
+      'featurePlan._id'?: string;
+      'featurePlan.startedAt'?: Date;
+    };
+
+    const featurePlanId = getFeaturePlanIdFromStripePriceId(
+      extractedSubscriptionData.items[0].price.id
+    );
+
+    if (featurePlanId) {
+      $set['featurePlan._id'] = featurePlanId;
+      $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
+    } else {
+      console.warn(
+        `Cannot find featurePlanId for stripePriceId '${extractedSubscriptionData.items[0].price.id}'`
+      );
+    }
+
+    return await db.collection(COLL_APPS).updateOne(
+      { _id: appId },
+      {
+        $set,
+      }
+    );
+  }
+
+  const dbSubscription = app.stripe?.subscription;
+
+  if (!(dbSubscription && dbSubscription.id === subscription.id)) {
+    console.warn(
+      `Cannot find or mismatch between stripe.subscription and dbSubscription for app '${appId}'`
+    );
+  }
+
+  if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
+    let effectiveSubscription: StripeSubscriptionType;
+    if (dbSubscription && dbSubscription.id === subscription.id) {
+      effectiveSubscription = moreFields
+        ? {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+          };
+    } else {
+      effectiveSubscription = moreFields
+        ? {
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...extractedSubscriptionData,
+          };
+    }
+
+    const $set = {
+      'stripe.subscription': effectiveSubscription,
+    } as {
+      'stripe.subscription': StripeSubscriptionType;
+      'featurePlan._id'?: string;
+      'featurePlan.startedAt'?: Date;
+    };
+
+    const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
+      extractedSubscriptionData.items[0].price.id
+    );
+
+    let featurePlanId = 'freeFeaturePlanId';
+    if (!candidatureFeaturePlanId) {
+      await db.collection(COLL_APPS).updateOne(
+        { _id: appId },
+        {
+          $set,
+        }
+      );
+
+      throw new CrowdaaError(
+        ERROR_TYPE_STRIPE,
+        UNKNOWN_PRICE_ID_CODE,
+        `Cannot find featurePlanId for stripePriceId '${extractedSubscriptionData.items[0].price.id}'`
+      );
+    } else {
+      featurePlanId = candidatureFeaturePlanId;
+    }
+
+    $set['featurePlan._id'] = featurePlanId;
+    $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
+
+    await db.collection(COLL_APPS).updateOne(
+      { _id: appId },
+      {
+        $set,
+      }
+    );
+  }
+
+  if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
+    let effectiveSubscription: StripeSubscriptionType;
+    if (dbSubscription && dbSubscription.id === subscription.id) {
+      effectiveSubscription = moreFields
+        ? {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+          };
+    } else {
+      effectiveSubscription = moreFields
+        ? {
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...extractedSubscriptionData,
+          };
+    }
+
+    const $set = {
+      'stripe.subscription': effectiveSubscription,
+    } as {
+      'stripe.subscription': StripeSubscriptionType;
+      'featurePlan._id'?: string;
+      'featurePlan.startedAt'?: Date;
+    };
+
+    let featurePlanId = 'freeFeaturePlanId';
+
+    const canceledAt = effectiveSubscription.canceledAt;
+
+    if (!canceledAt) {
+      console.warn(
+        `The fields canceledAt is not set for stripe.subscription for app '${appId}'`
+      );
+    }
+
+    $set['featurePlan._id'] = featurePlanId;
+    $set['featurePlan.startedAt'] = canceledAt ? canceledAt : new Date();
+
+    await db.collection(COLL_APPS).updateOne(
+      { _id: appId },
+      {
+        $set,
+      }
+    );
+  }
+}
+
+async function customerSubscriptionCreatedHandler(
+  stripeEvent: Stripe.CustomerSubscriptionCreatedEvent,
+  db: any
+) {
+  customerSubscriptionHelperHandler(stripeEvent, db);
+}
+
+async function customerSubscriptionUpdatedHandler(
+  stripeEvent: Stripe.CustomerSubscriptionUpdatedEvent,
+  db: any
+) {
+  const updatedAt = new Date().toISOString();
+  customerSubscriptionHelperHandler(stripeEvent, db, {
+    updatedAt,
+  });
+}
+
+async function customerSubscriptionDeletedHandler(
+  stripeEvent: Stripe.CustomerSubscriptionDeletedEvent,
+  db: any
+) {
+  customerSubscriptionHelperHandler(stripeEvent, db);
+}
+
 export default async (event: APIGatewayProxyEvent) => {
   try {
-    // This code is not executed
-    trowExceptionUntestedCode20240808();
+    // TODO: remove when ready
+    if (process.env.STAGE === 'prod') {
+      trowExceptionUntestedCode20240808({ httpCode: 400 });
+    }
 
     const payload = checkBodyIsPresent(event.body);
-
-    /*
-      TODO check request originates from allowed domains and ip https://docs.stripe.com/ips#notifications-de-webhook
-      is it possible to filter ip addresses in the API gateway configuration ?
-    */
 
     const stripe = getStripeClient();
 
@@ -57,190 +473,36 @@ export default async (event: APIGatewayProxyEvent) => {
         STRIPE_WEBHOOK_SECRET
       );
     } catch (exception) {
-      wrapperHandleException(exception, (exception) => {
-        return response({
-          code: 400,
-          body: formatResponseBody({
-            errors: [
-              {
-                type: 'STRIPE_WEBHOOK',
-                code: '400',
-                message: `Webhook Error: ${exception.message}`,
-                details: exception.stack,
-              },
-            ],
-          }),
-        });
-      });
-    }
-
-    if (!stripeEvent) {
       throw new CrowdaaError(
         ERROR_TYPE_STRIPE,
-        CHECKOUT_SESSION_INSTANCIATION_FAILED_CODE,
-        `The Stripe event is not defined`
+        WEBHOOK_ERROR_CODE,
+        `Webhook Error`
       );
     }
-    /* 
-      TODO: 
-      - should we check stripeEvent.livemode ? https://docs.stripe.com/webhooks#live-and-test-mode
-      - save every stripe event that were handled? we might receive the same event multiple times,
-      by doing so, we can check every time and ensure that each event is handled only once.
-      - stripe does not guaranty the order of events received. see if we should enhance the code
-      to handle such situations
-      - check if operations (db access, computing, etc) we apply takes too long and might cause
-      stripe response time to timeout ?
-      - use one separate file to handle one event type
-    */
-    if (stripeEvent.type === 'customer.subscription.created') {
-      // TODO use appropriate logger
-      console.log('Received event customer.subscription.created', stripeEvent);
-      if (!client) client = await MongoClient.connect();
-      if (!db) db = client.db();
 
-      const subscription = stripeEvent.data.object;
+    console.log('stripeEvent.type', stripeEvent.type);
 
-      const { metadata } = subscription;
+    if (!client) client = await MongoClient.connect();
+    if (!db) db = client.db();
 
-      const { appId, crowdaaStatus } = metadata;
+    if (isCheckoutSessionCompletedEvent(stripeEvent)) {
+      checkoutSessionCompletedHandler(stripeEvent, db);
+    }
 
-      const stripeSubscriptionId = subscription.id;
+    if (isInvoicePaymentFailedEvent(stripeEvent)) {
+      await paymentFailedHandler(stripeEvent, db);
+    }
 
-      const { matchedCount } = await db.collection(COLL_APPS).updateOne(
-        { _id: appId },
-        {
-          $set: {
-            'stripe.subscriptionId': subscription.id,
-          },
-        }
-      );
+    if (isCustomerSubscriptionCreatedEvent(stripeEvent)) {
+      await customerSubscriptionCreatedHandler(stripeEvent, db);
+    }
 
-      if (
-        matchedCount === 1 && // make sure the app still exist and this event is intended for the right crowdaa region (fr or us)
-        isStripeSubcriptionStatus(crowdaaStatus) &&
-        crowdaaStatus === 'initial'
-      ) {
-        const updatedSubscription = await stripe.subscriptions.update(
-          stripeSubscriptionId,
-          {
-            metadata: {
-              ...metadata,
-              ...getStripeSubscriptionMetadata('hold'),
-            },
-            // Suspend the subscription payment
-            pause_collection: {
-              behavior: 'void',
-            },
-          }
-        );
-        // TODO use appropriate logger
-        console.log('Paused subscription payment collection', {
-          appId,
-          updatedSubscription,
-          stripeEvent,
-        });
-      } else {
-        // TODO use appropriate logger
-        console.warn('Did not pause subscription payment collection', {
-          appId,
-          matchedCount,
-          subscription,
-          stripeEvent,
-        });
-      }
-    } else if (stripeEvent.type === 'customer.subscription.updated') {
-      // NOTE subscription updated event is also fired when payment collection is "paused/resumed"
-      const subscription = stripeEvent.data.object;
-      if (subscription.metadata.appId) {
-        if (!client) client = await MongoClient.connect();
-        if (!db) db = client.db();
+    if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
+      await customerSubscriptionUpdatedHandler(stripeEvent, db);
+    }
 
-        // make sure the app still exist and this event is intended for the right crowdaa region (fr or us)
-        const app: AppType = await db
-          .collection(COLL_APPS)
-          .findOne({ _id: subscription.metadata.appId });
-
-        if (app) {
-          // TODO use appropriate logger
-          console.log(
-            'Received event customer.subscription.updated',
-            stripeEvent
-          );
-          // TODO check subscription payment collection has been resumed or paused
-          // and remove/grant access to the associated app? anything should be done?
-        } else {
-          console.log(
-            'Received event customer.subscription.updated but the associated app does not exist',
-            stripeEvent
-          );
-        }
-      } else {
-        // TODO use appropriate logger
-        console.warn(
-          'Received event customer.subscription.updated but could not find associated appId',
-          stripeEvent
-        );
-      }
-    } else if (stripeEvent.type === 'invoice.payment_failed') {
-      const invoice = stripeEvent.data.object;
-
-      if (invoice.subscription_details?.metadata?.appId) {
-        if (!client) client = await MongoClient.connect();
-        if (!db) db = client.db();
-
-        // make sure the app still exist and this event is intended for the right crowdaa region (fr or us)
-        const app: AppType = await db
-          .collection(COLL_APPS)
-          .findOne({ _id: invoice.subscription_details?.metadata?.appId });
-
-        if (app) {
-          // TODO use appropriate logger
-          console.log('Received event invoice.payment_failed', stripeEvent);
-          let stripeDashboardUrl = 'https://dashboard.stripe.com';
-
-          if (process.env.STAGE === 'prod') {
-            try {
-              // TODO create an email template for this case?
-              await sendEmailMailgunTemplate(
-                'No reply <support@crowdaa.com>',
-                'connect@crowdaa.com',
-                '[Stripe Payment Error] An invoice payment failed',
-                'internal_raw_mail',
-                {
-                  body: `Invoice (id ${invoice.id}) payment failed (attempt ${invoice.attempt_count}). You can check ${stripeDashboardUrl}/invoices/${invoice.id}`,
-                }
-              );
-            } catch (err) {
-              // TODO use appropriate logger
-              console.error('Could not send invoice payment failure email');
-            }
-          } else {
-            stripeDashboardUrl += '/test';
-          }
-
-          // TODO use appropriate logger
-          console.error(
-            `Invoice payment failed. Check ${stripeDashboardUrl}/invoices/${invoice.id}`,
-            {
-              stripeEvent,
-            }
-          );
-        } else {
-          console.log(
-            'Received event invoice.payment_failed but the associated app does not exist',
-            stripeEvent
-          );
-        }
-      } else {
-        // TODO use appropriate logger
-        console.warn(
-          'Received event invoice.payment_failed but could not find associated appId',
-          stripeEvent
-        );
-      }
-    } else {
-      // TODO use appropriate logger
-      console.warn('Received unhandled event', stripeEvent);
+    if (isCustomerSubscriptionDeletedEvent(stripeEvent)) {
+      await customerSubscriptionDeletedHandler(stripeEvent, db);
     }
 
     return response({
@@ -253,6 +515,9 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
+    if ((exception as CrowdaaError).httpCode) {
+      (exception as CrowdaaError).httpCode = 400;
+    }
     return handleException(exception);
   } finally {
     client?.close();

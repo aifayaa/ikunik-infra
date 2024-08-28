@@ -7,7 +7,7 @@ import { filterOutput } from './utils';
 
 const { IVS_BUCKET, IVS_REGION } = process.env;
 
-const { COLL_LIVE_STREAM } = mongoCollections;
+const { COLL_LIVE_STREAMS } = mongoCollections;
 
 const s3 = new S3({
   apiVersion: '2006-03-01',
@@ -42,7 +42,7 @@ export default async (appId, liveStreamId) => {
   try {
     const dbLiveStream = await client
       .db()
-      .collection(COLL_LIVE_STREAM)
+      .collection(COLL_LIVE_STREAMS)
       .findOne({
         _id: liveStreamId,
         appId,
@@ -164,7 +164,7 @@ export default async (appId, liveStreamId) => {
 
         await client
           .db()
-          .collection(COLL_LIVE_STREAM)
+          .collection(COLL_LIVE_STREAMS)
           .updateOne(
             { _id: liveStreamId },
             {

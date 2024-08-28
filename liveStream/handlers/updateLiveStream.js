@@ -3,12 +3,25 @@ import response from '../../libs/httpResponses/response.ts';
 import updateLiveStream from '../lib/updateLiveStream';
 import checks from '../lib/checks';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
   try {
-    const { appId, principalId: userId } = event.requestContext.authorizer;
-
+    const {
+      appId,
+      principalId: userId,
+      superAdmin,
+    } = event.requestContext.authorizer;
     const { id: liveStreamId } = event.pathParameters;
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'liveStreams');
+
+      if (!allowed) {
+        throw new Error('app_limits_exceeded');
+      }
+    }
+
     await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {

@@ -1,6 +1,7 @@
 import {
   FeatureAppDataType,
   FeatureIdType,
+  FeatureSpecificationType,
 } from 'appsFeaturePlans/lib/planTypes';
 import { AppsPermWithoutOwnerType } from '../../libs/perms/permEntities';
 
@@ -12,6 +13,35 @@ export type OrganizationFieldUserType = {
 type OrganizationFieldType = {
   _id: string;
   users: Array<OrganizationFieldUserType>;
+};
+
+export type StripeSubscriptionType = {
+  id: string;
+  canceledAt?: Date;
+  createdAt: Date;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  customer: string;
+  endedAt?: Date;
+  items: Array<{
+    id: string;
+    price: {
+      id: string;
+      currency: string;
+      unitAmount: number | null;
+    };
+  }>;
+  latestInvoice: string;
+  livemode: boolean;
+  nextPendingInvoiceItemInvoice?: Date;
+  status: string;
+  transferData?: {
+    destination: string;
+    amountPercent: number | null;
+  };
+  trialEnd?: Date;
+  trialStart?: Date;
+  updatedAt?: Date;
 };
 
 export type AppType = {
@@ -166,15 +196,13 @@ export type AppType = {
   firebaseProjectId?: object;
   organization?: OrganizationFieldType;
   stripe?: {
-    checkoutSessionId?: string;
-    meterId?: string;
-    priceId?: string;
-    subscriptionId?: string;
+    subscription?: StripeSubscriptionType;
   };
   featurePlan?: {
     _id: string;
-    featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
     startedAt: Date;
+    features?: Partial<Record<FeatureIdType, FeatureSpecificationType>>;
+    featuresData?: Partial<Record<FeatureIdType, FeatureAppDataType>>;
   };
 };
 
