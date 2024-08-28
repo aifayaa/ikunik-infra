@@ -12,7 +12,7 @@ import {
   APP_ID_NOT_FOUND_CODE,
   ERROR_TYPE_STRIPE,
   UNKNOWN_PRICE_ID_CODE,
-  WEBHOOK_ERROR_CODE,
+  SIGNATURE_CHECK_ERROR_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
 import { getApp } from '@apps/lib/appsUtils';
@@ -459,7 +459,6 @@ export default async (event: APIGatewayProxyEvent) => {
     if (process.env.STAGE === 'prod') {
       trowExceptionUntestedCode20240808({ httpCode: 400 });
     }
-    console.log('BEGIN postAppsWebhook');
 
     const payload = checkBodyIsPresent(event.body);
     // console.log('payload', payload);
@@ -478,8 +477,8 @@ export default async (event: APIGatewayProxyEvent) => {
     } catch (exception) {
       throw new CrowdaaError(
         ERROR_TYPE_STRIPE,
-        WEBHOOK_ERROR_CODE,
-        `Webhook Error`
+        SIGNATURE_CHECK_ERROR_CODE,
+        `Fail to verify Stripe signature`
       );
     }
 
