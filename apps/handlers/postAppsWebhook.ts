@@ -433,7 +433,7 @@ async function customerSubscriptionCreatedHandler(
   stripeEvent: Stripe.CustomerSubscriptionCreatedEvent,
   db: any
 ) {
-  customerSubscriptionHelperHandler(stripeEvent, db);
+  await customerSubscriptionHelperHandler(stripeEvent, db);
 }
 
 async function customerSubscriptionUpdatedHandler(
@@ -441,7 +441,7 @@ async function customerSubscriptionUpdatedHandler(
   db: any
 ) {
   const updatedAt = new Date().toISOString();
-  customerSubscriptionHelperHandler(stripeEvent, db, {
+  await customerSubscriptionHelperHandler(stripeEvent, db, {
     updatedAt,
   });
 }
@@ -450,7 +450,7 @@ async function customerSubscriptionDeletedHandler(
   stripeEvent: Stripe.CustomerSubscriptionDeletedEvent,
   db: any
 ) {
-  customerSubscriptionHelperHandler(stripeEvent, db);
+  await customerSubscriptionHelperHandler(stripeEvent, db);
 }
 
 export default async (event: APIGatewayProxyEvent) => {
