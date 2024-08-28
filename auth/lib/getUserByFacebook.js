@@ -10,6 +10,11 @@ import generateToken from '../../libs/tokens/generateToken';
 import hashToken from '../../libs/tokens/hashToken';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import {
+  APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+  ERROR_TYPE_NOT_ALLOWED,
+} from '../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -37,7 +42,11 @@ export const getUserByFacebook = async (userToken, appId) => {
     );
 
     if (!allowed) {
-      throw new Error('app_limits_exceeded');
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_ALLOWED,
+        APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+        `The current plan for app '${appId}' does not allow this operation`
+      );
     }
 
     const collection = await client.db().collection(COLL_USERS);
