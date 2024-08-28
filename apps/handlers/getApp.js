@@ -9,15 +9,26 @@ import {
   getApp,
   getAppLockedFields,
 } from '../lib/appsUtils.ts';
+import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
-  const { principalId: userId } = event.requestContext.authorizer;
+  const { principalId: userId, superAdmin } = event.requestContext.authorizer;
   const appId = event.pathParameters.id;
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const app = await getApp(appId);
+
+    if (!superAdmin) {
+      const allowed = await checkAppPlanForLimitAccess(appId, 'playlists');
+
+      if (!allowed) {
+        if (app && app.settings) {
+          delete app.settings.playlistManagementUrl;
+        }
+      }
+    }
 
     return response({
       code: 200,
