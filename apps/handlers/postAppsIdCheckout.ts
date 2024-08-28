@@ -38,6 +38,11 @@ export default async (event: APIGatewayProxyEvent) => {
   if (!db) db = client.db();
 
   try {
+    // TODO: remove when ready
+    if (process.env.STAGE === 'prod') {
+      trowExceptionUntestedCode20240808();
+    }
+
     if (!appId) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,

@@ -18,6 +18,7 @@ import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
 import { getApp } from '@apps/lib/appsUtils';
 import { StripeSubscriptionType } from '@apps/lib/appEntity';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
+import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 
 const { COLL_APPS } = mongoCollections;
 const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
@@ -453,6 +454,11 @@ async function customerSubscriptionDeletedHandler(
 
 export default async (event: APIGatewayProxyEvent) => {
   try {
+    // TODO: remove when ready
+    if (process.env.STAGE === 'prod') {
+      trowExceptionUntestedCode20240808();
+    }
+
     const payload = checkBodyIsPresent(event.body);
 
     const stripe = getStripeClient();
