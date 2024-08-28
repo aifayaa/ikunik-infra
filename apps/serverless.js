@@ -714,48 +714,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    // stripeCheckout: {
-    //   handler: 'handlers/postAppsIdCheckout.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'apps/{id}/checkout',
-    //         method: 'POST',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-    //         },
-    //         request: {
-    //           parameters: {
-    //             paths: { id: true },
-    //             headers: {
-    //               Authorization: true,
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
-    // stripeWebhook: {
-    //   handler: 'handlers/postAppsWebhook.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'apps/webhooks/stripe',
-    //         method: 'post',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
     // 2024/08/08: Integration of Pascal's work
     // stripeEnableSubscription: {
     //   handler: 'handlers/putAppsIdEnableSubscription.default',
