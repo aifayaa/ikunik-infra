@@ -122,7 +122,8 @@ async function checkoutSessionCompletedHandler(
     throw new CrowdaaError(
       ERROR_TYPE_STRIPE,
       APP_ID_NOT_FOUND_CODE,
-      `Cannot found appId in metadata of checkoutSession: '${checkoutSession.id}'`
+      `Cannot found appId in metadata of checkoutSession: '${checkoutSession.id}'`,
+      { httpCode: 400 }
     );
   }
 
@@ -458,8 +459,10 @@ export default async (event: APIGatewayProxyEvent) => {
     if (process.env.STAGE === 'prod') {
       trowExceptionUntestedCode20240808({ httpCode: 400 });
     }
+    console.log('BEGIN postAppsWebhook');
 
     const payload = checkBodyIsPresent(event.body);
+    // console.log('payload', payload);
 
     const stripe = getStripeClient();
 
@@ -486,7 +489,7 @@ export default async (event: APIGatewayProxyEvent) => {
     if (!db) db = client.db();
 
     if (isCheckoutSessionCompletedEvent(stripeEvent)) {
-      checkoutSessionCompletedHandler(stripeEvent, db);
+      await checkoutSessionCompletedHandler(stripeEvent, db);
     }
 
     if (isInvoicePaymentFailedEvent(stripeEvent)) {
@@ -515,6 +518,7 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
+    // console.log('exception', exception);
     if ((exception as CrowdaaError).httpCode) {
       (exception as CrowdaaError).httpCode = 400;
     }
