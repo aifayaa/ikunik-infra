@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { isEmpty } from 'lodash';
 // import mongoCollections from '@libs/mongoCollections.json';
-import { AppType } from './appEntity';
+// import { AppType } from './appEntity';
 // import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 // import {
 //   ERROR_TYPE_NOT_FOUND,
@@ -14,15 +14,17 @@ import {
   // getPriceLookupKey,
   getStripeClient,
 } from '@libs/stripe';
-import {
-  getApplicationOrganizationId,
-  // getStripeSubscriptionMetadata,
-} from './appsUtils';
+// import {
+//   getApplicationOrganizationId,
+//   // getStripeSubscriptionMetadata,
+// } from './appsUtils';
 // import { UserType } from '@users/lib/userEntity';
 import { isString } from 'lodash';
 import { getBaserowAffiliate } from '@libs/baserow/getBaserowAffiliate';
 import { getUser } from '@users/lib/usersUtils';
 import { FeaturePlanIdType } from 'appsFeaturePlans/lib/planTypes';
+import { getApplicationOrganizationId } from '@apps/lib/appsUtils';
+import { AppType } from '@apps/lib/appEntity';
 
 // const { COLL_APPS, COLL_USERS } = mongoCollections;
 

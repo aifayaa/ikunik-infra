@@ -69,12 +69,6 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_AUTH_URL}',
       REACT_APP_PRESS_SERVICE_URL:
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
-      STRIPE_SECRET_KEY:
-        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/stripe-secret-key}',
-      STRIPE_WEBHOOK_SECRET_KEY:
-        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
-      BASEROW_API_ACCESS_TOKEN:
-        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
       PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.com/wp-json',
@@ -709,48 +703,6 @@ const serverlessConfiguration = {
                   Authorization: true,
                 },
               },
-            },
-          },
-        },
-      ],
-    },
-    stripeCheckout: {
-      handler: 'handlers/postAppsIdCheckout.default',
-      events: [
-        {
-          http: {
-            path: 'apps/{id}/checkout',
-            method: 'POST',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
-            },
-            request: {
-              parameters: {
-                paths: { id: true },
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    stripeWebhook: {
-      handler: 'handlers/postAppsWebhook.default',
-      events: [
-        {
-          http: {
-            path: 'apps/webhooks/stripe',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
           },
         },
