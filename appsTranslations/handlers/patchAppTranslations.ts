@@ -9,6 +9,8 @@ import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody'
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
+  APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_APPLICATION_CODE,
   MISSING_BODY_CODE,
@@ -39,7 +41,11 @@ export default async (event: APIGatewayProxyEvent) => {
       const allowed = await checkAppPlanForLimitAccess(appId, 'translations');
 
       if (!allowed) {
-        throw new Error('app_limits_exceeded');
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+          `The current plan for app '${appId}' does not allow this operation`
+        );
       }
     }
 
