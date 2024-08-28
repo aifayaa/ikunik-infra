@@ -21,7 +21,7 @@ export default async (event) => {
 
   try {
     if (!superAdmin) {
-      const allowed = await checkAppPlanForLimitAccess(appId, 'community');
+      const allowed = await checkAppPlanForLimitAccess(appId, 'crowd');
 
       if (!allowed) {
         throw new Error('app_limits_exceeded');

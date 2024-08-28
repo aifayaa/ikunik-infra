@@ -11,28 +11,28 @@ export const allPlanTypes: FeaturePlanIdType[] = [
 ];
 
 export type FeatureIdType =
+  | 'activeUsers'
   | 'appTabs'
   | 'appTheme'
-  | 'activeUsers'
   | 'badges'
   | 'chat'
   | 'collaborators'
-  | 'community'
-  | 'liveStreams'
+  | 'crowd'
   | 'liveStreamDuration'
+  | 'liveStreams'
   | 'playlists'
   | 'polls'
   | 'translations';
 export const allFeatureIds: FeatureIdType[] = [
+  'activeUsers',
   'appTabs',
   'appTheme',
-  'activeUsers',
   'badges',
   'chat',
   'collaborators',
-  'community',
-  'liveStreams',
+  'crowd',
   'liveStreamDuration',
+  'liveStreams',
   'playlists',
   'polls',
   'translations',
