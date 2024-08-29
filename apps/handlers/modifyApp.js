@@ -2,7 +2,6 @@
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { modifyAppSchema } from '../validators/modifyAppSchema.schema';
@@ -22,11 +21,7 @@ export default async (event) => {
     // Validate the body of the request
     const update = JSON.parse(event.body);
 
-    try {
-      modifyAppSchema.parse(update);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    modifyAppSchema.parse(update);
 
     const app = await modifyApp(appId, update);
 

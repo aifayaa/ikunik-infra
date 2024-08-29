@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import response, { handleException } from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   checkPermsForApp,
@@ -53,12 +52,7 @@ export default async (event: APIGatewayProxyEvent) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    try {
-      validatedBody = modifyAppUserPermsSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = modifyAppUserPermsSchema.parse(body);
 
     const { roles } = validatedBody;
 

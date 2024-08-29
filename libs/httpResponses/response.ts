@@ -127,10 +127,7 @@ export function computeErrorContent(exception: unknown) {
   return { code: 200, body: errorBody };
 }
 
-// Use a type guard
-// Documentation:
-// https://blog.logrocket.com/how-to-use-type-guards-typescript/
-export function isException(exception: unknown | Error): exception is Error {
+function isException(exception: unknown | Error): exception is Error {
   return (exception as Error).message !== undefined;
 }
 
@@ -142,27 +139,4 @@ export function isCrowdaaError(
 
 export function handleException(exception: unknown) {
   return response(computeErrorContent(exception));
-}
-
-// TODO: to delete, only use handleException everywhere
-export function wrapperHandleException(
-  exception: unknown,
-  handleExceptionCB: (exception: Error) => reponseType
-) {
-  if (isException(exception)) {
-    return handleExceptionCB(exception);
-  } else {
-    return response({
-      code: 200,
-      body: {
-        errors: [
-          {
-            type: ERROR_TYPE_INTERNAL_EXCEPTION,
-            code: UNMANAGED_EXCEPTION_CODE,
-            message: JSON.stringify(exception),
-          },
-        ],
-      },
-    });
-  }
 }

@@ -2,7 +2,6 @@
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { getInvitations } from '../lib/getInvitations';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { paginationSchema } from '../../libs/schemas/paginationSchema';
@@ -13,11 +12,7 @@ export default async (event) => {
   let { queryStringParameters } = event;
 
   try {
-    try {
-      queryStringParameters = paginationSchema.parse(queryStringParameters);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    queryStringParameters = paginationSchema.parse(queryStringParameters);
 
     // access to the invitations is determined in a step further
     const invitationDocumentsResult = await getInvitations(currentUserId, {
