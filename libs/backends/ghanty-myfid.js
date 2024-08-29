@@ -5,7 +5,7 @@ import mongoCollections from '../mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;
 
-const GHANTY_ENVIRONMENT = 'staging';
+// const GHANTY_ENVIRONMENT = 'staging';
 
 function MyFidApi(app) {
   if (!(this instanceof MyFidApi)) {
@@ -17,7 +17,8 @@ function MyFidApi(app) {
   }
 
   this.app = app;
-  this.myfidbackend = { ...app.settings.myfidbackend[GHANTY_ENVIRONMENT] };
+  // this.myfidbackend = { ...app.settings.myfidbackend[GHANTY_ENVIRONMENT] };
+  this.myfidbackend = { ...app.settings.myfidbackend };
 }
 
 MyFidApi.prototype.isApiLoggedIn = function isApiLoggedIn() {
@@ -89,7 +90,8 @@ MyFidApi.prototype.renewAPITokenIfNeeded = async function renewAPITokenIfNeeded(
       { _id: this.app._id },
       {
         $set: {
-          [`settings.myfidbackend.${GHANTY_ENVIRONMENT}.apiAccessToken`]:
+          // [`settings.myfidbackend.${GHANTY_ENVIRONMENT}.apiAccessToken`]:
+          [`settings.myfidbackend.apiAccessToken`]:
             this.myfidbackend.apiAccessToken,
         },
       }
@@ -120,6 +122,8 @@ MyFidApi.prototype.renewLoginTokenIfNeeded =
       },
     };
 
+    console.log('renewLoginTokenIfNeeded params', params);
+
     let response = await request(params);
 
     if (typeof response === 'string') {
@@ -145,7 +149,8 @@ MyFidApi.prototype.renewLoginTokenIfNeeded =
         { _id: this.app._id },
         {
           $set: {
-            [`settings.myfidbackend.${GHANTY_ENVIRONMENT}.accountApiAccessToken`]:
+            // [`settings.myfidbackend.${GHANTY_ENVIRONMENT}.accountApiAccessToken`]:
+            [`settings.myfidbackend.accountApiAccessToken`]:
               this.myfidbackend.accountApiAccessToken,
           },
         }

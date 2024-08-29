@@ -16,7 +16,6 @@ import MongoClient from '@libs/mongoClient.js';
 import response, { handleException } from '@libs/httpResponses/response';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import { checkPermsForApp } from '@libs/perms/checkPermsFor';
-import { postAppsIdCheckout } from '@apps/lib/postAppsIdCheckout';
 import { getApp, getApplicationOrganizationId } from '@apps/lib/appsUtils';
 import { isEmpty } from 'lodash';
 import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
@@ -26,6 +25,7 @@ import {
   FeaturePlanIdType,
 } from 'appsFeaturePlans/lib/planTypes';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import { postAppsIdCheckout } from 'appsStripe/lib/postAppsIdCheckout';
 
 let client: any; // TODO type
 let db: any; // TODO type
