@@ -6,7 +6,7 @@ import {
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes';
 import { formatResponseBody } from './formatResponseBody';
-import { formatValidationErrorsResponse } from './formatValidationErrors';
+import { formatValidationErrorsAux } from './formatValidationErrors';
 
 type reponseType = {
   headers?: Object;
@@ -62,12 +62,27 @@ export function formatResponseError(exception: CrowdaaError) {
   };
 }
 
-function handleExceptionAux(exception: Error) {
+export function computeErrorContent(exception: unknown) {
+  if (!isException(exception)) {
+    const errorBody = formatResponseBody({
+      errors: [
+        {
+          type: ERROR_TYPE_INTERNAL_EXCEPTION,
+          code: UNMANAGED_EXCEPTION_CODE,
+          message: JSON.stringify(exception),
+        },
+      ],
+    });
+    return { code: 200, body: errorBody };
+  }
+
   if (
     exception instanceof ZodError ||
     exception.constructor.name === 'ZodError'
   ) {
-    return formatValidationErrorsResponse(exception);
+    const errors = formatValidationErrorsAux(exception);
+    const errorBody = formatResponseBody({ errors });
+    return { code: 200, body: errorBody };
   }
 
   if (
@@ -86,7 +101,7 @@ function handleExceptionAux(exception: Error) {
         },
       ],
     });
-    return response({ code: httpCode, body: errorBody });
+    return { code: httpCode, body: errorBody };
   }
 
   if (
@@ -96,7 +111,7 @@ function handleExceptionAux(exception: Error) {
     const crowdaaExceptionWithErrorBody =
       exception as CrowdaaErrorWithErrorBody;
     const { httpCode, errorBody } = crowdaaExceptionWithErrorBody;
-    return response({ code: httpCode, body: errorBody });
+    return { code: httpCode, body: errorBody };
   }
 
   const errorBody = formatResponseBody({
@@ -109,7 +124,7 @@ function handleExceptionAux(exception: Error) {
       },
     ],
   });
-  return response({ code: 200, body: errorBody });
+  return { code: 200, body: errorBody };
 }
 
 // Use a type guard
@@ -126,9 +141,10 @@ export function isCrowdaaError(
 }
 
 export function handleException(exception: unknown) {
-  return wrapperHandleException(exception, handleExceptionAux);
+  return response(computeErrorContent(exception));
 }
 
+// TODO: to delete, only use handleException everywhere
 export function wrapperHandleException(
   exception: unknown,
   handleExceptionCB: (exception: Error) => reponseType

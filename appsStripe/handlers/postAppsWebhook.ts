@@ -11,14 +11,12 @@ import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   APP_ID_NOT_FOUND_CODE,
   ERROR_TYPE_STRIPE,
-  UNKNOWN_PRICE_ID_CODE,
   SIGNATURE_CHECK_ERROR_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
 import { getApp } from '@apps/lib/appsUtils';
-import { StripeSubscriptionType } from '@apps/lib/appEntity';
-import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
 import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
+import { customerSubscriptionHelperHandler } from 'appsStripe/lib/postAppsWebhook';
 
 const { COLL_APPS } = mongoCollections;
 const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
@@ -109,7 +107,6 @@ async function checkoutSessionCompletedHandler(
   db: any
 ) {
   const checkoutSession = stripeEvent.data.object;
-  // console.log('checkoutSession', checkoutSession);
 
   const appId = checkoutSession.metadata?.appId;
   if (!appId) {
@@ -121,7 +118,7 @@ async function checkoutSessionCompletedHandler(
     );
   }
 
-  const createdAt = new Date(checkoutSession.created * 1000).toISOString();
+  const createdAt = new Date(checkoutSession.created * 1000);
 
   await db.collection(COLL_APPS).updateOne(
     { _id: appId },
@@ -138,271 +135,36 @@ async function checkoutSessionCompletedHandler(
   );
 }
 
-function extractSubscriptionData(
-  subscription: Stripe.Subscription
-): StripeSubscriptionType {
-  const canceledAt = subscription.canceled_at
-    ? new Date(subscription.canceled_at * 1000)
-    : null;
-  const createdAt = new Date(subscription.created * 1000);
-  const currentPeriodStart = new Date(subscription.current_period_start * 1000);
-  const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
-  const customer = subscription.customer;
-  const endedAt = subscription.ended_at
-    ? new Date(subscription.ended_at * 1000)
-    : null;
-  const items = subscription.items.data.map((item: Stripe.SubscriptionItem) => {
-    return {
-      id: item.id,
-      price: {
-        id: item.price.id,
-        currency: item.price.currency,
-        unitAmount: item.price.unit_amount,
-      },
-    };
-  });
-  const latestInvoice = subscription.latest_invoice;
-  const livemode = subscription.livemode;
-  const nextPendingInvoiceItemInvoice =
-    subscription.next_pending_invoice_item_invoice
-      ? new Date(subscription.next_pending_invoice_item_invoice * 1000)
-      : null;
-  const status = subscription.status;
-  const transferData = subscription.transfer_data;
-  const trialEnd = subscription.trial_end
-    ? new Date(subscription.trial_end * 1000)
-    : null;
-  const trialStart = subscription.trial_start
-    ? new Date(subscription.trial_start * 1000)
-    : null;
-
-  const subscriptionRecord = {
-    id: subscription.id,
-    createdAt,
-    currentPeriodStart,
-    currentPeriodEnd,
-    items,
-    livemode,
-    status,
-  } as StripeSubscriptionType;
-
-  if (canceledAt) {
-    subscriptionRecord.canceledAt = canceledAt;
-  }
-  if (customer) {
-    if (typeof customer === 'string') {
-      subscriptionRecord.customer = customer;
-    } else {
-      subscriptionRecord.customer = customer.id;
-    }
-  }
-
-  if (endedAt) {
-    subscriptionRecord.endedAt = endedAt;
-  }
-  if (latestInvoice) {
-    if (typeof latestInvoice === 'string') {
-      subscriptionRecord.latestInvoice = latestInvoice;
-    } else {
-      subscriptionRecord.latestInvoice = latestInvoice.id;
-    }
-  }
-  if (nextPendingInvoiceItemInvoice) {
-    subscriptionRecord.nextPendingInvoiceItemInvoice =
-      nextPendingInvoiceItemInvoice;
-  }
-  if (transferData) {
-    const destination = transferData.destination;
-    subscriptionRecord.transferData = {} as {
-      destination: string;
-      amountPercent: number;
-    };
-    if (typeof destination === 'string') {
-      subscriptionRecord.transferData.destination = destination;
-    } else {
-      subscriptionRecord.transferData.destination = destination.id;
-    }
-    subscriptionRecord.transferData.amountPercent = transferData.amount_percent;
-  }
-  if (trialEnd) {
-    subscriptionRecord.trialEnd = trialEnd;
-  }
-  if (trialStart) {
-    subscriptionRecord.trialStart = trialStart;
-  }
-
-  return subscriptionRecord;
-}
-
-async function customerSubscriptionHelperHandler(
-  stripeEvent:
-    | Stripe.CustomerSubscriptionUpdatedEvent
-    | Stripe.CustomerSubscriptionDeletedEvent,
-  db: any,
-  moreFields?: Record<string, string>
-) {
-  const subscription = stripeEvent.data.object;
-
-  const appId = subscription.metadata?.appId;
-  if (!appId) {
-    throw new CrowdaaError(
-      ERROR_TYPE_STRIPE,
-      APP_ID_NOT_FOUND_CODE,
-      `Cannot found appId in metadata of checkoutSession: '${subscription.id}'`
-    );
-  }
-
-  const extractedSubscriptionData = extractSubscriptionData(subscription);
-
-  const app = await getApp(appId);
-
-  const dbSubscription = app.stripe?.subscription;
-
-  if (!(dbSubscription && dbSubscription.id === subscription.id)) {
-    console.warn(
-      `Cannot find or mismatch between stripe.subscription and dbSubscription for app '${appId}'`
-    );
-  }
-
-  if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
-    let effectiveSubscription: StripeSubscriptionType;
-    if (dbSubscription && dbSubscription.id === subscription.id) {
-      effectiveSubscription = moreFields
-        ? {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-          };
-    } else {
-      effectiveSubscription = moreFields
-        ? {
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...extractedSubscriptionData,
-          };
-    }
-
-    const $set = {
-      'stripe.subscription': effectiveSubscription,
-    } as {
-      'stripe.subscription': StripeSubscriptionType;
-      'featurePlan._id'?: string;
-      'featurePlan.startedAt'?: Date;
-      'featurePlan.updatedAt'?: Date;
-    };
-
-    const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
-      extractedSubscriptionData.items[0].price.id
-    );
-
-    if (!candidatureFeaturePlanId) {
-      await db.collection(COLL_APPS).updateOne(
-        { _id: appId },
-        {
-          $set,
-        }
-      );
-
-      throw new CrowdaaError(
-        ERROR_TYPE_STRIPE,
-        UNKNOWN_PRICE_ID_CODE,
-        `Cannot find featurePlanId for stripePriceId '${extractedSubscriptionData.items[0].price.id}'`
-      );
-    }
-
-    const featurePlanId = candidatureFeaturePlanId
-      ? candidatureFeaturePlanId
-      : 'freeFeaturePlanId';
-
-    $set['featurePlan._id'] = featurePlanId;
-    $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
-    $set['featurePlan.updatedAt'] = new Date();
-
-    await db.collection(COLL_APPS).updateOne(
-      { _id: appId },
-      {
-        $set,
-      }
-    );
-  }
-
-  if (isCustomerSubscriptionDeletedEvent(stripeEvent)) {
-    let effectiveSubscription: StripeSubscriptionType;
-    if (dbSubscription && dbSubscription.id === subscription.id) {
-      effectiveSubscription = moreFields
-        ? {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-          };
-    } else {
-      effectiveSubscription = moreFields
-        ? {
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...extractedSubscriptionData,
-          };
-    }
-
-    const $set = {
-      'stripe.subscription': effectiveSubscription,
-    } as {
-      'stripe.subscription': StripeSubscriptionType;
-      'featurePlan._id'?: string;
-      'featurePlan.startedAt'?: Date;
-      'featurePlan.updatedAt'?: Date;
-    };
-
-    let featurePlanId = 'freeFeaturePlanId';
-
-    const canceledAt = effectiveSubscription.canceledAt;
-
-    if (!canceledAt) {
-      console.warn(
-        `The fields canceledAt is not set for stripe.subscription for app '${appId}'`
-      );
-    }
-
-    $set['featurePlan._id'] = featurePlanId;
-    $set['featurePlan.startedAt'] = canceledAt ? canceledAt : new Date();
-    $set['featurePlan.updatedAt'] = new Date();
-
-    await db.collection(COLL_APPS).updateOne(
-      { _id: appId },
-      {
-        $set,
-      }
-    );
-  }
-}
-
 async function customerSubscriptionUpdatedHandler(
   stripeEvent: Stripe.CustomerSubscriptionUpdatedEvent,
   db: any
 ) {
-  const updatedAt = new Date().toISOString();
-  await customerSubscriptionHelperHandler(stripeEvent, db, {
-    updatedAt,
-  });
+  const updatedAt = new Date();
+  const subscription = stripeEvent.data.object;
+
+  const appCollection = db.collection(COLL_APPS);
+  await customerSubscriptionHelperHandler(
+    subscription,
+    'subscriptionUpdated',
+    appCollection,
+    {
+      updatedAt,
+    }
+  );
 }
 
 async function customerSubscriptionDeletedHandler(
   stripeEvent: Stripe.CustomerSubscriptionDeletedEvent,
   db: any
 ) {
-  await customerSubscriptionHelperHandler(stripeEvent, db);
+  const subscription = stripeEvent.data.object;
+
+  const appCollection = db.collection(COLL_APPS);
+  await customerSubscriptionHelperHandler(
+    subscription,
+    'subscriptionDeleted',
+    appCollection
+  );
 }
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -439,20 +201,20 @@ export default async (event: APIGatewayProxyEvent) => {
     if (!client) client = await MongoClient.connect();
     if (!db) db = client.db();
 
-    if (isCheckoutSessionCompletedEvent(stripeEvent)) {
-      await checkoutSessionCompletedHandler(stripeEvent, db);
-    }
-
-    if (isInvoicePaymentFailedEvent(stripeEvent)) {
-      await paymentFailedHandler(stripeEvent, db);
-    }
-
     if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
       await customerSubscriptionUpdatedHandler(stripeEvent, db);
     }
 
     if (isCustomerSubscriptionDeletedEvent(stripeEvent)) {
       await customerSubscriptionDeletedHandler(stripeEvent, db);
+    }
+
+    if (isCheckoutSessionCompletedEvent(stripeEvent)) {
+      await checkoutSessionCompletedHandler(stripeEvent, db);
+    }
+
+    if (isInvoicePaymentFailedEvent(stripeEvent)) {
+      await paymentFailedHandler(stripeEvent, db);
     }
 
     return response({
