@@ -80,6 +80,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    stripeCheckoutSuccess: {
+      handler: 'handlers/getCheckoutSuccess.default',
+      events: [
+        {
+          http: {
+            path: 'apps/checkout/success',
+            method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     stripeWebhook: {
       handler: 'handlers/postAppsWebhook.default',
       events: [

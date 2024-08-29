@@ -1,0 +1,260 @@
+import Stripe from 'stripe';
+
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+import {
+  APP_ID_NOT_FOUND_CODE,
+  ERROR_TYPE_STRIPE,
+  UNKNOWN_PRICE_ID_CODE,
+} from '@libs/httpResponses/errorCodes';
+import { getApp } from '@apps/lib/appsUtils';
+import { StripeSubscriptionType } from '@apps/lib/appEntity';
+import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
+
+type SubscriptionType = 'subscriptionUpdated' | 'subscriptionDeleted';
+
+function extractSubscriptionData(
+  subscription: Stripe.Subscription
+): StripeSubscriptionType {
+  const canceledAt = subscription.canceled_at
+    ? new Date(subscription.canceled_at * 1000)
+    : null;
+  const createdAt = new Date(subscription.created * 1000);
+  const currentPeriodStart = new Date(subscription.current_period_start * 1000);
+  const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+  const customer = subscription.customer;
+  const endedAt = subscription.ended_at
+    ? new Date(subscription.ended_at * 1000)
+    : null;
+  const items = subscription.items.data.map((item: Stripe.SubscriptionItem) => {
+    return {
+      id: item.id,
+      price: {
+        id: item.price.id,
+        currency: item.price.currency,
+        unitAmount: item.price.unit_amount,
+      },
+    };
+  });
+  const latestInvoice = subscription.latest_invoice;
+  const livemode = subscription.livemode;
+  const nextPendingInvoiceItemInvoice =
+    subscription.next_pending_invoice_item_invoice
+      ? new Date(subscription.next_pending_invoice_item_invoice * 1000)
+      : null;
+  const status = subscription.status;
+  const transferData = subscription.transfer_data;
+  const trialEnd = subscription.trial_end
+    ? new Date(subscription.trial_end * 1000)
+    : null;
+  const trialStart = subscription.trial_start
+    ? new Date(subscription.trial_start * 1000)
+    : null;
+
+  const subscriptionRecord = {
+    id: subscription.id,
+    createdAt,
+    currentPeriodStart,
+    currentPeriodEnd,
+    items,
+    livemode,
+    status,
+  } as StripeSubscriptionType;
+
+  if (canceledAt) {
+    subscriptionRecord.canceledAt = canceledAt;
+  }
+  if (customer) {
+    if (typeof customer === 'string') {
+      subscriptionRecord.customer = customer;
+    } else {
+      subscriptionRecord.customer = customer.id;
+    }
+  }
+
+  if (endedAt) {
+    subscriptionRecord.endedAt = endedAt;
+  }
+  if (latestInvoice) {
+    if (typeof latestInvoice === 'string') {
+      subscriptionRecord.latestInvoice = latestInvoice;
+    } else {
+      subscriptionRecord.latestInvoice = latestInvoice.id;
+    }
+  }
+  if (nextPendingInvoiceItemInvoice) {
+    subscriptionRecord.nextPendingInvoiceItemInvoice =
+      nextPendingInvoiceItemInvoice;
+  }
+  if (transferData) {
+    const destination = transferData.destination;
+    subscriptionRecord.transferData = {} as {
+      destination: string;
+      amountPercent: number;
+    };
+    if (typeof destination === 'string') {
+      subscriptionRecord.transferData.destination = destination;
+    } else {
+      subscriptionRecord.transferData.destination = destination.id;
+    }
+    subscriptionRecord.transferData.amountPercent = transferData.amount_percent;
+  }
+  if (trialEnd) {
+    subscriptionRecord.trialEnd = trialEnd;
+  }
+  if (trialStart) {
+    subscriptionRecord.trialStart = trialStart;
+  }
+
+  return subscriptionRecord;
+}
+
+export async function customerSubscriptionHelperHandler(
+  subscription: Stripe.Subscription,
+  subscriptionType: SubscriptionType,
+  appCollection: any,
+  moreFields?: Record<string, string | Date>
+) {
+  const appId = subscription.metadata?.appId;
+  if (!appId) {
+    throw new CrowdaaError(
+      ERROR_TYPE_STRIPE,
+      APP_ID_NOT_FOUND_CODE,
+      `Cannot found appId in metadata of checkoutSession: '${subscription.id}'`
+    );
+  }
+
+  const extractedSubscriptionData = extractSubscriptionData(subscription);
+
+  const app = await getApp(appId);
+
+  const dbSubscription = app.stripe?.subscription;
+
+  if (!(dbSubscription && dbSubscription.id === subscription.id)) {
+    console.warn(
+      `Cannot find or mismatch between stripe.subscription and dbSubscription for app '${appId}'`
+    );
+  }
+
+  if (subscriptionType === 'subscriptionUpdated') {
+    let effectiveSubscription: StripeSubscriptionType;
+    if (dbSubscription && dbSubscription.id === subscription.id) {
+      effectiveSubscription = moreFields
+        ? {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+          };
+    } else {
+      effectiveSubscription = moreFields
+        ? {
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...extractedSubscriptionData,
+          };
+    }
+
+    const $set = {
+      'stripe.subscription': effectiveSubscription,
+    } as {
+      'stripe.subscription': StripeSubscriptionType;
+      'featurePlan._id'?: string;
+      'featurePlan.startedAt'?: Date;
+      'featurePlan.updatedAt'?: Date;
+    };
+
+    const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
+      extractedSubscriptionData.items[0].price.id
+    );
+
+    if (!candidatureFeaturePlanId) {
+      await appCollection.updateOne(
+        { _id: appId },
+        {
+          $set,
+        }
+      );
+
+      throw new CrowdaaError(
+        ERROR_TYPE_STRIPE,
+        UNKNOWN_PRICE_ID_CODE,
+        `Cannot find featurePlanId for stripePriceId '${extractedSubscriptionData.items[0].price.id}'`
+      );
+    }
+
+    const featurePlanId = candidatureFeaturePlanId
+      ? candidatureFeaturePlanId
+      : 'freeFeaturePlanId';
+
+    $set['featurePlan._id'] = featurePlanId;
+    $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
+    $set['featurePlan.updatedAt'] = new Date();
+
+    await appCollection.updateOne(
+      { _id: appId },
+      {
+        $set,
+      }
+    );
+  }
+
+  if (subscriptionType === 'subscriptionDeleted') {
+    let effectiveSubscription: StripeSubscriptionType;
+    if (dbSubscription && dbSubscription.id === subscription.id) {
+      effectiveSubscription = moreFields
+        ? {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+          };
+    } else {
+      effectiveSubscription = moreFields
+        ? {
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...extractedSubscriptionData,
+          };
+    }
+
+    const $set = {
+      'stripe.subscription': effectiveSubscription,
+    } as {
+      'stripe.subscription': StripeSubscriptionType;
+      'featurePlan._id'?: string;
+      'featurePlan.startedAt'?: Date;
+      'featurePlan.updatedAt'?: Date;
+    };
+
+    let featurePlanId = 'freeFeaturePlanId';
+
+    const canceledAt = effectiveSubscription.canceledAt;
+
+    if (!canceledAt) {
+      console.warn(
+        `The fields canceledAt is not set for stripe.subscription for app '${appId}'`
+      );
+    }
+
+    $set['featurePlan._id'] = featurePlanId;
+    $set['featurePlan.startedAt'] = canceledAt ? canceledAt : new Date();
+    $set['featurePlan.updatedAt'] = new Date();
+
+    await appCollection.updateOne(
+      { _id: appId },
+      {
+        $set,
+      }
+    );
+  }
+}

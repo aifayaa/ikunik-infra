@@ -43,6 +43,7 @@ type MetadataType = {
   region: string;
   stage: string;
   stripeCustomerId: string;
+  checkoutSessionSuccessUrl: string;
   affiliateCode?: string;
   transfer_data_destination?: string;
   transfer_data_amount_percent?: number;
@@ -197,6 +198,7 @@ export const postAppsIdCheckout = async ({
       region: process.env.CROWDAA_REGION as string,
       stage: process.env.STAGE as string,
       stripeCustomerId,
+      checkoutSessionSuccessUrl,
     };
 
     const subscriptionData: Stripe.Checkout.SessionCreateParams.SubscriptionData =
@@ -257,7 +259,9 @@ export const postAppsIdCheckout = async ({
         },
       ],
       mode: 'subscription',
-      success_url: checkoutSessionSuccessUrl,
+      // TODO: adapt this URL in fonction of the region/stage
+      success_url:
+        'https://dev-api.aws.crowdaa.com/v1/apps/checkout/success?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: checkoutSessionCancelUrl,
 
       currency: 'EUR',

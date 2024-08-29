@@ -32,7 +32,7 @@ export type formatValidationErrorsType = {
  *
  * @param {ZodError} zodError
  */
-function formatValidationErrorsAux(
+export function formatValidationErrorsAux(
   zodError: Error
 ): Array<formatValidationErrorsType> {
   if (!(zodError instanceof ZodError)) {
@@ -143,7 +143,7 @@ function formatValidationErrorsAux(
   return formattedErrors;
 }
 
-export function formatValidationErrorsResponse(zodError: Error) {
+function formatValidationErrorsResponse(zodError: Error) {
   const errors = formatValidationErrorsAux(zodError);
   const errorBody = formatResponseBody({ errors });
   return response({ code: 200, body: errorBody });
