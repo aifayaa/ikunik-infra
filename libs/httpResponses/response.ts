@@ -64,18 +64,16 @@ export function formatResponseError(exception: CrowdaaError) {
 
 export function computeErrorContent(exception: unknown) {
   if (!isException(exception)) {
-    return {
-      code: 200,
-      body: {
-        errors: [
-          {
-            type: ERROR_TYPE_INTERNAL_EXCEPTION,
-            code: UNMANAGED_EXCEPTION_CODE,
-            message: JSON.stringify(exception),
-          },
-        ],
-      },
-    };
+    const errorBody = formatResponseBody({
+      errors: [
+        {
+          type: ERROR_TYPE_INTERNAL_EXCEPTION,
+          code: UNMANAGED_EXCEPTION_CODE,
+          message: JSON.stringify(exception),
+        },
+      ],
+    });
+    return { code: 200, body: errorBody };
   }
 
   if (
