@@ -570,13 +570,6 @@ export async function getCurrentPlanForAppId(
   computeUsageFor: boolean | FeatureIdType[] = false
 ) {
   const app = await getApp(appId);
-  if (!app) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_FOUND,
-      APP_NOT_FOUND_CODE,
-      `App id ${appId} not found`
-    );
-  }
 
   const computedPlan = await getCurrentPlanForApp(app, computeUsageFor);
 

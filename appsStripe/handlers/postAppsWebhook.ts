@@ -294,6 +294,7 @@ async function customerSubscriptionHelperHandler(
       'stripe.subscription': StripeSubscriptionType;
       'featurePlan._id'?: string;
       'featurePlan.startedAt'?: Date;
+      'featurePlan.updatedAt'?: Date;
     };
 
     const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
@@ -321,6 +322,7 @@ async function customerSubscriptionHelperHandler(
 
     $set['featurePlan._id'] = featurePlanId;
     $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
+    $set['featurePlan.updatedAt'] = new Date();
 
     await db.collection(COLL_APPS).updateOne(
       { _id: appId },
@@ -360,6 +362,7 @@ async function customerSubscriptionHelperHandler(
       'stripe.subscription': StripeSubscriptionType;
       'featurePlan._id'?: string;
       'featurePlan.startedAt'?: Date;
+      'featurePlan.updatedAt'?: Date;
     };
 
     let featurePlanId = 'freeFeaturePlanId';
@@ -374,6 +377,7 @@ async function customerSubscriptionHelperHandler(
 
     $set['featurePlan._id'] = featurePlanId;
     $set['featurePlan.startedAt'] = canceledAt ? canceledAt : new Date();
+    $set['featurePlan.updatedAt'] = new Date();
 
     await db.collection(COLL_APPS).updateOne(
       { _id: appId },
