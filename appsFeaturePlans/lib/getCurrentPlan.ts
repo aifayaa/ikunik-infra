@@ -24,6 +24,11 @@ import {
 } from './planTypes';
 import { currentUsageComputers } from './currentUsageComputers';
 
+const { STAGE, CROWDAA_REGION } = process.env as {
+  STAGE: CrowdaaStageType;
+  CROWDAA_REGION: CrowdaaRegionType;
+};
+
 const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   legacyFeaturePlanId: {
     _id: 'legacyFeaturePlanId',
@@ -129,7 +134,26 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
   },
 };
 
-export const DEFAULT_NEW_APP_PLAN_ID = 'freeFeaturePlanId' as FeaturePlanIdType;
+const defaultFeaturePlansByStageRegion = {
+  prod: {
+    us: 'legacyFeaturePlanId',
+    fr: 'freeFeaturePlanId',
+  },
+  preprod: {
+    fr: 'freeFeaturePlanId',
+  },
+  dev: {
+    us: 'freeFeaturePlanId',
+  },
+} as Record<
+  CrowdaaStageType,
+  Partial<Record<CrowdaaRegionType, FeaturePlanIdType>>
+>;
+
+// The || is to avoid TS complaints
+export const DEFAULT_NEW_APP_PLAN_ID =
+  defaultFeaturePlansByStageRegion[STAGE][CROWDAA_REGION] ||
+  ('freeFeaturePlanId' as FeaturePlanIdType);
 export const DEFAULT_OLD_APP_PLAN_ID =
   'legacyFeaturePlanId' as FeaturePlanIdType;
 
