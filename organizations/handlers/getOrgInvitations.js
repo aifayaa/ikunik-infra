@@ -6,7 +6,6 @@ import response, {
 } from '../../libs/httpResponses/response.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 
 export default async (event) => {
   const { principalId: userId } = event.requestContext.authorizer;
@@ -79,11 +78,7 @@ export default async (event) => {
       })
       .nullish();
 
-    try {
-      queryStringParameters = paginationSchema.parse(queryStringParameters);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    queryStringParameters = paginationSchema.parse(queryStringParameters);
 
     const orgPermissionLevel = ['admin'];
     await checkPermsForOrganization(userId, orgId, orgPermissionLevel);

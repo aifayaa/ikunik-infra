@@ -6,7 +6,6 @@ import response, {
 } from '../../libs/httpResponses/response.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { filterAppPrivateFields } from '../lib/appsUtils.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { putAppInOrgHandlerBody } from '../../organizations/handlers/putAppInOrg.ts';
 
 import MongoClient from '../../libs/mongoClient';
@@ -54,20 +53,15 @@ export default async (event) => {
   try {
     const body = JSON.parse(event.body);
 
-    let validatedBody;
     // validation
-    try {
-      validatedBody = createAppSchema
-        .partial({
-          iconId: true,
-          orgId: true,
-          protocol: true,
-          themeColorPrimary: true,
-        })
-        .parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = createAppSchema
+      .partial({
+        iconId: true,
+        orgId: true,
+        protocol: true,
+        themeColorPrimary: true,
+      })
+      .parse(body);
 
     const { name, protocol, orgId, themeColorPrimary, iconId } = validatedBody;
 

@@ -18,7 +18,6 @@ import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import { checkPermsForApp } from '@libs/perms/checkPermsFor';
 import { getApp, getApplicationOrganizationId } from '@apps/lib/appsUtils';
 import { isEmpty } from 'lodash';
-import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
 import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 import {
   allPlanTypes,
@@ -86,13 +85,8 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const body = JSON.parse(event.body);
 
-    let validatedBody;
     // validation
-    try {
-      validatedBody = enableSubscriptionSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = enableSubscriptionSchema.parse(body);
 
     const { successUrl, cancelUrl, featurePlanId } = validatedBody;
 

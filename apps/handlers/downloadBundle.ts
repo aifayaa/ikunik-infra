@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { APIGatewayProxyEvent } from 'aws-lambda';
@@ -33,14 +32,9 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const parameters = event.queryStringParameters;
 
-    let validatedParameters;
-    try {
-      validatedParameters = downloadBundleSchema.parse(parameters) as {
-        extension: ExtensionType;
-      };
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedParameters = downloadBundleSchema.parse(parameters) as {
+      extension: ExtensionType;
+    };
 
     const validityDuration = 3600;
     const url = await downloadBundle(

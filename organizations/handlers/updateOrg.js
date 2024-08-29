@@ -5,7 +5,6 @@ import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import updateOrg from '../lib/updateOrg';
 
@@ -53,12 +52,7 @@ export default async (event) => {
     });
 
     // validation
-    let validatedBody;
-    try {
-      validatedBody = updateOrgSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = updateOrgSchema.parse(body);
 
     const { name, email, appleTeamId, appleCompanyName } = validatedBody;
     const org = await updateOrg(

@@ -1,8 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { ZodError, ZodIssueCode } from 'zod';
 import { ERROR_TYPE_VALIDATION_ERROR } from './errorCodes';
-import response, { wrapperHandleException } from './response';
-import { formatResponseBody } from './formatResponseBody';
 
 export const VALIDATION_FAILED_CODE = 'VALIDATION_FAILED'; // default
 export const INVALID_TYPE_CODE = 'INVALID_TYPE';
@@ -24,8 +22,6 @@ export type formatValidationErrorsType = {
   details?: Object;
 };
 
-// TODO: Should directly return a response
-// -> Refactor every call to this handler
 /**
  * See https://github.com/colinhacks/zod/blob/master/ERROR_HANDLING.md
  * for error details
@@ -141,14 +137,4 @@ export function formatValidationErrorsAux(
   });
 
   return formattedErrors;
-}
-
-function formatValidationErrorsResponse(zodError: Error) {
-  const errors = formatValidationErrorsAux(zodError);
-  const errorBody = formatResponseBody({ errors });
-  return response({ code: 200, body: errorBody });
-}
-
-export function formatValidationErrors(exception: unknown) {
-  return wrapperHandleException(exception, formatValidationErrorsResponse);
 }

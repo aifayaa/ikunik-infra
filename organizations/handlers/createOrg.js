@@ -3,7 +3,6 @@ import { z } from 'zod';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import createOrg from '../lib/createOrg.ts';
 
@@ -44,13 +43,8 @@ export default async (event) => {
         .optional(),
     });
 
-    let validatedBody;
     // validation
-    try {
-      validatedBody = createOrgSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = createOrgSchema.parse(body);
 
     const { name, email, appleTeamId, appleCompanyName } = validatedBody;
     const org = await createOrg(
