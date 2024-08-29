@@ -35,7 +35,6 @@ export default async (event: APIGatewayProxyEvent) => {
     }
 
     const headers = event.headers;
-    console.log('headers', headers);
 
     const { referer } = headers;
     if (referer !== 'https://checkout.stripe.com/') {
