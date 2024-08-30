@@ -32,6 +32,7 @@ module.exports = {
   S3_ACCESS_KEY_ID: 'AKIAI3H2I7ZIK4ARL2NA',
   S3_BUCKET: 'crowdaa-user-content',
   S3_BUCKET_TOS: 'crowdaa-tos',
+  S3_BUCKET_TOS_HOST: 'https://tos.aws.crowdaa.com',
   S3_REGION: 'us-east-1',
   S3_SECRET_ACCESS_KEY: '0w8fSrKMg+IBRA1YeUoNy4Ytakr7HmBKOoeYThkD',
   SMTP_FROM: 'noreply@crowdaa.com',
