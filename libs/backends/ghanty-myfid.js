@@ -122,8 +122,6 @@ MyFidApi.prototype.renewLoginTokenIfNeeded =
       },
     };
 
-    console.log('renewLoginTokenIfNeeded params', params);
-
     let response = await request(params);
 
     if (typeof response === 'string') {
