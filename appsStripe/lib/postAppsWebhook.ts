@@ -163,8 +163,7 @@ export async function customerSubscriptionHelperHandler(
       'stripe.subscription': effectiveSubscription,
     } as {
       'stripe.subscription': StripeSubscriptionType;
-      'featurePlan._id'?: string;
-      'featurePlan.startedAt'?: Date;
+      featurePlan?: { _id: string; startedAt: Date };
     };
 
     const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
@@ -196,11 +195,15 @@ export async function customerSubscriptionHelperHandler(
       featurePlanId !== 'freeFeaturePlanId' &&
       validSubscriptionStatus.includes(effectiveSubscription.status)
     ) {
-      $set['featurePlan._id'] = featurePlanId;
-      $set['featurePlan.startedAt'] = effectiveSubscription.createdAt;
+      $set['featurePlan'] = {
+        _id: featurePlanId,
+        startedAt: effectiveSubscription.createdAt,
+      };
     } else {
-      $set['featurePlan._id'] = 'freeFeaturePlanId';
-      $set['featurePlan.startedAt'] = new Date();
+      $set['featurePlan'] = {
+        _id: 'freeFeaturePlanId',
+        startedAt: new Date(),
+      };
     }
 
     await appCollection.updateOne(
@@ -239,8 +242,7 @@ export async function customerSubscriptionHelperHandler(
       'stripe.subscription': effectiveSubscription,
     } as {
       'stripe.subscription': StripeSubscriptionType;
-      'featurePlan._id'?: string;
-      'featurePlan.startedAt'?: Date;
+      featurePlan?: { _id: string; startedAt: Date };
     };
 
     let featurePlanId = 'freeFeaturePlanId';
@@ -253,8 +255,10 @@ export async function customerSubscriptionHelperHandler(
       );
     }
 
-    $set['featurePlan._id'] = featurePlanId;
-    $set['featurePlan.startedAt'] = canceledAt ? canceledAt : new Date();
+    $set['featurePlan'] = {
+      _id: featurePlanId,
+      startedAt: canceledAt ? canceledAt : new Date(),
+    };
 
     await appCollection.updateOne(
       { _id: appId },
