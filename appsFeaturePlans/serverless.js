@@ -97,6 +97,31 @@ const serverlessConfiguration = {
         },
       ],
     },
+    setCurrentPlan: {
+      handler: 'handlers/setCurrentPlan.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/plans',
+            method: 'patch',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
