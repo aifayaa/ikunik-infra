@@ -14,7 +14,6 @@ import {
   MISSING_BODY_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { allPlanTypes } from 'appsFeaturePlans/lib/planTypes';
-import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { id: appId } = event.pathParameters as { id: string };
@@ -45,12 +44,7 @@ export default async (event: APIGatewayProxyEvent) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    try {
-      validatedBody = setCurrentPlanSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = setCurrentPlanSchema.parse(body);
 
     await checkPermsIsSuperAdmin(userId);
 
