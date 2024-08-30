@@ -541,37 +541,31 @@ async function computeFeaturePlan(
   } as ComputedFeaturePlanType;
 }
 
+export function retrieveFeaturePlanId(app: AppType) {
+  const featurePlanId = app.featurePlan
+    ? app.featurePlan._id
+    : DEFAULT_OLD_APP_PLAN_ID;
+  if (!isAPlan(featurePlanId)) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_FOUND,
+      FEATURE_PLAN_NOT_FOUND_CODE,
+      `Feature plan id ${featurePlanId} not found`
+    );
+  }
+  return featurePlanId;
+}
+
 export async function getCurrentPlanForApp(
   app: AppType,
   computeUsageFor: boolean | FeatureIdType[] = false
 ) {
-  const planId = app.featurePlan
-    ? app.featurePlan._id
-    : DEFAULT_OLD_APP_PLAN_ID;
-  if (!isAPlan(planId)) {
-    throw new CrowdaaError(
-      ERROR_TYPE_NOT_FOUND,
-      FEATURE_PLAN_NOT_FOUND_CODE,
-      `Feature plan id ${planId} not found`
-    );
-  }
+  const featurePlanId = retrieveFeaturePlanId(app);
 
   const computedPlan = await computeFeaturePlan(
-    allPlans[planId],
+    allPlans[featurePlanId],
     app,
     computeUsageFor
   );
-
-  return computedPlan;
-}
-
-export async function getCurrentPlanForAppId(
-  appId: string,
-  computeUsageFor: boolean | FeatureIdType[] = false
-) {
-  const app = await getApp(appId);
-
-  const computedPlan = await getCurrentPlanForApp(app, computeUsageFor);
 
   return computedPlan;
 }
