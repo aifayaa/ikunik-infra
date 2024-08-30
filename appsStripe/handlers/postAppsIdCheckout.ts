@@ -25,6 +25,7 @@ import {
 } from 'appsFeaturePlans/lib/planTypes';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
 import { postAppsIdCheckout } from 'appsStripe/lib/postAppsIdCheckout';
+import { retrieveFeaturePlanId } from 'appsFeaturePlans/lib/getCurrentPlan';
 
 let client: any; // TODO type
 let db: any; // TODO type
@@ -110,6 +111,17 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const app = await getApp(appId);
+
+    const retrievedFeaturePlanId = retrieveFeaturePlanId(app);
+
+    if (featurePlanId === retrievedFeaturePlanId) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_PLAN_ID_CODE,
+        `The application '${appId}' is already on the plan ${retrievedFeaturePlanId}`
+      );
+    }
+
     const appOrgId = getApplicationOrganizationId(app);
     const org = await getOrganization(appOrgId);
     const { stripeCustomerId } = org;
