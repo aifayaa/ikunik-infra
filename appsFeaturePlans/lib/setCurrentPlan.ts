@@ -9,15 +9,15 @@ import mongoCollections from '@libs/mongoCollections.json';
 import MongoClient from '@libs/mongoClient';
 
 export type SetCurrentPlanArgsType = {
-  planId: FeaturePlanIdType;
-  startDate?: string;
+  featurePlanId: FeaturePlanIdType;
+  startedAt?: string;
 };
 
 const { COLL_APPS } = mongoCollections;
 
 export async function setCurrentPlanForAppId(
   appId: string,
-  { planId, startDate }: SetCurrentPlanArgsType
+  { featurePlanId, startedAt }: SetCurrentPlanArgsType
 ) {
   const client = await MongoClient.connect();
 
@@ -45,12 +45,12 @@ export async function setCurrentPlanForAppId(
       );
     }
 
-    let startedAt = startDate && new Date(startDate);
-    if (!startedAt) {
+    let effectiveStartedAt = startedAt && new Date(startedAt);
+    if (!effectiveStartedAt) {
       if (app.featurePlan && app.featurePlan.startedAt) {
-        startedAt = app.featurePlan.startedAt;
+        effectiveStartedAt = app.featurePlan.startedAt;
       } else {
-        startedAt = new Date();
+        effectiveStartedAt = new Date();
       }
     }
 
@@ -59,8 +59,8 @@ export async function setCurrentPlanForAppId(
       {
         $set: {
           featurePlan: {
-            _id: planId,
-            startedAt,
+            _id: featurePlanId,
+            startedAt: effectiveStartedAt,
           },
         },
       }
