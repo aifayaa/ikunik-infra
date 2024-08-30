@@ -40,6 +40,7 @@ export async function writeS3TosBucket(
   const documentContent = wrapHtmlTag(title, html);
 
   const S3_BUCKET_TOS = getEnvironmentVariable('S3_BUCKET_TOS');
+  const S3_BUCKET_TOS_HOST = getEnvironmentVariable('S3_BUCKET_TOS_HOST');
 
   await s3
     .putObject({
@@ -50,5 +51,5 @@ export async function writeS3TosBucket(
     })
     .promise();
 
-  return `https://${S3_BUCKET_TOS}.s3.amazonaws.com/${s3Filepath}`;
+  return `${S3_BUCKET_TOS_HOST}/${s3Filepath}`;
 }
