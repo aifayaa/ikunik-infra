@@ -55,7 +55,7 @@ export default async (event: APIGatewayProxyEvent) => {
     }
 
     const { session_id: sessionId } = params;
-    console.log('sessionId', sessionId);
+    // console.log('sessionId', sessionId);
     if (!sessionId) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
