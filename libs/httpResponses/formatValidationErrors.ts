@@ -28,7 +28,7 @@ export type formatValidationErrorsType = {
  *
  * @param {ZodError} zodError
  */
-export function formatValidationErrorsAux(
+export function formatValidationErrors(
   zodError: Error
 ): Array<formatValidationErrorsType> {
   if (!(zodError instanceof ZodError)) {

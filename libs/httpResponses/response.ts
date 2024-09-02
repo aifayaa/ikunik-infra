@@ -6,7 +6,7 @@ import {
   UNMANAGED_EXCEPTION_CODE,
 } from './errorCodes';
 import { formatResponseBody } from './formatResponseBody';
-import { formatValidationErrorsAux } from './formatValidationErrors';
+import { formatValidationErrors } from './formatValidationErrors';
 
 type reponseType = {
   headers?: Object;
@@ -80,7 +80,7 @@ export function computeErrorContent(exception: unknown) {
     exception instanceof ZodError ||
     exception.constructor.name === 'ZodError'
   ) {
-    const errors = formatValidationErrorsAux(exception);
+    const errors = formatValidationErrors(exception);
     const errorBody = formatResponseBody({ errors });
     return { code: 200, body: errorBody };
   }

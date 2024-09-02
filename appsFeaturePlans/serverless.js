@@ -32,6 +32,11 @@ const serverlessConfiguration = {
     esbuild: {
       config: '../esbuild.config.cjs',
     },
+    stripeStage: {
+      dev: 'dev',
+      preprod: 'dev',
+      prod: 'prod',
+    },
   },
   provider: {
     name: 'aws',
@@ -45,7 +50,7 @@ const serverlessConfiguration = {
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
       STRIPE_PRICE_ID_PRO:
-        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-price-id-pro}',
+        '${ssm(us-east-1):/crowdaa_microservices/${self:custom.stripeStage.${self:provider.stage}}/payment/stripe-price-id-pro}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
