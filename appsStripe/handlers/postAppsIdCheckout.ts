@@ -18,7 +18,6 @@ import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import { checkPermsForApp } from '@libs/perms/checkPermsFor';
 import { getApp, getApplicationOrganizationId } from '@apps/lib/appsUtils';
 import { isEmpty } from 'lodash';
-import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
 import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 import {
   allPlanTypes,
@@ -26,6 +25,7 @@ import {
 } from 'appsFeaturePlans/lib/planTypes';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
 import { postAppsIdCheckout } from 'appsStripe/lib/postAppsIdCheckout';
+import { retrieveFeaturePlanId } from 'appsFeaturePlans/lib/getCurrentPlan';
 
 let client: any; // TODO type
 let db: any; // TODO type
@@ -38,11 +38,6 @@ export default async (event: APIGatewayProxyEvent) => {
   if (!db) db = client.db();
 
   try {
-    // TODO: remove when ready
-    if (process.env.STAGE === 'prod') {
-      trowExceptionUntestedCode20240808();
-    }
-
     if (!appId) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
@@ -86,13 +81,8 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const body = JSON.parse(event.body);
 
-    let validatedBody;
     // validation
-    try {
-      validatedBody = enableSubscriptionSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = enableSubscriptionSchema.parse(body);
 
     const { successUrl, cancelUrl, featurePlanId } = validatedBody;
 
@@ -116,6 +106,17 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const app = await getApp(appId);
+
+    const retrievedFeaturePlanId = retrieveFeaturePlanId(app);
+
+    if (featurePlanId === retrievedFeaturePlanId) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_PLAN_ID_CODE,
+        `The application '${appId}' is already on the plan ${retrievedFeaturePlanId}`
+      );
+    }
+
     const appOrgId = getApplicationOrganizationId(app);
     const org = await getOrganization(appOrgId);
     const { stripeCustomerId } = org;

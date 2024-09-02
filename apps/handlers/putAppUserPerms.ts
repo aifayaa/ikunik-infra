@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import { applicationRolesInOrganization } from '../../organizations/lib/organizationsUtils';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import {
   checkPermsForApp,
   checkPermsForOrganization,
@@ -61,12 +60,7 @@ export default async (event: APIGatewayProxyEvent) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    try {
-      validatedBody = putAppUserPermsSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = putAppUserPermsSchema.parse(body);
 
     const { roles, userId: targetUserId } = validatedBody;
 

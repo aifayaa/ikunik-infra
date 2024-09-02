@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import {
   checkPermsForApp,
@@ -178,12 +177,7 @@ export default async (event: APIGatewayProxyEvent) => {
     const body = JSON.parse(event.body);
 
     // validation
-    let validatedBody;
-    try {
-      validatedBody = putAppInOrgSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = putAppInOrgSchema.parse(body);
 
     const { appId } = validatedBody;
 

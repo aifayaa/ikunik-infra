@@ -14,6 +14,18 @@ const serverlessConfiguration = {
     esbuild: {
       config: '../esbuild.config.cjs',
     },
+    domains: {
+      prod: {
+        'us-east-1': 'api.aws.crowdaa.com',
+        'eu-west-3': 'api-fr.aws.crowdaa.com',
+      },
+      preprod: {
+        'eu-west-3': 'preprod-api.aws.crowdaa.com',
+      },
+      dev: {
+        'us-east-1': 'dev-api.aws.crowdaa.com',
+      },
+    },
   },
   provider: {
     name: 'aws',
@@ -24,11 +36,19 @@ const serverlessConfiguration = {
     environment: {
       ...env,
       STRIPE_SECRET_KEY:
-        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/stripe-secret-key}',
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-secret-key}',
       STRIPE_WEBHOOK_SECRET_KEY:
-        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/webhook-secret-key}',
+      STRIPE_PRICE_ID_PRO:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-price-id-pro}',
+      STRIPE_TAX_RATE_ID_FR:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-tax-rate-id-fr}',
+      STRIPE_TAX_RATE_ID_US:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-tax-rate-id-us}',
       BASEROW_API_ACCESS_TOKEN:
-        '${ssm(${self:provider.region}):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/baserow/api-access-token}',
+      DOMAIN_NAME:
+        '${self:custom.domains.${self:provider.stage}.${self:provider.region}}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -71,6 +91,30 @@ const serverlessConfiguration = {
             request: {
               parameters: {
                 paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    stripeCheckoutSuccess: {
+      handler: 'handlers/getCheckoutSuccess.default',
+      events: [
+        {
+          http: {
+            path: 'apps/checkout/success',
+            method: 'GET',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
                 headers: {
                   Authorization: true,
                 },

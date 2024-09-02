@@ -44,6 +44,8 @@ const serverlessConfiguration = {
       CROWDAA_STAGE: '${self:provider.stage}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
+      STRIPE_PRICE_ID_PRO:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-price-id-pro}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -79,6 +81,31 @@ const serverlessConfiguration = {
           http: {
             path: 'apps/{id}/plans/current',
             method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
+            },
+            request: {
+              parameters: {
+                paths: { id: true },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    setCurrentPlan: {
+      handler: 'handlers/setCurrentPlan.default',
+      events: [
+        {
+          http: {
+            path: 'apps/{id}/plans',
+            method: 'patch',
             cors: true,
             authorizer: {
               type: 'CUSTOM',

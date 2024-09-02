@@ -2,13 +2,16 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import response, { handleException } from '@libs/httpResponses/response';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
-import { getCurrentPlanForAppId } from 'appsFeaturePlans/lib/getCurrentPlan';
+import { getCurrentPlanForApp } from 'appsFeaturePlans/lib/getCurrentPlan';
+import { getApp } from '@apps/lib/appsUtils';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { id: appId } = event.pathParameters as { id: string };
 
   try {
-    const computedPlan = await getCurrentPlanForAppId(appId, true);
+    const app = await getApp(appId);
+
+    const computedPlan = await getCurrentPlanForApp(app, true);
 
     return response({
       code: 200,

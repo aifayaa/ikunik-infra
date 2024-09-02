@@ -5,13 +5,10 @@ import { putComputeActiveUsersForDay } from '@apps/lib/putComputeActiveUsersForD
 import MongoClient from '@libs/mongoClient.js';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
-  DONT_USE_THIS_CODE,
-  ERROR_TYPE_UNTESTED_CODE,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_APPLICATION_CODE,
   MISSING_BODY_CODE,
 } from '@libs/httpResponses/errorCodes';
-import { formatValidationErrors } from '@libs/httpResponses/formatValidationErrors';
 import response, { handleException } from '@libs/httpResponses/response';
 import { checkPermsForApp } from '@libs/perms/checkPermsFor';
 import { APIGatewayProxyEvent } from 'aws-lambda';
@@ -85,32 +82,23 @@ export default async (event: PutComputeActiveUsersForDayLambdaEvent) => {
         JSON.parse(event.body);
       validatedBody.appId = appId;
 
-      try {
-        validatedBody = putComputeActiveUsersForDaySchema.parse(validatedBody);
-        day = new Date(validatedBody.day);
-      } catch (exception) {
-        return formatValidationErrors(exception);
-      }
+      validatedBody = putComputeActiveUsersForDaySchema.parse(validatedBody);
+      day = new Date(validatedBody.day);
+
       await checkPermsForApp(userId, appId, ['admin']);
     } else {
       // the function is directly invoked
-      let validatedComputeParameters: PutComputeActiveUsersForDayType;
-
-      try {
-        validatedComputeParameters =
-          putComputeActiveUsersForDaySchema.parse(event);
-        appId = validatedComputeParameters.appId;
-        day = new Date(validatedComputeParameters.day);
-      } catch (exception) {
-        return formatValidationErrors(exception);
-      }
+      const validatedComputeParameters: PutComputeActiveUsersForDayType =
+        putComputeActiveUsersForDaySchema.parse(event);
+      appId = validatedComputeParameters.appId;
+      day = new Date(validatedComputeParameters.day);
     }
 
     const app = await getApp(appId);
 
     const count = await putComputeActiveUsersForDay({
       appId,
-      subscriptionId: app.stripe?.subscriptionId,
+      subscriptionId: app.stripe?.subscription?.id,
       day,
       db,
     });

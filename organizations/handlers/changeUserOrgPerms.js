@@ -3,7 +3,6 @@ import { z } from 'zod';
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { checkPermsForOrganization } from '../../libs/perms/checkPermsFor.ts';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import changeUserOrgPerms from '../lib/changeUserOrgPerms';
@@ -27,12 +26,7 @@ export default async (event) => {
     const body = JSON.parse(event.body);
 
     // validation
-    let validatedBody;
-    try {
-      validatedBody = changeUserOrgPermsSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = changeUserOrgPermsSchema.parse(body);
 
     const { roles } = validatedBody;
     const orgPermissionLevelSourceUser = ['admin'];

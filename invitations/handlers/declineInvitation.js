@@ -2,7 +2,6 @@
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.ts';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors.ts';
 import { invitationAction } from '../lib/invitationAction';
 import { invitationActionSchema } from '../schemas/invitationAction.schema';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
@@ -19,13 +18,8 @@ export default async (event) => {
     parameters.action = action;
 
     // validation
-    try {
-      invitationId = makeIdSchema('invitationId').parse(invitationId);
-
-      parameters = invitationActionSchema.parse(parameters);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    invitationId = makeIdSchema('invitationId').parse(invitationId);
+    parameters = invitationActionSchema.parse(parameters);
 
     // current user right to update an invitation is determined in a step further
     const modifiedCount = await invitationAction(

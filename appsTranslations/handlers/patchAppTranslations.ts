@@ -16,7 +16,6 @@ import {
   MISSING_BODY_CODE,
 } from '../../libs/httpResponses/errorCodes';
 import { z } from 'zod';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { filterAppPrivateFields } from '../../apps/lib/appsUtils';
 import { checkAppPlanForLimitAccess } from 'appsFeaturePlans/lib/checkAppPlanForLimits';
 
@@ -64,13 +63,8 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const body = JSON.parse(event.body);
 
-    let validatedBody;
     // validation
-    try {
-      validatedBody = patchAppTranslationsSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = patchAppTranslationsSchema.parse(body);
 
     await checkPermsForApp(userId, appId, ['admin']);
 

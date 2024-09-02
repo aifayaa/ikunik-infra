@@ -1,6 +1,5 @@
 /* eslint-disable import/no-relative-packages */
 import { z } from 'zod';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import { checkPermsIsSuperAdmin } from '../../libs/perms/checkPermsFor';
 import openSessionAs, { OpenSessionAsType } from '../lib/openSessionAs';
 import response, { handleException } from '../../libs/httpResponses/response';
@@ -51,12 +50,7 @@ export default async (event: APIGatewayProxyEvent) => {
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    try {
-      validatedBody = openSessionAsSchema.parse(body) as OpenSessionAsType;
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = openSessionAsSchema.parse(body) as OpenSessionAsType;
 
     await checkPermsIsSuperAdmin(sourceUserId);
 
