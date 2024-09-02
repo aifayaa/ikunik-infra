@@ -44,6 +44,8 @@ const serverlessConfiguration = {
       CROWDAA_STAGE: '${self:provider.stage}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
+      STRIPE_PRICE_ID_PRO:
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/payment/stripe-price-id-pro}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',

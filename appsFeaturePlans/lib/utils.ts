@@ -1,9 +1,12 @@
+import { getEnvironmentVariable } from '@libs/check';
 import { FeaturePlanIdType } from './planTypes';
 
-const STRIPE_SUBSCRIPTION_PRICE_ID_PRO = 'price_1Psm6LKD2Srbl7IouRke2m7H';
+const STRIPE_PRICE_ID_PRO = getEnvironmentVariable('STRIPE_PRICE_ID_PRO', {
+  dontThrow: true,
+});
 
 const stripePriceIdToFeaturePlanIdMap: Record<string, FeaturePlanIdType> = {
-  [STRIPE_SUBSCRIPTION_PRICE_ID_PRO]: 'proFeaturePlanId',
+  [STRIPE_PRICE_ID_PRO]: 'proFeaturePlanId',
 };
 
 export function getFeaturePlanIdFromStripePriceId(
