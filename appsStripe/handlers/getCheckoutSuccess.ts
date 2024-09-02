@@ -121,12 +121,6 @@ export default async (event: APIGatewayProxyEvent) => {
       }
     );
 
-    // return response({
-    //   code: 301,
-    //   body: formatResponseBody({
-    //     data: session,
-    //   }),
-    // });
     return {
       statusCode: 301,
       headers: {
