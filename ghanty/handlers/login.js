@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import errorMessage from '../../libs/httpResponses/errorMessage';
-import response from '../../libs/httpResponses/response.ts';
+import response, {
+  handleException,
+} from '../../libs/httpResponses/response.ts';
 import login from '../lib/login';
 
 export default async (event) => {
@@ -15,7 +16,7 @@ export default async (event) => {
     const result = await login(username, password, appId);
 
     return response({ code: 200, body: { status: 'success', data: result } });
-  } catch (e) {
-    return response(errorMessage({ message: e.message }));
+  } catch (exception) {
+    return handleException(exception);
   }
 };
