@@ -29,11 +29,6 @@ export default async (event: APIGatewayProxyEvent) => {
   if (!db) db = client.db();
 
   try {
-    // TODO: remove when ready
-    if (process.env.STAGE === 'prod') {
-      trowExceptionUntestedCode20240808();
-    }
-
     const headers = event.headers;
 
     const { referer } = headers;

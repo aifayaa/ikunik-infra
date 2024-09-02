@@ -169,11 +169,6 @@ async function customerSubscriptionDeletedHandler(
 
 export default async (event: APIGatewayProxyEvent) => {
   try {
-    // TODO: remove when ready
-    if (process.env.STAGE === 'prod') {
-      trowExceptionUntestedCode20240808({ httpCode: 400 });
-    }
-
     const payload = checkBodyIsPresent(event.body);
     // console.log('payload', payload);
 
