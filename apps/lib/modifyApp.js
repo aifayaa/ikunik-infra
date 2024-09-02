@@ -120,6 +120,11 @@ export default async (appId, update) => {
         }
       }
     }
+    if (update.mmfId) {
+      $set['credentials.mmf'] = {
+        id: update.mmfId,
+      };
+    }
 
     await db.collection(COLL_APPS).findOneAndUpdate({ _id: appId }, { $set });
 
