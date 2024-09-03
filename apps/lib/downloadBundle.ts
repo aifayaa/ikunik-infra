@@ -23,14 +23,34 @@ export default async (
   const client = await MongoClient.connect();
 
   try {
-    await getApp(appId);
+    const app = await getApp(appId);
+    const {
+      name: appName,
+      builds: {
+        android: { version: androidBuildVersion },
+        ios: { version: iOSBuildVersion },
+      },
+    } = app;
+
+    let filename = '';
+    switch (extension) {
+      case 'apk':
+        filename = `${appName}_v${androidBuildVersion}.${extension}`;
+        break;
+      case 'aab':
+        filename = `${appName}_v${androidBuildVersion}.${extension}`;
+        break;
+      case 'ipa':
+        filename = `${appName}_v${iOSBuildVersion}.${extension}`;
+        break;
+    }
 
     const s3Params = {
       Bucket: S3_APPS_RESSOURCES,
       Key: `${appId}/app.${extension}`,
       Expires: validityDuration,
+      ResponseContentDisposition: `attachment; filename="${filename}"`,
     };
-    console.log('s3Params', s3Params);
 
     const url = s3.getSignedUrl('getObject', s3Params);
 
