@@ -15,9 +15,7 @@ export const getTos = async (appId, tosId, options = {}) => {
   }
 
   if (options.outdated !== undefined) {
-    query.outdated = {
-      $exists: options.outdated,
-    };
+    query.outdated = options.outdated;
   }
   if (options.required !== undefined) {
     query.required = options.required;
