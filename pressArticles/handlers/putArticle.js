@@ -6,7 +6,7 @@ import mdToHtml from '../lib/mdParsing/mdToHtml';
 import response from '../../libs/httpResponses/response.ts';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
-import { queueArticleNotifications } from '../lib/notificationsQueue';
+import { queueArticleNotifications } from '../lib/notificationsQueue.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 import articlePrices from '../articlePrices.json';

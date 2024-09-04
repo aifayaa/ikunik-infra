@@ -6,7 +6,7 @@ import mdToHtml from '../lib/mdParsing/mdToHtml';
 import response from '../../libs/httpResponses/response.ts';
 import xmlToHtml from '../lib/xmlParsing/xmlToHtml';
 import xmlToText from '../lib/xmlParsing/xmlToText';
-import { queueArticleNotifications } from '../lib/notificationsQueue';
+import { queueArticleNotifications } from '../lib/notificationsQueue.ts';
 import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
