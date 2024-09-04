@@ -8,6 +8,11 @@ const { ADMIN_APP } = process.env;
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
+type GetAppAdminsArgsType = {
+  userProjection?: object | null;
+  includeSuperAdmins?: boolean;
+};
+
 export default async (
   appId: string,
   {
@@ -16,9 +21,9 @@ export default async (
       'emails.address': 1,
       'profile.firstname': 1,
       'profile.lastname': 1,
-    } as object | null,
+    },
     includeSuperAdmins = false,
-  } = {}
+  }: GetAppAdminsArgsType = {}
 ) => {
   const client = await MongoClient.connect();
 

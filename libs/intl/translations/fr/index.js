@@ -85,6 +85,15 @@ export default {
       activeUsers: {
         title: "Quota d'utilisateurs dépassé pour l'app {{app.name}}",
       },
+      liveStreamDuration: {
+        title: "Quota d'heures streamées dépassé pour l'app {{app.name}}",
+      },
+    },
+    quotaWarning: {
+      liveStreamDuration: {
+        title:
+          "Quota d'heures streamées proche de la limite pour l'app {{app.name}}",
+      },
     },
   },
   apps: {

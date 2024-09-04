@@ -3,12 +3,23 @@ import { FeatureIdType } from './planTypes';
 import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers.js';
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
-import getAppAdmins from '@apps/lib/getAppAdmins';
+import computeLiveStreamDuration from 'liveStream/lib/computeLiveStreamDuration';
 
-const { COLL_USER_BADGES, COLL_LIVE_STREAMS, COLL_PRESS_POLLS } =
-  mongoCollections;
+const {
+  COLL_USER_BADGES,
+  COLL_LIVE_STREAMS,
+  COLL_PRESS_POLLS,
+  COLL_LIVE_STREAMS_DURATIONS,
+} = mongoCollections;
 
-type CurrentUsageComputerType = (app: AppType) => Promise<number>;
+type CurrentUsageComputerArg2Type = {
+  startDate: Date;
+  resetDate: Date;
+};
+type CurrentUsageComputerType = (
+  app: AppType,
+  periodDetails: CurrentUsageComputerArg2Type
+) => Promise<number>;
 
 export const currentUsageComputers: Record<
   FeatureIdType,
@@ -30,13 +41,23 @@ export const currentUsageComputers: Record<
   translations: (_app: AppType) => {
     return Promise.resolve(0);
   },
+  playlists: async (_app: AppType) => {
+    return Promise.resolve(0); // TODO Not done for now, shall we?
+  },
 
   // Measurable :
-  playlists: async (_app: AppType) => {
-    return 0; // TODO Implement me later
-  },
-  liveStreamDuration: async (_app: AppType) => {
-    return 0; // TODO Implement me later
+  liveStreamDuration: async (
+    app: AppType,
+    periodDetails: CurrentUsageComputerArg2Type
+  ) => {
+    let totalDuration = await computeLiveStreamDuration(app._id, {
+      from: periodDetails.startDate,
+      to: periodDetails.resetDate,
+    });
+
+    totalDuration /= 1 * 60 * 60 * 1000;
+
+    return totalDuration;
   },
   activeUsers: async (app: AppType) => {
     const activeUsers = await getAppActiveUsers(app);
@@ -57,19 +78,6 @@ export const currentUsageComputers: Record<
     } finally {
       client.close();
     }
-  },
-  collaborators: async (app: AppType) => {
-    const admins = await getAppAdmins(app._id, {
-      includeSuperAdmins: false,
-      userProjection: {
-        _id: 1,
-        'emails.address': 0,
-        'profile.firstname': 0,
-        'profile.lastname': 0,
-      },
-    });
-
-    return admins.length;
   },
   liveStreams: async (app: AppType) => {
     const client = await MongoClient.connect();

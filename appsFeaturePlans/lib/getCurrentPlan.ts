@@ -40,7 +40,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
     features: {
       badges: true,
       chat: true,
-      collaborators: true,
       crowd: true,
       liveStreams: true,
       liveStreamDuration: true,
@@ -62,12 +61,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
     features: {
       badges: false,
       chat: false,
-      collaborators: {
-        maxCount: 1,
-        resetPeriod: 'month',
-        resetPeriodWindow: 'fixed',
-        isSoft: false,
-      },
       crowd: false,
       liveStreams: false,
       liveStreamDuration: false,
@@ -78,6 +71,8 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       translations: false,
       activeUsers: {
         maxCount: 1000,
+        resetPeriod: 'month',
+        resetPeriodWindow: 'rolling',
         isSoft: true,
       },
     },
@@ -92,10 +87,14 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
     features: {
       badges: true,
       chat: true,
-      collaborators: true,
       crowd: true,
       liveStreams: true,
-      liveStreamDuration: true, // TODO Limit me later!!!
+      liveStreamDuration: {
+        maxCount: 10,
+        resetPeriod: 'week',
+        resetPeriodWindow: 'rolling',
+        isSoft: false,
+      },
       appTabs: true,
       playlists: true,
       polls: true,
@@ -103,6 +102,8 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       translations: true,
       activeUsers: {
         maxCount: 10000,
+        resetPeriod: 'month',
+        resetPeriodWindow: 'rolling',
         isSoft: true,
       },
     },
@@ -117,7 +118,6 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
     features: {
       badges: true,
       chat: true,
-      collaborators: true,
       crowd: true,
       liveStreams: true,
       liveStreamDuration: true,
@@ -128,6 +128,8 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       translations: true,
       activeUsers: {
         maxCount: 100000,
+        resetPeriod: 'month',
+        resetPeriodWindow: 'rolling',
         isSoft: true,
       },
     },
@@ -459,7 +461,10 @@ async function computeFeaturePlan(
               computeUsageFor.indexOf(featureId) >= 0)) &&
           currentUsageComputers[featureId]
         ) {
-          currentUsage = await currentUsageComputers[featureId](app);
+          currentUsage = await currentUsageComputers[featureId](app, {
+            startDate,
+            resetDate,
+          });
         }
 
         computedFeatures[featureId] = {
@@ -468,8 +473,8 @@ async function computeFeaturePlan(
           resetPeriodWindow,
           currentUsage,
           currentPeriod: {
-            startDate: startDate.toISOString(),
-            resetDate: resetDate.toISOString(),
+            startDate: startDate,
+            resetDate: resetDate,
           },
         };
 
@@ -494,7 +499,10 @@ async function computeFeaturePlan(
               computeUsageFor.indexOf(featureId) >= 0)) &&
           currentUsageComputers[featureId]
         ) {
-          currentUsage = await currentUsageComputers[featureId](app);
+          currentUsage = await currentUsageComputers[featureId](app, {
+            startDate,
+            resetDate,
+          });
         }
 
         computedFeatures[featureId] = {
@@ -502,8 +510,8 @@ async function computeFeaturePlan(
           resetPeriod,
           currentUsage,
           currentPeriod: {
-            startDate: startDate.toISOString(),
-            resetDate: resetDate.toISOString(),
+            startDate: startDate,
+            resetDate: resetDate,
           },
         };
 
@@ -518,7 +526,10 @@ async function computeFeaturePlan(
               computeUsageFor.indexOf(featureId) >= 0)) &&
           currentUsageComputers[featureId]
         ) {
-          currentUsage = await currentUsageComputers[featureId](app);
+          currentUsage = await currentUsageComputers[featureId](app, {
+            startDate: new Date(0),
+            resetDate: new Date(),
+          });
         }
 
         computedFeatures[featureId] = {
