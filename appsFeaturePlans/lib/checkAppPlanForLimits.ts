@@ -11,6 +11,7 @@ import {
 import { UserType } from '@users/lib/userEntity';
 import { formatMessage } from '@libs/intl/intl';
 import {
+  ComputedFeaturePlanType,
   FeatureIdType,
   PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS,
 } from 'appsFeaturePlans/lib/planTypes';
@@ -26,7 +27,7 @@ const lambda = new Lambda({
 export async function checkAppPlanForLimitIncrease(
   app: AppType | string,
   feature: FeatureIdType,
-  getCount: (app: AppType) => Promise<number>
+  getCount: (app: AppType, appPlan: ComputedFeaturePlanType) => Promise<number>
 ) {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -47,7 +48,7 @@ export async function checkAppPlanForLimitIncrease(
 
     const { maxCount, isSoft = false } = appPlan.features[feature];
 
-    const count = await getCount(app);
+    const count = await getCount(app, appPlan);
 
     if (count >= maxCount) {
       if (!isSoft) {
@@ -71,16 +72,29 @@ export async function checkAppPlanForLimitIncrease(
           'profile.firstname': 1,
           'profile.lastname': 1,
         },
-        includeSuperAdmins: true,
+        includeSuperAdmins: false,
+      })) as UserType[];
+      const appSuperAdmins = (await getAppAdmins(app._id, {
+        userProjection: {
+          _id: 1,
+          'emails.address': 1,
+          'profile.firstname': 1,
+          'profile.lastname': 1,
+        },
+        includeSuperAdmins: false,
       })) as UserType[];
 
       const appAdminsEmails = appAdmins.map((admin: UserType) => {
         const emailStr = `${admin.profile.firstname} ${admin.profile.lastname} <${admin.emails[0].address}>`;
         return emailStr;
       });
+      const appsSuperAdminsEmails = appSuperAdmins.map((admin: UserType) => {
+        const emailStr = `${admin.profile.firstname} ${admin.profile.lastname} <${admin.emails[0].address}>`;
+        return emailStr;
+      });
       await lambda
         .invokeAsync({
-          FunctionName: `asyncLambdas-${process.env.STAGE}-networkRequest`,
+          FunctionName: `asyncLambdas-${process.env.STAGE}-sendEmailMailgun`,
           InvokeArgs: JSON.stringify({
             email: {
               from: 'No Reply <support@crowdaa.com>',
@@ -95,7 +109,9 @@ export async function checkAppPlanForLimitIncrease(
                 quota: maxCount,
                 count,
               },
-              extra: {},
+              extra: {
+                bcc: appsSuperAdminsEmails.join(','),
+              },
             } as MailgunEmailParametersType,
             options: {
               retries: 5,
@@ -108,7 +124,7 @@ export async function checkAppPlanForLimitIncrease(
 
       const { at = new Date(), remindersCount = 0 } =
         app?.featurePlan?.featuresData?.[feature]?.softFeatureExceeded || {};
-      db.collection(COLL_APPS).updateOne(
+      await db.collection(COLL_APPS).updateOne(
         { _id: app._id },
         {
           $set: {

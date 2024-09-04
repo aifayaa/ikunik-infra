@@ -88,6 +88,14 @@ export default {
       activeUsers: {
         title: 'User quota exceeded for app {{app.name}}',
       },
+      liveStreamDuration: {
+        title: 'Live streaming hours exceeded for app {{app.name}}',
+      },
+    },
+    quotaWarning: {
+      liveStreamDuration: {
+        title: 'Live streaming hours close to the limit for app {{app.name}}',
+      },
     },
   },
   apps: {

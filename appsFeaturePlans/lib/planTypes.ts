@@ -16,7 +16,6 @@ export type FeatureIdType =
   | 'appTheme'
   | 'badges'
   | 'chat'
-  | 'collaborators'
   | 'crowd'
   | 'liveStreamDuration'
   | 'liveStreams'
@@ -29,7 +28,6 @@ export const allFeatureIds: FeatureIdType[] = [
   'appTheme',
   'badges',
   'chat',
-  'collaborators',
   'crowd',
   'liveStreamDuration',
   'liveStreams',
@@ -72,25 +70,29 @@ export type FeatureAppDataType = {
 export const PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS =
   1 * 24 * 60 * 60 * 1000;
 
+export type ComputedFeatureSpecification0Type = boolean;
+export type ComputedFeatureSpecification1Type = {
+  maxCount: number;
+  currentUsage: number;
+  isSoft?: boolean;
+};
+export type ComputedFeatureSpecification2Type = {
+  maxCount: number;
+  currentUsage: number;
+  resetPeriod: FeatureResetPeriodType;
+  currentPeriod: {
+    startDate: Date;
+    resetDate: Date;
+  };
+  maxDuration?: number;
+  resetPeriodWindow?: FeatureResetPeriodWindowType;
+  isSoft?: boolean;
+};
+
 export type ComputedFeatureSpecificationType =
-  | boolean
-  | {
-      maxCount: number;
-      currentUsage: number;
-      isSoft?: boolean;
-    }
-  | {
-      maxCount: number;
-      currentUsage: number;
-      resetPeriod: FeatureResetPeriodType;
-      currentPeriod: {
-        startDate: string;
-        resetDate: string;
-      };
-      maxDuration?: number;
-      resetPeriodWindow?: FeatureResetPeriodWindowType;
-      isSoft?: boolean;
-    };
+  | ComputedFeatureSpecification0Type
+  | ComputedFeatureSpecification1Type
+  | ComputedFeatureSpecification2Type;
 
 type PlanLocalizedNameType = Record<string, string>;
 

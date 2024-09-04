@@ -33,6 +33,7 @@
   "COLL_INVITATIONS": "invitations",
   "COLL_LINEUPS": "lineup",
   "COLL_LIVE_STREAMS": "liveStream",
+  "COLL_LIVE_STREAMS_DURATIONS": "liveStreamsDurations",
   "COLL_MAINTENANCE": "maintenance",
   "COLL_MEDIUM_SELECTION_LINKS": "mediumSelectionLinks",
   "COLL_METRICS": "metrics",

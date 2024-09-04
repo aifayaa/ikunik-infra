@@ -134,7 +134,7 @@ export default async (appId, { name, startDateTime }) => {
       playbackUrl: channel.playbackUrl,
 
       aws: {
-        /** Mostly for debugging purpose */ arn: channel.arn,
+        arn: channel.arn,
         recordingConfigurationArn,
         streamKeyArn: streamKey.arn,
 
