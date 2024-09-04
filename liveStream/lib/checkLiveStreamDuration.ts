@@ -40,12 +40,13 @@ const SEND_WARNING_WHEN_REMAINING_TIME_PERCENT = 5 / 100;
 type SendReminderOptionsType = {
   remainingDays: number;
   remainingTime: number;
+  hoursQuota: number;
   warning: boolean;
 };
 
 async function sendAlertEmail(
   app: AppType,
-  { remainingDays, remainingTime, warning }: SendReminderOptionsType
+  { remainingDays, remainingTime, hoursQuota, warning }: SendReminderOptionsType
 ) {
   const feature: FeatureIdType = 'liveStreamDuration';
   const appAdmins = (await getAppAdmins(app._id, {
@@ -98,6 +99,7 @@ async function sendAlertEmail(
                 : remainingDays.toFixed(1),
             remaining_time: remainingTime.toFixed(0),
             appName: app.name,
+            hoursQuota,
           },
           extra: {
             bcc: appsSuperAdminsEmails.join(','),
@@ -267,6 +269,7 @@ export async function checkLiveStreamDuration({
                   (periodResetDate.getTime() - Date.now()) /
                   (24 * 60 * 60 * 1000),
                 remainingTime: (maxCount - totalDuration) * 60,
+                hoursQuota: maxCount,
               });
 
               const { at = new Date(), remindersCount = 0 } =
@@ -311,6 +314,7 @@ export async function checkLiveStreamDuration({
           (planValues.currentPeriod.resetDate.getTime() - Date.now()) /
           (24 * 60 * 60 * 1000),
         remainingTime: 0,
+        hoursQuota: liveStreamDuration.maxCount,
       });
 
       await ivs.deleteStreamKey({ arn: dbStream.aws.streamKeyArn }).promise();
