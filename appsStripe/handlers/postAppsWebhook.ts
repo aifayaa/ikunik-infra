@@ -15,7 +15,6 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
 import { getApp } from '@apps/lib/appsUtils';
-import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 import { customerSubscriptionHelperHandler } from 'appsStripe/lib/postAppsWebhook';
 
 const { COLL_APPS } = mongoCollections;

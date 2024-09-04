@@ -1,3 +1,17 @@
+# To launch the webhook localy
+
+In a terminal, launch the serverless-offline server:
+
+```sh
+../sls-offline.sh
+```
+
+In another terminal, launch the Stripe CLI:
+
+```sh
+stripe listen --events invoice.payment_failed,checkout.session.completed,customer.subscription.updated,customer.subscription.deleted --load-from-webhooks-api --forward-to localhost:3000
+```
+
 # To use Stripe in production environment
 
 We have to setup the production environment with the following information:

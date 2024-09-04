@@ -4,23 +4,18 @@ import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import prepareNotif from './prepareNotifString';
-
-const { REGION, STAGE } = process.env;
+import { getEnvironmentVariable } from '@libs/check';
 
 const { COLL_PRESS_ARTICLES } = mongoCollections;
 
-const lambda = new Lambda({
-  region: REGION,
-});
-
-export const queueArticleNotifications = async (
-  appId,
-  articleId,
-  draftId,
-  notifyAt,
-  content = null,
-  title = null
-) => {
+export async function queueArticleNotifications(
+  appId: string,
+  articleId: string,
+  draftId: string,
+  notifyAt: Date,
+  content?: string,
+  title?: string
+) {
   const client = await MongoClient.connect();
   try {
     if (!(notifyAt instanceof Date)) {
@@ -45,6 +40,13 @@ export const queueArticleNotifications = async (
       content = content || prepareNotif(article.plainText);
     }
 
+    const REGION = getEnvironmentVariable('REGION');
+    const STAGE = getEnvironmentVariable('STAGE');
+
+    const lambda = new Lambda({
+      region: REGION,
+    });
+
     const response = await lambda
       .invoke({
         FunctionName: `blast-${STAGE}-queueNotifications`,
@@ -61,7 +63,9 @@ export const queueArticleNotifications = async (
         }),
       })
       .promise();
-    const { queueId } = JSON.parse(response.Payload);
+    const { queueId } = response.Payload
+      ? JSON.parse(response.Payload.toString())
+      : { queueId: false };
 
     if (queueId) {
       await client
@@ -82,9 +86,9 @@ export const queueArticleNotifications = async (
   } finally {
     await client.close();
   }
-};
+}
 
-export const cleanPendingArticleNotifications = async (articleId) => {
+export async function cleanPendingArticleNotifications(articleId: string) {
   const client = await MongoClient.connect();
   try {
     const article = await client
@@ -98,6 +102,8 @@ export const cleanPendingArticleNotifications = async (articleId) => {
         (!article.unpublicationDate ||
           article.unpublicationDate.getTime() <= Date.now())
       ) {
+        const REGION = getEnvironmentVariable('REGION');
+
         const stepfunctions = new StepFunctions({
           region: REGION,
         });
@@ -130,6 +136,12 @@ export const cleanPendingArticleNotifications = async (articleId) => {
           }
         );
     } else if (article.pendingNotificationQueueId) {
+      const REGION = getEnvironmentVariable('REGION');
+      const STAGE = getEnvironmentVariable('STAGE');
+
+      const lambda = new Lambda({
+        region: REGION,
+      });
       await lambda
         .invoke({
           FunctionName: `blast-${STAGE}-unqueueNotifications`,
@@ -157,4 +169,4 @@ export const cleanPendingArticleNotifications = async (articleId) => {
   } finally {
     await client.close();
   }
-};
+}
