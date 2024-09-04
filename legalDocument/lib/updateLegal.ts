@@ -2,7 +2,11 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { LegalDocumentType } from './type';
-import { computeS3Filepath, writeS3TosBucket } from './utils';
+import {
+  computeS3Filepath,
+  removeScriptsFromHtml,
+  writeS3TosBucket,
+} from './utils';
 
 const { COLL_TOS } = mongoCollections;
 
@@ -28,11 +32,16 @@ export default async (
       updatedBy: userId,
     };
     const { title, html, type } = fieldsToSet;
-    if (title && html && type) {
+    const filteredHtml = removeScriptsFromHtml(html || '');
+    if (title && filteredHtml && type) {
       const s3Filepath = computeS3Filepath(legalDocumentId, appId, type);
-      $set.url = await writeS3TosBucket(s3Filepath, title, html);
+      $set.url = await writeS3TosBucket(s3Filepath, title, filteredHtml);
     } else {
       delete $set.url;
+    }
+
+    if (filteredHtml) {
+      fieldsToSet.html = filteredHtml;
     }
 
     await client.db().collection(COLL_TOS).updateOne(
