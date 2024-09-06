@@ -22,7 +22,7 @@ export const sendNotificationTo = (data, cb) => {
 
       if (!title) alert = message;
       else if (!message) alert = title;
-      else alert = `${title}: ${message}`;
+      else alert = { title, body: message };
 
       msg[endpoint.Platform] = JSON.stringify({
         aps: {
