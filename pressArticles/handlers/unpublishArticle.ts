@@ -1,7 +1,11 @@
 /* eslint-disable import/no-relative-packages */
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import MongoClient from '@libs/mongoClient';
 import response from '../../libs/httpResponses/response';
-import { unpublishArticle } from '../lib/unpublishArticle';
+import {
+  unpublishArticlesWithBadgesInDb,
+  unpublishArticlesNotifications,
+} from '../lib/unpublishArticles';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -14,9 +18,32 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const { id: articleId } = event.pathParameters as { id: string };
-    const results = await unpublishArticle(appId, articleId);
 
-    return response({ code: 200, body: results });
+    const queryArticlesToUnpublish = {
+      _id: { $in: [articleId] },
+      appId,
+    };
+
+    const client = await MongoClient.connect();
+    const db = await client.db();
+    // Documentation, how to use transaction:
+    // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+    await client.withSession(
+      async (sessionArg: {
+        withTransaction: (session: unknown) => Promise<void>;
+      }) => {
+        await sessionArg.withTransaction(async (session: unknown) => {
+          await unpublishArticlesWithBadgesInDb(
+            queryArticlesToUnpublish,
+            db,
+            session
+          );
+        });
+      }
+    );
+    await unpublishArticlesNotifications(queryArticlesToUnpublish, db);
+
+    return response({ code: 200, body: { articleId } });
   } catch (e) {
     return response({ code: 500, message: (e as Error).message });
   }
