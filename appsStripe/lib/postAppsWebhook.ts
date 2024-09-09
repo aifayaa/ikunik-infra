@@ -1,5 +1,8 @@
 import Stripe from 'stripe';
 
+import MongoClient from '@libs/mongoClient';
+import mongoCollections from '@libs/mongoCollections.json';
+
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   APP_ID_NOT_FOUND_CODE,
@@ -9,11 +12,12 @@ import {
 import { getApp } from '@apps/lib/appsUtils';
 import { StripeSubscriptionType } from '@apps/lib/appEntity';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
-import MongoClient from '@libs/mongoClient';
 import {
   unpublishArticlesInDb,
   unpublishArticlesNotifications,
 } from 'pressArticles/lib/unpublishArticles';
+
+const { COLL_PRESS_CATEGORIES } = mongoCollections;
 
 function extractSubscriptionData(
   subscription: Stripe.Subscription
@@ -261,6 +265,23 @@ async function updateAppWithSubscriptionData(
     { session }
   );
 }
+
+async function unpublishCategoriesWithBadges(
+  queryCategoriesToUnpublish: Record<string, any>,
+  db: any,
+  session: unknown
+) {
+  await db.collection(COLL_PRESS_CATEGORIES).updateMany(
+    queryCategoriesToUnpublish,
+    {
+      $set: {
+        hidden: true,
+      },
+    },
+    { session }
+  );
+}
+
 export async function doCustomerSubscriptionDeletedHandler(
   subscription: Stripe.Subscription,
   appCollection: any,
@@ -301,6 +322,12 @@ export async function doCustomerSubscriptionDeletedHandler(
         );
 
         await unpublishArticlesInDb(queryArticlesToUnpublish, db, session);
+
+        await unpublishCategoriesWithBadges(
+          queryArticlesToUnpublish,
+          db,
+          session
+        );
       });
     }
   );

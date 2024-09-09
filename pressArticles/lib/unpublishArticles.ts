@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { cleanPendingArticleNotifications } from './notificationsQueue.js';
 
