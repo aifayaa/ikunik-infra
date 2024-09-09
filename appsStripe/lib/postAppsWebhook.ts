@@ -11,6 +11,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { getApp } from '@apps/lib/appsUtils';
 import { StripeSubscriptionType } from '@apps/lib/appEntity';
+import { DEFAULT_APP_SETTINGS } from '@apps/lib/createApp.js';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
 import {
   unpublishArticlesWithBadgesInDb,
@@ -294,6 +295,23 @@ async function resetThemeCustomisation(
   );
 }
 
+async function resetTabsCustomisation(
+  appCollection: any,
+  appId: string,
+  session: unknown
+) {
+  await appCollection.updateOne(
+    { appId },
+    {
+      $set: {
+        'press.env.startTab': DEFAULT_APP_SETTINGS.press.env.startTab,
+        'press.env.tabOrder': DEFAULT_APP_SETTINGS.press.env.tabOrder,
+      },
+    },
+    { session }
+  );
+}
+
 export async function doCustomerSubscriptionDeletedHandler(
   subscription: Stripe.Subscription,
   appCollection: any,
@@ -349,6 +367,9 @@ export async function doCustomerSubscriptionDeletedHandler(
 
         // Remove theme customisation for the application
         await resetThemeCustomisation(appCollection, appId, session);
+
+        // Restore default tabs and tabs' order
+        await resetTabsCustomisation(appCollection, appId, session);
       });
     }
   );
