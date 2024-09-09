@@ -13,7 +13,7 @@ import { getApp } from '@apps/lib/appsUtils';
 import { StripeSubscriptionType } from '@apps/lib/appEntity';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
 import {
-  unpublishArticlesInDb,
+  unpublishArticlesWithBadgesInDb,
   unpublishArticlesNotifications,
 } from 'pressArticles/lib/unpublishArticles';
 
@@ -282,6 +282,18 @@ async function unpublishCategoriesWithBadges(
   );
 }
 
+async function resetThemeCustomisation(
+  appCollection: any,
+  appId: string,
+  session: unknown
+) {
+  await appCollection.updateOne(
+    { appId },
+    { $unset: { 'press.env.appThemeColorPrimary': 1 } },
+    { session }
+  );
+}
+
 export async function doCustomerSubscriptionDeletedHandler(
   subscription: Stripe.Subscription,
   appCollection: any,
@@ -321,13 +333,22 @@ export async function doCustomerSubscriptionDeletedHandler(
           session
         );
 
-        await unpublishArticlesInDb(queryArticlesToUnpublish, db, session);
+        // Unpublish articles which have at least one badge
+        await unpublishArticlesWithBadgesInDb(
+          queryArticlesToUnpublish,
+          db,
+          session
+        );
 
+        // Unpublish categories which have at least one badge
         await unpublishCategoriesWithBadges(
           queryArticlesToUnpublish,
           db,
           session
         );
+
+        // Remove theme customisation for the application
+        await resetThemeCustomisation(appCollection, appId, session);
       });
     }
   );
