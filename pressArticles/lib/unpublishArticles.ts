@@ -1,11 +1,13 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { cleanPendingArticleNotifications } from './notificationsQueue';
+import { cleanPendingArticleNotifications } from './notificationsQueue.js';
 
 const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;
 
-export const unpublishArticle = async (appId: string, articleId: string) => {
+export async function unpublishArticles(
+  queryArticlesToUnpublish: Record<string, any>
+) {
   const client = await MongoClient.connect();
   let session;
 
@@ -17,11 +19,8 @@ export const unpublishArticle = async (appId: string, articleId: string) => {
     await client
       .db()
       .collection(COLL_PRESS_ARTICLES)
-      .updateOne(
-        {
-          _id: articleId,
-          appId,
-        },
+      .updateMany(
+        queryArticlesToUnpublish,
         {
           $set: {
             isPublished: false,
@@ -34,10 +33,7 @@ export const unpublishArticle = async (appId: string, articleId: string) => {
       .db()
       .collection(COLL_PRESS_DRAFTS)
       .updateMany(
-        {
-          articleId,
-          appId,
-        },
+        queryArticlesToUnpublish,
         {
           $set: {
             isPublished: false,
@@ -48,11 +44,23 @@ export const unpublishArticle = async (appId: string, articleId: string) => {
 
     await session.commitTransaction();
 
-    await cleanPendingArticleNotifications(articleId);
+    const unpublishedArticles = (await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .find(queryArticlesToUnpublish, { projection: { _id: 1 } })
+      .toArray()) as Array<{ _id: string }>;
 
-    return { articleId };
+    const articleIds = unpublishedArticles.map(({ _id }) => _id);
+
+    const promises = articleIds.map((articleId) =>
+      cleanPendingArticleNotifications(articleId)
+    );
+
+    await Promise.all(promises);
+
+    return { articleIds };
   } finally {
     if (session) session.endSession();
     client.close();
   }
-};
+}
