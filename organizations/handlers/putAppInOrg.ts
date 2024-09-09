@@ -106,6 +106,7 @@ export async function putAppInOrgHandlerBody(
                     { 'organization._id': sourceOrgId },
                     {
                       projection: appPrivateFieldsProjection,
+                      session,
                     }
                   )
                   .toArray()
@@ -119,11 +120,12 @@ export async function putAppInOrgHandlerBody(
                   { _id: sourceOrgId },
                   {
                     $set: { 'apple.setupDone': false },
-                  }
+                  },
+                  { session }
                 );
               }
 
-              // In any case, locks the destination organization teamId
+              // Locks the destination organization teamId
               await db.collection(COLL_ORGANIZATIONS).updateOne(
                 { _id: orgId },
                 {
@@ -131,7 +133,8 @@ export async function putAppInOrgHandlerBody(
                     'apple.setupDone': true,
                     'apple.teamStatus': 'valid',
                   },
-                }
+                },
+                { session }
               );
             }
           });

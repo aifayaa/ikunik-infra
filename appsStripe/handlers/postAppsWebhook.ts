@@ -15,7 +15,10 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun.js';
 import { getApp } from '@apps/lib/appsUtils';
-import { customerSubscriptionHelperHandler } from 'appsStripe/lib/postAppsWebhook';
+import {
+  doCustomerSubscriptionDeletedHandler,
+  doCustomerSubscriptionUpdatedHandler,
+} from 'appsStripe/lib/postAppsWebhook';
 
 const { COLL_APPS } = mongoCollections;
 const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
@@ -138,18 +141,13 @@ async function customerSubscriptionUpdatedHandler(
   stripeEvent: Stripe.CustomerSubscriptionUpdatedEvent,
   db: any
 ) {
-  const updatedAt = new Date();
   const subscription = stripeEvent.data.object;
-
   const appCollection = db.collection(COLL_APPS);
-  await customerSubscriptionHelperHandler(
-    subscription,
-    'subscriptionUpdated',
-    appCollection,
-    {
-      updatedAt,
-    }
-  );
+  const updatedAt = new Date();
+
+  await doCustomerSubscriptionUpdatedHandler(subscription, appCollection, {
+    updatedAt,
+  });
 }
 
 async function customerSubscriptionDeletedHandler(
@@ -157,13 +155,9 @@ async function customerSubscriptionDeletedHandler(
   db: any
 ) {
   const subscription = stripeEvent.data.object;
-
   const appCollection = db.collection(COLL_APPS);
-  await customerSubscriptionHelperHandler(
-    subscription,
-    'subscriptionDeleted',
-    appCollection
-  );
+
+  await doCustomerSubscriptionDeletedHandler(subscription, appCollection);
 }
 
 export default async (event: APIGatewayProxyEvent) => {

@@ -1,7 +1,11 @@
 /* eslint-disable import/no-relative-packages */
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import MongoClient from '@libs/mongoClient';
 import response from '../../libs/httpResponses/response';
-import { unpublishArticles } from '../lib/unpublishArticles';
+import {
+  unpublishArticlesInDb,
+  unpublishArticlesNotifications,
+} from '../lib/unpublishArticles';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -19,7 +23,21 @@ export default async (event: APIGatewayProxyEvent) => {
       _id: { $in: [articleId] },
       appId,
     };
-    await unpublishArticles(queryArticlesToUnpublish);
+
+    const client = await MongoClient.connect();
+    const db = await client.db();
+    // Documentation, how to use transaction:
+    // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+    await client.withSession(
+      async (sessionArg: {
+        withTransaction: (session: unknown) => Promise<void>;
+      }) => {
+        await sessionArg.withTransaction(async (session: unknown) => {
+          await unpublishArticlesInDb(queryArticlesToUnpublish, db, session);
+        });
+      }
+    );
+    await unpublishArticlesNotifications(queryArticlesToUnpublish, db);
 
     return response({ code: 200, body: { articleId } });
   } catch (e) {
