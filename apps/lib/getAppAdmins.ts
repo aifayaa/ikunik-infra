@@ -69,7 +69,7 @@ export default async (
             {
               _id: { $in: appOrgUsersIds.map(({ _id }) => _id) },
               appId: ADMIN_APP,
-              'perms.orgs._id': app.organization._id,
+              'perms.organizations._id': app.organization._id,
             },
             queryOpts
           )
