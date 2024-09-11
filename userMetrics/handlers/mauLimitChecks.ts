@@ -144,25 +144,21 @@ export async function userMetricsMAULimitChecks(
         }
       }
 
-      // If a threshold of users is crossed
+      // If a threshold of users is crossed, send an email
       if (typeof crossedLimit === 'number') {
-        const maxCrossedLimitIndex = MAU_WARNING_LIMIT_RATIOS.length - 1;
-        // If the crossed limit is lower than the max crossed limit index, send an email
-        if (crossedLimit < maxCrossedLimitIndex) {
-          await sendWarningEmail(app, {
-            absoluteLimit: maxCount,
-            currentValue: activeUsersAfter,
-            blocked: false,
-          });
-        }
-        // Else, if the crossed limit is equal to the max crossed limit index, send an email
-        else {
-          await sendWarningEmail(app, {
-            absoluteLimit: maxCount,
-            currentValue: activeUsersAfter,
-            blocked: true,
-          });
-        }
+        await sendWarningEmail(app, {
+          absoluteLimit: maxCount,
+          currentValue: activeUsersAfter,
+          blocked: false,
+        });
+      }
+      // Else, if the final threshold is crossed, send an email
+      else if (activeUsersBefore < maxCount && maxCount <= activeUsersAfter) {
+        await sendWarningEmail(app, {
+          absoluteLimit: maxCount,
+          currentValue: activeUsersAfter,
+          blocked: true,
+        });
       }
     }
   }
