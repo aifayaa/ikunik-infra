@@ -6,8 +6,7 @@ import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAp
 import { getAppActiveUsers } from '../lib/getAppActiveUsers';
 
 export default async (event) => {
-  const { appId } = event.requestContext.authorizer;
-  const userId = event.requestContext.authorizer.principalId;
+  const { appId, principalId: userId } = event.requestContext.authorizer;
 
   if (!event.body) {
     throw new Error('missing_payload');
