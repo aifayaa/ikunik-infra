@@ -68,12 +68,14 @@ export const getUserByOidc = async (identityToken, appId) => {
       };
       await collection.updateOne({ _id: userId }, patch);
     } else {
-      const { count: activeUsersCount } = await getAppActiveUsers(app);
-
       const allowed = await checkAppPlanForLimitIncrease(
         app,
         'activeUsers',
-        activeUsersCount,
+        async (appArg) => {
+          const activeUsers = await getAppActiveUsers(appArg);
+
+          return activeUsers.count;
+        },
         { checkInDB: true }
       );
 

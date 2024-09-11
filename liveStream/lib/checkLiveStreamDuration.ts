@@ -316,7 +316,9 @@ export async function checkLiveStreamDuration({
     const allowed = await checkAppPlanForLimitIncrease(
       app,
       'liveStreamDuration',
-      totalDurationInHours
+      async () => {
+        return totalDurationInHours;
+      }
     );
 
     await sendAlertEmailIfNecessary(app, appPlan, totalDurationInHours);

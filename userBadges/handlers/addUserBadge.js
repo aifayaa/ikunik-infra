@@ -23,8 +23,6 @@ export default async (event) => {
     superAdmin,
   } = event.requestContext.authorizer;
 
-  const client = await MongoClient.connect();
-
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
@@ -42,17 +40,24 @@ export default async (event) => {
 
     if (!superAdmin) {
       const app = await getApp(appId);
-
-      const badgesCount = await client
-        .db()
-        .collection(COLL_USER_BADGES)
-        .find({ appId })
-        .count();
-
       const allowed = await checkAppPlanForLimitIncrease(
         app,
         'badges',
-        badgesCount
+        async () => {
+          const client = await MongoClient.connect();
+
+          try {
+            const count = await client
+              .db()
+              .collection(COLL_USER_BADGES)
+              .find({ appId })
+              .count();
+
+            return count;
+          } finally {
+            client.close();
+          }
+        }
       );
 
       if (!allowed) {
@@ -68,7 +73,5 @@ export default async (event) => {
     return response({ code: 200, body: { userBadge } });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
-  } finally {
-    client.close();
   }
 };

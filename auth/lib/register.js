@@ -36,12 +36,14 @@ export const register = async (
     const app = await appsCollection.findOne({ _id: appId });
     if (!app) throw new Error('app_not_found');
 
-    const { count: activeUsersCount } = await getAppActiveUsers(app);
-
     const allowed = await checkAppPlanForLimitIncrease(
       app,
       'activeUsers',
-      activeUsersCount,
+      async () => {
+        const activeUsers = await getAppActiveUsers(app);
+
+        return activeUsers.count;
+      },
       { checkInDB: true }
     );
 

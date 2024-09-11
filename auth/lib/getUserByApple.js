@@ -115,12 +115,14 @@ export const getUserByApple = async (
       }
       await collection.updateOne({ _id: userId }, patch);
     } else {
-      const { count: activeUsersCount } = await getAppActiveUsers(app);
-
       const allowed = await checkAppPlanForLimitIncrease(
         app,
         'activeUsers',
-        activeUsersCount,
+        async () => {
+          const activeUsers = await getAppActiveUsers(app);
+
+          return activeUsers.count;
+        },
         { checkInDB: true }
       );
 
