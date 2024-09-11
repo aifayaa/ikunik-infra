@@ -319,7 +319,7 @@ export async function checkLiveStreamDuration({
       totalDurationInHours
     );
 
-    sendAlertEmailIfNecessary(app, appPlan, totalDurationInHours);
+    await sendAlertEmailIfNecessary(app, appPlan, totalDurationInHours);
 
     if (!allowed) {
       const appPlan = await getCurrentPlanForApp(app, ['liveStreamDuration']);
