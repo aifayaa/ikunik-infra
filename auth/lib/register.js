@@ -15,6 +15,7 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+import { userMetricsMAULimitChecks } from '../../userMetrics/handlers/mauLimitChecks.ts';
 
 const { ADMIN_APP } = process.env;
 
@@ -53,6 +54,8 @@ export const register = async (
       );
     }
 
+    const activeUsersBefore = await getAppActiveUsers(app);
+
     let ret;
 
     if (appId !== ADMIN_APP && app.backend) {
@@ -71,6 +74,15 @@ export const register = async (
     }
 
     await postLoginChecks(ret, app, 'register');
+
+    const activeUsersAfter = await getAppActiveUsers(app);
+
+    await userMetricsMAULimitChecks(
+      app,
+      'activeUsers',
+      activeUsersBefore,
+      activeUsersAfter
+    );
 
     return ret;
   } finally {
