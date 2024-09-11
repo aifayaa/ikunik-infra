@@ -26,7 +26,7 @@ export default async (event) => {
     if (!superAdmin) {
       const allowed = await checkAppPlanForLimitIncrease(
         appId,
-        'liveStreams',
+        'liveStreams', // Is it the right featureId ?
         async () => {
           const client = await MongoClient.connect();
 
