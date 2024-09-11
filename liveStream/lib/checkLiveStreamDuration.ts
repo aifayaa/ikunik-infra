@@ -309,19 +309,18 @@ export async function checkLiveStreamDuration({
         );
     }
 
-    const { totalDurationInHours, appPlan } =
-      await computeLiveStreamDuration(app);
-
     // The callback here contain to many logics, it should be refactored
     const allowed = await checkAppPlanForLimitIncrease(
       app,
       'liveStreamDuration',
       async () => {
+        const { totalDurationInHours, appPlan } =
+          await computeLiveStreamDuration(app);
+
+        await sendAlertEmailIfNecessary(app, appPlan, totalDurationInHours);
         return totalDurationInHours;
       }
     );
-
-    await sendAlertEmailIfNecessary(app, appPlan, totalDurationInHours);
 
     if (!allowed) {
       const appPlan = await getCurrentPlanForApp(app, ['liveStreamDuration']);
