@@ -55,9 +55,9 @@ export async function checkAppPlanForLimitIncrease(
         return false;
       }
 
-      if (app?.featurePlan?.featuresData?.[feature]?.softFeatureExceeded) {
+      if (app?.featurePlan?.featuresData?.[feature]?.featureExceeded) {
         const { lastReminder } =
-          app.featurePlan.featuresData[feature].softFeatureExceeded;
+          app.featurePlan.featuresData[feature].featureExceeded;
 
         const diff = Date.now() - lastReminder.getTime();
         if (diff < PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS) {
@@ -123,12 +123,12 @@ export async function checkAppPlanForLimitIncrease(
         .promise();
 
       const { at = new Date(), remindersCount = 0 } =
-        app?.featurePlan?.featuresData?.[feature]?.softFeatureExceeded || {};
+        app?.featurePlan?.featuresData?.[feature]?.featureExceeded || {};
       await db.collection(COLL_APPS).updateOne(
         { _id: app._id },
         {
           $set: {
-            [`app.featurePlan.featuresData.${feature}.softFeatureExceeded`]: {
+            [`app.featurePlan.featuresData.${feature}.featureExceeded`]: {
               at,
               lastReminder: new Date(),
               remindersCount: remindersCount + 1,

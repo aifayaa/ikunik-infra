@@ -103,20 +103,22 @@ async function sendWarningEmail(
       })
       .promise();
 
-    const { at = new Date(), remindersCount = 0 } =
-      app?.featurePlan?.featuresData?.[feature]?.softFeatureExceeded || {};
-    await db.collection(COLL_APPS).updateOne(
-      { _id: app._id },
-      {
-        $set: {
-          [`app.featurePlan.featuresData.${feature}.softFeatureExceeded`]: {
-            at,
-            lastReminder: new Date(),
-            remindersCount: remindersCount + 1,
+    if (blocked) {
+      const { at = new Date(), remindersCount = 0 } =
+        app?.featurePlan?.featuresData?.[feature]?.featureExceeded || {};
+      await db.collection(COLL_APPS).updateOne(
+        { _id: app._id },
+        {
+          $set: {
+            [`app.featurePlan.featuresData.${feature}.featureExceeded`]: {
+              at,
+              lastReminder: new Date(),
+              remindersCount: remindersCount + 1,
+            },
           },
-        },
-      }
-    );
+        }
+      );
+    }
   } finally {
     client.close();
   }

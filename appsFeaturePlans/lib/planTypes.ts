@@ -60,7 +60,7 @@ export type FeatureSpecificationType =
     };
 
 export type FeatureAppDataType = {
-  softFeatureExceeded?: {
+  featureExceeded?: {
     at: Date;
     lastReminder: Date;
     remindersCount: number;

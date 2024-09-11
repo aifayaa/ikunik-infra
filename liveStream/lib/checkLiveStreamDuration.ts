@@ -245,12 +245,12 @@ export async function checkLiveStreamDuration({
             let sendWarning = false;
 
             if (
-              app.featurePlan.featuresData?.liveStreamDuration
-                ?.softFeatureExceeded?.lastReminder
+              app.featurePlan.featuresData?.liveStreamDuration?.featureExceeded
+                ?.lastReminder
             ) {
               const lastReminder =
                 app.featurePlan.featuresData?.liveStreamDuration
-                  ?.softFeatureExceeded?.lastReminder;
+                  ?.featureExceeded?.lastReminder;
 
               if (
                 lastReminder < periodStartDate &&
@@ -274,7 +274,7 @@ export async function checkLiveStreamDuration({
 
               const { at = new Date(), remindersCount = 0 } =
                 app?.featurePlan?.featuresData?.liveStreamDuration
-                  ?.softFeatureExceeded || {};
+                  ?.featureExceeded || {};
 
               await client
                 .db()
@@ -283,7 +283,7 @@ export async function checkLiveStreamDuration({
                   { _id: app._id },
                   {
                     $set: {
-                      'featurePlan.featuresData.liveStreamDuration.softFeatureExceeded':
+                      'featurePlan.featuresData.liveStreamDuration.featureExceeded':
                         {
                           at,
                           lastReminder: new Date(),
