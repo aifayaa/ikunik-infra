@@ -12,12 +12,15 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+import { getApp } from '../../apps/lib/appsUtils.ts';
 
 const { COLL_USERS } = mongoCollections;
 
 export const getUserByOidc = async (identityToken, appId) => {
   const client = await MongoClient.connect();
   try {
+    const app = await getApp(appId);
+
     // TODO: verify identityToken
     const decodedIdToken = await verifyJwt(identityToken, appId, {
       mongoClient: client,
@@ -66,10 +69,10 @@ export const getUserByOidc = async (identityToken, appId) => {
       await collection.updateOne({ _id: userId }, patch);
     } else {
       const allowed = await checkAppPlanForLimitIncrease(
-        appId,
+        app,
         'activeUsers',
-        async (app) => {
-          const activeUsers = await getAppActiveUsers(app);
+        async (appArg) => {
+          const activeUsers = await getAppActiveUsers(appArg);
 
           return activeUsers.count;
         }

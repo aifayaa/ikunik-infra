@@ -14,8 +14,9 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+import { getApp } from '../../apps/lib/appsUtils.ts';
 
-const { COLL_APPS, COLL_USERS } = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export const getUserByApple = async (
   authorizationCode,
@@ -28,7 +29,7 @@ export const getUserByApple = async (
   const client = await MongoClient.connect();
   try {
     const db = client.db();
-    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+    const app = await getApp(appId);
 
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {

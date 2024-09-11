@@ -2,14 +2,8 @@ import { AppType } from '@apps/lib/appEntity';
 import MongoClient from '@libs/mongoClient';
 import { getCurrentPlanForApp } from 'appsFeaturePlans/lib/getCurrentPlan';
 import mongoCollections from '../../libs/mongoCollections.json';
-import Lambda from 'aws-sdk/clients/lambda';
 import getAppAdmins from '@apps/lib/getAppAdmins';
-import {
-  MailgunEmailParametersType,
-  RequestOptionsType,
-} from 'asyncLambdas/lib/sendEmailMailgun';
 import { UserType } from '@users/lib/userEntity';
-import { formatMessage } from '@libs/intl/intl';
 import {
   ComputedFeaturePlanType,
   FeatureExceededType,
@@ -90,7 +84,7 @@ async function sendReminderMailIfLastReminderIsTooOld(
 
 // activeUsers
 export async function checkAppPlanForLimitIncrease(
-  app: AppType | string,
+  app: AppType,
   feature: FeatureIdType,
   getCount: (app: AppType, appPlan: ComputedFeaturePlanType) => Promise<number>
 ) {

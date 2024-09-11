@@ -12,6 +12,7 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+import { getApp } from '../../apps/lib/appsUtils.ts';
 
 const { COLL_PRESS_POLLS } = mongoCollections;
 
@@ -24,8 +25,9 @@ export default async (event) => {
 
   try {
     if (!superAdmin) {
+      const app = await getApp(appId);
       const allowed = await checkAppPlanForLimitIncrease(
-        appId,
+        app,
         'polls',
         async () => {
           const client = await MongoClient.connect();
