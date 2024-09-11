@@ -3,7 +3,7 @@ import postUserMetrics from '../lib/postUserMetrics';
 import response from '../../libs/httpResponses/response.ts';
 import AVAILABLE_TYPES from '../userMetrics.json';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
-import getAppActiveUsers from './getAppActiveUsers';
+import { getAppActiveUsers } from '../lib/getAppActiveUsers';
 
 export default async (event) => {
   const { appId } = event.requestContext.authorizer;
