@@ -81,7 +81,7 @@ export async function checkAppPlanForLimitIncrease(
           'profile.firstname': 1,
           'profile.lastname': 1,
         },
-        includeSuperAdmins: false,
+        includeSuperAdmins: true,
       })) as UserType[];
 
       const appAdminsEmails = appAdmins.map((admin: UserType) => {

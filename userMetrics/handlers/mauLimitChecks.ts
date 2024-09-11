@@ -17,10 +17,10 @@ const { COLL_APPS } = mongoCollections;
 const { REGION, CROWDAA_REGION } = process.env;
 
 const MAU_WARNING_LIMIT_RATIOS = [
-  990 / 1000,
-  950 / 1000,
-  900 / 1000,
   800 / 1000,
+  900 / 1000,
+  950 / 1000,
+  990 / 1000,
 ];
 
 const lambda = new Lambda({
@@ -29,19 +29,13 @@ const lambda = new Lambda({
 
 type SendWarningEmailParamsType = {
   absoluteLimit: number;
-  crossedLimit: number;
   currentValue: number;
   blocked: boolean;
 };
 
 async function sendWarningEmail(
   app: AppType,
-  {
-    absoluteLimit,
-    crossedLimit,
-    currentValue,
-    blocked,
-  }: SendWarningEmailParamsType
+  { absoluteLimit, currentValue, blocked }: SendWarningEmailParamsType
 ) {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -64,7 +58,7 @@ async function sendWarningEmail(
         'profile.firstname': 1,
         'profile.lastname': 1,
       },
-      includeSuperAdmins: false,
+      includeSuperAdmins: true,
     })) as UserType[];
 
     const appAdminsEmails = appAdmins.map((admin: UserType) => {
@@ -75,6 +69,11 @@ async function sendWarningEmail(
       const emailStr = `${admin.profile.firstname} ${admin.profile.lastname} <${admin.emails[0].address}>`;
       return emailStr;
     });
+
+    const templateModel = blocked
+      ? `plan_${feature}_quota_exceeded_${CROWDAA_REGION}`
+      : `plan_${feature}_quota_warning_${CROWDAA_REGION}`;
+
     await lambda
       .invokeAsync({
         FunctionName: `asyncLambdas-${process.env.STAGE}-sendEmailMailgun`,
@@ -85,7 +84,7 @@ async function sendWarningEmail(
             subject: formatMessage(`general:quotaExceeded.${feature}.title`, {
               app,
             }),
-            template: `plan_${feature}_quota_exceeded_${CROWDAA_REGION}`,
+            template: templateModel,
             vars: {
               appName: app.name,
               usersMax: absoluteLimit,
@@ -132,28 +131,38 @@ export async function userMetricsMAULimitChecks(
     const appPlan = await getCurrentPlanForApp(app, false);
     if (typeof appPlan.features.activeUsers === 'object') {
       const { maxCount } = appPlan.features.activeUsers;
-      const crossedLimit = MAU_WARNING_LIMIT_RATIOS.find((ratio) => {
-        const limit = maxCount * ratio;
-        if (activeUsersBefore <= limit && activeUsersAfter > limit) {
-          return limit;
-        }
-        return null;
-      });
 
-      if (crossedLimit) {
-        await sendWarningEmail(app, {
-          absoluteLimit: ...,
-          crossedLimit: ...,
-          currentValue: ...,
-          blocked: false,
-        });
-      } else if (activeUsersBefore < maxCount && activeUsersAfter >= maxCount) {
-        await sendWarningEmail(app, {
-          absoluteLimit: ...,
-          crossedLimit: ...,
-          currentValue: ...,
-          blocked: true,
-        });
+      const ratioBefore = activeUsersBefore / maxCount;
+      const ratioAfter = activeUsersAfter / maxCount;
+
+      let crossedLimit: number | null = null;
+
+      for (let [index, ratio] of MAU_WARNING_LIMIT_RATIOS.entries()) {
+        if (ratioBefore <= ratio && ratio < ratioAfter) {
+          crossedLimit = index;
+          break;
+        }
+      }
+
+      // If a threshold of users is crossed
+      if (typeof crossedLimit === 'number') {
+        const maxCrossedLimitIndex = MAU_WARNING_LIMIT_RATIOS.length - 1;
+        // If the crossed limit is lower than the max crossed limit index, send an email
+        if (crossedLimit < maxCrossedLimitIndex) {
+          await sendWarningEmail(app, {
+            absoluteLimit: maxCount,
+            currentValue: activeUsersAfter,
+            blocked: false,
+          });
+        }
+        // Else, if the crossed limit is equal to the max crossed limit index, send an email
+        else {
+          await sendWarningEmail(app, {
+            absoluteLimit: maxCount,
+            currentValue: activeUsersAfter,
+            blocked: true,
+          });
+        }
       }
     }
   }

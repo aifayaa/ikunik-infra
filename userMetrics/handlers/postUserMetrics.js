@@ -2,9 +2,9 @@
 import postUserMetrics from '../lib/postUserMetrics';
 import response from '../../libs/httpResponses/response.ts';
 import AVAILABLE_TYPES from '../userMetrics.json';
-import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 import { getAppActiveUsers } from '../lib/getAppActiveUsers';
 import { getApp } from '../../apps/lib/appsUtils.ts';
+import { userMetricsMAULimitChecks } from './mauLimitChecks.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -82,7 +82,7 @@ export default async (event) => {
 
     // Soft limit, do not discard metrics on limit exceeded
     const app = getApp(appId);
-    // const activeUsersBefore = await getAppActiveUsers(app);
+    const activeUsersBefore = await getAppActiveUsers(app);
 
     const results = await postUserMetrics(appId, {
       contentCollection,
@@ -93,23 +93,14 @@ export default async (event) => {
       userId: userId || null,
     });
 
-    // const activeUsersAfter = await getAppActiveUsers(app);
+    const activeUsersAfter = await getAppActiveUsers(app);
 
-    await checkAppPlanForLimitIncrease(app, 'activeUsers', async (appArg) => {
-      const activeUsers = await getAppActiveUsers(appArg);
-
-      return activeUsers.count;
-    });
-
-    // if (!allowed) {
-    //   throw new CrowdaaError(
-    //     ERROR_TYPE_NOT_ALLOWED,
-    //     APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
-    //     `The current plan for app '${appId}' does not allow this operation`
-    //   );
-    // }
-
-    // await userMetricsMAU
+    await userMetricsMAULimitChecks(
+      app,
+      'activeUsers',
+      activeUsersBefore,
+      activeUsersAfter
+    );
 
     return response({ code: 200, body: results });
   } catch (e) {
