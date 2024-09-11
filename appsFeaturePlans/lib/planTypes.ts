@@ -2,7 +2,8 @@ export type FeaturePlanIdType =
   | 'legacyFeaturePlanId'
   | 'freeFeaturePlanId'
   | 'proFeaturePlanId'
-  | 'entertainmentFeaturePlanId';
+  | 'entertainmentFeaturePlanId'
+  | 'devTestFeaturePlanId';
 export const allPlanTypes: FeaturePlanIdType[] = [
   'legacyFeaturePlanId',
   'freeFeaturePlanId',

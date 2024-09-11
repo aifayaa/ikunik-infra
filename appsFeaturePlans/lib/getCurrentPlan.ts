@@ -134,6 +134,32 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       },
     },
   },
+  devTestFeaturePlanId: {
+    _id: 'devTestFeaturePlanId',
+    tags: ['dev'],
+    name: {
+      fr: 'Dev Test',
+      en: 'Dev Test',
+    },
+    features: {
+      badges: false,
+      chat: false,
+      crowd: false,
+      liveStreams: false,
+      liveStreamDuration: false,
+      appTabs: false,
+      playlists: false,
+      polls: false,
+      appTheme: false,
+      translations: false,
+      activeUsers: {
+        maxCount: 2,
+        resetPeriod: 'month',
+        resetPeriodWindow: 'rolling',
+        isSoft: true,
+      },
+    },
+  },
 };
 
 const defaultFeaturePlansByStageRegion = {
