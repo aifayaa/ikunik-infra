@@ -216,11 +216,12 @@ export async function checkLiveStreamDuration({
         );
     }
 
+    // The callback here contain to many logics, it should be refactored
     const allowed = await checkAppPlanForLimitIncrease(
       app,
       'liveStreamDuration',
       async (_app, appPlan) => {
-        let totalDuration = 0;
+        // let totalDuration = 0;
         const liveStreamDuration = appPlan.features
           .liveStreamDuration as ComputedFeatureSpecification2Type;
 
@@ -229,15 +230,19 @@ export async function checkLiveStreamDuration({
           liveStreamDuration.currentPeriod;
         const { maxCount } = liveStreamDuration;
 
-        totalDuration = await computeLiveStreamDuration(appId, {
-          from: periodStartDate,
-          to: periodResetDate,
-        });
+        const totalDurationInMilliseconds = await computeLiveStreamDuration(
+          appId,
+          {
+            from: periodStartDate,
+            to: periodResetDate,
+          }
+        );
 
-        totalDuration /= 1 * 60 * 60 * 1000;
+        const totalDurationInHours =
+          totalDurationInMilliseconds / (1 * 60 * 60 * 1000);
 
         if (
-          maxCount - totalDuration <
+          maxCount - totalDurationInHours <
           SEND_WARNING_WHEN_REMAINING_TIME_PERCENT * maxCount
         ) {
           // Should always match :
@@ -268,7 +273,7 @@ export async function checkLiveStreamDuration({
                 remainingDays:
                   (periodResetDate.getTime() - Date.now()) /
                   (24 * 60 * 60 * 1000),
-                remainingTime: (maxCount - totalDuration) * 60,
+                remainingTime: (maxCount - totalDurationInHours) * 60,
                 hoursQuota: maxCount,
               });
 
@@ -296,7 +301,7 @@ export async function checkLiveStreamDuration({
           }
         }
 
-        return totalDuration;
+        return totalDurationInHours;
       }
     );
 
