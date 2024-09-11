@@ -8,8 +8,6 @@ import { getAppActiveUsers } from '../lib/getAppActiveUsers';
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
   const { period = -1 } = event.queryStringParameters || {};
 
   try {
