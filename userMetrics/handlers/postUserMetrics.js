@@ -4,6 +4,7 @@ import response from '../../libs/httpResponses/response.ts';
 import AVAILABLE_TYPES from '../userMetrics.json';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 import { getAppActiveUsers } from '../lib/getAppActiveUsers';
+import { getApp } from '../../apps/lib/appsUtils.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -12,12 +13,6 @@ export default async (event) => {
     throw new Error('missing_payload');
   }
   try {
-    // Soft limit, do not discard metrics on limit exceeded
-    await checkAppPlanForLimitIncrease(appId, 'activeUsers', async (app) => {
-      const activeUsers = await getAppActiveUsers(app);
-      return activeUsers.count;
-    });
-
     /* Retrieve body data and parse it */
     const bodyParsed = JSON.parse(event.body);
     const {
@@ -85,6 +80,10 @@ export default async (event) => {
         throw new Error('Unsupported type');
     }
 
+    // Soft limit, do not discard metrics on limit exceeded
+    const app = getApp(appId);
+    const activeUsersBefore = await getAppActiveUsers(app);
+
     const results = await postUserMetrics(appId, {
       contentCollection,
       contentId,
@@ -93,6 +92,11 @@ export default async (event) => {
       type,
       userId: userId || null,
     });
+
+    const activeUsersAfter = await getAppActiveUsers(app);
+
+    await userMetricsMAU;
+
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });

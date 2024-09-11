@@ -18,24 +18,6 @@ const { COLL_USERS } = mongoCollections;
 export const getUserByOidc = async (identityToken, appId) => {
   const client = await MongoClient.connect();
   try {
-    const allowed = await checkAppPlanForLimitIncrease(
-      appId,
-      'activeUsers',
-      async (app) => {
-        const activeUsers = await getAppActiveUsers(app);
-
-        return activeUsers.count;
-      }
-    );
-
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_ALLOWED,
-        APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
-        `The current plan for app '${appId}' does not allow this operation`
-      );
-    }
-
     // TODO: verify identityToken
     const decodedIdToken = await verifyJwt(identityToken, appId, {
       mongoClient: client,
@@ -83,6 +65,24 @@ export const getUserByOidc = async (identityToken, appId) => {
       };
       await collection.updateOne({ _id: userId }, patch);
     } else {
+      const allowed = await checkAppPlanForLimitIncrease(
+        appId,
+        'activeUsers',
+        async (app) => {
+          const activeUsers = await getAppActiveUsers(app);
+
+          return activeUsers.count;
+        }
+      );
+
+      if (!allowed) {
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+          `The current plan for app '${appId}' does not allow this operation`
+        );
+      }
+
       userId = Random.id();
       /* create new user */
       const userDoc = {

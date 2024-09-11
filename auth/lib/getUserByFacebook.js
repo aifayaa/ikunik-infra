@@ -31,24 +31,6 @@ export const getUserByFacebook = async (userToken, appId) => {
   const client = await MongoClient.connect();
   let userId; // will be retrieved from db or set on user created
   try {
-    const allowed = await checkAppPlanForLimitIncrease(
-      appId,
-      'activeUsers',
-      async (app) => {
-        const activeUsers = await getAppActiveUsers(app);
-
-        return activeUsers.count;
-      }
-    );
-
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_ALLOWED,
-        APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
-        `The current plan for app '${appId}' does not allow this operation`
-      );
-    }
-
     const collection = await client.db().collection(COLL_USERS);
     const user = await collection.findOne({
       'services.facebook.id': fbUserId,
@@ -74,6 +56,24 @@ export const getUserByFacebook = async (userToken, appId) => {
       };
       await collection.updateOne({ _id: userId }, patch);
     } else {
+      const allowed = await checkAppPlanForLimitIncrease(
+        appId,
+        'activeUsers',
+        async (app) => {
+          const activeUsers = await getAppActiveUsers(app);
+
+          return activeUsers.count;
+        }
+      );
+
+      if (!allowed) {
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+          `The current plan for app '${appId}' does not allow this operation`
+        );
+      }
+
       /* create new user */
       let profile = await getFacebookUserProfile(fbUserId, accessToken);
       profile = {

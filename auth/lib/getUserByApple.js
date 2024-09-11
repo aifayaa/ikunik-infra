@@ -35,24 +35,6 @@ export const getUserByApple = async (
       throw new Error('missing_credentials');
     }
 
-    const allowed = await checkAppPlanForLimitIncrease(
-      app,
-      'activeUsers',
-      async () => {
-        const activeUsers = await getAppActiveUsers(app);
-
-        return activeUsers.count;
-      }
-    );
-
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_ALLOWED,
-        APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
-        `The current plan for app '${appId}' does not allow this operation`
-      );
-    }
-
     // verify token given by client
     const verified = JSON.parse(
       await request({
@@ -132,6 +114,24 @@ export const getUserByApple = async (
       }
       await collection.updateOne({ _id: userId }, patch);
     } else {
+      const allowed = await checkAppPlanForLimitIncrease(
+        app,
+        'activeUsers',
+        async () => {
+          const activeUsers = await getAppActiveUsers(app);
+
+          return activeUsers.count;
+        }
+      );
+
+      if (!allowed) {
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+          `The current plan for app '${appId}' does not allow this operation`
+        );
+      }
+
       /* create new user */
       const profile = {
         username:
