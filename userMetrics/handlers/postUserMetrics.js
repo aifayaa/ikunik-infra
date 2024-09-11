@@ -81,7 +81,7 @@ export default async (event) => {
     }
 
     // Soft limit, do not discard metrics on limit exceeded
-    const app = getApp(appId);
+    const app = await getApp(appId);
     const activeUsersBefore = await getAppActiveUsers(app);
 
     const results = await postUserMetrics(appId, {
