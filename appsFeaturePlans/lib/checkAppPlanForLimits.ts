@@ -93,10 +93,6 @@ export async function checkAppPlanForLimitIncrease(
   const db = client.db();
 
   try {
-    if (typeof app === 'string') {
-      app = (await db.collection(COLL_APPS).findOne({ _id: app })) as AppType;
-    }
-
     const appPlan = await getCurrentPlanForApp(app);
 
     // If the plan doesn't involve the feature, return 'false'

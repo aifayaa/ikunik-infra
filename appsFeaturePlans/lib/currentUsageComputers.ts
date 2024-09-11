@@ -3,7 +3,7 @@ import { FeatureIdType } from './planTypes';
 import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers.js';
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
-import computeLiveStreamDuration from 'liveStream/lib/computeLiveStreamDuration';
+import computeLiveStreamDurationInMilliseconds from 'liveStream/lib/computeLiveStreamDuration';
 
 const {
   COLL_USER_BADGES,
@@ -50,7 +50,7 @@ export const currentUsageComputers: Record<
     app: AppType,
     periodDetails: CurrentUsageComputerArg2Type
   ) => {
-    let totalDuration = await computeLiveStreamDuration(app._id, {
+    let totalDuration = await computeLiveStreamDurationInMilliseconds(app._id, {
       from: periodDetails.startDate,
       to: periodDetails.resetDate,
     });

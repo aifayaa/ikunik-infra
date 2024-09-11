@@ -7,11 +7,12 @@ import { AppType } from '@apps/lib/appEntity';
 import Lambda from 'aws-sdk/clients/lambda';
 import { checkAppPlanForLimitIncrease } from 'appsFeaturePlans/lib/checkAppPlanForLimits';
 import {
+  ComputedFeaturePlanType,
   ComputedFeatureSpecification1Type,
   ComputedFeatureSpecification2Type,
   FeatureIdType,
 } from 'appsFeaturePlans/lib/planTypes';
-import computeLiveStreamDuration from './computeLiveStreamDuration';
+import computeLiveStreamDurationInMilliseconds from './computeLiveStreamDuration';
 import getAppAdmins from '@apps/lib/getAppAdmins';
 import { UserType } from '@users/lib/userEntity';
 import {
@@ -122,6 +123,98 @@ export type CheckLiveStreamDurationInputType = {
   appId: string;
 };
 
+async function computeLiveStreamDuration(app: AppType) {
+  const appPlan = await getCurrentPlanForApp(app);
+  const liveStreamDuration = appPlan.features
+    .liveStreamDuration as ComputedFeatureSpecification2Type;
+
+  const { startDate: periodStartDate, resetDate: periodResetDate } =
+    liveStreamDuration.currentPeriod;
+
+  const totalDurationInMilliseconds =
+    await computeLiveStreamDurationInMilliseconds(app._id, {
+      from: periodStartDate,
+      to: periodResetDate,
+    });
+
+  const totalDurationInHours =
+    totalDurationInMilliseconds / (1 * 60 * 60 * 1000);
+
+  return { totalDurationInHours, totalDurationInMilliseconds, appPlan };
+}
+
+async function sendAlertEmailIfNecessary(
+  app: AppType,
+  appPlan: ComputedFeaturePlanType,
+  totalDurationInHours: number
+) {
+  const liveStreamDuration = appPlan.features
+    .liveStreamDuration as ComputedFeatureSpecification2Type;
+
+  const {
+    maxCount,
+    currentPeriod: { startDate: periodStartDate, resetDate: periodResetDate },
+  } = liveStreamDuration;
+
+  // If the current duration of the streaming is under a threshold, do not send an email
+  if (
+    !(
+      maxCount - totalDurationInHours <
+      SEND_WARNING_WHEN_REMAINING_TIME_PERCENT * maxCount
+    )
+  ) {
+    return;
+  }
+
+  // If the application doesn't subscribe to any plan, do not send an email
+  if (!app.featurePlan?._id) {
+    return;
+  }
+
+  const client = await MongoClient.connect();
+
+  const lastReminder =
+    app.featurePlan.featuresData?.liveStreamDuration?.featureExceeded
+      ?.lastReminder;
+
+  // Compute wether a mail must be sent depending on the last reminder,
+  // the reset date and the start date of the streaming
+  const sendWarning = lastReminder
+    ? periodResetDate < lastReminder && lastReminder < periodStartDate
+    : true;
+
+  if (!sendWarning) {
+    return;
+  }
+
+  await sendAlertEmail(app, {
+    warning: true,
+    remainingDays:
+      (periodResetDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000),
+    remainingTime: (maxCount - totalDurationInHours) * 60,
+    hoursQuota: maxCount,
+  });
+
+  const { at = new Date(), remindersCount = 0 } =
+    app?.featurePlan?.featuresData?.liveStreamDuration?.featureExceeded || {};
+
+  await client
+    .db()
+    .collection(COLL_APPS)
+    .updateOne(
+      { _id: app._id },
+      {
+        $set: {
+          'featurePlan.featuresData.liveStreamDuration.featureExceeded': {
+            at,
+            lastReminder: new Date(),
+            remindersCount: remindersCount + 1,
+          },
+        },
+      }
+    );
+}
+
 export async function checkLiveStreamDuration({
   channelArn,
   streamId,
@@ -216,94 +309,19 @@ export async function checkLiveStreamDuration({
         );
     }
 
+    const { totalDurationInHours, appPlan } =
+      await computeLiveStreamDuration(app);
+
     // The callback here contain to many logics, it should be refactored
     const allowed = await checkAppPlanForLimitIncrease(
       app,
       'liveStreamDuration',
-      async (_app, appPlan) => {
-        // let totalDuration = 0;
-        const liveStreamDuration = appPlan.features
-          .liveStreamDuration as ComputedFeatureSpecification2Type;
-
-        // Should always match
-        const { startDate: periodStartDate, resetDate: periodResetDate } =
-          liveStreamDuration.currentPeriod;
-        const { maxCount } = liveStreamDuration;
-
-        const totalDurationInMilliseconds = await computeLiveStreamDuration(
-          appId,
-          {
-            from: periodStartDate,
-            to: periodResetDate,
-          }
-        );
-
-        const totalDurationInHours =
-          totalDurationInMilliseconds / (1 * 60 * 60 * 1000);
-
-        if (
-          maxCount - totalDurationInHours <
-          SEND_WARNING_WHEN_REMAINING_TIME_PERCENT * maxCount
-        ) {
-          // Should always match :
-          if (app.featurePlan?._id) {
-            let sendWarning = false;
-
-            if (
-              app.featurePlan.featuresData?.liveStreamDuration?.featureExceeded
-                ?.lastReminder
-            ) {
-              const lastReminder =
-                app.featurePlan.featuresData?.liveStreamDuration
-                  ?.featureExceeded?.lastReminder;
-
-              if (
-                lastReminder < periodStartDate &&
-                lastReminder > periodResetDate
-              ) {
-                sendWarning = true;
-              }
-            } else {
-              sendWarning = true;
-            }
-
-            if (sendWarning) {
-              await sendAlertEmail(app, {
-                warning: true,
-                remainingDays:
-                  (periodResetDate.getTime() - Date.now()) /
-                  (24 * 60 * 60 * 1000),
-                remainingTime: (maxCount - totalDurationInHours) * 60,
-                hoursQuota: maxCount,
-              });
-
-              const { at = new Date(), remindersCount = 0 } =
-                app?.featurePlan?.featuresData?.liveStreamDuration
-                  ?.featureExceeded || {};
-
-              await client
-                .db()
-                .collection(COLL_APPS)
-                .updateOne(
-                  { _id: app._id },
-                  {
-                    $set: {
-                      'featurePlan.featuresData.liveStreamDuration.featureExceeded':
-                        {
-                          at,
-                          lastReminder: new Date(),
-                          remindersCount: remindersCount + 1,
-                        },
-                    },
-                  }
-                );
-            }
-          }
-        }
-
+      async () => {
         return totalDurationInHours;
       }
     );
+
+    sendAlertEmailIfNecessary(app, appPlan, totalDurationInHours);
 
     if (!allowed) {
       const appPlan = await getCurrentPlanForApp(app, ['liveStreamDuration']);
