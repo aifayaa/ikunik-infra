@@ -12,6 +12,7 @@ import { UserType } from '@users/lib/userEntity';
 import { formatMessage } from '@libs/intl/intl';
 import {
   ComputedFeaturePlanType,
+  FeatureExceededType,
   FeatureIdType,
   PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS,
 } from 'appsFeaturePlans/lib/planTypes';
@@ -19,12 +20,23 @@ import { sendQuotaExceededMail } from './utils';
 
 const { COLL_APPS } = mongoCollections;
 
-async function sendReminderMail(
+async function sendReminderMailIfLastReminderIsTooOld(
   app: AppType,
+  featureExceededInDB: FeatureExceededType,
   feature: FeatureIdType,
   maxCount: number,
-  count: number
+  db: any
 ) {
+  const { at, remindersCount, lastReminder } = featureExceededInDB;
+
+  // ## Sending a reminder mail
+  const timeSinceLastReminder = Date.now() - lastReminder.getTime();
+
+  // If the last reminder is not too old, return
+  if (timeSinceLastReminder <= PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS) {
+    return;
+  }
+
   const appAdmins = (await getAppAdmins(app._id, {
     userProjection: {
       _id: 1,
@@ -58,8 +70,21 @@ async function sendReminderMail(
     feature,
     appAdminsEmails,
     appsSuperAdminsEmails,
-    maxCount,
-    count
+    maxCount
+  );
+
+  // Save information in the DB regarding the last reminder
+  await db.collection(COLL_APPS).updateOne(
+    { _id: app._id },
+    {
+      $set: {
+        [`app.featurePlan.featuresData.${feature}.featureExceeded`]: {
+          at,
+          lastReminder: new Date(),
+          remindersCount: remindersCount + 1,
+        },
+      },
+    }
   );
 }
 
@@ -78,52 +103,69 @@ export async function checkAppPlanForLimitIncrease(
 
     const appPlan = await getCurrentPlanForApp(app);
 
-    if (appPlan.features[feature] === true) {
-      return true;
-    }
-
+    // If the plan doesn't involve the feature, return 'false'
     if (!appPlan.features[feature]) {
       return false;
     }
 
+    // If the plan does involve the feature as 'true', return 'false'
+    if (appPlan.features[feature] === true) {
+      return true;
+    }
+
     const { maxCount, isSoft = false } = appPlan.features[feature];
+
+    // If any, retrieve the last state of the excessive use of the feature,
+    const featureExceededInDB =
+      app.featurePlan?.featuresData?.[feature]?.featureExceeded;
+    if (featureExceededInDB) {
+      // If the last reminder is too old, send a reminder mail
+      await sendReminderMailIfLastReminderIsTooOld(
+        app,
+        featureExceededInDB,
+        feature,
+        maxCount,
+        db
+      );
+
+      // Manage if the plan is soft
+      if (isSoft) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
     const count = await getCount(app, appPlan);
 
-    if (count >= maxCount) {
-      if (!isSoft) {
-        return false;
-      }
-
-      if (app?.featurePlan?.featuresData?.[feature]?.featureExceeded) {
-        const { lastReminder } =
-          app.featurePlan.featuresData[feature].featureExceeded;
-
-        const diff = Date.now() - lastReminder.getTime();
-        if (diff < PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS) {
-          return true;
-        }
-      }
-
-      await sendReminderMail(app, feature, maxCount, count);
-
-      const { at = new Date(), remindersCount = 0 } =
-        app?.featurePlan?.featuresData?.[feature]?.featureExceeded || {};
-      await db.collection(COLL_APPS).updateOne(
-        { _id: app._id },
-        {
-          $set: {
-            [`app.featurePlan.featuresData.${feature}.featureExceeded`]: {
-              at,
-              lastReminder: new Date(),
-              remindersCount: remindersCount + 1,
-            },
-          },
-        }
-      );
+    // If the current count is under the quota of the plan, return 'true'
+    if (count < maxCount) {
+      return true;
     }
 
-    return true;
+    // # Manage the case when the quota of plan is exceeded
+    // Create a new featureExceeded object
+    const newFeatureExceeded = {
+      at: new Date(),
+      remindersCount: 0,
+      lastReminder: new Date(),
+    };
+
+    // If the last reminder is too old, send a reminder mail
+    await sendReminderMailIfLastReminderIsTooOld(
+      app,
+      newFeatureExceeded,
+      feature,
+      maxCount,
+      db
+    );
+
+    // Manage if the plan is soft
+    if (isSoft) {
+      return true;
+    } else {
+      return false;
+    }
   } finally {
     client.close();
   }

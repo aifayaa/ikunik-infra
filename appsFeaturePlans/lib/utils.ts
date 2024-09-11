@@ -27,8 +27,7 @@ export async function sendQuotaExceededMail(
   feature: FeatureIdType,
   appAdminsEmails: string[],
   appsSuperAdminsEmails: string[],
-  quota: number,
-  count: number
+  quota: number
 ) {
   const REGION = getEnvironmentVariable('REGION');
   const CROWDAA_REGION = getEnvironmentVariable('CROWDAA_REGION');
@@ -49,10 +48,9 @@ export async function sendQuotaExceededMail(
           }),
           template: `plan_${feature}_quota_exceeded_${CROWDAA_REGION}`,
           vars: {
-            app_id: app._id,
-            app_name: app.name,
-            quota,
-            count,
+            appId: app._id,
+            appName: app.name,
+            usersMax: quota,
           },
           extra: {
             bcc: appsSuperAdminsEmails.join(','),
