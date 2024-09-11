@@ -65,7 +65,8 @@ export const getUserByFacebook = async (userToken, appId) => {
           const activeUsers = await getAppActiveUsers(appArg);
 
           return activeUsers.count;
-        }
+        },
+        { checkInDB: true }
       );
 
       if (!allowed) {

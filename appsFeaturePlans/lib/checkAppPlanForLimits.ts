@@ -86,7 +86,8 @@ async function sendReminderMailIfLastReminderIsTooOld(
 export async function checkAppPlanForLimitIncrease(
   app: AppType,
   feature: FeatureIdType,
-  getCount: (app: AppType, appPlan: ComputedFeaturePlanType) => Promise<number>
+  getCount: (app: AppType, appPlan: ComputedFeaturePlanType) => Promise<number>,
+  options = { checkInDB: false }
 ) {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -111,13 +112,14 @@ export async function checkAppPlanForLimitIncrease(
     const { maxCount, isSoft = false } = appPlan.features[feature];
 
     // If any, retrieve the last state of the excessive use of the feature,
-    const featureExceededInDB =
-      app.featurePlan?.featuresData?.[feature]?.featureExceeded;
-    if (featureExceededInDB) {
+    if (
+      options.checkInDB &&
+      app.featurePlan?.featuresData?.[feature]?.featureExceeded
+    ) {
       // If the last reminder is too old, send a reminder mail
       await sendReminderMailIfLastReminderIsTooOld(
         app,
-        featureExceededInDB,
+        app.featurePlan?.featuresData?.[feature]?.featureExceeded,
         feature,
         maxCount,
         db

@@ -43,7 +43,8 @@ export const register = async (
         const activeUsers = await getAppActiveUsers(app);
 
         return activeUsers.count;
-      }
+      },
+      { checkInDB: true }
     );
 
     if (!allowed) {

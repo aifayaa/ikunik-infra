@@ -75,7 +75,8 @@ export const getUserByOidc = async (identityToken, appId) => {
           const activeUsers = await getAppActiveUsers(appArg);
 
           return activeUsers.count;
-        }
+        },
+        { checkInDB: true }
       );
 
       if (!allowed) {
