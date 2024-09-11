@@ -23,27 +23,22 @@ export default async (event) => {
     superAdmin,
   } = event.requestContext.authorizer;
 
+  const client = await MongoClient.connect();
+
   try {
     if (!superAdmin) {
       const app = await getApp(appId);
+
+      const pollsCount = await client
+        .db()
+        .collection(COLL_PRESS_POLLS)
+        .find({ appId })
+        .count();
+
       const allowed = await checkAppPlanForLimitIncrease(
         app,
         'polls',
-        async () => {
-          const client = await MongoClient.connect();
-
-          try {
-            const count = await client
-              .db()
-              .collection(COLL_PRESS_POLLS)
-              .find({ appId })
-              .count();
-
-            return count;
-          } finally {
-            client.close();
-          }
-        }
+        pollsCount
       );
       if (!allowed) {
         throw new CrowdaaError(
@@ -72,5 +67,7 @@ export default async (event) => {
     return response({ code: 200, body: newPoll });
   } catch (e) {
     return response(errorMessage({ message: e.message }));
+  } finally {
+    client.close();
   }
 };

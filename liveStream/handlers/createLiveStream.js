@@ -16,6 +16,8 @@ import { getApp } from '../../apps/lib/appsUtils.ts';
 const { COLL_LIVE_STREAMS } = mongoCollections;
 
 export default async (event) => {
+  const client = await MongoClient.connect();
+
   try {
     const {
       appId,
@@ -25,24 +27,17 @@ export default async (event) => {
 
     if (!superAdmin) {
       const app = await getApp(appId);
+
+      const liveStreamCount = await client
+        .db()
+        .collection(COLL_LIVE_STREAMS)
+        .find({ appId })
+        .count();
+
       const allowed = await checkAppPlanForLimitIncrease(
         app,
         'liveStreams',
-        async () => {
-          const client = await MongoClient.connect();
-
-          try {
-            const count = await client
-              .db()
-              .collection(COLL_LIVE_STREAMS)
-              .find({ appId })
-              .count();
-
-            return count;
-          } finally {
-            client.close();
-          }
-        }
+        liveStreamCount
       );
       if (!allowed) {
         throw new CrowdaaError(
@@ -76,5 +71,7 @@ export default async (event) => {
     return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
+  } finally {
+    client.close();
   }
 };
