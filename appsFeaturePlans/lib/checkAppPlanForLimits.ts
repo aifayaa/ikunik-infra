@@ -88,6 +88,7 @@ async function sendReminderMailIfLastReminderIsTooOld(
   );
 }
 
+// activeUsers
 export async function checkAppPlanForLimitIncrease(
   app: AppType | string,
   feature: FeatureIdType,
@@ -170,6 +171,9 @@ export async function checkAppPlanForLimitIncrease(
     client.close();
   }
 }
+
+// TODO: Check if the limit is exceeded discarding the value in DB
+// livestreaming, polls, badges
 
 export async function checkAppPlanForLimitAccess(
   app: AppType | string,
