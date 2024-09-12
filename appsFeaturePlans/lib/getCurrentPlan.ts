@@ -156,7 +156,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
         maxCount: 2,
         resetPeriod: 'month',
         resetPeriodWindow: 'rolling',
-        isSoft: true,
+        isSoft: false,
       },
     },
   },
