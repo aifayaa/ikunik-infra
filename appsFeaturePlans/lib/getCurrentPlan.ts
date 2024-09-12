@@ -586,7 +586,7 @@ export function retrieveFeaturePlanId(app: AppType) {
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
       FEATURE_PLAN_NOT_FOUND_CODE,
-      `Feature plan id ${featurePlanId} not found`
+      `Feature plan id '${featurePlanId}' not found`
     );
   }
   return featurePlanId;

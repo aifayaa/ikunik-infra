@@ -9,6 +9,7 @@ export const allPlanTypes: FeaturePlanIdType[] = [
   'freeFeaturePlanId',
   'proFeaturePlanId',
   'entertainmentFeaturePlanId',
+  'devTestFeaturePlanId',
 ];
 
 export type FeatureIdType =
