@@ -84,7 +84,7 @@ const serverlessConfiguration = {
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
       MERCHWP_API_URL:
-        'file(../api-v1/serverless.yml):custom.domains.${self:provider.stage}.${self:provider.region}',
+        '${file(../api-v1/serverless.yml):custom.domains.${self:provider.stage}.${self:provider.region}}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
