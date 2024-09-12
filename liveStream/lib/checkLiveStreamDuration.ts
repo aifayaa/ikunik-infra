@@ -8,7 +8,6 @@ import Lambda from 'aws-sdk/clients/lambda';
 import { checkAppPlanForLimitIncrease } from 'appsFeaturePlans/lib/checkAppPlanForLimits';
 import {
   ComputedFeaturePlanType,
-  ComputedFeatureSpecification1Type,
   ComputedFeatureSpecification2Type,
   FeatureIdType,
 } from 'appsFeaturePlans/lib/planTypes';
