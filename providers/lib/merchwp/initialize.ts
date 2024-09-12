@@ -36,7 +36,7 @@ export type MerchWPInitializeParametersType = {
     email: string;
     username: string;
     password: string;
-    profile: UserProfileType;
+    profile?: UserProfileType;
     utm?: UTMType;
   };
   app: {
@@ -70,8 +70,8 @@ export default async ({
         email: account.email,
         username: account.username,
         password: account.password,
-        profile: account.profile,
-        utm: account.utm,
+        profile: account.profile || { username: account.username },
+        utm: account.utm || {},
       });
     }
 

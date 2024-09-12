@@ -18,47 +18,47 @@ const serverlessConfiguration = {
       prod: {
         'us-east-1': {
           WEBSITES_LAMBDA_UPDATE_DOMAINS:
-            'crowdaa-hosting-env-us-prod-update-website-domains-function',
+            'crowdaa-hosting-env-prod-us-update-website-domains-function',
           WEBSITES_LAMBDA_GET_STATUS:
-            'crowdaa-hosting-env-us-prod-website-status-function',
+            'crowdaa-hosting-env-prod-us-website-status-function',
           WEBSITES_LAMBDA_START_STOP:
-            'crowdaa-hosting-env-us-prod-set-website-state-function',
+            'crowdaa-hosting-env-prod-us-set-website-state-function',
           WEBSITES_LAMBDA_DESTROY:
-            'crowdaa-hosting-env-us-prod-destroy-website-function',
+            'crowdaa-hosting-env-prod-us-destroy-website-function',
         },
         'eu-west-3': {
           WEBSITES_LAMBDA_UPDATE_DOMAINS:
-            'crowdaa-hosting-env-fr-prod-update-website-domains-function',
+            'crowdaa-hosting-env-prod-fr-update-website-domains-function',
           WEBSITES_LAMBDA_GET_STATUS:
-            'crowdaa-hosting-env-fr-prod-website-status-function',
+            'crowdaa-hosting-env-prod-fr-website-status-function',
           WEBSITES_LAMBDA_START_STOP:
-            'crowdaa-hosting-env-fr-prod-set-website-state-function',
+            'crowdaa-hosting-env-prod-fr-set-website-state-function',
           WEBSITES_LAMBDA_DESTROY:
-            'crowdaa-hosting-env-fr-prod-destroy-website-function',
+            'crowdaa-hosting-env-prod-fr-destroy-website-function',
         },
       },
       preprod: {
         'eu-west-3': {
           WEBSITES_LAMBDA_UPDATE_DOMAINS:
-            'crowdaa-hosting-env-fr-preprod-update-website-domains-function',
+            'crowdaa-hosting-env-preprod-fr-update-website-domains-function',
           WEBSITES_LAMBDA_GET_STATUS:
-            'crowdaa-hosting-env-fr-preprod-website-status-function',
+            'crowdaa-hosting-env-preprod-fr-website-status-function',
           WEBSITES_LAMBDA_START_STOP:
-            'crowdaa-hosting-env-fr-preprod-set-website-state-function',
+            'crowdaa-hosting-env-preprod-fr-set-website-state-function',
           WEBSITES_LAMBDA_DESTROY:
-            'crowdaa-hosting-env-fr-preprod-destroy-website-function',
+            'crowdaa-hosting-env-preprod-fr-destroy-website-function',
         },
       },
       dev: {
         'us-east-1': {
           WEBSITES_LAMBDA_UPDATE_DOMAINS:
-            'crowdaa-hosting-env-us-dev-update-website-domains-function',
+            'crowdaa-hosting-env-dev-us-update-website-domains-function',
           WEBSITES_LAMBDA_GET_STATUS:
-            'crowdaa-hosting-env-us-dev-website-status-function',
+            'crowdaa-hosting-env-dev-us-website-status-function',
           WEBSITES_LAMBDA_START_STOP:
-            'crowdaa-hosting-env-us-dev-set-website-state-function',
+            'crowdaa-hosting-env-dev-us-set-website-state-function',
           WEBSITES_LAMBDA_DESTROY:
-            'crowdaa-hosting-env-us-dev-destroy-website-function',
+            'crowdaa-hosting-env-dev-us-destroy-website-function',
         },
       },
     },

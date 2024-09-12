@@ -29,23 +29,23 @@ const serverlessConfiguration = {
       prod: {
         'us-east-1': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
-            'crowdaa-hosting-env-us-prod-website-deploy-function',
+            'crowdaa-hosting-env-prod-us-website-deploy-function',
         },
         'eu-west-3': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
-            'crowdaa-hosting-env-fr-prod-website-deploy-function',
+            'crowdaa-hosting-env-prod-fr-website-deploy-function',
         },
       },
       preprod: {
         'eu-west-3': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
-            'crowdaa-hosting-env-fr-preprod-website-deploy-function',
+            'crowdaa-hosting-env-preprod-fr-website-deploy-function',
         },
       },
       dev: {
         'us-east-1': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
-            'crowdaa-hosting-env-us-dev-website-deploy-function',
+            'crowdaa-hosting-env-dev-us-website-deploy-function',
         },
       },
     },

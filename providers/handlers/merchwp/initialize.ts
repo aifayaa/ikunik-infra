@@ -40,10 +40,19 @@ export default async (event: APIGatewayProxyEvent) => {
                 invalid_type_error: 'username must be a string',
               })
               .trim(),
-            profile: z.object({}),
-            utm: z.object({}),
+            profile: z
+              .object({
+                username: z
+                  .string({
+                    required_error: 'username is required',
+                    invalid_type_error: 'username must be a string',
+                  })
+                  .trim(),
+              })
+              .optional(),
+            utm: z.object({}).optional(),
           })
-          .required(),
+          .strict(),
         app: z
           .object({
             name: z
@@ -59,7 +68,7 @@ export default async (event: APIGatewayProxyEvent) => {
               .min(1, { message: 'Must be at least 1 character long' })
               .trim(),
           })
-          .required(),
+          .strict(),
         website: z
           .object({
             domains: z
@@ -73,8 +82,9 @@ export default async (event: APIGatewayProxyEvent) => {
               )
               .min(1, 'domains must contain at least one domain!'),
           })
-          .required(),
+          .strict(),
       })
+      .strict()
       .required();
 
     if (!event.body) {
@@ -101,6 +111,7 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
+    console.log('DEBUG Exception', exception);
     return handleException(exception);
   }
 };
