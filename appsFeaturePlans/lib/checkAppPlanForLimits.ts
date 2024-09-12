@@ -16,12 +16,12 @@ const { COLL_APPS } = mongoCollections;
 
 async function sendReminderMailIfLastReminderIsTooOld(
   app: AppType,
-  featureExceededInDB: FeatureExceededType,
+  featureExceeded: FeatureExceededType,
   feature: FeatureIdType,
   maxCount: number,
   db: any
 ) {
-  const { at, remindersCount, lastReminder } = featureExceededInDB;
+  const { at, remindersCount, lastReminder } = featureExceeded;
 
   // ## Sending a reminder mail
   const timeSinceLastReminder = Date.now() - lastReminder.getTime();
