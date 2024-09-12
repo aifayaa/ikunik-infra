@@ -11,6 +11,7 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+import { getApp } from '../../apps/lib/appsUtils.ts';
 
 const { COLL_LIVE_STREAMS } = mongoCollections;
 
@@ -23,8 +24,9 @@ export default async (event) => {
     } = event.requestContext.authorizer;
 
     if (!superAdmin) {
+      const app = await getApp(appId);
       const allowed = await checkAppPlanForLimitIncrease(
-        appId,
+        app,
         'liveStreams',
         async () => {
           const client = await MongoClient.connect();

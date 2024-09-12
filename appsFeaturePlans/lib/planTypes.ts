@@ -2,12 +2,14 @@ export type FeaturePlanIdType =
   | 'legacyFeaturePlanId'
   | 'freeFeaturePlanId'
   | 'proFeaturePlanId'
-  | 'entertainmentFeaturePlanId';
+  | 'entertainmentFeaturePlanId'
+  | 'devTestFeaturePlanId';
 export const allPlanTypes: FeaturePlanIdType[] = [
   'legacyFeaturePlanId',
   'freeFeaturePlanId',
   'proFeaturePlanId',
   'entertainmentFeaturePlanId',
+  'devTestFeaturePlanId',
 ];
 
 export type FeatureIdType =
@@ -59,12 +61,14 @@ export type FeatureSpecificationType =
       isSoft?: boolean;
     };
 
+export type FeatureExceededType = {
+  at: Date;
+  lastReminder: Date;
+  remindersCount: number;
+};
+
 export type FeatureAppDataType = {
-  softFeatureExceeded?: {
-    at: Date;
-    lastReminder: Date;
-    remindersCount: number;
-  };
+  featureExceeded?: FeatureExceededType;
 };
 
 export const PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS =

@@ -15,6 +15,8 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+// TODO: to check in next iteration
+// import { userMetricsMAULimitChecks } from '../../userMetrics/handlers/mauLimitChecks.ts';
 
 const { ADMIN_APP } = process.env;
 
@@ -42,7 +44,8 @@ export const register = async (
         const activeUsers = await getAppActiveUsers(app);
 
         return activeUsers.count;
-      }
+      },
+      { checkInDB: true }
     );
 
     if (!allowed) {
@@ -52,6 +55,9 @@ export const register = async (
         `The current plan for app '${appId}' does not allow this operation`
       );
     }
+
+    // TODO: to check in next iteration
+    // const activeUsersBefore = await getAppActiveUsers(app);
 
     let ret;
 
@@ -71,6 +77,16 @@ export const register = async (
     }
 
     await postLoginChecks(ret, app, 'register');
+
+    // TODO: to check in next iteration
+    // const activeUsersAfter = await getAppActiveUsers(app);
+
+    // await userMetricsMAULimitChecks(
+    //   app,
+    //   'activeUsers',
+    //   activeUsersBefore,
+    //   activeUsersAfter
+    // );
 
     return ret;
   } finally {

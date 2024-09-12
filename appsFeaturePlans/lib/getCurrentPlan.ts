@@ -134,6 +134,32 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       },
     },
   },
+  devTestFeaturePlanId: {
+    _id: 'devTestFeaturePlanId',
+    tags: ['dev'],
+    name: {
+      fr: 'Dev Test',
+      en: 'Dev Test',
+    },
+    features: {
+      badges: false,
+      chat: false,
+      crowd: false,
+      liveStreams: false,
+      liveStreamDuration: false,
+      appTabs: false,
+      playlists: false,
+      polls: false,
+      appTheme: false,
+      translations: false,
+      activeUsers: {
+        maxCount: 2,
+        resetPeriod: 'month',
+        resetPeriodWindow: 'rolling',
+        isSoft: false,
+      },
+    },
+  },
 };
 
 const defaultFeaturePlansByStageRegion = {
@@ -400,16 +426,11 @@ async function computeFeaturePlan(
   app: AppType,
   computeUsageFor: boolean | FeatureIdType[]
 ) {
-  const appPlan = app.featurePlan;
-  const appCreatedAt = app.createdAt;
-  const { features: planFeatures } = plan;
-  const { features: appPlanFeatures = {} } = appPlan || {};
   const features = {
-    ...planFeatures,
-    ...appPlanFeatures,
+    ...plan.features,
+    ...(app.featurePlan?.features || {}),
   };
-  const appFeatureData = appPlan?.featuresData || {};
-  const startedAt = appPlan?.startedAt || appCreatedAt;
+  const startedAt = app.featurePlan?.startedAt || app.createdAt;
 
   const computedFeatures: Partial<
     Record<FeatureIdType, ComputedFeatureSpecificationType>
@@ -420,7 +441,7 @@ async function computeFeaturePlan(
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
         FEATURE_SPECIFICATION_NOT_VALID_CODE,
-        `Feature id ${featureId} is not valid`
+        `Feature id '${featureId}' is not valid`
       );
     }
 
@@ -441,17 +462,12 @@ async function computeFeaturePlan(
         isDefined(resetPeriodWindow) &&
         isAFeatureResetPeriodWindow(resetPeriodWindow)
       ) {
-        // TODO: retrieve 'startSubscriptionDate' from Stripe
         // Relevant only for rolling window
-        // Use appCreatedAt for free apps anyway
-        // Arbitrarily set it to yesterday for now
-        const startSubscriptionDate =
-          startedAt || new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-
+        // Use 'startedAt' for applications without stripe subscription
         const [startDate, resetDate] = computePlanDates(
           resetPeriod,
           effectiveResetPeriodWindow,
-          startSubscriptionDate
+          startedAt
         );
 
         let currentUsage = 0;
@@ -547,7 +563,7 @@ async function computeFeaturePlan(
   return {
     ...plan,
     features: computedFeatures,
-    featureData: appFeatureData,
+    featureData: app.featurePlan?.featuresData || {},
     startedAt,
   } as ComputedFeaturePlanType;
 }
@@ -560,7 +576,7 @@ export function retrieveFeaturePlanId(app: AppType) {
     throw new CrowdaaError(
       ERROR_TYPE_NOT_FOUND,
       FEATURE_PLAN_NOT_FOUND_CODE,
-      `Feature plan id ${featurePlanId} not found`
+      `Feature plan id '${featurePlanId}' not found`
     );
   }
   return featurePlanId;

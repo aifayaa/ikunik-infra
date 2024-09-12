@@ -14,8 +14,9 @@ import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
+import { getApp } from '../../apps/lib/appsUtils.ts';
 
-const { COLL_APPS, COLL_USERS } = mongoCollections;
+const { COLL_USERS } = mongoCollections;
 
 export const getUserByApple = async (
   authorizationCode,
@@ -28,29 +29,11 @@ export const getUserByApple = async (
   const client = await MongoClient.connect();
   try {
     const db = client.db();
-    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
+    const app = await getApp(appId);
 
     const { clientId, clientSecret } = get(app, 'credentials.apple');
     if (!clientId || !clientSecret) {
       throw new Error('missing_credentials');
-    }
-
-    const allowed = await checkAppPlanForLimitIncrease(
-      app,
-      'activeUsers',
-      async () => {
-        const activeUsers = await getAppActiveUsers(app);
-
-        return activeUsers.count;
-      }
-    );
-
-    if (!allowed) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_ALLOWED,
-        APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
-        `The current plan for app '${appId}' does not allow this operation`
-      );
     }
 
     // verify token given by client
@@ -132,6 +115,25 @@ export const getUserByApple = async (
       }
       await collection.updateOne({ _id: userId }, patch);
     } else {
+      const allowed = await checkAppPlanForLimitIncrease(
+        app,
+        'activeUsers',
+        async () => {
+          const activeUsers = await getAppActiveUsers(app);
+
+          return activeUsers.count;
+        },
+        { checkInDB: true }
+      );
+
+      if (!allowed) {
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
+          `The current plan for app '${appId}' does not allow this operation`
+        );
+      }
+
       /* create new user */
       const profile = {
         username:

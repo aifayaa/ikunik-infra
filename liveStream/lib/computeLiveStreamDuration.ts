@@ -10,7 +10,7 @@ type ComputeLiveStreamDurationParamsType = {
   to: Date;
 };
 
-export default async function computeLiveStreamDuration(
+export default async function computeLiveStreamDurationInMilliseconds(
   appId: string,
   params: ComputeLiveStreamDurationParamsType
 ) {
