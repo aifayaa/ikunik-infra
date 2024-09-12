@@ -11,6 +11,7 @@ export default async (appId, userId, deviceId) => {
     const [pushNotificationsResults, userMetricsResults] = await Promise.all([
       client.db().collection(COLL_PUSH_NOTIFICATIONS).updateMany(
         {
+          appId,
           deviceUUID: deviceId,
           userId: null,
         },
