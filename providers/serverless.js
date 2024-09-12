@@ -84,7 +84,7 @@ const serverlessConfiguration = {
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
       MERCHWP_API_URL:
-        '${file(../api-v1/serverless.yml):custom.domains.${self:provider.stage}.${self:provider.region}}',
+        'https://${file(../api-v1/serverless.js):custom.domains.${self:provider.stage}.${self:provider.region}}/v1',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -92,7 +92,7 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region:
-      '${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}',
+      '${opt:region, file(../api-v1/serverless.js):custom.region.${self:provider.stage}, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
     iam: {
       role: {
