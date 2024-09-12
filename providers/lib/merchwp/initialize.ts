@@ -53,7 +53,6 @@ export default async ({
   app,
   website,
 }: MerchWPInitializeParametersType) => {
-  console.log('DEBUG account app website', account, app, website);
   const client = await MongoClient.connect();
   try {
     // Try to login or register
@@ -75,13 +74,11 @@ export default async ({
       });
     }
 
-    console.log('DEBUG loginResults', loginResults);
     // Create app
     const dbApp = await createApp(app.name, loginResults.userId, {
       themeColorPrimary: app.color,
     });
 
-    console.log('DEBUG dbApp', dbApp);
     // Create website
     const websiteId = `merch${new ObjectID().toString()}`;
 
@@ -97,10 +94,8 @@ export default async ({
       domains: domains,
       appId: dbApp._id,
     };
-    console.log('DEBUG dbWebsite', dbWebsite);
     await client.db().collection(COLL_WEBSITES).insertOne(dbWebsite);
 
-    console.log('DEBUG updating app');
     await client
       .db()
       .collection(COLL_APPS)
@@ -121,7 +116,6 @@ export default async ({
         }
       );
 
-    console.log('DEBUG calling lambda');
     await lambda
       .invokeAsync({
         FunctionName: MERCHWP_LAMBDA_CREATE_WEBSITE,

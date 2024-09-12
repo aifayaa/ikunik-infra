@@ -15,7 +15,6 @@ import {
 import { formatResponseBody } from '../../../libs/httpResponses/formatResponseBody';
 
 export default async (event: APIGatewayProxyEvent) => {
-  console.log('DEBUG event', event);
   try {
     const merchWPInitializeSchema = z
       .object({
@@ -99,7 +98,6 @@ export default async (event: APIGatewayProxyEvent) => {
     const body = JSON.parse(event.body);
     const validatedBody = merchWPInitializeSchema.parse(body);
 
-    console.log('DEBUG body', validatedBody);
     const initializationResponse = await initializeMerchWP(
       validatedBody as MerchWPInitializeParametersType
     );
@@ -111,7 +109,6 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
-    console.log('DEBUG Exception', exception);
     return handleException(exception);
   }
 };
