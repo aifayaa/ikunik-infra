@@ -27,7 +27,10 @@ async function sendReminderMailIfLastReminderIsTooOld(
   const timeSinceLastReminder = Date.now() - lastReminder.getTime();
 
   // If the last reminder is not too old, return
-  if (timeSinceLastReminder <= PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS) {
+  if (
+    remindersCount !== 0 &&
+    timeSinceLastReminder <= PLAN_SOFT_FEATURE_DELAY_BETWEEN_REMINDERS
+  ) {
     return;
   }
 
