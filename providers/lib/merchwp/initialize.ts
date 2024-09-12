@@ -82,7 +82,8 @@ export default async ({
     // Create website
     const websiteId = `merch${new ObjectID().toString()}`;
 
-    const defaultDomain = `https://ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com/`;
+    const defaultDomain = `ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com`;
+    const defaultUrl = `https://ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com`;
     const domains = [defaultDomain, ...website.domains];
 
     const dbWebsite = {
@@ -105,13 +106,13 @@ export default async ({
           $set: {
             backend: {
               type: 'wordpress',
-              url: `https://${defaultDomain}/wp-json`,
+              url: `${defaultUrl}/wp-json`,
               apiKey: 'invalid', // Set later by the website creation itself (setup.sh inside template)
             },
             'public.autoLoginDomains': domains,
-            'public.defaultUrl': `https://${defaultDomain}/`,
+            'public.defaultUrl': `${defaultUrl}/`,
 
-            'settings.press.env.merchWPUrl': `https://${defaultDomain}/`,
+            'settings.press.env.merchWPUrl': `${defaultUrl}/`,
           },
         }
       );
