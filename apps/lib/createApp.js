@@ -157,7 +157,7 @@ async function createApp(
 export default async (
   name,
   userId,
-  { protocol = null, themeColorPrimary = null, iconId = null } = {}
+  { protocol = '', themeColorPrimary = '', iconId = '' } = {} // '' is required instead of null, for typescript/eslint to stop complaining...
 ) => {
   const client = await MongoClient.connect();
   try {
