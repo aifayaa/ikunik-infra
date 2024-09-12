@@ -49,7 +49,7 @@ const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 export async function getApp(
   appId: string,
-  options: any = { dontThrow: false }
+  options: { dontThrow?: boolean } = { dontThrow: false }
 ) {
   const client = await MongoClient.connect();
   try {
