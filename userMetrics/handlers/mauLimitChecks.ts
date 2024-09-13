@@ -129,39 +129,49 @@ export async function userMetricsMAULimitChecks(
   activeUsersBefore: number,
   activeUsersAfter: number
 ) {
-  if (activeUsersBefore < activeUsersAfter) {
-    const appPlan = await getCurrentPlanForApp(app, false);
-    if (typeof appPlan.features.activeUsers === 'object') {
-      const { maxCount } = appPlan.features.activeUsers;
+  if (!(activeUsersBefore < activeUsersAfter)) {
+    return;
+  }
 
-      const ratioBefore = activeUsersBefore / maxCount;
-      const ratioAfter = activeUsersAfter / maxCount;
+  const appPlan = await getCurrentPlanForApp(app, false);
+  console.log('checkAppPlanForLimits appPlan', appPlan);
+  if (!(typeof appPlan.features.activeUsers === 'object')) {
+    return;
+  }
 
-      let crossedLimit: number | null = null;
+  const { maxCount } = appPlan.features.activeUsers;
 
-      for (let [index, ratio] of MAU_WARNING_LIMIT_RATIOS.entries()) {
-        if (ratioBefore <= ratio && ratio < ratioAfter) {
-          crossedLimit = index;
-          break;
-        }
-      }
+  const ratioBefore = activeUsersBefore / maxCount;
+  const ratioAfter = activeUsersAfter / maxCount;
+  console.log('checkAppPlanForLimits ratioBefore', ratioBefore);
+  console.log('checkAppPlanForLimits ratioAfter', ratioAfter);
 
-      // If a threshold of users is crossed, send an email
-      if (typeof crossedLimit === 'number') {
-        await sendWarningEmail(app, {
-          absoluteLimit: maxCount,
-          currentValue: activeUsersAfter,
-          blocked: false,
-        });
-      }
-      // Else, if the final threshold is crossed, send an email
-      else if (activeUsersBefore < maxCount && maxCount <= activeUsersAfter) {
-        await sendWarningEmail(app, {
-          absoluteLimit: maxCount,
-          currentValue: activeUsersAfter,
-          blocked: true,
-        });
-      }
+  let crossedLimit: number | null = null;
+
+  for (let [index, ratio] of MAU_WARNING_LIMIT_RATIOS.entries()) {
+    if (ratioBefore <= ratio && ratio < ratioAfter) {
+      crossedLimit = index;
+      break;
     }
   }
+
+  console.log('checkAppPlanForLimits maxCount', maxCount);
+  console.log('checkAppPlanForLimits crossedLimit', crossedLimit);
+
+  // If a threshold of users is crossed, send an email
+  if (typeof crossedLimit === 'number') {
+    await sendWarningEmail(app, {
+      absoluteLimit: maxCount,
+      currentValue: activeUsersAfter,
+      blocked: false,
+    });
+  }
+  // // Else, if the final threshold is crossed, send an email
+  // else if (activeUsersBefore < maxCount && maxCount <= activeUsersAfter) {
+  //   await sendWarningEmail(app, {
+  //     absoluteLimit: maxCount,
+  //     currentValue: activeUsersAfter,
+  //     blocked: true,
+  //   });
+  // }
 }

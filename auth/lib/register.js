@@ -56,7 +56,6 @@ export const register = async (
       );
     }
 
-    // TODO: to check in next iteration
     // const activeUsersBefore = await getAppActiveUsers(app);
 
     let ret;
@@ -78,14 +77,14 @@ export const register = async (
 
     await postLoginChecks(ret, app, 'register');
 
-    // TODO: to check in next iteration
     // const activeUsersAfter = await getAppActiveUsers(app);
+    // console.log('activeUsersBefore', activeUsersBefore);
+    // console.log('activeUsersAfter', activeUsersAfter);
 
     // await userMetricsMAULimitChecks(
     //   app,
-    //   'activeUsers',
-    //   activeUsersBefore,
-    //   activeUsersAfter
+    //   activeUsersBefore.count,
+    //   activeUsersAfter.count
     // );
 
     return ret;

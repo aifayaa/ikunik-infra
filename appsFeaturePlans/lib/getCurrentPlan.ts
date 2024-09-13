@@ -153,7 +153,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       appTheme: false,
       translations: false,
       activeUsers: {
-        maxCount: 2,
+        maxCount: 10,
         resetPeriod: 'month',
         resetPeriodWindow: 'rolling',
         isSoft: false,
