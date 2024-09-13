@@ -34,41 +34,10 @@ async function sendReminderMailIfLastReminderIsTooOld(
     return;
   }
 
-  const appAdmins = (await getAppAdmins(app._id, {
-    userProjection: {
-      _id: 1,
-      'emails.address': 1,
-      'profile.firstname': 1,
-      'profile.lastname': 1,
-    },
-    includeSuperAdmins: false,
-  })) as UserType[];
-  const appSuperAdmins = (await getAppAdmins(app._id, {
-    userProjection: {
-      _id: 1,
-      'emails.address': 1,
-      'profile.firstname': 1,
-      'profile.lastname': 1,
-    },
-    includeSuperAdmins: true,
-  })) as UserType[];
-
-  const appAdminsEmails = appAdmins.map((admin: UserType) => {
-    const emailStr = `${admin.profile.firstname} ${admin.profile.lastname} <${admin.emails[0].address}>`;
-    return emailStr;
+  await sendQuotaExceededMail(app._id, feature, {
+    appName: app.name,
+    usersMax: maxCount,
   });
-  const appsSuperAdminsEmails = appSuperAdmins.map((admin: UserType) => {
-    const emailStr = `${admin.profile.firstname} ${admin.profile.lastname} <${admin.emails[0].address}>`;
-    return emailStr;
-  });
-
-  await sendQuotaExceededMail(
-    app,
-    feature,
-    appAdminsEmails,
-    appsSuperAdminsEmails,
-    maxCount
-  );
 
   // Save information in the DB regarding the last reminder
   await db.collection(COLL_APPS).updateOne(
@@ -166,9 +135,6 @@ export async function checkAppPlanForLimitIncrease(
     client.close();
   }
 }
-
-// TODO: Check if the limit is exceeded discarding the value in DB
-// livestreaming, polls, badges
 
 export async function checkAppPlanForLimitAccess(
   app: AppType | string,
