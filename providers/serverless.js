@@ -100,8 +100,10 @@ const serverlessConfiguration = {
           {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
-            Resource:
+            Resource: [
               'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.MERCHWP_LAMBDA_CREATE_WEBSITE}',
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-*',
+            ],
           },
         ],
       },
@@ -185,12 +187,12 @@ const serverlessConfiguration = {
         },
       ],
     },
-    provMerchWPInitialize: {
-      handler: 'handlers/merchwp/initialize.default',
+    provMerchWPSetupHandler: {
+      handler: 'handlers/merchwp/setup.default',
       events: [
         {
           http: {
-            path: 'providers/merchwp/initialize',
+            path: 'providers/merchwp/{step}',
             method: 'post',
             cors: true,
             authorizer: {
