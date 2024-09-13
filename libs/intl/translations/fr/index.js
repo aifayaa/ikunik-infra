@@ -83,16 +83,20 @@ export default {
     },
     quotaExceeded: {
       activeUsers: {
-        title: "Quota d'utilisateurs dépassé pour l'app {{app.name}}",
+        title: "Quota d'utilisateurs dépassé pour l'app {{appName}}",
       },
       liveStreamDuration: {
-        title: "Quota d'heures streamées dépassé pour l'app {{app.name}}",
+        title: "Quota d'heures streamées dépassé pour l'app {{appName}}",
       },
     },
     quotaWarning: {
+      activeUsers: {
+        title:
+          "Quota d'utilisateurs proche de la limite pour l'app {{appName}}",
+      },
       liveStreamDuration: {
         title:
-          "Quota d'heures streamées proche de la limite pour l'app {{app.name}}",
+          "Quota d'heures streamées proche de la limite pour l'app {{appName}}",
       },
     },
   },

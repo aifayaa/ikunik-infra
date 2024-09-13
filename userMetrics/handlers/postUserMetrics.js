@@ -4,7 +4,8 @@ import response from '../../libs/httpResponses/response.ts';
 import AVAILABLE_TYPES from '../userMetrics.json';
 import { getAppActiveUsers } from '../lib/getAppActiveUsers';
 import { getApp } from '../../apps/lib/appsUtils.ts';
-import { userMetricsMAULimitChecks } from './mauLimitChecks.ts';
+import { sendMAULimitWarningEmailIfNecessary } from '../../appsFeaturePlans/lib/utils.ts';
+// import { sendMAULimitWarningEmailIfNecessary } from './sendMAULimitWarningEmailIfNecessary.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -80,7 +81,6 @@ export default async (event) => {
         throw new Error('Unsupported type');
     }
 
-    // Soft limit, do not discard metrics on limit exceeded
     const app = await getApp(appId);
     const activeUsersBefore = await getAppActiveUsers(app);
 
@@ -95,11 +95,12 @@ export default async (event) => {
 
     const activeUsersAfter = await getAppActiveUsers(app);
 
-    await userMetricsMAULimitChecks(
+    // Send a mail the application administrator if they must be warn regarding
+    // the number of active users
+    await sendMAULimitWarningEmailIfNecessary(
       app,
-      'activeUsers',
-      activeUsersBefore,
-      activeUsersAfter
+      activeUsersBefore.count,
+      activeUsersAfter.count
     );
 
     return response({ code: 200, body: results });
