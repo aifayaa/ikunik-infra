@@ -6,7 +6,6 @@ import MongoClient, { ObjectID } from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import { UserProfileType, UTMType } from '@users/lib/userEntity';
 import createApp from '@apps/lib/createApp';
-import { filterAppPrivateFields } from '@apps/lib/appsUtils';
 import { AppType } from '@apps/lib/appEntity';
 import { WebsiteKubernetesV1Type } from 'websites/lib/websiteTypes';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
@@ -194,6 +193,13 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
             'public.defaultUrl': `${defaultUrl}/`,
 
             'settings.press.env.merchWPUrl': `${defaultUrl}/`,
+            'settings.press.env.tabOrder':
+              'today,categories,merchwp,community,search,settings',
+
+            featurePlan: {
+              _id: 'legacyFeaturePlanId',
+              startedAt: new Date(),
+            },
           },
         }
       );
