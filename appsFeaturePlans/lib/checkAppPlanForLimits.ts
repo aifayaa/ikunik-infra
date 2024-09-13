@@ -78,7 +78,6 @@ export async function checkAppPlanForLimitIncrease(
     }
 
     const { maxCount, isSoft = false } = appPlan.features[feature];
-    console.log('checkAppPlanForLimits', maxCount, isSoft);
 
     // If any, retrieve the last state of the excessive use of the feature,
     if (

@@ -5,7 +5,6 @@ import AVAILABLE_TYPES from '../userMetrics.json';
 import { getAppActiveUsers } from '../lib/getAppActiveUsers';
 import { getApp } from '../../apps/lib/appsUtils.ts';
 import { sendMAULimitWarningEmailIfNecessary } from '../../appsFeaturePlans/lib/utils.ts';
-// import { sendMAULimitWarningEmailIfNecessary } from './sendMAULimitWarningEmailIfNecessary.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
