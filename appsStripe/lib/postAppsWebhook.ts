@@ -312,6 +312,22 @@ async function resetTabsCustomisation(
   );
 }
 
+async function deleteTranslationsCustomisation(
+  appCollection: any,
+  appId: string,
+  session: unknown
+) {
+  await appCollection.updateOne(
+    { appId },
+    {
+      $unset: {
+        'settings.press.intl': 1,
+      },
+    },
+    { session }
+  );
+}
+
 export async function doCustomerSubscriptionDeletedHandler(
   subscription: Stripe.Subscription,
   appCollection: any,
@@ -370,6 +386,9 @@ export async function doCustomerSubscriptionDeletedHandler(
 
         // Restore default tabs and tabs' order
         await resetTabsCustomisation(appCollection, appId, session);
+
+        // Reset translation to default
+        await deleteTranslationsCustomisation(appCollection, appId, session);
       });
     }
   );
