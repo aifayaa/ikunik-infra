@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import MongoClient from '@libs/mongoClient';
 import response from '../../libs/httpResponses/response';
 import {
-  unpublishArticlesWithBadgesInDb,
+  unpublishArticlesInDb,
   unpublishArticlesNotifications,
 } from '../lib/unpublishArticles';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
@@ -33,11 +33,7 @@ export default async (event: APIGatewayProxyEvent) => {
         withTransaction: (session: unknown) => Promise<void>;
       }) => {
         await sessionArg.withTransaction(async (session: unknown) => {
-          await unpublishArticlesWithBadgesInDb(
-            queryArticlesToUnpublish,
-            db,
-            session
-          );
+          await unpublishArticlesInDb(queryArticlesToUnpublish, db, session);
         });
       }
     );
