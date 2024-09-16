@@ -359,6 +359,12 @@ export async function doCustomerSubscriptionDeletedHandler(
     text: { $regex: /<iframe.*src=.*playlist\.crowdaa\.com\/.*>/i },
   };
 
+  // Unpublish articles with an embedded survey
+  const queryArticlesWithEmbeddedSurvey = {
+    appId,
+    isPoll: true,
+  };
+
   // Documentation, how to use transaction:
   // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
   await client.withSession(
@@ -392,9 +398,16 @@ export async function doCustomerSubscriptionDeletedHandler(
         // Reset translation to default
         await deleteTranslationsCustomisation(appCollection, appId, session);
 
-        // Unpublish articles which have at least one badge
+        // Unpublish articles with an embedded playlist
         await unpublishArticlesInDb(
           queryArticlesWithEmbeddedPlaylist,
+          db,
+          session
+        );
+
+        // Unpublish articles with an embedded survey
+        await unpublishArticlesInDb(
+          queryArticlesWithEmbeddedSurvey,
           db,
           session
         );
