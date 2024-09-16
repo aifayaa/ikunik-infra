@@ -14,7 +14,7 @@ import { StripeSubscriptionType } from '@apps/lib/appEntity';
 import { DEFAULT_APP_SETTINGS } from '@apps/lib/createApp.js';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
 import {
-  unpublishArticlesWithBadgesInDb,
+  unpublishArticlesInDb,
   unpublishArticlesNotifications,
 } from 'pressArticles/lib/unpublishArticles';
 
@@ -340,8 +340,8 @@ export async function doCustomerSubscriptionDeletedHandler(
   const client = await MongoClient.connect();
   const db = await client.db();
 
-  // Unpublish articles which have at least one badge
-  const queryArticlesToUnpublish = {
+  // Unpublish items which have at least one badge
+  const queryItemWithAtLeastOneBadge = {
     appId,
     $expr: {
       $gte: [
@@ -351,6 +351,12 @@ export async function doCustomerSubscriptionDeletedHandler(
         1,
       ],
     },
+  };
+
+  // Unpublish articles with an embedded playlist
+  const queryArticlesWithEmbeddedPlaylist = {
+    appId,
+    text: { $regex: /<iframe.*src=.*playlist\.crowdaa\.com\/.*>/i },
   };
 
   // Documentation, how to use transaction:
@@ -368,15 +374,11 @@ export async function doCustomerSubscriptionDeletedHandler(
         );
 
         // Unpublish articles which have at least one badge
-        await unpublishArticlesWithBadgesInDb(
-          queryArticlesToUnpublish,
-          db,
-          session
-        );
+        await unpublishArticlesInDb(queryItemWithAtLeastOneBadge, db, session);
 
         // Unpublish categories which have at least one badge
         await unpublishCategoriesWithBadges(
-          queryArticlesToUnpublish,
+          queryItemWithAtLeastOneBadge,
           db,
           session
         );
@@ -389,10 +391,17 @@ export async function doCustomerSubscriptionDeletedHandler(
 
         // Reset translation to default
         await deleteTranslationsCustomisation(appCollection, appId, session);
+
+        // Unpublish articles which have at least one badge
+        await unpublishArticlesInDb(
+          queryArticlesWithEmbeddedPlaylist,
+          db,
+          session
+        );
       });
     }
   );
-  await unpublishArticlesNotifications(queryArticlesToUnpublish, db);
+  await unpublishArticlesNotifications(queryItemWithAtLeastOneBadge, db);
 
   // END update DB
 }

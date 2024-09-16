@@ -4,7 +4,7 @@ import { cleanPendingArticleNotifications } from './notificationsQueue.js';
 
 const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;
 
-export async function unpublishArticlesWithBadgesInDb(
+export async function unpublishArticlesInDb(
   queryArticlesToUnpublish: Record<string, any>,
   db: any,
   session: unknown
