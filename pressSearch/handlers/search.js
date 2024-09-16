@@ -22,7 +22,8 @@ export const handleSearch = async (event) => {
     };
 
     if (isAdmin) {
-      const { published, trashed } = event.queryStringParameters || {};
+      const { published, trashed, allFields } =
+        event.queryStringParameters || {};
 
       if (published) {
         if (/^true$/i.test(published)) searchOptions.published = true;
@@ -33,6 +34,11 @@ export const handleSearch = async (event) => {
         if (/^true$/i.test(trashed)) searchOptions.trashed = true;
         else if (/^(all|any)$/i.test(trashed)) searchOptions.trashed = null;
         else searchOptions.trashed = false;
+      }
+      if (allFields) {
+        if (/^true$/i.test(allFields)) searchOptions.allFields = true;
+        else if (/^(all|any)$/i.test(allFields)) searchOptions.allFields = null;
+        else searchOptions.allFields = false;
       }
     }
 

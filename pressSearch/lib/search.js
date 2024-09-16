@@ -16,7 +16,7 @@ const pictureGroup = {
 export default async (
   text,
   appId,
-  { skip = 0, limit = 10, published = true, trashed = false }
+  { skip = 0, limit = 10, published = true, trashed = false, allFields = false }
 ) => {
   const client = await MongoClient.connect();
   const { COLL_PRESS_ARTICLES } = mongoCollections;
@@ -49,6 +49,21 @@ export default async (
           },
         ];
       }
+    }
+
+    const filterFieldsPipeline = [];
+    if (!allFields) {
+      filterFieldsPipeline.push(
+        {
+          $unwind: {
+            path: '$pictures',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: pictureGroup,
+        }
+      );
     }
 
     const results = await collection
@@ -89,15 +104,7 @@ export default async (
             as: 'pictures',
           },
         },
-        {
-          $unwind: {
-            path: '$pictures',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $group: pictureGroup,
-        },
+        ...filterFieldsPipeline,
         {
           $sort: {
             publicationDate: -1,
