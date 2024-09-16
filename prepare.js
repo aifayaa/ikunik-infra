@@ -461,7 +461,13 @@ verbose(
             title: 'text',
             md: 'text',
           },
-          opts: makeOpts(),
+          opts: makeOpts({
+            background: true,
+            weights: {
+              title: 5,
+              md: 1,
+            },
+          }),
         },
         {
           name: 'crowdaa_articles_search_public',
