@@ -13,120 +13,116 @@ const pictureGroup = {
   _id: '$_id',
 };
 
-const searchArticle = async (
-  collection,
+export default async (
   text,
   appId,
-  { skip = 0, limit = 10 },
-  { keepEmptyCategory = false, noTrashed = true }
+  { skip = 0, limit = 10, published = true, trashed = false }
 ) => {
-  const $match = {
-    $text: { $search: text },
-    appId,
-    isPublished: true,
-  };
-
-  /* Find only articles not trashed or trashed undefined */
-  if (noTrashed) {
-    $match.$or = [
-      {
-        trashed: {
-          $exists: false,
-        },
-      },
-      {
-        trashed: false,
-      },
-    ];
-  }
-
-  const results = await collection
-    .aggregate([
-      {
-        $match,
-      },
-      {
-        $lookup: {
-          from: 'pressCategories',
-          localField: 'categoryId',
-          foreignField: '_id',
-          as: 'category',
-        },
-      },
-      {
-        $match: {
-          'category.hidden': { $ne: true },
-        },
-      },
-      {
-        $unwind: {
-          path: '$category',
-          preserveNullAndEmptyArrays: keepEmptyCategory,
-        },
-      },
-      {
-        $unwind: {
-          path: '$pictures',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: 'pictures',
-          localField: 'pictures',
-          foreignField: '_id',
-          as: 'pictures',
-        },
-      },
-      {
-        $unwind: {
-          path: '$pictures',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $group: pictureGroup,
-      },
-      {
-        $sort: {
-          publicationDate: -1,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          articles: { $push: '$$ROOT' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          total: 1,
-          articles: {
-            $slice: ['$articles', skip, limit],
-          },
-        },
-      },
-    ])
-    .toArray();
-
-  return results;
-};
-
-export default async (text, appId, { skip, limit }) => {
   const client = await MongoClient.connect();
   const { COLL_PRESS_ARTICLES } = mongoCollections;
   const collection = client.db().collection(COLL_PRESS_ARTICLES);
+
   try {
-    const [result = {}] = await searchArticle(
-      collection,
-      text,
+    const $match = {
+      $text: { $search: text },
       appId,
-      { skip, limit },
-      {}
-    );
-    return { articles: result.articles || [], total: result.total || 0 };
+      isPublished: true,
+    };
+
+    if (typeof published === 'boolean') {
+      $match.isPublished = published;
+    }
+
+    /* Find only articles not trashed or trashed undefined */
+    if (typeof trashed === 'boolean') {
+      if (trashed) {
+        $match.trashed = true;
+      } else {
+        $match.$or = [
+          {
+            trashed: {
+              $exists: false,
+            },
+          },
+          {
+            trashed: false,
+          },
+        ];
+      }
+    }
+
+    const results = await collection
+      .aggregate([
+        {
+          $match,
+        },
+        {
+          $lookup: {
+            from: 'pressCategories',
+            localField: 'categoryId',
+            foreignField: '_id',
+            as: 'category',
+          },
+        },
+        {
+          $match: {
+            'category.hidden': { $ne: true },
+          },
+        },
+        {
+          $unwind: {
+            path: '$category',
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $unwind: {
+            path: '$pictures',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'pictures',
+            localField: 'pictures',
+            foreignField: '_id',
+            as: 'pictures',
+          },
+        },
+        {
+          $unwind: {
+            path: '$pictures',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: pictureGroup,
+        },
+        {
+          $sort: {
+            publicationDate: -1,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            articles: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            total: 1,
+            articles: {
+              $slice: ['$articles', skip, limit],
+            },
+          },
+        },
+      ])
+      .toArray();
+
+    return results;
   } finally {
     client.close();
   }
