@@ -66,7 +66,7 @@ export default async (
       );
     }
 
-    const results = await collection
+    const [results = {}] = await collection
       .aggregate([
         {
           $match,
@@ -129,7 +129,10 @@ export default async (
       ])
       .toArray();
 
-    return results;
+    return {
+      total: results.total || 0,
+      articles: results.articles || [],
+    };
   } finally {
     client.close();
   }
