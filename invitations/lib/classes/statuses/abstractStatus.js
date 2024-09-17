@@ -94,11 +94,7 @@ export class AbstractStatus {
   }
 
   static generateInvitationUrl(invitationId, challengeCode) {
-    let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
-    if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
-      url = `https://${process.env.DASHBOARD_V2_DOMAIN}/${getAppRegion()}/${invitationId}?challengeCode=${challengeCode}&utm_source=invitation`;
-    }
-    return url;
+    return `https://${process.env.DASHBOARD_V2_DOMAIN}/${getAppRegion()}/${invitationId}?challengeCode=${challengeCode}&utm_source=invitation`;
   }
 
   // should be protected
