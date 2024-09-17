@@ -100,24 +100,5 @@ const serverlessConfiguration = {
       config: '../esbuild.config.cjs',
     },
   },
-  resources: {
-    Resources: {
-      ApiGatewayMethodPressSearchGet: {
-        Properties: {
-          RequestParameters: {
-            'method.request.header.x-api-key': true,
-          },
-          Integration: {
-            RequestParameters: '${self:custom.IntegrationRequestParameters}',
-            CacheNamespace: 'ApiGatewayMethodPressSearchCacheNS',
-            CacheKeyParameters: [
-              'method.request.header.x-api-key',
-              'method.request.querystring.text',
-            ],
-          },
-        },
-      },
-    },
-  },
 };
 module.exports = serverlessConfiguration;
