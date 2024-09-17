@@ -83,7 +83,8 @@ export const appPrivateFields = [
   'credentials.wordpressPlaylists.sessionToken',
   'credentials.wordpressPlaylists.username',
   'firebaseProjectId',
-  'settings.iap',
+  'settings.iap.googleLicenceKey',
+  'settings.iap.appleSecret',
   'settings.platformApplicationArns',
   'settings.userDataCollection',
 
