@@ -59,12 +59,6 @@ export default async (appId, searchOptions) => {
         },
       },
       {
-        $sort: {
-          [sortBy]: sortOrder === 'asc' ? 1 : -1,
-        },
-      },
-      ...(limit ? [{ $limit: limit }] : []),
-      {
         $lookup: {
           from: COLL_USERS,
           localField: 'user_ID',
@@ -77,7 +71,13 @@ export default async (appId, searchOptions) => {
           path: '$user',
           preserveNullAndEmptyArrays: true,
         },
-      }
+      },
+      {
+        $sort: {
+          [sortBy]: sortOrder === 'asc' ? 1 : -1,
+        },
+      },
+      ...(limit ? [{ $limit: limit }] : [])
     );
   } else {
     const $matchOnUserMetrics = {
