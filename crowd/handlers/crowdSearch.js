@@ -1,8 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import buildPressPipeline from '../lib/pipelines/pressPipeline';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
-import searchPress from '../lib/pressSearch';
+import crowdSearch from '../lib/crowdSearch';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
@@ -35,8 +34,7 @@ export default async (event) => {
     queryStringParameters.filterUserInfo = true;
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const pipeline = buildPressPipeline(userId, appId, queryStringParameters);
-    const results = await searchPress(pipeline, appId, queryStringParameters);
+    const results = await crowdSearch(appId, queryStringParameters);
 
     return response({ code: 200, body: results });
   } catch (e) {
