@@ -256,14 +256,15 @@ verbose(
     COLL_APPS,
     COLL_COUNTERS,
     COLL_EXTERNAL_PURCHASES,
+    COLL_LIVE_STREAMS_DURATIONS,
     COLL_PICTURES,
     COLL_PRESS_ARTICLES,
     COLL_PRESS_CATEGORIES,
     COLL_PRESS_DRAFTS,
     COLL_PUSH_NOTIFICATIONS,
-    COLL_USERS,
     COLL_USER_METRICS,
     COLL_USER_REACTIONS,
+    COLL_USERS,
   } = mongoCollections;
 
   try {
@@ -652,6 +653,27 @@ verbose(
             reactionAt: 1,
           },
           opts: makeOpts('unique'),
+        },
+      ],
+      [COLL_LIVE_STREAMS_DURATIONS]: [
+        {
+          name: 'crowdaa_live_stream_duration_update_key',
+          key: {
+            appId: 1,
+            type: 1,
+            liveStreamId: 1,
+            awsStreamId: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_live_stream_duration_read_key',
+          key: {
+            appId: 1,
+            startTime: 1,
+            endTime: 1,
+          },
+          opts: makeOpts('sparse'),
         },
       ],
     };

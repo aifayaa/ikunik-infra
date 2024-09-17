@@ -17,6 +17,11 @@ const serverlessConfiguration = {
         IVS_BUCKET: 'live-streams-recordings-dev',
         MEDIACONVERT_IAM_ROLE_ARN:
           'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-dev',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'DevCheckLiveStreamDuration',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-checkLiveStreamDuration-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:us-east-1:630176884077:function:liveStream-dev-checkLiveStreamDuration',
       },
     },
     preprod: {
@@ -25,6 +30,12 @@ const serverlessConfiguration = {
         IVS_BUCKET: 'live-streams-recordings-preprod',
         MEDIACONVERT_IAM_ROLE_ARN:
           'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-preprod',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
+          'PreprodCheckLiveStreamDuration',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-checkLiveStreamDuration-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:eu-west-3:630176884077:function:liveStream-preprod-checkLiveStreamDuration',
       },
     },
     prod: {
@@ -33,12 +44,22 @@ const serverlessConfiguration = {
         IVS_BUCKET: 'live-streams-recordings',
         MEDIACONVERT_IAM_ROLE_ARN:
           'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-prod',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCheckLiveStreamDuration',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-checkLiveStreamDuration-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:us-east-1:630176884077:function:liveStream-prod-checkLiveStreamDuration',
       },
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
         IVS_BUCKET: 'live-streams-recordings-prod-fr',
         MEDIACONVERT_IAM_ROLE_ARN:
           'arn:aws:iam::630176884077:role/live-streams-mediaconvert-role-prod-fr',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCheckLiveStreamDuration',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-checkLiveStreamDuration-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:eu-west-3:630176884077:function:liveStream-prod-checkLiveStreamDuration',
       },
     },
     esbuild: {
@@ -59,6 +80,12 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_BUCKET}',
       MEDIACONVERT_IAM_ROLE_ARN:
         '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_IAM_ROLE_ARN}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE}',
     },
     iam: {
       role: {
@@ -113,6 +140,32 @@ const serverlessConfiguration = {
             Action: ['iam:PassRole'],
             Resource: '${self:provider.environment.MEDIACONVERT_IAM_ROLE_ARN}',
           },
+
+          // state machine
+          {
+            Effect: 'Allow',
+            Action: ['states:CreateStateMachine', 'states:StartExecution'],
+            Resource:
+              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['iam:PassRole'],
+            Resource:
+              '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE}',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['states:StopExecution'],
+            Resource:
+              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}:${self:provider.stage}*',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource:
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-sendEmailMailgun',
+          },
         ],
       },
     },
@@ -125,8 +178,28 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
+    /* For IVS EventBridge events, see https://docs.aws.amazon.com/ivs/latest/LowLatencyUserGuide/eventbridge.html */
+    onLiveStreamStateChanges: {
+      handler: 'handlers/onLiveStreamStateChanges.default',
+      timeout: 300,
+      events: [
+        {
+          eventBridge: {
+            pattern: {
+              source: ['aws.ivs'],
+              'detail-type': ['IVS Stream State Change'],
+            },
+          },
+        },
+      ],
+    },
+    checkLiveStreamDuration: {
+      handler: 'handlers/checkLiveStreamDuration.default',
+      timeout: 300,
+    },
     expireLiveStreams: {
       handler: 'handlers/expireLiveStreams.default',
+      timeout: 300,
       events: [
         {
           eventBridge: {

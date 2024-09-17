@@ -47,13 +47,16 @@ const { COLL_APPS, COLL_USERS } = mongoCollections;
 //   }
 // }
 
-export async function getApp(appId: string): Promise<AppType> {
+export async function getApp(
+  appId: string,
+  options: { dontThrow?: boolean } = { dontThrow: false }
+) {
   const client = await MongoClient.connect();
   try {
     const db = client.db();
     const app = await db.collection(COLL_APPS).findOne({ _id: appId });
 
-    if (!app) {
+    if (!app && !options.dontThrow) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
         APP_NOT_FOUND_CODE,

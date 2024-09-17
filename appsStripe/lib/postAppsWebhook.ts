@@ -1,5 +1,8 @@
 import Stripe from 'stripe';
 
+import MongoClient from '@libs/mongoClient';
+import mongoCollections from '@libs/mongoCollections.json';
+
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   APP_ID_NOT_FOUND_CODE,
@@ -8,9 +11,15 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { getApp } from '@apps/lib/appsUtils';
 import { StripeSubscriptionType } from '@apps/lib/appEntity';
+import { DEFAULT_APP_SETTINGS } from '@apps/lib/createApp.js';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
+import {
+  unpublishArticlesInDb,
+  unpublishArticlesNotifications,
+} from 'pressArticles/lib/unpublishArticles';
+import { FeaturePlanIdType } from 'appsFeaturePlans/lib/planTypes';
 
-type SubscriptionType = 'subscriptionUpdated' | 'subscriptionDeleted';
+const { COLL_PRESS_CATEGORIES } = mongoCollections;
 
 function extractSubscriptionData(
   subscription: Stripe.Subscription
@@ -108,10 +117,8 @@ function extractSubscriptionData(
   return subscriptionRecord;
 }
 
-export async function customerSubscriptionHelperHandler(
+async function customerSubscriptionHelperHandlerInit(
   subscription: Stripe.Subscription,
-  subscriptionType: SubscriptionType,
-  appCollection: any,
   moreFields?: Record<string, string | Date>
 ) {
   const appId = subscription.metadata?.appId;
@@ -135,136 +142,280 @@ export async function customerSubscriptionHelperHandler(
     );
   }
 
-  if (subscriptionType === 'subscriptionUpdated') {
-    let effectiveSubscription: StripeSubscriptionType;
-    if (dbSubscription && dbSubscription.id === subscription.id) {
-      effectiveSubscription = moreFields
-        ? {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-          };
-    } else {
-      effectiveSubscription = moreFields
-        ? {
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...extractedSubscriptionData,
-          };
-    }
-
-    const $set = {
-      'stripe.subscription': effectiveSubscription,
-    } as {
-      'stripe.subscription': StripeSubscriptionType;
-      featurePlan?: { _id: string; startedAt: Date };
-    };
-
-    const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
-      effectiveSubscription.items[0].price.id
-    );
-
-    if (!candidatureFeaturePlanId) {
-      await appCollection.updateOne(
-        { _id: appId },
-        {
-          $set,
+  let effectiveSubscription: StripeSubscriptionType;
+  if (dbSubscription && dbSubscription.id === subscription.id) {
+    effectiveSubscription = moreFields
+      ? {
+          ...dbSubscription,
+          ...extractedSubscriptionData,
+          ...moreFields,
         }
-      );
+      : {
+          ...dbSubscription,
+          ...extractedSubscriptionData,
+        };
+  } else {
+    effectiveSubscription = moreFields
+      ? {
+          ...extractedSubscriptionData,
+          ...moreFields,
+        }
+      : {
+          ...extractedSubscriptionData,
+        };
+  }
 
-      throw new CrowdaaError(
-        ERROR_TYPE_STRIPE,
-        UNKNOWN_PRICE_ID_CODE,
-        `Cannot find featurePlanId for stripePriceId '${effectiveSubscription.items[0].price.id}'`
-      );
-    }
+  return { effectiveSubscription, appId };
+}
 
-    const featurePlanId = candidatureFeaturePlanId
-      ? candidatureFeaturePlanId
-      : 'freeFeaturePlanId';
+export async function doCustomerSubscriptionUpdatedHandler(
+  subscription: Stripe.Subscription,
+  appCollection: any,
+  moreFields?: Record<string, string | Date>
+) {
+  const { effectiveSubscription, appId } =
+    await customerSubscriptionHelperHandlerInit(subscription, moreFields);
 
-    const validSubscriptionStatus = ['trialing', 'active', 'past_due'];
+  const $set = {
+    'stripe.subscription': effectiveSubscription,
+  } as {
+    'stripe.subscription': StripeSubscriptionType;
+    featurePlan?: { _id: string; startedAt: Date };
+  };
 
-    if (
-      featurePlanId !== 'freeFeaturePlanId' &&
-      validSubscriptionStatus.includes(effectiveSubscription.status)
-    ) {
-      $set['featurePlan'] = {
-        _id: featurePlanId,
-        startedAt: effectiveSubscription.createdAt,
-      };
-    } else {
-      $set['featurePlan'] = {
-        _id: 'freeFeaturePlanId',
-        startedAt: new Date(),
-      };
-    }
+  const candidatureFeaturePlanId = getFeaturePlanIdFromStripePriceId(
+    effectiveSubscription.items[0].price.id
+  );
 
+  if (!candidatureFeaturePlanId) {
     await appCollection.updateOne(
       { _id: appId },
       {
         $set,
       }
     );
+
+    throw new CrowdaaError(
+      ERROR_TYPE_STRIPE,
+      UNKNOWN_PRICE_ID_CODE,
+      `Cannot find featurePlanId for stripePriceId '${effectiveSubscription.items[0].price.id}'`
+    );
   }
 
-  if (subscriptionType === 'subscriptionDeleted') {
-    let effectiveSubscription: StripeSubscriptionType;
-    if (dbSubscription && dbSubscription.id === subscription.id) {
-      effectiveSubscription = moreFields
-        ? {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...dbSubscription,
-            ...extractedSubscriptionData,
-          };
-    } else {
-      effectiveSubscription = moreFields
-        ? {
-            ...extractedSubscriptionData,
-            ...moreFields,
-          }
-        : {
-            ...extractedSubscriptionData,
-          };
-    }
+  const featurePlanId = candidatureFeaturePlanId
+    ? candidatureFeaturePlanId
+    : 'freeFeaturePlanId';
 
-    const $set = {
-      'stripe.subscription': effectiveSubscription,
-    } as {
-      'stripe.subscription': StripeSubscriptionType;
-      featurePlan?: { _id: string; startedAt: Date };
-    };
+  const validSubscriptionStatus = ['trialing', 'active', 'past_due'];
 
-    let featurePlanId = 'freeFeaturePlanId';
-
-    const canceledAt = effectiveSubscription.canceledAt;
-
-    if (!canceledAt) {
-      console.warn(
-        `The fields canceledAt is not set for stripe.subscription for app '${appId}'`
-      );
-    }
-
+  if (
+    featurePlanId !== 'freeFeaturePlanId' &&
+    validSubscriptionStatus.includes(effectiveSubscription.status)
+  ) {
     $set['featurePlan'] = {
       _id: featurePlanId,
-      startedAt: canceledAt ? canceledAt : new Date(),
+      startedAt: effectiveSubscription.createdAt,
     };
+  } else {
+    $set['featurePlan'] = {
+      _id: 'freeFeaturePlanId',
+      startedAt: new Date(),
+    };
+  }
 
-    await appCollection.updateOne(
-      { _id: appId },
-      {
-        $set,
-      }
+  await appCollection.updateOne(
+    { _id: appId },
+    {
+      $set,
+    }
+  );
+}
+
+async function updateAppWithSubscriptionData(
+  appCollection: any,
+  appId: string,
+  effectiveSubscription: StripeSubscriptionType,
+  session: unknown
+) {
+  const $set = {
+    'stripe.subscription': effectiveSubscription,
+  } as {
+    'stripe.subscription': StripeSubscriptionType;
+    featurePlan?: { _id: string; startedAt: Date };
+  };
+
+  let featurePlanId: FeaturePlanIdType = 'freeFeaturePlanId';
+
+  const canceledAt = effectiveSubscription.canceledAt;
+
+  if (!canceledAt) {
+    console.warn(
+      `The fields canceledAt is not set for stripe.subscription for app '${appId}'`
     );
   }
+
+  $set['featurePlan'] = {
+    _id: featurePlanId,
+    startedAt: canceledAt ? canceledAt : new Date(),
+  };
+
+  await appCollection.updateOne(
+    { _id: appId },
+    {
+      $set,
+    },
+    { session }
+  );
+}
+
+async function unpublishCategoriesWithBadges(
+  queryCategoriesToUnpublish: Record<string, any>,
+  db: any,
+  session: unknown
+) {
+  await db.collection(COLL_PRESS_CATEGORIES).updateMany(
+    queryCategoriesToUnpublish,
+    {
+      $set: {
+        hidden: true,
+      },
+    },
+    { session }
+  );
+}
+
+async function resetThemeCustomisation(
+  appCollection: any,
+  appId: string,
+  session: unknown
+) {
+  await appCollection.updateOne(
+    { appId },
+    { $unset: { 'press.env.appThemeColorPrimary': 1 } },
+    { session }
+  );
+}
+
+async function resetTabsCustomisation(
+  appCollection: any,
+  appId: string,
+  session: unknown
+) {
+  await appCollection.updateOne(
+    { appId },
+    {
+      $set: {
+        'press.env.startTab': DEFAULT_APP_SETTINGS.press.env.startTab,
+        'press.env.tabOrder': DEFAULT_APP_SETTINGS.press.env.tabOrder,
+      },
+    },
+    { session }
+  );
+}
+
+async function deleteTranslationsCustomisation(
+  appCollection: any,
+  appId: string,
+  session: unknown
+) {
+  await appCollection.updateOne(
+    { appId },
+    {
+      $unset: {
+        'settings.press.intl': 1,
+      },
+    },
+    { session }
+  );
+}
+
+export async function doCustomerSubscriptionDeletedHandler(
+  subscription: Stripe.Subscription,
+  appCollection: any,
+  moreFields?: Record<string, string | Date>
+) {
+  const { effectiveSubscription, appId } =
+    await customerSubscriptionHelperHandlerInit(subscription, moreFields);
+
+  // BEGIN update DB
+  const client = await MongoClient.connect();
+  const db = await client.db();
+
+  // Unpublish items which have at least one badge
+  const queryItemWithAtLeastOneBadge = {
+    appId,
+    $expr: {
+      $gte: [
+        {
+          $size: { $ifNull: ['$badges.list', []] },
+        },
+        1,
+      ],
+    },
+  };
+
+  // Unpublish articles with an embedded playlist
+  const queryArticlesWithEmbeddedPlaylist = {
+    appId,
+    text: { $regex: /<iframe.*src=.*playlist\.crowdaa\.com\/.*>/i },
+  };
+
+  // Unpublish articles with an embedded survey
+  const queryArticlesWithEmbeddedSurvey = {
+    appId,
+    isPoll: true,
+  };
+
+  // Documentation, how to use transaction:
+  // https://www.mongodb.com/docs/drivers/node/current/usage-examples/transaction-conv/#std-label-node-usage-convenient-txn
+  await client.withSession(
+    async (sessionArg: {
+      withTransaction: (session: unknown) => Promise<void>;
+    }) => {
+      await sessionArg.withTransaction(async (session: unknown) => {
+        await updateAppWithSubscriptionData(
+          appCollection,
+          appId,
+          effectiveSubscription,
+          session
+        );
+
+        // Unpublish articles which have at least one badge
+        await unpublishArticlesInDb(queryItemWithAtLeastOneBadge, db, session);
+
+        // Unpublish categories which have at least one badge
+        await unpublishCategoriesWithBadges(
+          queryItemWithAtLeastOneBadge,
+          db,
+          session
+        );
+
+        // Remove theme customisation for the application
+        await resetThemeCustomisation(appCollection, appId, session);
+
+        // Restore default tabs and tabs' order
+        await resetTabsCustomisation(appCollection, appId, session);
+
+        // Reset translation to default
+        await deleteTranslationsCustomisation(appCollection, appId, session);
+
+        // Unpublish articles with an embedded playlist
+        await unpublishArticlesInDb(
+          queryArticlesWithEmbeddedPlaylist,
+          db,
+          session
+        );
+
+        // Unpublish articles with an embedded survey
+        await unpublishArticlesInDb(
+          queryArticlesWithEmbeddedSurvey,
+          db,
+          session
+        );
+      });
+    }
+  );
+  await unpublishArticlesNotifications(queryItemWithAtLeastOneBadge, db);
+
+  // END update DB
 }

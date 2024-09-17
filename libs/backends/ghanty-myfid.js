@@ -5,8 +5,6 @@ import mongoCollections from '../mongoCollections.json';
 
 const { COLL_APPS } = mongoCollections;
 
-// const GHANTY_ENVIRONMENT = 'staging';
-
 function MyFidApi(app) {
   if (!(this instanceof MyFidApi)) {
     return new MyFidApi(app);
@@ -17,12 +15,16 @@ function MyFidApi(app) {
   }
 
   this.app = app;
-  // this.myfidbackend = { ...app.settings.myfidbackend[GHANTY_ENVIRONMENT] };
   this.myfidbackend = { ...app.settings.myfidbackend };
 }
 
 MyFidApi.prototype.isApiLoggedIn = function isApiLoggedIn() {
   const aBitLaterDate = new Date(Date.now() + 30 * 1000);
+
+  if (!(this.myfidbackend && this.myfidbackend.apiAccessToken)) {
+    return false;
+  }
+
   if (
     !this.myfidbackend.apiAccessToken.value ||
     this.myfidbackend.apiAccessToken.expires <= aBitLaterDate
@@ -35,6 +37,11 @@ MyFidApi.prototype.isApiLoggedIn = function isApiLoggedIn() {
 
 MyFidApi.prototype.isLoginLoggedIn = function isLoginLoggedIn() {
   const aBitLaterDate = new Date(Date.now() + 30 * 1000);
+
+  if (!(this.myfidbackend && this.myfidbackend.accountApiAccessToken)) {
+    return false;
+  }
+
   if (
     !this.myfidbackend.accountApiAccessToken.value ||
     this.myfidbackend.accountApiAccessToken.expires <= aBitLaterDate
@@ -76,6 +83,10 @@ MyFidApi.prototype.renewAPITokenIfNeeded = async function renewAPITokenIfNeeded(
     expires_in: expiresIn,
     access_token: value,
   } = response;
+
+  if (!this.myfidbackend.apiAccessToken) {
+    this.myfidbackend.apiAccessToken = {};
+  }
 
   this.myfidbackend.apiAccessToken.value = value;
   this.myfidbackend.apiAccessToken.expires = new Date(
@@ -133,6 +144,10 @@ MyFidApi.prototype.renewLoginTokenIfNeeded =
       expires_in: expiresIn,
       access_token: value,
     } = response;
+
+    if (!this.myfidbackend.accountApiAccessToken) {
+      this.myfidbackend.accountApiAccessToken = {};
+    }
 
     this.myfidbackend.accountApiAccessToken.value = value;
     this.myfidbackend.accountApiAccessToken.expires = new Date(

@@ -14,9 +14,8 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { computeErrorContent } from '@libs/httpResponses/response';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
-import { trowExceptionUntestedCode20240808 } from '@apps/lib/utils';
 import { getStripeClient } from '@libs/stripe';
-import { customerSubscriptionHelperHandler } from 'appsStripe/lib/postAppsWebhook';
+import { doCustomerSubscriptionUpdatedHandler } from 'appsStripe/lib/postAppsWebhook';
 import { sendEmailMailgunTemplate } from '@libs/email/sendEmailMailgun';
 
 const { COLL_APPS } = mongoCollections;
@@ -112,21 +111,11 @@ export default async (event: APIGatewayProxyEvent) => {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
     const appCollection = db.collection(COLL_APPS);
-    await customerSubscriptionHelperHandler(
-      subscription,
-      'subscriptionUpdated',
-      appCollection,
-      {
-        updatedAt,
-      }
-    );
 
-    // return response({
-    //   code: 301,
-    //   body: formatResponseBody({
-    //     data: session,
-    //   }),
-    // });
+    await doCustomerSubscriptionUpdatedHandler(subscription, appCollection, {
+      updatedAt,
+    });
+
     return {
       statusCode: 301,
       headers: {

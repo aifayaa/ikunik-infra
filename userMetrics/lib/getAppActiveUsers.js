@@ -43,6 +43,7 @@ export async function getAppActiveUsers(
         {
           $match: {
             appId: app._id,
+            userId: { $ne: null },
             $or: [
               {
                 $and: [
@@ -61,7 +62,7 @@ export async function getAppActiveUsers(
         },
         {
           $group: {
-            _id: '$deviceId',
+            _id: '$userId',
           },
         },
         {

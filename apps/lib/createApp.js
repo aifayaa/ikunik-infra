@@ -12,7 +12,7 @@ const { ADMIN_APP } = process.env;
 
 const { COLL_APPS, COLL_USERS, COLL_PICTURES } = mongoCollections;
 
-const DEFAULT_APP_SETTINGS = {
+export const DEFAULT_APP_SETTINGS = {
   press: {
     chatNotificationsEnabled: true,
     moderationRequired: false,

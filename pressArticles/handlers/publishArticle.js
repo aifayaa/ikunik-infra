@@ -3,7 +3,7 @@ import response from '../../libs/httpResponses/response.ts';
 import {
   queueArticleNotifications,
   cleanPendingArticleNotifications,
-} from '../lib/notificationsQueue';
+} from '../lib/notificationsQueue.ts';
 import { publishArticle } from '../lib/publishArticle';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
