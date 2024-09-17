@@ -17,6 +17,7 @@ import {
   unpublishArticlesInDb,
   unpublishArticlesNotifications,
 } from 'pressArticles/lib/unpublishArticles';
+import { FeaturePlanIdType } from 'appsFeaturePlans/lib/planTypes';
 
 const { COLL_PRESS_CATEGORIES } = mongoCollections;
 
@@ -243,7 +244,7 @@ async function updateAppWithSubscriptionData(
     featurePlan?: { _id: string; startedAt: Date };
   };
 
-  let featurePlanId = 'freeFeaturePlanId';
+  let featurePlanId: FeaturePlanIdType = 'freeFeaturePlanId';
 
   const canceledAt = effectiveSubscription.canceledAt;
 
