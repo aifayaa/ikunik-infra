@@ -94,7 +94,7 @@ export class AbstractStatus {
   }
 
   static generateInvitationUrl(invitationId, challengeCode) {
-    return `https://${process.env.DASHBOARD_V2_DOMAIN}/${getAppRegion()}/${invitationId}?challengeCode=${challengeCode}&utm_source=invitation`;
+    return `https://${process.env.DASHBOARD_V2_DOMAIN}/${getAppRegion()}/invitations/${invitationId}?challengeCode=${challengeCode}&utm_source=invitation`;
   }
 
   // should be protected
