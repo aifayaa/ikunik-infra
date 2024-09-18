@@ -20,11 +20,11 @@ const getAppRegion = () => {
   const { CROWDAA_REGION, STAGE } = process.env;
 
   if (['dev', 'preprod'].includes(STAGE)) {
-    return `crowdaa-${STAGE}-${CROWDAA_REGION}`;
+    return `${STAGE}-${CROWDAA_REGION}`;
   }
 
   if (STAGE === 'prod') {
-    return `crowdaa-${CROWDAA_REGION}`;
+    return `${CROWDAA_REGION}`;
   }
 
   return undefined;
@@ -94,11 +94,7 @@ export class AbstractStatus {
   }
 
   static generateInvitationUrl(invitationId, challengeCode) {
-    let url = `https://${process.env.DASHBOARD_V2_DOMAIN}`;
-    if (process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL) {
-      url = `${process.env.DASHBOARD_V2_INVITATIONS_PAGE_URL}/${invitationId}?challengeCode=${challengeCode}&appRegion=${getAppRegion()}&utm_source=invitation`;
-    }
-    return url;
+    return `https://${process.env.DASHBOARD_V2_DOMAIN}/${getAppRegion()}/invitations/${invitationId}?challengeCode=${challengeCode}&utm_source=invitation`;
   }
 
   // should be protected

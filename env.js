@@ -12,9 +12,6 @@ module.exports = {
   DASHBOARD_V2_DOMAIN:
     '${file(../api-v1/serverless.js):custom.DASHBOARD_V2_DOMAIN.${self:provider.stage}}',
   // be careful when referencing with file(): the resolution is relative to the file that imports this one
-  DASHBOARD_V2_INVITATIONS_PAGE_URL:
-    'https://${file(../api-v1/serverless.js):custom.DASHBOARD_V2_DOMAIN.${self:provider.stage}}/invitations',
-  // be careful when referencing with file(): the resolution is relative to the file that imports this one
   CROWDAA_REGION:
     '${file(../api-v1/serverless.js):custom.crowdaaRegion.${self:provider.stage}.${self:provider.region}}',
   DB_NAME: 'crowdaaDev',
