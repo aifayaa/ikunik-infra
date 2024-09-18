@@ -133,8 +133,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    crowdSearch: {
-      handler: 'handlers/crowdSearch.default',
+    pressSearch: {
+      handler: 'handlers/pressSearch.default',
       events: [
         {
           http: {
