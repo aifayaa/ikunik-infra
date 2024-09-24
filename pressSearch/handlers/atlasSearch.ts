@@ -1,10 +1,14 @@
 /* eslint-disable import/no-relative-packages */
-import response from '../../libs/httpResponses/response.ts';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import search from '../lib/atlasSearch';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import response, { handleException } from '../../libs/httpResponses/response';
+import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import search from '../lib/atlasSearch.js';
 
-export const handleSearch = async (event) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+export const handleSearch = async (event: APIGatewayProxyEvent) => {
+  const { appId, principalId: userId } = event.requestContext.authorizer as {
+    appId: string;
+    principalId: string;
+  };
   let isAdmin = false;
   try {
     if (userId) {
@@ -13,12 +17,22 @@ export const handleSearch = async (event) => {
       });
     }
 
-    const { text, skip, limit } = event.queryStringParameters || {};
+    const { text, skip, limit } = (event.queryStringParameters || {}) as {
+      text: string;
+      skip: string;
+      limit: string;
+    };
     const searchOptions = {
       skip: parseInt(skip, 10) || undefined,
       limit: parseInt(limit, 10) || undefined,
       published: true,
       trashed: false,
+    } as {
+      skip?: number;
+      limit?: number;
+      published?: boolean | null;
+      trashed?: boolean | null;
+      allFields?: boolean | null;
     };
 
     if (isAdmin) {
@@ -44,7 +58,7 @@ export const handleSearch = async (event) => {
 
     const results = await search(text, appId, searchOptions);
     return response({ code: 200, body: results });
-  } catch (e) {
-    return response({ code: 500, message: e.message });
+  } catch (exception) {
+    return handleException(exception);
   }
 };
