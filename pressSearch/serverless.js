@@ -72,7 +72,7 @@ const serverlessConfiguration = {
       ],
     },
     atlasSearch: {
-      handler: 'handlers/atlasSearch.default',
+      handler: 'handlers/atlasSearch.handleSearch',
       events: [
         {
           http: {

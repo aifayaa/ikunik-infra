@@ -13,6 +13,33 @@ const pictureGroup = {
   _id: '$_id',
 };
 
+// Function to swap elements in the array
+function swap(arr, i, j) {
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+}
+
+// Function to find the possible permutations.
+// Initial value of idx is 0.
+function permutations(res, arr, idx) {
+  if (idx === arr.length) {
+    res.push([...arr]);
+    return;
+  }
+
+  for (let i = idx; i < arr.length; i += 1) {
+    swap(arr, idx, i);
+    permutations(res, arr, idx + 1);
+    swap(arr, idx, i); // Backtracking
+  }
+}
+
+// Function to get the permutations
+function permute(arr) {
+  const res = [];
+  permutations(res, arr, 0);
+  return res;
+}
+
 export default async (
   text,
   appId,
@@ -33,7 +60,7 @@ export default async (
       $match.isPublished = published;
     }
 
-    /* Find only articles not trashed or trashed undefined */
+    // Find only articles not trashed or trashed undefined
     if (typeof trashed === 'boolean') {
       if (trashed) {
         $match.trashed = true;
@@ -66,73 +93,44 @@ export default async (
       );
     }
 
-    // const [results = {}] = await collection
-    //   .aggregate([
-    //     {
-    //       $match,
-    //     },
-    //     {
-    //       $lookup: {
-    //         from: 'pressCategories',
-    //         localField: 'categoryId',
-    //         foreignField: '_id',
-    //         as: 'category',
-    //       },
-    //     },
-    //     {
-    //       $match: {
-    //         'category.hidden': { $ne: true },
-    //       },
-    //     },
-    //     {
-    //       $unwind: {
-    //         path: '$category',
-    //         preserveNullAndEmptyArrays: false,
-    //       },
-    //     },
-    //     {
-    //       $unwind: {
-    //         path: '$pictures',
-    //         preserveNullAndEmptyArrays: true,
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         from: 'pictures',
-    //         localField: 'pictures',
-    //         foreignField: '_id',
-    //         as: 'pictures',
-    //       },
-    //     },
-    //     ...filterFieldsPipeline,
-    //     {
-    //       $sort: {
-    //         publicationDate: -1,
-    //       },
-    //     },
-    //     {
-    //       $group: {
-    //         _id: null,
-    //         total: { $sum: 1 },
-    //         articles: { $push: '$$ROOT' },
-    //       },
-    //     },
-    //     {
-    //       $project: {
-    //         _id: 0,
-    //         total: 1,
-    //         articles: {
-    //           $slice: ['$articles', skip, limit],
-    //         },
-    //       },
-    //     },
-    //   ])
-    //   .toArray();
+    // Run regex query on all permutations of the input text
+    const textWords = text.split(' ');
+    const textAllPermutations = permute(textWords);
+    const textRegexQueries = textAllPermutations.map((permutation) => {
+      return `.*${permutation.join('.*')}.*`;
+    });
+    const regexQueries = textRegexQueries
+      .map((query) => {
+        return [
+          {
+            regex: {
+              query,
+              path: 'title',
+              score: { boost: { value: 3 } },
+              allowAnalyzedField: true,
+            },
+          },
+          {
+            regex: {
+              query,
+              path: 'text',
+              allowAnalyzedField: true,
+            },
+          },
+        ];
+      })
+      .reduce((acc, val) => acc.concat(val), []);
+
+    const fuzzyOptions = {
+      maxEdits: 2,
+      maxExpansions: 100,
+    };
 
     const [results = {}] = await collection
       .aggregate([
         {
           $search: {
+            index: 'diacritic-insensitive',
             compound: {
               must: [
                 {
@@ -151,23 +149,31 @@ export default async (
               should: [
                 {
                   text: {
-                    query: 'Conseil Régional',
+                    query: text,
                     path: 'title',
                     score: { boost: { value: 3 } },
+                    fuzzy: fuzzyOptions,
                   },
                 },
                 {
                   text: {
-                    query: 'Conseil Régional',
+                    query: text,
                     path: 'text',
+                    fuzzy: fuzzyOptions,
                   },
                 },
+                ...regexQueries,
               ],
               minimumShouldMatch: 1,
             },
             count: {
               type: 'total',
             },
+          },
+        },
+        {
+          $set: {
+            searchScore: { $meta: 'searchScore' },
           },
         },
         {
@@ -206,30 +212,32 @@ export default async (
           },
         },
         ...filterFieldsPipeline,
-        // {
-        //   $project: {
-        //     _id: 1,
-        //     title: 1,
-        //     createdAt: 1,
-        //     publicationDate: 1,
-        //     score: { $meta: 'searchScore' },
-        //   },
-        // },
-        { $skip: skip },
-        { $limit: limit },
         {
-          $facet: {
-            articles: [],
-            meta: [{ $replaceWith: '$$SEARCH_META' }, { $limit: 1 }],
+          $sort: {
+            publicationDate: -1,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            articles: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            total: 1,
+            articles: {
+              $slice: ['$articles', skip, limit],
+            },
           },
         },
       ])
       .toArray();
 
     return {
-      // total: results.total || 0,
-      // articles: results.articles || [],
-      total: results.meta[0].count.total || 0,
+      total: results.total || 0,
       articles: results.articles || [],
     };
   } finally {
