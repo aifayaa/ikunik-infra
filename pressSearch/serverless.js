@@ -71,6 +71,31 @@ const serverlessConfiguration = {
         },
       ],
     },
+    atlasSearch: {
+      handler: 'handlers/atlasSearch.handleSearch',
+      events: [
+        {
+          http: {
+            path: 'press/atlasSearch',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+                querystrings: '${self:custom.querystrings}',
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
