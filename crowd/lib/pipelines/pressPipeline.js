@@ -224,11 +224,12 @@ export default (
     },
   });
 
-  if (search) {
+  const trimmedSearch = `${search || ''}`.trim();
+  if (trimmedSearch) {
     pipeline.push({
       $match: {
         'user.profile.username': {
-          $regex: new RegExp(search),
+          $regex: new RegExp(trimmedSearch, 'i'),
         },
       },
     });
