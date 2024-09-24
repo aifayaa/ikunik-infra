@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import search from '../lib/atlasSearch.js';
+import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
 
 export const handleSearch = async (event: APIGatewayProxyEvent) => {
   const { appId, principalId: userId } = event.requestContext.authorizer as {
@@ -57,7 +58,13 @@ export const handleSearch = async (event: APIGatewayProxyEvent) => {
     }
 
     const results = await search(text, appId, searchOptions);
-    return response({ code: 200, body: results });
+
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: results,
+      }),
+    });
   } catch (exception) {
     return handleException(exception);
   }

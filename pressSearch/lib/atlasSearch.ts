@@ -4,23 +4,30 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from '../../pressArticles/lib/articleFields';
 
 const pictureGroup = {
-  ...Object.keys(commonFields).reduce((res, key) => {
-    res[key] = { $first: `$${key}` };
-    return res;
-  }, {}),
+  ...Object.keys(commonFields).reduce(
+    (res: { [key: string]: any }, key: string) => {
+      res[key] = { $first: `$${key}` };
+      return res;
+    },
+    {}
+  ),
   category: { $first: '$category' },
   pictures: { $push: '$pictures' },
   _id: '$_id',
 };
 
 // Function to swap elements in the array
-function swap(arr, i, j) {
+function swap(arr: Array<string>, i: number, j: number) {
   [arr[i], arr[j]] = [arr[j], arr[i]];
 }
 
 // Function to find the possible permutations.
 // Initial value of idx is 0.
-function permutations(res, arr, idx) {
+function permutations(
+  res: Array<Array<string>>,
+  arr: Array<string>,
+  idx: number
+) {
   if (idx === arr.length) {
     res.push([...arr]);
     return;
@@ -34,16 +41,28 @@ function permutations(res, arr, idx) {
 }
 
 // Function to get the permutations
-function permute(arr) {
-  const res = [];
+function permute(arr: Array<string>) {
+  const res: Array<Array<string>> = [];
   permutations(res, arr, 0);
   return res;
 }
 
 export default async (
-  text,
-  appId,
-  { skip = 0, limit = 10, published = true, trashed = false, allFields = false }
+  text: string,
+  appId: string,
+  {
+    skip = 0,
+    limit = 10,
+    published = true,
+    trashed = false,
+    allFields = false,
+  }: {
+    skip?: number;
+    limit?: number;
+    published?: boolean | null;
+    trashed?: boolean | null;
+    allFields?: boolean | null;
+  }
 ) => {
   const client = await MongoClient.connect();
   const { COLL_PRESS_ARTICLES } = mongoCollections;
@@ -54,6 +73,15 @@ export default async (
       $text: { $search: text },
       appId,
       isPublished: true,
+    } as {
+      $text: { $search: string };
+      appId: string;
+      isPublished: boolean;
+      trashed?: boolean;
+      $or?: Array<{
+        trashed?: { $exists?: boolean } | boolean;
+        $exists?: boolean;
+      }>;
     };
 
     if (typeof published === 'boolean') {
