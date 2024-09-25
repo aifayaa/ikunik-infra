@@ -28,11 +28,32 @@ export default async (userId) => {
     }
 
     const appsIds = objGet(user, ['perms', 'apps'], []).map(({ _id }) => _id);
-    const orgsIds = objGet(user, ['perms', 'organizations'], []).map(
-      ({ _id }) => _id
-    );
 
-    if (appsIds.length === 0 && orgsIds.length === 0) {
+    const orgsMembersIds = objGet(user, ['perms', 'organizations'], [])
+      .map(({ _id, roles }) => {
+        const isMember =
+          roles.indexOf('owner') < 0 &&
+          roles.indexOf('admin') < 0 &&
+          roles.indexOf('member') >= 0;
+        if (isMember) return _id;
+        return null;
+      })
+      .filter((x) => x);
+
+    const orgsAdminsIds = objGet(user, ['perms', 'organizations'], [])
+      .map(({ _id, roles }) => {
+        const isMember =
+          roles.indexOf('owner') >= 0 || roles.indexOf('admin') >= 0;
+        if (isMember) return _id;
+        return null;
+      })
+      .filter((x) => x);
+
+    if (
+      appsIds.length === 0 &&
+      orgsMembersIds.length === 0 &&
+      orgsAdminsIds.length === 0
+    ) {
       return [];
     }
 
@@ -46,11 +67,28 @@ export default async (userId) => {
       appsIds.length > 0 ? await getAppsWhere({ _id: { $in: appsIds } }) : [];
 
     const appsFromOrgsWhere = {
-      'organization._id': { $in: orgsIds },
       _id: { $nin: appsIds },
     };
+
+    if (orgsAdminsIds.length > 0 && orgsMembersIds.length > 0) {
+      appsFromOrgsWhere.$or = [
+        { 'organization._id': { $in: orgsAdminsIds } },
+        {
+          'organization._id': { $in: orgsMembersIds },
+          'organization.users._id': userId,
+        },
+      ];
+    } else if (orgsAdminsIds.length > 0) {
+      appsFromOrgsWhere['organization._id'] = { $in: orgsAdminsIds };
+    } else if (orgsMembersIds.length > 0) {
+      appsFromOrgsWhere['organization._id'] = { $in: orgsMembersIds };
+      appsFromOrgsWhere['organization.users._id'] = userId;
+    }
+
     const appsFromOrgs =
-      orgsIds.length > 0 ? await getAppsWhere(appsFromOrgsWhere) : [];
+      orgsAdminsIds.length > 0 || orgsMembersIds.length > 0
+        ? await getAppsWhere(appsFromOrgsWhere)
+        : [];
     const apps = appsFromId.concat(appsFromOrgs).sort((a, b) => {
       if (a.createdAt && b.createdAt) {
         return b.createdAt - a.createdAt;
