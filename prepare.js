@@ -785,10 +785,19 @@ verbose(
               userId: { $first: '$userId' },
               appId: { $first: '$appId' },
 
-              elapsedTime: { $sum: '$time' },
+              totalTime: { $sum: '$time' },
               firstAccess: { $min: '$createdAt' },
               lastAccess: { $max: '$createdAt' },
 
+              metricsGeoLast: {
+                $last: {
+                  $cond: [
+                    { $eq: ['$type', 'geolocation'] },
+                    '$$ROOT',
+                    '$$REMOVE',
+                  ],
+                },
+              },
               metricsGeo: {
                 $push: {
                   $cond: [
