@@ -9,31 +9,39 @@ const AVAILABLE_STAGES_REGIONS = [
   'preprod:eu-west-3',
   'prod:us-east-1',
   'prod:eu-west-3',
-  'awaxDev:eu-west-1',
-  'awax:eu-west-1',
 ];
 
+const AVAILABLE_OPTIONS = {
+  remove:
+    'Checks and removes database indexes that we did not list in this script',
+  removeviews:
+    'Checks and removes database views that we did not list in this script',
+  forceviewremove: 'Removes existing views (if needed) before recreating them',
+  verbose: 'Display extra information about what is being done',
+  dry: 'Do not run any database write operation except creating collections that are not found',
+  force: 'Force creation/update of existing indexes',
+};
+
+const VIEWS_PREFIX = 'view_'; // Important conseqences uppon modification, be careful
+
 if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
-  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS.map((x) =>
-    x.replace(':', ' + ')
-  ).join(', ');
+  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS.map(
+    (x) => `    - ${x.replace(':', ' + ')}`
+  ).join('\n');
   console.log('usage : ./prepare.js [STAGE] [REGION] [EXTRA]\n');
   console.log(
-    `  STAGE + REGION are mandatory and can be : ${stageRegionsDisplayList}`
+    `  STAGE + REGION are mandatory and can be :\n${stageRegionsDisplayList}`
   );
   console.log(
     '  EXTRA is a comma-separated list of extra operations to do. It may contain :'
   );
+  Object.keys(AVAILABLE_OPTIONS).forEach((key) => {
+    console.log(`    - ${key} : ${AVAILABLE_OPTIONS[key]}`);
+  });
+  console.log('');
   console.log(
-    '    - remove : Checks and removes database indexes that we did not list in this script'
+    'Note that views will NOT be updated until forceviewremove is specified. It should be handled manually only and never automated since it implies a heavy processing'
   );
-  console.log(
-    '    - verbose : Display extra information about what is being done'
-  );
-  console.log(
-    "    - dry : Don't run any database write operation except creating collections that are not found"
-  );
-  console.log('    - force : Force creation/update of existing indexes');
   process.exit(1);
 }
 
@@ -146,6 +154,56 @@ function makeLogger(initialTitle) {
 
 const { setTitle, log, verbose } = makeLogger();
 
+async function removeUnknownViews(viewsData, allCollections) {
+  const prefixRegex = new RegExp(`^${VIEWS_PREFIX}`);
+  const logger = makeLogger('Unknown views remover');
+
+  logger.log('Checking for unknown views...');
+
+  const promises = allCollections.map(async (coll) => {
+    const options = await coll.options();
+
+    if (options.viewOn && options.pipeline) {
+      const noPrefixName = coll.collectionName.replace(prefixRegex, '');
+      if (!viewsData[noPrefixName] || !prefixRegex.test(coll.collectionName)) {
+        logger.log(`Removing unknown view ${coll.collectionName}`);
+        await coll.drop();
+      }
+    }
+  });
+
+  await Promise.all(promises);
+}
+
+async function processView(db, collName, viewData, allCollections) {
+  const { viewOn, pipeline } = viewData;
+  const viewCollName = `${VIEWS_PREFIX}${collName}`;
+  const logger = makeLogger(`View ${viewCollName}`);
+
+  const existingCollection = allCollections.find(
+    (coll) => coll.collectionName === viewCollName
+  );
+
+  if (!existingCollection) {
+    logger.log('Creating view');
+    await db.createCollection(viewCollName, {
+      viewOn,
+      pipeline,
+    });
+  } else {
+    logger.log('View exists');
+    if (EXTRA.forceviewremove) {
+      // collMod operation is not allowed by MongoDB Atlas, so we need to handle it this way.
+      logger.log('Deleting and Re-Creating view');
+      await existingCollection.drop();
+      await db.createCollection(viewCollName, {
+        viewOn,
+        pipeline,
+      });
+    }
+  }
+}
+
 async function processCollection(db, collName, indexSchemas) {
   const logger = makeLogger(`Collection ${collName}`);
 
@@ -248,7 +306,6 @@ verbose(
 (async () => {
   const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
 
-  const promises = [];
   const client = await MongoClient.connect(mongoUrl);
 
   const {
@@ -678,12 +735,53 @@ verbose(
       ],
     };
 
-    const collNames = Object.keys(indexSchemas);
+    // All keys here will be prefixed with VIEWS_PREFIX
+    const viewsData = {
+      userMetricsWithUsers: {
+        viewOn: COLL_USER_METRICS,
+        pipeline: [
+          {
+            $lookup: {
+              from: COLL_USERS,
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'user',
+            },
+          },
+          {
+            $unwind: {
+              path: '$user',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+        ],
+      },
+    };
+
+    const promises = [];
     const db = client.db();
-    for (let i = 0; i < collNames.length; i += 1) {
-      const collName = collNames[i];
-      promises.push(processCollection(db, collName, indexSchemas[collName]));
+
+    log('Fetching all collections');
+    const allCollections = await db.collections();
+
+    log('Processing views');
+    Object.keys(viewsData).forEach((collName) => {
+      promises.push(
+        processView(db, collName, viewsData[collName], allCollections)
+      );
+    });
+
+    await Promise.all(promises);
+    promises.splice(0);
+
+    if (EXTRA.removeviews) {
+      await removeUnknownViews(viewsData, allCollections);
     }
+
+    log('Processing indexes');
+    Object.keys(indexSchemas).forEach((collName) => {
+      promises.push(processCollection(db, collName, indexSchemas[collName]));
+    });
 
     await Promise.all(promises);
   } catch (error) {
