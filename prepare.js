@@ -16,13 +16,11 @@ const AVAILABLE_OPTIONS = {
     'Checks and removes database indexes that we did not list in this script',
   removeviews:
     'Checks and removes database views that we did not list in this script',
-  forceviewremove: 'Removes existing views (if needed) before recreating them',
+  recreateviews: 'Removes existing views (if needed) before recreating them',
   verbose: 'Display extra information about what is being done',
   dry: 'Do not run any database write operation except creating collections that are not found',
   force: 'Force creation/update of existing indexes',
 };
-
-const VIEWS_PREFIX = 'view_'; // Important conseqences uppon modification, be careful
 
 if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
   const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS.map(
@@ -40,7 +38,7 @@ if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
   });
   console.log('');
   console.log(
-    'Note that views will NOT be updated until forceviewremove is specified. It should be handled manually only and never automated since it implies a heavy processing'
+    'Note that views will NOT be updated until recreateviews is specified. It should be handled manually only and never automated since it implies a heavy processing'
   );
   process.exit(1);
 }
@@ -53,6 +51,7 @@ const omitBy = require('lodash/omitBy');
 const isUndefined = require('lodash/isUndefined');
 const { default: MongoClient } = require('./libs/mongoClient');
 const mongoCollections = require('./libs/mongoCollections.json');
+const mongoViews = require('./libs/mongoViews.json');
 const apiServerlessData = require('./api-v1/serverless');
 
 /**
@@ -154,20 +153,26 @@ function makeLogger(initialTitle) {
 
 const { setTitle, log, verbose } = makeLogger();
 
-async function removeUnknownViews(viewsData, allCollections) {
-  const prefixRegex = new RegExp(`^${VIEWS_PREFIX}`);
+async function removeUnknownViews(viewsList, allCollections) {
   const logger = makeLogger('Unknown views remover');
 
   logger.log('Checking for unknown views...');
+
+  const indexedViews = viewsList.reduce((acc, { name }) => {
+    acc[name] = true;
+
+    return acc;
+  }, {});
 
   const promises = allCollections.map(async (coll) => {
     const options = await coll.options();
 
     if (options.viewOn && options.pipeline) {
-      const noPrefixName = coll.collectionName.replace(prefixRegex, '');
-      if (!viewsData[noPrefixName] || !prefixRegex.test(coll.collectionName)) {
+      if (!indexedViews[coll.collectionName]) {
         logger.log(`Removing unknown view ${coll.collectionName}`);
-        await coll.drop();
+        if (!EXTRA.dry) {
+          await coll.drop();
+        }
       }
     }
   });
@@ -175,31 +180,34 @@ async function removeUnknownViews(viewsData, allCollections) {
   await Promise.all(promises);
 }
 
-async function processView(db, collName, viewData, allCollections) {
-  const { viewOn, pipeline } = viewData;
-  const viewCollName = `${VIEWS_PREFIX}${collName}`;
-  const logger = makeLogger(`View ${viewCollName}`);
+async function processView(db, viewData, allCollections) {
+  const { name, viewOn, pipeline } = viewData;
+  const logger = makeLogger(`View ${name}`);
 
   const existingCollection = allCollections.find(
-    (coll) => coll.collectionName === viewCollName
+    (coll) => coll.collectionName === name
   );
 
   if (!existingCollection) {
     logger.log('Creating view');
-    await db.createCollection(viewCollName, {
-      viewOn,
-      pipeline,
-    });
-  } else {
-    logger.log('View exists');
-    if (EXTRA.forceviewremove) {
-      // collMod operation is not allowed by MongoDB Atlas, so we need to handle it this way.
-      logger.log('Deleting and Re-Creating view');
-      await existingCollection.drop();
-      await db.createCollection(viewCollName, {
+    if (!EXTRA.dry) {
+      await db.createCollection(name, {
         viewOn,
         pipeline,
       });
+    }
+  } else {
+    logger.log('View exists');
+    if (EXTRA.recreateviews) {
+      // collMod operation is not allowed by MongoDB Atlas, so we need to handle it this way.
+      logger.log('Deleting and Re-Creating view');
+      if (!EXTRA.dry) {
+        await existingCollection.drop();
+        await db.createCollection(name, {
+          viewOn,
+          pipeline,
+        });
+      }
     }
   }
 }
@@ -323,6 +331,9 @@ verbose(
     COLL_USER_REACTIONS,
     COLL_USERS,
   } = mongoCollections;
+
+  const { VIEW_USER_METRICS_WITH_USERS, VIEW_USER_METRICS_UUID_AGGREGATED } =
+    mongoViews;
 
   try {
     const indexSchemas = {
@@ -736,8 +747,10 @@ verbose(
     };
 
     // All keys here will be prefixed with VIEWS_PREFIX
-    const viewsData = {
-      userMetricsWithUsers: {
+    // All views are processed in order, to allow views based on other views
+    const viewsList = [
+      {
+        name: VIEW_USER_METRICS_WITH_USERS,
         viewOn: COLL_USER_METRICS,
         pipeline: [
           {
@@ -756,28 +769,76 @@ verbose(
           },
         ],
       },
-    };
+      {
+        name: VIEW_USER_METRICS_UUID_AGGREGATED,
+        viewOn: COLL_USER_METRICS,
+        pipeline: [
+          {
+            $group: {
+              _id: { $ifNull: ['$userId', '$deviceId'] },
+              deviceId: { $first: '$deviceId' },
+              deviceIds: {
+                $push: {
+                  $cond: [{ $eq: ['$userId', null] }, '$deviceId', '$$REMOVE'],
+                },
+              },
+              userId: { $first: '$userId' },
+              appId: { $first: '$appId' },
 
-    const promises = [];
+              elapsedTime: { $sum: '$time' },
+              firstAccess: { $min: '$createdAt' },
+              lastAccess: { $max: '$createdAt' },
+
+              metricsGeo: {
+                $push: {
+                  $cond: [
+                    { $eq: ['$type', 'geolocation'] },
+                    '$$ROOT',
+                    '$$REMOVE',
+                  ],
+                },
+              },
+              metricsTime: {
+                $push: {
+                  $cond: [{ $eq: ['$type', 'time'] }, '$$ROOT', '$$REMOVE'],
+                },
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: COLL_USERS,
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'user',
+            },
+          },
+          {
+            $unwind: {
+              path: '$user',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+        ],
+      },
+    ];
+
     const db = client.db();
 
     log('Fetching all collections');
     const allCollections = await db.collections();
 
     log('Processing views');
-    Object.keys(viewsData).forEach((collName) => {
-      promises.push(
-        processView(db, collName, viewsData[collName], allCollections)
-      );
-    });
-
-    await Promise.all(promises);
-    promises.splice(0);
-
-    if (EXTRA.removeviews) {
-      await removeUnknownViews(viewsData, allCollections);
+    for (let i = 0; i < viewsList.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await processView(db, viewsList[i], allCollections);
     }
 
+    if (EXTRA.removeviews) {
+      await removeUnknownViews(viewsList, allCollections);
+    }
+
+    const promises = [];
     log('Processing indexes');
     Object.keys(indexSchemas).forEach((collName) => {
       promises.push(processCollection(db, collName, indexSchemas[collName]));
