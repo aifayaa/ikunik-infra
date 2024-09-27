@@ -17,10 +17,9 @@ export default async (appId: string) => {
         {
           $group: {
             _id: { $ifNull: ['$userId', '$deviceId'] },
-            deviceId: { $first: '$deviceId' },
             deviceIds: {
-              $push: {
-                $cond: [{ $eq: ['$userId', null] }, '$deviceId', '$$REMOVE'],
+              $addToSet: {
+                $cond: [{ $ne: ['$deviceId', null] }, '$deviceId', '$$REMOVE'],
               },
             },
             userId: { $first: '$userId' },
@@ -30,15 +29,6 @@ export default async (appId: string) => {
             firstAccess: { $min: '$createdAt' },
             lastAccess: { $max: '$createdAt' },
 
-            metricsGeoLast: {
-              $last: {
-                $cond: [
-                  { $eq: ['$type', 'geolocation'] },
-                  '$$ROOT',
-                  '$$REMOVE',
-                ],
-              },
-            },
             metricsGeo: {
               $push: {
                 $cond: [
@@ -52,6 +42,24 @@ export default async (appId: string) => {
               $push: {
                 $cond: [{ $eq: ['$type', 'time'] }, '$$ROOT', '$$REMOVE'],
               },
+            },
+          },
+        },
+        {
+          $set: {
+            metricsGeoLast: {
+              $cond: [
+                { $eq: [{ $size: '$metricsGeo' }, 0] },
+                null,
+                { $arrayElemAt: ['$metricsGeo', -1] },
+              ],
+            },
+            devieId: {
+              $cond: [
+                { $eq: [{ $size: '$deviceIds' }, 0] },
+                null,
+                { $arrayElemAt: ['$deviceIds', 0] },
+              ],
             },
           },
         },
