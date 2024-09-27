@@ -80,3 +80,8 @@ export function indexObjectArrayWithKey(arrayOfObjects, key = '_id', to = {}) {
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// Taken from https://stackoverflow.com/a/6969486
+export function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
