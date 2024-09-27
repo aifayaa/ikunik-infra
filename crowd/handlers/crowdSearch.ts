@@ -13,31 +13,6 @@ import {
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 import { z } from 'zod';
 
-const BOOL_TRUE_REGEX = /^(true|yes)$/i;
-
-function coordinatesStrParser(val: any) {
-  if (!val || typeof val !== 'string') return false;
-
-  try {
-    const parsed = JSON.parse(val);
-    if (!parsed || typeof parsed !== 'object') {
-      return false;
-    }
-
-    if (typeof parsed.lat !== 'number' || typeof parsed.lng !== 'number') {
-      return false;
-    }
-
-    if (Object.keys(parsed).length !== 2) {
-      return false;
-    }
-
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 function intStrParser(val: any) {
   if (!val || typeof val !== 'string') return false;
 
@@ -50,6 +25,7 @@ function intStrParser(val: any) {
 
   return true;
 }
+
 function boolStrParser(val: any) {
   if (!val || typeof val !== 'string') return false;
 
@@ -68,18 +44,22 @@ function boolStrParser(val: any) {
 const crowdSearchSchema = z.object({
   articleId: z.string().trim().min(1).optional(),
   username: z.string().trim().min(1).optional(),
+  firstname: z.string().trim().min(1).optional(),
+  lastname: z.string().trim().min(1).optional(),
+  search: z.string().trim().min(1).optional(),
   email: z.string().trim().min(1).optional(),
-  badge: z.string().trim().min(1).optional(),
-  location: z.string().trim().min(1).optional(),
+  badgeId: z.string().trim().min(1).optional(),
 
-  coordinates: z
-    .custom<'{"lat":123,"lng":456}'>(coordinatesStrParser)
-    .optional(),
-  range: z.custom<'123'>(intStrParser).optional(),
+  lat: z.custom<'123'>(intStrParser).optional(),
+  lng: z.custom<'123'>(intStrParser).optional(),
+  radius: z.custom<'123'>(intStrParser).optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),
-  page: z.custom<'123'>(intStrParser).optional(),
-  sortBy: z.enum(['readTime', 'firstAccess', 'location', 'country']).optional(),
+  skip: z.custom<'123'>(intStrParser).optional(),
+
+  sortBy: z
+    .enum(['readTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
@@ -87,17 +67,19 @@ function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
   const ret = {
     articleId: params.articleId ? params.articleId : undefined,
     username: params.username ? params.username : undefined,
+    firstname: params.firstname ? params.firstname : undefined,
+    lastname: params.lastname ? params.lastname : undefined,
+    search: params.search ? params.search : undefined,
     email: params.email ? params.email : undefined,
-    badge: params.badge ? params.badge : undefined,
-    location: params.location ? params.location : undefined,
+    badgeId: params.badgeId ? params.badgeId : undefined,
 
-    coordinates: params.coordinates
-      ? JSON.parse(params.coordinates)
-      : undefined,
-    range: params.range ? parseInt(params.range, 10) : undefined,
+    lat: params.lat ? parseFloat(params.lat) : undefined,
+    lng: params.lng ? parseFloat(params.lng) : undefined,
+    radius: params.radius ? parseInt(params.radius, 10) : undefined,
 
     limit: params.limit ? parseInt(params.limit, 10) : undefined,
-    page: params.page ? parseInt(params.page, 10) : undefined,
+    skip: params.skip ? parseInt(params.skip, 10) : undefined,
+
     sortBy: params.sortBy ? params.sortBy : undefined,
     sortOrder: params.sortOrder ? params.sortOrder : undefined,
   };

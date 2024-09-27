@@ -26,8 +26,8 @@ export default async (appId: string) => {
             appId: { $first: '$appId' },
 
             totalTime: { $sum: '$time' },
-            firstAccess: { $min: '$createdAt' },
-            lastAccess: { $max: '$createdAt' },
+            firstMetricAt: { $min: '$createdAt' },
+            lastMetricAt: { $max: '$createdAt' },
 
             metricsGeo: {
               $push: {

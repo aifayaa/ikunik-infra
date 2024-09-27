@@ -170,6 +170,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    crowdSearch: {
+      handler: 'handlers/crowdSearch.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
