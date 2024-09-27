@@ -9,7 +9,7 @@ export default async (appId: string) => {
   const client = await MongoClient.connect();
 
   try {
-    await client
+    const cursor = await client
       .db()
       .collection(COLL_USER_METRICS)
       .aggregate([
@@ -54,7 +54,7 @@ export default async (appId: string) => {
                 { $arrayElemAt: ['$metricsGeo', -1] },
               ],
             },
-            devieId: {
+            deviceId: {
               $cond: [
                 { $eq: [{ $size: '$deviceIds' }, 0] },
                 null,
@@ -86,6 +86,8 @@ export default async (appId: string) => {
           },
         },
       ]);
+
+    await cursor.next();
   } finally {
     client.close();
   }

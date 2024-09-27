@@ -189,12 +189,11 @@ export default async (appId: string, pathParameters: CrowdSearchParamsType) => {
       .aggregate([
         ...pipeline,
         { $skip: pathParameters.skip || 0 },
-        ,
-        { $limit: pathParameters.limit || 0 },
+        { $limit: pathParameters.limit || 10 },
       ])
       .toArray();
 
-    const [{ total }] = await db
+    const [{ total = 0 } = {}] = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .aggregate([...pipeline, { $count: 'total' }])
       .toArray();

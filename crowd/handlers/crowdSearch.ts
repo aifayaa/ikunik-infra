@@ -114,7 +114,7 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const pathParameters = parseUrlParams(
-      crowdSearchSchema.parse(event.pathParameters)
+      crowdSearchSchema.parse(event.queryStringParameters || {})
     );
 
     const results = await crowdSearch(appId, pathParameters);

@@ -27,6 +27,7 @@ const serverlessConfiguration = {
       restApiResources: {
         '/admin/press':
           '${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}',
+        '/admin': '${cf:admin-${self:provider.stage}.RestApiRootResourceId}',
       },
     },
     region: '${opt:region, "us-east-1"}',
@@ -175,7 +176,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'admin/crowd',
+            path: 'admin/crowd/search',
             method: 'get',
             authorizer: {
               type: 'CUSTOM',
