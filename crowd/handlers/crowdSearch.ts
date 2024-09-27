@@ -26,21 +26,6 @@ function intStrParser(val: any) {
   return true;
 }
 
-function boolStrParser(val: any) {
-  if (!val || typeof val !== 'string') return false;
-
-  try {
-    const parsed = JSON.parse(val);
-    if (!parsed || typeof parsed !== 'boolean') {
-      return false;
-    }
-
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 const crowdSearchSchema = z.object({
   articleId: z.string().trim().min(1).optional(),
   username: z.string().trim().min(1).optional(),

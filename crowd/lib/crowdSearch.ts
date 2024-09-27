@@ -3,6 +3,7 @@ import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import mongoViews from '@libs/mongoViews.json';
 import { escapeRegex } from '@libs/utils';
+import { filterUserPrivateFields } from '@users/lib/usersUtils';
 
 const { COLL_PRESS_ARTICLES } = mongoCollections;
 const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
@@ -29,6 +30,27 @@ type CrowdSearchParamsType = {
 
   sortBy?: 'readTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
+};
+
+type UserMetricReturnedDeviceType = {
+  deviceId: string;
+  firstMetricAt: Date;
+  lastMetricAt: Date;
+  location?: [number, number];
+};
+
+type UserMetricLocationType = {
+  _id: string;
+  appId: string;
+  contentCollection: string;
+  contentId: string;
+  createdAt: Date;
+  deviceId: string;
+  modifiedAt: boolean;
+  trashed: boolean;
+  type: string;
+  userId: string;
+  location: [number, number];
 };
 
 export function buildSearchPipeline(
@@ -184,7 +206,7 @@ export default async (appId: string, pathParameters: CrowdSearchParamsType) => {
         .promise();
     }
 
-    const items = await db
+    const rawItems = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .aggregate([
         ...pipeline,
@@ -197,6 +219,55 @@ export default async (appId: string, pathParameters: CrowdSearchParamsType) => {
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .aggregate([...pipeline, { $count: 'total' }])
       .toArray();
+
+    const items = rawItems.map(({ ...item }) => {
+      if (item.user) {
+        item.user = filterUserPrivateFields(item.user);
+      }
+
+      const hash: Record<string, UserMetricReturnedDeviceType> = {};
+
+      item.metricsGeo.forEach((metric: UserMetricLocationType) => {
+        if (!hash[metric.deviceId]) {
+          hash[metric.deviceId] = {
+            deviceId: metric.deviceId,
+            location: metric.location,
+            firstMetricAt: metric.createdAt,
+            lastMetricAt: metric.createdAt,
+          };
+        } else {
+          if (hash[metric.deviceId].lastMetricAt < metric.createdAt) {
+            hash[metric.deviceId].lastMetricAt = metric.createdAt;
+            hash[metric.deviceId].location = metric.location;
+          } else if (hash[metric.deviceId].firstMetricAt > metric.createdAt) {
+            hash[metric.deviceId].firstMetricAt = metric.createdAt;
+          }
+        }
+      });
+
+      item.metricsTime.forEach((metric: UserMetricLocationType) => {
+        if (!hash[metric.deviceId]) {
+          hash[metric.deviceId] = {
+            deviceId: metric.deviceId,
+            firstMetricAt: metric.createdAt,
+            lastMetricAt: metric.createdAt,
+          };
+        } else {
+          if (hash[metric.deviceId].lastMetricAt < metric.createdAt) {
+            hash[metric.deviceId].lastMetricAt = metric.createdAt;
+          } else if (hash[metric.deviceId].firstMetricAt > metric.createdAt) {
+            hash[metric.deviceId].firstMetricAt = metric.createdAt;
+          }
+        }
+      });
+
+      item.devices = Object.values(hash);
+
+      delete item.metricsGeo;
+      delete item.metricsTime;
+
+      return item;
+    });
 
     return { total, items };
   } finally {
