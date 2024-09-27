@@ -51,7 +51,7 @@ const omitBy = require('lodash/omitBy');
 const isUndefined = require('lodash/isUndefined');
 const { default: MongoClient } = require('./libs/mongoClient');
 const mongoCollections = require('./libs/mongoCollections.json');
-const mongoViews = require('./libs/mongoViews.json');
+// const mongoViews = require('./libs/mongoViews.json');
 const apiServerlessData = require('./api-v1/serverless');
 
 /**
@@ -332,8 +332,8 @@ verbose(
     COLL_USERS,
   } = mongoCollections;
 
-  const { VIEW_USER_METRICS_WITH_USERS, VIEW_USER_METRICS_UUID_AGGREGATED } =
-    mongoViews;
+  // const { VIEW_USER_METRICS_WITH_USERS, VIEW_USER_METRICS_UUID_AGGREGATED } =
+  //   mongoViews;
 
   try {
     const indexSchemas = {
@@ -749,87 +749,26 @@ verbose(
     // All keys here will be prefixed with VIEWS_PREFIX
     // All views are processed in order, to allow views based on other views
     const viewsList = [
-      {
-        name: VIEW_USER_METRICS_WITH_USERS,
-        viewOn: COLL_USER_METRICS,
-        pipeline: [
-          {
-            $lookup: {
-              from: COLL_USERS,
-              localField: 'userId',
-              foreignField: '_id',
-              as: 'user',
-            },
-          },
-          {
-            $unwind: {
-              path: '$user',
-              preserveNullAndEmptyArrays: true,
-            },
-          },
-        ],
-      },
-      {
-        name: VIEW_USER_METRICS_UUID_AGGREGATED,
-        viewOn: COLL_USER_METRICS,
-        pipeline: [
-          {
-            $group: {
-              _id: { $ifNull: ['$userId', '$deviceId'] },
-              deviceId: { $first: '$deviceId' },
-              deviceIds: {
-                $push: {
-                  $cond: [{ $eq: ['$userId', null] }, '$deviceId', '$$REMOVE'],
-                },
-              },
-              userId: { $first: '$userId' },
-              appId: { $first: '$appId' },
-
-              totalTime: { $sum: '$time' },
-              firstAccess: { $min: '$createdAt' },
-              lastAccess: { $max: '$createdAt' },
-
-              metricsGeoLast: {
-                $last: {
-                  $cond: [
-                    { $eq: ['$type', 'geolocation'] },
-                    '$$ROOT',
-                    '$$REMOVE',
-                  ],
-                },
-              },
-              metricsGeo: {
-                $push: {
-                  $cond: [
-                    { $eq: ['$type', 'geolocation'] },
-                    '$$ROOT',
-                    '$$REMOVE',
-                  ],
-                },
-              },
-              metricsTime: {
-                $push: {
-                  $cond: [{ $eq: ['$type', 'time'] }, '$$ROOT', '$$REMOVE'],
-                },
-              },
-            },
-          },
-          {
-            $lookup: {
-              from: COLL_USERS,
-              localField: 'userId',
-              foreignField: '_id',
-              as: 'user',
-            },
-          },
-          {
-            $unwind: {
-              path: '$user',
-              preserveNullAndEmptyArrays: true,
-            },
-          },
-        ],
-      },
+      // {
+      //   name: VIEW_USER_METRICS_WITH_USERS,
+      //   viewOn: COLL_USER_METRICS,
+      //   pipeline: [
+      //     {
+      //       $lookup: {
+      //         from: COLL_USERS,
+      //         localField: 'userId',
+      //         foreignField: '_id',
+      //         as: 'user',
+      //       },
+      //     },
+      //     {
+      //       $unwind: {
+      //         path: '$user',
+      //         preserveNullAndEmptyArrays: true,
+      //       },
+      //     },
+      //   ],
+      // },
     ];
 
     const db = client.db();

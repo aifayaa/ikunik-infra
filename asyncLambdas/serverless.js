@@ -33,6 +33,11 @@ const serverlessConfiguration = {
       vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
+    rebuildUserMetricsView: {
+      handler: 'handlers/rebuildUserMetricsView.default',
+      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
+      timeout: 600,
+    },
   },
   plugins: [
     'serverless-esbuild',
