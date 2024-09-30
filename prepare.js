@@ -51,7 +51,7 @@ const omitBy = require('lodash/omitBy');
 const isUndefined = require('lodash/isUndefined');
 const { default: MongoClient } = require('./libs/mongoClient');
 const mongoCollections = require('./libs/mongoCollections.json');
-// const mongoViews = require('./libs/mongoViews.json');
+const mongoViews = require('./libs/mongoViews.json');
 const apiServerlessData = require('./api-v1/serverless');
 
 /**
@@ -332,7 +332,8 @@ verbose(
     COLL_USERS,
   } = mongoCollections;
 
-  // const { VIEW_USER_METRICS_WITH_USERS, VIEW_USER_METRICS_UUID_AGGREGATED } =
+  const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
+  // const { VIEW_USER_METRICS_WITH_USERS } =
   //   mongoViews;
 
   try {
@@ -602,6 +603,65 @@ verbose(
           key: {
             articleId: 1,
             createdAt: -1,
+          },
+          opts: makeOpts(),
+        },
+      ],
+      [VIEW_USER_METRICS_UUID_AGGREGATED]: [
+        {
+          name: 'location_2dsphere',
+          key: { 'metricsGeoLast.location': '2dsphere' },
+          opts: makeOpts({ background: true, '2dsphereIndexVersion': 3 }),
+        },
+        {
+          name: 'crowdaa_articles_search_text',
+          key: {
+            appId: 1,
+            'user.profile.username': 'text',
+            'user.profile.firstname': 'text',
+            'user.profile.lastname': 'text',
+            'user.profile.email': 'text',
+            'emails.address': 'text',
+          },
+          opts: makeOpts('sparse', {
+            background: true,
+          }),
+        },
+        {
+          name: 'crowdaa_articles_search_fields',
+          key: {
+            appId: 1,
+            'user.profile.username': 1,
+            'user.profile.firstname': 1,
+            'user.profile.lastname': 1,
+            'user.profile.email': 1,
+            'emails.address': 1,
+          },
+          opts: makeOpts('sparse', {
+            background: true,
+          }),
+        },
+        {
+          name: 'crowdaa_userMetrics_search_all1',
+          key: {
+            appId: 1,
+            firstMetricAt: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_userMetrics_search_all2',
+          key: {
+            appId: 1,
+            lastMetricAt: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_userMetrics_search_all3',
+          key: {
+            appId: 1,
+            readTime: 1,
           },
           opts: makeOpts(),
         },
