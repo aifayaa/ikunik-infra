@@ -42,9 +42,9 @@ const crowdSearchSchema = z.object({
   skip: z.custom<'123'>(intStrParser).optional(),
 
   sortBy: z
-    .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
     .optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
+  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
 });
 
 function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
