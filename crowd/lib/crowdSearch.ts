@@ -57,7 +57,7 @@ export function buildSearchPipeline(
   appId: string,
   pathParameters: CrowdSearchParamsType
 ) {
-  const pipeline = [];
+  const pipeline = [] as object[];
   const $match = {
     appId,
   } as Record<string, any>;

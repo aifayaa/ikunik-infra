@@ -12,6 +12,18 @@ import {
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 import { z } from 'zod';
 
+function floatStrParser(val: any) {
+  if (!val || typeof val !== 'string') return false;
+
+  const fval = parseFloat(val);
+
+  if (Number.isNaN(fval)) {
+    return false;
+  }
+
+  return true;
+}
+
 function intStrParser(val: any) {
   if (!val || typeof val !== 'string') return false;
 
@@ -34,9 +46,12 @@ const crowdListGeoSchema = z.object({
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
 
-  lat: z.custom<'123'>(intStrParser),
-  lng: z.custom<'123'>(intStrParser),
+  lat: z.custom<'123'>(floatStrParser),
+  lng: z.custom<'123'>(floatStrParser),
   radius: z.custom<'123'>(intStrParser),
+
+  limit: z.custom<'123'>(intStrParser).optional(),
+  skip: z.custom<'123'>(intStrParser).optional(),
 
   sortBy: z
     .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
@@ -57,6 +72,9 @@ function parseUrlParams(params: z.infer<typeof crowdListGeoSchema>) {
     lat: parseFloat(params.lat),
     lng: parseFloat(params.lng),
     radius: parseInt(params.radius, 10),
+
+    limit: params.limit ? parseInt(params.limit, 10) : undefined,
+    skip: params.skip ? parseInt(params.skip, 10) : undefined,
 
     sortBy: params.sortBy ? params.sortBy : undefined,
     sortOrder: params.sortOrder ? params.sortOrder : undefined,

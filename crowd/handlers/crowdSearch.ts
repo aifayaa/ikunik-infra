@@ -12,6 +12,18 @@ import {
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 import { z } from 'zod';
 
+function floatStrParser(val: any) {
+  if (!val || typeof val !== 'string') return false;
+
+  const fval = parseFloat(val);
+
+  if (Number.isNaN(fval)) {
+    return false;
+  }
+
+  return true;
+}
+
 function intStrParser(val: any) {
   if (!val || typeof val !== 'string') return false;
 
@@ -34,8 +46,8 @@ const crowdSearchSchema = z.object({
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
 
-  lat: z.custom<'123'>(intStrParser).optional(),
-  lng: z.custom<'123'>(intStrParser).optional(),
+  lat: z.custom<'123'>(floatStrParser).optional(),
+  lng: z.custom<'123'>(floatStrParser).optional(),
   radius: z.custom<'123'>(intStrParser).optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),

@@ -26,6 +26,9 @@ type CrowdListGeoParamsType = {
   lng?: number;
   radius?: number;
 
+  limit?: number;
+  skip?: number;
+
   sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
 };
@@ -82,6 +85,14 @@ export default async (
           }),
         })
         .promise();
+    }
+
+    if (pathParameters.skip) {
+      pipeline.push({ $skip: pathParameters.skip });
+    }
+
+    if (pathParameters.limit) {
+      pipeline.push({ $limit: pathParameters.limit });
     }
 
     const features = await db
