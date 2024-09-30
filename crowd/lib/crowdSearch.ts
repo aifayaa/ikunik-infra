@@ -20,6 +20,7 @@ type CrowdSearchParamsType = {
   search?: string;
   email?: string;
   badgeId?: string;
+  type?: 'user' | 'device';
 
   lat?: number;
   lng?: number;
@@ -55,71 +56,80 @@ type UserMetricLocationType = {
 
 export function buildSearchPipeline(
   appId: string,
-  pathParameters: CrowdSearchParamsType
+  filters: CrowdSearchParamsType
 ) {
   const pipeline = [] as object[];
   const $match = {
     appId,
   } as Record<string, any>;
 
-  if (pathParameters.lat && pathParameters.lng && pathParameters.radius) {
+  if (filters.lat && filters.lng && filters.radius) {
     // $geoNear Must be the first item in the query
     pipeline.unshift({
       $geoNear: {
         near: {
           type: 'Point',
-          coordinates: [pathParameters.lng, pathParameters.lat],
+          coordinates: [filters.lng, filters.lat],
         },
         distanceField: 'geoDistance',
         includeLocs: 'geoCoordinates',
         spherical: true,
-        maxDistance: pathParameters.radius,
+        maxDistance: filters.radius,
       },
     });
   }
 
-  if (pathParameters.search) {
-    $match.$text = { $search: pathParameters.search };
+  if (filters.search) {
+    $match.$text = { $search: filters.search };
   }
-  if (pathParameters.username) {
+  if (filters.type) {
+    if (filters.type === 'user') {
+      $match['userId'] = {
+        $ne: null,
+      };
+    } else {
+      $match['userId'] = null;
+    }
+  }
+  if (filters.username) {
     $match['user.profile.username'] = {
-      $regex: escapeRegex(pathParameters.username),
+      $regex: escapeRegex(filters.username),
     };
   }
-  if (pathParameters.firstname) {
+  if (filters.firstname) {
     $match['user.profile.firstname'] = {
-      $regex: escapeRegex(pathParameters.firstname),
+      $regex: escapeRegex(filters.firstname),
     };
   }
-  if (pathParameters.lastname) {
+  if (filters.lastname) {
     $match['user.profile.lastname'] = {
-      $regex: escapeRegex(pathParameters.lastname),
+      $regex: escapeRegex(filters.lastname),
     };
   }
 
-  if (pathParameters.badgeId) {
-    $match['user.badge.id'] = pathParameters.badgeId;
+  if (filters.badgeId) {
+    $match['user.badge.id'] = filters.badgeId;
   }
 
-  if (pathParameters.articleId) {
+  if (filters.articleId) {
     $match.metricsTime = {
       $elemMatch: {
         contentCollection: COLL_PRESS_ARTICLES,
-        contentId: pathParameters.articleId,
+        contentId: filters.articleId,
       },
     };
   }
 
-  if (pathParameters.email) {
+  if (filters.email) {
     $match.$or = [
       {
         'user.profile.email': {
-          $regex: escapeRegex(pathParameters.email),
+          $regex: escapeRegex(filters.email),
         },
       },
       {
         'emails.address': {
-          $regex: escapeRegex(pathParameters.email),
+          $regex: escapeRegex(filters.email),
         },
       },
     ];
@@ -127,7 +137,7 @@ export function buildSearchPipeline(
 
   pipeline.push({ $match });
 
-  if (pathParameters.articleId) {
+  if (filters.articleId) {
     pipeline.push(
       {
         $addFields: {
@@ -135,7 +145,7 @@ export function buildSearchPipeline(
             $filter: {
               input: '$metricsTime',
               as: 'item',
-              cond: { $eq: ['$$item.articleId', pathParameters.articleId] },
+              cond: { $eq: ['$$item.articleId', filters.articleId] },
             },
           },
         },
@@ -154,21 +164,21 @@ export function buildSearchPipeline(
     );
   }
 
-  if (pathParameters.sortBy) {
-    if (pathParameters.sortBy === 'distance') {
+  if (filters.sortBy) {
+    if (filters.sortBy === 'distance') {
       /* Shall be already sorted if geoloction is enabled */
-    } else if (pathParameters.sortBy === 'firstMetricAt') {
+    } else if (filters.sortBy === 'firstMetricAt') {
       pipeline.push({
-        $sort: { firstMetricAt: pathParameters.sortOrder === 'asc' ? 1 : -1 },
+        $sort: { firstMetricAt: filters.sortOrder === 'asc' ? 1 : -1 },
       });
-    } else if (pathParameters.sortBy === 'lastMetricAt') {
+    } else if (filters.sortBy === 'lastMetricAt') {
       pipeline.push({
-        $sort: { lastMetricAt: pathParameters.sortOrder === 'asc' ? 1 : -1 },
+        $sort: { lastMetricAt: filters.sortOrder === 'asc' ? 1 : -1 },
       });
     } else {
-      /* if (pathParameters.sortBy === 'readingTime') { */
+      /* if (filters.sortBy === 'readingTime') { */
       pipeline.push({
-        $sort: { readingTime: pathParameters.sortOrder === 'asc' ? 1 : -1 },
+        $sort: { readingTime: filters.sortOrder === 'asc' ? 1 : -1 },
       });
     }
   }
@@ -176,11 +186,11 @@ export function buildSearchPipeline(
   return pipeline;
 }
 
-export default async (appId: string, pathParameters: CrowdSearchParamsType) => {
+export default async (appId: string, filters: CrowdSearchParamsType) => {
   const client = await MongoClient.connect();
   const db = client.db();
   try {
-    const pipeline = buildSearchPipeline(appId, pathParameters);
+    const pipeline = buildSearchPipeline(appId, filters);
 
     const firstItem = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
@@ -210,8 +220,8 @@ export default async (appId: string, pathParameters: CrowdSearchParamsType) => {
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .aggregate([
         ...pipeline,
-        { $skip: pathParameters.skip || 0 },
-        { $limit: pathParameters.limit || 10 },
+        { $skip: filters.skip || 0 },
+        { $limit: filters.limit || 10 },
       ])
       .toArray();
 
