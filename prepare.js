@@ -661,7 +661,7 @@ verbose(
           name: 'crowdaa_userMetrics_search_all3',
           key: {
             appId: 1,
-            readTime: 1,
+            readingTime: 1,
           },
           opts: makeOpts(),
         },

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import response, { handleException } from '../../libs/httpResponses/response';
-import crowdSearch from '../lib/crowdSearch';
+import crowdListGeo from '../lib/crowdListGeo';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
@@ -25,7 +25,7 @@ function intStrParser(val: any) {
   return true;
 }
 
-const crowdSearchSchema = z.object({
+const crowdListGeoSchema = z.object({
   articleId: z.string().trim().optional(),
   username: z.string().trim().optional(),
   firstname: z.string().trim().optional(),
@@ -34,12 +34,9 @@ const crowdSearchSchema = z.object({
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
 
-  lat: z.custom<'123'>(intStrParser).optional(),
-  lng: z.custom<'123'>(intStrParser).optional(),
-  radius: z.custom<'123'>(intStrParser).optional(),
-
-  limit: z.custom<'123'>(intStrParser).optional(),
-  skip: z.custom<'123'>(intStrParser).optional(),
+  lat: z.custom<'123'>(intStrParser),
+  lng: z.custom<'123'>(intStrParser),
+  radius: z.custom<'123'>(intStrParser),
 
   sortBy: z
     .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
@@ -47,7 +44,7 @@ const crowdSearchSchema = z.object({
   sortOrder: z.enum(['', 'asc', 'desc']).optional(),
 });
 
-function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
+function parseUrlParams(params: z.infer<typeof crowdListGeoSchema>) {
   const ret = {
     articleId: params.articleId ? params.articleId : undefined,
     username: params.username ? params.username : undefined,
@@ -57,12 +54,9 @@ function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    lat: params.lat ? parseFloat(params.lat) : undefined,
-    lng: params.lng ? parseFloat(params.lng) : undefined,
-    radius: params.radius ? parseInt(params.radius, 10) : undefined,
-
-    limit: params.limit ? parseInt(params.limit, 10) : undefined,
-    skip: params.skip ? parseInt(params.skip, 10) : undefined,
+    lat: parseFloat(params.lat),
+    lng: parseFloat(params.lng),
+    radius: parseInt(params.radius, 10),
 
     sortBy: params.sortBy ? params.sortBy : undefined,
     sortOrder: params.sortOrder ? params.sortOrder : undefined,
@@ -98,10 +92,10 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const pathParameters = parseUrlParams(
-      crowdSearchSchema.parse(event.queryStringParameters || {})
+      crowdListGeoSchema.parse(event.queryStringParameters || {})
     );
 
-    const results = await crowdSearch(appId, pathParameters);
+    const results = await crowdListGeo(appId, pathParameters);
 
     return response({
       code: 200,

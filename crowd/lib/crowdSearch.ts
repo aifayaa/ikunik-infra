@@ -28,7 +28,7 @@ type CrowdSearchParamsType = {
   limit?: number;
   skip?: number;
 
-  sortBy?: 'readTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
+  sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
 };
 
@@ -142,11 +142,11 @@ export function buildSearchPipeline(
       },
       {
         $addFields: {
-          readTime: {
+          readingTime: {
             $reduce: {
               input: '$metricsTime',
               initialValue: 0,
-              in: { $add: ['$$readTime', '$$this.timeDuration'] },
+              in: { $add: ['$$readingTime', '$$this.timeDuration'] },
             },
           },
         },
@@ -166,9 +166,9 @@ export function buildSearchPipeline(
         $sort: { lastMetricAt: pathParameters.sortOrder === 'asc' ? 1 : -1 },
       });
     } else {
-      /* if (pathParameters.sortBy === 'readTime') { */
+      /* if (pathParameters.sortBy === 'readingTime') { */
       pipeline.push({
-        $sort: { readTime: pathParameters.sortOrder === 'asc' ? 1 : -1 },
+        $sort: { readingTime: pathParameters.sortOrder === 'asc' ? 1 : -1 },
       });
     }
   }
