@@ -195,6 +195,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    crowdListGeo: {
+      handler: 'handlers/crowdListGeo.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd/geo',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
