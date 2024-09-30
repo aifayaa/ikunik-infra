@@ -13,7 +13,7 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-type CrowdListGeoParamsType = {
+type CrowdSearchGeoJSONParamsType = {
   articleId?: string;
   username?: string;
   firstname?: string;
@@ -33,30 +33,9 @@ type CrowdListGeoParamsType = {
   sortOrder?: 'asc' | 'desc';
 };
 
-type UserMetricReturnedDeviceType = {
-  deviceId: string;
-  firstMetricAt: Date;
-  lastMetricAt: Date;
-  location?: [number, number];
-};
-
-type UserMetricLocationType = {
-  _id: string;
-  appId: string;
-  contentCollection: string;
-  contentId: string;
-  createdAt: Date;
-  deviceId: string;
-  modifiedAt: boolean;
-  trashed: boolean;
-  type: string;
-  userId: string;
-  location: [number, number];
-};
-
 export default async (
   appId: string,
-  pathParameters: CrowdListGeoParamsType
+  pathParameters: CrowdSearchGeoJSONParamsType
 ) => {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -95,23 +74,25 @@ export default async (
       pipeline.push({ $limit: pathParameters.limit });
     }
 
+    pipeline.push({
+      $project: {
+        type: { $literal: 'Feature' },
+
+        'properties._id': '$metricsGeoLast._id',
+
+        'properties.userId': '$userId',
+        'properties.deviceId': '$deviceId',
+        'properties.geoDistance': '$geoDistance',
+        'properties.geoCoordinates': '$geoCoordinates',
+
+        'geometry.type': { $literal: 'Point' },
+        'geometry.coordinates': '$metricsGeoLast.location',
+      },
+    });
+
     const features = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
-      .aggregate([
-        ...pipeline,
-        {
-          $projection: {
-            userId: 1,
-            deviceId: 1,
-            geoDistance: 1,
-            geoCoordinates: 1,
-            'metricsGeoLast._id': 1,
-            'metricsGeoLast.location': 1,
-            'metricsGeo._id': 1,
-            'metricsGeo.location': 1,
-          },
-        },
-      ])
+      .aggregate(pipeline)
       .toArray();
 
     // Returning a GeoJSON

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import response, { handleException } from '../../libs/httpResponses/response';
-import crowdListGeo from '../lib/crowdListGeo';
+import crowdSearchGeoJSON from '../lib/crowdSearchGeoJSON';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
@@ -37,7 +37,7 @@ function intStrParser(val: any) {
   return true;
 }
 
-const crowdListGeoSchema = z.object({
+const crowdSearchGeoJSONSchema = z.object({
   articleId: z.string().trim().optional(),
   username: z.string().trim().optional(),
   firstname: z.string().trim().optional(),
@@ -59,7 +59,7 @@ const crowdListGeoSchema = z.object({
   sortOrder: z.enum(['', 'asc', 'desc']).optional(),
 });
 
-function parseUrlParams(params: z.infer<typeof crowdListGeoSchema>) {
+function parseUrlParams(params: z.infer<typeof crowdSearchGeoJSONSchema>) {
   const ret = {
     articleId: params.articleId ? params.articleId : undefined,
     username: params.username ? params.username : undefined,
@@ -110,10 +110,10 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const pathParameters = parseUrlParams(
-      crowdListGeoSchema.parse(event.queryStringParameters || {})
+      crowdSearchGeoJSONSchema.parse(event.queryStringParameters || {})
     );
 
-    const results = await crowdListGeo(appId, pathParameters);
+    const results = await crowdSearchGeoJSON(appId, pathParameters);
 
     return response({
       code: 200,
