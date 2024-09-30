@@ -45,7 +45,7 @@ const crowdSearchSchema = z.object({
   search: z.string().trim().optional(),
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
-  only: z.enum(['', 'users', 'devices']).optional(),
+  type: z.enum(['', 'user', 'device']).optional(),
 
   lat: z.custom<'123'>(floatStrParser).optional(),
   lng: z.custom<'123'>(floatStrParser).optional(),
@@ -69,7 +69,7 @@ function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
     search: params.search ? params.search : undefined,
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
-    only: params.only ? params.only : undefined,
+    type: params.type ? params.type : undefined,
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,

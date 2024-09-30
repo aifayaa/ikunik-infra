@@ -21,7 +21,7 @@ type CrowdSearchGeoJSONParamsType = {
   search?: string;
   email?: string;
   badgeId?: string;
-  only?: 'users' | 'devices';
+  type?: 'user' | 'device';
 
   lat: number;
   lng: number;

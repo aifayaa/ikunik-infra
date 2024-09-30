@@ -20,7 +20,7 @@ type CrowdSearchParamsType = {
   search?: string;
   email?: string;
   badgeId?: string;
-  only?: 'users' | 'devices';
+  type?: 'user' | 'device';
 
   lat?: number;
   lng?: number;
@@ -82,8 +82,8 @@ export function buildSearchPipeline(
   if (filters.search) {
     $match.$text = { $search: filters.search };
   }
-  if (filters.only) {
-    if (filters.only === 'users') {
+  if (filters.type) {
+    if (filters.type === 'user') {
       $match['userId'] = {
         $ne: null,
       };
