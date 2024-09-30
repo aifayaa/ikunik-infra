@@ -195,12 +195,12 @@ const serverlessConfiguration = {
         },
       ],
     },
-    crowdListGeo: {
-      handler: 'handlers/crowdListGeo.default',
+    crowdSearchGeoJSON: {
+      handler: 'handlers/crowdSearchGeoJSON.default',
       events: [
         {
           http: {
-            path: 'admin/crowd/geo',
+            path: 'admin/crowd/search.geojson',
             method: 'get',
             authorizer: {
               type: 'CUSTOM',
