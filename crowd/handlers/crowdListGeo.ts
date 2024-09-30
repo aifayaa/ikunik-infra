@@ -39,7 +39,7 @@ const crowdListGeoSchema = z.object({
   radius: z.custom<'123'>(intStrParser),
 
   sortBy: z
-    .enum(['readTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
     .optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });

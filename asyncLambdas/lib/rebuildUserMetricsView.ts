@@ -25,7 +25,8 @@ export default async (appId: string) => {
             userId: { $first: '$userId' },
             appId: { $first: '$appId' },
 
-            totalTime: { $sum: '$time' },
+            readingTime: { $sum: '$time' },
+            totalReadingTime: { $sum: '$time' },
             firstMetricAt: { $min: '$createdAt' },
             lastMetricAt: { $max: '$createdAt' },
 

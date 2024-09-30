@@ -1,6 +1,5 @@
 /* eslint-disable import/no-relative-packages */
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import buildPressPipeline from '../lib/pipelines/pressPipeline.js';
 import response, { handleException } from '../../libs/httpResponses/response';
 import crowdSearch from '../lib/crowdSearch';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
@@ -27,13 +26,13 @@ function intStrParser(val: any) {
 }
 
 const crowdSearchSchema = z.object({
-  articleId: z.string().trim().min(1).optional(),
-  username: z.string().trim().min(1).optional(),
-  firstname: z.string().trim().min(1).optional(),
-  lastname: z.string().trim().min(1).optional(),
-  search: z.string().trim().min(1).optional(),
-  email: z.string().trim().min(1).optional(),
-  badgeId: z.string().trim().min(1).optional(),
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
 
   lat: z.custom<'123'>(intStrParser).optional(),
   lng: z.custom<'123'>(intStrParser).optional(),
@@ -43,7 +42,7 @@ const crowdSearchSchema = z.object({
   skip: z.custom<'123'>(intStrParser).optional(),
 
   sortBy: z
-    .enum(['readTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
     .optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });

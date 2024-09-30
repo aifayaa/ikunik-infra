@@ -26,7 +26,7 @@ type CrowdListGeoParamsType = {
   lng?: number;
   radius?: number;
 
-  sortBy?: 'readTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
+  sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
 };
 
