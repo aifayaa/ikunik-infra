@@ -28,7 +28,7 @@ export default async (appId: string, userId: string, deviceId: string) => {
         .db()
         .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
         .insertOne({
-          _id: userId,
+          _id: `user-${userId}`,
           appId,
           userId,
           type: 'user',
@@ -43,7 +43,29 @@ export default async (appId: string, userId: string, deviceId: string) => {
           metricsTime: [],
 
           metricsGeoLast: null,
+
+          user,
+        });
+
+      await client
+        .db()
+        .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
+        .insertOne({
+          _id: `user-${userId}-${deviceId}`,
+          appId,
+          userId,
           deviceId,
+          type: 'userDevice',
+
+          readingTime: 0,
+          totalReadingTime: 0,
+          firstMetricAt: new Date(),
+          lastMetricAt: new Date(),
+
+          metricsGeo: [],
+          metricsTime: [],
+
+          metricsGeoLast: null,
 
           user,
         });
@@ -56,11 +78,29 @@ export default async (appId: string, userId: string, deviceId: string) => {
           .db()
           .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
           .deleteMany({
-            _id: { $in: deviceIds },
+            appId,
             type: 'device',
+            deviceId: { $in: deviceIds },
           });
       }
     }
+
+    await client
+      .db()
+      .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
+      .updateMany(
+        {
+          appId,
+          userId,
+          metricsGeo: { $size: 0 },
+          metricsTime: { $size: 0 },
+        },
+        {
+          $set: {
+            user,
+          },
+        }
+      );
   } finally {
     client.close();
   }
