@@ -36,14 +36,11 @@ type CrowdSearchGeoJSONParamsType = {
   sortOrder?: 'asc' | 'desc';
 };
 
-export default async (
-  appId: string,
-  pathParameters: CrowdSearchGeoJSONParamsType
-) => {
+export default async (appId: string, filters: CrowdSearchGeoJSONParamsType) => {
   const client = await MongoClient.connect();
   const db = client.db();
   try {
-    const pipeline = buildSearchPipeline(appId, pathParameters);
+    const pipeline = buildSearchPipeline(appId, filters);
 
     const firstItem = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
@@ -69,12 +66,12 @@ export default async (
         .promise();
     }
 
-    if (pathParameters.skip) {
-      pipeline.push({ $skip: pathParameters.skip });
+    if (filters.skip) {
+      pipeline.push({ $skip: filters.skip });
     }
 
-    if (pathParameters.limit) {
-      pipeline.push({ $limit: pathParameters.limit });
+    if (filters.limit) {
+      pipeline.push({ $limit: filters.limit });
     }
 
     pipeline.push({
