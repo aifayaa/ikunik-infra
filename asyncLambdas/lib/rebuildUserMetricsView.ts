@@ -19,13 +19,11 @@ export default async (appId: string) => {
             _id: { $ifNull: ['$userId', '$deviceId'] },
 
             type: {
-              $cond: [{ $eq: ['$userId', null] }, 'device', 'user'],
+              $first: { $cond: [{ $eq: ['$userId', null] }, 'device', 'user'] },
             },
 
             deviceIds: {
-              $addToSet: {
-                $cond: [{ $ne: ['$deviceId', null] }, '$deviceId', '$$REMOVE'],
-              },
+              $addToSet: '$deviceId',
             },
             userId: { $first: '$userId' },
             appId: { $first: '$appId' },
