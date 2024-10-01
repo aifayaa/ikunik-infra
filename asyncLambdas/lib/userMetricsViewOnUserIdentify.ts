@@ -32,7 +32,7 @@ export default async (appId: string, userId: string, deviceId: string) => {
           appId,
           userId,
           type: 'user',
-          deviceIds: [],
+          deviceIds: [deviceId],
 
           readingTime: 0,
           totalReadingTime: 0,
@@ -43,7 +43,7 @@ export default async (appId: string, userId: string, deviceId: string) => {
           metricsTime: [],
 
           metricsGeoLast: null,
-          deviceId: null,
+          deviceId,
 
           user,
         });
