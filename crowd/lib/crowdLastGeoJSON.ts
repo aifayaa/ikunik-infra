@@ -38,19 +38,19 @@ export default async (appId: string, filters: CrowdSearchGeoJSONParamsType) => {
       });
     }
 
-    if (!filters)
-      pipeline.push({
-        $project: {
-          type: 'Feature',
+    pipeline.push({
+      $project: {
+        _id: false,
+        type: 'Feature',
 
-          'properties._id': '$_id',
-          'properties.userId': '$userId',
-          'properties.deviceId': '$deviceId',
+        'properties._id': '$_id',
+        'properties.userId': '$userId',
+        'properties.deviceId': '$deviceId',
 
-          'geometry.type': 'Point',
-          'geometry.coordinates': '$location',
-        },
-      });
+        'geometry.type': 'Point',
+        'geometry.coordinates': '$location',
+      },
+    });
 
     const features = await db
       .collection(COLL_USER_METRICS)
