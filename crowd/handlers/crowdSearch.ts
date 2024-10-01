@@ -60,7 +60,15 @@ const crowdSearchSchema = z.object({
   sortOrder: z.enum(['', 'asc', 'desc']).optional(),
 });
 
-function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
+const crowdSearchMultiSchema = z.object({
+  userId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+});
+
+function parseUrlParams(
+  params: z.infer<typeof crowdSearchSchema>,
+  multiParams: z.infer<typeof crowdSearchMultiSchema>
+) {
   const ret = {
     articleId: params.articleId ? params.articleId : undefined,
     username: params.username ? params.username : undefined,
@@ -70,6 +78,12 @@ function parseUrlParams(params: z.infer<typeof crowdSearchSchema>) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
     type: params.type ? params.type : undefined,
+    userId:
+      (multiParams.userId || []).length > 0 ? multiParams.userId : undefined,
+    deviceId:
+      (multiParams.deviceId || []).length > 0
+        ? multiParams.deviceId
+        : undefined,
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
@@ -112,7 +126,8 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const pathParameters = parseUrlParams(
-      crowdSearchSchema.parse(event.queryStringParameters || {})
+      crowdSearchSchema.parse(event.queryStringParameters || {}),
+      crowdSearchMultiSchema.parse(event.multiValueQueryStringParameters || {})
     );
 
     const results = await crowdSearch(appId, pathParameters);
