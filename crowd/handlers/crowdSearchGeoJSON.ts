@@ -45,7 +45,7 @@ const crowdSearchGeoJSONSchema = z.object({
   search: z.string().trim().optional(),
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
-  type: z.enum(['', 'user', 'device']).optional(),
+  type: z.enum(['', 'user', 'device', 'userDevice']).optional(),
 
   lat: z.custom<'123'>(floatStrParser).optional(),
   lng: z.custom<'123'>(floatStrParser).optional(),

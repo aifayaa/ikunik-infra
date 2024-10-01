@@ -21,7 +21,7 @@ type CrowdSearchGeoJSONParamsType = {
   search?: string;
   email?: string;
   badgeId?: string;
-  type?: 'user' | 'device';
+  type?: 'user' | 'device' | 'userDevice';
   userId?: string[];
   deviceId?: string[];
 
@@ -76,6 +76,7 @@ export default async (appId: string, filters: CrowdSearchGeoJSONParamsType) => {
 
     pipeline.push({
       $project: {
+        _id: false,
         type: 'Feature',
 
         'properties._id': '$metricsGeoLast._id',

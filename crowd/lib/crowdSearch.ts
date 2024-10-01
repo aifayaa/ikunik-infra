@@ -20,7 +20,7 @@ type CrowdSearchParamsType = {
   search?: string;
   email?: string;
   badgeId?: string;
-  type?: 'user' | 'device';
+  type?: 'user' | 'device' | 'userDevice';
   userId?: string[];
   deviceId?: string[];
 
@@ -164,7 +164,7 @@ export function buildSearchPipeline(
             $reduce: {
               input: '$metricsTime',
               initialValue: 0,
-              in: { $add: ['$$readingTime', '$$this.timeDuration'] },
+              in: { $add: ['$$readingTime', '$$this.time'] },
             },
           },
         },
