@@ -21,6 +21,8 @@ type CrowdSearchParamsType = {
   email?: string;
   badgeId?: string;
   type?: 'user' | 'device';
+  userId?: string[];
+  deviceId?: string[];
 
   lat?: number;
   lng?: number;
@@ -79,6 +81,12 @@ export function buildSearchPipeline(
     });
   }
 
+  if (filters.userId) {
+    $match.userId = { $in: filters.userId };
+  }
+  if (filters.deviceId) {
+    $match.deviceId = { $in: filters.deviceId };
+  }
   if (filters.search) {
     $match.$text = { $search: filters.search };
   }

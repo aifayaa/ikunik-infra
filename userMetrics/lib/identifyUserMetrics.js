@@ -1,6 +1,11 @@
 /* eslint-disable import/no-relative-packages */
+import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
 
 const { COLL_PUSH_NOTIFICATIONS, COLL_USER_METRICS } = mongoCollections;
 
@@ -29,6 +34,17 @@ export default async (appId, userId, deviceId) => {
           { $set: { userId, modifiedAt: new Date() } }
         ),
     ]);
+
+    await lambda
+      .invokeAsync({
+        FunctionName: `asyncLambdas-${process.env.STAGE}-userMetricsViewOnUserIdentify`,
+        InvokeArgs: JSON.stringify({
+          appId,
+          userId,
+          deviceId,
+        }),
+      })
+      .promise();
 
     return {
       pushNotificationsResults,

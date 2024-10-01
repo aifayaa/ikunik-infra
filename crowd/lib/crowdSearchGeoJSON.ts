@@ -22,10 +22,12 @@ type CrowdSearchGeoJSONParamsType = {
   email?: string;
   badgeId?: string;
   type?: 'user' | 'device';
+  userId?: string[];
+  deviceId?: string[];
 
-  lat: number;
-  lng: number;
-  radius: number;
+  lat?: number;
+  lng?: number;
+  radius?: number;
 
   limit?: number;
   skip?: number;
@@ -77,16 +79,16 @@ export default async (
 
     pipeline.push({
       $project: {
-        type: { $literal: 'Feature' },
+        type: 'Feature',
 
         'properties._id': '$metricsGeoLast._id',
 
         'properties.userId': '$userId',
         'properties.deviceId': '$deviceId',
-        'properties.geoDistance': '$geoDistance',
-        'properties.geoCoordinates': '$geoCoordinates',
+        // 'properties.geoDistance': '$geoDistance',
+        // 'properties.geoCoordinates': '$geoCoordinates',
 
-        'geometry.type': { $literal: 'Point' },
+        'geometry.type': 'Point',
         'geometry.coordinates': '$metricsGeoLast.location',
       },
     });

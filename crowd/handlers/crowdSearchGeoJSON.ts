@@ -47,9 +47,9 @@ const crowdSearchGeoJSONSchema = z.object({
   badgeId: z.string().trim().optional(),
   type: z.enum(['', 'user', 'device']).optional(),
 
-  lat: z.custom<'123'>(floatStrParser),
-  lng: z.custom<'123'>(floatStrParser),
-  radius: z.custom<'123'>(intStrParser),
+  lat: z.custom<'123'>(floatStrParser).optional(),
+  lng: z.custom<'123'>(floatStrParser).optional(),
+  radius: z.custom<'123'>(intStrParser).optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),
   skip: z.custom<'123'>(intStrParser).optional(),
@@ -60,7 +60,15 @@ const crowdSearchGeoJSONSchema = z.object({
   sortOrder: z.enum(['', 'asc', 'desc']).optional(),
 });
 
-function parseUrlParams(params: z.infer<typeof crowdSearchGeoJSONSchema>) {
+const crowdSearchGeoJSONMultiSchema = z.object({
+  userId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+});
+
+function parseUrlParams(
+  params: z.infer<typeof crowdSearchGeoJSONSchema>,
+  multiParams: z.infer<typeof crowdSearchGeoJSONMultiSchema>
+) {
   const ret = {
     articleId: params.articleId ? params.articleId : undefined,
     username: params.username ? params.username : undefined,
@@ -70,10 +78,16 @@ function parseUrlParams(params: z.infer<typeof crowdSearchGeoJSONSchema>) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
     type: params.type ? params.type : undefined,
+    userId:
+      (multiParams.userId || []).length > 0 ? multiParams.userId : undefined,
+    deviceId:
+      (multiParams.deviceId || []).length > 0
+        ? multiParams.deviceId
+        : undefined,
 
-    lat: parseFloat(params.lat),
-    lng: parseFloat(params.lng),
-    radius: parseInt(params.radius, 10),
+    lat: params.lat ? parseFloat(params.lat) : undefined,
+    lng: params.lng ? parseFloat(params.lng) : undefined,
+    radius: params.radius ? parseInt(params.radius, 10) : undefined,
 
     limit: params.limit ? parseInt(params.limit, 10) : undefined,
     skip: params.skip ? parseInt(params.skip, 10) : undefined,
@@ -112,7 +126,10 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const pathParameters = parseUrlParams(
-      crowdSearchGeoJSONSchema.parse(event.queryStringParameters || {})
+      crowdSearchGeoJSONSchema.parse(event.queryStringParameters || {}),
+      crowdSearchGeoJSONMultiSchema.parse(
+        event.multiValueQueryStringParameters || {}
+      )
     );
 
     const results = await crowdSearchGeoJSON(appId, pathParameters);
