@@ -219,6 +219,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    crowdLastGeoJSON: {
+      handler: 'handlers/crowdLastGeoJSON.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd/last.geojson',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
