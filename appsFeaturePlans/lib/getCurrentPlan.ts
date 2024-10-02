@@ -430,7 +430,8 @@ async function computeFeaturePlan(
     ...plan.features,
     ...(app.featurePlan?.features || {}),
   };
-  const startedAt = app.featurePlan?.startedAt || app.createdAt;
+  const startedAt =
+    app.featurePlan?.startedAt || app.createdAt || new Date(2020, 0, 2);
 
   const computedFeatures: Partial<
     Record<FeatureIdType, ComputedFeatureSpecificationType>
