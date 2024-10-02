@@ -110,8 +110,8 @@ export default async (bucket, object, file) => {
     throw new Error('missing_id');
   }
 
+  const collection = getCollectionFromContentType(type);
   try {
-    const collection = getCollectionFromContentType(type);
     const document = await client.db().collection(collection).findOne({
       _id: id,
     });
@@ -184,6 +184,16 @@ export default async (bucket, object, file) => {
       .db()
       .collection(collection)
       .updateOne({ _id: document._id }, { $set: pictureDoc });
+  } catch (e) {
+    await client
+      .db()
+      .collection(collection)
+      .updateOne(
+        { _id: id },
+        { $set: { status: uploadStatus.ENCODING_ERROR } }
+      );
+
+    throw e;
   } finally {
     client.close();
   }
