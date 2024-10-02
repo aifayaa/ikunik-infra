@@ -58,6 +58,7 @@ export default async (appId, allSettings = false) => {
             ),
           },
         },
+        googleAnalytics: objGet(application, 'settings.googleAnalytics', {}),
         oauth,
       },
       builds: {},
