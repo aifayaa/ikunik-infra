@@ -19,9 +19,9 @@ export async function getAppActiveUsers(
     const db = client.db();
 
     const planDate =
-      app.featurePlan && app.featurePlan.startedAt
-        ? app.featurePlan.startedAt
-        : app.createdAt;
+      (app.featurePlan && app.featurePlan.startedAt) ||
+      app.createdAt ||
+      new Date(2020, 0, 2);
     const targetDate = new Date(now);
     if (period !== 0) {
       targetDate.setTime(planDate.getTime()); // Copy the plan date
