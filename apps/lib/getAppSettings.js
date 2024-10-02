@@ -58,13 +58,11 @@ export default async (appId, allSettings = false) => {
             ),
           },
         },
+        googleAnalytics: objGet(application, 'settings.googleAnalytics', {}),
         oauth,
       },
       builds: {},
       public: application.public || {},
-      credentials: {
-        googleAnalytics: objGet(application, 'credentials.googleAnalytics', {}),
-      },
     };
 
     if (application.builds && application.builds.preview) {
