@@ -29,7 +29,9 @@ function uploadPngHttps(fileStream, fileSize, url) {
     };
     const req = https.request(url, options, (res) => {
       res.on('error', reject);
-      res.on('data', () => {});
+      res.on('data', () => {
+        /* do nothing */
+      });
       res.on('end', resolve);
     });
 
@@ -106,6 +108,7 @@ export default async (inputUsername, inputPassword, appId) => {
 
     let newUser = false;
     let user = await client.db().collection(COLL_USERS).findOne({
+      appId,
       username,
     });
 
