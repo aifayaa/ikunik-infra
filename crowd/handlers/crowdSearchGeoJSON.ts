@@ -11,93 +11,7 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 import { z } from 'zod';
-
-function floatStrParser(val: any) {
-  if (!val || typeof val !== 'string') return false;
-
-  const fval = parseFloat(val);
-
-  if (Number.isNaN(fval)) {
-    return false;
-  }
-
-  return true;
-}
-
-function intStrParser(val: any) {
-  if (!val || typeof val !== 'string') return false;
-
-  const fval = parseFloat(val);
-  const ival = parseInt(val);
-
-  if (fval !== ival || Number.isNaN(ival)) {
-    return false;
-  }
-
-  return true;
-}
-
-const crowdSearchGeoJSONSchema = z.object({
-  articleId: z.string().trim().optional(),
-  username: z.string().trim().optional(),
-  firstname: z.string().trim().optional(),
-  lastname: z.string().trim().optional(),
-  search: z.string().trim().optional(),
-  email: z.string().trim().optional(),
-  badgeId: z.string().trim().optional(),
-  type: z.enum(['', 'user', 'device', 'userDevice']).optional(),
-
-  lat: z.custom<'123'>(floatStrParser).optional(),
-  lng: z.custom<'123'>(floatStrParser).optional(),
-  radius: z.custom<'123'>(intStrParser).optional(),
-
-  limit: z.custom<'123'>(intStrParser).optional(),
-  skip: z.custom<'123'>(intStrParser).optional(),
-
-  sortBy: z
-    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-    .optional(),
-  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
-});
-
-const crowdSearchGeoJSONMultiSchema = z.object({
-  userId: z.array(z.string().trim()).optional(),
-  deviceId: z.array(z.string().trim()).optional(),
-});
-
-function parseUrlParams(
-  params: z.infer<typeof crowdSearchGeoJSONSchema>,
-  multiParams: z.infer<typeof crowdSearchGeoJSONMultiSchema>
-) {
-  const ret = {
-    articleId: params.articleId ? params.articleId : undefined,
-    username: params.username ? params.username : undefined,
-    firstname: params.firstname ? params.firstname : undefined,
-    lastname: params.lastname ? params.lastname : undefined,
-    search: params.search ? params.search : undefined,
-    email: params.email ? params.email : undefined,
-    badgeId: params.badgeId ? params.badgeId : undefined,
-    type: params.type ? params.type : undefined,
-    userId:
-      (multiParams.userId || []).length > 0 ? multiParams.userId : undefined,
-    deviceId:
-      (multiParams.deviceId || []).length > 0
-        ? multiParams.deviceId
-        : undefined,
-
-    lat: params.lat ? parseFloat(params.lat) : undefined,
-    lng: params.lng ? parseFloat(params.lng) : undefined,
-    radius: params.radius ? parseInt(params.radius, 10) : undefined,
-
-    limit: params.limit ? parseInt(params.limit, 10) : undefined,
-    skip: params.skip ? parseInt(params.skip, 10) : undefined,
-
-    sortBy: params.sortBy ? params.sortBy : undefined,
-    sortOrder: params.sortOrder ? params.sortOrder : undefined,
-  };
-
-  return ret;
-}
+import { parseSearchGeoJSONQuery } from 'crowd/lib/crowdZodSchemas';
 
 export default async (event: APIGatewayProxyEvent) => {
   const {
@@ -125,14 +39,9 @@ export default async (event: APIGatewayProxyEvent) => {
 
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const pathParameters = parseUrlParams(
-      crowdSearchGeoJSONSchema.parse(event.queryStringParameters || {}),
-      crowdSearchGeoJSONMultiSchema.parse(
-        event.multiValueQueryStringParameters || {}
-      )
-    );
+    const searchQuery = parseSearchGeoJSONQuery(event);
 
-    const results = await crowdSearchGeoJSON(appId, pathParameters);
+    const results = await crowdSearchGeoJSON(appId, searchQuery);
 
     return response({
       code: 200,

@@ -1,19 +1,10 @@
-import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
+import { CrowdLastGeoJSONParamsType } from './crowdTypes';
 
 const { COLL_USER_METRICS } = mongoCollections;
 
-const lambda = new Lambda({
-  region: process.env.REGION,
-});
-
-type CrowdSearchGeoJSONParamsType = {
-  from: Date;
-  all: boolean;
-};
-
-export default async (appId: string, filters: CrowdSearchGeoJSONParamsType) => {
+export default async (appId: string, filters: CrowdLastGeoJSONParamsType) => {
   const client = await MongoClient.connect();
   const db = client.db();
   try {
