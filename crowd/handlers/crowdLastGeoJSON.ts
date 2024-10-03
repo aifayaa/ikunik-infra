@@ -12,18 +12,26 @@ import {
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 import { z } from 'zod';
 
-const crowdSearchGeoJSONSchema = z.object({
+const crowdLastGeoJSONSchema = z.object({
   from: z.string().trim().datetime(),
   all: z.enum(['true', 'false']).optional(),
 });
 
-function parseUrlParams(params: z.infer<typeof crowdSearchGeoJSONSchema>) {
+function parseUrlParams(params: z.infer<typeof crowdLastGeoJSONSchema>) {
   const ret = {
     from: new Date(params.from),
     all: params.all === 'true',
   };
 
   return ret;
+}
+
+export function parseLastGeoJSONQuery(event: APIGatewayProxyEvent) {
+  const searchQuery = parseUrlParams(
+    crowdLastGeoJSONSchema.parse(event.queryStringParameters || {})
+  );
+
+  return searchQuery;
 }
 
 export default async (event: APIGatewayProxyEvent) => {
@@ -52,9 +60,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const pathParameters = parseUrlParams(
-      crowdSearchGeoJSONSchema.parse(event.queryStringParameters || {})
-    );
+    const pathParameters = parseLastGeoJSONQuery(event);
 
     const results = await crowdLastGeoJSON(appId, pathParameters);
 
