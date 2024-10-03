@@ -264,6 +264,7 @@ verbose(
     COLL_PUSH_NOTIFICATIONS,
     COLL_USER_METRICS,
     COLL_USER_REACTIONS,
+    COLL_USER_GENERATED_CONTENTS,
     COLL_USERS,
   } = mongoCollections;
 
@@ -292,11 +293,30 @@ verbose(
           }),
         },
         {
+          name: 'crowdaa_appid_profile_email',
+          key: { appId: 1, 'profile.email': 1 },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_perms_org_id',
+          key: { 'perms.organizations._id': 1 },
+          opts: makeOpts('sparse'),
+        },
+        {
           name: 'crowdaa_appid_facebookid_unique',
           key: { appId: 1, 'services.facebook.id': 1 },
           opts: makeOpts('unique', {
             partialFilterExpression: {
               'services.facebook.id': { $exists: true },
+            },
+          }),
+        },
+        {
+          name: 'crowdaa_appid_appleid_unique',
+          key: { appId: 1, 'services.apple.userId': 1 },
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              'services.apple.userId': { $exists: true },
             },
           }),
         },
@@ -409,18 +429,23 @@ verbose(
       ],
       [COLL_PUSH_NOTIFICATIONS]: [
         {
+          name: 'crowdaa_appid',
+          key: { appId: 1 },
+          opts: makeOpts(),
+        },
+        {
           name: 'crowdaa_blast_query_1',
-          key: { userId: 1, appId: 1 },
+          key: { appId: 1, userId: 1 },
           opts: makeOpts(),
         },
         {
           name: 'crowdaa_blast_query_2',
-          key: { deviceUUID: 1, appId: 1 },
+          key: { appId: 1, deviceUUID: 1 },
           opts: makeOpts(),
         },
         {
           name: 'crowdaa_blast_single_1',
-          key: { Token: 1, PlatformApplicationArn: 1, appId: 1 },
+          key: { appId: 1, Token: 1, PlatformApplicationArn: 1 },
           opts: makeOpts(),
         },
       ],
@@ -579,6 +604,30 @@ verbose(
           },
           opts: makeOpts('sparse'),
         },
+        {
+          name: 'crowdaa_userMetrics_atlas_suggested_1',
+          key: {
+            appId: 1,
+            contentCollection: 1,
+            type: 1,
+            trashed: 1,
+            createdAt: -1,
+            deviceId: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_userMetrics_atlas_suggested_2',
+          key: {
+            appId: 1,
+            contentCollection: 1,
+            type: 1,
+            trashed: 1,
+            createdAt: -1,
+            userId: 1,
+          },
+          opts: makeOpts(),
+        },
       ],
       [COLL_PICTURES]: [
         {
@@ -638,6 +687,21 @@ verbose(
             name: 1,
           },
           opts: makeOpts('unique'),
+        },
+      ],
+      [COLL_USER_GENERATED_CONTENTS]: [
+        {
+          name: 'crowdaa_suggested_atlas_1',
+          key: {
+            appId: 1,
+            rootParentCollection: 1,
+            rootParentId: 1,
+            type: 1,
+            trashed: 1,
+            moderated: 1,
+            reviewed: 1,
+          },
+          opts: makeOpts(),
         },
       ],
       [COLL_USER_REACTIONS]: [
