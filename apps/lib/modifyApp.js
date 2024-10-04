@@ -120,6 +120,13 @@ export default async (appId, update) => {
         }
       }
     }
+    if (update.mmfId) {
+      $set['credentials.mmf'] = {
+        id: update.mmfId,
+      };
+      $set['settings.press.env.merchMMFUrl'] =
+        `https://mpodx.shop/?entry=cat&platform=crowdaa&cart=1&mf_uuid=${update.mmfId}`;
+    }
 
     await db.collection(COLL_APPS).findOneAndUpdate({ _id: appId }, { $set });
 

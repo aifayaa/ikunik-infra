@@ -83,6 +83,14 @@ export const modifyAppSchema = z
         .trim()
         .min(1, { message: 'icon must be 1 or more characters long' })
     ),
+    mmfId: z.optional(
+      z
+        .string({
+          invalid_type_error: 'mmfId must be a string',
+        })
+        .trim()
+        .min(1, { message: 'mmfId must be 1 or more characters long' })
+    ),
   })
   // do not allow unrecognized keys (the ones that are not defined by the object above)
   .strict();
