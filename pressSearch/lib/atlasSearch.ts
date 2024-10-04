@@ -266,7 +266,7 @@ export default async (
 
     return {
       total: results.total || 0,
-      articles: results.articles || [],
+      items: results.articles || [],
     };
   } finally {
     client.close();
