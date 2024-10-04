@@ -1,8 +1,20 @@
-import { escapeRegex } from '@libs/utils';
+import { escapeRegex, reorderObjectKeys } from '@libs/utils';
 import mongoCollections from '@libs/mongoCollections.json';
 import { CrowdSearchPipelineFiltersType } from './crowdTypes';
 
 const { COLL_PRESS_ARTICLES } = mongoCollections;
+
+type GeoNearFieldType = {
+  near: {
+    type: string;
+    coordinates: number[];
+  };
+  distanceField: string;
+  includeLocs: string;
+  spherical: boolean;
+  maxDistance: number;
+  query?: any;
+} | null;
 
 export function buildCrowdSearchPipeline(
   appId: string,
@@ -12,21 +24,36 @@ export function buildCrowdSearchPipeline(
   const $match = {
     appId,
   } as Record<string, any>;
+  let $geoNear: GeoNearFieldType = null;
 
   if (filters.lat && filters.lng && filters.radius) {
     // $geoNear Must be the first item in the query
-    pipeline.unshift({
-      $geoNear: {
-        near: {
-          type: 'Point',
-          coordinates: [filters.lng, filters.lat],
-        },
-        distanceField: 'geoDistance',
-        includeLocs: 'geoCoordinates',
-        spherical: true,
-        maxDistance: filters.radius,
+    $geoNear = {
+      near: {
+        type: 'Point',
+        coordinates: [filters.lng, filters.lat],
       },
+      distanceField: 'geoDistance',
+      includeLocs: 'geoCoordinates',
+      spherical: true,
+      maxDistance: filters.radius,
+    };
+    pipeline.unshift({
+      $geoNear,
     });
+  } else if (filters.geoWithin) {
+    $match['metricsGeoLast.location'] = {
+      $geoWithin: {
+        $geometry: {
+          type: 'Polygon',
+          coordinates: filters.geoWithin,
+          crs: {
+            type: 'name',
+            properties: { name: 'urn:x-mongodb:crs:strictwinding:EPSG:4326' },
+          },
+        },
+      },
+    };
   }
 
   if (filters.requires === 'geolocation') {
@@ -88,7 +115,23 @@ export function buildCrowdSearchPipeline(
     ];
   }
 
-  pipeline.push({ $match });
+  reorderObjectKeys($match, [
+    'appId',
+    '$text',
+    'metricsGeoLast',
+    'metricsGeoLast.location',
+  ]);
+
+  if (Object.keys($match).length > 0) {
+    if ($geoNear) {
+      if ($match.$text) {
+        delete $match.$text;
+      }
+      $geoNear.query = $match;
+    } else {
+      pipeline.push({ $match });
+    }
+  }
 
   if (filters.articleId) {
     pipeline.push(
