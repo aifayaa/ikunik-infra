@@ -498,11 +498,6 @@ verbose(
       ],
       [COLL_PUSH_NOTIFICATIONS]: [
         {
-          name: 'crowdaa_appid',
-          key: { appId: 1 },
-          opts: makeOpts(),
-        },
-        {
           name: 'crowdaa_blast_query_1',
           key: { appId: 1, userId: 1 },
           opts: makeOpts(),
@@ -687,6 +682,15 @@ verbose(
           key: {
             appId: 1,
             readingTime: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_1',
+          key: {
+            appId: 1,
+            lastMetricAt: -1,
+            metricsGeoLast: 1,
           },
           opts: makeOpts(),
         },
