@@ -1,5 +1,7 @@
 type CrowdViewType = 'user' | 'device' | 'userDevice';
 
+type GeoJSONCoordinatesType = [number, number];
+
 export type CrowdSearchPipelineFiltersType = {
   articleId?: string;
   username?: string;
@@ -17,6 +19,8 @@ export type CrowdSearchPipelineFiltersType = {
   lat?: number;
   lng?: number;
   radius?: number;
+
+  geoWithin?: GeoJSONCoordinatesType[];
 
   sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
@@ -41,6 +45,8 @@ export type CrowdSearchParamsType = {
   limit?: number;
   skip?: number;
 
+  geoWithin?: GeoJSONCoordinatesType[];
+
   sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
 };
@@ -63,6 +69,8 @@ export type CrowdSearchGeoJSONParamsType = {
 
   limit?: number;
   skip?: number;
+
+  geoWithin?: GeoJSONCoordinatesType[];
 
   sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';

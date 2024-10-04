@@ -1,3 +1,8 @@
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_INPUT_FORMAT_CODE,
+} from '@libs/httpResponses/errorCodes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { z } from 'zod';
 
@@ -29,6 +34,33 @@ function intStrParser(val: any) {
   return true;
 }
 
+function floatArrayPairsStrParser(val: any) {
+  if (!val || typeof val !== 'string') return false;
+
+  const intArray = val.split(',').map((x) => x.trim());
+  const ok = intArray.every(floatStrParser);
+
+  if (intArray.length !== 2 || !ok) {
+    return false;
+  }
+
+  return true;
+}
+
+function parseGeoWithinField(val: string[]) {
+  const ret = val.map((x) => x.split(',').map((y) => parseFloat(y)));
+
+  if (ret.length < 3) {
+    throw new CrowdaaError(
+      ERROR_TYPE_VALIDATION_ERROR,
+      INVALID_INPUT_FORMAT_CODE,
+      `geoWithin field is invalid, 3 or more points required`
+    );
+  }
+
+  return ret;
+}
+
 /* ###### *
  * Search *
  * ###### */
@@ -58,6 +90,7 @@ const crowdSearchMultiSchema = z.object({
   type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
   userId: z.array(z.string().trim()).optional(),
   deviceId: z.array(z.string().trim()).optional(),
+  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
 });
 
 export function parseSearchQuery(event: APIGatewayProxyEvent) {
@@ -77,18 +110,28 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    type: (multiParams.type || []).length > 0 ? multiParams.type : undefined,
+    type:
+      multiParams.type && multiParams.type.length > 0
+        ? multiParams.type
+        : undefined,
 
     userId:
-      (multiParams.userId || []).length > 0 ? multiParams.userId : undefined,
+      multiParams.userId && multiParams.userId.length > 0
+        ? multiParams.userId
+        : undefined,
     deviceId:
-      (multiParams.deviceId || []).length > 0
+      multiParams.deviceId && multiParams.deviceId.length > 0
         ? multiParams.deviceId
         : undefined,
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
     radius: params.radius ? parseInt(params.radius, 10) : undefined,
+
+    geoWithin:
+      multiParams.geoWithin && multiParams.geoWithin.length > 0
+        ? parseGeoWithinField(multiParams.geoWithin)
+        : undefined,
 
     limit: params.limit ? parseInt(params.limit, 10) : undefined,
     skip: params.skip ? parseInt(params.skip, 10) : undefined,
@@ -129,6 +172,7 @@ const crowdSearchGeoJSONMultiSchema = z.object({
   type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
   userId: z.array(z.string().trim()).optional(),
   deviceId: z.array(z.string().trim()).optional(),
+  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
 });
 
 export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
@@ -148,17 +192,27 @@ export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    type: (multiParams.type || []).length > 0 ? multiParams.type : undefined,
+    type:
+      multiParams.type && multiParams.type.length > 0
+        ? multiParams.type
+        : undefined,
     userId:
-      (multiParams.userId || []).length > 0 ? multiParams.userId : undefined,
+      multiParams.userId && multiParams.userId.length > 0
+        ? multiParams.userId
+        : undefined,
     deviceId:
-      (multiParams.deviceId || []).length > 0
+      multiParams.deviceId && multiParams.deviceId.length > 0
         ? multiParams.deviceId
         : undefined,
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
     radius: params.radius ? parseInt(params.radius, 10) : undefined,
+
+    geoWithin:
+      multiParams.geoWithin && multiParams.geoWithin.length > 0
+        ? parseGeoWithinField(multiParams.geoWithin)
+        : undefined,
 
     limit: params.limit ? parseInt(params.limit, 10) : undefined,
     skip: params.skip ? parseInt(params.skip, 10) : undefined,

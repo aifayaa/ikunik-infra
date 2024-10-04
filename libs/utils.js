@@ -85,3 +85,34 @@ export function capitalize(str) {
 export function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+/* EcmaScript does not ensure keys order in object.
+ * However, every implementations nowadays do, and MongoDB
+ * assumes it to be working too, so we need to handle it */
+export function reorderObjectKeys(object, keys) {
+  const finalObject = {};
+
+  const initialObjectKeys = Object.keys(object);
+
+  keys.forEach((key) => {
+    if (initialObjectKeys.indexOf(key) >= 0) {
+      finalObject[key] = object[key];
+    }
+  });
+
+  Object.keys(object).forEach((key) => {
+    if (keys.indexOf(key) < 0) {
+      finalObject[key] = object[key];
+    }
+  });
+
+  Object.keys(object).forEach((key) => {
+    delete object[key];
+  });
+
+  Object.keys(finalObject).forEach((key) => {
+    object[key] = finalObject[key];
+  });
+
+  return finalObject;
+}
