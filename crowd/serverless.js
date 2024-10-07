@@ -27,6 +27,7 @@ const serverlessConfiguration = {
       restApiResources: {
         '/admin/press':
           '${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}',
+        '/admin': '${cf:admin-${self:provider.stage}.RestApiRootResourceId}',
       },
     },
     region: '${opt:region, "us-east-1"}',
@@ -164,6 +165,78 @@ const serverlessConfiguration = {
                   Authorization: true,
                 },
                 querystrings: '${self:custom.querystrings}',
+              },
+            },
+          },
+        },
+      ],
+    },
+    crowdSearch: {
+      handler: 'handlers/crowdSearch.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd/search',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    crowdSearchGeoJSON: {
+      handler: 'handlers/crowdSearchGeoJSON.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd/search.geojson',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    crowdLastGeoJSON: {
+      handler: 'handlers/crowdLastGeoJSON.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd/last.geojson',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
               },
             },
           },

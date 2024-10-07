@@ -1,0 +1,246 @@
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_INPUT_FORMAT_CODE,
+} from '@libs/httpResponses/errorCodes';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { z } from 'zod';
+
+/* ################ *
+ * Common functions *
+ * ################ */
+function floatStrParser(val: any) {
+  if (!val || typeof val !== 'string') return false;
+
+  const fval = parseFloat(val);
+
+  if (Number.isNaN(fval)) {
+    return false;
+  }
+
+  return true;
+}
+
+function intStrParser(val: any) {
+  if (!val || typeof val !== 'string') return false;
+
+  const fval = parseFloat(val);
+  const ival = parseInt(val);
+
+  if (fval !== ival || Number.isNaN(ival)) {
+    return false;
+  }
+
+  return true;
+}
+
+function floatArrayPairsStrParser(val: any) {
+  if (!val || typeof val !== 'string') return false;
+
+  const intArray = val.split(',').map((x) => x.trim());
+  const ok = intArray.every(floatStrParser);
+
+  if (intArray.length !== 2 || !ok) {
+    return false;
+  }
+
+  return true;
+}
+
+function parseGeoWithinField(val: string[]) {
+  const ret = val.map((x) => x.split(',').map((y) => parseFloat(y)));
+
+  if (ret.length < 3) {
+    throw new CrowdaaError(
+      ERROR_TYPE_VALIDATION_ERROR,
+      INVALID_INPUT_FORMAT_CODE,
+      `geoWithin field is invalid, 3 or more points required`
+    );
+  }
+
+  return ret;
+}
+
+/* ###### *
+ * Search *
+ * ###### */
+const crowdSearchSchema = z.object({
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
+
+  lat: z.custom<'123'>(floatStrParser).optional(),
+  lng: z.custom<'123'>(floatStrParser).optional(),
+  radius: z.custom<'123'>(intStrParser).optional(),
+
+  limit: z.custom<'123'>(intStrParser).optional(),
+  skip: z.custom<'123'>(intStrParser).optional(),
+
+  sortBy: z
+    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
+  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
+});
+
+const crowdSearchMultiSchema = z.object({
+  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+  userId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+});
+
+export function parseSearchQuery(event: APIGatewayProxyEvent) {
+  const params = (event.queryStringParameters || {}) as z.infer<
+    typeof crowdSearchSchema
+  >;
+  const multiParams = (event.multiValueQueryStringParameters || {}) as z.infer<
+    typeof crowdSearchMultiSchema
+  >;
+
+  const ret = {
+    articleId: params.articleId ? params.articleId : undefined,
+    username: params.username ? params.username : undefined,
+    firstname: params.firstname ? params.firstname : undefined,
+    lastname: params.lastname ? params.lastname : undefined,
+    search: params.search ? params.search : undefined,
+    email: params.email ? params.email : undefined,
+    badgeId: params.badgeId ? params.badgeId : undefined,
+
+    type:
+      multiParams.type && multiParams.type.length > 0
+        ? multiParams.type
+        : undefined,
+
+    userId:
+      multiParams.userId && multiParams.userId.length > 0
+        ? multiParams.userId
+        : undefined,
+    deviceId:
+      multiParams.deviceId && multiParams.deviceId.length > 0
+        ? multiParams.deviceId
+        : undefined,
+
+    lat: params.lat ? parseFloat(params.lat) : undefined,
+    lng: params.lng ? parseFloat(params.lng) : undefined,
+    radius: params.radius ? parseInt(params.radius, 10) : undefined,
+
+    geoWithin:
+      multiParams.geoWithin && multiParams.geoWithin.length > 0
+        ? parseGeoWithinField(multiParams.geoWithin)
+        : undefined,
+
+    limit: params.limit ? parseInt(params.limit, 10) : undefined,
+    skip: params.skip ? parseInt(params.skip, 10) : undefined,
+
+    sortBy: params.sortBy ? params.sortBy : undefined,
+    sortOrder: params.sortOrder ? params.sortOrder : undefined,
+  };
+
+  return ret;
+}
+
+/* ############# *
+ * SearchGeoJSON *
+ * ############# */
+const crowdSearchGeoJSONSchema = z.object({
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
+
+  lat: z.custom<'123'>(floatStrParser).optional(),
+  lng: z.custom<'123'>(floatStrParser).optional(),
+  radius: z.custom<'123'>(intStrParser).optional(),
+
+  limit: z.custom<'123'>(intStrParser).optional(),
+  skip: z.custom<'123'>(intStrParser).optional(),
+
+  sortBy: z
+    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
+  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
+});
+
+const crowdSearchGeoJSONMultiSchema = z.object({
+  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+  userId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+});
+
+export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
+  const params = (event.queryStringParameters || {}) as z.infer<
+    typeof crowdSearchGeoJSONSchema
+  >;
+  const multiParams = (event.multiValueQueryStringParameters || {}) as z.infer<
+    typeof crowdSearchGeoJSONMultiSchema
+  >;
+
+  const ret = {
+    articleId: params.articleId ? params.articleId : undefined,
+    username: params.username ? params.username : undefined,
+    firstname: params.firstname ? params.firstname : undefined,
+    lastname: params.lastname ? params.lastname : undefined,
+    search: params.search ? params.search : undefined,
+    email: params.email ? params.email : undefined,
+    badgeId: params.badgeId ? params.badgeId : undefined,
+
+    type:
+      multiParams.type && multiParams.type.length > 0
+        ? multiParams.type
+        : undefined,
+    userId:
+      multiParams.userId && multiParams.userId.length > 0
+        ? multiParams.userId
+        : undefined,
+    deviceId:
+      multiParams.deviceId && multiParams.deviceId.length > 0
+        ? multiParams.deviceId
+        : undefined,
+
+    lat: params.lat ? parseFloat(params.lat) : undefined,
+    lng: params.lng ? parseFloat(params.lng) : undefined,
+    radius: params.radius ? parseInt(params.radius, 10) : undefined,
+
+    geoWithin:
+      multiParams.geoWithin && multiParams.geoWithin.length > 0
+        ? parseGeoWithinField(multiParams.geoWithin)
+        : undefined,
+
+    limit: params.limit ? parseInt(params.limit, 10) : undefined,
+    skip: params.skip ? parseInt(params.skip, 10) : undefined,
+
+    sortBy: params.sortBy ? params.sortBy : undefined,
+    sortOrder: params.sortOrder ? params.sortOrder : undefined,
+  };
+
+  return ret;
+}
+
+/* ########### *
+ * LastGeoJSON *
+ * ########### */
+const crowdLastGeoJSONSchema = z.object({
+  from: z.string().trim().datetime(),
+  all: z.enum(['true', 'false']).optional(),
+});
+
+export function parseLastGeoJSONQuery(event: APIGatewayProxyEvent) {
+  const params = (event.queryStringParameters || {}) as z.infer<
+    typeof crowdLastGeoJSONSchema
+  >;
+
+  const ret = {
+    from: new Date(params.from || Date.now()),
+    all: params.all === 'true',
+  };
+
+  return ret;
+}

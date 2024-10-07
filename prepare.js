@@ -9,31 +9,37 @@ const AVAILABLE_STAGES_REGIONS = [
   'preprod:eu-west-3',
   'prod:us-east-1',
   'prod:eu-west-3',
-  'awaxDev:eu-west-1',
-  'awax:eu-west-1',
 ];
 
+const AVAILABLE_OPTIONS = {
+  remove:
+    'Checks and removes database indexes that we did not list in this script',
+  removeviews:
+    'Checks and removes database views that we did not list in this script',
+  recreateviews: 'Removes existing views (if needed) before recreating them',
+  verbose: 'Display extra information about what is being done',
+  dry: 'Do not run any database write operation except creating collections that are not found',
+  force: 'Force creation/update of existing indexes',
+};
+
 if (!(AVAILABLE_STAGES_REGIONS.indexOf(`${STAGE}:${REGION}`) + 1)) {
-  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS.map((x) =>
-    x.replace(':', ' + ')
-  ).join(', ');
+  const stageRegionsDisplayList = AVAILABLE_STAGES_REGIONS.map(
+    (x) => `    - ${x.replace(':', ' + ')}`
+  ).join('\n');
   console.log('usage : ./prepare.js [STAGE] [REGION] [EXTRA]\n');
   console.log(
-    `  STAGE + REGION are mandatory and can be : ${stageRegionsDisplayList}`
+    `  STAGE + REGION are mandatory and can be :\n${stageRegionsDisplayList}`
   );
   console.log(
     '  EXTRA is a comma-separated list of extra operations to do. It may contain :'
   );
+  Object.keys(AVAILABLE_OPTIONS).forEach((key) => {
+    console.log(`    - ${key} : ${AVAILABLE_OPTIONS[key]}`);
+  });
+  console.log('');
   console.log(
-    '    - remove : Checks and removes database indexes that we did not list in this script'
+    'Note that views will NOT be updated until recreateviews is specified. It should be handled manually only and never automated since it implies a heavy processing'
   );
-  console.log(
-    '    - verbose : Display extra information about what is being done'
-  );
-  console.log(
-    "    - dry : Don't run any database write operation except creating collections that are not found"
-  );
-  console.log('    - force : Force creation/update of existing indexes');
   process.exit(1);
 }
 
@@ -45,6 +51,7 @@ const omitBy = require('lodash/omitBy');
 const isUndefined = require('lodash/isUndefined');
 const { default: MongoClient } = require('./libs/mongoClient');
 const mongoCollections = require('./libs/mongoCollections.json');
+const mongoViews = require('./libs/mongoViews.json');
 const apiServerlessData = require('./api-v1/serverless');
 
 /**
@@ -145,6 +152,65 @@ function makeLogger(initialTitle) {
 }
 
 const { setTitle, log, verbose } = makeLogger();
+
+async function removeUnknownViews(viewsList, allCollections) {
+  const logger = makeLogger('Unknown views remover');
+
+  logger.log('Checking for unknown views...');
+
+  const indexedViews = viewsList.reduce((acc, { name }) => {
+    acc[name] = true;
+
+    return acc;
+  }, {});
+
+  const promises = allCollections.map(async (coll) => {
+    const options = await coll.options();
+
+    if (options.viewOn && options.pipeline) {
+      if (!indexedViews[coll.collectionName]) {
+        logger.log(`Removing unknown view ${coll.collectionName}`);
+        if (!EXTRA.dry) {
+          await coll.drop();
+        }
+      }
+    }
+  });
+
+  await Promise.all(promises);
+}
+
+async function processView(db, viewData, allCollections) {
+  const { name, viewOn, pipeline } = viewData;
+  const logger = makeLogger(`View ${name}`);
+
+  const existingCollection = allCollections.find(
+    (coll) => coll.collectionName === name
+  );
+
+  if (!existingCollection) {
+    logger.log('Creating view');
+    if (!EXTRA.dry) {
+      await db.createCollection(name, {
+        viewOn,
+        pipeline,
+      });
+    }
+  } else {
+    logger.log('View exists');
+    if (EXTRA.recreateviews) {
+      // collMod operation is not allowed by MongoDB Atlas, so we need to handle it this way.
+      logger.log('Deleting and Re-Creating view');
+      if (!EXTRA.dry) {
+        await existingCollection.drop();
+        await db.createCollection(name, {
+          viewOn,
+          pipeline,
+        });
+      }
+    }
+  }
+}
 
 async function processCollection(db, collName, indexSchemas) {
   const logger = makeLogger(`Collection ${collName}`);
@@ -248,7 +314,6 @@ verbose(
 (async () => {
   const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
 
-  const promises = [];
   const client = await MongoClient.connect(mongoUrl);
 
   const {
@@ -267,6 +332,10 @@ verbose(
     COLL_USER_GENERATED_CONTENTS,
     COLL_USERS,
   } = mongoCollections;
+
+  const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
+  // const { VIEW_USER_METRICS_WITH_USERS } =
+  //   mongoViews;
 
   try {
     const indexSchemas = {
@@ -429,11 +498,6 @@ verbose(
       ],
       [COLL_PUSH_NOTIFICATIONS]: [
         {
-          name: 'crowdaa_appid',
-          key: { appId: 1 },
-          opts: makeOpts(),
-        },
-        {
           name: 'crowdaa_blast_query_1',
           key: { appId: 1, userId: 1 },
           opts: makeOpts(),
@@ -559,6 +623,74 @@ verbose(
           key: {
             articleId: 1,
             createdAt: -1,
+          },
+          opts: makeOpts(),
+        },
+      ],
+      [VIEW_USER_METRICS_UUID_AGGREGATED]: [
+        {
+          name: 'location_2dsphere',
+          key: { 'metricsGeoLast.location': '2dsphere' },
+          opts: makeOpts({ background: true, '2dsphereIndexVersion': 3 }),
+        },
+        {
+          name: 'crowdaa_articles_search_text',
+          key: {
+            appId: 1,
+            'user.profile.username': 'text',
+            'user.profile.firstname': 'text',
+            'user.profile.lastname': 'text',
+            'user.profile.email': 'text',
+            'emails.address': 'text',
+          },
+          opts: makeOpts('sparse', {
+            background: true,
+          }),
+        },
+        {
+          name: 'crowdaa_articles_search_fields',
+          key: {
+            appId: 1,
+            'user.profile.username': 1,
+            'user.profile.firstname': 1,
+            'user.profile.lastname': 1,
+            'user.profile.email': 1,
+            'emails.address': 1,
+          },
+          opts: makeOpts('sparse', {
+            background: true,
+          }),
+        },
+        {
+          name: 'crowdaa_userMetrics_search_all1',
+          key: {
+            appId: 1,
+            firstMetricAt: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_userMetrics_search_all2',
+          key: {
+            appId: 1,
+            lastMetricAt: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_userMetrics_search_all3',
+          key: {
+            appId: 1,
+            readingTime: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_1',
+          key: {
+            appId: 1,
+            lastMetricAt: -1,
+            metricsGeoLast: 1,
           },
           opts: makeOpts(),
         },
@@ -745,12 +877,51 @@ verbose(
       ],
     };
 
-    const collNames = Object.keys(indexSchemas);
+    // All keys here will be prefixed with VIEWS_PREFIX
+    // All views are processed in order, to allow views based on other views
+    const viewsList = [
+      // {
+      //   name: VIEW_USER_METRICS_WITH_USERS,
+      //   viewOn: COLL_USER_METRICS,
+      //   pipeline: [
+      //     {
+      //       $lookup: {
+      //         from: COLL_USERS,
+      //         localField: 'userId',
+      //         foreignField: '_id',
+      //         as: 'user',
+      //       },
+      //     },
+      //     {
+      //       $unwind: {
+      //         path: '$user',
+      //         preserveNullAndEmptyArrays: true,
+      //       },
+      //     },
+      //   ],
+      // },
+    ];
+
     const db = client.db();
-    for (let i = 0; i < collNames.length; i += 1) {
-      const collName = collNames[i];
-      promises.push(processCollection(db, collName, indexSchemas[collName]));
+
+    log('Fetching all collections');
+    const allCollections = await db.collections();
+
+    log('Processing views');
+    for (let i = 0; i < viewsList.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await processView(db, viewsList[i], allCollections);
     }
+
+    if (EXTRA.removeviews) {
+      await removeUnknownViews(viewsList, allCollections);
+    }
+
+    const promises = [];
+    log('Processing indexes');
+    Object.keys(indexSchemas).forEach((collName) => {
+      promises.push(processCollection(db, collName, indexSchemas[collName]));
+    });
 
     await Promise.all(promises);
   } catch (error) {

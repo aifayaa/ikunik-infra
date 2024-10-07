@@ -30,7 +30,11 @@ export default async (
     Object.entries(data).forEach((item) => {
       const [key, value] = item;
       if (typeof data[key] !== 'undefined' && key !== null) {
-        userMetrics[key] = value;
+        if (key === 'startTime' || key === 'endTime') {
+          userMetrics[key] = new Date(value);
+        } else {
+          userMetrics[key] = value;
+        }
       }
     });
 
