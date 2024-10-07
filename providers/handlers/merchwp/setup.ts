@@ -76,6 +76,12 @@ const merchWPStepAccountAppSchema = z
           })
           .min(1, { message: 'Must be at least 1 character long' })
           .trim(),
+        iconId: z
+          .string({
+            required_error: 'iconId is required',
+            invalid_type_error: 'iconId must be a string',
+          })
+          .trim(),
       })
       .strict(),
   })

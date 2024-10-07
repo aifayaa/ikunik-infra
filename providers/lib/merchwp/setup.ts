@@ -49,6 +49,7 @@ export type MerchWPSetupAccountParametersType = {
 export type MerchWPSetupAppParametersType = {
   name: string;
   color: string;
+  iconId: string;
 };
 
 export type MerchWPSetupWebsiteParametersType = {
@@ -110,10 +111,46 @@ export async function setupApp(
       .collection(COLL_APPS)
       .findOne({ name: app.name, createdBy: userId })) as AppType;
 
+    const picture = await client
+      .db()
+      .collection(COLL_PICTURES)
+      .findOne({ _id: app.iconId });
+
     if (!dbApp) {
       dbApp = (await createApp(app.name, userId, {
         themeColorPrimary: app.color,
+        iconId: app.iconId,
       })) as AppType;
+    } else {
+      if (picture) {
+        const haveUrl =
+          picture.thumbUrl ||
+          picture.mediumUrl ||
+          picture.largeUrl ||
+          picture.pictureUrl;
+        if (haveUrl) {
+          await client
+            .db()
+            .collection(COLL_APPS)
+            .updateOne(
+              { _id: dbApp._id },
+              {
+                $set: {
+                  'icon._id': app.iconId,
+                  'icon.thumbUrl': picture.thumbUrl,
+                  'icon.mediumUrl': picture.mediumUrl,
+                  'icon.largeUrl': picture.largeUrl,
+                  'icon.pictureUrl': picture.pictureUrl,
+                },
+              }
+            );
+        }
+
+        await client
+          .db()
+          .collection(COLL_PICTURES)
+          .updateOne({ _id: app.iconId }, { $set: { appId: dbApp._id } });
+      }
     }
 
     return dbApp;
