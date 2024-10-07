@@ -81,6 +81,7 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.LEQUOTIDIEN_BUCKET_PDF, "NONE"}',
       FONTAWESOME_API_KEY:
         '${ssm(us-east-1):/crowdaa_microservices/global/fontawesome/api-key}',
+      MERCHWP_WEBSITE_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
       MERCHWP_API_URL:
@@ -103,6 +104,14 @@ const serverlessConfiguration = {
             Resource: [
               'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.MERCHWP_LAMBDA_CREATE_WEBSITE}',
               'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-*',
+            ],
+          },
+          {
+            Effect: 'Allow',
+            Action: ['s3:GetObjectAttributes'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*',
+              'arn:aws:s3:::${self:provider.environment.S3_APPS_PUBLIC_RESSOURCES}/*',
             ],
           },
         ],

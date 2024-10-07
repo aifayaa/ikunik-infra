@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import AWS from 'aws-sdk';
 import { adminRegister } from 'auth/lib/adminRegister';
 import { login } from 'auth/lib/login';
 import Lambda from 'aws-sdk/clients/lambda';
@@ -10,10 +11,20 @@ import { AppType } from '@apps/lib/appEntity';
 import { WebsiteKubernetesV1Type } from 'websites/lib/websiteTypes';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
+  ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   MISSING_APPLICATION_CODE,
   MISSING_USER_CODE,
+  TEMPLATE_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
+
+const s3 = new AWS.S3({
+  signatureVersion: 'v4',
+});
+
+const { MERCHWP_WEBSITE_TEMPLATES_BUCKET } = process.env as {
+  MERCHWP_WEBSITE_TEMPLATES_BUCKET: string;
+};
 
 type EnvType = {
   ADMIN_APP: string;
@@ -57,6 +68,11 @@ export type MerchWPSetupWebsiteParametersType = {
   sync: {
     imageId: string;
     imageUrl: string;
+  };
+  package: string;
+  colors: {
+    primary: string;
+    secondary: string;
   };
   account: {
     email: string;
@@ -162,6 +178,28 @@ export async function setupApp(
 export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
   const client = await MongoClient.connect();
   try {
+    let objAttrs = null;
+    const bucketKey = `merchwp/${website.package}.zip`;
+    try {
+      objAttrs = await s3
+        .getObjectAttributes({
+          Bucket: MERCHWP_WEBSITE_TEMPLATES_BUCKET,
+          Key: bucketKey,
+          ObjectAttributes: ['ObjectSize'],
+        })
+        .promise();
+    } catch (e) {
+      /* Ignored */
+    }
+
+    if (!objAttrs) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        TEMPLATE_NOT_FOUND_CODE,
+        `Template ${website.package} not found`
+      );
+    }
+
     const dbUser = await client
       .db()
       .collection(COLL_USERS)
@@ -245,7 +283,7 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
       .invokeAsync({
         FunctionName: MERCHWP_LAMBDA_CREATE_WEBSITE,
         InvokeArgs: JSON.stringify({
-          initTemplate: 'merchwp/merchwp-v0-20240911.zip',
+          initTemplate: `merchwp/${website.package}.zip`,
           websiteId,
           domains: website.domains,
           wordpress: {
@@ -261,6 +299,8 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
               APP_ID: website.app.id,
               SYNC_IMAGE_ID: website.sync.imageId,
               SYNC_IMAGE_URL: website.sync.imageUrl,
+              PRIMARY_COLOR: website.colors.primary,
+              SECONDARY_COLOR: website.colors.secondary,
             },
             environmentSecretVariables: {
               ADMIN_USER_ID: website.account.userId,

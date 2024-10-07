@@ -117,6 +117,31 @@ const merchWPStepWebsiteSchema = z
       })
       .strict()
       .required(),
+    package: z
+      .string({
+        required_error: 'package is required',
+        invalid_type_error: 'package must be a string',
+      })
+      .trim(),
+    colors: z
+      .object({
+        primary: z
+          .string({
+            required_error: 'primary is required',
+            invalid_type_error: 'primary must be a string',
+          })
+          .min(1, { message: 'Must be at least 1 character long' })
+          .trim(),
+        secondary: z
+          .string({
+            required_error: 'secondary is required',
+            invalid_type_error: 'secondary must be a string',
+          })
+          .min(1, { message: 'Must be at least 1 character long' })
+          .trim(),
+      })
+      .strict()
+      .required(),
     account: z
       .object({
         email: z
