@@ -763,8 +763,11 @@ verbose(
       ],
       [COLL_PICTURES]: [
         {
-          name: 'crowdaa_pictures_appid',
-          key: { appId: 1 },
+          name: 'crowdaa_pictures_appid_created',
+          key: {
+            appId: 1,
+            createdAt: 1,
+          },
           opts: makeOpts(),
         },
         {

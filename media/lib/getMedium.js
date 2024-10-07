@@ -1,10 +1,10 @@
 /* eslint-disable import/no-relative-packages */
-import { URL } from 'url';
+// import { URL } from 'url';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-import generateSignedURL from '../../libs/aws/generateSignedURL';
-import isMediaLocked from './isMediaLocked';
+// import generateSignedURL from '../../libs/aws/generateSignedURL';
+// import isMediaLocked from './isMediaLocked';
 
 const { COLL_AUDIOS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
 
@@ -43,23 +43,23 @@ export default async (userId, appId, mediumType, mediumId) => {
         medium.picture = picture;
       }
     }
-    if (
-      medium.collection &&
-      medium.filename &&
-      medium.fileObj_ID &&
-      medium.url
-    ) {
-      medium.url = generateSignedURL(
-        `${medium.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${medium.fileObj_ID}-${
-          medium.filename
-        }`,
-        new URL(medium.url).host
-      );
-    }
+    // if (
+    //   medium.collection &&
+    //   medium.filename &&
+    //   medium.fileObj_ID &&
+    //   medium.url
+    // ) {
+    //   medium.url = generateSignedURL(
+    //     `${medium.collection === 'audio' ? 'MusicStorage' : 'VideoStorage'}/${medium.fileObj_ID}-${
+    //       medium.filename
+    //     }`,
+    //     new URL(medium.url).host
+    //   );
+    // }
 
-    const { state } = await isMediaLocked(userId, appId, medium);
-    // medium.isLocked = isLocked; TO NOT imply mobile diff
-    medium.lockState = state;
+    // const { state } = await isMediaLocked(userId, appId, medium);
+    // // medium.isLocked = isLocked; TO NOT imply mobile diff
+    // medium.lockState = state;
     return medium;
   } finally {
     client.close();
