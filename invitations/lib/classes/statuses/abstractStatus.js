@@ -16,6 +16,8 @@ import mongoCollections from '../../../../libs/mongoCollections.json';
 import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_EXPIRATION_DATA_INVITATION_CODE,
   PANIC_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
@@ -145,7 +147,11 @@ export class AbstractStatus {
     this.challengeCode = challengeCode;
 
     if (this.expiredAt && new Date(this.expiredAt) < new Date()) {
-      throw new Error('invitation_expired');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_EXPIRATION_DATA_INVITATION_CODE,
+        `Cannot create an invitation with invalid date '${this.expiredAt}'`
+      );
     }
 
     if (!this.fromUserId) {
