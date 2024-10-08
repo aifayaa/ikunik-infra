@@ -32,7 +32,6 @@ export default ({ code, message = 'Error' } = {}) => {
       errorCode = 404;
       break;
     case 'already_exists':
-    case 'invitation_current_user_insufficient_rights':
       errorCode = 409;
       break;
     case 'not_implemented':
