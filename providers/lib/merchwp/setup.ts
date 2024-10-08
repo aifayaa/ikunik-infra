@@ -292,7 +292,7 @@ export async function setupWebsite(
       .invokeAsync({
         FunctionName: MERCHWP_LAMBDA_CREATE_WEBSITE,
         InvokeArgs: JSON.stringify({
-          initTemplate: `merchwp/${website.package}.zip`,
+          initTemplate: `merchwp/${website.package.replace(/[^a-z0-9.+_:-]/gi, '')}.zip`,
           websiteId,
           domains: website.domains,
           wordpress: {
