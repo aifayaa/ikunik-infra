@@ -244,7 +244,7 @@ export async function setupWebsite(
       );
     }
 
-    const websiteId = `merch${new ObjectID().toString()}`;
+    const websiteId = `merchwp${new ObjectID().toString()}`;
 
     const defaultDomain = `ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com`;
     const defaultUrl = `https://ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com`;
