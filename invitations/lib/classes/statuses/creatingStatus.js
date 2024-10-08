@@ -6,6 +6,8 @@ import { invitationStatuses } from '../../../const/invitations';
 import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_FOUND,
+  ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_SELF_INVITATION_CODE,
   USER_NOT_FOUND_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
@@ -126,7 +128,11 @@ export class CreatingStatus extends AbstractStatus {
     const invitedUser = await this.getInvitedUser();
     if (invitedUser) {
       if (invitedUser._id === invitingUser._id) {
-        throw new Error('invitation_cannot_self_invite');
+        throw new CrowdaaError(
+          ERROR_TYPE_VALIDATION_ERROR,
+          INVALID_SELF_INVITATION_CODE,
+          `Inviting user '${invitingUser._id}' cannot send an invitation to himself`
+        );
       }
       await this.target.checkUserCanAcceptOrDecline(invitedUser);
     }
