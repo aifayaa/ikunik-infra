@@ -3,6 +3,11 @@ import uuid from 'uuid';
 import { AbstractStatus } from './abstractStatus';
 import mongoCollections from '../../../../libs/mongoCollections.json';
 import { invitationStatuses } from '../../../const/invitations';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  USER_NOT_FOUND_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_INVITATIONS } = mongoCollections;
 
@@ -109,7 +114,13 @@ export class CreatingStatus extends AbstractStatus {
 
     const invitingUser = await this.getInvitingUser();
     // inviting user must always exist when creating the invitation
-    if (!invitingUser) throw new Error('invitation_inviting_user_not_found');
+    if (!invitingUser) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        USER_NOT_FOUND_CODE,
+        `Cannot found inviting user '${this.fromUserId}'`
+      );
+    }
     await this.target.checkUserCanCreate(invitingUser);
 
     const invitedUser = await this.getInvitedUser();
