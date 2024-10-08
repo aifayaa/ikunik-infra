@@ -10,6 +10,7 @@ import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_CHALLENGE_CODE_INVITATION_CODE,
   INVALID_SELF_INVITATION_CODE,
   USER_NOT_FOUND_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
@@ -225,7 +226,11 @@ export class PendingStatus extends AbstractStatus {
 
   async accept({ invitationId, currentUserId, challengeCode }) {
     if (challengeCode !== this.challengeCode) {
-      throw new Error('invitation_invalid_challengeCode');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_CHALLENGE_CODE_INVITATION_CODE,
+        `The challenge code '${challengeCode}' is invalid`
+      );
     }
     const invitingUser = await this.getInvitingUser();
     if (invitingUser._id === currentUserId) {
@@ -250,7 +255,11 @@ export class PendingStatus extends AbstractStatus {
 
   async decline({ invitationId, currentUserId, challengeCode }) {
     if (challengeCode !== this.challengeCode) {
-      throw new Error('invitation_invalid_challengeCode');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_CHALLENGE_CODE_INVITATION_CODE,
+        `The challenge code '${challengeCode}' is invalid`
+      );
     }
 
     const modifiedCount = await this.updateDeclined(
