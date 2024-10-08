@@ -9,6 +9,11 @@ import {
 } from './statuses';
 import { AbstractStatus } from './statuses/abstractStatus';
 import mongoCollections from '../../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  INVITATION_NOT_FOUND_CODE,
+} from '../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_INVITATIONS } = mongoCollections;
 
@@ -152,7 +157,13 @@ export class Invitation {
       invitationId,
       currentUserId
     );
-    if (!invitation) throw new Error('invitation_not_found');
+    if (!invitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
     const { action, challengeCode } = parameters;
 
     await this.init({
@@ -210,7 +221,13 @@ export class Invitation {
       invitationId,
       currentUserId
     );
-    if (!invitation) throw new Error('invitation_not_found');
+    if (!invitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
     const { status, challengeCode } = parameters;
 
     await this.init({
@@ -302,7 +319,13 @@ export class Invitation {
   async resend(currentUserId, invitationId) {
     const invitation = await this.findInvitationById(invitationId);
 
-    if (!invitation) throw new Error('invitation_not_found');
+    if (!invitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
 
     await this.init({
       fromUserId: invitation.fromUserId,
