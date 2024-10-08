@@ -18,6 +18,8 @@ import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_VALIDATION_ERROR,
   INVALID_EXPIRATION_DATA_INVITATION_CODE,
+  INVALID_LOCALE_CODE,
+  MISSING_ARGUMENT_CODE,
   PANIC_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
@@ -107,7 +109,11 @@ export class AbstractStatus {
   // should be protected
   async notifyCreated({ locale, invitationId, challengeCode }) {
     if (!Object.values(supportedLocales).includes(locale)) {
-      throw new Error('unsupported_locale');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_LOCALE_CODE,
+        `Unsupported locale '${locale}'`
+      );
     }
     const title =
       await this.target.getCreatedInvitationNotificationTitle(locale);
@@ -155,7 +161,11 @@ export class AbstractStatus {
     }
 
     if (!this.fromUserId) {
-      throw new Error('missing_argument');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_ARGUMENT_CODE,
+        `Missing argument 'fromUserId'`
+      );
     }
 
     if (!Object.values(supportedLocales).includes(fromUserLocale)) {
@@ -169,7 +179,11 @@ export class AbstractStatus {
 
     if (method && method.type === invitationMethodTypes.EMAIL) {
       if (!method.emailAddress) {
-        throw new Error('missing_argument');
+        throw new CrowdaaError(
+          ERROR_TYPE_VALIDATION_ERROR,
+          MISSING_ARGUMENT_CODE,
+          `Missing argument 'emailAddress'`
+        );
       }
 
       this.method = new EmailMethod({ toUserEmail: method.emailAddress });
@@ -187,7 +201,11 @@ export class AbstractStatus {
 
     if (target && target.type === invitationTargetTypes.ORGANIZATION) {
       if (!target.organizationId) {
-        throw new Error('missing_argument');
+        throw new CrowdaaError(
+          ERROR_TYPE_VALIDATION_ERROR,
+          MISSING_ARGUMENT_CODE,
+          `Missing argument 'organizationId'`
+        );
       }
 
       this.target = new OrganizationTarget({
@@ -204,11 +222,19 @@ export class AbstractStatus {
     }
 
     if (!(this.target instanceof AbstractTarget)) {
-      throw new Error('invitation_bad_target_instance');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `'target' is not an instance of AbstractTarget '${this.target}'`
+      );
     }
 
     if (!(this.method instanceof AbstractMethod)) {
-      throw new Error('invitation_bad_method_instance');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `'method' is not an instance of AbstractMethod '${this.method}'`
+      );
     }
 
     const invitingUser = await this.getInvitingUser();
