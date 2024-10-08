@@ -13,6 +13,11 @@ import {
 import { AbstractTarget, OrganizationTarget } from '../targets';
 
 import mongoCollections from '../../../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  PANIC_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -205,26 +210,46 @@ export class AbstractStatus {
   **************************************************************************** */
   // eslint-disable-next-line require-await, class-methods-use-this
   async create() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.create()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async accept() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async decline() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async cancel() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async resend() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 }

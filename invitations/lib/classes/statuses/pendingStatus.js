@@ -9,6 +9,8 @@ import mongoCollections from '../../../../libs/mongoCollections.json';
 import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_NOT_FOUND,
+  ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_SELF_INVITATION_CODE,
   USER_NOT_FOUND_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
@@ -227,7 +229,11 @@ export class PendingStatus extends AbstractStatus {
     }
     const invitingUser = await this.getInvitingUser();
     if (invitingUser._id === currentUserId) {
-      throw new Error('invitation_unauthorized_action');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_SELF_INVITATION_CODE,
+        `Inviting user '${invitingUser._id}' cannot accept an invitation from himself`
+      );
     }
 
     const user = await this.getUser(currentUserId);
