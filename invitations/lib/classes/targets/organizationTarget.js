@@ -9,6 +9,11 @@ import {
 } from '../../../const/invitations';
 import mongoCollections from '../../../../libs/mongoCollections.json';
 import { AbstractTarget } from './abstractTarget';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_NOT_ALLOWED,
+  USER_ALREADY_IN_ORGANIZATION_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
@@ -51,7 +56,11 @@ export class OrganizationTarget extends AbstractTarget {
       );
 
       if (organizationPerms) {
-        throw new Error('invitation_user_already_added_to_organization');
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          USER_ALREADY_IN_ORGANIZATION_CODE,
+          `User '${user._id}' already in organization '${this.organizationId}'`
+        );
       }
     }
   }
