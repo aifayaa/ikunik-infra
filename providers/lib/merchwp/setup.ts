@@ -60,7 +60,6 @@ export type MerchWPSetupAccountParametersType = {
 export type MerchWPSetupAppParametersType = {
   name: string;
   color: string;
-  iconId: string;
 };
 
 export type MerchWPSetupWebsiteParametersType = {
@@ -77,11 +76,7 @@ export type MerchWPSetupWebsiteParametersType = {
   account: {
     email: string;
     password: string;
-    userId: string;
     authToken: string;
-  };
-  app: {
-    id: string;
   };
 };
 
@@ -127,46 +122,10 @@ export async function setupApp(
       .collection(COLL_APPS)
       .findOne({ name: app.name, createdBy: userId })) as AppType;
 
-    const picture = await client
-      .db()
-      .collection(COLL_PICTURES)
-      .findOne({ _id: app.iconId });
-
     if (!dbApp) {
       dbApp = (await createApp(app.name, userId, {
         themeColorPrimary: app.color,
-        iconId: app.iconId,
       })) as AppType;
-    } else {
-      if (picture) {
-        const haveUrl =
-          picture.thumbUrl ||
-          picture.mediumUrl ||
-          picture.largeUrl ||
-          picture.pictureUrl;
-        if (haveUrl) {
-          await client
-            .db()
-            .collection(COLL_APPS)
-            .updateOne(
-              { _id: dbApp._id },
-              {
-                $set: {
-                  'icon._id': app.iconId,
-                  'icon.thumbUrl': picture.thumbUrl,
-                  'icon.mediumUrl': picture.mediumUrl,
-                  'icon.largeUrl': picture.largeUrl,
-                  'icon.pictureUrl': picture.pictureUrl,
-                },
-              }
-            );
-        }
-
-        await client
-          .db()
-          .collection(COLL_PICTURES)
-          .updateOne({ _id: app.iconId }, { $set: { appId: dbApp._id } });
-      }
     }
 
     return dbApp;
@@ -175,7 +134,57 @@ export async function setupApp(
   }
 }
 
-export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
+export async function setAppIcon(appId: string, iconId: string) {
+  const client = await MongoClient.connect();
+  try {
+    const picture = await client
+      .db()
+      .collection(COLL_PICTURES)
+      .findOne({ _id: iconId });
+
+    if (picture) {
+      const haveUrl =
+        picture.thumbUrl ||
+        picture.mediumUrl ||
+        picture.largeUrl ||
+        picture.pictureUrl;
+      if (haveUrl) {
+        await client
+          .db()
+          .collection(COLL_APPS)
+          .updateOne(
+            { _id: appId },
+            {
+              $set: {
+                'icon._id': iconId,
+                'icon.thumbUrl': picture.thumbUrl,
+                'icon.mediumUrl': picture.mediumUrl,
+                'icon.largeUrl': picture.largeUrl,
+                'icon.pictureUrl': picture.pictureUrl,
+              },
+            }
+          );
+      }
+
+      await client
+        .db()
+        .collection(COLL_PICTURES)
+        .updateOne({ _id: iconId }, { $set: { appId } });
+
+      return { set: true };
+    }
+
+    return { set: false };
+  } finally {
+    await client.close();
+  }
+}
+
+export async function setupWebsite(
+  userId: string,
+  appId: string,
+  website: MerchWPSetupWebsiteParametersType
+) {
   const client = await MongoClient.connect();
   try {
     let objAttrs = null;
@@ -203,7 +212,7 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
     const dbUser = await client
       .db()
       .collection(COLL_USERS)
-      .findOne({ _id: website.account.userId, appId: ADMIN_APP });
+      .findOne({ _id: userId, appId: ADMIN_APP });
     if (!dbUser) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
@@ -214,7 +223,7 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
     const dbApp = await client
       .db()
       .collection(COLL_APPS)
-      .findOne({ _id: website.app.id, createdBy: website.account.userId });
+      .findOne({ _id: appId, createdBy: userId });
     if (!dbApp) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
@@ -226,7 +235,7 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
     const dbPicture = await client
       .db()
       .collection(COLL_PICTURES)
-      .findOne({ _id: website.sync.imageId, appId: website.app.id });
+      .findOne({ _id: website.sync.imageId, appId: appId });
     if (!dbPicture) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
@@ -244,11 +253,11 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
     const dbWebsite = {
       _id: websiteId,
       createdAt: new Date(),
-      createdBy: website.account.userId,
+      createdBy: userId,
       type: 'kubernetes/v1',
       name: defaultDomain,
       domains: domains,
-      appId: website.app.id,
+      appId: appId,
     } as WebsiteKubernetesV1Type;
     await client.db().collection(COLL_WEBSITES).insertOne(dbWebsite);
 
@@ -256,7 +265,7 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
       .db()
       .collection(COLL_APPS)
       .updateOne(
-        { _id: website.app.id },
+        { _id: appId },
         {
           $set: {
             backend: {
@@ -296,14 +305,14 @@ export async function setupWebsite(website: MerchWPSetupWebsiteParametersType) {
             environmentVariables: {
               API_URL: MERCHWP_API_URL,
               LOGIN_APP_ID: ADMIN_APP,
-              APP_ID: website.app.id,
+              APP_ID: appId,
               SYNC_IMAGE_ID: website.sync.imageId,
               SYNC_IMAGE_URL: website.sync.imageUrl,
               PRIMARY_COLOR: website.colors.primary,
               SECONDARY_COLOR: website.colors.secondary,
             },
             environmentSecretVariables: {
-              ADMIN_USER_ID: website.account.userId,
+              ADMIN_USER_ID: userId,
               ADMIN_LOGIN: website.account.email,
               ADMIN_SESSION: website.account.authToken,
             },
