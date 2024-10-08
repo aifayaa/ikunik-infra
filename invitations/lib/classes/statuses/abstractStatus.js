@@ -192,7 +192,11 @@ export class AbstractStatus {
         mongoClient: this.mongoClient,
       });
     } else {
-      throw new Error('invitation_target_type_not_implemented');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `Invitation with the target type '${target.type}' is not implemented`
+      );
     }
 
     if (!(this.target instanceof AbstractTarget)) {
