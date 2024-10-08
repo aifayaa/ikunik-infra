@@ -6,6 +6,11 @@ import {
 } from '../../../const/invitations';
 import { formatMessage, intlInit } from '../../../../libs/intl/intl';
 import mongoCollections from '../../../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  USER_NOT_FOUND_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_INVITATIONS } = mongoCollections;
 
@@ -14,7 +19,13 @@ export class PendingStatus extends AbstractStatus {
     const session = this.mongoClient.startSession();
     let count = 0;
     const user = await this.getUser(userId);
-    if (!user) throw new Error('invitation_current_user_not_found');
+    if (!user) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        USER_NOT_FOUND_CODE,
+        `Cannot found inviting user '${userId}'`
+      );
+    }
 
     try {
       await session.withTransaction(async () => {

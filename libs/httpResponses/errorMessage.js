@@ -29,7 +29,6 @@ export default ({ code, message = 'Error' } = {}) => {
     case 'app_not_found':
     case 'user_not_found':
     case 'organization_not_found':
-    case 'invitation_current_user_not_found':
       errorCode = 404;
       break;
     case 'already_exists':
