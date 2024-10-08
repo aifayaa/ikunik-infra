@@ -32,7 +32,6 @@ export default ({ code, message = 'Error' } = {}) => {
       errorCode = 404;
       break;
     case 'already_exists':
-    case 'invitation_unauthorized_status':
     case 'invitation_unauthorized_action':
     case 'invitation_expired':
     case 'invitation_unrecognized_user':
