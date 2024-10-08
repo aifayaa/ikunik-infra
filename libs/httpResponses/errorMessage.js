@@ -35,7 +35,6 @@ export default ({ code, message = 'Error' } = {}) => {
       errorCode = 409;
       break;
     case 'not_implemented':
-    case 'invitation_method_type_not_implemented':
       errorCode = 501;
       break;
     case 'cannot_send_email':

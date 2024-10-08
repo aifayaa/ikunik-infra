@@ -178,7 +178,11 @@ export class AbstractStatus {
     } else if (method && method.type === invitationMethodTypes.LINK) {
       this.method = new LinkMethod();
     } else {
-      throw new Error('invitation_method_type_not_implemented');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `Invitation with the metho type '${method.type}' is not implemented`
+      );
     }
 
     if (target && target.type === invitationTargetTypes.ORGANIZATION) {
