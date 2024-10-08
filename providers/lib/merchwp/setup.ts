@@ -187,8 +187,8 @@ export async function setupWebsite(
 ) {
   const client = await MongoClient.connect();
   try {
+    const bucketKey = `merchwp/${website.package.replace(/[^a-z0-9.+_:-]/gi, '')}.zip`;
     let objAttrs = null;
-    const bucketKey = `merchwp/${website.package}.zip`;
     try {
       objAttrs = await s3
         .getObjectAttributes({
@@ -292,7 +292,7 @@ export async function setupWebsite(
       .invokeAsync({
         FunctionName: MERCHWP_LAMBDA_CREATE_WEBSITE,
         InvokeArgs: JSON.stringify({
-          initTemplate: `merchwp/${website.package.replace(/[^a-z0-9.+_:-]/gi, '')}.zip`,
+          initTemplate: bucketKey,
           websiteId,
           domains: website.domains,
           wordpress: {

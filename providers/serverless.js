@@ -108,7 +108,7 @@ const serverlessConfiguration = {
           },
           {
             Effect: 'Allow',
-            Action: ['s3:GetObjectAttributes'],
+            Action: ['s3:GetObject', 's3:GetObjectAttributes'],
             Resource: [
               'arn:aws:s3:::${self:provider.environment.MERCHWP_WEBSITE_TEMPLATES_BUCKET}/*',
             ],
