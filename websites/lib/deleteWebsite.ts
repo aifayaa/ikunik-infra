@@ -37,35 +37,19 @@ export default async (website: WebsiteType) => {
       );
     }
 
-    const response = await lambda
-      .invoke({
+    await lambda
+      .invokeAsync({
         FunctionName: WEBSITES_LAMBDA_DESTROY,
-        Payload: JSON.stringify({
+        InvokeArgs: JSON.stringify({
           websiteId: website._id,
         }),
       })
       .promise();
 
-    if (!response.Payload) {
-      throw new CrowdaaError(
-        ERROR_TYPE_INTERNAL_EXCEPTION,
-        UNMANAGED_EXCEPTION_CODE,
-        response.FunctionError?.toString() || 'Lambda execution error'
-      );
-    }
+    /* Do not wait for website deletion : It times out, it is longer than 30 sec */
+    await client.db().collection(COLL_WEBSITES).deleteOne({ _id: website._id });
 
-    const payload = JSON.parse(
-      response.Payload.toString('utf8')
-    ) as WebsiteDestroyResponseType;
-
-    if (payload.statusCode === 200) {
-      await client
-        .db()
-        .collection(COLL_WEBSITES)
-        .deleteOne({ _id: website._id });
-    }
-
-    return payload;
+    return { deletedItem: website };
   } finally {
     client.close();
   }

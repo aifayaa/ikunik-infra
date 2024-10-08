@@ -27,12 +27,12 @@ export default async (event: APIGatewayProxyEvent) => {
       await checkPermsForApp(userId, website.appId, ['admin']);
     }
 
-    const status = await deleteWebsite(website);
+    const data = await deleteWebsite(website);
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: status,
+        data,
       }),
     });
   } catch (exception) {
