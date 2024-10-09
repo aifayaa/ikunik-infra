@@ -69,12 +69,15 @@ export default async (
       extraProfileFields.forEach(({ field, optionnal }) => {
         if (
           field === 'username' ||
+          field === 'firstname' ||
+          field === 'lastname' ||
           field === 'avatar' ||
           field === 'avatarId'
         ) {
           return;
         }
         if (!optionnal && !extraFields[field]) {
+          console.log('DEBUG', { field, extraFields, optionnal });
           throw new Error('mal_formed_request');
         }
 

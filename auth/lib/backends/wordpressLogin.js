@@ -287,9 +287,15 @@ export const wordpressLogin = async (
         update.$unset['services.wordpress.autoLoginToken'] = '';
       }
 
-      if (badges) {
-        update.$set.badges = badges;
-        user.badges = badges;
+      if (fromRegister && badges && badges.length > 0) {
+        update.$addToSet.badges = badges;
+        if (!user.badges) user.badges = [];
+        badges.forEach((badge) => {
+          const id = user.badges.findIndex((badge2) => badge2.id === badge.id);
+          if (id < 0) {
+            user.badges.push({ id: badge.id });
+          }
+        });
       }
 
       if (user.services && user.services.wordpress) {
