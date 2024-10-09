@@ -195,7 +195,7 @@ export class AbstractStatus {
       throw new CrowdaaError(
         ERROR_TYPE_INTERNAL_EXCEPTION,
         PANIC_CODE,
-        `Invitation with the metho type '${method.type}' is not implemented`
+        `Invitation with the method type '${method.type}' is not implemented`
       );
     }
 
@@ -225,7 +225,7 @@ export class AbstractStatus {
       throw new CrowdaaError(
         ERROR_TYPE_INTERNAL_EXCEPTION,
         PANIC_CODE,
-        `'target' is not an instance of AbstractTarget '${this.target}'`
+        `'target' is not an instance of AbstractTarget '${JSON.stringify(this.target)}'`
       );
     }
 
@@ -233,7 +233,7 @@ export class AbstractStatus {
       throw new CrowdaaError(
         ERROR_TYPE_INTERNAL_EXCEPTION,
         PANIC_CODE,
-        `'method' is not an instance of AbstractMethod '${this.method}'`
+        `'method' is not an instance of AbstractMethod '${JSON.stringify(this.method)}'`
       );
     }
 
