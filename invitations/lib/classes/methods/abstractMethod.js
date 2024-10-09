@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
