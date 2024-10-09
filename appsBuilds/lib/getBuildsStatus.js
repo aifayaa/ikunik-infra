@@ -42,14 +42,24 @@ async function getSetupOrBuildForPlatform(app, platform, { db }) {
   };
 }
 
-function truncateError(pipeline) {
-  const { error } = pipeline;
-  if (error) {
-    const truncatedError = error.slice(0, 2048);
-    return { ...pipeline, error: truncatedError };
-  } else {
-    return pipeline;
+const MAX_ERROR_LINES = 128;
+const MAX_ERROR_CHARS = 8192;
+
+function shortenErrorStr(errorStr) {
+  const errorStrLines = errorStr.split(/\n/g);
+
+  if (errorStrLines.length > MAX_ERROR_LINES) {
+    const newErrorStr = errorStrLines.slice(-MAX_ERROR_LINES).join('\n');
+    if (newErrorStr.length > MAX_ERROR_CHARS) {
+      errorStr = errorStr.substr(-MAX_ERROR_CHARS);
+    } else {
+      errorStr = newErrorStr;
+    }
+  } else if (errorStr.length > MAX_ERROR_CHARS) {
+    errorStr = errorStr.substr(-MAX_ERROR_CHARS);
   }
+
+  return errorStr;
 }
 
 export default async (appId, requestedPlatform, { all = false }) => {
@@ -62,34 +72,7 @@ export default async (appId, requestedPlatform, { all = false }) => {
     const platforms = requestedPlatform ? [requestedPlatform] : ALL_PLATFORMS;
 
     const promises = platforms.map(async (platform) => {
-      let ret = await getSetupOrBuildForPlatform(app, platform, { db });
-      // Limit the error field size of 'pipeline.current'
-      if (ret && ret.pipeline && ret.pipeline.current) {
-        ret = {
-          ...ret,
-          pipeline: {
-            ...ret.pipeline,
-            current: truncateError(ret.pipeline.current),
-          },
-        };
-      }
-      // Limit the error field size of 'build.pipeline'
-      if (ret && ret.build && ret.build.pipeline) {
-        ret = {
-          ...ret,
-          build: {
-            ...ret.build,
-            pipeline: truncateError(ret.build.pipeline),
-          },
-        };
-      }
-      // Limit the error field size of 'pipeline.steps'
-      if (ret && ret.pipeline && ret.pipeline.steps) {
-        for (const key of Object.keys(ret.pipeline.steps)) {
-          ret.pipeline.steps[key] = truncateError(ret.pipeline.steps[key]);
-        }
-      }
-
+      const ret = await getSetupOrBuildForPlatform(app, platform, { db });
       if (all) {
         const pipelines = await db
           .collection(COLL_PIPELINES)
@@ -102,8 +85,7 @@ export default async (appId, requestedPlatform, { all = false }) => {
           )
           .toArray();
 
-        // Limit the size of the error field to avoid timeout
-        ret.pipelines = pipelines.map(truncateError);
+        ret.pipelines = pipelines;
       }
 
       return ret;
@@ -116,7 +98,15 @@ export default async (appId, requestedPlatform, { all = false }) => {
       return acc;
     }, {});
 
-    return output;
+    const shortenJSONErrors = (key, val) => {
+      if (key === 'error' && typeof val === 'string') {
+        return shortenErrorStr(val);
+      }
+
+      return val;
+    };
+
+    return JSON.parse(JSON.stringify(output, shortenJSONErrors));
   } finally {
     client.close();
   }
