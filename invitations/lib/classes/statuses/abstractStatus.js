@@ -13,6 +13,15 @@ import {
 import { AbstractTarget, OrganizationTarget } from '../targets';
 
 import mongoCollections from '../../../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_EXPIRATION_DATA_INVITATION_CODE,
+  INVALID_LOCALE_CODE,
+  MISSING_ARGUMENT_CODE,
+  PANIC_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -100,7 +109,11 @@ export class AbstractStatus {
   // should be protected
   async notifyCreated({ locale, invitationId, challengeCode }) {
     if (!Object.values(supportedLocales).includes(locale)) {
-      throw new Error('unsupported_locale');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_LOCALE_CODE,
+        `Unsupported locale '${locale}'`
+      );
     }
     const title =
       await this.target.getCreatedInvitationNotificationTitle(locale);
@@ -140,11 +153,19 @@ export class AbstractStatus {
     this.challengeCode = challengeCode;
 
     if (this.expiredAt && new Date(this.expiredAt) < new Date()) {
-      throw new Error('invitation_expired');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_EXPIRATION_DATA_INVITATION_CODE,
+        `Cannot create an invitation with invalid date '${this.expiredAt}'`
+      );
     }
 
     if (!this.fromUserId) {
-      throw new Error('missing_argument');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_ARGUMENT_CODE,
+        `Missing argument 'fromUserId'`
+      );
     }
 
     if (!Object.values(supportedLocales).includes(fromUserLocale)) {
@@ -158,7 +179,11 @@ export class AbstractStatus {
 
     if (method && method.type === invitationMethodTypes.EMAIL) {
       if (!method.emailAddress) {
-        throw new Error('missing_argument');
+        throw new CrowdaaError(
+          ERROR_TYPE_VALIDATION_ERROR,
+          MISSING_ARGUMENT_CODE,
+          `Missing argument 'emailAddress'`
+        );
       }
 
       this.method = new EmailMethod({ toUserEmail: method.emailAddress });
@@ -167,12 +192,20 @@ export class AbstractStatus {
     } else if (method && method.type === invitationMethodTypes.LINK) {
       this.method = new LinkMethod();
     } else {
-      throw new Error('invitation_method_type_not_implemented');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `Invitation with the method type '${method.type}' is not implemented`
+      );
     }
 
     if (target && target.type === invitationTargetTypes.ORGANIZATION) {
       if (!target.organizationId) {
-        throw new Error('missing_argument');
+        throw new CrowdaaError(
+          ERROR_TYPE_VALIDATION_ERROR,
+          MISSING_ARGUMENT_CODE,
+          `Missing argument 'organizationId'`
+        );
       }
 
       this.target = new OrganizationTarget({
@@ -181,15 +214,27 @@ export class AbstractStatus {
         mongoClient: this.mongoClient,
       });
     } else {
-      throw new Error('invitation_target_type_not_implemented');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `Invitation with the target type '${target.type}' is not implemented`
+      );
     }
 
     if (!(this.target instanceof AbstractTarget)) {
-      throw new Error('invitation_bad_target_instance');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `'target' is not an instance of AbstractTarget '${JSON.stringify(this.target)}'`
+      );
     }
 
     if (!(this.method instanceof AbstractMethod)) {
-      throw new Error('invitation_bad_method_instance');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `'method' is not an instance of AbstractMethod '${JSON.stringify(this.method)}'`
+      );
     }
 
     const invitingUser = await this.getInvitingUser();
@@ -205,26 +250,46 @@ export class AbstractStatus {
   **************************************************************************** */
   // eslint-disable-next-line require-await, class-methods-use-this
   async create() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.create()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async accept() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async decline() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async cancel() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
   async resend() {
-    throw new Error('invitation_unauthorized_action');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractStatus.accept()' directly`
+    );
   }
 }

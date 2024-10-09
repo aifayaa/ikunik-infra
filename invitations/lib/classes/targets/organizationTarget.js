@@ -9,6 +9,15 @@ import {
 } from '../../../const/invitations';
 import mongoCollections from '../../../../libs/mongoCollections.json';
 import { AbstractTarget } from './abstractTarget';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_NOT_ALLOWED,
+  ERROR_TYPE_NOT_FOUND,
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_ARGUMENT_CODE,
+  ORGANIZATION_NOT_FOUND_CODE,
+  USER_ALREADY_IN_ORGANIZATION_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_ORGANIZATIONS, COLL_USERS } = mongoCollections;
 
@@ -38,7 +47,13 @@ export class OrganizationTarget extends AbstractTarget {
 
   // should be protected or private
   async checkIsOrganizationAdmin(user) {
-    if (!user) throw new Error('user_not_found');
+    if (!user) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_ARGUMENT_CODE,
+        `Missing argument "user": '${JSON.stringify(user)}'`
+      );
+    }
 
     await checkPermsForOrganization(user._id, this.organizationId, ['admin']);
   }
@@ -51,7 +66,11 @@ export class OrganizationTarget extends AbstractTarget {
       );
 
       if (organizationPerms) {
-        throw new Error('invitation_user_already_added_to_organization');
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          USER_ALREADY_IN_ORGANIZATION_CODE,
+          `User '${user._id}' already in organization '${this.organizationId}'`
+        );
       }
     }
   }
@@ -213,6 +232,12 @@ export class OrganizationTarget extends AbstractTarget {
   async init({ invitedUser, invitingUser }) {
     const organization = await this.getOrganization();
     // organization must always exist
-    if (!organization) throw new Error('organization_not_found');
+    if (!organization) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        ORGANIZATION_NOT_FOUND_CODE,
+        `Cannot found organisation '${this.organizationId}'`
+      );
+    }
   }
 }

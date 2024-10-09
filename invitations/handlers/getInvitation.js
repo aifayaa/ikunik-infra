@@ -6,6 +6,11 @@ import { getInvitation } from '../lib/getInvitation';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody.ts';
 import { makeIdSchema } from '../../libs/schemas/makeIdSchema';
 import { filterSensitiveProperties } from '../utils/filterSensitiveProperties';
+import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  INVITATION_NOT_FOUND_CODE,
+} from '../../libs/httpResponses/errorCodes.ts';
 
 export default async (event) => {
   const { principalId: currentUserId } =
@@ -17,7 +22,13 @@ export default async (event) => {
 
     // access to the invitation is determined in a step further
     const invitationDocument = await getInvitation(currentUserId, invitationId);
-    if (!invitationDocument) throw new Error('invitation_not_found');
+    if (!invitationDocument) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
 
     return response({
       code: 200,
