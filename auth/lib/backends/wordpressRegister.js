@@ -40,7 +40,7 @@ export const wordpressRegister = async (username, email, password, app) => {
       throw new Error('invalid_credentials');
     }
 
-    return await wordpressLogin(username, password, app);
+    return await wordpressLogin(username, password, app, true);
   } finally {
     client.close();
   }
