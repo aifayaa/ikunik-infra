@@ -1,35 +1,65 @@
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  PANIC_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
+
 export class AbstractTarget {
   /**
    * should perform the necessary operations for an accepted invitation
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   async handleInvitationAccepted({ session, invitedUser }) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.handleInvitationAccepted()' directly`
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
   async checkUserCanCreate(user) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.checkUserCanCreate()' directly`
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
   async checkUserCanAccept(user) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.checkUserCanAccept()' directly`
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
   async checkUserCanDecline(user) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.checkUserCanDecline()' directly`
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
   async checkUserCanCancel(user) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.checkUserCanCancel()' directly`
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars, require-await
   async checkUserCanResend(user) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.checkUserCanResend()' directly`
+    );
   }
 
   /**
@@ -37,7 +67,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   getFindInvitationQuery() {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getFindInvitationQuery()' directly`
+    );
   }
 
   /**
@@ -45,7 +79,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   async getInvitationDocumentProperties() {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getInvitationDocumentProperties()' directly`
+    );
   }
 
   /**
@@ -54,7 +92,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   async getCreatedInvitationNotificationTitle(locale) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getCreatedInvitationNotificationTitle()' directly`
+    );
   }
 
   /**
@@ -63,7 +105,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   async getUpdatedInvitationNotificationTitle(locale, translatedStatus) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getUpdatedInvitationNotificationTitle()' directly`
+    );
   }
 
   /**
@@ -72,7 +118,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   getCreatedInvitationNotificationTemplateName(locale) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getCreatedInvitationNotificationTemplateName()' directly`
+    );
   }
 
   /**
@@ -81,7 +131,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   getUpdatedInvitationNotificationTemplateName(locale) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getUpdatedInvitationNotificationTemplateName()' directly`
+    );
   }
 
   /**
@@ -90,7 +144,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   async getCreatedInvitationNotificationTemplateParameters(locale) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getCreatedInvitationNotificationTemplateParameters()' directly`
+    );
   }
 
   /**
@@ -99,7 +157,11 @@ export class AbstractTarget {
    */
   // eslint-disable-next-line no-unused-vars, require-await, class-methods-use-this
   async getUpdatedInvitationNotificationTemplateParameters(locale) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractTarget.getUpdatedInvitationNotificationTemplateParameters()' directly`
+    );
   }
 
   /**

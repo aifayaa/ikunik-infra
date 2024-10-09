@@ -2,6 +2,11 @@
 import { AbstractMethod } from './abstractMethod';
 import { getUserName } from '../../../utils/getUserName';
 import { invitationMethodTypes } from '../../../const/invitations';
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_INVITED_USER_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
 
 const { ADMIN_APP } = process.env;
 
@@ -113,7 +118,11 @@ export class InternalMethod extends AbstractMethod {
   async init({ invitedUser }) {
     if (!invitedUser) {
       // invited user must already exist in case of an internal invitation
-      throw new Error('invitation_invited_user_not_found');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_INVITED_USER_CODE,
+        `In case of internal invitation, the target user is mandatory`
+      );
     }
   }
 }

@@ -8,10 +8,13 @@ import { formatMessage, intlInit } from '../../../../libs/intl/intl';
 import mongoCollections from '../../../../libs/mongoCollections.json';
 import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   INVALID_CHALLENGE_CODE_INVITATION_CODE,
+  INVALID_LOCALE_CODE,
   INVALID_SELF_INVITATION_CODE,
+  UPDATE_FAILURE_CODE,
   USER_NOT_FOUND_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
@@ -37,7 +40,11 @@ export class PendingStatus extends AbstractStatus {
           session,
         });
         if (modifiedCount === 0) {
-          throw new Error('invitation_target_update_failure');
+          throw new CrowdaaError(
+            ERROR_TYPE_INTERNAL_EXCEPTION,
+            UPDATE_FAILURE_CODE,
+            `Cannot update invited target user '${user._id}' in DB`
+          );
         }
 
         count += modifiedCount;
@@ -58,7 +65,11 @@ export class PendingStatus extends AbstractStatus {
           );
 
         if (updateInvitationRes.modifiedCount === 0) {
-          throw new Error('invitation_update_failure');
+          throw new CrowdaaError(
+            ERROR_TYPE_INTERNAL_EXCEPTION,
+            UPDATE_FAILURE_CODE,
+            `Cannot update invitation '${invitationId}' in DB`
+          );
         }
         count += updateInvitationRes.modifiedCount;
       });
@@ -87,7 +98,11 @@ export class PendingStatus extends AbstractStatus {
       );
 
     if (updateInvitationRes.modifiedCount === 0) {
-      throw new Error('invitation_update_failure');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        UPDATE_FAILURE_CODE,
+        `Cannot update invitation '${invitationId}' in DB`
+      );
     }
 
     return updateInvitationRes.modifiedCount;
@@ -108,7 +123,11 @@ export class PendingStatus extends AbstractStatus {
       );
 
     if (updateInvitationRes.modifiedCount === 0) {
-      throw new Error('invitation_update_failure');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        UPDATE_FAILURE_CODE,
+        `Cannot update invitation '${invitationId}' in DB`
+      );
     }
 
     return updateInvitationRes.modifiedCount;
@@ -188,7 +207,11 @@ export class PendingStatus extends AbstractStatus {
    */
   async notifyCanceled() {
     if (!Object.values(supportedLocales).includes(this.toUserLocale)) {
-      throw new Error('unsupported_locale');
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_LOCALE_CODE,
+        `Unsupported locale '${this.toUserLocale}'`
+      );
     }
     await intlInit(this.toUserLocale);
 

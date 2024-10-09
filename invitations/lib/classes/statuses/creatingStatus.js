@@ -5,9 +5,11 @@ import mongoCollections from '../../../../libs/mongoCollections.json';
 import { invitationStatuses } from '../../../const/invitations';
 import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
 import {
+  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
   INVALID_SELF_INVITATION_CODE,
+  INVITATION_ALREADY_EXISTS_CODE,
   USER_NOT_FOUND_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
@@ -25,12 +27,16 @@ export class CreatingStatus extends AbstractStatus {
       status: invitationStatuses.PENDING,
     };
     const invitedUser = await this.getInvitedUser();
-    if (invitedUser) baseFindInvitationQuery.toUserId = invitedUser._id;
+    if (invitedUser) {
+      baseFindInvitationQuery.toUserId = invitedUser._id;
+    }
 
     const queryFromTarget = this.target.getFindInvitationQuery();
     const queryFromMethod = this.method.getFindInvitationQuery();
 
-    if (!queryFromTarget || !queryFromMethod) return;
+    if (!queryFromTarget || !queryFromMethod) {
+      return;
+    }
 
     const findInvitationQuery = {
       ...baseFindInvitationQuery,
@@ -43,7 +49,13 @@ export class CreatingStatus extends AbstractStatus {
       .collection(COLL_INVITATIONS)
       .findOne(findInvitationQuery);
 
-    if (existingInvitation) throw new Error('already_exists');
+    if (existingInvitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_ALLOWED,
+        INVITATION_ALREADY_EXISTS_CODE,
+        `An invitation from user '${this.fromUserId}' to user '${invitedUser && invitedUser._id}' already exists`
+      );
+    }
   }
 
   // should be protected or private

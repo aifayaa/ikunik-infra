@@ -1,10 +1,20 @@
+import { CrowdaaError } from '../../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  PANIC_CODE,
+} from '../../../../libs/httpResponses/errorCodes.ts';
+
 export class AbstractMethod {
   /**
    * should return properties that will be added to the method in the invitation document
    */
   // eslint-disable-next-line class-methods-use-this, require-await
   async getInvitationDocumentProperties() {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractMethod.getInvitationDocumentProperties()' directly`
+    );
   }
 
   /**
@@ -12,7 +22,11 @@ export class AbstractMethod {
    */
   // eslint-disable-next-line class-methods-use-this
   getFindInvitationQuery() {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractMethod.getFindInvitationQuery()' directly`
+    );
   }
 
   /**
@@ -20,7 +34,11 @@ export class AbstractMethod {
    */
   // eslint-disable-next-line class-methods-use-this
   getFindOneInvitedUserQuery() {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractMethod.getFindOneInvitedUserQuery()' directly`
+    );
   }
 
   /**
@@ -40,7 +58,11 @@ export class AbstractMethod {
     // eslint-disable-next-line no-unused-vars
     url,
   }) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractMethod.notifyCreated()' directly`
+    );
   }
 
   /**
@@ -49,7 +71,11 @@ export class AbstractMethod {
    */
   // eslint-disable-next-line class-methods-use-this, require-await, no-unused-vars
   async notifyReplied({ title, template, templateParameters, invitingUser }) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractMethod.notifyReplied()' directly`
+    );
   }
 
   /**
@@ -58,7 +84,11 @@ export class AbstractMethod {
    */
   // eslint-disable-next-line class-methods-use-this, require-await, no-unused-vars
   async notifyCanceled({ title, template, templateParameters, invitingUser }) {
-    throw new Error('not_implemented');
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Cannot use the abstract method 'AbstractMethod.notifyCanceled()' directly`
+    );
   }
 
   /**
