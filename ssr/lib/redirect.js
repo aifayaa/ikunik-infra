@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import url from 'url';
 import getAppsInfos from '../../apps/lib/getAppsInfos';
 import isCrawler from './isCrawler';
 import allowedUrls from './urlWhiteList';
@@ -12,19 +11,20 @@ export default async (userAgent, redirectUrl, appId) => {
     /* remove accent in Url */
     decodedUrl = decodedUrl.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-    /* /!\ url.parse adds ":" at the end of the protocol */
-    const { host, hostname, path, protocol } = url.parse(decodedUrl);
+    /* /!\ url parser adds ":" at the end of the protocol */
+    const { host, hostname, path } = new URL(decodedUrl);
+    /* URL parsing makes a toLowerCase, however some old (Before 2024/10/10) protocols
+     * have capital letters. We cannot mass-update it easily, so we need to handle it here... */
+    const [rawProtocol] = decodedUrl.split(':', 1);
 
-    /* Retrieve list of allowed protocols from database
-     * and add ":" after protocol to match with url.parse */
     const appsInfos = await getAppsInfos(true);
-    const allowedProtocols = appsInfos.map((v) => `${v.protocol}:`);
+    const allowedProtocols = appsInfos.map((v) => `${v.protocol}`);
 
     /* Check if redirect is valid */
     const isValid =
-      (hostname.endsWith('crowdaa.com') && protocol === 'https:') ||
-      allowedUrls.includes(`${protocol}//${host}${path}`) ||
-      allowedProtocols.includes(protocol);
+      (hostname.endsWith('crowdaa.com') && rawProtocol === 'https:') ||
+      allowedUrls.includes(`${rawProtocol}//${host}${path}`) ||
+      allowedProtocols.includes(rawProtocol);
 
     if (isValid) {
       return {
