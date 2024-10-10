@@ -96,9 +96,10 @@ async function createApp(
     .toLowerCase()
     .replace(/[^a-z0-9.]/g, '')
     .substr(0, 100);
-  const protocol =
+  const protocol = (
     (inputProtocol && inputProtocol.substr(0, 120)) ||
-    `crowdaa${appFirstChars}${Random.id(8)}proto`;
+    `crowdaa${appFirstChars}${Random.id(8)}proto`
+  ).toLowerCase();
 
   const toInsert = {
     _id: appId,
