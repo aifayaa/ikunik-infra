@@ -35,15 +35,6 @@ export default async (appId: string, filters: CrowdSearchParamsType) => {
           }),
         })
         .promise();
-    } else {
-      await lambda
-        .invokeAsync({
-          FunctionName: `asyncLambdas-${process.env.STAGE}-rebuildUserMetricsView`,
-          InvokeArgs: JSON.stringify({
-            appId,
-          }),
-        })
-        .promise();
     }
 
     const rawItems = await db
@@ -108,6 +99,17 @@ export default async (appId: string, filters: CrowdSearchParamsType) => {
 
       return item;
     });
+
+    if (firstItem) {
+      await lambda
+        .invokeAsync({
+          FunctionName: `asyncLambdas-${process.env.STAGE}-rebuildUserMetricsView`,
+          InvokeArgs: JSON.stringify({
+            appId,
+          }),
+        })
+        .promise();
+    }
 
     return { total, items };
   } finally {
