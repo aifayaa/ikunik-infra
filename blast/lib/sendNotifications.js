@@ -72,13 +72,19 @@ export const sendNotifications = async (appId, queueId) => {
       } else {
         retry = !!(pendingNotifs.length === PROCESS_BATCH_SIZE);
         const promises = pendingNotifs.map(
-          async ({ data = {}, endpoint: [endpoint], user: [user] }) => {
+          async ({
+            data = {},
+            endpoint: [endpoint],
+            user: [user],
+            deviceId,
+          }) => {
             if (!endpoint) return;
 
             const { canNotify = true, data: notificationData = {} } =
               await notifSpecificsHandler.processOne({
                 data,
                 user,
+                deviceId,
               });
 
             if (!canNotify) {
