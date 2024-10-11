@@ -37,7 +37,7 @@ export default async (appId: string, filters: CrowdSearchParamsType) => {
         .promise();
     }
 
-    const rawItems = await db
+    const rawItemsPromise = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .aggregate([
         ...pipeline,
@@ -46,10 +46,15 @@ export default async (appId: string, filters: CrowdSearchParamsType) => {
       ])
       .toArray();
 
-    const [{ total = 0 } = {}] = await db
+    const totalPromise = await db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .aggregate([...pipeline, { $count: 'total' }])
       .toArray();
+
+    const [rawItems, [{ total = 0 } = {}]] = await Promise.all([
+      rawItemsPromise,
+      totalPromise,
+    ]);
 
     const items = rawItems.map(({ ...item }) => {
       if (item.user) {
