@@ -108,8 +108,8 @@ const crowdMassUpdateFiltersSchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional(),
 
   type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-  userId: z.array(z.string().trim()).optional(),
-  notUserId: z.array(z.string().trim()).optional(),
+  memberId: z.array(z.string().trim()).optional(),
+  notMemberId: z.array(z.string().trim()).optional(),
   deviceId: z.array(z.string().trim()).optional(),
   geoWithin: z
     .array(

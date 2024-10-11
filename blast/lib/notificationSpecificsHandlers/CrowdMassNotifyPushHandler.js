@@ -18,6 +18,7 @@ PressArticleHandler.prototype.init = async function init() {
     ...crowdPipeline,
     { $project: { type: 1, userId: 1, deviceId: 1 } },
   ];
+
   const items = await this.client
     .db()
     .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
@@ -27,9 +28,10 @@ PressArticleHandler.prototype.init = async function init() {
   this.devices = {};
   this.users = {};
 
-  items.forEach(({ type, userId, deviceId }) => {
-    if (type === 'user') this.users[userId] = true;
-    else this.devices[deviceId] = true;
+  items.forEach((arg) => {
+    const { type, userId, deviceId } = arg;
+    if (type === 'user' && userId) this.users[userId] = true;
+    else if (deviceId) this.devices[deviceId] = true;
   });
 
   return true;

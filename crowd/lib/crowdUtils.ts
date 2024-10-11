@@ -60,10 +60,10 @@ export function buildCrowdSearchPipeline(
     $match.metricsGeoLast = { $ne: null };
   }
 
-  if (filters.userId && filters.userId.length > 0) {
-    $match.userId = { $in: filters.userId };
-  } else if (filters.notUserId && filters.notUserId.length > 0) {
-    $match.userId = { $nin: filters.notUserId };
+  if (filters.memberId && filters.memberId.length > 0) {
+    $match._id = { $in: filters.memberId };
+  } else if (filters.notMemberId && filters.notMemberId.length > 0) {
+    $match._id = { $nin: filters.notMemberId };
   }
 
   if (filters.deviceId) {

@@ -11,8 +11,8 @@ export type CrowdSearchPipelineFiltersType = {
   email?: string;
   badgeId?: string;
   type?: CrowdViewType[];
-  userId?: string[];
-  notUserId?: string[];
+  memberId?: string[];
+  notMemberId?: string[];
   deviceId?: string[];
 
   requires?: 'geolocation';
@@ -86,8 +86,8 @@ export type CrowdSearchMassUpdateFiltersType = {
   email?: string;
   badgeId?: string;
   type?: CrowdViewType[];
-  userId?: string[];
-  notUserId?: string[];
+  memberId?: string[];
+  notMemberId?: string[];
   deviceId?: string[];
 
   lat?: number;
