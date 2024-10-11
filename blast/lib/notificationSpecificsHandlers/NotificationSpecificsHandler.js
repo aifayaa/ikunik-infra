@@ -3,12 +3,14 @@ import PressArticleHandler from './PressArticleHandler';
 import UGCHandler from './UGCHandler';
 import ChatMessageHandler from './ChatMessageHandler';
 import UsersDirectPushHandler from './UsersDirectPushHandler';
+import CrowdMassNotifyPushHandler from './CrowdMassNotifyPushHandler';
 
 const handlers = {
   pressArticle: PressArticleHandler,
   userArticle: UGCHandler,
   'chat-message': ChatMessageHandler,
   usersDirectPush: UsersDirectPushHandler,
+  crowdMassNotify: CrowdMassNotifyPushHandler,
 };
 
 function NotificationSpecificsHandler(client, appId, rootNotifQueue) {
@@ -38,6 +40,8 @@ NotificationSpecificsHandler.prototype.processOne = function processOne() {
   return { canNotify: false };
 };
 
-NotificationSpecificsHandler.prototype.batchDone = function batchDone() {};
+NotificationSpecificsHandler.prototype.batchDone = function batchDone() {
+  /* empty */
+};
 
 export default NotificationSpecificsHandler;

@@ -1,6 +1,6 @@
 type CrowdViewType = 'user' | 'device' | 'userDevice';
 
-type GeoJSONCoordinatesType = [number, number];
+export type GeoJSONCoordinatesType = [number, number];
 
 export type CrowdSearchPipelineFiltersType = {
   articleId?: string;
@@ -12,6 +12,7 @@ export type CrowdSearchPipelineFiltersType = {
   badgeId?: string;
   type?: CrowdViewType[];
   userId?: string[];
+  notUserId?: string[];
   deviceId?: string[];
 
   requires?: 'geolocation';
@@ -74,6 +75,45 @@ export type CrowdSearchGeoJSONParamsType = {
 
   sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
   sortOrder?: 'asc' | 'desc';
+};
+
+export type CrowdSearchMassUpdateFiltersType = {
+  articleId?: string;
+  username?: string;
+  firstname?: string;
+  lastname?: string;
+  search?: string;
+  email?: string;
+  badgeId?: string;
+  type?: CrowdViewType[];
+  userId?: string[];
+  notUserId?: string[];
+  deviceId?: string[];
+
+  lat?: number;
+  lng?: number;
+  radius?: number;
+
+  limit?: number;
+  skip?: number;
+
+  geoWithin?: GeoJSONCoordinatesType[];
+
+  sortBy?: 'readingTime' | 'firstMetricAt' | 'distance' | 'lastMetricAt';
+  sortOrder?: 'asc' | 'desc';
+};
+
+export type CrowdSearchMassUpdateNotifyPayloadType = {
+  title?: string;
+  content?: string;
+  notifyAt?: Date;
+  extraData?: {
+    articleId?: string;
+    userArticleId?: string;
+    chatRoomId?: string;
+    webviewUrl?: string;
+    hideNavbar?: boolean;
+  };
 };
 
 export type CrowdLastGeoJSONParamsType = {

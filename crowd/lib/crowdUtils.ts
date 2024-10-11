@@ -59,9 +59,13 @@ export function buildCrowdSearchPipeline(
   if (filters.requires === 'geolocation') {
     $match.metricsGeoLast = { $ne: null };
   }
-  if (filters.userId) {
+
+  if (filters.userId && filters.userId.length > 0) {
     $match.userId = { $in: filters.userId };
+  } else if (filters.notUserId && filters.notUserId.length > 0) {
+    $match.userId = { $nin: filters.notUserId };
   }
+
   if (filters.deviceId) {
     $match.deviceId = { $in: filters.deviceId };
   }

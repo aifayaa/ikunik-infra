@@ -5,6 +5,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { z } from 'zod';
+import { GeoJSONCoordinatesType } from './crowdTypes';
 
 /* ################ *
  * Common functions *
@@ -48,7 +49,22 @@ function floatArrayPairsStrParser(val: any) {
 }
 
 function parseGeoWithinField(val: string[]) {
-  const ret = val.map((x) => x.split(',').map((y) => parseFloat(y)));
+  const ret = val.map((x) => {
+    const splitted = x.split(',').map((y) => parseFloat(y));
+    if (
+      splitted.length !== 2 ||
+      typeof splitted[0] !== 'number' ||
+      typeof splitted[1] !== 'number'
+    ) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_INPUT_FORMAT_CODE,
+        'geoWithin coordinate have invalid length or type'
+      );
+    }
+
+    return splitted as GeoJSONCoordinatesType;
+  });
 
   if (ret.length < 3) {
     throw new CrowdaaError(
@@ -60,6 +76,67 @@ function parseGeoWithinField(val: string[]) {
 
   return ret;
 }
+
+/* ########### *
+ * Mass Update *
+ * ########### */
+export const crowdMassUpdateActionSchema = z.object({
+  action: z.enum(['notify', 'addBadges', 'delBadges']),
+});
+
+const crowdMassUpdateFiltersSchema = z.object({
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
+
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  radius: z.number().optional(),
+
+  limit: z.number().int().optional(),
+  skip: z.number().int().optional(),
+
+  sortBy: z
+    .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+
+  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+  userId: z.array(z.string().trim()).optional(),
+  notUserId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+  geoWithin: z
+    .array(
+      z
+        .array(z.number())
+        .length(2)
+        .transform((x) => x as GeoJSONCoordinatesType)
+    )
+    .min(3)
+    .optional(),
+});
+
+export const crowdMassUpdateNotifySchema = z.object({
+  filters: crowdMassUpdateFiltersSchema,
+  notifyAt: z.date().optional(),
+  payload: z.object({
+    title: z.string().trim(),
+    content: z.string().trim(),
+    extraData: z
+      .object({
+        articleId: z.string().optional(),
+        userArticleId: z.string().optional(),
+        chatRoomId: z.string().optional(),
+        webviewUrl: z.string().optional(),
+        hideNavbar: z.boolean().optional(),
+      })
+      .default({}),
+  }),
+});
 
 /* ###### *
  * Search *
@@ -75,7 +152,7 @@ const crowdSearchSchema = z.object({
 
   lat: z.custom<'123'>(floatStrParser).optional(),
   lng: z.custom<'123'>(floatStrParser).optional(),
-  radius: z.custom<'123'>(intStrParser).optional(),
+  radius: z.custom<'123'>(floatStrParser).optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),
   skip: z.custom<'123'>(intStrParser).optional(),
@@ -157,7 +234,7 @@ const crowdSearchGeoJSONSchema = z.object({
 
   lat: z.custom<'123'>(floatStrParser).optional(),
   lng: z.custom<'123'>(floatStrParser).optional(),
-  radius: z.custom<'123'>(intStrParser).optional(),
+  radius: z.custom<'123'>(floatStrParser).optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),
   skip: z.custom<'123'>(intStrParser).optional(),

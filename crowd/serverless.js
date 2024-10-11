@@ -243,6 +243,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    crowdMassUpdate: {
+      handler: 'handlers/crowdMassUpdate.default',
+      events: [
+        {
+          http: {
+            path: 'admin/crowd/{action}',
+            method: 'post',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
