@@ -243,6 +243,10 @@ const serverlessConfiguration = {
         },
       ],
     },
+    crowdMassUpdateBadgesApply: {
+      handler: 'handlers/crowdMassUpdateBadgesApply.default',
+      timeout: 600,
+    },
     crowdMassUpdate: {
       handler: 'handlers/crowdMassUpdate.default',
       events: [
