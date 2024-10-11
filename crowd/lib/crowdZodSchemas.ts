@@ -84,43 +84,46 @@ export const crowdMassUpdateActionSchema = z
   .object({
     action: z.enum(['notify', 'addBadges', 'delBadges']),
   })
+  .strict()
   .required();
 
-const crowdMassUpdateFiltersSchema = z.object({
-  articleId: z.string().trim().optional(),
-  username: z.string().trim().optional(),
-  firstname: z.string().trim().optional(),
-  lastname: z.string().trim().optional(),
-  search: z.string().trim().optional(),
-  email: z.string().trim().optional(),
-  badgeId: z.string().trim().optional(),
+const crowdMassUpdateFiltersSchema = z
+  .object({
+    articleId: z.string().trim().optional(),
+    username: z.string().trim().optional(),
+    firstname: z.string().trim().optional(),
+    lastname: z.string().trim().optional(),
+    search: z.string().trim().optional(),
+    email: z.string().trim().optional(),
+    badgeId: z.string().trim().optional(),
 
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-  radius: z.number().optional(),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
+    radius: z.number().optional(),
 
-  limit: z.number().int().optional(),
-  skip: z.number().int().optional(),
+    limit: z.number().int().optional(),
+    skip: z.number().int().optional(),
 
-  sortBy: z
-    .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-    .optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
+    sortBy: z
+      .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+      .optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
 
-  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-  memberId: z.array(z.string().trim()).optional(),
-  notMemberId: z.array(z.string().trim()).optional(),
-  deviceId: z.array(z.string().trim()).optional(),
-  geoWithin: z
-    .array(
-      z
-        .array(z.number())
-        .length(2)
-        .transform((x) => x as GeoJSONCoordinatesType)
-    )
-    .min(3)
-    .optional(),
-});
+    type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+    memberId: z.array(z.string().trim()).optional(),
+    notMemberId: z.array(z.string().trim()).optional(),
+    deviceId: z.array(z.string().trim()).optional(),
+    geoWithin: z
+      .array(
+        z
+          .array(z.number())
+          .length(2)
+          .transform((x) => x as GeoJSONCoordinatesType)
+      )
+      .min(3)
+      .optional(),
+  })
+  .strict();
 
 export const crowdMassUpdateNotifySchema = z.object({
   filters: crowdMassUpdateFiltersSchema,
@@ -143,34 +146,38 @@ export const crowdMassUpdateNotifySchema = z.object({
 /* ###### *
  * Search *
  * ###### */
-const crowdSearchSchema = z.object({
-  articleId: z.string().trim().optional(),
-  username: z.string().trim().optional(),
-  firstname: z.string().trim().optional(),
-  lastname: z.string().trim().optional(),
-  search: z.string().trim().optional(),
-  email: z.string().trim().optional(),
-  badgeId: z.string().trim().optional(),
+const crowdSearchSchema = z
+  .object({
+    articleId: z.string().trim().optional(),
+    username: z.string().trim().optional(),
+    firstname: z.string().trim().optional(),
+    lastname: z.string().trim().optional(),
+    search: z.string().trim().optional(),
+    email: z.string().trim().optional(),
+    badgeId: z.string().trim().optional(),
 
-  lat: z.custom<'123'>(floatStrParser).optional(),
-  lng: z.custom<'123'>(floatStrParser).optional(),
-  radius: z.custom<'123'>(floatStrParser).optional(),
+    lat: z.custom<'123'>(floatStrParser).optional(),
+    lng: z.custom<'123'>(floatStrParser).optional(),
+    radius: z.custom<'123'>(floatStrParser).optional(),
 
-  limit: z.custom<'123'>(intStrParser).optional(),
-  skip: z.custom<'123'>(intStrParser).optional(),
+    limit: z.custom<'123'>(intStrParser).optional(),
+    skip: z.custom<'123'>(intStrParser).optional(),
 
-  sortBy: z
-    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-    .optional(),
-  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
-});
+    sortBy: z
+      .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+      .optional(),
+    sortOrder: z.enum(['', 'asc', 'desc']).optional(),
+  })
+  .strict();
 
-const crowdSearchMultiSchema = z.object({
-  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-  userId: z.array(z.string().trim()).optional(),
-  deviceId: z.array(z.string().trim()).optional(),
-  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
-});
+const crowdSearchMultiSchema = z
+  .object({
+    type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+    userId: z.array(z.string().trim()).optional(),
+    deviceId: z.array(z.string().trim()).optional(),
+    geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+  })
+  .strict();
 
 export function parseSearchQuery(event: APIGatewayProxyEvent) {
   const params = (event.queryStringParameters || {}) as z.infer<
@@ -225,34 +232,38 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
 /* ############# *
  * SearchGeoJSON *
  * ############# */
-const crowdSearchGeoJSONSchema = z.object({
-  articleId: z.string().trim().optional(),
-  username: z.string().trim().optional(),
-  firstname: z.string().trim().optional(),
-  lastname: z.string().trim().optional(),
-  search: z.string().trim().optional(),
-  email: z.string().trim().optional(),
-  badgeId: z.string().trim().optional(),
+const crowdSearchGeoJSONSchema = z
+  .object({
+    articleId: z.string().trim().optional(),
+    username: z.string().trim().optional(),
+    firstname: z.string().trim().optional(),
+    lastname: z.string().trim().optional(),
+    search: z.string().trim().optional(),
+    email: z.string().trim().optional(),
+    badgeId: z.string().trim().optional(),
 
-  lat: z.custom<'123'>(floatStrParser).optional(),
-  lng: z.custom<'123'>(floatStrParser).optional(),
-  radius: z.custom<'123'>(floatStrParser).optional(),
+    lat: z.custom<'123'>(floatStrParser).optional(),
+    lng: z.custom<'123'>(floatStrParser).optional(),
+    radius: z.custom<'123'>(floatStrParser).optional(),
 
-  limit: z.custom<'123'>(intStrParser).optional(),
-  skip: z.custom<'123'>(intStrParser).optional(),
+    limit: z.custom<'123'>(intStrParser).optional(),
+    skip: z.custom<'123'>(intStrParser).optional(),
 
-  sortBy: z
-    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-    .optional(),
-  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
-});
+    sortBy: z
+      .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+      .optional(),
+    sortOrder: z.enum(['', 'asc', 'desc']).optional(),
+  })
+  .strict();
 
-const crowdSearchGeoJSONMultiSchema = z.object({
-  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-  userId: z.array(z.string().trim()).optional(),
-  deviceId: z.array(z.string().trim()).optional(),
-  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
-});
+const crowdSearchGeoJSONMultiSchema = z
+  .object({
+    type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+    userId: z.array(z.string().trim()).optional(),
+    deviceId: z.array(z.string().trim()).optional(),
+    geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+  })
+  .strict();
 
 export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
   const params = (event.queryStringParameters || {}) as z.infer<
