@@ -137,7 +137,15 @@ export const queueNotifications = async (
     const endpoints = dbPushNotifications
       .find(
         { appId },
-        { projection: { _id: 1, Platform: 1, EndpointArn: 1, userId: 1 } }
+        {
+          projection: {
+            _id: 1,
+            Platform: 1,
+            EndpointArn: 1,
+            deviceUUID: 1,
+            userId: 1,
+          },
+        }
       )
       .batchSize(PROCESS_BATCH_SIZE);
 
@@ -158,6 +166,7 @@ export const queueNotifications = async (
           queueId,
           root: false,
           userId: endpoint.userId,
+          deviceId: endpoint.deviceUUID,
         });
         queued += 1;
       }

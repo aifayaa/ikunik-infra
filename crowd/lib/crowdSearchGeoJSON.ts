@@ -1,14 +1,9 @@
-import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '@libs/mongoClient';
 import mongoViews from '@libs/mongoViews.json';
 import { CrowdSearchGeoJSONParamsType } from './crowdTypes';
 import { buildCrowdSearchPipeline } from './crowdUtils';
 
 const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
-
-const lambda = new Lambda({
-  region: process.env.REGION,
-});
 
 export default async (appId: string, filters: CrowdSearchGeoJSONParamsType) => {
   const client = await MongoClient.connect();
@@ -18,30 +13,6 @@ export default async (appId: string, filters: CrowdSearchGeoJSONParamsType) => {
       ...filters,
       requires: 'geolocation',
     });
-
-    const firstItem = await db
-      .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
-      .findOne({ appId });
-
-    if (!firstItem) {
-      await lambda
-        .invoke({
-          FunctionName: `asyncLambdas-${process.env.STAGE}-rebuildUserMetricsView`,
-          Payload: JSON.stringify({
-            appId,
-          }),
-        })
-        .promise();
-    } else {
-      await lambda
-        .invokeAsync({
-          FunctionName: `asyncLambdas-${process.env.STAGE}-rebuildUserMetricsView`,
-          InvokeArgs: JSON.stringify({
-            appId,
-          }),
-        })
-        .promise();
-    }
 
     if (filters.skip) {
       pipeline.push({ $skip: filters.skip });

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { unqueueNotifications } from '../lib/notificationsQueue';
+import { unqueueNotifications } from '../lib/queueNotifications';
 
 export default async (event) => {
   try {
