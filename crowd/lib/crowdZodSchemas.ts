@@ -80,9 +80,11 @@ function parseGeoWithinField(val: string[]) {
 /* ########### *
  * Mass Update *
  * ########### */
-export const crowdMassUpdateActionSchema = z.object({
-  action: z.enum(['notify', 'addBadges', 'delBadges']),
-});
+export const crowdMassUpdateActionSchema = z
+  .object({
+    action: z.enum(['notify', 'addBadges', 'delBadges']),
+  })
+  .required();
 
 const crowdMassUpdateFiltersSchema = z.object({
   articleId: z.string().trim().optional(),

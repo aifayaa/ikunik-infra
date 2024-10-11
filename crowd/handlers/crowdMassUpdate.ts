@@ -62,7 +62,8 @@ export default async (event: APIGatewayProxyEvent) => {
       results = await crowdMassUpdateNotify(
         appId,
         validatedBody.filters,
-        validatedBody.payload
+        validatedBody.payload,
+        validatedBody.notifyAt
       );
     } else {
       throw new Error('not_implemented');

@@ -18,24 +18,19 @@ const lambda = new Lambda({
 export default async (
   appId: string,
   filters: CrowdSearchMassUpdateFiltersType,
-  payload: CrowdSearchMassUpdateNotifyPayloadType
+  payload: CrowdSearchMassUpdateNotifyPayloadType,
+  notifyAt?: Date
 ) => {
-  const pipeline = buildCrowdSearchPipeline(appId, filters);
-
   const response = await lambda
     .invoke({
       FunctionName: `blast-${STAGE}-queueNotifications`,
       Payload: JSON.stringify({
         appId,
-        notifyAt: payload.notifyAt || new Date(),
+        notifyAt: notifyAt || new Date(),
         type: 'crowdMassNotify',
         data: {
-          notification: {
-            title: payload.title,
-            content: payload.content,
-            extraData: payload.extraData,
-          },
-          crowdPipeline: pipeline,
+          payload,
+          filters,
         },
       }),
     })

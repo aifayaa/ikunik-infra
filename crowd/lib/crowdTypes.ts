@@ -106,7 +106,6 @@ export type CrowdSearchMassUpdateFiltersType = {
 export type CrowdSearchMassUpdateNotifyPayloadType = {
   title?: string;
   content?: string;
-  notifyAt?: Date;
   extraData?: {
     articleId?: string;
     userArticleId?: string;

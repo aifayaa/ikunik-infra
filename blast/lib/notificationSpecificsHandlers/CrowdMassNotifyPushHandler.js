@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import mongoViews from '../../../libs/mongoViews.json';
 import BadgeChecker from '../../../libs/badges/BadgeChecker';
+import { buildCrowdSearchPipeline } from '../../../crowd/lib/crowdUtils.ts';
 
 const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
 
@@ -9,7 +10,10 @@ function PressArticleHandler() {
 }
 
 PressArticleHandler.prototype.init = async function init() {
-  const { crowdPipeline } = this.queueData;
+  const { filters } = this.queueData;
+
+  const crowdPipeline = buildCrowdSearchPipeline(this.appId, filters);
+
   const pipeline = [
     ...crowdPipeline,
     { $project: { type: 1, userId: 1, deviceId: 1 } },
