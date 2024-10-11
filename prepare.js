@@ -630,7 +630,11 @@ verbose(
       [VIEW_USER_METRICS_UUID_AGGREGATED]: [
         {
           name: 'location_2dsphere',
-          key: { 'metricsGeoLast.location': '2dsphere' },
+          key: {
+            appId: 1,
+            type: 1,
+            'metricsGeoLast.location': '2dsphere',
+          },
           opts: makeOpts({ background: true, '2dsphereIndexVersion': 3 }),
         },
         {
@@ -651,6 +655,7 @@ verbose(
           name: 'crowdaa_articles_search_fields',
           key: {
             appId: 1,
+            type: 1,
             'user.profile.username': 1,
             'user.profile.firstname': 1,
             'user.profile.lastname': 1,
