@@ -115,6 +115,9 @@ export type CrowdSearchMassUpdateNotifyPayloadType = {
   };
 };
 
+export type CrowdSearchMassUpdateBadgesActionType = 'addBadges' | 'delBadges';
+export type CrowdSearchMassUpdateBadgesIdsType = string[];
+
 export type CrowdLastGeoJSONParamsType = {
   from: Date;
   all: boolean;
