@@ -13,9 +13,11 @@ import {
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 import {
   crowdMassUpdateActionSchema,
+  crowdMassUpdateBadgesSchema,
   crowdMassUpdateNotifySchema,
 } from 'crowd/lib/crowdZodSchemas';
 import crowdMassUpdateNotify from 'crowd/lib/crowdMassUpdateNotify';
+import crowdMassUpdateBadges from 'crowd/lib/crowdMassUpdateBadges';
 
 export default async (event: APIGatewayProxyEvent) => {
   const {
@@ -64,6 +66,17 @@ export default async (event: APIGatewayProxyEvent) => {
         validatedBody.filters,
         validatedBody.payload,
         validatedBody.notifyAt
+      );
+    } else if (action === 'addBadges' || action === 'delBadges') {
+      const validatedBody = crowdMassUpdateBadgesSchema.parse(
+        JSON.parse(event.body)
+      );
+
+      results = await crowdMassUpdateBadges(
+        appId,
+        validatedBody.filters,
+        action,
+        validatedBody.badgesIds
       );
     } else {
       throw new Error('not_implemented');
