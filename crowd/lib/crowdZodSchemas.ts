@@ -145,7 +145,7 @@ export const crowdMassUpdateNotifySchema = z.object({
 
 export const crowdMassUpdateBadgesSchema = z.object({
   filters: crowdMassUpdateFiltersSchema,
-  badgesIds: z.array(z.string().trim()),
+  badgeIds: z.array(z.string().trim()),
 });
 
 /* ###### *
