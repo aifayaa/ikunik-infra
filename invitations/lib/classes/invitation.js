@@ -9,6 +9,13 @@ import {
 } from './statuses';
 import { AbstractStatus } from './statuses/abstractStatus';
 import mongoCollections from '../../../libs/mongoCollections.json';
+import { CrowdaaError } from '../../../libs/httpResponses/CrowdaaError.ts';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_NOT_FOUND,
+  INVITATION_NOT_FOUND_CODE,
+  PANIC_CODE,
+} from '../../../libs/httpResponses/errorCodes.ts';
 
 const { COLL_INVITATIONS } = mongoCollections;
 
@@ -108,11 +115,19 @@ export class Invitation {
         break;
 
       default:
-        throw new Error('invitation_unknown_status');
+        throw new CrowdaaError(
+          ERROR_TYPE_INTERNAL_EXCEPTION,
+          PANIC_CODE,
+          `Unknown status '${this.status}' during instantiation of invitation`
+        );
     }
 
     if (!(this.status instanceof AbstractStatus)) {
-      throw new Error('invitation_bad_status_instance');
+      throw new CrowdaaError(
+        ERROR_TYPE_INTERNAL_EXCEPTION,
+        PANIC_CODE,
+        `Status of invitation '${JSON.stringify(this.status)}' doesn't derived from AbstractStatus`
+      );
     }
 
     await this.status.init({
@@ -152,7 +167,13 @@ export class Invitation {
       invitationId,
       currentUserId
     );
-    if (!invitation) throw new Error('invitation_not_found');
+    if (!invitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
     const { action, challengeCode } = parameters;
 
     await this.init({
@@ -197,8 +218,10 @@ export class Invitation {
         break;
 
       default:
-        throw new Error(
-          'invitation_could_not_determine_action_from_provided_status'
+        throw new CrowdaaError(
+          ERROR_TYPE_INTERNAL_EXCEPTION,
+          PANIC_CODE,
+          `Action of invitation '${action}' is unhandled`
         );
     }
 
@@ -210,7 +233,13 @@ export class Invitation {
       invitationId,
       currentUserId
     );
-    if (!invitation) throw new Error('invitation_not_found');
+    if (!invitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
     const { status, challengeCode } = parameters;
 
     await this.init({
@@ -250,8 +279,10 @@ export class Invitation {
         break;
 
       default:
-        throw new Error(
-          'invitation_could_not_determine_action_from_provided_status'
+        throw new CrowdaaError(
+          ERROR_TYPE_INTERNAL_EXCEPTION,
+          PANIC_CODE,
+          `Status of invitation '${status}' is unhandled`
         );
     }
 
@@ -302,7 +333,13 @@ export class Invitation {
   async resend(currentUserId, invitationId) {
     const invitation = await this.findInvitationById(invitationId);
 
-    if (!invitation) throw new Error('invitation_not_found');
+    if (!invitation) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        INVITATION_NOT_FOUND_CODE,
+        `Cannot found invitation '${invitationId}'`
+      );
+    }
 
     await this.init({
       fromUserId: invitation.fromUserId,

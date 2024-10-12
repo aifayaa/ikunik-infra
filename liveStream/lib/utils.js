@@ -2,6 +2,7 @@
 export function filterOutput(input) {
   return {
     _id: input._id,
+    appId: input.appId,
     createdAt: input.createdAt,
     startDateTime: input.startDateTime,
     expireDateTime: input.expireDateTime,
