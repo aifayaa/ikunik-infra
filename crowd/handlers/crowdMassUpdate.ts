@@ -76,7 +76,7 @@ export default async (event: APIGatewayProxyEvent) => {
         appId,
         validatedBody.filters,
         action,
-        validatedBody.badgesIds
+        validatedBody.badgeIds
       );
     } else {
       throw new Error('not_implemented');

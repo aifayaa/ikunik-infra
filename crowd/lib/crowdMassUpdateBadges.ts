@@ -28,20 +28,20 @@ export type CrowdMassUpdateBadgesApplyEventType = {
   appId: string;
   filters: CrowdSearchMassUpdateFiltersType;
   action: CrowdSearchMassUpdateBadgesActionType;
-  badgesIds: CrowdSearchMassUpdateBadgesIdsType;
+  badgeIds: CrowdSearchMassUpdateBadgesIdsType;
 };
 
 export default async (
   appId: string,
   filters: CrowdSearchMassUpdateFiltersType,
   action: CrowdSearchMassUpdateBadgesActionType,
-  badgesIds: CrowdSearchMassUpdateBadgesIdsType
+  badgeIds: CrowdSearchMassUpdateBadgesIdsType
 ) => {
   const invokeArgs: CrowdMassUpdateBadgesApplyEventType = {
     appId,
     filters,
     action,
-    badgesIds,
+    badgeIds,
   };
   await lambda
     .invokeAsync({
@@ -59,7 +59,7 @@ export async function crowdMassUpdateBadgesApply({
   appId,
   filters,
   action,
-  badgesIds,
+  badgeIds,
 }: CrowdMassUpdateBadgesApplyEventType) {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -75,7 +75,7 @@ export async function crowdMassUpdateBadgesApply({
       ]);
 
     let pendingPromises = [];
-    const badgesObjectsIds = badgesIds.map((id) => ({
+    const badgesObjectsIds = badgeIds.map((id) => ({
       id,
     }));
 
@@ -87,7 +87,7 @@ export async function crowdMassUpdateBadgesApply({
           { _id, appId },
           {
             $pull: {
-              badges: { id: { $in: badgesIds } },
+              badges: { id: { $in: badgeIds } },
             },
           }
         );
