@@ -11,6 +11,7 @@ export default async (event) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     const results = await getArticles(category, start, limit, appId, {
+      allFields: true,
       getOrphansArticles: !category,
       onlyPublished: false,
       showHiddenOnFeed: true,
