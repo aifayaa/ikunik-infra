@@ -24,6 +24,7 @@ export const getArticles = async (
   limit,
   appId,
   {
+    allFields = true,
     getPictures = false,
     checkBadges = true,
     eventsInterval: [eventsStart, eventsEnd] = [null, null],
@@ -315,12 +316,16 @@ export const getArticles = async (
         $project: {
           'user.profile.avatar': 0,
           'user.profile.userPictureData': 0,
+          userTemp: 0,
         },
       },
-      {
-        $project: commonFields,
-      },
     ];
+
+    if (!allFields) {
+      articlesPipeline.push({
+        $project: commonFields,
+      });
+    }
 
     if (getPictures) {
       articlesPipeline = articlesPipeline.concat([
