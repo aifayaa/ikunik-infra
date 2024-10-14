@@ -25,6 +25,30 @@ const serverlessConfiguration = {
       LEQUOTIDIEN_AWS_SECRET: 'a7aMITbP56fAYhk+Hps3xkBfPRHI9KcIj5rkTDSu',
       LEQUOTIDIEN_BUCKET_PDF: 'lqr-pdf',
     },
+    merchwp: {
+      prod: {
+        'us-east-1': {
+          MERCHWP_LAMBDA_CREATE_WEBSITE:
+            'crowdaa-hosting-env-prod-us-website-deploy-function',
+        },
+        'eu-west-3': {
+          MERCHWP_LAMBDA_CREATE_WEBSITE:
+            'crowdaa-hosting-env-prod-fr-website-deploy-function',
+        },
+      },
+      preprod: {
+        'eu-west-3': {
+          MERCHWP_LAMBDA_CREATE_WEBSITE:
+            'crowdaa-hosting-env-preprod-fr-website-deploy-function',
+        },
+      },
+      dev: {
+        'us-east-1': {
+          MERCHWP_LAMBDA_CREATE_WEBSITE:
+            'crowdaa-hosting-env-dev-us-website-deploy-function',
+        },
+      },
+    },
     esbuild: {
       config: '../esbuild.config.cjs',
     },
@@ -57,6 +81,11 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.LEQUOTIDIEN_BUCKET_PDF, "NONE"}',
       FONTAWESOME_API_KEY:
         '${ssm(us-east-1):/crowdaa_microservices/global/fontawesome/api-key}',
+      MERCHWP_WEBSITE_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
+      MERCHWP_LAMBDA_CREATE_WEBSITE:
+        '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
+      MERCHWP_API_URL:
+        'https://${file(../api-v1/serverless.js):custom.domains.${self:provider.stage}.${self:provider.region}}/v1',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -64,8 +93,29 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region:
-      '${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}',
+      '${opt:region, file(../api-v1/serverless.js):custom.region.${self:provider.stage}, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource: [
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.MERCHWP_LAMBDA_CREATE_WEBSITE}',
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-*',
+            ],
+          },
+          {
+            Effect: 'Allow',
+            Action: ['s3:GetObject', 's3:GetObjectAttributes'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.MERCHWP_WEBSITE_TEMPLATES_BUCKET}/*',
+            ],
+          },
+        ],
+      },
+    },
   },
   functions: {
     provCPMEGetWebsitePage: {
@@ -141,12 +191,22 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
-            request: {
-              parameters: {
-                paths: {
-                  pdfId: true,
-                },
-              },
+          },
+        },
+      ],
+    },
+    provMerchWPSetupHandler: {
+      handler: 'handlers/merchwp/setup.default',
+      events: [
+        {
+          http: {
+            path: 'providers/merchwp/{step}',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
           },
         },
