@@ -315,25 +315,14 @@ export const getArticles = async (
         $project: {
           'user.profile.avatar': 0,
           'user.profile.userPictureData': 0,
-          userTemp: 0,
         },
+      },
+      {
+        $project: commonFields,
       },
     ];
 
     if (getPictures) {
-      // Lookup on pictures
-      // TODO optimise, fetch pictures only for skip/limit range
-      const pictureGroup = {
-        ...Object.keys(commonFields).reduce((res, key) => {
-          res[key] = { $first: `$${key}` };
-          return res;
-        }, {}),
-        categories: { $first: '$categories' },
-        pictures: { $push: '$pictures' },
-        videos: { $first: '$videos' },
-        feedPicture: { $first: '$feedPicture' },
-        _id: '$_id',
-      };
       articlesPipeline = articlesPipeline.concat([
         {
           $lookup: {
@@ -350,47 +339,11 @@ export const getArticles = async (
           },
         },
         {
-          $unwind: {
-            path: '$pictures',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
           $lookup: {
             from: COLL_PICTURES,
             localField: 'pictures',
             foreignField: '_id',
             as: 'pictures',
-          },
-        },
-        {
-          $unwind: {
-            path: '$pictures',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $group: pictureGroup,
-        },
-      ]);
-      // Lookup on videos
-      // TODO optimise, fetch videos only for skip/limit range
-      const videoGroup = {
-        ...Object.keys(commonFields).reduce((res, key) => {
-          res[key] = { $first: `$${key}` };
-          return res;
-        }, {}),
-        categories: { $first: '$categories' },
-        pictures: { $first: '$pictures' },
-        videos: { $push: '$videos' },
-        feedPicture: { $first: '$feedPicture' },
-        _id: '$_id',
-      };
-      articlesPipeline = articlesPipeline.concat([
-        {
-          $unwind: {
-            path: '$videos',
-            preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -400,15 +353,6 @@ export const getArticles = async (
             foreignField: '_id',
             as: 'videos',
           },
-        },
-        {
-          $unwind: {
-            path: '$videos',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $group: videoGroup,
         },
       ]);
     }
@@ -472,24 +416,29 @@ export const getArticles = async (
         },
       ];
       let drafts;
-      [drafts, extPurchases] = await Promise.all([
+      const getDrafts = () =>
         client
           .db()
           .collection(COLL_PRESS_DRAFTS)
           .aggregate(draftPipeline)
-          .toArray(),
-        userId
-          ? client
-              .db()
-              .collection(COLL_EXTERNAL_PURCHASES)
-              .find({
-                appId,
-                collection: COLL_PRESS_ARTICLES,
-                userId,
-                itemId: { $in: articlesIds },
-              })
-              .toArray()
-          : [],
+          .toArray();
+      const getExtPurchases = () => {
+        if (userId)
+          return client
+            .db()
+            .collection(COLL_EXTERNAL_PURCHASES)
+            .find({
+              appId,
+              collection: COLL_PRESS_ARTICLES,
+              userId,
+              itemId: { $in: articlesIds },
+            })
+            .toArray();
+        return Promise.resolve([]);
+      };
+      [drafts, extPurchases] = await Promise.all([
+        getDrafts(),
+        getExtPurchases(),
       ]);
 
       extPurchases = extPurchases.reduce((acc, itm) => {
