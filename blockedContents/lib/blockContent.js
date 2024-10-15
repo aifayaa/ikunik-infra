@@ -23,12 +23,7 @@ export default async (userId, type, contentId, { appId }) => {
     });
 
     if (alreadyBlocked) {
-      return {
-        _id: alreadyBlocked._id,
-        appId,
-        contentId,
-        type,
-      };
+      return alreadyBlocked;
     }
 
     const result = await db.collection(COLL_BLOCKED_CONTENTS).insertOne({
@@ -36,16 +31,14 @@ export default async (userId, type, contentId, { appId }) => {
       contentId,
       type,
       userId,
+      createdAt: new Date(),
     });
 
     const { insertedId: _id } = result;
 
-    return {
+    return await db.collection(COLL_BLOCKED_CONTENTS).findOne({
       _id,
-      appId,
-      contentId,
-      type,
-    };
+    });
   } finally {
     client.close();
   }
