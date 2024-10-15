@@ -20,13 +20,14 @@ export default async (userId, { appId }) => {
       .toArray();
 
     const mappedForOutput = blockedContents
-      .map(({ contentId, type }) => {
-        if (!allowedTypes[type]) return false;
+      .map((blockedContent) => {
+        const { type } = blockedContent;
 
-        return {
-          contentId,
-          type,
-        };
+        if (!allowedTypes[type]) {
+          return false;
+        }
+
+        return blockedContent;
       })
       .filter((x) => x);
 
