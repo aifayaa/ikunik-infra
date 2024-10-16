@@ -10,8 +10,8 @@ export type CreateBookableType = {
   description: string;
   disabled: boolean;
   limits: {
-    notBefore: string;
-    notAfter: string;
+    notBefore: Date;
+    notAfter: Date;
     maxTickets: number;
     maxTicketsPerAccount: number;
   };

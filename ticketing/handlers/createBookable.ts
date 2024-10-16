@@ -4,7 +4,6 @@ import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { z } from 'zod';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 
 export const createBookableSchema = z.object({
   name: z
@@ -21,7 +20,7 @@ export const createBookableSchema = z.object({
     })
     .max(2000, { message: 'Must be 2000 or fewer characters long' })
     .trim(),
-  disabled: z.boolean(),
+  disabled: z.boolean().optional().default(false),
   limits: z.object({
     notBefore: z
       .string({
@@ -34,7 +33,8 @@ export const createBookableSchema = z.object({
           message: 'Must be a date format',
         }
       )
-      .trim(),
+      .trim()
+      .transform((x) => new Date(x)),
     notAfter: z
       .string({
         required_error: 'limits.notAfter is required',
@@ -46,11 +46,12 @@ export const createBookableSchema = z.object({
           message: 'Must be a date format',
         }
       )
-      .trim(),
-    maxTickets: z.number().int().gte(0),
-    maxTicketsPerAccount: z.number().int().gte(1),
+      .trim()
+      .transform((x) => new Date(x)),
+    maxTickets: z.number().int().gte(0).optional().default(0),
+    maxTicketsPerAccount: z.number().int().gte(0).optional().default(0),
   }),
-  pricingId: z.string().or(z.null()),
+  pricingId: z.string().or(z.null()).optional().default(null),
 });
 
 export default async (event: any) => {

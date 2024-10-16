@@ -46,14 +46,20 @@ export default async (
       .find({ appId, bookedBy: userId })
       .count();
 
-    if (ticketsCount >= bookable.limits.maxTickets) {
+    if (
+      bookable.limits.maxTickets > 0 &&
+      ticketsCount >= bookable.limits.maxTickets
+    ) {
       throw new CrowdaaError(
         ERROR_TYPE_LIMIT_EXCEEDED,
         MAX_TICKETS_EXCEEDED_CODE,
         `Maximum number of tickets exceeded on bookable '${bookableId}'`
       );
     }
-    if (userTicketsCount >= bookable.limits.maxTicketsPerAccount) {
+    if (
+      bookable.limits.maxTicketsPerAccount > 0 &&
+      userTicketsCount >= bookable.limits.maxTicketsPerAccount
+    ) {
       throw new CrowdaaError(
         ERROR_TYPE_LIMIT_EXCEEDED,
         MAX_USER_TICKETS_EXCEEDED_CODE,
@@ -81,7 +87,10 @@ export default async (
         .find({ appId })
         .count();
 
-      if (ticketsCount >= bookable.limits.maxTickets) {
+      if (
+        bookable.limits.maxTickets > 0 &&
+        ticketsCount >= bookable.limits.maxTickets
+      ) {
         if (ticketsCount > bookable.limits.maxTickets) {
           await client
             .db()
@@ -98,7 +107,10 @@ export default async (
         .find({ appId, bookedBy: userId })
         .count();
 
-      if (userTicketsCount >= bookable.limits.maxTicketsPerAccount) {
+      if (
+        bookable.limits.maxTicketsPerAccount > 0 &&
+        userTicketsCount >= bookable.limits.maxTicketsPerAccount
+      ) {
         if (userTicketsCount > bookable.limits.maxTicketsPerAccount) {
           await client
             .db()
