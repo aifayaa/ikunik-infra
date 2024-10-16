@@ -18,26 +18,10 @@ const serverlessConfiguration = {
     memorySize: 128,
     timeout: 30,
     environment: '${file(../env.js)}',
-    iam: {
-      role: {
-        statements: [
-          {
-            Effect: 'Allow',
-            Action: ['lambda:InvokeFunction'],
-            Resource: '*',
-          },
-        ],
-      },
-    },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
-      restApiResources: {
-        '/press': '${cf:press-${self:provider.stage}.RestApiRootResourceId}',
-        '/admin/press':
-          '${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}',
-      },
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: 'ms-deployment-${self:provider.region}',
@@ -237,7 +221,7 @@ const serverlessConfiguration = {
     },
   },
   plugins: [
-    'serverless-webpack',
+    'serverless-esbuild',
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
