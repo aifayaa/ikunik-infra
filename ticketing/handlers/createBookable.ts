@@ -61,13 +61,7 @@ export default async (event: any) => {
 
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    // validation
-    try {
-      validatedBody = createBookableSchema.parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = createBookableSchema.parse(body);
 
     const {
       name,

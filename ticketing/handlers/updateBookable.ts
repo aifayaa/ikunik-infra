@@ -60,24 +60,18 @@ export default async (event: any) => {
 
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    // validation
-    try {
-      validatedBody = updateBookableSchema
-        .partial({
-          name: true,
-          description: true,
-          disabled: true,
-          'limits.notBefore': true,
-          'limits.notAfter': true,
-          'limits.maxTickets': true,
-          'limits.maxTicketsPerAccount': true,
-          pricingId: true,
-        })
-        .parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = updateBookableSchema
+      .partial({
+        name: true,
+        description: true,
+        disabled: true,
+        'limits.notBefore': true,
+        'limits.notAfter': true,
+        'limits.maxTickets': true,
+        'limits.maxTicketsPerAccount': true,
+        pricingId: true,
+      })
+      .parse(body);
 
     const newBookable = await updateBookable(
       bookableId,

@@ -34,17 +34,11 @@ export default async (event: any) => {
 
     const body = JSON.parse(event.body);
 
-    let validatedBody;
-    // validation
-    try {
-      validatedBody = scanTicketSchema
-        .partial({
-          geo: true,
-        })
-        .parse(body);
-    } catch (exception) {
-      return formatValidationErrors(exception);
-    }
+    const validatedBody = scanTicketSchema
+      .partial({
+        geo: true,
+      })
+      .parse(body);
 
     const scannedTicket = await scanTicket(
       ticketId,
