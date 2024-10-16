@@ -10,6 +10,8 @@ export type GetBookablesParams = {
   sort?: string;
   from?: string;
   to?: string;
+  skip?: string;
+  limit?: string;
 };
 
 type GetBookablesInternalDbMatchType = {
@@ -28,7 +30,7 @@ const escapeRegExp = (string: string) =>
 
 export default async (
   appId: string,
-  { query, sort, from, to }: GetBookablesParams
+  { query, sort, from, to, skip, limit }: GetBookablesParams
 ) => {
   const client = await MongoClient.connect();
 
@@ -42,7 +44,6 @@ export default async (
         { description: new RegExp(escapeRegExp(query)) },
       ];
     }
-
     if (sort) {
       const sortParams = sort.split(';');
       dbSort = sortParams.map((param: string) => {
@@ -50,23 +51,31 @@ export default async (
         return [key, order.toLowerCase() === 'asc' ? 1 : -1];
       });
     }
-
     if (from) {
       dbMatch['limits.notAfter'] = { $gte: new Date(from) };
     }
-
     if (to) {
       dbMatch['limits.notBefore'] = { $lte: new Date(to) };
     }
 
-    const bookables = await client
+    const totalCount = await client
       .db()
       .collection(COLL_BOOKABLES)
       .find(dbMatch)
-      .sort(dbSort)
-      .toArray();
+      .count();
 
-    return bookables as [BookableType];
+    const cursor = await client
+      .db()
+      .collection(COLL_BOOKABLES)
+      .find(dbMatch)
+      .sort(dbSort);
+    if (skip && limit) {
+      cursor.skip(parseInt(skip, 10) || 0);
+      cursor.limit(parseInt(limit, 10) || 10);
+    }
+    const bookables = await cursor.toArray();
+
+    return { items: bookables as BookableType[], totalCount };
   } finally {
     client.close();
   }

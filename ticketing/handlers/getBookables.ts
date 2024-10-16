@@ -7,17 +7,31 @@ import getBookables from '../lib/getBookables';
 
 export default async (event: any) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
-  const { q: query, sort, from, to } = event.queryStringParameters || {};
+  const {
+    q: query,
+    sort,
+    from,
+    to,
+    skip,
+    limit,
+  } = event.queryStringParameters || {};
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const newBookable = await getBookables(appId, { query, sort, from, to });
+    const bookables = await getBookables(appId, {
+      query,
+      sort,
+      from,
+      to,
+      skip,
+      limit,
+    });
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: newBookable,
+        data: bookables,
       }),
     });
   } catch (exception) {
