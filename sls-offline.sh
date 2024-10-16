@@ -77,10 +77,19 @@ authorizerWithPerms | *)
 esac
 
 if [ -z "$STAGE" ] || [ -z "$REGION" ] || [ -z "$USER_ID" ] || [ -z "$APP_ID" ]; then
-  echo "Error: a parameter is missing " 1>&2
+  echo "Error: a parameter is missing" 1>&2
   usage
   exit 1
 fi
+
+case "$STAGE:$REGION" in
+'prod:us-east-1' | 'prod:eu-west-3' | 'dev:us-east-1' | 'preprod:eu-west-3') true ;;
+*)
+  echo "Error: Invalid stage/region combo" 1>&2
+  usage
+  exit 1
+  ;;
+esac
 
 echo "STAGE : ${STAGE}"
 echo "REGION : ${REGION}"
