@@ -20,16 +20,39 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const createLegalBodySchema = z
-      .object({
-        pluginApiKey: z
-          .string({
-            required_error: 'pluginApiKey is required',
-            invalid_type_error: 'pluginApiKey must be a string',
-          })
-          .trim(),
-      })
-      .required();
+    const crowdaaSyncAutoSetupBodySchema = z.object({
+      action: z.enum(['setup', 'logout']).default('setup'),
+      pluginApiKey: z
+        .string({
+          required_error: 'pluginApiKey is required',
+          invalid_type_error: 'pluginApiKey must be a string',
+        })
+        .trim(),
+      wordpressApiUrl: z
+        .string({
+          required_error: 'wordpressApiUrl is required',
+          invalid_type_error: 'wordpressApiUrl must be a string',
+        })
+        .url('wordpressApiUrl must be a URL')
+        .trim(),
+      defaultWordpressUrl: z
+        .string({
+          required_error: 'defaultWordpressUrl is required',
+          invalid_type_error: 'defaultWordpressUrl must be a string',
+        })
+        .trim()
+        .optional(),
+      syncDomainNames: z
+        .array(
+          z
+            .string({
+              required_error: 'syncDomainNames is required',
+              invalid_type_error: 'syncDomainNames must be a string',
+            })
+            .trim()
+        )
+        .optional(),
+    });
 
     if (!event.body) {
       throw new CrowdaaError(
@@ -41,12 +64,22 @@ export default async (event: APIGatewayProxyEvent) => {
 
     // Validate the body of the request
     const body = JSON.parse(event.body);
-    const validatedBody = createLegalBodySchema.parse(body);
+    const validatedBody = crowdaaSyncAutoSetupBodySchema.parse(body);
 
-    const { pluginApiKey } = validatedBody;
+    const {
+      action,
+      pluginApiKey,
+      wordpressApiUrl,
+      defaultWordpressUrl,
+      syncDomainNames,
+    } = validatedBody;
 
     await crowdaaSyncWPPluginAutoSetup(appId, {
+      action,
       pluginApiKey,
+      wordpressApiUrl,
+      defaultWordpressUrl,
+      syncDomainNames,
     });
 
     return response({
