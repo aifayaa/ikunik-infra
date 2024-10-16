@@ -8,8 +8,8 @@ export type UpdateBookableType = {
   name?: string;
   description?: string;
   disabled?: boolean;
-  'limits.notBefore'?: string;
-  'limits.notAfter'?: string;
+  'limits.notBefore'?: Date;
+  'limits.notAfter'?: Date;
   'limits.maxTickets'?: number;
   'limits.maxTicketsPerAccount'?: number;
   pricingId?: string | null;
