@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'appsTranslations',
   custom: {
+    logRetentionInDays: 30,
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
     dev: {
@@ -132,6 +133,7 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
     'serverless-export-env',
   ],
 };

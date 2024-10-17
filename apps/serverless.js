@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'apps',
   custom: {
+    logRetentionInDays: 30,
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
     /* This is the internal network (used to call internal APIs like baserow) */
@@ -798,6 +799,7 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
     'serverless-export-env',
   ],
   resources: {

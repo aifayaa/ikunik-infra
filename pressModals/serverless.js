@@ -51,11 +51,13 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
   ],
   package: {
     individually: true,
   },
   custom: {
+    logRetentionInDays: 30,
     prune: {
       automatic: true,
       number: 3,

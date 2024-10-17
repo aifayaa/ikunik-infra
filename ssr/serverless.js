@@ -67,12 +67,14 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
     'serverless-export-env',
   ],
   package: {
     individually: true,
   },
   custom: {
+    logRetentionInDays: 30,
     prune: {
       automatic: true,
       number: 3,
