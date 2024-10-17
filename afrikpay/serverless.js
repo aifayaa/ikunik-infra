@@ -2,6 +2,7 @@
 const serverlessConfiguration = {
   service: 'afrikpay',
   custom: {
+    logRetentionInDays: 30,
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
     esbuild: {
@@ -110,6 +111,7 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
   ],
   package: { individually: true },
 };
