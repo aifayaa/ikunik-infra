@@ -3,6 +3,7 @@
 const serverlessConfiguration = {
   service: 'pressBanners',
   custom: {
+    logRetentionInDays: 30,
     prune: {
       automatic: true,
       number: 3,
@@ -56,6 +57,7 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
     'serverless-export-env',
   ],
   package: {

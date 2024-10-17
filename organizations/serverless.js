@@ -419,6 +419,7 @@ const serverlessConfiguration = {
     'serverless-offline',
     'serverless-disable-request-validators',
     'serverless-prune-plugin',
+    'serverless-plugin-log-retention',
     'serverless-export-env',
   ],
   custom: {
@@ -433,6 +434,7 @@ const serverlessConfiguration = {
         subnetIds: ['subnet-0977176abc4c94459'],
       },
     },
+    logRetentionInDays: 30,
     prune: {
       automatic: true,
       number: 3,
