@@ -16,6 +16,7 @@ export default async (appId) => {
         },
         {
           projection: {
+            icon: 1, // Not just builds anymore...
             'builds.ios.iosAppId': 1,
             'builds.ios.packageId': 1,
             'builds.ios.platform': 1,
