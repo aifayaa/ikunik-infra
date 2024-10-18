@@ -9,14 +9,12 @@ export default async (event: any) => {
   const bookableId = event.pathParameters.id;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
-
-    const newBookable = await getBookable(bookableId, appId);
+    const bookable = await getBookable(bookableId, appId, userId);
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: newBookable,
+        data: bookable,
       }),
     });
   } catch (exception) {

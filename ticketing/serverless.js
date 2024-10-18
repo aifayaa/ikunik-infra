@@ -86,7 +86,7 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
             request: {
               parameters: {

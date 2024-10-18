@@ -9,10 +9,9 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import getBookable from './getBookable';
 import { TicketType } from './ticketEntity';
 
-const { COLL_TICKETS } = mongoCollections;
+const { COLL_TICKETS, COLL_BOOKABLES } = mongoCollections;
 
 export default async (
   appId: string,
@@ -25,7 +24,10 @@ export default async (
   try {
     const tickets = [];
 
-    const bookable = await getBookable(bookableId, appId);
+    const bookable = await client
+      .db()
+      .collection(COLL_BOOKABLES)
+      .findOne({ _id: bookableId, appId });
 
     if (!bookable) {
       throw new CrowdaaError(
