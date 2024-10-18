@@ -52,6 +52,7 @@ export const createBookableSchema = z.object({
     maxTicketsPerAccount: z.number().int().gte(0).optional().default(0),
   }),
   pricingId: z.string().or(z.null()).optional().default(null),
+  pictureId: z.string().optional(),
 });
 
 export default async (event: any) => {
@@ -70,6 +71,7 @@ export default async (event: any) => {
       disabled,
       limits: { notBefore, notAfter, maxTickets, maxTicketsPerAccount },
       pricingId,
+      pictureId,
     } = validatedBody;
 
     const newBookable = await createBookable(appId, userId, {
@@ -83,6 +85,7 @@ export default async (event: any) => {
         maxTicketsPerAccount,
       },
       pricingId,
+      pictureId,
     });
 
     return response({

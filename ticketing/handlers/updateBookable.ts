@@ -52,6 +52,7 @@ export const updateBookableSchema = z
     'limits.maxTickets': z.number().int().gte(0),
     'limits.maxTicketsPerAccount': z.number().int().gte(1),
     pricingId: z.string().or(z.null()),
+    pictureId: z.string(),
   })
   .strict();
 
@@ -74,6 +75,7 @@ export default async (event: any) => {
         'limits.maxTickets': true,
         'limits.maxTicketsPerAccount': true,
         pricingId: true,
+        pictureId: true,
       })
       .parse(body);
 

@@ -13,6 +13,7 @@ export type UpdateBookableType = {
   'limits.maxTickets'?: number;
   'limits.maxTicketsPerAccount'?: number;
   pricingId?: string | null;
+  pictureId?: string;
 };
 
 export default async (

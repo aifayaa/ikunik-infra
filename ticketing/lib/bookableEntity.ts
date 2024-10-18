@@ -15,4 +15,11 @@ export type BookableType = {
     maxTicketsPerAccount: number;
   };
   pricingId: string | null;
+  picture?: {
+    _id: string;
+    thumbUrl: string;
+    mediumUrl: string;
+    largeUrl: string;
+    pictureUrl: string;
+  };
 };
