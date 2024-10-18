@@ -31,22 +31,56 @@ const serverlessConfiguration = {
         'us-east-1': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
             'crowdaa-hosting-env-prod-us-website-deploy-function',
+          WEBSITES_DATABASE_HOST:
+            'prod-us-shared-websites-database.cluster-cw8upw4ik27m.us-east-1.rds.amazonaws.com',
+          WEBSITES_DATABASE_EXISTS: 'yes',
+          WEBSITES_DATABASE_ARN:
+            'arn:aws:rds:us-east-1:630176884077:cluster:prod-us-shared-websites-database',
+          WEBSITES_DATABASE_CREDENTIALS_ARN:
+            'arn:aws:secretsmanager:us-east-1:630176884077:secret:prod/us/shared_websites_database-4RSLyH',
+          WEBSITES_DATABASE_IAM_PERM:
+            'arn:aws:rds:us-east-1:630176884077:cluster:prod-us-shared-websites-database',
+          WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
+            'arn:aws:secretsmanager:us-east-1:630176884077:secret:prod/us/shared_websites_database-4RSLyH',
         },
         'eu-west-3': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
             'crowdaa-hosting-env-prod-fr-website-deploy-function',
+          WEBSITES_DATABASE_HOST:
+            'prod-fr-shared-websites-database.cluster-c7i8ynro0ztw.eu-west-3.rds.amazonaws.com',
+          WEBSITES_DATABASE_EXISTS: 'yes',
+          WEBSITES_DATABASE_ARN:
+            'arn:aws:rds:eu-west-3:630176884077:cluster:prod-fr-shared-websites-database',
+          WEBSITES_DATABASE_CREDENTIALS_ARN:
+            'arn:aws:secretsmanager:eu-west-3:630176884077:secret:prod/fr/shared_websites_database-yAMDUI',
+          WEBSITES_DATABASE_IAM_PERM:
+            'arn:aws:rds:eu-west-3:630176884077:cluster:prod-fr-shared-websites-database',
+          WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
+            'arn:aws:secretsmanager:eu-west-3:630176884077:secret:prod/fr/shared_websites_database-yAMDUI',
         },
       },
       preprod: {
         'eu-west-3': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
             'crowdaa-hosting-env-preprod-fr-website-deploy-function',
+          WEBSITES_DATABASE_EXISTS: 'no',
+          // Do not exists, but serverless needs a variable anyway...
+          WEBSITES_DATABASE_IAM_PERM:
+            'arn:aws:rds:eu-west-3:630176884077:cluster:preprod-fr-shared-websites-database',
+          WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
+            'arn:aws:secretsmanager:eu-west-3:630176884077:secret:preprod/fr/shared_websites_database-abcdef',
         },
       },
       dev: {
         'us-east-1': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
             'crowdaa-hosting-env-dev-us-website-deploy-function',
+          WEBSITES_DATABASE_EXISTS: 'no',
+          // Do not exists, but serverless needs a variable anyway...
+          WEBSITES_DATABASE_IAM_PERM:
+            'arn:aws:rds:us-east-1:630176884077:cluster:dev-us-shared-websites-database',
+          WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
+            'arn:aws:secretsmanager:us-east-1:630176884077:secret:dev/us/shared_websites_database-abcdef',
         },
       },
     },
@@ -85,6 +119,14 @@ const serverlessConfiguration = {
       MERCHWP_WEBSITE_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
+      WEBSITES_DATABASE_HOST:
+        '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_HOST, ""}',
+      WEBSITES_DATABASE_ARN:
+        '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_ARN, ""}',
+      WEBSITES_DATABASE_CREDENTIALS_ARN:
+        '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_CREDENTIALS_ARN, ""}',
+      WEBSITES_DATABASE_EXISTS:
+        '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_EXISTS, ""}',
       MERCHWP_API_URL:
         'https://${file(../api-v1/serverless.js):custom.domains.${self:provider.stage}.${self:provider.region}}/v1',
     },
@@ -112,6 +154,28 @@ const serverlessConfiguration = {
             Action: ['s3:GetObject', 's3:GetObjectAttributes'],
             Resource: [
               'arn:aws:s3:::${self:provider.environment.MERCHWP_WEBSITE_TEMPLATES_BUCKET}/*',
+            ],
+          },
+          {
+            Effect: 'Allow',
+            Action: [
+              'rds-data:ExecuteStatement',
+              // 'rds-data:BatchExecuteStatement',
+              // 'rds-data:BeginTransaction',
+              // 'rds-data:CommitTransaction',
+              // 'rds-data:RollbackTransaction',
+            ],
+            Resource: [
+              // Variable may not be valid, but serverless needs a variable anyway...
+              '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_IAM_PERM}',
+            ],
+          },
+          {
+            Effect: 'Allow',
+            Action: ['secretsmanager:GetSecretValue'],
+            Resource: [
+              // Variable may not be valid, but serverless needs a variable anyway...
+              '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_CREDENTIALS_IAM_PERM}',
             ],
           },
         ],
