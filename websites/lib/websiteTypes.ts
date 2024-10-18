@@ -50,6 +50,12 @@ export type WebsiteKubernetesV1Type = {
   name: string;
   domains: string[];
   appId: string;
+  database?: {
+    host: string;
+    port: number;
+    name: string;
+    user: string;
+  };
 };
 
 export type WebsiteType = WebsiteEBWordpressType | WebsiteKubernetesV1Type;

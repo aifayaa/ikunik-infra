@@ -5,6 +5,7 @@ import { login } from 'auth/lib/login';
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient, { ObjectID } from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
+import Random from '@libs/account_utils/random';
 import { UserProfileType, UTMType } from '@users/lib/userEntity';
 import createApp from '@apps/lib/createApp';
 import { AppType } from '@apps/lib/appEntity';
@@ -22,8 +23,20 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const { MERCHWP_WEBSITE_TEMPLATES_BUCKET } = process.env as {
+const rdsDataService = new AWS.RDSDataService();
+
+const {
+  MERCHWP_WEBSITE_TEMPLATES_BUCKET,
+  WEBSITES_DATABASE_ARN,
+  WEBSITES_DATABASE_CREDENTIALS_ARN,
+  WEBSITES_DATABASE_EXISTS,
+  WEBSITES_DATABASE_HOST,
+} = process.env as {
   MERCHWP_WEBSITE_TEMPLATES_BUCKET: string;
+  WEBSITES_DATABASE_ARN: string;
+  WEBSITES_DATABASE_CREDENTIALS_ARN: string;
+  WEBSITES_DATABASE_EXISTS: string;
+  WEBSITES_DATABASE_HOST: string;
 };
 
 type EnvType = {
@@ -48,6 +61,47 @@ const {
   MERCHWP_LAMBDA_CREATE_WEBSITE,
   STAGE,
 } = process.env as EnvType;
+
+function timestamp() {
+  return Math.floor(Date.now() / 1000);
+}
+
+async function setupDatabase() {
+  const now = timestamp();
+  const rand = Random.id(5);
+  const name = `db${now}x${rand}`;
+  const user = `user${now}x${rand}`;
+  const password = Random.id(31);
+
+  const sqlQueries = [
+    `CREATE DATABASE IF NOT EXISTS ${name}`,
+    `CREATE USER '${user}'@'%' IDENTIFIED BY '${password}'`,
+    `GRANT
+      SELECT, INSERT, UPDATE, DELETE,
+      CREATE, ALTER, DROP,
+      INDEX,
+      LOCK TABLES, REFERENCES, CREATE TEMPORARY TABLES, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, EXECUTE, ALTER ROUTINE
+    ON \`${name}\`.* TO '${user}'@'%' WITH GRANT OPTION`,
+  ];
+
+  for (let i = 0; i < sqlQueries.length; i++) {
+    await rdsDataService
+      .executeStatement({
+        resourceArn: WEBSITES_DATABASE_ARN,
+        secretArn: WEBSITES_DATABASE_CREDENTIALS_ARN,
+        sql: sqlQueries[i],
+      })
+      .promise();
+  }
+
+  return {
+    host: WEBSITES_DATABASE_HOST,
+    port: 3306,
+    name,
+    password,
+    user,
+  };
+}
 
 export type MerchWPSetupAccountParametersType = {
   email: string;
@@ -244,13 +298,18 @@ export async function setupWebsite(
       );
     }
 
+    let database = null;
+    if (WEBSITES_DATABASE_EXISTS === 'yes') {
+      database = await setupDatabase();
+    }
+
     const websiteId = `merchwp${new ObjectID().toString()}`;
 
     const defaultDomain = `ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com`;
     const defaultUrl = `https://ws-${websiteId}.${STAGE}-${CROWDAA_REGION}.aws.crowdaa.com`;
     const domains = [defaultDomain, ...website.domains];
 
-    const dbWebsite = {
+    const dbWebsite: WebsiteKubernetesV1Type = {
       _id: websiteId,
       createdAt: new Date(),
       createdBy: userId,
@@ -258,7 +317,17 @@ export async function setupWebsite(
       name: defaultDomain,
       domains: domains,
       appId: appId,
-    } as WebsiteKubernetesV1Type;
+      ...(database
+        ? {
+            database: {
+              host: database.host,
+              port: database.port,
+              name: database.name,
+              user: database.user,
+            },
+          }
+        : {}),
+    };
     await client.db().collection(COLL_WEBSITES).insertOne(dbWebsite);
 
     await client
@@ -288,38 +357,39 @@ export async function setupWebsite(
         }
       );
 
+    const lambdaInvokeArgs = {
+      initTemplate: bucketKey,
+      websiteId,
+      domains: website.domains,
+      wordpress: {
+        adminLogin: website.account.email,
+        adminPassword: website.account.password,
+      },
+      ...(database ? { database } : {}),
+      container: {
+        environmentVariables: {
+          API_URL: MERCHWP_API_URL,
+          LOGIN_APP_ID: ADMIN_APP,
+          APP_ID: appId,
+          SYNC_IMAGE_ID: website.sync.imageId,
+          SYNC_IMAGE_URL: website.sync.imageUrl,
+          PRIMARY_COLOR: website.colors.primary,
+          SECONDARY_COLOR: website.colors.secondary,
+        },
+        environmentSecretVariables: {
+          ADMIN_USER_ID: userId,
+          ADMIN_LOGIN: website.account.email,
+          ADMIN_SESSION: website.account.authToken,
+        },
+        crowdaaHostingImage: 'php',
+        tag: '8.2-apache',
+      },
+    };
+
     await lambda
       .invokeAsync({
         FunctionName: MERCHWP_LAMBDA_CREATE_WEBSITE,
-        InvokeArgs: JSON.stringify({
-          initTemplate: bucketKey,
-          websiteId,
-          domains: website.domains,
-          wordpress: {
-            adminLogin: website.account.email,
-            adminPassword: website.account.password,
-          },
-          // Automatic, no DB setup
-          // database: { host: '', port: 3306, name: '', user: '', password: '' },
-          container: {
-            environmentVariables: {
-              API_URL: MERCHWP_API_URL,
-              LOGIN_APP_ID: ADMIN_APP,
-              APP_ID: appId,
-              SYNC_IMAGE_ID: website.sync.imageId,
-              SYNC_IMAGE_URL: website.sync.imageUrl,
-              PRIMARY_COLOR: website.colors.primary,
-              SECONDARY_COLOR: website.colors.secondary,
-            },
-            environmentSecretVariables: {
-              ADMIN_USER_ID: userId,
-              ADMIN_LOGIN: website.account.email,
-              ADMIN_SESSION: website.account.authToken,
-            },
-            crowdaaHostingImage: 'php',
-            tag: '8.2-apache',
-          },
-        }),
+        InvokeArgs: JSON.stringify(lambdaInvokeArgs),
       })
       .promise();
 
