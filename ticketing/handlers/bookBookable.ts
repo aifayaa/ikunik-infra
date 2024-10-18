@@ -1,27 +1,29 @@
 /* eslint-disable import/no-relative-packages */
-import createTickets from '../lib/createTickets';
+import bookBookable from '../lib/bookBookable';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { z } from 'zod';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 
-export const createBookableSchema = z.object({
-  bookableId: z
+export const bookBookableUrlSchema = z.object({
+  id: z
     .string({
-      required_error: 'bookableId is required',
-      invalid_type_error: 'bookableId must be a string',
+      required_error: 'bookable id is required',
+      invalid_type_error: 'bookable id must be a string',
     })
-    .min(1, { message: 'Must be 1 or more characters long' })
-    .max(80, { message: 'Must be 80 or fewer characters long' })
     .trim(),
+});
+
+export const bookBookableBodySchema = z.object({
   count: z
     .number({
       required_error: 'count is required',
     })
     .int()
     .min(1)
-    .max(100),
+    .max(100)
+    .optional()
+    .default(1),
 });
 
 export default async (event: any) => {
@@ -32,16 +34,20 @@ export default async (event: any) => {
 
     const body = JSON.parse(event.body);
 
-    const validatedBody = createBookableSchema.parse(body);
+    const { id: bookableId } = bookBookableUrlSchema.parse(
+      event.pathParameters
+    );
 
-    const { bookableId, count } = validatedBody;
+    const validatedBody = bookBookableBodySchema.parse(body);
 
-    const newTicket = await createTickets(appId, userId, bookableId, count);
+    const { count } = validatedBody;
+
+    const newTickets = await bookBookable(appId, userId, bookableId, count);
 
     return response({
       code: 200,
       body: formatResponseBody({
-        data: newTicket,
+        data: newTickets,
       }),
     });
   } catch (exception) {

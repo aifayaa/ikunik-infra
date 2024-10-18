@@ -147,12 +147,12 @@ const serverlessConfiguration = {
         },
       ],
     },
-    createTickets: {
-      handler: 'handlers/createTickets.default',
+    bookBookable: {
+      handler: 'handlers/bookBookable.default',
       events: [
         {
           http: {
-            path: 'ticket',
+            path: 'bookables/{id}/book',
             method: 'post',
             cors: true,
             authorizer: {
@@ -176,7 +176,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'ticket/{id}',
+            path: 'tickets/{id}',
             method: 'get',
             cors: true,
             authorizer: {
@@ -200,7 +200,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'ticket/{id}',
+            path: 'tickets/{id}',
             method: 'put',
             cors: true,
             authorizer: {
