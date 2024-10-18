@@ -47,6 +47,24 @@ export default async (event) => {
       }
     }
 
+    if (type === 'comment') {
+      const db = client.db();
+      // Retrieve the user comment
+      const userComment = await db
+        .collection(COLL_USER_GENERATED_CONTENTS)
+        .findOne({ _id: contentId, type: 'comment' });
+
+      // If the author of the article is the user who requests
+      // to block the content, then throw an error
+      if ((userComment && userComment.userId) === userId) {
+        throw new CrowdaaError(
+          ERROR_TYPE_NOT_ALLOWED,
+          SELF_USER_BLOCK_CODE,
+          `The user '${userId}' cannot block his own article '${userComment._id}'`
+        );
+      }
+    }
+
     const results = await blockContent(userId, type, contentId, { appId });
 
     return response({ code: 200, body: results });
