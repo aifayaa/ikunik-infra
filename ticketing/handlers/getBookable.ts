@@ -1,6 +1,5 @@
 /* eslint-disable import/no-relative-packages */
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import getBookable from '../lib/getBookable';
 
