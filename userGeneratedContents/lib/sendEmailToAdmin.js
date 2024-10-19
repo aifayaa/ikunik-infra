@@ -9,7 +9,7 @@ export default async (lang, subject, body, appId) => {
   try {
     const admins = await getAppAdmins(appId, {
       projection: { 'emails.address': 1 },
-      superAdmins: true,
+      includeSuperAdmins: true,
     });
     const emails = admins
       .map((admin) => objGet(admin, 'emails.0.address'))
