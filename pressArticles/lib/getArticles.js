@@ -348,7 +348,7 @@ export const getArticles = async (
             from: COLL_PICTURES,
             localField: 'pictures',
             foreignField: '_id',
-            as: 'pictures',
+            as: 'picturesObjs',
           },
         },
         {
@@ -356,7 +356,7 @@ export const getArticles = async (
             from: COLL_VIDEOS,
             localField: 'videos',
             foreignField: '_id',
-            as: 'videos',
+            as: 'videosObjs',
           },
         },
       ]);
@@ -376,8 +376,31 @@ export const getArticles = async (
     ]);
 
     let extPurchases = null;
-    // Get drafts of articles
     if (articles.length > 0) {
+      // 20241020 : Re-map/re-sort pictures & vidéos since $lookup does not keep order anymore, it seems...
+      if (getPictures) {
+        for (let i = 0; i < articles.length; i += 1) {
+          const article = articles[i];
+          article.pictures = article.picturesObjs.sort((a, b) => {
+            // if '-1', wraps to '100000 - 1', else use the index
+            const ia = (article.pictures.indexOf(a._id) + 100000) % 100000;
+            const ib = (article.pictures.indexOf(b._id) + 100000) % 100000;
+
+            return ia - ib;
+          });
+          article.videos = article.videosObjs.sort((a, b) => {
+            // if '-1', wraps to '100000 - 1', else use the index
+            const ia = (article.videos.indexOf(a._id) + 100000) % 100000;
+            const ib = (article.videos.indexOf(b._id) + 100000) % 100000;
+
+            return ia - ib;
+          });
+          delete article.picturesObjs;
+          delete article.videosObjs;
+        }
+      }
+
+      // Get drafts of articles
       const articlesIds = articles.map((a) => a._id);
       const draftIds = articles.map((a) => a.draftId);
       const draftPipeline = [
