@@ -46,34 +46,34 @@ const serverlessConfiguration = {
     //     },
     //   ],
     // },
-    // unblockContent: {
-    //   handler: 'handlers/unblockContent.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'blockedContents/{type}/{id}/unblock',
-    //         method: 'put',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-    //         },
-    //         request: {
-    //           parameters: {
-    //             paths: {
-    //               id: true,
-    //               type: true,
-    //             },
-    //             headers: {
-    //               Authorization: true,
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
+    unreportContent: {
+      handler: 'handlers/unreportContent.default',
+      events: [
+        {
+          http: {
+            path: 'reportedContents/{type}/{id}/unreport',
+            method: 'put',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                  type: true,
+                },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     getMyReportedContents: {
       handler: 'handlers/getMyReportedContents.default',
       events: [
