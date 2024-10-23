@@ -54,6 +54,7 @@ export const sendNotifications = async (appId, queueId) => {
               data: 1,
               endpoint: 1,
               user: 1,
+              deviceId: 1,
             },
           },
         ])
@@ -71,42 +72,42 @@ export const sendNotifications = async (appId, queueId) => {
         retry = false;
       } else {
         retry = !!(pendingNotifs.length === PROCESS_BATCH_SIZE);
-        const promises = pendingNotifs.map(
-          async ({
+        const promises = pendingNotifs.map(async (pendingNotif) => {
+          const {
             data = {},
             endpoint: [endpoint],
             user: [user],
             deviceId,
-          }) => {
-            if (!endpoint) return;
+          } = pendingNotif;
 
-            const { canNotify = true, data: notificationData = {} } =
-              await notifSpecificsHandler.processOne({
-                data,
-                user,
-                deviceId,
-              });
+          if (!endpoint) return;
 
-            if (!canNotify) {
-              skipped += 1;
-              return;
-            }
-
-            await new Promise((resolve) => {
-              sendNotificationTo(
-                {
-                  ...notificationData,
-                  endpoint,
-                },
-                (error /* , res */) => {
-                  if (!error) sent += 1;
-                  else failed += 1;
-                  resolve();
-                }
-              );
+          const { canNotify = true, data: notificationData = {} } =
+            await notifSpecificsHandler.processOne({
+              data,
+              user,
+              deviceId,
             });
+
+          if (!canNotify) {
+            skipped += 1;
+            return;
           }
-        );
+
+          await new Promise((resolve) => {
+            sendNotificationTo(
+              {
+                ...notificationData,
+                endpoint,
+              },
+              (error /* , res */) => {
+                if (!error) sent += 1;
+                else failed += 1;
+                resolve();
+              }
+            );
+          });
+        });
         await Promise.all(promises);
       }
 
