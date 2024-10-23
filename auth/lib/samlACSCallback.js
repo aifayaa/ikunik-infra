@@ -167,7 +167,11 @@ export default async (loginXmlData) => {
 
     const token = Random.secret();
     const dbUpdates = {};
-    if (app.settings.saml.comptexpert) {
+    if (
+      app.settings.saml.comptexpert &&
+      app.backend &&
+      app.backend.type === 'wordpress'
+    ) {
       const wpApi = new WordpressAPI(app);
       const reply = await wpApi.call(
         'POST',
