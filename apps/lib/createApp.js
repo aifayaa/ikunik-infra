@@ -25,7 +25,7 @@ export const DEFAULT_APP_SETTINGS = {
       communityArticleCommentsEnabled: true,
       communityArticleDateFormat: 'L',
       communityArticleShareEnabled: true,
-      displayArticleAuthor: true,
+      displayArticleAuthor: false,
       displayArticleCommentsCount: true,
       displayArticleLikesViews: true,
       displayPopularCategories: true,
