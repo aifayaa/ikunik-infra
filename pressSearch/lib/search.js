@@ -3,6 +3,8 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from '../../pressArticles/lib/articleFields';
 
+const { COLL_PRESS_ARTICLES, COLL_PRESS_CATEGORIES } = mongoCollections;
+
 const pictureGroup = {
   ...Object.keys(commonFields).reduce((res, key) => {
     res[key] = { $first: `$${key}` };
@@ -19,7 +21,6 @@ export default async (
   { skip = 0, limit = 10, published = true, trashed = false, allFields = false }
 ) => {
   const client = await MongoClient.connect();
-  const { COLL_PRESS_ARTICLES } = mongoCollections;
   const collection = client.db().collection(COLL_PRESS_ARTICLES);
 
   try {
@@ -73,10 +74,18 @@ export default async (
         },
         {
           $lookup: {
-            from: 'pressCategories',
+            from: COLL_PRESS_CATEGORIES,
             localField: 'categoryId',
             foreignField: '_id',
             as: 'category',
+          },
+        },
+        {
+          $lookup: {
+            from: COLL_PRESS_CATEGORIES,
+            localField: 'categoriesId',
+            foreignField: '_id',
+            as: 'categories',
           },
         },
         {
