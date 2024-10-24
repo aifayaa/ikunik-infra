@@ -3,8 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { reportType } from './type';
 
-const { COLL_USER_GENERATED_CONTENTS_USER_REPORTS, COLL_USERS } =
-  mongoCollections;
+const { COLL_USER_GENERATED_CONTENTS_USER_REPORTS } = mongoCollections;
 
 export default async (
   userId: string,
