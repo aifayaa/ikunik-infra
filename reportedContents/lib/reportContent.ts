@@ -9,7 +9,38 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
 } from '@libs/httpResponses/errorCodes';
 
-const { COLL_USER_GENERATED_CONTENTS_USER_REPORTS } = mongoCollections;
+const {
+  COLL_USER_GENERATED_CONTENTS_USER_REPORTS,
+  COLL_USER_GENERATED_CONTENTS_REPORTS,
+} = mongoCollections;
+
+async function reportContent(
+  collection: {
+    findOne: (arg: Object) => Promise<Object>;
+    insertOne: (arg: Object) => Promise<{ insertedId: string }>;
+  },
+  toFind: Object,
+  toInsert: Object,
+  alreadyReportedErrorMessage: string
+) {
+  const alreadyBlocked = await collection.findOne(toFind);
+
+  if (alreadyBlocked) {
+    throw new CrowdaaError(
+      ERROR_TYPE_NOT_ALLOWED,
+      ALREADY_REPORTED_CODE,
+      alreadyReportedErrorMessage
+    );
+  }
+
+  const result = await collection.insertOne(toInsert);
+
+  const { insertedId: _id } = result;
+
+  return await collection.findOne({
+    _id,
+  });
+}
 
 export default async (
   userId: string,
@@ -28,42 +59,51 @@ export default async (
     const db = client.db();
 
     if (type === 'user') {
-      const alreadyBlocked = await db
-        .collection(COLL_USER_GENERATED_CONTENTS_USER_REPORTS)
-        .findOne({
+      const reportedUserId = contentId;
+      const collection = db.collection(
+        COLL_USER_GENERATED_CONTENTS_USER_REPORTS
+      );
+      return await reportContent(
+        collection,
+        {
           appId,
-          reportedUserId: contentId,
+          reportedUserId,
           userId,
-        });
-
-      if (alreadyBlocked) {
-        throw new CrowdaaError(
-          ERROR_TYPE_NOT_ALLOWED,
-          ALREADY_REPORTED_CODE,
-          `The user '${contentId}' is already reported`
-        );
-      }
-
-      const result = await db
-        .collection(COLL_USER_GENERATED_CONTENTS_USER_REPORTS)
-        .insertOne({
+        },
+        {
           _id: uuid.v4(),
           appId,
           createdAt: new Date(),
           details,
           reason,
-          reportedUserId: contentId,
+          reportedUserId,
           ugcId,
           userId,
-        });
+        },
+        `The user '${reportedUserId}' is already reported`
+      );
+    }
 
-      const { insertedId: _id } = result;
-
-      return await db
-        .collection(COLL_USER_GENERATED_CONTENTS_USER_REPORTS)
-        .findOne({
-          _id,
-        });
+    if (type === 'userArticle') {
+      const collection = db.collection(COLL_USER_GENERATED_CONTENTS_REPORTS);
+      return await reportContent(
+        collection,
+        {
+          appId,
+          ugcId,
+          userId,
+        },
+        {
+          _id: uuid.v4(),
+          appId,
+          createdAt: new Date(),
+          details,
+          reason,
+          ugcId,
+          userId,
+        },
+        `The article '${ugcId}' is already reported`
+      );
     }
 
     return {};
