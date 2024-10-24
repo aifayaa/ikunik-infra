@@ -18,41 +18,41 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    // blockContent: {
-    //   handler: 'handlers/blockContent.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'blockedContents/{type}/{id}/block',
-    //         method: 'put',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-    //         },
-    //         request: {
-    //           parameters: {
-    //             paths: {
-    //               id: true,
-    //               type: true,
-    //             },
-    //             headers: {
-    //               Authorization: true,
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
+    reportContent: {
+      handler: 'handlers/reportContent.default',
+      events: [
+        {
+          http: {
+            path: 'reportedContents/{type}/{id}/report',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                  type: true,
+                },
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     unreportContent: {
       handler: 'handlers/unreportContent.default',
       events: [
         {
           http: {
             path: 'reportedContents/{type}/{id}/unreport',
-            method: 'put',
+            method: 'post',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
@@ -98,23 +98,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    // getReportedUGC: {
-    //   handler: 'handlers/getReportedUserGeneratedContents.default',
-    //   events: [
-    //     {
-    //       http: {
-    //         path: 'userGeneratedContents',
-    //         method: 'get',
-    //         cors: true,
-    //         authorizer: {
-    //           type: 'CUSTOM',
-    //           authorizerId:
-    //             '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
   },
   custom: {
     logRetentionInDays: 30,
