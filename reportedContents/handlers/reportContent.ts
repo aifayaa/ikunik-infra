@@ -19,9 +19,9 @@ import emailTemplate from '../../userGeneratedContents/lib/emailUgcUserReportTem
 import sendEmailToAdmin from '../../userGeneratedContents/lib/sendEmailToAdmin';
 
 export default async (event: APIGatewayProxyEvent) => {
-  const { id: userGeneratedContentsId, type } = event.pathParameters as {
-    id: string;
+  const { type, id: userGeneratedContentsId } = event.pathParameters as {
     type: reportType;
+    id: string;
   };
   const { principalId: userId } = event.requestContext.authorizer as {
     principalId: string;
