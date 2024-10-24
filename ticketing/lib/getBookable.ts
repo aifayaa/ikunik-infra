@@ -11,7 +11,34 @@ import {
 
 const { COLL_BOOKABLES, COLL_TICKETS } = mongoCollections;
 
-export default async (bookableId: string, appId: string, userId: string) => {
+export default async (bookableId: string, appId: string) => {
+  const client = await MongoClient.connect();
+
+  try {
+    const bookable = await client
+      .db()
+      .collection(COLL_BOOKABLES)
+      .findOne({ _id: bookableId, appId });
+
+    if (!bookable) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        BOOKABLE_NOT_FOUND_CODE,
+        `Bookable event ${bookableId} not found`
+      );
+    }
+
+    return bookable as BookableType;
+  } finally {
+    client.close();
+  }
+};
+
+export async function getBookableAndTickets(
+  bookableId: string,
+  appId: string,
+  userId: string
+) {
   const client = await MongoClient.connect();
 
   try {
@@ -41,4 +68,4 @@ export default async (bookableId: string, appId: string, userId: string) => {
   } finally {
     client.close();
   }
-};
+}

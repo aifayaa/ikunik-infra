@@ -55,7 +55,10 @@ export const createBookableSchema = z.object({
   pictureId: z.string().or(z.null()).optional().default(null),
   scannersBadges: z
     .object({
-      list: z.array(z.string()).optional().default([]),
+      list: z
+        .array(z.object({ id: z.string() }).strict())
+        .optional()
+        .default([]),
       allow: z.enum(['any', 'all']).optional().default('any'),
     })
     .strict()

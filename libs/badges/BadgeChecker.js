@@ -43,6 +43,14 @@ function BadgeCheckerResults({
     writable: false,
   };
 
+  // These are required for typescript to know they exist...
+  this.canList = undefined;
+  this.canRead = undefined;
+  this.canPreview = undefined;
+  this.canNotify = undefined;
+  this.restrictedBy = undefined;
+  this.paidBadges = undefined;
+
   Object.defineProperty(this, 'canList', { ...propConf, value: canList });
   Object.defineProperty(this, 'canRead', { ...propConf, value: canRead });
   Object.defineProperty(this, 'canPreview', { ...propConf, value: canPreview });

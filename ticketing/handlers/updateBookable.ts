@@ -53,7 +53,7 @@ export const updateBookableSchema = z
     'limits.maxTicketsPerAccount': z.number().int().gte(1),
     pricingId: z.string().or(z.null()),
     pictureId: z.string().or(z.null()),
-    'scannersBadges.list': z.array(z.string()),
+    'scannersBadges.list': z.array(z.object({ id: z.string() }).strict()),
     'scannersBadges.allow': z.enum(['any', 'all']),
   })
   .strict();

@@ -19,7 +19,7 @@ export type CreateBookableType = {
   pricingId: string | null;
   pictureId: string | null;
   scannersBadges: {
-    list: string[];
+    list: { id: string }[];
     allow: 'any' | 'all';
   };
 };

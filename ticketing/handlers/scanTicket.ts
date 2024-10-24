@@ -5,6 +5,7 @@ import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { z } from 'zod';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import checkScannerPermsForTicket from 'ticketing/lib/checkScannerPermsForTicket';
 
 export const scanTicketSchema = z.object({
   locationLabel: z
@@ -30,7 +31,7 @@ export default async (event: any) => {
   const ticketId = event.pathParameters.id;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
+    await checkScannerPermsForTicket(ticketId, appId, userId);
 
     const body = JSON.parse(event.body);
 

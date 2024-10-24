@@ -23,7 +23,7 @@ export type BookableType = {
     pictureUrl: string;
   };
   scannersBadges: {
-    list: string[];
+    list: { id: string }[];
     allow: 'any' | 'all';
   };
 };
