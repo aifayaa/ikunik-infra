@@ -18,6 +18,10 @@ export type CreateBookableType = {
   };
   pricingId: string | null;
   pictureId: string | null;
+  scannersBadges: {
+    list: string[];
+    allow: 'any' | 'all';
+  };
 };
 
 export default async (

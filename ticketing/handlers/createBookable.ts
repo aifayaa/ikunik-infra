@@ -53,6 +53,14 @@ export const createBookableSchema = z.object({
   }),
   pricingId: z.string().or(z.null()).optional().default(null),
   pictureId: z.string().or(z.null()).optional().default(null),
+  scannersBadges: z
+    .object({
+      list: z.array(z.string()).optional().default([]),
+      allow: z.enum(['any', 'all']).optional().default('any'),
+    })
+    .strict()
+    .optional()
+    .default({ list: [], allow: 'any' }),
 });
 
 export default async (event: any) => {
@@ -72,6 +80,7 @@ export default async (event: any) => {
       limits: { notBefore, notAfter, maxTickets, maxTicketsPerAccount },
       pricingId,
       pictureId,
+      scannersBadges,
     } = validatedBody;
 
     const newBookable = await createBookable(appId, userId, {
@@ -86,6 +95,7 @@ export default async (event: any) => {
       },
       pricingId,
       pictureId,
+      scannersBadges,
     });
 
     return response({
