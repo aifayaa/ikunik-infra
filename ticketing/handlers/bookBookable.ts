@@ -30,8 +30,6 @@ export default async (event: any) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
-
     const body = JSON.parse(event.body);
 
     const { id: bookableId } = bookBookableUrlSchema.parse(
