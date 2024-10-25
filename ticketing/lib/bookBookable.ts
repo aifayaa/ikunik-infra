@@ -73,6 +73,7 @@ export default async (
       const newTicket = {
         _id: new ObjectID().toString(),
         appId,
+        owner: userId,
         bookedBy: userId,
         bookedAt: new Date(),
         bookableId,

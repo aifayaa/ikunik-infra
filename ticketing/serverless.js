@@ -195,6 +195,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getTickets: {
+      handler: 'handlers/getTicket.default',
+      events: [
+        {
+          http: {
+            path: 'tickets',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                headers: {
+                  Authorization: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     scanTicket: {
       handler: 'handlers/scanTicket.default',
       events: [

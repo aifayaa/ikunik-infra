@@ -4,6 +4,7 @@ export type TicketType = {
   bookableId: string;
   bookedAt: string | Date;
   bookedBy: string;
+  owner: string;
   scans: [
     {
       scannedBy: string;

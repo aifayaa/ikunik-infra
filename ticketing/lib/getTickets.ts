@@ -1,12 +1,11 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { BookableType } from './bookableEntity';
+import { TicketType } from './ticketEntity';
 
-const { COLL_BOOKABLES } = mongoCollections;
+const { COLL_TICKETS } = mongoCollections;
 
-export type GetBookablesParams = {
-  query?: string;
+export type GetTicketsParams = {
   sort?: string;
   from?: string;
   to?: string;
@@ -14,9 +13,9 @@ export type GetBookablesParams = {
   limit?: string;
 };
 
-type GetBookablesInternalDbMatchType = {
+type GetTicketsInternalDbMatchType = {
   appId: string;
-  $or?: [{ name: RegExp }?, { description: RegExp }?];
+  owner: string;
   'limits.notAfter'?: {
     $gte: Date;
   };
@@ -25,25 +24,17 @@ type GetBookablesInternalDbMatchType = {
   };
 };
 
-const escapeRegExp = (string: string) =>
-  String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 export default async (
   appId: string,
-  { query, sort, from, to, skip = '', limit = '' }: GetBookablesParams
+  userId: string,
+  { sort, from, to, skip = '', limit = '' }: GetTicketsParams
 ) => {
   const client = await MongoClient.connect();
 
   try {
-    const dbMatch: GetBookablesInternalDbMatchType = { appId };
+    const dbMatch: GetTicketsInternalDbMatchType = { appId, owner: userId };
     let dbSort = [['createdAt', 1]];
 
-    if (query) {
-      dbMatch.$or = [
-        { name: new RegExp(escapeRegExp(query)) },
-        { description: new RegExp(escapeRegExp(query)) },
-      ];
-    }
     if (sort) {
       const sortParams = sort.split(';');
       dbSort = sortParams.map((param: string) => {
@@ -60,20 +51,20 @@ export default async (
 
     const totalCount = await client
       .db()
-      .collection(COLL_BOOKABLES)
+      .collection(COLL_TICKETS)
       .find(dbMatch)
       .count();
 
     const cursor = await client
       .db()
-      .collection(COLL_BOOKABLES)
+      .collection(COLL_TICKETS)
       .find(dbMatch)
       .sort(dbSort);
     cursor.skip(parseInt(skip, 10) || 0);
     cursor.limit(parseInt(limit, 10) || 10);
-    const bookables = await cursor.toArray();
+    const tickets = await cursor.toArray();
 
-    return { items: bookables as BookableType[], totalCount };
+    return { items: tickets as TicketType[], totalCount };
   } finally {
     client.close();
   }
