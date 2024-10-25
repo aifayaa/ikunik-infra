@@ -61,7 +61,6 @@ export default async (event) => {
     if (
       typeof moderated !== 'undefined' ||
       typeof moderator !== 'undefined' ||
-      typeof reported !== 'undefined' ||
       typeof reviewed !== 'undefined' ||
       typeof trashed !== 'undefined'
     ) {

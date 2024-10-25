@@ -21,7 +21,7 @@ export async function getUser(userId: string, options: Object = {}) {
 
   const db = client.db();
 
-  const user = await db
+  const user: UserType | undefined = await db
     .collection(COLL_USERS)
     .findOne({ _id: userId }, options);
 

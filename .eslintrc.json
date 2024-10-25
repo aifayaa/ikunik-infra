@@ -2,6 +2,8 @@
   "extends": ["airbnb-base", "plugin:prettier/recommended"],
   "rules": {
     "yoda": "off",
+    "no-continue": "off",
+    "import/no-relative-packages": "off",
     "operator-linebreak": [
       "error",
       "after",
