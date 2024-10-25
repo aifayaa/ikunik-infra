@@ -15,7 +15,7 @@ export default async (appId, categoryId) => {
 
     const previousCategoryValues = await collection.findOne(
       { _id: categoryId, appId },
-      { projection: { order: 1, parentId: 1 } }
+      { projection: { order: 1, parentId: 1, rssFeedUrl: 1 } }
     );
 
     if (!previousCategoryValues) throw new Error('category_not_found');
