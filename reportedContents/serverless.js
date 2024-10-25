@@ -52,7 +52,7 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'reportedContents/{type}/{id}/unreport',
-            method: 'post',
+            method: 'put',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
