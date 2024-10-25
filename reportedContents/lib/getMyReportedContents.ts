@@ -101,20 +101,6 @@ export default async (
       type: 'user',
     }));
 
-    const unfiltedReportedContent = await db
-      .collection(COLL_USER_GENERATED_CONTENTS_REPORTS)
-      .aggregate([
-        {
-          $match: {
-            appId,
-            userId,
-          },
-        },
-      ])
-      .toArray();
-
-    console.log('unfiltedReportedContent', unfiltedReportedContent);
-
     const aggregatedReportedUserArticles: Array<aggregatedReportedUserArticleType> =
       (
         await db
