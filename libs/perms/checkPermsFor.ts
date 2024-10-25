@@ -715,22 +715,16 @@ export async function checkFeaturePermsForApp(
 
     const { featuresPerms = {} } = app.settings || {};
 
-    const finalFeaturesPerm: Record<
-      AppsFeaturePermType,
-      UserBadgeGenericEntryEntity | null
-    > = featuresPerms.reduce(
-      (
-        acc: Record<AppsFeaturePermType, UserBadgeGenericEntryEntity | null>,
-        key: AppsFeaturePermType
-      ) => {
-        if (requestedPermissions.indexOf(key) >= 0) {
+    const finalFeaturesPerm = requestedPermissions.reduce(
+      (acc, key) => {
+        if (featuresPerms[key]) {
           acc[key] = featuresPerms[key];
         } else {
           acc[key] = null;
         }
         return acc;
       },
-      {}
+      {} as Record<AppsFeaturePermType, UserBadgeGenericEntryEntity | null>
     );
 
     const userBadges = [...((user && user.badges) || [])];

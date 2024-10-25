@@ -6,6 +6,7 @@ export type AppsPermType =
   | 'viewer';
 
 export type AppsFeaturePermType = 'ticketingScanner';
+export const appsFeaturePermsList: AppsFeaturePermType[] = ['ticketingScanner'];
 
 export type AppsPermWithoutOwnerType = Omit<AppsPermType, 'owner'>;
 
