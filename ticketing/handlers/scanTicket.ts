@@ -1,10 +1,12 @@
 /* eslint-disable import/no-relative-packages */
 import scanTicket from '../lib/scanTicket';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { z } from 'zod';
-import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
 import checkScannerPermsForTicket from 'ticketing/lib/checkScannerPermsForTicket';
 
 export const scanTicketSchema = z.object({
@@ -31,7 +33,7 @@ export default async (event: any) => {
   const ticketId = event.pathParameters.id;
 
   try {
-    await checkScannerPermsForTicket(ticketId, appId, userId);
+    await checkFeaturePermsForApp(userId, appId, ['ticketingScanner']);
 
     const body = JSON.parse(event.body);
 

@@ -22,8 +22,4 @@ export type BookableType = {
     largeUrl: string;
     pictureUrl: string;
   };
-  scannersBadges: {
-    list: { id: string }[];
-    allow: 'any' | 'all';
-  };
 };

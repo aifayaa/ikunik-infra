@@ -36,7 +36,7 @@ export default async (
 
   try {
     const dbMatch: GetBookablesInternalDbMatchType = { appId };
-    let dbSort = [['createdAt', 1]];
+    let dbSort = [['createdAt', -1]];
 
     if (query) {
       dbMatch.$or = [

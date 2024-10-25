@@ -53,8 +53,6 @@ export const updateBookableSchema = z
     'limits.maxTicketsPerAccount': z.number().int().gte(1),
     pricingId: z.string().or(z.null()),
     pictureId: z.string().or(z.null()),
-    'scannersBadges.list': z.array(z.object({ id: z.string() }).strict()),
-    'scannersBadges.allow': z.enum(['any', 'all']),
   })
   .strict();
 
@@ -78,8 +76,6 @@ export default async (event: any) => {
         'limits.maxTicketsPerAccount': true,
         pricingId: true,
         pictureId: true,
-        'scannersBadges.list': true,
-        'scannersBadges.allow': true,
       })
       .parse(body);
 

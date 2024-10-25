@@ -17,7 +17,11 @@ export default async (event: any) => {
   } = event.queryStringParameters || {};
 
   try {
-    await checkPermsForApp(userId, appId, ['admin']);
+    try {
+      await checkPermsForApp(userId, appId, ['admin']);
+    } catch (e) {
+      /* We are not admin, but do we have any perms on bookables through badges? */
+    }
 
     const bookables = await getBookables(appId, {
       query,

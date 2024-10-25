@@ -15,8 +15,6 @@ export type UpdateBookableType = {
   'limits.maxTicketsPerAccount'?: number;
   pricingId?: string | null;
   pictureId?: string | null;
-  'scannersBadges.list'?: { id: string }[];
-  'scannersBadges.allow'?: 'all' | 'any';
 };
 
 export default async (
