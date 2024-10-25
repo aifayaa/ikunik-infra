@@ -2,6 +2,7 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
+import notifyAdminsForRSSFeedUrlChange from './notifyAdminsForRSSFeedUrlChange.ts';
 import reorderCategory, { reorderCategoriesIn } from './reorderCategory';
 
 const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
@@ -164,6 +165,13 @@ export default async ({
       await reorderCategoriesIn(appId, previousParentId);
     } else if (hasOrderChanged) {
       await reorderCategory(appId, categoryId, order);
+    }
+
+    if (
+      rssFeedUrl !== null &&
+      previousCategoryValues.rssFeedUrl !== rssFeedUrl
+    ) {
+      await notifyAdminsForRSSFeedUrlChange(appId, categoryId, rssFeedUrl);
     }
 
     return { _id: categoryId, ...category };
