@@ -84,7 +84,7 @@ export default async (
       );
     }
 
-    if (type === 'userArticle') {
+    if (type === 'userArticle' || type === 'comment') {
       const collection = db.collection(COLL_USER_GENERATED_CONTENTS_REPORTS);
       return await reportContent(
         collection,
