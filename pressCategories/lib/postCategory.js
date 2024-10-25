@@ -3,6 +3,7 @@ import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import isAvailable from './isAvailable';
 import reorderCategory from './reorderCategory';
+import notifyAdminsForRSSFeedUrlChange from './notifyAdminsForRSSFeedUrlChange.ts';
 
 const { COLL_PRESS_CATEGORIES, COLL_USER_BADGES } = mongoCollections;
 
@@ -117,6 +118,10 @@ export default async ({
     await collection.insertOne(category);
 
     await reorderCategory(appId, category._id, order);
+
+    if (rssFeedUrl) {
+      await notifyAdminsForRSSFeedUrlChange(appId, category._id, rssFeedUrl);
+    }
 
     return { _id: category._id, ...category };
   } finally {

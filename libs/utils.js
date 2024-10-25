@@ -116,3 +116,17 @@ export function reorderObjectKeys(object, keys) {
 
   return finalObject;
 }
+
+export function escapeHtmlEntities(html) {
+  const tagsToReplace = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+
+  const regExp = new RegExp(`[${Object.keys(tagsToReplace).join('')}]`, 'g');
+
+  return html.replace(regExp, (tag) => tagsToReplace[tag] || tag);
+}
