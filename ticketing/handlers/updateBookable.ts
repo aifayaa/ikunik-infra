@@ -52,7 +52,7 @@ export const updateBookableSchema = z
     'limits.maxTickets': z.number().int().gte(0),
     'limits.maxTicketsPerAccount': z.number().int().gte(1),
     pricingId: z.string().or(z.null()),
-    pictureId: z.string(),
+    pictureId: z.string().or(z.null()),
   })
   .strict();
 

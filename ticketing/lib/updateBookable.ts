@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import { getDetailedPictureFields } from '@libs/utils';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
@@ -13,28 +14,41 @@ export type UpdateBookableType = {
   'limits.maxTickets'?: number;
   'limits.maxTicketsPerAccount'?: number;
   pricingId?: string | null;
-  pictureId?: string;
+  pictureId?: string | null;
 };
 
 export default async (
   bookableId: string,
   appId: string,
   userId: string,
-  bookableData: UpdateBookableType
+  { pictureId, ...bookableData }: UpdateBookableType
 ) => {
   const client = await MongoClient.connect();
 
   try {
-    const bookableUpdates = {
-      ...bookableData,
-      updatedBy: userId,
-      updatedAt: new Date(),
+    const bookableUpdates: any = {
+      $set: {
+        ...bookableData,
+        updatedBy: userId,
+        updatedAt: new Date(),
+      },
     };
+
+    if (pictureId) {
+      const pictureField = await getDetailedPictureFields(pictureId, {
+        client,
+      });
+      if (pictureField) {
+        bookableUpdates.$set.picture = pictureField;
+      }
+    } else {
+      bookableUpdates.$set.picture = null;
+    }
 
     await client
       .db()
       .collection(COLL_BOOKABLES)
-      .updateOne({ _id: bookableId, appId }, { $set: bookableUpdates });
+      .updateOne({ _id: bookableId, appId }, bookableUpdates);
 
     const updatedBookable = await client
       .db()
