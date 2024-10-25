@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import notifyAdminsForRSSFeedUrlChange from './notifyAdminsForRSSFeedUrlChange.ts';
 import { reorderCategoriesIn } from './reorderCategory';
 
 const { COLL_PRESS_ARTICLES, COLL_PRESS_CATEGORIES, COLL_PRESS_DRAFTS } =
@@ -155,6 +156,16 @@ export default async (appId, categoryId) => {
           ]
         );
     }
+
+    if (previousCategoryValues.rssFeedUrl) {
+      await notifyAdminsForRSSFeedUrlChange(
+        appId,
+        categoryId,
+        previousCategoryValues.rssFeedUrl,
+        true
+      );
+    }
+
     return { resultDelete, resultTrashed };
   } finally {
     client.close();

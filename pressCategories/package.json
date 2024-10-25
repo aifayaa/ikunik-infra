@@ -4,6 +4,9 @@
   "private": true,
   "description": "Crowdaa categories API.",
   "main": "handler.js",
+  "dependencies": {
+    "aws-sdk": "^2.749.0"
+  },
   "devDependencies": {
     "serverless": "^3.38.0",
     "serverless-esbuild": "^1.52.1",
