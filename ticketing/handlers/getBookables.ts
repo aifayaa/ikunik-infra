@@ -1,7 +1,8 @@
-/* eslint-disable import/no-relative-packages */
-import updateBookable from '../lib/updateBookable';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import getBookables from '../lib/getBookables';
 
@@ -18,9 +19,9 @@ export default async (event: any) => {
 
   try {
     try {
-      await checkPermsForApp(userId, appId, ['admin']);
+      await checkFeaturePermsForApp(userId, appId, ['ticketingScanner']);
     } catch (e) {
-      /* We are not admin, but do we have any perms on bookables through badges? */
+      await checkPermsForApp(userId, appId, ['admin']);
     }
 
     const bookables = await getBookables(appId, {
