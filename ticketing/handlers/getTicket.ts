@@ -2,10 +2,11 @@
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import getTicket from '../lib/getTicket';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
-export default async (event: any) => {
-  const { appId } = event.requestContext.authorizer;
-  const ticketId = event.pathParameters.id;
+export default async (event: APIGatewayProxyEvent) => {
+  const { appId } = event.requestContext.authorizer as { appId: string };
+  const { id: ticketId } = event.pathParameters as { id: string };
 
   try {
     const ticket = await getTicket(ticketId, appId);

@@ -3,13 +3,21 @@ import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import getTickets from '../lib/getTickets';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
-export default async (event: any) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+export default async (event: APIGatewayProxyEvent) => {
+  const { appId, principalId: userId } = event.requestContext.authorizer as {
+    appId: string;
+    principalId: string;
+  };
   const { sort, from, to, skip, limit } = event.queryStringParameters || {};
 
   try {
-    const bookables = await getTickets(appId, userId, {
+    const isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
+      dontThrow: true,
+    });
+
+    const bookables = await getTickets(appId, isAdmin ? null : userId, {
       sort,
       from,
       to,

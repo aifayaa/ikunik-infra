@@ -1,9 +1,14 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { BookableType } from './bookableEntity';
 import { TicketType } from './ticketEntity';
 
-const { COLL_TICKETS } = mongoCollections;
+const { COLL_TICKETS, COLL_BOOKABLES } = mongoCollections;
+
+type TicketWithBookableType = TicketType & {
+  bookable: BookableType;
+};
 
 export type GetTicketsParams = {
   sort?: string;
@@ -15,7 +20,7 @@ export type GetTicketsParams = {
 
 type GetTicketsInternalDbMatchType = {
   appId: string;
-  owner: string;
+  owner?: string;
   'limits.notAfter'?: {
     $gte: Date;
   };
@@ -26,13 +31,17 @@ type GetTicketsInternalDbMatchType = {
 
 export default async (
   appId: string,
-  userId: string,
+  userId: string | null,
   { sort, from, to, skip = '', limit = '' }: GetTicketsParams
 ) => {
   const client = await MongoClient.connect();
 
   try {
-    const dbMatch: GetTicketsInternalDbMatchType = { appId, owner: userId };
+    const dbMatch: GetTicketsInternalDbMatchType = { appId };
+    if (userId) {
+      dbMatch.owner = userId;
+    }
+
     let dbSort = [['createdAt', 1]];
 
     if (sort) {
@@ -55,16 +64,32 @@ export default async (
       .find(dbMatch)
       .count();
 
-    const cursor = await client
+    const rawTickets = await client
       .db()
       .collection(COLL_TICKETS)
-      .find(dbMatch)
-      .sort(dbSort);
-    cursor.skip(parseInt(skip, 10) || 0);
-    cursor.limit(parseInt(limit, 10) || 10);
-    const tickets = await cursor.toArray();
+      .aggregate([
+        { $match: dbMatch },
+        { $skip: parseInt(skip, 10) || 0 },
+        { $limit: parseInt(limit, 10) || 10 },
+        {
+          $lookup: {
+            from: COLL_BOOKABLES,
+            localField: 'bookableId',
+            foreignField: '_id',
+            as: 'bookable',
+          },
+        },
+      ])
+      .toArray();
 
-    return { items: tickets as TicketType[], totalCount };
+    const tickets: TicketWithBookableType = rawTickets.map(
+      ({ bookable, ...ticket }: { bookable: BookableType[] }) => ({
+        ...ticket,
+        bookable: bookable[0],
+      })
+    );
+
+    return { items: tickets, totalCount };
   } finally {
     client.close();
   }

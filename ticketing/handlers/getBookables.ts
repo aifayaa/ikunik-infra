@@ -5,9 +5,13 @@ import {
 } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import getBookables from '../lib/getBookables';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
-export default async (event: any) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
+export default async (event: APIGatewayProxyEvent) => {
+  const { appId, principalId: userId } = event.requestContext.authorizer as {
+    appId: string;
+    principalId: string;
+  };
   const {
     q: query,
     sort,

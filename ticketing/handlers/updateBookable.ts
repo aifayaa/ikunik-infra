@@ -5,6 +5,12 @@ import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import { z } from 'zod';
 import { formatValidationErrors } from '../../libs/httpResponses/formatValidationErrors';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_VALIDATION_ERROR,
+  MISSING_BODY_CODE,
+} from '@libs/httpResponses/errorCodes';
 
 export const updateBookableSchema = z
   .object({
@@ -56,11 +62,22 @@ export const updateBookableSchema = z
   })
   .strict();
 
-export default async (event: any) => {
-  const { appId, principalId: userId } = event.requestContext.authorizer;
-  const bookableId = event.pathParameters.id;
+export default async (event: APIGatewayProxyEvent) => {
+  const { appId, principalId: userId } = event.requestContext.authorizer as {
+    appId: string;
+    principalId: string;
+  };
+  const { id: bookableId } = event.pathParameters as { id: string };
 
   try {
+    if (!event.body) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_BODY_CODE,
+        'Body is missing from the request'
+      );
+    }
+
     await checkPermsForApp(userId, appId, ['admin']);
 
     const body = JSON.parse(event.body);
