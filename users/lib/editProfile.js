@@ -48,7 +48,7 @@ export default async (
       if (email) {
         const userWithEmail = await db
           .collection(COLL_USERS)
-          .findOne({ appId, 'emails.address': email });
+          .findOne({ _id: { $ne: user._id }, appId, 'emails.address': email });
         if (userWithEmail) {
           throw new Error('email_already_exists');
         }
