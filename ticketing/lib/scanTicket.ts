@@ -6,10 +6,12 @@ import { TicketType } from './ticketEntity';
 const { COLL_TICKETS } = mongoCollections;
 
 export type ScanTicketType = {
-  locationLabel: string;
-  geo?: {
-    lat: number;
-    lon: number;
+  location: {
+    label: string;
+    geo?: {
+      lat: number;
+      lng: number;
+    } | null;
   };
   bookableId: string;
 };
@@ -18,7 +20,7 @@ export default async (
   ticketId: string,
   appId: string,
   userId: string,
-  { locationLabel, geo, bookableId }: ScanTicketType
+  { location, bookableId }: ScanTicketType
 ) => {
   const client = await MongoClient.connect();
 
@@ -33,10 +35,7 @@ export default async (
             scans: {
               scannedAt: new Date(),
               scannedBy: userId,
-              location: {
-                label: locationLabel,
-                geo,
-              },
+              location,
             },
           },
         }

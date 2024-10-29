@@ -13,7 +13,7 @@ export type TicketType = {
         label: string;
         geo?: {
           lat: number;
-          lon: number;
+          lng: number;
         };
       };
     }?,
