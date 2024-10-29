@@ -11,13 +11,14 @@ export type ScanTicketType = {
     lat: number;
     lon: number;
   };
+  bookableId: string;
 };
 
 export default async (
   ticketId: string,
   appId: string,
   userId: string,
-  { locationLabel, geo }: ScanTicketType
+  { locationLabel, geo, bookableId }: ScanTicketType
 ) => {
   const client = await MongoClient.connect();
 
@@ -26,14 +27,14 @@ export default async (
       .db()
       .collection(COLL_TICKETS)
       .updateOne(
-        { _id: ticketId, appId },
+        { _id: ticketId, appId, bookableId },
         {
           $push: {
             scans: {
               scannedAt: new Date(),
               scannedBy: userId,
               location: {
-                location: locationLabel,
+                label: locationLabel,
                 geo,
               },
             },
@@ -44,7 +45,7 @@ export default async (
     const ticket = await client
       .db()
       .collection(COLL_TICKETS)
-      .findOne({ _id: ticketId, appId });
+      .findOne({ _id: ticketId, appId, bookableId });
 
     return ticket as TicketType;
   } finally {

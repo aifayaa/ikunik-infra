@@ -196,7 +196,7 @@ const serverlessConfiguration = {
       ],
     },
     getTickets: {
-      handler: 'handlers/getTicket.default',
+      handler: 'handlers/getTickets.default',
       events: [
         {
           http: {
@@ -224,7 +224,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'tickets/{id}',
+            path: 'tickets/{id}/scan',
             method: 'put',
             cors: true,
             authorizer: {

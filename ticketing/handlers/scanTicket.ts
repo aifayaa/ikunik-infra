@@ -28,6 +28,13 @@ export const scanTicketSchema = z.object({
       required_error: 'lon is required',
     }),
   }),
+  bookableId: z
+    .string({
+      required_error: 'bookableId is required',
+      invalid_type_error: 'bookableId must be a string',
+    })
+    .min(1, { message: 'Must be 1 or more characters long' })
+    .trim(),
 });
 
 export default async (event: APIGatewayProxyEvent) => {
