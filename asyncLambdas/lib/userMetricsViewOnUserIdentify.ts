@@ -23,84 +23,19 @@ export default async (appId: string, userId: string, deviceId: string) => {
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
       .findOne({ appId, userId, type: 'user' });
 
-    if (!aggUserMetrics) {
-      await client
-        .db()
-        .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
-        .insertOne({
-          _id: `user-${userId}`,
-          appId,
-          userId,
-          type: 'user',
-          deviceIds: [deviceId],
+    const previousDeviceIds =
+      (aggUserMetrics && aggUserMetrics.deviceIds) || [];
 
-          readingTime: 0,
-          totalReadingTime: 0,
-          firstMetricAt: new Date(),
-          lastMetricAt: new Date(),
-
-          metricsGeo: [],
-          metricsTime: [],
-
-          metricsGeoLast: null,
-
-          user,
-        });
-
-      await client
-        .db()
-        .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
-        .insertOne({
-          _id: `user-${userId}-${deviceId}`,
-          appId,
-          userId,
-          deviceId,
-          type: 'userDevice',
-
-          readingTime: 0,
-          totalReadingTime: 0,
-          firstMetricAt: new Date(),
-          lastMetricAt: new Date(),
-
-          metricsGeo: [],
-          metricsTime: [],
-
-          metricsGeoLast: null,
-
-          user,
-        });
-    } else {
-      const deviceIds = [...aggUserMetrics.deviceIds, deviceId].filter(
-        (x) => x
-      );
-      if (deviceIds) {
-        await client
-          .db()
-          .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
-          .deleteMany({
-            appId,
-            type: 'device',
-            deviceId: { $in: deviceIds },
-          });
-      }
-    }
+    const deviceIds = [...previousDeviceIds, deviceId].filter((x) => x);
 
     await client
       .db()
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
-      .updateMany(
-        {
-          appId,
-          userId,
-          metricsGeo: { $size: 0 },
-          metricsTime: { $size: 0 },
-        },
-        {
-          $set: {
-            user,
-          },
-        }
-      );
+      .deleteMany({
+        appId,
+        type: 'device',
+        deviceId: { $in: deviceIds },
+      });
   } finally {
     client.close();
   }
