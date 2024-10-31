@@ -314,6 +314,7 @@ export async function setupWebsite(
       createdAt: new Date(),
       createdBy: userId,
       type: 'kubernetes/v1',
+      template: bucketKey,
       name: defaultDomain,
       domains: domains,
       appId: appId,
