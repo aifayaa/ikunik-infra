@@ -47,6 +47,7 @@ export type WebsiteKubernetesV1Type = {
   createdAt: Date;
   createdBy: string;
   type: 'kubernetes/v1';
+  template: string;
   name: string;
   domains: string[];
   appId: string;

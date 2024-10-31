@@ -8,9 +8,10 @@ import MongoClient from '@libs/mongoClient';
 import mongoViews from '@libs/mongoViews.json';
 import mongoCollections from '@libs/mongoCollections.json';
 import { buildCrowdSearchPipeline } from './crowdUtils';
+import { syncUserBadges } from '@libs/wordpress/wordpressApiSync';
 
 const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
-const { COLL_USERS } = mongoCollections;
+const { COLL_APPS, COLL_USERS } = mongoCollections;
 
 const USERS_PROCESSING_BATCHES = 200;
 
@@ -64,6 +65,7 @@ export async function crowdMassUpdateBadgesApply({
   const client = await MongoClient.connect();
   const db = client.db();
   try {
+    const app = db.collection(COLL_APPS).findOne({ _id: appId });
     const pipeline = buildCrowdSearchPipeline(appId, filters);
 
     const itemsCursor = db
@@ -100,6 +102,13 @@ export async function crowdMassUpdateBadgesApply({
               },
             }
           );
+        }
+
+        if (app.backend && app.backend.type === 'wordpress') {
+          const user = await db.collection(COLL_USERS).findOne({ _id, appId });
+          if (user) {
+            await syncUserBadges(user);
+          }
         }
       })();
 
