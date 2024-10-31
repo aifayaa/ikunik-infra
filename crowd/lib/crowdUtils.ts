@@ -145,7 +145,7 @@ export function buildCrowdSearchPipeline(
             $filter: {
               input: '$metricsTime',
               as: 'item',
-              cond: { $eq: ['$$item.articleId', filters.articleId] },
+              cond: { $eq: ['$$item.contentId', filters.articleId] },
             },
           },
         },
@@ -153,11 +153,7 @@ export function buildCrowdSearchPipeline(
       {
         $addFields: {
           readingTime: {
-            $reduce: {
-              input: '$metricsTime',
-              initialValue: 0,
-              in: { $add: ['$$readingTime', '$$this.time'] },
-            },
+            $sum: '$metricsTime.time',
           },
         },
       }
