@@ -65,7 +65,7 @@ export async function crowdMassUpdateBadgesApply({
   const client = await MongoClient.connect();
   const db = client.db();
   try {
-    const app = db.collection(COLL_APPS).findOne({ _id: appId });
+    const app = await db.collection(COLL_APPS).findOne({ _id: appId });
     const pipeline = buildCrowdSearchPipeline(appId, filters);
 
     const itemsCursor = db
