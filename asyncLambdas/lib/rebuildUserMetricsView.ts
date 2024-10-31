@@ -5,7 +5,7 @@ import mongoViews from '../../libs/mongoViews.json';
 const { COLL_USER_METRICS, COLL_USERS } = mongoCollections;
 const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
 
-function makeFinalPipelineSteps(isUser: boolean) {
+function makeFinalPipelineSteps(type: 'device' | 'user' | 'userDevice') {
   return [
     {
       $set: {
@@ -19,7 +19,7 @@ function makeFinalPipelineSteps(isUser: boolean) {
       },
     },
 
-    ...(isUser
+    ...(type === 'userDevice'
       ? [
           {
             $lookup: {
@@ -78,9 +78,54 @@ export default async (appId: string) => {
   try {
     const cursorUsers = await client
       .db()
-      .collection(COLL_USER_METRICS)
+      .collection(COLL_USERS)
       .aggregate([
-        { $match: { ...matchCommonQuery, userId: { $ne: null } } },
+        { $match: { appId } },
+        { $project: { user: '$$ROOT' } },
+        {
+          $lookup: {
+            from: COLL_USER_METRICS,
+            localField: 'user._id',
+            foreignField: 'userId',
+            pipeline: [
+              {
+                $match: {
+                  appId,
+                },
+              },
+            ],
+            as: 'allMetrics',
+          },
+        },
+        {
+          $unwind: {
+            path: '$allMetrics',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            allMetrics: {
+              $cond: {
+                if: '$allMetrics',
+                then: '$allMetrics',
+                else: {},
+              },
+            },
+            user: 1,
+          },
+        },
+        {
+          $addFields: {
+            'allMetrics.user': '$user',
+            'allMetrics.userId': '$user._id',
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: '$allMetrics',
+          },
+        },
         {
           $group: {
             _id: { $concat: ['user-', '$userId'] },
@@ -90,11 +135,12 @@ export default async (appId: string) => {
               $addToSet: '$deviceId',
             },
             userId: { $first: '$userId' },
+            user: { $first: '$user' },
 
             ...commonGroupFields,
           },
         },
-        ...makeFinalPipelineSteps(true),
+        ...makeFinalPipelineSteps('user'),
       ]);
 
     const cursorUserDevices = await client
@@ -115,7 +161,7 @@ export default async (appId: string) => {
             ...commonGroupFields,
           },
         },
-        ...makeFinalPipelineSteps(true),
+        ...makeFinalPipelineSteps('userDevice'),
       ]);
 
     const cursorDevices = await client
@@ -135,7 +181,7 @@ export default async (appId: string) => {
             ...commonGroupFields,
           },
         },
-        ...makeFinalPipelineSteps(false),
+        ...makeFinalPipelineSteps('device'),
       ]);
 
     await Promise.all([

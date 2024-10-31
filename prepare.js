@@ -765,6 +765,13 @@ verbose(
           },
           opts: makeOpts(),
         },
+        {
+          name: 'crowdaa_userMetrics_userId',
+          key: {
+            userId: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
       ],
       [COLL_PICTURES]: [
         {
