@@ -6,13 +6,17 @@ import response from '../../libs/httpResponses/response.ts';
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
   const deviceId = event.pathParameters.id;
-  const { transfer = 'false', assign = 'false' } =
-    event.queryStringParameters || {};
+  const {
+    transfer = 'false',
+    assign = 'false',
+    user = 'false',
+  } = event.queryStringParameters || {};
 
   try {
     const results = await recoverPurchasesFor(appId, deviceId, userId, {
       transfer: transfer === 'true',
       assign: assign === 'true',
+      user: user === 'true',
     });
     return response({ code: 200, body: results });
   } catch (e) {
