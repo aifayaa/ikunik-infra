@@ -169,6 +169,7 @@ export default async ({
 
     if (
       rssFeedUrl !== null &&
+      !previousCategoryValues.rssFeedUrl !== !rssFeedUrl &&
       previousCategoryValues.rssFeedUrl !== rssFeedUrl
     ) {
       await notifyAdminsForRSSFeedUrlChange(appId, categoryId, rssFeedUrl);
