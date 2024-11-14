@@ -346,7 +346,7 @@ export async function setupWebsite(
             'public.autoLoginDomains': domains,
             'public.defaultUrl': `${defaultUrl}/`,
 
-            'settings.press.env.merchWPUrl': `${defaultUrl}/`,
+            'settings.press.env.merchWPUrl': `${defaultUrl}/shop`,
             'settings.press.env.tabOrder':
               'today,categories,merchwp,community,search,settings',
 
