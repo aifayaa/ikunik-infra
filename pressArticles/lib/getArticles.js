@@ -4,7 +4,6 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { common as commonFields } from './articleFields';
 import BadgeChecker from '../../libs/badges/BadgeChecker';
 import { getArticleCommentsCount } from './getArticleCounts';
-import DebugTimer from '../../libs/debug/DebugTimer';
 
 const { ADMIN_APP } = process.env;
 
@@ -44,7 +43,6 @@ export const getArticles = async (
   try {
     client = await MongoClient.connect();
 
-    const dt = new DebugTimer('getArticles');
     const categoriesMatch = {
       appId,
     };
@@ -66,9 +64,6 @@ export const getArticles = async (
       .collection(COLL_PRESS_CATEGORIES)
       .find(categoriesMatch)
       .toArray();
-
-    dt.print('categories');
-    dt.start();
 
     const categoriesIds = categories
       .filter(
@@ -371,8 +366,6 @@ export const getArticles = async (
       $sort: sortArticles,
     });
 
-    dt.print('beforeMainArticlesPipeline');
-    dt.start();
     const [articles = [], total = 0] = await Promise.all([
       client
         .db()
@@ -381,9 +374,6 @@ export const getArticles = async (
         .toArray(),
       client.db().collection(COLL_PRESS_ARTICLES).find(matchArticles).count(),
     ]);
-
-    dt.print('mainArticlesPipeline');
-    dt.start();
 
     let extPurchases = null;
     if (articles.length > 0) {
@@ -474,17 +464,10 @@ export const getArticles = async (
             .toArray();
         return Promise.resolve([]);
       };
-
-      dt.print('beforeDrafts');
-      dt.start();
-
       [drafts, extPurchases] = await Promise.all([
         getDrafts(),
         getExtPurchases(),
       ]);
-
-      dt.print('drafts');
-      dt.start();
 
       extPurchases = extPurchases.reduce((acc, itm) => {
         acc[itm.itemId] = itm;
@@ -513,22 +496,13 @@ export const getArticles = async (
       return { ...article, category: articleCategory };
     });
 
-    dt.print('beforeUser');
-    dt.start();
-
     /** Permissions checks */
     const user = userId
       ? await client.db().collection(COLL_USERS).findOne({ _id: userId })
       : null;
 
-    dt.print('user');
-    dt.start();
-
     if (checkBadges && (!user || user.appId !== ADMIN_APP)) {
       const userBadges = (user && user.badges) || [];
-
-      dt.print('beforeGetApp');
-      dt.start();
 
       const app = await client
         .db()
@@ -541,9 +515,6 @@ export const getArticles = async (
             },
           }
         );
-
-      dt.print('getApp');
-      dt.start();
 
       let previewLength = 180;
       if (
@@ -572,13 +543,7 @@ export const getArticles = async (
         article.requiredElements = requiredElements;
       };
 
-      dt.print('beforeBadgeInit');
-      dt.start();
-
       await badgeChecker.init;
-
-      dt.print('badgeInit');
-      dt.start();
 
       badgeChecker.registerBadges(userBadges.map(({ id: badgeId }) => badgeId));
 
@@ -609,13 +574,7 @@ export const getArticles = async (
         }
       });
 
-      dt.print('beforeLoadBadges');
-      dt.start();
-
       await badgeChecker.loadBadges();
-
-      dt.print('loadBadges');
-      dt.start();
 
       const promises = articlesWithCategory.map(async (article, id) => {
         if (!extPurchases[article._id]) {
@@ -665,17 +624,8 @@ export const getArticles = async (
         }
       });
 
-      dt.print('beforeAllBadgesPermsChecks');
-      dt.start();
-
       await Promise.all(promises);
-
-      dt.print('allBadgesPermsChecks');
-      dt.start();
     }
-
-    dt.print('beforeCommentCount');
-    dt.start();
 
     const promises3 = articlesWithCategory.map(async (article) => {
       if (article) {
@@ -687,9 +637,6 @@ export const getArticles = async (
     });
 
     await Promise.all(promises3);
-
-    dt.print('commentCount');
-    dt.start();
 
     return { articles: articlesWithCategory, total };
   } finally {
