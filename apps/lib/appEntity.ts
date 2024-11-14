@@ -69,6 +69,7 @@ export type AppType = {
         displayArticleCommentsCount: boolean;
         displayArticleLikesViews: boolean;
         displayPopularCategories: boolean;
+        displayTabsNames: boolean;
         feedArticleCommentsEnabled: boolean;
         feedArticleDateFormat: string;
         feedArticleShareEnabled: boolean;
