@@ -46,6 +46,7 @@ const allAllowedSettings = [
   'press.env.displayArticleAuthor',
   'press.env.displayArticleCommentsCount',
   'press.env.displayArticleLikesViews',
+  'press.env.displayTabsNames',
   'press.env.feedArticleCommentsEnabled',
   'press.env.feedArticleDateFormat',
   'press.env.feedArticleShareEnabled',

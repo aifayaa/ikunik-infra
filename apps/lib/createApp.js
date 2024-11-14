@@ -29,6 +29,7 @@ export const DEFAULT_APP_SETTINGS = {
       displayArticleCommentsCount: true,
       displayArticleLikesViews: true,
       displayPopularCategories: true,
+      displayTabsNames: true,
       feedArticleCommentsEnabled: true,
       feedArticleDateFormat: 'L',
       feedArticleShareEnabled: true,
