@@ -18,6 +18,6 @@ export default async (event) => {
 
     return response({ code: 200, body: res });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

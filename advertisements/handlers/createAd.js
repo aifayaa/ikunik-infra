@@ -26,6 +26,6 @@ export default async (event) => {
     const newAd = await createAd(appId, userId, bodyParsed);
     return response({ code: 200, body: newAd });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

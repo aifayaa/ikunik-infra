@@ -18,6 +18,6 @@ export default async (event) => {
     await badgeSelfRequest(appId, userId, userBadgeId, { lang });
     return response({ code: 200, body: { success: true } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

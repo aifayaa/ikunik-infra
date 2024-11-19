@@ -14,6 +14,6 @@ export default async (event) => {
     const deletedTask = await deleteTask(taskId, appId);
     return response({ code: 200, body: deletedTask });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

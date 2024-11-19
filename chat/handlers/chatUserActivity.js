@@ -18,6 +18,6 @@ export default async (event) => {
     await chatUserActivity(userId, appId, active);
     return response({ code: 200, body: { ok: true } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

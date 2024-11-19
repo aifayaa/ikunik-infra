@@ -14,6 +14,6 @@ export default async (event) => {
     const task = await getTask(taskId, appId);
     return response({ code: 200, body: task });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

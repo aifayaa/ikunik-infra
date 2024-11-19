@@ -35,6 +35,6 @@ export default async (event) => {
     const userBadges = await listUserBadges(appId);
     return response({ code: 200, body: { userBadges } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };
