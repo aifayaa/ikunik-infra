@@ -20,7 +20,9 @@ export default async (event) => {
   const pollId = event.pathParameters.id;
 
   try {
-    await checkPermsForApp(userId, authorizerAppId, ['admin']);
+    const isAdmin = await checkPermsForApp(userId, authorizerAppId, ['admin'], {
+      dontThrow: true,
+    });
 
     const { exportToken = null, appId } = event.queryStringParameters || {};
 
@@ -36,7 +38,7 @@ export default async (event) => {
       }
     }
 
-    if (!exportToken) {
+    if (!superAdmin && !exportToken && !isAdmin) {
       throw new Error('access_forbidden');
     }
 
