@@ -20,6 +20,6 @@ export default async (event) => {
     const edited = await editFormRegister(formId, bodyParsed);
     return response({ code: 200, body: edited });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

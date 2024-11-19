@@ -138,5 +138,9 @@ export function isCrowdaaError(
 }
 
 export function handleException(exception: unknown) {
+  console.error('handleException(): Received exception :', exception);
+  if (exception instanceof Error) {
+    console.error('handleException(): Exception stack :', exception.stack);
+  }
   return response(computeErrorContent(exception));
 }

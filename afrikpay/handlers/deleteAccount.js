@@ -14,6 +14,6 @@ export default async (event) => {
     await deleteAccount(appId, userId);
     return response({ code: 200, body: { ok: true } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

@@ -10,6 +10,6 @@ export default async (event) => {
     const form = await getFormRegister(formId);
     return response({ code: 200, body: form });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

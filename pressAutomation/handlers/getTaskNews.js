@@ -14,6 +14,6 @@ export default async (event) => {
     const newsList = await getTaskNews(taskId, { appId, userId });
     return response({ code: 200, body: { newsList } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

@@ -1,4 +1,12 @@
-export default ({ code, message = 'Error' } = {}) => {
+export default ({ code, message = 'Error', stack } = {}) => {
+  // eslint-disable-next-line no-console
+  console.error(
+    'errorMessage(): Received exception message =',
+    message,
+    ', stack =',
+    stack
+  );
+
   let errorCode;
   switch (message) {
     case 'action_field_missing':

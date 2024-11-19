@@ -14,6 +14,6 @@ export default async (event) => {
     const userBadge = await getUserBadge(userBadgeId, appId);
     return response({ code: 200, body: { userBadge } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

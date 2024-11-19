@@ -21,6 +21,6 @@ export default async (event) => {
     const body = await useProposal(appId, userId, proposalId, bodyParsed);
     return response({ code: 200, body });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

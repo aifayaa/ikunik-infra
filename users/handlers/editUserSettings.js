@@ -39,6 +39,6 @@ export default async (event) => {
     const results = await editUserSettings(userId, appId, bodyParsed);
     return response({ code: 200, body: { updated: results } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

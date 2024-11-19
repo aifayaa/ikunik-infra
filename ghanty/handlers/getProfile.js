@@ -14,6 +14,6 @@ export default async (event) => {
     const body = await getProfile(appId, userId);
     return response({ code: 200, body });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

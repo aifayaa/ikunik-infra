@@ -56,6 +56,6 @@ export default async (event) => {
       raw: true,
     });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };
