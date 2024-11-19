@@ -16,6 +16,6 @@ export default async (event) => {
     const res = await resetPassword(appId, bodyParsed);
     return response({ code: 200, body: { ok: true, response: res } });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

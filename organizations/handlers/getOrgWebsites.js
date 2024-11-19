@@ -14,6 +14,6 @@ export default async (event) => {
     const websites = await getOrgWebsites(orgId);
     return response({ code: 200, body: websites });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

@@ -26,6 +26,6 @@ export default async (event) => {
     const newTask = await createTask(appId, userId, bodyParsed);
     return response({ code: 200, body: newTask });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

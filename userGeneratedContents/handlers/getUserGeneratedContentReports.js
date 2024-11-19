@@ -47,6 +47,6 @@ export default async (event) => {
       body: countOnly ? { totalCount } : { totalCount, items },
     });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };

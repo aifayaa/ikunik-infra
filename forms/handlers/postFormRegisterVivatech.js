@@ -18,6 +18,6 @@ export default async (event) => {
     const inserted = await postFormRegisterVivatech(bodyParsed);
     return response({ code: 200, body: inserted });
   } catch (e) {
-    return response(errorMessage({ message: e.message }));
+    return response(errorMessage(e));
   }
 };
