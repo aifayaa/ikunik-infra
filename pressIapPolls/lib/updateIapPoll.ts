@@ -1,7 +1,12 @@
 /* eslint-disable import/no-relative-packages */
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { IapPollOptionType, IapPollType } from './iapPollsTypes';
+import {
+  ERROR_TYPE_NOT_FOUND,
+  IAP_POLL_NOT_FOUND_CODE,
+} from '@libs/httpResponses/errorCodes';
 
 const { COLL_PRESS_IAP_POLLS } = mongoCollections;
 
@@ -50,7 +55,11 @@ export default async (
       })) as IapPollType | null;
 
     if (!iapPollObj) {
-      throw new Error('content_not_found');
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        IAP_POLL_NOT_FOUND_CODE,
+        `The IAP Poll '${iapPollId}' was not found`
+      );
     }
 
     return iapPollObj;
