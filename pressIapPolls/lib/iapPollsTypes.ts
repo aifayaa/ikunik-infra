@@ -39,8 +39,8 @@ export type IapPollType = {
   displayResults: boolean;
   active: boolean;
 
-  createdBy?: string;
-  createdAt?: Date;
+  createdBy: string;
+  createdAt: Date;
   updatedBy?: string;
   updatedAt?: Date;
 };
