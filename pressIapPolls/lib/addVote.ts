@@ -16,7 +16,7 @@ type VoteParamType = {
   articleId: string;
   deviceId: string;
   priceId: IapPollPriceIdsType;
-  count?: number;
+  count: number;
 };
 
 export default async (
@@ -55,22 +55,21 @@ export default async (
 
     const { points } = option;
 
-    await client
-      .db()
-      .collection(COLL_PRESS_IAP_POLLS_VOTES)
-      .insertOne({
-        appId,
-        iapPollId,
-        articleId,
-        userId,
-        deviceId,
-        priceId,
-        count,
-        points,
-        totalPoints: points * count,
-      });
+    const totalPoints = points * count;
 
-    return true;
+    await client.db().collection(COLL_PRESS_IAP_POLLS_VOTES).insertOne({
+      appId,
+      iapPollId,
+      articleId,
+      userId,
+      deviceId,
+      priceId,
+      count,
+      points,
+      totalPoints,
+    });
+
+    return totalPoints;
   } finally {
     client.close();
   }

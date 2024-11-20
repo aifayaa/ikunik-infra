@@ -91,10 +91,6 @@ export default async (event: APIGatewayProxyEvent) => {
     await checkPermsForApp(userId, appId, ['admin']);
 
     if (!event.body) {
-      throw new Error('mal_formed_request');
-    }
-
-    if (!event.body) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
         MISSING_BODY_CODE,

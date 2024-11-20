@@ -1,10 +1,9 @@
 /* eslint-disable import/no-relative-packages */
-import getDBCounters from '../../counters/lib/getDBCounters';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { IapPollType } from './iapPollsTypes';
 
-const { COLL_PRESS_IAP_POLLS, COLL_PRESS_IAP_POLLS_VOTES } = mongoCollections;
+const { COLL_PRESS_IAP_POLLS } = mongoCollections;
 
 export default async (iapPollId: string, appId: string) => {
   const client = await MongoClient.connect();
