@@ -1,6 +1,10 @@
 /* eslint-disable import/no-relative-packages */
+import pressArticlesPrices from '../../pressArticles/articlePrices.json';
+
+const isNumber = (val) => typeof val === 'number' && !Number.isNaN(val);
 const isString = (val) => typeof val === 'string';
-const isNonEmptyString = (val) => typeof val === 'string' && val.length > 0;
+const isNonEmptyString = (val) =>
+  typeof val === 'string' && val.trim().length > 0;
 const isValidDate = (val) =>
   typeof val === 'string' && !Number.isNaN(new Date(val).getFullYear());
 
@@ -20,10 +24,10 @@ export const createFieldChecks = {
         return false;
       }
 
-      if (!isNonEmptyString(item.id)) {
+      if (!item.priceId || !pressArticlesPrices[item.priceId]) {
         return false;
       }
-      if (!isNonEmptyString(item.text)) {
+      if (!isNumber(item.points)) {
         return false;
       }
 
@@ -35,13 +39,7 @@ export const createFieldChecks = {
   requires(val) {
     return ['auth', 'none'].indexOf(val) >= 0;
   },
-  multipleChoices(val) {
-    return typeof val === 'boolean';
-  },
   displayResults(val) {
-    return typeof val === 'boolean';
-  },
-  canUpdate(val) {
     return typeof val === 'boolean';
   },
   active(val) {
