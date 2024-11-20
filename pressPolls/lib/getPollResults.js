@@ -118,12 +118,14 @@ export default async (
 
     const { allVotes } = await fetchPollCounters(poll, { appId, client });
 
+    const $match = {
+      pollId,
+      appId,
+    };
+
     const pipeline = [
       {
-        $match: {
-          pollId,
-          appId,
-        },
+        $match,
       },
     ];
 
@@ -162,12 +164,24 @@ export default async (
       .aggregate(pipeline)
       .toArray();
 
-    return {
+    const ret = {
       counters: allVotes,
       exportToken,
       poll,
       votes,
     };
+
+    if (start !== null && limit !== null) {
+      const totalVotes = await client
+        .db()
+        .collection(COLL_PRESS_POLLS_VOTES)
+        .find($match)
+        .count();
+
+      ret.totalVotes = totalVotes;
+    }
+
+    return ret;
   } finally {
     client.close();
   }
