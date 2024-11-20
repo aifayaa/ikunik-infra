@@ -13,15 +13,19 @@ import {
   ORGANIZATION_PERMISSION_CODE,
   USER_NOT_FOUND_CODE,
   SUPERADMIN_PERMISSION_CODE,
+  FEATURE_PERMISSION_CODE,
 } from '../httpResponses/errorCodes';
 import { UserType } from '../../users/lib/userEntity';
 import {
   AppsPermType,
   OrganizationPermType,
   OrganizationPermRanking,
+  AppsFeaturePermType,
 } from './permEntities';
 import { getApp } from '../../apps/lib/appsUtils';
 import { AppInOrgType, AppType } from '../../apps/lib/appEntity';
+import BadgeChecker from '@libs/badges/BadgeChecker.js';
+import { UserBadgeGenericEntryEntity } from 'userBadges/lib/userBadgesEntities.js';
 
 const { COLL_USERS, COLL_ORGANIZATIONS, COLL_WEBSITES } = mongoCollections;
 
@@ -667,4 +671,125 @@ function checkPermsForOrganizationAux(
   ];
 
   return areArraysIntersecting(roles, requestedPermsArray);
+}
+
+/**
+ * Checks for user permissions on specific features of an app.
+ * @param {string} userId The user ID
+ * @param {string} appId The app ID
+ * @param {Array<AppsFeaturePermType>} requestedPermissions The permission to check for
+ * @param {object} options (facultative) precise if the function throws or not
+ * @throws {CrowdaaError} If user is not allowed
+ * @returns true for a valid permission, false otherwise
+ */
+export async function checkFeaturePermsForApp(
+  userId: string,
+  appId: string,
+  requestedPermissions: Array<AppsFeaturePermType>,
+  options = { dontThrow: false }
+) {
+  const client = await MongoClient.connect();
+  const badgeChecker = new BadgeChecker(appId);
+
+  try {
+    const db = client.db();
+
+    const user = await db.collection(COLL_USERS).findOne(
+      { _id: userId, appId },
+      {
+        projection: {
+          badges: 1,
+        },
+      }
+    );
+
+    const app = await getApp(appId);
+
+    if (!user) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        USER_NOT_FOUND_CODE,
+        `Cannot find user '${userId}'`
+      );
+    }
+
+    const { featuresPerms = {} } = app.settings || {};
+
+    const finalFeaturesPerm = requestedPermissions.reduce(
+      (acc, key) => {
+        if (featuresPerms[key]) {
+          acc[key] = featuresPerms[key];
+        } else {
+          acc[key] = null;
+        }
+        return acc;
+      },
+      {} as Record<AppsFeaturePermType, UserBadgeGenericEntryEntity | null>
+    );
+
+    const userBadges = [...((user && user.badges) || [])];
+
+    await badgeChecker.init;
+
+    badgeChecker.registerBadges(userBadges.map(({ id }) => id));
+
+    Object.keys(finalFeaturesPerm).forEach((permKey: string) => {
+      const permKeyCasted = permKey as AppsFeaturePermType;
+
+      if (!finalFeaturesPerm[permKeyCasted]) {
+        throw new CrowdaaError(
+          ERROR_TYPE_ACCESS,
+          FEATURE_PERMISSION_CODE,
+          `Access to feature ${permKeyCasted} not allowed`
+        );
+      }
+
+      badgeChecker.registerBadges(
+        finalFeaturesPerm[permKeyCasted].list.map(({ id }) => id)
+      );
+    });
+
+    await badgeChecker.loadBadges();
+
+    const promises = Object.keys(finalFeaturesPerm).map(
+      async (permKey: string) => {
+        const permKeyCasted = permKey as AppsFeaturePermType;
+
+        if (finalFeaturesPerm[permKeyCasted]) {
+          const checkerResults = await badgeChecker.checkBadges(
+            userBadges,
+            finalFeaturesPerm[permKeyCasted],
+            { userId, appId }
+          );
+
+          if (!checkerResults.canRead) {
+            throw new CrowdaaError(
+              ERROR_TYPE_ACCESS,
+              FEATURE_PERMISSION_CODE,
+              `Access to feature ${permKeyCasted} not allowed`
+            );
+          }
+        }
+      }
+    );
+
+    const results = await Promise.allSettled(promises);
+
+    results.forEach((value: PromiseSettledResult<void>) => {
+      if (value.status === 'rejected') {
+        throw value.reason;
+      }
+    });
+
+    return true;
+  } catch (e) {
+    if (options.dontThrow) {
+      return false;
+    } else {
+      throw e;
+    }
+  } finally {
+    await badgeChecker.close();
+    await client.close();
+  }
 }

@@ -1,4 +1,9 @@
 /* eslint-disable import/no-relative-packages */
+import MongoClient from './mongoClient';
+import mongoCollections from './mongoCollections.json';
+
+const { COLL_PICTURES } = mongoCollections;
+
 export function objGet(obj, keys, dft) {
   let keysArray = keys;
   let ret = obj;
@@ -129,4 +134,44 @@ export function escapeHtmlEntities(html) {
   const regExp = new RegExp(`[${Object.keys(tagsToReplace).join('')}]`, 'g');
 
   return html.replace(regExp, (tag) => tagsToReplace[tag] || tag);
+}
+
+export async function getDetailedPictureFields(
+  pictureId,
+  { client = null } = {}
+) {
+  let localClient = client;
+  if (!client) {
+    localClient = await MongoClient.connect();
+  }
+
+  try {
+    const picture = await localClient
+      .db()
+      .collection(COLL_PICTURES)
+      .findOne({ _id: pictureId });
+
+    if (picture) {
+      const haveUrl =
+        picture.thumbUrl ||
+        picture.mediumUrl ||
+        picture.largeUrl ||
+        picture.pictureUrl;
+      if (haveUrl) {
+        return {
+          _id: picture._id,
+          thumbUrl: picture.thumbUrl,
+          mediumUrl: picture.mediumUrl,
+          largeUrl: picture.largeUrl,
+          pictureUrl: picture.pictureUrl,
+        };
+      }
+    }
+
+    return null;
+  } finally {
+    if (localClient !== client) {
+      await client.close();
+    }
+  }
 }

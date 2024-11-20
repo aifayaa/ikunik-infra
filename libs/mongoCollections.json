@@ -14,6 +14,7 @@
   "COLL_BLAST_NOTIFICATIONS_QUEUE": "blastNotificationsQueue",
   "COLL_BLASTS": "blasts",
   "COLL_BLOCKED_CONTENTS": "blockedContents",
+  "COLL_BOOKABLES": "bookables",
   "COLL_CARTS": "carts",
   "COLL_CHATENGINE_ROOM_USERS": "chatengineRoomUsers",
   "COLL_CONTACTS": "contacts",
