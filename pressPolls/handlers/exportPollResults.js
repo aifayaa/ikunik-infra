@@ -44,7 +44,7 @@ export default async (event) => {
 
     const lang = getUserLanguage(event.headers);
 
-    const pollResults = await getPollResults(pollId, appId, exportToken);
+    const pollResults = await getPollResults(pollId, appId, { exportToken });
 
     await intlInit(lang);
 

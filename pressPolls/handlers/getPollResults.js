@@ -7,11 +7,20 @@ import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
   const pollId = event.pathParameters.id;
+  let { start, limit } = event.queryStringParameters || {};
 
   try {
     await checkPermsForApp(userId, appId, ['admin']);
 
-    const pollResults = await getPollResults(pollId, appId);
+    if (start && limit) {
+      start = parseInt(start, 10) || 0;
+      limit = parseInt(limit, 10) || 25;
+    } else {
+      start = null;
+      limit = null;
+    }
+
+    const pollResults = await getPollResults(pollId, appId, { start, limit });
 
     return response({ code: 200, body: pollResults });
   } catch (e) {

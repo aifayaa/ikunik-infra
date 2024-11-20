@@ -2,6 +2,7 @@
 import Random from '../../libs/account_utils/random.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { userPrivateFieldsProjection } from '../../users/lib/usersUtils.ts';
 import { fetchPollCounters } from './getPoll';
 import { formatMessage } from '../../libs/intl/intl';
 
@@ -84,7 +85,11 @@ export function pollResultsToCsv(pollResults) {
   return output;
 }
 
-export default async (pollId, appId, inputExportToken = null) => {
+export default async (
+  pollId,
+  appId,
+  { exportToken: inputExportToken = null, start = null, limit = null } = {}
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -113,39 +118,70 @@ export default async (pollId, appId, inputExportToken = null) => {
 
     const { allVotes } = await fetchPollCounters(poll, { appId, client });
 
+    const $match = {
+      pollId,
+      appId,
+    };
+
+    const pipeline = [
+      {
+        $match,
+      },
+    ];
+
+    if (start !== null && limit !== null) {
+      pipeline.push(
+        {
+          $skip: start,
+        },
+        {
+          $limit: limit,
+        }
+      );
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: COLL_USERS,
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+          pipeline: [{ $project: userPrivateFieldsProjection }],
+        },
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
+        },
+      }
+    );
+
     const votes = await client
       .db()
       .collection(COLL_PRESS_POLLS_VOTES)
-      .aggregate([
-        {
-          $match: {
-            pollId,
-            appId,
-          },
-        },
-        {
-          $lookup: {
-            from: COLL_USERS,
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'user',
-          },
-        },
-        {
-          $unwind: {
-            path: '$user',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-      ])
+      .aggregate(pipeline)
       .toArray();
 
-    return {
+    const ret = {
       counters: allVotes,
       exportToken,
       poll,
       votes,
     };
+
+    if (start !== null && limit !== null) {
+      const totalVotes = await client
+        .db()
+        .collection(COLL_PRESS_POLLS_VOTES)
+        .find($match)
+        .count();
+
+      ret.totalVotes = totalVotes;
+    }
+
+    return ret;
   } finally {
     client.close();
   }
