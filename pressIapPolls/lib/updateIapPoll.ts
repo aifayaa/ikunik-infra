@@ -1,10 +1,26 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { IapPollOptionType, IapPollType } from './iapPollsTypes';
 
 const { COLL_PRESS_IAP_POLLS } = mongoCollections;
 
-export default async (iapPollId, appId, userId, toSet) => {
+type UpdateIapPollParamType = {
+  title?: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  options?: IapPollOptionType[];
+  displayResults?: boolean;
+  active?: boolean;
+};
+
+export default async (
+  iapPollId: string,
+  appId: string,
+  userId: string,
+  toSet: UpdateIapPollParamType
+) => {
   const client = await MongoClient.connect();
 
   try {
@@ -25,13 +41,13 @@ export default async (iapPollId, appId, userId, toSet) => {
         }
       );
 
-    const iapPollObj = await client
+    const iapPollObj = (await client
       .db()
       .collection(COLL_PRESS_IAP_POLLS)
       .findOne({
         _id: iapPollId,
         appId,
-      });
+      })) as IapPollType | null;
 
     if (!iapPollObj) {
       throw new Error('content_not_found');

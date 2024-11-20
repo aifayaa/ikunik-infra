@@ -1,14 +1,29 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { IapPollOptionType, IapPollType } from './iapPollsTypes';
 
 const { COLL_PRESS_IAP_POLLS } = mongoCollections;
 
-export default async (appId, userId, iapPollData) => {
+type CreateIapPollParamType = {
+  title: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  options: IapPollOptionType[];
+  displayResults: boolean;
+  active: boolean;
+};
+
+export default async (
+  appId: string,
+  userId: string,
+  iapPollData: CreateIapPollParamType
+) => {
   const client = await MongoClient.connect();
 
   try {
-    const newIapPollObj = {
+    const newIapPollObj: IapPollType = {
       ...iapPollData,
       _id: new ObjectID().toString(),
       appId,

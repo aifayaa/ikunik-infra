@@ -4,19 +4,28 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PRESS_IAP_POLLS } = mongoCollections;
 
+type GetIapPollsParamType = {
+  limit?: null | number;
+  search?: null | string;
+  start?: null | number;
+};
+
 // Taken from https://stackoverflow.com/a/6969486
-function escapeRegex(str) {
+function escapeRegex(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export default async (appId, { limit = null, search = null, start = null }) => {
+export default async (
+  appId: string,
+  { limit = null, search = null, start = null }: GetIapPollsParamType
+) => {
   const client = await MongoClient.connect();
 
   try {
-    const query = {
+    const query: any = {
       appId,
     };
-    const options = {
+    const options: any = {
       sort: [['createdAt', -1]],
     };
 
