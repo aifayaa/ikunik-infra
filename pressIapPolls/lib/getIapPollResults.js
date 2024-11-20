@@ -3,7 +3,6 @@ import Random from '../../libs/account_utils/random.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { userPrivateFieldsProjection } from '../../users/lib/usersUtils.ts';
-import { fetchIapPollCounters } from './getIapPoll.ts';
 import { formatMessage } from '../../libs/intl/intl';
 
 const { COLL_PRESS_IAP_POLLS, COLL_PRESS_IAP_POLLS_VOTES, COLL_USERS } =
@@ -116,8 +115,6 @@ export default async (
       throw new Error('access_forbidden');
     }
 
-    const { allVotes } = await fetchIapPollCounters(iapPoll, { appId, client });
-
     const $match = {
       iapPollId,
       appId,
@@ -165,7 +162,6 @@ export default async (
       .toArray();
 
     const ret = {
-      counters: allVotes,
       exportToken,
       iapPoll,
       votes,
