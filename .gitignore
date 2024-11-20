@@ -1,6 +1,9 @@
 # package directories
 node_modules
+/*/node_modules
 /*/.env
+/*/.serverless
+/*/.esbuild
 
 # garbage directory
 tmp

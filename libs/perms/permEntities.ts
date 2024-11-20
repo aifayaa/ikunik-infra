@@ -5,6 +5,9 @@ export type AppsPermType =
   | 'moderator'
   | 'viewer';
 
+export type AppsFeaturePermType = 'ticketingScanner';
+export const appsFeaturePermsList: AppsFeaturePermType[] = ['ticketingScanner'];
+
 export type AppsPermWithoutOwnerType = Omit<AppsPermType, 'owner'>;
 
 export type OrganizationPermType = 'owner' | 'admin' | 'member';
