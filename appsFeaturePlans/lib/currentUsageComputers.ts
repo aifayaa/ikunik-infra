@@ -6,10 +6,10 @@ import mongoCollections from '@libs/mongoCollections.json';
 import computeLiveStreamDurationInMilliseconds from 'liveStream/lib/computeLiveStreamDuration';
 
 const {
-  COLL_USER_BADGES,
   COLL_LIVE_STREAMS,
+  COLL_PRESS_IAP_POLLS,
   COLL_PRESS_POLLS,
-  COLL_LIVE_STREAMS_DURATIONS,
+  COLL_USER_BADGES,
 } = mongoCollections;
 
 type CurrentUsageComputerArg2Type = {
@@ -101,6 +101,21 @@ export const currentUsageComputers: Record<
       const count = await client
         .db()
         .collection(COLL_PRESS_POLLS)
+        .find({ appId: app._id })
+        .count();
+
+      return count;
+    } finally {
+      client.close();
+    }
+  },
+  iapPolls: async (app: AppType) => {
+    const client = await MongoClient.connect();
+
+    try {
+      const count = await client
+        .db()
+        .collection(COLL_PRESS_IAP_POLLS)
         .find({ appId: app._id })
         .count();
 

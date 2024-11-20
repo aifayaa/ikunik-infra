@@ -23,6 +23,7 @@ export type FeatureIdType =
   | 'liveStreams'
   | 'playlists'
   | 'polls'
+  | 'iapPolls'
   | 'translations';
 export const allFeatureIds: FeatureIdType[] = [
   'activeUsers',
@@ -35,6 +36,7 @@ export const allFeatureIds: FeatureIdType[] = [
   'liveStreams',
   'playlists',
   'polls',
+  'iapPolls',
   'translations',
 ];
 
