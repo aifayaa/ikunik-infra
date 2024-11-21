@@ -86,6 +86,8 @@ export default async (event: APIGatewayProxyEvent) => {
       }
     }
 
+    const iapPoll = await getIapPoll(iapPollId, appId);
+
     if (!superAdmin && !isAdmin) {
       if (!!exportToken) {
         throw new CrowdaaError(
@@ -94,8 +96,6 @@ export default async (event: APIGatewayProxyEvent) => {
           `User '${userId}' does not have sufficient permissions to do this operation`
         );
       } else {
-        const iapPoll = await getIapPoll(iapPollId, appId);
-
         if (iapPoll.exportToken !== exportToken) {
           throw new CrowdaaError(
             ERROR_TYPE_FORBIDDEN,
@@ -116,7 +116,7 @@ export default async (event: APIGatewayProxyEvent) => {
       return response({
         code: 200,
         body: formatResponseBody({
-          data: iapPollResults,
+          data: { ...iapPollResults, iapPoll },
         }),
       });
     } else if (format === 'csv') {
