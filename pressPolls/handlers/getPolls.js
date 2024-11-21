@@ -37,10 +37,10 @@ export default async (event) => {
 
     const filters = {};
 
-    const { start = 0, limit = 25 } = params;
+    const { start = '0', limit = '25' } = params;
 
-    filters.start = parseInt(start, 10);
-    filters.limit = parseInt(limit, 10);
+    filters.start = parseInt(start, 10) || 0;
+    filters.limit = parseInt(limit, 10) || 25;
 
     if (isAdmin) {
       if (params.search) filters.search = params.search;

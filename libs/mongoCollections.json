@@ -53,6 +53,8 @@
   "COLL_PRESS_BLASTS": "pressBlasts",
   "COLL_PRESS_CATEGORIES": "pressCategories",
   "COLL_PRESS_DRAFTS": "pressDrafts",
+  "COLL_PRESS_IAP_POLLS_VOTES": "pressIapPollsVotes",
+  "COLL_PRESS_IAP_POLLS": "pressIapPolls",
   "COLL_PRESS_MODALS": "pressModals",
   "COLL_PRESS_NOTIFICATIONS_QUEUE": "pressNotificationsQueue",
   "COLL_PRESS_POLLS_VOTES": "pressPollsVotes",
