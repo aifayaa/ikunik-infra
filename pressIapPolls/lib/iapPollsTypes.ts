@@ -43,4 +43,21 @@ export type IapPollType = {
   createdAt: Date;
   updatedBy?: string;
   updatedAt?: Date;
+
+  exportToken?: string;
+};
+
+export type IapPollVoteType = {
+  _id: string;
+  appId: string;
+  iapPollId: string;
+  articleId: string;
+  userId: null | string;
+  deviceId: string;
+
+  priceId: IapPollPriceIdsType;
+
+  count: number;
+  points: number;
+  totalPoints: number;
 };

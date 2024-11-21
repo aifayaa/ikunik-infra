@@ -110,6 +110,7 @@ export const MAX_USER_TICKETS_EXCEEDED_CODE = 'MAX_USER_TICKETS_EXCEEDED';
 
 export const ERROR_TYPE_FORBIDDEN = 'Forbidden';
 export const DELETE_OWNER_CODE = 'DELETE_OWNER_CODE';
+export const INVALID_TOKEN_CODE = 'INVALID_TOKEN';
 
 export const ERROR_TYPE_FOREIGN_API = 'Foreign API';
 
