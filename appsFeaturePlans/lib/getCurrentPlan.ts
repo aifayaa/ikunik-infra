@@ -46,6 +46,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       appTabs: true,
       playlists: true,
       polls: true,
+      iapPolls: true,
       appTheme: true,
       translations: true,
       activeUsers: true,
@@ -67,6 +68,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       appTabs: false,
       playlists: false,
       polls: false,
+      iapPolls: false,
       appTheme: false,
       translations: false,
       activeUsers: {
@@ -98,6 +100,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       appTabs: true,
       playlists: true,
       polls: true,
+      iapPolls: true,
       appTheme: true,
       translations: true,
       activeUsers: {
@@ -124,6 +127,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       appTabs: true,
       playlists: true,
       polls: true,
+      iapPolls: true,
       appTheme: true,
       translations: true,
       activeUsers: {
@@ -150,6 +154,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       appTabs: false,
       playlists: false,
       polls: false,
+      iapPolls: false,
       appTheme: false,
       translations: false,
       activeUsers: {
