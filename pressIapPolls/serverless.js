@@ -202,30 +202,6 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
-            },
-            request: {
-              parameters: {
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    exportIapPollResults: {
-      handler: 'handlers/exportIapPollResults.default',
-      events: [
-        {
-          http: {
-            path: 'admin/press/iapPolls/{id}/export',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
             },
             request: {
