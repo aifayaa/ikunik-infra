@@ -99,6 +99,8 @@ export const publishArticle = async (
       text,
       thumbnailDisplayMethod,
       title,
+      updatedAt: new Date(),
+      updatedBy: userId,
       videoPlayMode,
       videos:
         typeof videos !== 'undefined' && videos.length ? videos : undefined,
