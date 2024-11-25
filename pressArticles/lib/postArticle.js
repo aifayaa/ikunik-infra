@@ -142,7 +142,17 @@ export const postArticle = async ({
     session = client.startSession();
     session.startTransaction();
     const opts = { session, returnOriginal: false };
-    await client.db().collection(COLL_PRESS_ARTICLES).insertOne(article, opts);
+    await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .insertOne(
+        {
+          ...article,
+          updatedAt: new Date(),
+          updatedBy: userId,
+        },
+        opts
+      );
 
     delete article.draftId;
     article.articleId = articleId;

@@ -142,12 +142,21 @@ export const putArticle = async ({
     await client.db().collection(COLL_PRESS_DRAFTS).insertOne(draft);
 
     // Update the 'draftId' field in the parent article
-    await client.db().collection(COLL_PRESS_ARTICLES).updateOne(
-      {
-        _id: articleId,
-      },
-      { $set: { draftId } }
-    );
+    await client
+      .db()
+      .collection(COLL_PRESS_ARTICLES)
+      .updateOne(
+        {
+          _id: articleId,
+        },
+        {
+          $set: {
+            draftId,
+            updatedAt: new Date(),
+            updatedBy: userId,
+          },
+        }
+      );
 
     return { articleId, draftId };
   } finally {
