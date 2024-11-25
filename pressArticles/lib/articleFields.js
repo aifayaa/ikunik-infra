@@ -41,6 +41,8 @@ const common = {
 const admin = {
   ...common,
   isPublished: true,
+  updatedAt: true,
+  updatedBy: true,
 };
 
 const server = {
