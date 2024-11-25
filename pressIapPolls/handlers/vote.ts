@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import addVote from '../lib/addVote';
+import addVote, { checkIsIapPollVotableAndGetOption } from '../lib/addVote';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
@@ -14,9 +14,7 @@ import { addBalance } from '../../userBalances/lib/addBalance';
 import { getBalance } from '../../userBalances/lib/getBalance';
 import {
   ERROR_TYPE_IAP,
-  ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
-  IAP_POLL_OPTION_NOT_FOUND_CODE,
   MISSING_BODY_CODE,
   INSUFFICIENT_BALANCE_FUNDS_CODE,
   BALANCE_UPDATE_FAILED_CODE,
@@ -65,29 +63,14 @@ export default async (event: APIGatewayProxyEvent) => {
     const validatedBody = bodySchema.parse(body);
 
     const iapPoll = await getIapPoll(iapPollId, appId);
-    const option = iapPoll.options.find(
-      (option) => option.priceId === validatedBody.priceId
+    const option = checkIsIapPollVotableAndGetOption(
+      iapPoll,
+      validatedBody.priceId
     );
-
-    if (!option) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        IAP_POLL_OPTION_NOT_FOUND_CODE,
-        `The option ${validatedBody.priceId} was not found on IAP poll '${iapPollId}'`
-      );
-    }
 
     const price =
       ArticlePrices[option.priceId as IapPollPriceIdsType] *
       validatedBody.count;
-
-    if (!price) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        IAP_POLL_OPTION_NOT_FOUND_CODE,
-        `The option ${validatedBody.priceId} was not found on IAP poll '${iapPollId}'`
-      );
-    }
 
     const balance = await getBalance(appId, userId, validatedBody.deviceId);
 
