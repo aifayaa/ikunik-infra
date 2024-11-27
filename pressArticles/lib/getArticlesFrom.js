@@ -18,6 +18,7 @@ export default async (
   start,
   limit,
   from,
+  sortBy,
   appId,
   {
     getAuthors = false,
@@ -84,15 +85,13 @@ export default async (
       ];
     }
 
-    let sortArticles;
+    const sortArticles = { [sortBy]: 1 };
     /* If option is set, returns only published articles */
     if (onlyPublished) {
       matchArticles.isPublished = true;
       matchArticles.publicationDate = { $gte: from };
-      sortArticles = { publicationDate: 1 };
     } else {
       matchArticles.createdAt = { $gte: from };
-      sortArticles = { createdAt: 1 };
     }
 
     let articlesPipeline = [
