@@ -88,10 +88,8 @@ export default async (
     /* If option is set, returns only published articles */
     if (onlyPublished) {
       matchArticles.isPublished = true;
-      matchArticles.publicationDate = { $gte: from };
-    } else {
-      matchArticles.createdAt = { $gte: from };
     }
+    matchArticles[sortBy] = { $gte: from };
 
     let articlesPipeline = [
       { $match: matchArticles },
