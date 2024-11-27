@@ -1,7 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { common as commonFields } from './articleFields';
 import { getArticleCommentsCount } from './getArticleCounts';
 
 const {
@@ -148,18 +147,6 @@ export default async (
     }
 
     if (getPictures) {
-      // Lookup on pictures
-      // TODO optimise, fetch pictures only for skip/limit range
-      const pictureGroup = {
-        ...Object.keys(commonFields).reduce((res, key) => {
-          res[key] = { $first: `$${key}` };
-          return res;
-        }, {}),
-        pictures: { $push: '$pictures' },
-        videos: { $first: '$videos' },
-        feedPicture: { $first: '$feedPicture' },
-        _id: '$_id',
-      };
       articlesPipeline = articlesPipeline.concat([
         {
           $lookup: {
@@ -176,46 +163,11 @@ export default async (
           },
         },
         {
-          $unwind: {
-            path: '$pictures',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
           $lookup: {
             from: COLL_PICTURES,
             localField: 'pictures',
             foreignField: '_id',
-            as: 'pictures',
-          },
-        },
-        {
-          $unwind: {
-            path: '$pictures',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $group: pictureGroup,
-        },
-      ]);
-      // Lookup on videos
-      // TODO optimise, fetch videos only for skip/limit range
-      const videoGroup = {
-        ...Object.keys(commonFields).reduce((res, key) => {
-          res[key] = { $first: `$${key}` };
-          return res;
-        }, {}),
-        pictures: { $first: '$pictures' },
-        videos: { $push: '$videos' },
-        feedPicture: { $first: '$feedPicture' },
-        _id: '$_id',
-      };
-      articlesPipeline = articlesPipeline.concat([
-        {
-          $unwind: {
-            path: '$videos',
-            preserveNullAndEmptyArrays: true,
+            as: 'picturesObjs',
           },
         },
         {
@@ -223,17 +175,8 @@ export default async (
             from: COLL_VIDEOS,
             localField: 'videos',
             foreignField: '_id',
-            as: 'videos',
+            as: 'videosObjs',
           },
-        },
-        {
-          $unwind: {
-            path: '$videos',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $group: videoGroup,
         },
       ]);
     }
@@ -258,6 +201,29 @@ export default async (
     // Get drafts of articles
     let articlesWithDraft = articles;
     if (articles.length > 0) {
+      // 20241020 : Re-map/re-sort pictures & vidéos since $lookup does not keep order anymore, it seems...
+      if (getPictures) {
+        for (let i = 0; i < articles.length; i += 1) {
+          const article = articles[i];
+          article.pictures = article.picturesObjs.sort((a, b) => {
+            // if '-1', wraps to '100000 - 1', else use the index
+            const ia = (article.pictures.indexOf(a._id) + 100000) % 100000;
+            const ib = (article.pictures.indexOf(b._id) + 100000) % 100000;
+
+            return ia - ib;
+          });
+          article.videos = article.videosObjs.sort((a, b) => {
+            // if '-1', wraps to '100000 - 1', else use the index
+            const ia = (article.videos.indexOf(a._id) + 100000) % 100000;
+            const ib = (article.videos.indexOf(b._id) + 100000) % 100000;
+
+            return ia - ib;
+          });
+          delete article.picturesObjs;
+          delete article.videosObjs;
+        }
+      }
+
       // @TODO Group all articles ids to do a single query
       const getDraftsFor = async (article) => {
         const lastDraft = await client
