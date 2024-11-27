@@ -178,6 +178,7 @@ export default async (
             parentId: 1,
             reason: 1,
             reviewed: 1,
+            moderated: 1,
             rootParentCollection: 1,
             rootParentId: 1,
             type: 1,

@@ -58,6 +58,7 @@ export default async (
             createdAt: 1,
             details: 1,
             reason: 1,
+            moderated: 1,
             user: {
               firstname: 1,
               isUserPicture: 1,
