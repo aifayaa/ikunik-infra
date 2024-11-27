@@ -30,9 +30,15 @@ type MetadataType = {
   transfer_data_amount_percent?: number;
 };
 
-const STRIPE_PRICE_ID_PRO = 'price_1Psm6LKD2Srbl7IouRke2m7H';
-const STRIPE_TAX_RATE_ID_FR = 'txr_1Psm6NKD2Srbl7IoR5hA2w5g';
-const STRIPE_TAX_RATE_ID_US = 'txr_1Psm6PKD2Srbl7Io0TmyO7hY';
+const STRIPE_PRICE_ID_PRO = getEnvironmentVariable('STRIPE_PRICE_ID_PRO', {
+  dontThrow: true,
+});
+const STRIPE_TAX_RATE_ID_FR = getEnvironmentVariable('STRIPE_TAX_RATE_ID_FR', {
+  dontThrow: true,
+});
+const STRIPE_TAX_RATE_ID_US = getEnvironmentVariable('STRIPE_TAX_RATE_ID_US', {
+  dontThrow: true,
+});
 
 export const postAppsIdCheckout = async ({
   stripeCustomerId,
