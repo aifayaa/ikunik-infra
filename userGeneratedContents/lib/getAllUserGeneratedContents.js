@@ -28,6 +28,7 @@ export default async (
     sortBy,
     sortOrder = 'desc',
     trashed = false,
+    ugcId = false,
   } = {}
 ) => {
   let client;
@@ -43,6 +44,9 @@ export default async (
     /* Fill match object */
     if (userId) {
       $match.userId = userId;
+    }
+    if (ugcId) {
+      $match._id = ugcId;
     }
 
     if (type) {

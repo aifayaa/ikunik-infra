@@ -17,6 +17,7 @@ export default async (event) => {
     moderated,
     moderator = undefined,
     parentId,
+    ugcId,
     raw,
     reported = undefined,
     reportsCount,
@@ -88,6 +89,7 @@ export default async (event) => {
         sortBy,
         sortOrder,
         trashed,
+        ugcId,
       }
     );
     let body;
