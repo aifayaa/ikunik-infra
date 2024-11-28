@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 
-const { REACT_APP_API_URL, REACT_APP_PRESS_SERVICE_URL } = process.env;
+const { REACT_APP_API_URL, REACT_APP_DASHBOARD_URL } = process.env;
 
 const {
   COLL_APPS,
@@ -116,7 +116,7 @@ export default async (userId, appId, ugcId, reason, details, lang) => {
         reason,
         details,
         mediaType,
-        ugcModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation?contentId=${ugcId}&userId=${ugc.userId}`,
+        ugcModerationUrl: `${REACT_APP_DASHBOARD_URL}/apps/${appId}/moderation/${ugcId}`,
       }),
       subject: formatMessage(`ugc:reported_ugc_user_${ugc.type}_email.title`, {
         appName: app.name,
