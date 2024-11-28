@@ -31,17 +31,19 @@ export default async (
         ios: { version: iOSBuildVersion },
       },
     } = app;
+    // 20241128 : The download fails with « ' » in the name.
+    const escapedAppName = appName.replace(/[^a-zA-Z0-9_]+/g, '-');
 
     let filename = '';
     switch (extension) {
       case 'apk':
-        filename = `${appName}_v${androidBuildVersion}.${extension}`;
+        filename = `${escapedAppName}_v${androidBuildVersion}.${extension}`;
         break;
       case 'aab':
-        filename = `${appName}_v${androidBuildVersion}.${extension}`;
+        filename = `${escapedAppName}_v${androidBuildVersion}.${extension}`;
         break;
       case 'ipa':
-        filename = `${appName}_v${iOSBuildVersion}.${extension}`;
+        filename = `${escapedAppName}_v${iOSBuildVersion}.${extension}`;
         break;
     }
 
