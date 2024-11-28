@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { intlInit, formatMessage } from '../../libs/intl/intl';
 
-const { REACT_APP_API_URL, REACT_APP_PRESS_SERVICE_URL } = process.env;
+const { REACT_APP_API_URL, REACT_APP_DASHBOARD_URL } = process.env;
 
 const {
   COLL_APPS,
@@ -120,7 +120,7 @@ export default async (
         userId: user._id,
         username: user.profile.username,
         appName: app.name,
-        ugcModerationUrl: `${REACT_APP_PRESS_SERVICE_URL}/${appId}/moderation?contentId=${ugcId}`,
+        ugcModerationUrl: `${REACT_APP_DASHBOARD_URL}/apps/${appId}/moderation/${ugcId}`,
         ugcDetails: `$t(ugc:ugc_user_data_email.${ugc.type})`,
         author: ugc.author || { profile: {} },
         ugc,

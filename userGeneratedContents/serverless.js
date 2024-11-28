@@ -14,23 +14,23 @@ const serverlessConfiguration = {
     },
     dev: {
       'us-east-1': {
-        REACT_APP_PRESS_SERVICE_URL: 'https://dev-blog.crowdaa.com',
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/dev-us',
         REACT_APP_API_URL: 'https://dev-api.aws.crowdaa.com/v1',
       },
     },
     preprod: {
       'eu-west-3': {
-        REACT_APP_PRESS_SERVICE_URL: 'https://preprod-blog.crowdaa.com',
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/preprod-fr',
         REACT_APP_API_URL: 'https://preprod-api.aws.crowdaa.com/v1',
       },
     },
     prod: {
       'us-east-1': {
-        REACT_APP_PRESS_SERVICE_URL: 'https://blog.crowdaa.com',
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
         REACT_APP_API_URL: 'https://api.aws.crowdaa.com/v1',
       },
       'eu-west-3': {
-        REACT_APP_PRESS_SERVICE_URL: 'https://blog-fr.crowdaa.com',
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
         REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
       },
     },
@@ -46,8 +46,8 @@ const serverlessConfiguration = {
     timeout: 30,
     environment: {
       ...env,
-      REACT_APP_PRESS_SERVICE_URL:
-        '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
+      REACT_APP_DASHBOARD_URL:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_DASHBOARD_URL}',
       REACT_APP_API_URL:
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}',
     },
