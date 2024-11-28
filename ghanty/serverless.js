@@ -98,6 +98,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+    // Not used anymore in latest code, delete me in 30 days to be safe.
     getResetPasswordURL: {
       handler: 'handlers/getResetPasswordURL.default',
       events: [
