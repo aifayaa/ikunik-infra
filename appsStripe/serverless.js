@@ -15,16 +15,22 @@ const serverlessConfiguration = {
     esbuild: {
       config: '../esbuild.config.cjs',
     },
-    domains: {
-      prod: {
-        'us-east-1': 'api.aws.crowdaa.com',
-        'eu-west-3': 'api-fr.aws.crowdaa.com',
+    dev: {
+      'us-east-1': {
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/dev-us',
       },
-      preprod: {
-        'eu-west-3': 'preprod-api.aws.crowdaa.com',
+    },
+    preprod: {
+      'eu-west-3': {
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/preprod-fr',
       },
-      dev: {
-        'us-east-1': 'dev-api.aws.crowdaa.com',
+    },
+    prod: {
+      'us-east-1': {
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
+      },
+      'eu-west-3': {
+        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
       },
     },
     stripeStage: {
@@ -53,8 +59,8 @@ const serverlessConfiguration = {
         '${ssm(us-east-1):/crowdaa_microservices/${self:custom.stripeStage.${self:provider.stage}}/payment/stripe-tax-rate-id-us}',
       BASEROW_API_ACCESS_TOKEN:
         '${ssm(us-east-1):/crowdaa_microservices/${self:custom.stripeStage.${self:provider.stage}}/baserow/api-access-token}',
-      DOMAIN_NAME:
-        '${self:custom.domains.${self:provider.stage}.${self:provider.region}}',
+      REACT_APP_DASHBOARD_URL:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_DASHBOARD_URL}',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -97,30 +103,6 @@ const serverlessConfiguration = {
             request: {
               parameters: {
                 paths: { id: true },
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    stripeCheckoutSuccess: {
-      handler: 'handlers/getCheckoutSuccess.default',
-      events: [
-        {
-          http: {
-            path: 'apps/checkout/success',
-            method: 'GET',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-            request: {
-              parameters: {
                 headers: {
                   Authorization: true,
                 },

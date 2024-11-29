@@ -1,9 +1,5 @@
 import Stripe from 'stripe';
-import { isEmpty } from 'lodash';
 import { getStripeClient } from '@libs/stripe';
-import { isString } from 'lodash';
-import { getBaserowAffiliate } from '@libs/baserow/getBaserowAffiliate';
-import { getUser } from '@users/lib/usersUtils';
 import { FeaturePlanIdType } from 'appsFeaturePlans/lib/planTypes';
 import { getApplicationOrganizationId } from '@apps/lib/appsUtils';
 import { AppType } from '@apps/lib/appEntity';
@@ -50,21 +46,23 @@ export const postAppsIdCheckout = async ({
 }: PostAppsIdCheckoutParams) => {
   const stripe = getStripeClient();
 
-  const DOMAIN_NAME = getEnvironmentVariable('DOMAIN_NAME');
+  const REACT_APP_DASHBOARD_URL = getEnvironmentVariable(
+    'REACT_APP_DASHBOARD_URL'
+  );
   const STAGE = getEnvironmentVariable('STAGE');
 
-  const user = await getUser(userId);
+  // const user = await getUser(userId);
 
-  if (
-    isString(user.profile.affiliateCode) &&
-    !isEmpty(user.profile.affiliateCode)
-  ) {
-    const baserowAffiliate = await getBaserowAffiliate(
-      user.profile.affiliateCode
-    );
+  // if (
+  //   isString(user.profile.affiliateCode) &&
+  //   !isEmpty(user.profile.affiliateCode)
+  // ) {
+  //   const baserowAffiliate = await getBaserowAffiliate(
+  //     user.profile.affiliateCode
+  //   );
 
-    console.log('baserowAffiliate', baserowAffiliate);
-  }
+  //   console.log('baserowAffiliate', baserowAffiliate);
+  // }
 
   const appOrgId = getApplicationOrganizationId(app);
 
@@ -72,7 +70,7 @@ export const postAppsIdCheckout = async ({
     appId: app._id,
     organizationId: appOrgId,
     region: process.env.CROWDAA_REGION as string,
-    stage: process.env.STAGE as string,
+    stage: STAGE,
     stripeCustomerId,
     checkoutSessionSuccessUrl,
   };
@@ -131,7 +129,7 @@ export const postAppsIdCheckout = async ({
       },
     ],
     mode: 'subscription',
-    success_url: `https://${DOMAIN_NAME}/v1/apps/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${REACT_APP_DASHBOARD_URL}/apps/${app._id}/settings/subscription/success`,
     cancel_url: checkoutSessionCancelUrl,
 
     currency: 'EUR',
