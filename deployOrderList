@@ -5,6 +5,7 @@ admin
 apps
 appsBuilds
 appsTranslations
+appsStripe
 organizations
 auth
 ssr
