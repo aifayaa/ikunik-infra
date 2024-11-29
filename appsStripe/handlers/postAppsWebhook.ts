@@ -19,6 +19,8 @@ import {
   doCustomerSubscriptionDeletedHandler,
   doCustomerSubscriptionUpdatedHandler,
 } from 'appsStripe/lib/postAppsWebhook';
+import { CrowdaaStripeIgnoredError } from 'appsStripe/lib/CrowdaaStripeIgnoredError';
+import { AppType } from '@apps/lib/appEntity';
 
 const { COLL_APPS } = mongoCollections;
 const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
@@ -54,8 +56,7 @@ function isCustomerSubscriptionDeletedEvent(
 }
 
 async function paymentFailedHandler(
-  stripeEvent: Stripe.InvoicePaymentFailedEvent,
-  db: any
+  stripeEvent: Stripe.InvoicePaymentFailedEvent
 ) {
   const invoice = stripeEvent.data.object;
 
@@ -93,30 +94,45 @@ async function paymentFailedHandler(
           }
         );
       } catch (err) {
-        console.error('Could not send invoice payment failure email');
+        console.error(
+          'Could not send invoice payment failure email, err =',
+          err
+        );
       }
     }
   } else {
     console.warn(
       'Received event invoice.payment_failed but could not find associated appId',
-      stripeEvent
+      stripeEvent,
+      JSON.stringify(invoice, null, 2)
     );
   }
 }
 
 async function checkoutSessionCompletedHandler(
   stripeEvent: Stripe.CheckoutSessionCompletedEvent,
+  stripe: Stripe,
   db: any
 ) {
   const checkoutSession = stripeEvent.data.object;
 
   const appId = checkoutSession.metadata?.appId;
   if (!appId) {
-    throw new CrowdaaError(
+    throw new CrowdaaStripeIgnoredError(
       ERROR_TYPE_STRIPE,
       APP_ID_NOT_FOUND_CODE,
-      `Cannot found appId in metadata of checkoutSession: '${checkoutSession.id}'`,
-      { httpCode: 400 }
+      `Cannot found appId in metadata of checkoutSession: '${checkoutSession.id}'`
+    );
+  }
+
+  const app = (await db
+    .collection(COLL_APPS)
+    .findOne({ _id: appId })) as AppType;
+  if (!app) {
+    throw new CrowdaaStripeIgnoredError(
+      ERROR_TYPE_STRIPE,
+      APP_ID_NOT_FOUND_CODE,
+      `Cannot find app with id ${appId}`
     );
   }
 
@@ -135,6 +151,25 @@ async function checkoutSessionCompletedHandler(
       },
     }
   );
+
+  if (checkoutSession.subscription) {
+    let subscription: Stripe.Subscription;
+    if (typeof checkoutSession.subscription === 'string') {
+      subscription = await stripe.subscriptions.retrieve(
+        checkoutSession.subscription
+      );
+    } else {
+      subscription = checkoutSession.subscription;
+    }
+
+    const updatedAt = new Date();
+
+    const appCollection = db.collection(COLL_APPS);
+
+    await doCustomerSubscriptionUpdatedHandler(subscription, appCollection, {
+      updatedAt,
+    });
+  }
 }
 
 async function customerSubscriptionUpdatedHandler(
@@ -177,6 +212,8 @@ export default async (event: APIGatewayProxyEvent) => {
         STRIPE_WEBHOOK_SECRET
       );
     } catch (exception) {
+      console.log('postAppsWebhook Stripe parsing exception :', exception);
+
       throw new CrowdaaError(
         ERROR_TYPE_STRIPE,
         SIGNATURE_CHECK_ERROR_CODE,
@@ -198,11 +235,11 @@ export default async (event: APIGatewayProxyEvent) => {
     }
 
     if (isCheckoutSessionCompletedEvent(stripeEvent)) {
-      await checkoutSessionCompletedHandler(stripeEvent, db);
+      await checkoutSessionCompletedHandler(stripeEvent, stripe, db);
     }
 
     if (isInvoicePaymentFailedEvent(stripeEvent)) {
-      await paymentFailedHandler(stripeEvent, db);
+      await paymentFailedHandler(stripeEvent);
     }
 
     return response({
@@ -215,7 +252,25 @@ export default async (event: APIGatewayProxyEvent) => {
       }),
     });
   } catch (exception) {
-    return handleException(exception);
+    console.log('postAppsWebhook general exception :', exception);
+
+    if (exception instanceof CrowdaaStripeIgnoredError) {
+      // Returning 200 makes the webhook work for stripe but ignores any error, so it will not be retried
+      return response({
+        code: 200,
+        // body does not seem necessary for the webhook response
+        body: formatResponseBody({
+          data: {
+            name: 'CrowdaaStripeIgnoredError',
+            message: exception.message,
+          },
+        }),
+      });
+    }
+
+    const ret = handleException(exception);
+    ret.statusCode = 500;
+    return ret;
   } finally {
     client?.close();
   }
