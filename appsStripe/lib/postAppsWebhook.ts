@@ -10,7 +10,7 @@ import {
   UNKNOWN_PRICE_ID_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { getApp } from '@apps/lib/appsUtils';
-import { StripeSubscriptionType } from '@apps/lib/appEntity';
+import { AppType, StripeSubscriptionType } from '@apps/lib/appEntity';
 import { DEFAULT_APP_SETTINGS } from '@apps/lib/createApp.js';
 import { getFeaturePlanIdFromStripePriceId } from 'appsFeaturePlans/lib/utils';
 import {
@@ -18,8 +18,9 @@ import {
   unpublishArticlesNotifications,
 } from 'pressArticles/lib/unpublishArticles';
 import { FeaturePlanIdType } from 'appsFeaturePlans/lib/planTypes';
+import { CrowdaaStripeIgnoredError } from './CrowdaaStripeIgnoredError';
 
-const { COLL_PRESS_CATEGORIES } = mongoCollections;
+const { COLL_PRESS_CATEGORIES, COLL_APPS } = mongoCollections;
 
 function extractSubscriptionData(
   subscription: Stripe.Subscription
@@ -123,49 +124,64 @@ async function customerSubscriptionHelperHandlerInit(
 ) {
   const appId = subscription.metadata?.appId;
   if (!appId) {
-    throw new CrowdaaError(
+    throw new CrowdaaStripeIgnoredError(
       ERROR_TYPE_STRIPE,
       APP_ID_NOT_FOUND_CODE,
       `Cannot found appId in metadata of checkoutSession: '${subscription.id}'`
     );
   }
+  const client = await MongoClient.connect();
+  const db = client.db();
 
-  const extractedSubscriptionData = extractSubscriptionData(subscription);
+  try {
+    const app = (await db
+      .collection(COLL_APPS)
+      .findOne({ _id: appId })) as AppType;
+    if (!app) {
+      throw new CrowdaaStripeIgnoredError(
+        ERROR_TYPE_STRIPE,
+        APP_ID_NOT_FOUND_CODE,
+        `Cannot find app with id ${appId}`
+      );
+    }
 
-  const app = await getApp(appId);
+    const extractedSubscriptionData = extractSubscriptionData(subscription);
 
-  const dbSubscription = app.stripe?.subscription;
+    const dbSubscription = app.stripe?.subscription;
 
-  if (!(dbSubscription && dbSubscription.id === subscription.id)) {
-    console.warn(
-      `Cannot find or mismatch between stripe.subscription and dbSubscription for app '${appId}'`
-    );
+    if (!(dbSubscription && dbSubscription.id === subscription.id)) {
+      console.warn(
+        `Cannot find or mismatch between stripe.subscription and dbSubscription for app '${appId}'`
+      );
+    }
+
+    let effectiveSubscription: StripeSubscriptionType;
+    if (dbSubscription && dbSubscription.id === subscription.id) {
+      effectiveSubscription = moreFields
+        ? {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...dbSubscription,
+            ...extractedSubscriptionData,
+          };
+    } else {
+      effectiveSubscription = moreFields
+        ? {
+            ...extractedSubscriptionData,
+            ...moreFields,
+          }
+        : {
+            ...extractedSubscriptionData,
+          };
+    }
+
+    return { effectiveSubscription, appId };
+  } finally {
+    await client.close();
   }
-
-  let effectiveSubscription: StripeSubscriptionType;
-  if (dbSubscription && dbSubscription.id === subscription.id) {
-    effectiveSubscription = moreFields
-      ? {
-          ...dbSubscription,
-          ...extractedSubscriptionData,
-          ...moreFields,
-        }
-      : {
-          ...dbSubscription,
-          ...extractedSubscriptionData,
-        };
-  } else {
-    effectiveSubscription = moreFields
-      ? {
-          ...extractedSubscriptionData,
-          ...moreFields,
-        }
-      : {
-          ...extractedSubscriptionData,
-        };
-  }
-
-  return { effectiveSubscription, appId };
 }
 
 export async function doCustomerSubscriptionUpdatedHandler(
