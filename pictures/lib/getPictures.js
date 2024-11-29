@@ -17,7 +17,7 @@ export default async (appId, { start, limit }) => {
         .db()
         .collection(COLL_PICTURES)
         .find({ appId })
-        .sort([['createdAt', 1]])
+        .sort([['createdAt', -1]])
         .skip(start)
         .limit(limit)
         .toArray(),
