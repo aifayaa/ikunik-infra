@@ -123,6 +123,11 @@ export default async (event: APIGatewayProxyEvent) => {
       },
     };
   } catch (exception) {
+    console.error('Error during checkout :', exception);
+    console.error('DEBUGGING1', event);
+    if (exception instanceof Error) {
+      console.error('DEBUGGING2', exception.stack);
+    }
     const { body } = computeErrorContent(exception);
     if (process.env.STAGE === 'prod') {
       try {
@@ -132,11 +137,11 @@ export default async (event: APIGatewayProxyEvent) => {
           '[Stripe Payment Error] Exception occured in checkout success redirection',
           'internal_raw_mail',
           {
-            body: `Details\n\n${body}`,
+            body: `Details\n\n${JSON.stringify(body, null, 2)}`,
           }
         );
       } catch (err) {
-        console.error('Could not send invoice payment failure email');
+        console.error('Could not send invoice payment failure email :', err);
       }
     }
 
