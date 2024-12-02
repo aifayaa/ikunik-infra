@@ -50,7 +50,7 @@ const serverlessConfiguration = {
       STRIPE_SECRET_KEY:
         '${ssm(us-east-1):/crowdaa_microservices/${self:custom.stripeStage.${self:provider.stage}}/payment/stripe-secret-key}',
       STRIPE_WEBHOOK_SECRET_KEY:
-        '${ssm(us-east-1):/crowdaa_microservices/${self:custom.stripeStage.${self:provider.stage}}-${self:provider.region}/payment/webhook-secret-key}',
+        '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}-${self:provider.region}/payment/webhook-secret-key}',
       STRIPE_PRICE_ID_PRO:
         '${ssm(us-east-1):/crowdaa_microservices/${self:custom.stripeStage.${self:provider.stage}}/payment/stripe-price-id-pro}',
       STRIPE_TAX_RATE_ID_FR:
