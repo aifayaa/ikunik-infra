@@ -214,6 +214,7 @@ export default async (event: APIGatewayProxyEvent) => {
     } catch (exception) {
       console.log('postAppsWebhook Stripe parsing exception :', exception);
 
+      console.log('Event', JSON.stringify(event, null, 2));
       throw new CrowdaaError(
         ERROR_TYPE_STRIPE,
         SIGNATURE_CHECK_ERROR_CODE,
