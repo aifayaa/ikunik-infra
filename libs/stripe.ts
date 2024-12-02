@@ -32,8 +32,8 @@ export function getStripeClient(): Stripe {
 
 export const getMeterEventName = (appId: string): string => {
   return `app-meter_${appId}`;
-}
+};
 
 export const getPriceLookupKey = (appId: string): string => {
   return `app-price-lookup-key_${appId}`;
-}
+};
