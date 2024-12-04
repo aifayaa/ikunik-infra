@@ -118,7 +118,7 @@ const serverlessConfiguration = {
         '${ssm(us-east-1):/crowdaa_microservices/global/fontawesome/api-key}',
       CLOUDFLARE_API_TOKEN:
         '${ssm(us-east-1):/crowdaa_microservices/global/cloudflare/api-token}',
-      MERCHWP_WEBSITE_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
+      WEBSITES_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
       WEBSITES_DATABASE_HOST:
@@ -129,7 +129,7 @@ const serverlessConfiguration = {
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_CREDENTIALS_ARN, ""}',
       WEBSITES_DATABASE_EXISTS:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_EXISTS, ""}',
-      MERCHWP_API_URL:
+      MICROSERVICES_API_URL:
         'https://${file(../api-v1/serverless.js):custom.domains.${self:provider.stage}.${self:provider.region}}/v1',
     },
     apiGateway: {
@@ -155,7 +155,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['s3:GetObject', 's3:GetObjectAttributes'],
             Resource: [
-              'arn:aws:s3:::${self:provider.environment.MERCHWP_WEBSITE_TEMPLATES_BUCKET}/*',
+              'arn:aws:s3:::${self:provider.environment.WEBSITES_TEMPLATES_BUCKET}/*',
             ],
           },
           {

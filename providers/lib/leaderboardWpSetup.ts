@@ -10,7 +10,9 @@ import Cloudflare from 'cloudflare';
 import {
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_VALIDATION_ERROR,
+  INVALID_PICTURE_CODE,
   MISSING_APPLICATION_CODE,
+  MISSING_PICTURE_CODE,
   MISSING_USER_CODE,
   TEMPLATE_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
@@ -24,7 +26,8 @@ const lambda = new Lambda({
   region: process.env.REGION,
 });
 
-const { COLL_WEBSITES, COLL_APPS, COLL_USERS } = mongoCollections;
+const { COLL_WEBSITES, COLL_APPS, COLL_USERS, COLL_PICTURES } =
+  mongoCollections;
 
 const {
   ADMIN_APP,
@@ -47,12 +50,14 @@ const cloudflare = new Cloudflare({
 const rdsDataService = new AWS.RDSDataService();
 
 const {
-  MERCHWP_WEBSITE_TEMPLATES_BUCKET,
+  MICROSERVICES_API_URL,
+  WEBSITES_TEMPLATES_BUCKET,
   WEBSITES_DATABASE_ARN,
   WEBSITES_DATABASE_CREDENTIALS_ARN,
   WEBSITES_DATABASE_HOST,
 } = process.env as {
-  MERCHWP_WEBSITE_TEMPLATES_BUCKET: string;
+  MICROSERVICES_API_URL: string;
+  WEBSITES_TEMPLATES_BUCKET: string;
   WEBSITES_DATABASE_ARN: string;
   WEBSITES_DATABASE_CREDENTIALS_ARN: string;
   WEBSITES_DATABASE_HOST: string;
@@ -99,7 +104,16 @@ async function setupDatabase() {
   };
 }
 
-export default async (userId: string, appId: string) => {
+type LeaderboardWpSetupParamsType = {
+  iapPollId: string;
+  defaultPictureId: string;
+};
+
+export default async (
+  userId: string,
+  appId: string,
+  { iapPollId, defaultPictureId }: LeaderboardWpSetupParamsType
+) => {
   const client = await MongoClient.connect();
   let session = null;
 
@@ -109,7 +123,7 @@ export default async (userId: string, appId: string) => {
     try {
       objAttrs = await s3
         .getObjectAttributes({
-          Bucket: MERCHWP_WEBSITE_TEMPLATES_BUCKET,
+          Bucket: WEBSITES_TEMPLATES_BUCKET,
           Key: bucketKey,
           ObjectAttributes: ['ObjectSize'],
         })
@@ -130,12 +144,11 @@ export default async (userId: string, appId: string) => {
       .db()
       .collection(COLL_APPS)
       .findOne({ _id: appId });
-
     if (!dbApp) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
         MISSING_APPLICATION_CODE,
-        'Invalid appId provided'
+        'Missing appId provided'
       );
     }
 
@@ -143,12 +156,30 @@ export default async (userId: string, appId: string) => {
       .db()
       .collection(COLL_USERS)
       .findOne({ _id: userId, appId: ADMIN_APP });
-
     if (!dbUser) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
         MISSING_USER_CODE,
-        'Invalid userId provided'
+        'Missing userId provided'
+      );
+    }
+
+    const dbPicture = await client
+      .db()
+      .collection(COLL_PICTURES)
+      .findOne({ _id: defaultPictureId, appId });
+    if (!dbPicture) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        MISSING_PICTURE_CODE,
+        'Missing pictureId provided'
+      );
+    }
+    if (!dbPicture.pictureUrl) {
+      throw new CrowdaaError(
+        ERROR_TYPE_VALIDATION_ERROR,
+        INVALID_PICTURE_CODE,
+        'Invalid pictureId provided'
       );
     }
 
@@ -220,10 +251,19 @@ export default async (userId: string, appId: string) => {
       },
       ...(database ? { database } : {}),
       container: {
-        environmentVariables: {},
+        environmentVariables: {
+          API_URL: MICROSERVICES_API_URL,
+          LOGIN_APP_ID: ADMIN_APP,
+          APP_ID: appId,
+          SYNC_IMAGE_ID: defaultPictureId,
+          SYNC_IMAGE_URL: dbPicture.pictureUrl,
+          IAP_POLL_ID: iapPollId,
+        },
         environmentSecretVariables: {
           ADMIN_LOGIN: userEmail,
           CROWDAA_AUTOLOGIN_TOKEN: autologinToken,
+          ADMIN_SESSION: '',
+          ADMIN_USER_ID: '',
         },
         crowdaaHostingImage: 'php',
         tag: '8.2-apache',
@@ -238,49 +278,13 @@ export default async (userId: string, appId: string) => {
       .promise();
 
     await cloudflare.dns.records.create({
-      /**
-       * Path param: Identifier
-       */
       zone_id: 'crowdaa.com',
-
-      /**
-       * Body param: A valid hostname. Must not match the record's name.
-       */
       content: defaultDomain,
-
-      /**
-       * Body param: DNS record name (or @ for the zone apex) in Punycode.
-       */
       name: `${appId}-voting`,
-
-      /**
-       * Body param: Record type.
-       */
       type: 'CNAME',
-
-      /**
-       * Body param: Comments or notes about the DNS record. This field has no effect on
-       * DNS responses.
-       */
       comment: `Record for app ${dbApp.name} leaderboard/voting website`,
-
-      /**
-       * Body param: Whether the record is receiving the performance and security
-       * benefits of Cloudflare.
-       */
       proxied: true,
-
-      /**
-       * Body param: Custom tags for the DNS record. This field has no effect on DNS
-       * responses.
-       */
       tags: ['leaderboard', 'voting'],
-
-      /**
-       * Body param: Time To Live (TTL) of the DNS record in seconds. Setting to 1 means
-       * 'automatic'. Value must be between 60 and 86400, with the minimum reduced to 30
-       * for Enterprise zones.
-       */
       ttl: 600,
     });
 
