@@ -116,6 +116,8 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.LEQUOTIDIEN_BUCKET_PDF, "NONE"}',
       FONTAWESOME_API_KEY:
         '${ssm(us-east-1):/crowdaa_microservices/global/fontawesome/api-key}',
+      CLOUDFLARE_API_TOKEN:
+        '${ssm(us-east-1):/crowdaa_microservices/global/cloudflare/api-token}',
       MERCHWP_WEBSITE_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
@@ -272,6 +274,23 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
+      ],
+    },
+    provLeaderboardWPSetupHandler: {
+      handler: 'handlers/leaderboardWpSetup.default',
+      events: [
+        {
+          http: {
+            path: 'providers/leaderboardwp/setup',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerAdminId}',
             },
           },
         },

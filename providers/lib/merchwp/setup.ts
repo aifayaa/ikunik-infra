@@ -316,6 +316,7 @@ export async function setupWebsite(
       type: 'kubernetes/v1',
       template: bucketKey,
       name: defaultDomain,
+      features: ['merchwp'],
       domains: domains,
       appId: appId,
       ...(database
