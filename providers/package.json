@@ -6,6 +6,7 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.978.0",
+    "cloudflare": "^3.5.0",
     "request-promise-native": "^1.0.9"
   },
   "devDependencies": {

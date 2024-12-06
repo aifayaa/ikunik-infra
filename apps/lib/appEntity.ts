@@ -90,6 +90,8 @@ export type AppType = {
         signInWithCrowdaa: boolean;
         signInWithFacebook: boolean;
         signInWithSAML: boolean;
+        leaderboardWpUrl?: string;
+        merchWPUrl?: string;
         startTab: string;
         tabOrder: string;
       };
