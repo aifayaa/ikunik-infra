@@ -26,13 +26,13 @@ const s3 = new AWS.S3({
 const rdsDataService = new AWS.RDSDataService();
 
 const {
-  MERCHWP_WEBSITE_TEMPLATES_BUCKET,
+  WEBSITES_TEMPLATES_BUCKET,
   WEBSITES_DATABASE_ARN,
   WEBSITES_DATABASE_CREDENTIALS_ARN,
   WEBSITES_DATABASE_EXISTS,
   WEBSITES_DATABASE_HOST,
 } = process.env as {
-  MERCHWP_WEBSITE_TEMPLATES_BUCKET: string;
+  WEBSITES_TEMPLATES_BUCKET: string;
   WEBSITES_DATABASE_ARN: string;
   WEBSITES_DATABASE_CREDENTIALS_ARN: string;
   WEBSITES_DATABASE_EXISTS: string;
@@ -42,7 +42,7 @@ const {
 type EnvType = {
   ADMIN_APP: string;
   CROWDAA_REGION: string;
-  MERCHWP_API_URL: string;
+  MICROSERVICES_API_URL: string;
   MERCHWP_LAMBDA_CREATE_WEBSITE: string;
   STAGE: string;
 };
@@ -57,7 +57,7 @@ const { COLL_WEBSITES, COLL_APPS, COLL_USERS, COLL_PICTURES } =
 const {
   ADMIN_APP,
   CROWDAA_REGION,
-  MERCHWP_API_URL,
+  MICROSERVICES_API_URL,
   MERCHWP_LAMBDA_CREATE_WEBSITE,
   STAGE,
 } = process.env as EnvType;
@@ -246,7 +246,7 @@ export async function setupWebsite(
     try {
       objAttrs = await s3
         .getObjectAttributes({
-          Bucket: MERCHWP_WEBSITE_TEMPLATES_BUCKET,
+          Bucket: WEBSITES_TEMPLATES_BUCKET,
           Key: bucketKey,
           ObjectAttributes: ['ObjectSize'],
         })
@@ -316,6 +316,7 @@ export async function setupWebsite(
       type: 'kubernetes/v1',
       template: bucketKey,
       name: defaultDomain,
+      features: ['merchwp'],
       domains: domains,
       appId: appId,
       ...(database
@@ -369,7 +370,7 @@ export async function setupWebsite(
       ...(database ? { database } : {}),
       container: {
         environmentVariables: {
-          API_URL: MERCHWP_API_URL,
+          API_URL: MICROSERVICES_API_URL,
           LOGIN_APP_ID: ADMIN_APP,
           APP_ID: appId,
           SYNC_IMAGE_ID: website.sync.imageId,

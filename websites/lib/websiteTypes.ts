@@ -42,6 +42,8 @@ export type WebsiteEBWordpressType = {
   };
 };
 
+type WebsiteKubernetesV1FeaturesType = 'leaderboardwp' | 'merchwp';
+
 export type WebsiteKubernetesV1Type = {
   _id: string;
   createdAt: Date;
@@ -49,6 +51,7 @@ export type WebsiteKubernetesV1Type = {
   type: 'kubernetes/v1';
   template: string;
   name: string;
+  features?: WebsiteKubernetesV1FeaturesType[];
   domains: string[];
   appId: string;
   database?: {
