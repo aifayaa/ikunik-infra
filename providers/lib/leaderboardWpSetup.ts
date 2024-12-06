@@ -17,7 +17,7 @@ import {
   TEMPLATE_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { AppType } from '@apps/lib/appEntity';
-import { newSessionTokenFor } from 'auth/lib/newSessionTokenFor';
+import { addSessionTokenFor } from 'auth/lib/addSessionTokenFor';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -242,7 +242,7 @@ export default async (
     await session.commitTransaction();
     session = null;
 
-    const sessionToken = await newSessionTokenFor(userId, appId);
+    const sessionToken = await addSessionTokenFor(userId, appId);
 
     const lambdaInvokeArgs = {
       initTemplate: bucketKey,
