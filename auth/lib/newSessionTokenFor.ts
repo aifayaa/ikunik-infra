@@ -11,7 +11,7 @@ export const newSessionTokenFor = async (userId: string, appId: string) => {
   try {
     const usersCollection = client.db().collection(COLL_USERS);
 
-    let user = await usersCollection.findOne({ appId, _id: userId });
+    let user = await usersCollection.findOne({ _id: userId, appId });
     if (!user) {
       throw new Error('user_not_found');
     }

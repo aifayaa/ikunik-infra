@@ -102,7 +102,7 @@ export const crowdaaLogin = async (
       user.previewForAdmin = user._id;
       user._id = inserted.insertedId;
     } else {
-      const token = await newSessionTokenFor(user._id, appId);
+      token = await newSessionTokenFor(user._id, appId);
 
       if (user.previewForAdmin) {
         const adminUser = await usersCollection.findOne(
