@@ -6,6 +6,7 @@ import hashLoginToken from '../hashLoginToken';
 import Random from '../../../libs/account_utils/random';
 import { AppType } from '../../../apps/lib/appEntity';
 import { filterUserPrivateFields } from '../../../users/lib/usersUtils';
+import { newSessionTokenFor } from '../newSessionTokenFor';
 
 const { ADMIN_APP } = process.env;
 
@@ -68,9 +69,11 @@ export const crowdaaLogin = async (
       await checkPassword(user, password, { mongoClient: client });
     }
 
-    const token = Random.secret();
+    let token;
 
     if (userIsAdminForPreview) {
+      token = Random.secret();
+
       const newUser = {
         _id: Random.id(),
         createdAt: new Date(),
@@ -99,20 +102,7 @@ export const crowdaaLogin = async (
       user.previewForAdmin = user._id;
       user._id = inserted.insertedId;
     } else {
-      await usersCollection.updateOne(
-        {
-          _id: user._id,
-          appId,
-        },
-        {
-          $addToSet: {
-            'services.resume.loginTokens': {
-              hashedToken: hashLoginToken(token),
-              when: new Date(),
-            },
-          },
-        }
-      );
+      const token = await newSessionTokenFor(user._id, appId);
 
       if (user.previewForAdmin) {
         const adminUser = await usersCollection.findOne(

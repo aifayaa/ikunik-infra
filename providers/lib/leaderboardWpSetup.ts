@@ -17,6 +17,7 @@ import {
   TEMPLATE_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { AppType } from '@apps/lib/appEntity';
+import { newSessionTokenFor } from 'auth/lib/newSessionTokenFor';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -241,6 +242,8 @@ export default async (
     await session.commitTransaction();
     session = null;
 
+    const sessionToken = await newSessionTokenFor(userId, appId);
+
     const lambdaInvokeArgs = {
       initTemplate: bucketKey,
       websiteId,
@@ -262,8 +265,8 @@ export default async (
         environmentSecretVariables: {
           ADMIN_LOGIN: userEmail,
           CROWDAA_AUTOLOGIN_TOKEN: autologinToken,
-          ADMIN_SESSION: '',
-          ADMIN_USER_ID: '',
+          ADMIN_SESSION: sessionToken,
+          ADMIN_USER_ID: userId,
         },
         crowdaaHostingImage: 'php',
         tag: '8.2-apache',
