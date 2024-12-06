@@ -6,12 +6,15 @@ import Random from '../../libs/account_utils/random';
 
 const { COLL_USERS } = mongoCollections;
 
-export const newSessionTokenFor = async (userId: string, appId: string) => {
+export const addSessionTokenFor = async (
+  userId: string,
+  appId: string,
+  token: string = Random.secret()
+) => {
   const client = await MongoClient.connect();
   try {
     const usersCollection = client.db().collection(COLL_USERS);
 
-    const token = Random.secret();
     const hashedToken = hashLoginToken(token);
 
     await usersCollection.updateOne(
