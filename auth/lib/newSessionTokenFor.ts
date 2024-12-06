@@ -11,17 +11,12 @@ export const newSessionTokenFor = async (userId: string, appId: string) => {
   try {
     const usersCollection = client.db().collection(COLL_USERS);
 
-    let user = await usersCollection.findOne({ _id: userId, appId });
-    if (!user) {
-      throw new Error('user_not_found');
-    }
-
     const token = Random.secret();
     const hashedToken = hashLoginToken(token);
 
     await usersCollection.updateOne(
       {
-        _id: user._id,
+        _id: userId,
         appId,
       },
       {
