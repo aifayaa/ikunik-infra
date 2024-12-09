@@ -118,6 +118,7 @@ const serverlessConfiguration = {
         '${ssm(us-east-1):/crowdaa_microservices/global/fontawesome/api-key}',
       CLOUDFLARE_API_TOKEN:
         '${ssm(us-east-1):/crowdaa_microservices/global/cloudflare/api-token}',
+      CLOUDFLARE_CROWDAA_DOT_COM_ZONE_ID: 'ee25cd95b6fd5c3d5c0485aad22bf00a',
       WEBSITES_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
@@ -281,6 +282,7 @@ const serverlessConfiguration = {
     },
     provLeaderboardWPSetupHandler: {
       handler: 'handlers/leaderboardWpSetup.default',
+      memorySize: 256, // Crashes with 128... Why??? It also happens with stripe...
       events: [
         {
           http: {

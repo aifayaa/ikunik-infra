@@ -18,6 +18,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { AppType } from '@apps/lib/appEntity';
 import { addSessionTokenFor } from 'auth/lib/addSessionTokenFor';
+import { RecordCreateParams } from 'cloudflare/resources/dns/records';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -33,12 +34,14 @@ const { COLL_WEBSITES, COLL_APPS, COLL_USERS, COLL_PICTURES } =
 const {
   ADMIN_APP,
   CLOUDFLARE_API_TOKEN,
+  CLOUDFLARE_CROWDAA_DOT_COM_ZONE_ID,
   CROWDAA_REGION,
   MERCHWP_LAMBDA_CREATE_WEBSITE,
   STAGE,
 } = process.env as {
   ADMIN_APP: string;
   CLOUDFLARE_API_TOKEN: string;
+  CLOUDFLARE_CROWDAA_DOT_COM_ZONE_ID: string;
   CROWDAA_REGION: string;
   MERCHWP_LAMBDA_CREATE_WEBSITE: string;
   STAGE: string;
@@ -252,7 +255,7 @@ export default async (
         adminLogin: userEmail,
         adminPassword: userRndPassword,
       },
-      ...(database ? { database } : {}),
+      database,
       container: {
         environmentVariables: {
           API_URL: MICROSERVICES_API_URL,
@@ -280,16 +283,17 @@ export default async (
       })
       .promise();
 
-    await cloudflare.dns.records.create({
-      zone_id: 'crowdaa.com',
+    const cloudflareRecordCreateParams: RecordCreateParams.CNAMERecord = {
+      zone_id: CLOUDFLARE_CROWDAA_DOT_COM_ZONE_ID,
       content: defaultDomain,
       name: `${appId}-voting`,
       type: 'CNAME',
       comment: `Record for app ${dbApp.name} leaderboard/voting website`,
       proxied: true,
-      tags: ['leaderboard', 'voting'],
       ttl: 600,
-    });
+    };
+
+    await cloudflare.dns.records.create(cloudflareRecordCreateParams);
 
     const dbAppUpdated = await client
       .db()
