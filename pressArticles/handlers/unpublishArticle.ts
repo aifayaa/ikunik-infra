@@ -33,7 +33,11 @@ export default async (event: APIGatewayProxyEvent) => {
         withTransaction: (session: unknown) => Promise<void>;
       }) => {
         await sessionArg.withTransaction(async (session: unknown) => {
-          await unpublishArticlesInDb(queryArticlesToUnpublish, db, session);
+          await unpublishArticlesInDb(queryArticlesToUnpublish, {
+            db,
+            session,
+            userId,
+          });
         });
       }
     );

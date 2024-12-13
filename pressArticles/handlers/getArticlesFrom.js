@@ -12,6 +12,7 @@ export default async (event) => {
       start,
       limit,
       from,
+      sortBy = 'publicationDate',
       ...extras
     } = event.queryStringParameters || {};
 
@@ -26,6 +27,7 @@ export default async (event) => {
       start,
       limit,
       new Date(from),
+      sortBy,
       appId,
       boolExtras
     );

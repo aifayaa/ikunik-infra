@@ -6,14 +6,23 @@ const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;
 
 export async function unpublishArticlesInDb(
   queryArticlesToUnpublish: Record<string, any>,
-  db: any,
-  session: unknown
+  {
+    db,
+    session,
+    userId,
+  }: {
+    db: any;
+    session: unknown;
+    userId: string;
+  }
 ) {
   await db.collection(COLL_PRESS_ARTICLES).updateMany(
     queryArticlesToUnpublish,
     {
       $set: {
         isPublished: false,
+        updatedAt: new Date(),
+        updatedBy: userId,
       },
     },
     { session }
