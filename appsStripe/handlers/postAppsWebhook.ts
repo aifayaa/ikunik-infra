@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import Lambda from 'aws-sdk/clients/lambda';
 import Stripe from 'stripe';
 
 import response, { handleException } from '@libs/httpResponses/response';
@@ -21,6 +22,8 @@ import {
 } from 'appsStripe/lib/postAppsWebhook';
 import { CrowdaaStripeIgnoredError } from 'appsStripe/lib/CrowdaaStripeIgnoredError';
 import { AppType } from '@apps/lib/appEntity';
+import { TemplateEmailParametersType } from 'asyncLambdas/lib/sendEmailTemplate';
+import { RequestOptionsType } from 'asyncLambdas/lib/sendEmailMailgun';
 
 const { COLL_APPS } = mongoCollections;
 const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
@@ -30,6 +33,35 @@ const STRIPE_WEBHOOK_SECRET = Boolean(process.env.IS_OFFLINE)
 
 let client: any; // TODO type
 let db: any; // TODO type
+
+const MAIL_LANG = 'en';
+const MAIL_TO = 'prod@crowdaa.com';
+
+const lambda = new Lambda({
+  region: process.env.REGION,
+});
+
+function isInterestingEmailableEvent(stripeEvent: Stripe.Event) {
+  switch (stripeEvent.type) {
+    case 'charge.dispute.created':
+    case 'charge.dispute.updated':
+    case 'charge.expired':
+    case 'checkout.session.expired':
+    case 'invoice.overdue':
+    case 'invoice.payment_action_required':
+    case 'invoice.marked_uncollectible':
+    case 'invoice.finalization_failed':
+    case 'customer.subscription.paused':
+    case 'customer.subscription.resumed':
+    case 'customer.subscription.pending_update_expired':
+    case 'customer.subscription.pending_update_applied':
+    case 'issuing_dispute.closed':
+    case 'issuing_dispute.created':
+      return true;
+    default:
+      return false;
+  }
+}
 
 function isInvoicePaymentFailedEvent(
   stripeEvent: Stripe.Event
@@ -182,6 +214,34 @@ async function checkoutSessionCompletedHandler(
   }
 }
 
+async function emailInterestingEvent(stripeEvent: Stripe.Event) {
+  await lambda
+    .invokeAsync({
+      FunctionName: `asyncLambdas-${process.env.STAGE}-sendEmailTemplate`,
+      InvokeArgs: JSON.stringify({
+        email: {
+          lang: MAIL_LANG,
+          email: MAIL_TO,
+          template: 'internal',
+          subject: `New stripe interesting event : ${stripeEvent.type}`,
+          html: `
+<p>
+  Stripe event content :
+</p>
+<pre>
+  ${JSON.stringify(stripeEvent, null, 2)}
+</pre>`,
+        } as TemplateEmailParametersType,
+        options: {
+          retries: 5,
+          sleepBetweenRetries: 30 * 1000,
+          logErrors: true,
+        } as RequestOptionsType,
+      }),
+    })
+    .promise();
+}
+
 async function customerSubscriptionUpdatedHandler(
   stripeEvent: Stripe.CustomerSubscriptionUpdatedEvent,
   db: any
@@ -245,6 +305,8 @@ export default async (event: APIGatewayProxyEvent) => {
       await checkoutSessionCompletedHandler(stripeEvent, stripe, db);
     } else if (isInvoicePaymentFailedEvent(stripeEvent)) {
       await paymentFailedHandler(stripeEvent);
+    } else if (isInterestingEmailableEvent(stripeEvent)) {
+      await emailInterestingEvent(stripeEvent);
     }
 
     return response({
