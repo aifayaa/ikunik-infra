@@ -67,7 +67,17 @@ async function paymentFailedHandler(
     //   .findOne({ _id: invoice.subscription_details?.metadata?.appId });
 
     // Check if the associated app still exist
-    await getApp(invoice.subscription_details?.metadata?.appId);
+    const appId = invoice.subscription_details?.metadata?.appId;
+    const app = (await db
+      .collection(COLL_APPS)
+      .findOne({ _id: appId })) as AppType;
+    if (!app) {
+      throw new CrowdaaStripeIgnoredError(
+        ERROR_TYPE_STRIPE,
+        APP_ID_NOT_FOUND_CODE,
+        `Cannot find app with id ${appId}`
+      );
+    }
 
     // console.log('Received event invoice.payment_failed', stripeEvent);
     const stripeDashboardUrl =
@@ -229,17 +239,11 @@ export default async (event: APIGatewayProxyEvent) => {
 
     if (isCustomerSubscriptionUpdatedEvent(stripeEvent)) {
       await customerSubscriptionUpdatedHandler(stripeEvent, db);
-    }
-
-    if (isCustomerSubscriptionDeletedEvent(stripeEvent)) {
+    } else if (isCustomerSubscriptionDeletedEvent(stripeEvent)) {
       await customerSubscriptionDeletedHandler(stripeEvent, db);
-    }
-
-    if (isCheckoutSessionCompletedEvent(stripeEvent)) {
+    } else if (isCheckoutSessionCompletedEvent(stripeEvent)) {
       await checkoutSessionCompletedHandler(stripeEvent, stripe, db);
-    }
-
-    if (isInvoicePaymentFailedEvent(stripeEvent)) {
+    } else if (isInvoicePaymentFailedEvent(stripeEvent)) {
       await paymentFailedHandler(stripeEvent);
     }
 
