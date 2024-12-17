@@ -41,7 +41,6 @@ export const DEFAULT_APP_SETTINGS = {
       keycloakUrl: '',
       loginArticleRequired: false,
       loginWithUsername: false,
-      nftLoginEnabled: false,
       phoneRegisterEnabled: false,
       phoneRegisterRequired: false,
       registerWithCrowdaa: true,
