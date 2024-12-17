@@ -81,7 +81,6 @@ export type AppType = {
         keycloakUrl: string;
         loginArticleRequired: boolean;
         loginWithUsername: boolean;
-        nftLoginEnabled: boolean;
         phoneRegisterEnabled: boolean;
         phoneRegisterRequired: boolean;
         registerWithCrowdaa: boolean;

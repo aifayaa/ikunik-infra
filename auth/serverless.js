@@ -275,40 +275,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    nftCoinbaseConnect: {
-      handler: 'handlers/nftCoinbaseConnect.default',
-      events: [
-        {
-          http: {
-            path: 'auth/nft/coinbaseConnect',
-            method: 'post',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-            },
-          },
-        },
-      ],
-    },
-    nftSessionsStatus: {
-      handler: 'handlers/nftSessionsStatus.default',
-      events: [
-        {
-          http: {
-            path: 'auth/nft/sessionsStatus',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-            },
-          },
-        },
-      ],
-    },
     validateEmail: {
       handler: 'handlers/validateEmail.default',
       events: [
