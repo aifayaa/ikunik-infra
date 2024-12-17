@@ -1,15 +1,9 @@
 /* eslint-disable import/no-relative-packages */
 import request from 'request-promise-native';
 import MongoClient from '../mongoClient';
-import { OpenSeaApi } from '../opensea';
 import mongoCollections from '../mongoCollections.json';
 
-const {
-  COLL_EXTERNAL_PURCHASES,
-  COLL_NFT_COLLECTIONS,
-  COLL_USERS,
-  COLL_USER_BADGES,
-} = mongoCollections;
+const { COLL_EXTERNAL_PURCHASES, COLL_USER_BADGES } = mongoCollections;
 
 /**
  * A function that runs `exec` until it returns exactly `val`.
@@ -170,7 +164,6 @@ export default function BadgeChecker(appId) {
     this.registeredBadgeIds = {};
     this.badgesMap = {};
     this.extPurchasesMap = {};
-    this.nftCollectionsMap = {};
     this.appId = appId;
   })();
 }
@@ -219,7 +212,6 @@ BadgeChecker.prototype.loadBadges = async function loadBadges(
   });
 
   if (badgesIds.length > 0) {
-    const nftCollectionIds = [];
     const badges = await this.client
       .db()
       .collection(COLL_USER_BADGES)
@@ -228,25 +220,7 @@ BadgeChecker.prototype.loadBadges = async function loadBadges(
 
     badges.forEach((badge) => {
       this.badgesMap[badge._id] = badge;
-      if (
-        badge.nftCollectionId &&
-        !this.nftCollectionsMap[badge.nftCollectionId]
-      ) {
-        nftCollectionIds.push(badge.nftCollectionId);
-      }
     });
-
-    if (nftCollectionIds.length > 0) {
-      const nftCollections = await this.client
-        .db()
-        .collection(COLL_NFT_COLLECTIONS)
-        .find({ _id: { $in: nftCollectionIds }, appId: this.appId })
-        .toArray();
-
-      nftCollections.forEach((nftColl) => {
-        this.nftCollectionsMap[nftColl._id] = nftColl;
-      });
-    }
   }
 };
 
@@ -333,7 +307,6 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
   }
 
   let allowedAtLeastOnce = false;
-  let user = null;
 
   const promises = toCheckbadges.list.map(async (perm) => {
     const badge = this.badgesMap[perm.id] || {};
@@ -368,50 +341,6 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
       try {
         await request(params);
         allowedForBadge = true;
-      } catch (e) {
-        /* Do nothing */
-      }
-    } else if (badge.nftCollectionId) {
-      try {
-        const osApi = new OpenSeaApi();
-
-        if (user === null) {
-          user = await this.client
-            .db()
-            .collection(COLL_USERS)
-            .findOne({ _id: options.userId || '', appId: this.appId });
-          if (!user) user = false;
-        }
-        if (
-          user &&
-          user.crypto &&
-          user.crypto.wallets &&
-          user.crypto.wallets.ETH
-        ) {
-          const nftCollection = this.nftCollectionsMap[badge.nftCollectionId];
-          let ethId = 0;
-          await promiseExecUntilEqualsTo(false, async () => {
-            const wallet = user.crypto.wallets.ETH[ethId];
-            if (!wallet) return false;
-
-            const response = await osApi.call('/assets', {
-              owner: wallet,
-              collection_slug: nftCollection.slug,
-              limit: 1,
-            });
-
-            if (response.assets && response.assets.length > 0) {
-              allowedForBadge = true;
-              return false;
-            }
-
-            ethId += 1;
-            await new Promise((resolve) => {
-              setTimeout(resolve, 200);
-            });
-            return true;
-          });
-        }
       } catch (e) {
         /* Do nothing */
       }
