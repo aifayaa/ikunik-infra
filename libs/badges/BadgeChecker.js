@@ -1,5 +1,4 @@
 /* eslint-disable import/no-relative-packages */
-import request from 'request-promise-native';
 import MongoClient from '../mongoClient';
 import mongoCollections from '../mongoCollections.json';
 
@@ -308,7 +307,7 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
 
   let allowedAtLeastOnce = false;
 
-  const promises = toCheckbadges.list.map(async (perm) => {
+  toCheckbadges.list.forEach((perm) => {
     const badge = this.badgesMap[perm.id] || {};
     let allowedForBadge = false;
 
@@ -320,30 +319,6 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
     ) {
       allowedForBadge = true;
       badge.externallyOwned = true;
-    } else if (badge.validationUrl) {
-      const replacements = {
-        APP_ID: options.appId,
-        ARTICLE_ID: options.articleId,
-        CATEGORY_ID: options.categoryId,
-        CATEGORIES_ID: options.categoriesId,
-        USER_ID: options.userId,
-      };
-      const uri = badge.validationUrl.replace(
-        /\{([A-Z_]+)\}/gi,
-        (_val, name) => replacements[name] || 'null'
-      );
-
-      const params = {
-        method: 'GET',
-        uri,
-      };
-
-      try {
-        await request(params);
-        allowedForBadge = true;
-      } catch (e) {
-        /* Do nothing */
-      }
     }
 
     if (!allowedForBadge) {
@@ -353,8 +328,6 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
       allowedAtLeastOnce = true;
     }
   });
-
-  await Promise.all(promises);
 
   if (allow === 'any' && allowedAtLeastOnce) {
     return new BadgeCheckerResults({
