@@ -11,7 +11,6 @@ export type UserProfileType = {
   phone?: string;
   isSuperAdmin?: boolean;
   isUserPicture?: boolean;
-  userPictureData?: string;
   profileIsSetup?: boolean;
   role?: string;
   'terms-of-service'?: boolean;
