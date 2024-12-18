@@ -319,6 +319,7 @@ verbose(
   const {
     COLL_ADVERTISEMENTS,
     COLL_APPS,
+    COLL_BLAST_NOTIFICATIONS_QUEUE,
     COLL_COUNTERS,
     COLL_EXTERNAL_PURCHASES,
     COLL_LIVE_STREAMS_DURATIONS,
@@ -699,6 +700,24 @@ verbose(
           },
           opts: makeOpts(),
         },
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_2',
+          key: {
+            appId: 1,
+            deviceId: 1,
+            type: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_3',
+          key: {
+            appId: 1,
+            type: 1,
+            userId: 1,
+          },
+          opts: makeOpts(),
+        },
       ],
       [COLL_USER_METRICS]: [
         {
@@ -865,6 +884,27 @@ verbose(
           },
           opts: makeOpts('unique'),
         },
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_1',
+          key: {
+            appId: 1,
+            reactionType: 1,
+            targetCollection: 1,
+            targetId: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_2',
+          key: {
+            appId: 1,
+            reactionName: 1,
+            reactionType: 1,
+            targetCollection: 1,
+            targetId: 1,
+          },
+          opts: makeOpts(),
+        },
       ],
       [COLL_LIVE_STREAMS_DURATIONS]: [
         {
@@ -885,6 +925,17 @@ verbose(
             endTime: 1,
           },
           opts: makeOpts('sparse'),
+        },
+      ],
+      [COLL_BLAST_NOTIFICATIONS_QUEUE]: [
+        {
+          name: 'crowdaa_mongodb_atlas_suggested_1',
+          key: {
+            appId: 1,
+            queueId: 1,
+            root: 1,
+          },
+          opts: makeOpts(),
         },
       ],
     };
