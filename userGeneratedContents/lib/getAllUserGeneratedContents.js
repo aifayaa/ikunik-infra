@@ -195,7 +195,6 @@ export default async (
               profile: {
                 avatar: 1,
                 isUserPicture: 1,
-                userPictureData: 1,
                 username: 1,
               },
               status: 1,

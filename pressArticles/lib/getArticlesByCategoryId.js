@@ -372,13 +372,7 @@ export const getArticlesByCategoryId = async (
         },
       },
       {
-        /*
-          some users have base 64 pictures in profile,
-          we remove those fields to avoid big trafic load
-        */
         $project: {
-          'user.profile.avatar': 0,
-          'user.profile.userPictureData': 0,
           userTemp: 0,
         },
       },
@@ -524,36 +518,35 @@ export const getArticlesByCategoryId = async (
           },
         },
         {
-          /*
-            some users have base 64 pictures in profile,
-            we remove those fields to avoid big trafic load
-          */
           $project: {
-            'user.profile.avatar': 0,
-            'user.profile.userPictureData': 0,
             userTemp: 0,
           },
         },
       ];
       let drafts;
-      [drafts, extPurchases] = await Promise.all([
+      const getDrafts = () =>
         client
           .db()
           .collection(COLL_PRESS_DRAFTS)
           .aggregate(draftPipeline)
-          .toArray(),
-        userId
-          ? client
-              .db()
-              .collection(COLL_EXTERNAL_PURCHASES)
-              .find({
-                appId,
-                collection: COLL_PRESS_ARTICLES,
-                userId,
-                itemId: { $in: articlesIds },
-              })
-              .toArray()
-          : [],
+          .toArray();
+      const getExtPurchases = () => {
+        if (userId)
+          return client
+            .db()
+            .collection(COLL_EXTERNAL_PURCHASES)
+            .find({
+              appId,
+              collection: COLL_PRESS_ARTICLES,
+              userId,
+              itemId: { $in: articlesIds },
+            })
+            .toArray();
+        return Promise.resolve([]);
+      };
+      [drafts, extPurchases] = await Promise.all([
+        getDrafts(),
+        getExtPurchases(),
       ]);
 
       extPurchases = extPurchases.reduce((acc, itm) => {

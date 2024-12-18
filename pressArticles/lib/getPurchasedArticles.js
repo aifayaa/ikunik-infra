@@ -194,16 +194,6 @@ export const getPurchasedArticles = async (
           },
         },
       },
-      {
-        /*
-          some users have base 64 pictures in profile,
-          we remove those fields to avoid big trafic load
-        */
-        $project: {
-          'user.profile.avatar': 0,
-          'user.profile.userPictureData': 0,
-        },
-      },
     ]);
 
     if (getPictures) {
