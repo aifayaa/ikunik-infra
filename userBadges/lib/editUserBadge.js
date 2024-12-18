@@ -19,7 +19,6 @@ export default async (
     privacyPolicyUrl = null,
     productId: storeProductId,
     subscriptionUrl = null,
-    validationUrl = '',
   },
   { userId }
 ) => {
@@ -81,7 +80,6 @@ export default async (
       management,
       productId,
       storeProductId,
-      validationUrl,
     };
 
     if (subscriptionUrl !== null) {

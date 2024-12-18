@@ -31,6 +31,7 @@ export default {
     return !!optionnalUrlRegexp.test(val || '');
   },
   validationUrl(val) {
+    // Legacy field, kept until the old dashboard is removed. This field is now ignored anyway.
     return !!optionnalUrlRegexp.test(val || '');
   },
   name(val) {
