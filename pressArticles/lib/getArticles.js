@@ -647,7 +647,8 @@ export const getArticles = async (
       onlyPublished &&
       !showHiddenOnFeed &&
       !showWithHiddenCategories &&
-      !getOrphansArticles
+      !getOrphansArticles &&
+      !categoryId
     ) {
       await client
         .db()
