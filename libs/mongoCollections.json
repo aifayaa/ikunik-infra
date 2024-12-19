@@ -47,6 +47,7 @@
   "COLL_PICTURES": "pictures",
   "COLL_PIPELINES": "pipelines",
   "COLL_PRESS_ARTICLES": "pressArticles",
+  "COLL_PRESS_ARTICLES_CACHE": "pressArticlesCache",
   "COLL_PRESS_AUTOMATION_TASKS": "pressAutomationTasks",
   "COLL_PRESS_BANNERS": "pressBanners",
   "COLL_PRESS_BLASTS": "pressBlasts",

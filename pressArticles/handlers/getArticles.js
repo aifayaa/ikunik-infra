@@ -8,6 +8,7 @@ export default async (event) => {
     const { appId, principalId: userId } = event.requestContext.authorizer;
     const {
       category,
+      firstLoad,
       limit,
       noDateFilter,
       noPictures,
@@ -38,6 +39,7 @@ export default async (event) => {
     const results = await getArticles(category, start, limit, appId, {
       checkBadges,
       eventsInterval,
+      firstLoad: firstLoad === 'true',
       getPictures: noPictures !== 'true',
       noDateFilter: noDateFilter === 'true',
       reversedFlow: reversedFlow === 'true',
