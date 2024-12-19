@@ -11,6 +11,7 @@ const {
   COLL_APPS,
   COLL_EXTERNAL_PURCHASES,
   COLL_PICTURES,
+  COLL_PRESS_ARTICLES_CACHE,
   COLL_PRESS_ARTICLES,
   COLL_PRESS_CATEGORIES,
   COLL_PRESS_DRAFTS,
@@ -25,10 +26,11 @@ export const getArticles = async (
   appId,
   {
     allFields = true,
-    getPictures = false,
     checkBadges = true,
     eventsInterval: [eventsStart, eventsEnd] = [null, null],
+    firstLoad = false,
     getOrphansArticles = false,
+    getPictures = false,
     noDateFilter = false,
     onlyPublished = true,
     reversedFlow = false,
@@ -42,6 +44,19 @@ export const getArticles = async (
   const badgeChecker = new BadgeChecker(appId);
   try {
     client = await MongoClient.connect();
+
+    if (firstLoad) {
+      const data = await client
+        .db()
+        .collection(COLL_PRESS_ARTICLES_CACHE)
+        .findOne({
+          appId,
+          type: 'firstLoad',
+        });
+      if (data) {
+        return { articles: data.articles, total: data.total };
+      }
+    }
 
     const categoriesMatch = {
       appId,
@@ -625,6 +640,34 @@ export const getArticles = async (
     });
 
     await Promise.all(promises3);
+
+    if (
+      !userId &&
+      !start &&
+      onlyPublished &&
+      !showHiddenOnFeed &&
+      !showWithHiddenCategories &&
+      !getOrphansArticles
+    ) {
+      await client
+        .db()
+        .collection(COLL_PRESS_ARTICLES_CACHE)
+        .updateOne(
+          {
+            appId,
+            type: 'firstLoad',
+          },
+          {
+            $set: {
+              appId,
+              type: 'firstLoad',
+              articles: articlesWithCategory,
+              total,
+            },
+          },
+          { upsert: true }
+        );
+    }
 
     return { articles: articlesWithCategory, total };
   } finally {

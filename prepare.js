@@ -324,13 +324,14 @@ verbose(
     COLL_EXTERNAL_PURCHASES,
     COLL_LIVE_STREAMS_DURATIONS,
     COLL_PICTURES,
+    COLL_PRESS_ARTICLES_CACHE,
     COLL_PRESS_ARTICLES,
     COLL_PRESS_CATEGORIES,
     COLL_PRESS_DRAFTS,
     COLL_PUSH_NOTIFICATIONS,
+    COLL_USER_GENERATED_CONTENTS,
     COLL_USER_METRICS,
     COLL_USER_REACTIONS,
-    COLL_USER_GENERATED_CONTENTS,
     COLL_USERS,
   } = mongoCollections;
 
@@ -593,6 +594,16 @@ verbose(
             publicationDate: 1,
           },
           opts: makeOpts('sparse'),
+        },
+      ],
+      [COLL_PRESS_ARTICLES_CACHE]: [
+        {
+          name: 'crowdaa_articles_cache_main',
+          key: {
+            appId: 1,
+            type: 1,
+          },
+          opts: makeOpts('unique'),
         },
       ],
       [COLL_PRESS_DRAFTS]: [
