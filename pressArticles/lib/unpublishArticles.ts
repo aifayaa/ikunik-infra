@@ -9,11 +9,11 @@ export async function unpublishArticlesInDb(
   {
     db,
     session,
-    userId,
+    userId = '',
   }: {
     db: any;
     session: unknown;
-    userId: string;
+    userId?: string;
   }
 ) {
   await db.collection(COLL_PRESS_ARTICLES).updateMany(
