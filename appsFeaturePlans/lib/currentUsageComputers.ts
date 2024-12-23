@@ -44,6 +44,9 @@ export const currentUsageComputers: Record<
   playlists: async (_app: AppType) => {
     return Promise.resolve(0); // TODO Not done for now, shall we?
   },
+  leaderboardWp: async (_app: AppType) => {
+    return Promise.resolve(0); // TODO Not done for now, shall we?
+  },
 
   // Measurable :
   liveStreamDuration: async (

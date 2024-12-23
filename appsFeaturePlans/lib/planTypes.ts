@@ -19,6 +19,7 @@ export type FeatureIdType =
   | 'badges'
   | 'chat'
   | 'crowd'
+  | 'leaderboardWp'
   | 'liveStreamDuration'
   | 'liveStreams'
   | 'playlists'
@@ -32,6 +33,7 @@ export const allFeatureIds: FeatureIdType[] = [
   'badges',
   'chat',
   'crowd',
+  'leaderboardWp',
   'liveStreamDuration',
   'liveStreams',
   'playlists',
