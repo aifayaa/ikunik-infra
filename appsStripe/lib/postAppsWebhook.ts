@@ -397,7 +397,10 @@ export async function doCustomerSubscriptionDeletedHandler(
         );
 
         // Unpublish articles which have at least one badge
-        await unpublishArticlesInDb(queryItemWithAtLeastOneBadge, db, session);
+        await unpublishArticlesInDb(queryItemWithAtLeastOneBadge, {
+          db,
+          session,
+        });
 
         // Unpublish categories which have at least one badge
         await unpublishCategoriesWithBadges(
@@ -416,18 +419,16 @@ export async function doCustomerSubscriptionDeletedHandler(
         await deleteTranslationsCustomisation(appCollection, appId, session);
 
         // Unpublish articles with an embedded playlist
-        await unpublishArticlesInDb(
-          queryArticlesWithEmbeddedPlaylist,
+        await unpublishArticlesInDb(queryArticlesWithEmbeddedPlaylist, {
           db,
-          session
-        );
+          session,
+        });
 
         // Unpublish articles with an embedded survey
-        await unpublishArticlesInDb(
-          queryArticlesWithEmbeddedSurvey,
+        await unpublishArticlesInDb(queryArticlesWithEmbeddedSurvey, {
           db,
-          session
-        );
+          session,
+        });
       });
     }
   );
