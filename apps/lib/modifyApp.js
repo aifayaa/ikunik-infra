@@ -10,7 +10,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { objGet, objSet } from '../../libs/utils';
 import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils.ts';
 
-const { COLL_APPS, COLL_PICTURES } = mongoCollections;
+const { COLL_APPS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
 
 export default async (appId, update) => {
   const client = await MongoClient.connect();
@@ -127,8 +127,35 @@ export default async (appId, update) => {
       $set['settings.press.env.merchMMFUrl'] =
         `https://mpodx.shop/?entry=cat&platform=crowdaa&cart=1&mf_uuid=${update.mmfId}`;
     }
+    if (update.startupVideo) {
+      if (update.startupVideo.delete) {
+        await db.collection(COLL_APPS).updateOne(
+          { _id: appId },
+          {
+            $unset: {
+              'settings.startupVideoId': '',
+              'settings.press.env.startupVideoUrl': '',
+              'settings.press.env.startupVideoMode': '',
+            },
+          }
+        );
+      } else {
+        const video = await db
+          .collection(COLL_VIDEOS)
+          .findOne({ _id: update.startupVideo.id, appId });
 
-    await db.collection(COLL_APPS).findOneAndUpdate({ _id: appId }, { $set });
+        if (video) {
+          $set['settings.startupVideoId'] = update.startupVideo.id;
+          $set['settings.press.env.startupVideoUrl'] = update.startupVideo.url;
+          $set['settings.press.env.startupVideoMode'] =
+            update.startupVideo.mode;
+        }
+      }
+    }
+
+    if (Object.keys($set).length > 0) {
+      await db.collection(COLL_APPS).updateOne({ _id: appId }, { $set });
+    }
 
     const updatedApp = await db.collection(COLL_APPS).findOne({ _id: appId });
 
