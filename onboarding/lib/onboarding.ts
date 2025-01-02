@@ -125,7 +125,7 @@ export async function getOnboardingFor(
         if (userApp.organization?._id) {
           const org = await db
             .collection(COLL_ORGANIZATIONS)
-            .findOne(userApp.organization._id);
+            .findOne({ _id: userApp.organization._id });
 
           if (org) {
             onboarding.appleTeamId = !!org.apple.teamId;
