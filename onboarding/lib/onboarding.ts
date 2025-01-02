@@ -144,8 +144,8 @@ export async function getOnboardingFor(
           $or: [{ type: 'build-ios' }, { type: 'build-android' }],
         });
 
-        onboarding.firstCategory = !!article;
-        onboarding.firstArticle = !!category;
+        onboarding.firstCategory = !!category;
+        onboarding.firstArticle = !!article;
         onboarding.firstTos = !!tos;
         onboarding.firstBuild = !!pipeline;
         onboarding.assets = await checkAppAssets(appId);
