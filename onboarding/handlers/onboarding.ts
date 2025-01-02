@@ -8,6 +8,7 @@ import {
   INVALID_ARGUMENT_VALUE_CODE,
   MISSING_QUERY_PARAMETERS_CODE,
 } from '@libs/httpResponses/errorCodes';
+import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { principalId: userId } = event.requestContext.authorizer as {
@@ -55,7 +56,12 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
-    return response({ code: 200, body: onboarding });
+    return response({
+      code: 200,
+      body: formatResponseBody({
+        data: onboarding,
+      }),
+    });
   } catch (exception) {
     return handleException(exception);
   }
