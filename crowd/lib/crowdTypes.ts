@@ -1,4 +1,5 @@
 type CrowdViewType = 'user' | 'device' | 'userDevice';
+type OnlyBadgesType = 'requested' | 'validated' | 'rejected';
 
 export type GeoJSONCoordinatesType = [number, number];
 
@@ -14,6 +15,7 @@ export type CrowdSearchPipelineFiltersType = {
   memberId?: string[];
   notMemberId?: string[];
   deviceId?: string[];
+  onlyBadges?: OnlyBadgesType[];
 
   requires?: 'geolocation';
 
@@ -38,6 +40,7 @@ export type CrowdSearchParamsType = {
   type?: CrowdViewType[];
   userId?: string[];
   deviceId?: string[];
+  onlyBadges?: OnlyBadgesType[];
 
   lat?: number;
   lng?: number;
@@ -63,6 +66,7 @@ export type CrowdSearchGeoJSONParamsType = {
   type?: CrowdViewType[];
   userId?: string[];
   deviceId?: string[];
+  onlyBadges?: OnlyBadgesType[];
 
   lat?: number;
   lng?: number;
@@ -89,6 +93,7 @@ export type CrowdSearchMassUpdateFiltersType = {
   memberId?: string[];
   notMemberId?: string[];
   deviceId?: string[];
+  onlyBadges?: OnlyBadgesType[];
 
   lat?: number;
   lng?: number;
