@@ -91,6 +91,21 @@ export const modifyAppSchema = z
         .trim()
         .min(1, { message: 'mmfId must be 1 or more characters long' })
     ),
+    startupVideo: z.optional(
+      z
+        .object({
+          delete: z.literal(true),
+        })
+        .strict()
+        .or(
+          z
+            .object({
+              id: z.string(true),
+              mode: z.enum(['once', 'always']),
+            })
+            .strict()
+        )
+    ),
   })
   // do not allow unrecognized keys (the ones that are not defined by the object above)
   .strict();
