@@ -150,7 +150,7 @@ export default async (appId, update) => {
           throw new CrowdaaError(
             ERROR_TYPE_NOT_FOUND,
             VIDEO_NOT_FOUND_CODE,
-            `Video with ID${update.startupVideo.id} not found`
+            `Video with ID ${update.startupVideo.id} not found`
           );
         }
 
