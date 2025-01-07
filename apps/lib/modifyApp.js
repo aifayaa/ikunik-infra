@@ -4,6 +4,8 @@ import {
   CANNOT_CHANGE_ANDROID_NAME_CODE,
   CANNOT_CHANGE_IOS_NAME_CODE,
   ERROR_TYPE_NOT_ALLOWED,
+  ERROR_TYPE_NOT_FOUND,
+  VIDEO_NOT_FOUND_CODE,
 } from '../../libs/httpResponses/errorCodes.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -144,12 +146,17 @@ export default async (appId, update) => {
           .collection(COLL_VIDEOS)
           .findOne({ _id: update.startupVideo.id, appId });
 
-        if (video) {
-          $set['settings.startupVideoId'] = update.startupVideo.id;
-          $set['settings.press.env.startupVideoUrl'] = update.startupVideo.url;
-          $set['settings.press.env.startupVideoMode'] =
-            update.startupVideo.mode;
+        if (!video) {
+          throw new CrowdaaError(
+            ERROR_TYPE_NOT_FOUND,
+            VIDEO_NOT_FOUND_CODE,
+            `Video with ID${update.startupVideo.id} not found`
+          );
         }
+
+        $set['settings.startupVideoId'] = update.startupVideo.id;
+        $set['settings.press.env.startupVideoUrl'] = video.url;
+        $set['settings.press.env.startupVideoMode'] = update.startupVideo.mode;
       }
     }
 
