@@ -166,6 +166,7 @@ export const wordpressLogin = async (
         password,
       });
     } catch (e) {
+      console.log('DEBUG wpLogin e', e, { username, appId });
       if (!e.response) {
         throw new Error('backend_network_error');
       } else if (e.error && e.error.message) {
@@ -176,9 +177,11 @@ export const wordpressLogin = async (
     }
 
     if (!reply) {
+      console.log('DEBUG wpLogin noreply', { username, appId });
       throw new Error('backend_error');
     }
     if (!reply.token) {
+      console.log('DEBUG wpLogin reply', reply, { username, appId });
       if (reply.code === 'jwt_auth_failed') {
         throw new Error('invalid_credentials');
       } else {

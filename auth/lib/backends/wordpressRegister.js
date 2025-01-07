@@ -17,6 +17,7 @@ export const wordpressRegister = async (username, email, password, app) => {
         password,
       });
     } catch (e) {
+      console.log('DEBUG wpRegister e', e, { username, email, appId: app._id });
       if (!e.response) {
         throw new Error('backend_network_error');
       } else if (!e.error) {
@@ -31,9 +32,19 @@ export const wordpressRegister = async (username, email, password, app) => {
     }
 
     if (!reply) {
+      console.log('DEBUG wpRegister noreply', {
+        username,
+        email,
+        appId: app._id,
+      });
       throw new Error('backend_error');
     }
     if (reply.code !== 200) {
+      console.log('DEBUG wpRegister reply', reply, {
+        username,
+        email,
+        appId: app._id,
+      });
       if (reply.message) {
         throw new Error(reply.message);
       }

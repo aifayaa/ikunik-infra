@@ -18,6 +18,7 @@ export const wordpressForgotPassword = async (email, app) => {
         }
       );
     } catch (e) {
+      console.log('DEBUG wpForgot e', e, { email, appId: app._id });
       if (!e.response) {
         throw new Error('backend_network_error');
       } else if (!e.error) {
@@ -32,9 +33,11 @@ export const wordpressForgotPassword = async (email, app) => {
     }
 
     if (!reply) {
+      console.log('DEBUG wpForgot noreply', { email, appId: app._id });
       throw new Error('backend_error');
     }
     if (reply.code !== 200) {
+      console.log('DEBUG wpForgot reply', reply, { email, appId: app._id });
       if (reply.message) {
         throw new Error(reply.message);
       }
