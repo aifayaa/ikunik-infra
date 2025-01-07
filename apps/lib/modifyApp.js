@@ -146,7 +146,7 @@ export default async (appId, update) => {
           .collection(COLL_VIDEOS)
           .findOne({ _id: update.startupVideo.id, appId });
 
-        if (!video) {
+        if (!video || !video.url) {
           throw new CrowdaaError(
             ERROR_TYPE_NOT_FOUND,
             VIDEO_NOT_FOUND_CODE,
