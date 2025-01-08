@@ -48,7 +48,9 @@ function floatArrayPairsStrParser(val: any) {
   return true;
 }
 
-function parseGeoWithinField(val: string[]) {
+function parseGeoWithinField(val: string[] | undefined) {
+  if (!val) return val;
+
   const ret = val.map((x) => {
     const splitted = x.split(',').map((y) => parseFloat(y));
     if (
@@ -187,6 +189,16 @@ const crowdSearchMultiSchema = z
   })
   .strict();
 
+function filterArrayParams(params: string[] | undefined) {
+  if (!params) return undefined;
+  if (params.length === 0) return undefined;
+
+  const filtered = params.filter((x) => x.trim().length > 0);
+  if (filtered.length === 0) return undefined;
+
+  return filtered;
+}
+
 export function parseSearchQuery(event: APIGatewayProxyEvent) {
   const params = (event.queryStringParameters || {}) as z.infer<
     typeof crowdSearchSchema
@@ -204,32 +216,17 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    type:
-      multiParams.type && multiParams.type.length > 0
-        ? multiParams.type
-        : undefined,
+    type: filterArrayParams(multiParams.type),
 
-    userId:
-      multiParams.userId && multiParams.userId.length > 0
-        ? multiParams.userId
-        : undefined,
-    deviceId:
-      multiParams.deviceId && multiParams.deviceId.length > 0
-        ? multiParams.deviceId
-        : undefined,
-    onlyBadges:
-      multiParams.onlyBadges && multiParams.onlyBadges.length > 0
-        ? multiParams.onlyBadges
-        : undefined,
+    userId: filterArrayParams(multiParams.userId),
+    deviceId: filterArrayParams(multiParams.deviceId),
+    onlyBadges: filterArrayParams(multiParams.onlyBadges),
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
     radius: params.radius ? parseInt(params.radius, 10) : undefined,
 
-    geoWithin:
-      multiParams.geoWithin && multiParams.geoWithin.length > 0
-        ? parseGeoWithinField(multiParams.geoWithin)
-        : undefined,
+    geoWithin: parseGeoWithinField(filterArrayParams(multiParams.geoWithin)),
 
     limit: params.limit ? parseInt(params.limit, 10) : undefined,
     skip: params.skip ? parseInt(params.skip, 10) : undefined,
@@ -297,31 +294,16 @@ export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    type:
-      multiParams.type && multiParams.type.length > 0
-        ? multiParams.type
-        : undefined,
-    userId:
-      multiParams.userId && multiParams.userId.length > 0
-        ? multiParams.userId
-        : undefined,
-    deviceId:
-      multiParams.deviceId && multiParams.deviceId.length > 0
-        ? multiParams.deviceId
-        : undefined,
-    onlyBadges:
-      multiParams.onlyBadges && multiParams.onlyBadges.length > 0
-        ? multiParams.onlyBadges
-        : undefined,
+    type: filterArrayParams(multiParams.type),
+    userId: filterArrayParams(multiParams.userId),
+    deviceId: filterArrayParams(multiParams.deviceId),
+    onlyBadges: filterArrayParams(multiParams.onlyBadges),
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
     radius: params.radius ? parseInt(params.radius, 10) : undefined,
 
-    geoWithin:
-      multiParams.geoWithin && multiParams.geoWithin.length > 0
-        ? parseGeoWithinField(multiParams.geoWithin)
-        : undefined,
+    geoWithin: parseGeoWithinField(filterArrayParams(multiParams.geoWithin)),
 
     limit: params.limit ? parseInt(params.limit, 10) : undefined,
     skip: params.skip ? parseInt(params.skip, 10) : undefined,
