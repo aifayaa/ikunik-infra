@@ -56,6 +56,11 @@ export function buildCrowdSearchPipeline(
     };
   }
 
+  if (filters.onlyBadges) {
+    $match['user.badges.status'] = {
+      $in: filters.onlyBadges,
+    };
+  }
   if (filters.requires === 'geolocation') {
     $match.metricsGeoLast = { $ne: null };
   }

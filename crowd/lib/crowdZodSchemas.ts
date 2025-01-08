@@ -181,6 +181,9 @@ const crowdSearchMultiSchema = z
     userId: z.array(z.string().trim()).optional(),
     deviceId: z.array(z.string().trim()).optional(),
     geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+    onlyBadges: z
+      .array(z.enum(['requested', 'validated', 'rejected']))
+      .optional(),
   })
   .strict();
 
@@ -213,6 +216,10 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
     deviceId:
       multiParams.deviceId && multiParams.deviceId.length > 0
         ? multiParams.deviceId
+        : undefined,
+    onlyBadges:
+      multiParams.onlyBadges && multiParams.onlyBadges.length > 0
+        ? multiParams.onlyBadges
         : undefined,
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
@@ -267,6 +274,9 @@ const crowdSearchGeoJSONMultiSchema = z
     userId: z.array(z.string().trim()).optional(),
     deviceId: z.array(z.string().trim()).optional(),
     geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+    onlyBadges: z
+      .array(z.enum(['requested', 'validated', 'rejected']))
+      .optional(),
   })
   .strict();
 
@@ -298,6 +308,10 @@ export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
     deviceId:
       multiParams.deviceId && multiParams.deviceId.length > 0
         ? multiParams.deviceId
+        : undefined,
+    onlyBadges:
+      multiParams.onlyBadges && multiParams.onlyBadges.length > 0
+        ? multiParams.onlyBadges
         : undefined,
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
