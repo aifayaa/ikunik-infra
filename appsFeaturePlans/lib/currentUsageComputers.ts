@@ -41,6 +41,9 @@ export const currentUsageComputers: Record<
   translations: (_app: AppType) => {
     return Promise.resolve(0);
   },
+  startupScreen: (_app: AppType) => {
+    return Promise.resolve(0);
+  },
   playlists: async (_app: AppType) => {
     return Promise.resolve(0); // TODO Not done for now, shall we?
   },

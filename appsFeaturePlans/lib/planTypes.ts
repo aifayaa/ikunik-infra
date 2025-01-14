@@ -19,12 +19,13 @@ export type FeatureIdType =
   | 'badges'
   | 'chat'
   | 'crowd'
+  | 'iapPolls'
   | 'leaderboardWp'
   | 'liveStreamDuration'
   | 'liveStreams'
   | 'playlists'
   | 'polls'
-  | 'iapPolls'
+  | 'startupScreen'
   | 'translations';
 export const allFeatureIds: FeatureIdType[] = [
   'activeUsers',
@@ -33,12 +34,13 @@ export const allFeatureIds: FeatureIdType[] = [
   'badges',
   'chat',
   'crowd',
+  'iapPolls',
   'leaderboardWp',
   'liveStreamDuration',
   'liveStreams',
   'playlists',
   'polls',
-  'iapPolls',
+  'startupScreen',
   'translations',
 ];
 
