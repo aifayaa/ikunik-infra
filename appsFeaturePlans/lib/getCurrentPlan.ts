@@ -50,6 +50,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       leaderboardWp: true,
       appTheme: true,
       translations: true,
+      startupScreen: true,
       activeUsers: true,
     },
   },
@@ -73,6 +74,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       leaderboardWp: false,
       appTheme: false,
       translations: false,
+      startupScreen: false,
       activeUsers: {
         maxCount: 1000,
         resetPeriod: 'month',
@@ -106,6 +108,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       leaderboardWp: true,
       appTheme: true,
       translations: true,
+      startupScreen: true,
       activeUsers: {
         maxCount: 10000,
         resetPeriod: 'month',
@@ -134,6 +137,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       leaderboardWp: true,
       appTheme: true,
       translations: true,
+      startupScreen: true,
       activeUsers: {
         maxCount: 100000,
         resetPeriod: 'month',
@@ -162,6 +166,7 @@ const allPlans: Readonly<Record<FeaturePlanIdType, FeaturePlanType>> = {
       leaderboardWp: false,
       appTheme: false,
       translations: false,
+      startupScreen: false,
       activeUsers: {
         maxCount: 10,
         resetPeriod: 'month',
