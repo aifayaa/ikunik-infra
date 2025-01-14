@@ -756,7 +756,7 @@ verbose(
           opts: makeOpts('sparse'),
         },
         {
-          name: 'crowdaa_userMetrics_query_mau1',
+          name: 'crowdaa_userMetrics_query_mau1', // TODO Check if useless with new mau3
           key: {
             appId: 1,
             createdAt: 1,
@@ -764,9 +764,19 @@ verbose(
           opts: makeOpts('sparse'),
         },
         {
-          name: 'crowdaa_userMetrics_query_mau2',
+          name: 'crowdaa_userMetrics_query_mau2', // TODO Check if useless with new mau3
           key: {
             appId: 1,
+            updatedAt: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_userMetrics_query_mau3',
+          key: {
+            appId: 1,
+            userId: 1,
+            createdAt: 1,
             updatedAt: 1,
           },
           opts: makeOpts('sparse'),
