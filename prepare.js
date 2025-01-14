@@ -470,6 +470,16 @@ verbose(
           key: { 'services.apiTokens.hashedToken': 1 },
           opts: makeOpts('unique', 'sparse'),
         },
+        {
+          name: 'crowdaa_user_wordpress_email',
+          key: { appId: 1, 'services.wordpress.userEmail': 1 },
+          opts: makeOpts({
+            partialFilterExpression: {
+              'services.wordpress.userEmail': { $exists: true },
+              appId: { $exists: true },
+            },
+          }),
+        },
 
         /* Meteor indexes */
         {
