@@ -36,19 +36,18 @@ function getArticleBadges(article) {
     badges.push(article.badges);
   }
 
-  if (
-    article.category &&
-    article.category.badges &&
-    article.category.badges.list.length > 0
-  ) {
-    badges.push(article.category.badges);
-  }
   if (article.categories) {
     article.categories.forEach((category) => {
       if (category.badges && category.badges.list.length > 0) {
         badges.push(category.badges);
       }
     });
+  } else if (
+    article.category &&
+    article.category.badges &&
+    article.category.badges.list.length > 0
+  ) {
+    badges.push(article.category.badges);
   }
 
   return badges;
@@ -80,6 +79,14 @@ PressArticleHandler.prototype.init = async function init() {
         },
       },
       { $unwind: '$category' },
+      {
+        $lookup: {
+          from: COLL_PRESS_CATEGORIES,
+          localField: 'categoriesId',
+          foreignField: '_id',
+          as: 'categories',
+        },
+      },
     ])
     .toArray();
 
