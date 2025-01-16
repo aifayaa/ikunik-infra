@@ -1,3 +1,4 @@
 {
-  "VIEW_USER_METRICS_UUID_AGGREGATED": "view_userMetricsAllAggregated"
+  "VIEW_USER_METRICS_UUID_AGGREGATED": "view_userMetricsAllAggregated",
+  "VIEW_USER_METRICS_UUID_AGGREGATED_META": "view_userMetricsAllAggregated_meta"
 }

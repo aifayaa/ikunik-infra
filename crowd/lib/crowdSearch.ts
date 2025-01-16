@@ -10,7 +10,10 @@ import {
 } from './crowdTypes';
 import { buildCrowdSearchPipeline } from './crowdUtils';
 
-const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
+const {
+  VIEW_USER_METRICS_UUID_AGGREGATED,
+  VIEW_USER_METRICS_UUID_AGGREGATED_META,
+} = mongoViews;
 
 const lambda = new Lambda({
   region: process.env.REGION,
@@ -36,6 +39,12 @@ export default async (appId: string, filters: CrowdSearchParamsType) => {
         })
         .promise();
     }
+
+    const viewMeta = await db
+      .collection(VIEW_USER_METRICS_UUID_AGGREGATED_META)
+      .findOne({ appId });
+
+    const { updatedAt = new Date() } = viewMeta || {};
 
     const rawItemsPromise = db
       .collection(VIEW_USER_METRICS_UUID_AGGREGATED)
@@ -116,7 +125,7 @@ export default async (appId: string, filters: CrowdSearchParamsType) => {
         .promise();
     }
 
-    return { total, items };
+    return { total, items, updatedAt };
   } finally {
     client.close();
   }
