@@ -3,7 +3,10 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import mongoViews from '../../libs/mongoViews.json';
 
 const { COLL_USER_METRICS, COLL_USERS } = mongoCollections;
-const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
+const {
+  VIEW_USER_METRICS_UUID_AGGREGATED,
+  VIEW_USER_METRICS_UUID_AGGREGATED_META,
+} = mongoViews;
 
 function makeFinalPipelineSteps(type: 'device' | 'user' | 'userDevice') {
   return [
@@ -189,6 +192,15 @@ export default async (appId: string) => {
       cursorUserDevices.next(),
       cursorDevices.next(),
     ]);
+
+    await client
+      .db()
+      .collection(VIEW_USER_METRICS_UUID_AGGREGATED_META)
+      .updateOne(
+        { appId },
+        { $set: { updatedAt: new Date() } },
+        { upsert: true }
+      );
   } finally {
     client.close();
   }
