@@ -73,14 +73,18 @@ export type AppType = {
         feedArticleCommentsEnabled: boolean;
         feedArticleDateFormat: string;
         feedArticleShareEnabled: boolean;
+        feedBackgroundColor?: string;
+        feedBackgroundPattern?: string;
         forgotPasswordEnabled: boolean;
         geolocation: boolean;
         isBeta: boolean;
         keycloakClient: string;
         keycloakRealm: string;
         keycloakUrl: string;
+        leaderboardWpUrl?: string;
         loginArticleRequired: boolean;
         loginWithUsername: boolean;
+        merchWPUrl?: string;
         phoneRegisterEnabled: boolean;
         phoneRegisterRequired: boolean;
         registerWithCrowdaa: boolean;
@@ -89,8 +93,6 @@ export type AppType = {
         signInWithCrowdaa: boolean;
         signInWithFacebook: boolean;
         signInWithSAML: boolean;
-        leaderboardWpUrl?: string;
-        merchWPUrl?: string;
         startTab: string;
         tabOrder: string;
       };
