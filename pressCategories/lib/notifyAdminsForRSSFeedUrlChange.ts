@@ -34,7 +34,9 @@ export default async (
       .collection(COLL_APPS)
       .findOne({ _id: appId }, { $project: { name: 1 } });
 
-    const dashboardUrl = `https://app.crowdaa.com/${STAGE}-${CROWDAA_REGION}/apps/${appId}/categories/${categoryId}`;
+    const urlStageRegionField =
+      STAGE === 'prod' ? CROWDAA_REGION : `${STAGE}-${CROWDAA_REGION}`;
+    const dashboardUrl = `https://app.crowdaa.com/${urlStageRegionField}/apps/${appId}/categories/${categoryId}`;
 
     let subject = `[${STAGE}/${CROWDAA_REGION}] RSS Feed URL changed for ${escapeHtmlEntities(app.name)}`;
     let html = `<h3>The RSS Feed URL changed for ${escapeHtmlEntities(app.name)} (${appId}/${categoryId})</h3>
