@@ -58,7 +58,8 @@ export default async (
     }
 
     if (typeof reviewed !== 'undefined') {
-      $match.reviewed = reviewed ? true : null;
+      if (reviewed) $match.reviewed = true;
+      else $match.reviewed = { $ne: true };
     }
 
     if (typeof moderated !== 'undefined' && moderated === true) {
