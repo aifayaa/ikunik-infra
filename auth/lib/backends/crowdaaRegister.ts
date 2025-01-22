@@ -66,7 +66,10 @@ export const crowdaaRegister = async (
 
       const badges = (
         await badgesCollection.find({ appId, isDefault: true }).toArray()
-      ).map((badge: { _id: string }) => ({ id: badge._id }));
+      ).map((badge: { _id: string }) => ({
+        id: badge._id,
+        status: 'assigned',
+      }));
 
       const extra = utm ? { utm } : {};
       const newUser = {

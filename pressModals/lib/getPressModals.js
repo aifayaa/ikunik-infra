@@ -18,7 +18,7 @@ const publicFields = [
 
 function countBadgesPerStatus(badges) {
   const counts = badges.reduce((acc, badge) => {
-    const { status = 'validated' } = badge;
+    const { status = 'assigned' } = badge;
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
@@ -32,7 +32,7 @@ function haveBadges(user) {
   if (user.badges.length === 0) return false;
 
   const counts = countBadgesPerStatus(user.badges);
-  if (counts.validated > 0) return true;
+  if (counts.assigned > 0 || counts.validated > 0) return true;
 
   return false;
 }

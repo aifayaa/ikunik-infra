@@ -184,7 +184,7 @@ const crowdSearchMultiSchema = z
     deviceId: z.array(z.string().trim()).optional(),
     geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
     onlyBadges: z
-      .array(z.enum(['requested', 'validated', 'rejected']))
+      .array(z.enum(['assigned', 'requested', 'validated', 'rejected']))
       .optional(),
   })
   .strict();
@@ -272,7 +272,7 @@ const crowdSearchGeoJSONMultiSchema = z
     deviceId: z.array(z.string().trim()).optional(),
     geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
     onlyBadges: z
-      .array(z.enum(['requested', 'validated', 'rejected']))
+      .array(z.enum(['assigned', 'requested', 'validated', 'rejected']))
       .optional(),
   })
   .strict();

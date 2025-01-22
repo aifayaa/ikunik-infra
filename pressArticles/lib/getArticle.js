@@ -357,6 +357,7 @@ export const getArticle = async (
             purchasedBadges.forEach((purchase) => {
               userBadges.push({
                 id: purchase.contentId,
+                status: 'assigned',
               });
             });
           }
