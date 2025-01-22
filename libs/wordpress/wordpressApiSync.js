@@ -21,7 +21,12 @@ export async function syncUserBadges(user) {
 
     await wpApi.call('POST', '/crowdaa-sync/v1/sync/badges/users', {
       user_id: wpUserId,
-      badges: (user.badges || []).map(({ id }) => id),
+      badges: (user.badges || [])
+        .filter(
+          ({ status = 'assigned' }) =>
+            status === 'validated' || status === 'assigned'
+        )
+        .map(({ id }) => id),
     });
   } finally {
     client.close();

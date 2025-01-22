@@ -5,7 +5,11 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { z } from 'zod';
-import { GeoJSONCoordinatesType } from './crowdTypes';
+import {
+  CrowdSearchOnlyBadgesType,
+  CrowdSearchTypeFieldType,
+  GeoJSONCoordinatesType,
+} from './crowdTypes';
 
 /* ################ *
  * Common functions *
@@ -184,7 +188,7 @@ const crowdSearchMultiSchema = z
     deviceId: z.array(z.string().trim()).optional(),
     geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
     onlyBadges: z
-      .array(z.enum(['requested', 'validated', 'rejected']))
+      .array(z.enum(['assigned', 'requested', 'validated', 'rejected']))
       .optional(),
   })
   .strict();
@@ -216,11 +220,13 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    type: filterArrayParams(multiParams.type),
+    type: filterArrayParams(multiParams.type) as CrowdSearchTypeFieldType[],
 
     userId: filterArrayParams(multiParams.userId),
     deviceId: filterArrayParams(multiParams.deviceId),
-    onlyBadges: filterArrayParams(multiParams.onlyBadges),
+    onlyBadges: filterArrayParams(
+      multiParams.onlyBadges
+    ) as CrowdSearchOnlyBadgesType[],
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
@@ -272,7 +278,7 @@ const crowdSearchGeoJSONMultiSchema = z
     deviceId: z.array(z.string().trim()).optional(),
     geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
     onlyBadges: z
-      .array(z.enum(['requested', 'validated', 'rejected']))
+      .array(z.enum(['assigned', 'requested', 'validated', 'rejected']))
       .optional(),
   })
   .strict();
@@ -294,10 +300,12 @@ export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
 
-    type: filterArrayParams(multiParams.type),
+    type: filterArrayParams(multiParams.type) as CrowdSearchTypeFieldType[],
     userId: filterArrayParams(multiParams.userId),
     deviceId: filterArrayParams(multiParams.deviceId),
-    onlyBadges: filterArrayParams(multiParams.onlyBadges),
+    onlyBadges: filterArrayParams(
+      multiParams.onlyBadges
+    ) as CrowdSearchOnlyBadgesType[],
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,

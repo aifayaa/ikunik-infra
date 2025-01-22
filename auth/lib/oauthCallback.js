@@ -112,7 +112,9 @@ function uploadPngHttps(fileStream, fileSize, url) {
     };
     const req = https.request(url, options, (res) => {
       res.on('error', reject);
-      res.on('data', () => {});
+      res.on('data', () => {
+        /* do nothing */
+      });
       res.on('end', resolve);
     });
 
@@ -182,7 +184,10 @@ export default async (appId, urlArgs) => {
           .collection(COLL_USER_BADGES)
           .find({ appId, isDefault: true })
           .toArray()
-      ).map((badge) => ({ id: badge._id }));
+      ).map((badge) => ({
+        id: badge._id,
+        status: 'assigned',
+      }));
 
       newUser = true;
       user = {

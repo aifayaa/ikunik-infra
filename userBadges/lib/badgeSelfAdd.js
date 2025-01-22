@@ -41,7 +41,7 @@ export default async (appId, userId, userBadgeId) => {
     if (!ownedBadges[userBadgeId]) {
       const actions = {};
 
-      const newBadge = { id: userBadgeId };
+      const newBadge = { id: userBadgeId, status: 'assigned' };
 
       if (!user.badges) {
         user.badges = [];

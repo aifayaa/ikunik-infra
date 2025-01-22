@@ -6,6 +6,7 @@ import hashLoginToken from './hashLoginToken.ts';
 import mongoCollections from '../../libs/mongoCollections.json';
 import postLoginChecks from './postLoginChecks.ts';
 import { WordpressAPI } from '../../libs/backends/wordpress';
+import { objGet } from '../../libs/utils';
 
 const { COLL_APPS, COLL_SAML_LOGINS, COLL_USERS, COLL_USER_BADGES } =
   mongoCollections;
@@ -50,18 +51,22 @@ export default async (loginXmlData) => {
       throw new Error('App not found');
     }
 
-    const responseStatus =
-      parsedResponse['saml2p:Response']['saml2p:Status']['saml2p:StatusCode'][
-        '@_Value'
-      ];
+    const responseStatus = objGet(parsedResponse, [
+      'saml2p:Response',
+      'saml2p:Status',
+      'saml2p:StatusCode',
+      '@_Value',
+    ]);
     if (responseStatus !== 'urn:oasis:names:tc:SAML:2.0:status:Success') {
       throw new Error(`Login process failed : ${responseStatus}`);
     }
 
-    const responseAttributes =
-      parsedResponse['saml2p:Response']['saml2:Assertion'][
-        'saml2:AttributeStatement'
-      ]['saml2:Attribute'];
+    const responseAttributes = objGet(parsedResponse, [
+      'saml2p:Response',
+      'saml2:Assertion',
+      'saml2:AttributeStatement',
+      'saml2:Attribute',
+    ]);
     const attributes = responseAttributes.reduce((acc, itm) => {
       const k = itm['@_Name'];
       const v = itm['saml2:AttributeValue'];
@@ -114,7 +119,10 @@ export default async (loginXmlData) => {
           .collection(COLL_USER_BADGES)
           .find({ appId, isDefault: true })
           .toArray()
-      ).map((badge) => ({ id: badge._id }));
+      ).map((badge) => ({
+        id: badge._id,
+        status: 'assigned',
+      }));
 
       const username = `user_${Random.id()}`;
       user = {

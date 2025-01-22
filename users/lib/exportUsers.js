@@ -72,8 +72,11 @@ export default async (appId, { fields, wholeProfile, ownedBadges }) => {
       if (ownedBadges) {
         const badges = (user && user.badges) || [];
         lookupObject.ownedBadges = [];
-        badges.forEach(({ id, status = 'validated' }) => {
-          if (badgesMap[id] && status === 'validated') {
+        badges.forEach(({ id, status = 'assigned' }) => {
+          if (
+            badgesMap[id] &&
+            (status === 'validated' || status === 'assigned')
+          ) {
             lookupObject.ownedBadges.push(badgesMap[id].name);
           }
         });

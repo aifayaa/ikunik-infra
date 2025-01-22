@@ -128,6 +128,7 @@ export async function finalizeBadge(userId, appId, badgeId) {
 
     const insBadge = {
       id: badgeId,
+      status: 'assigned',
     };
 
     if (badge.management === 'request') {

@@ -42,7 +42,10 @@ export default async (inputUsername, inputPassword, appId, { terminalId }) => {
           .collection(COLL_USER_BADGES)
           .find({ appId, isDefault: true })
           .toArray()
-      ).map((badge) => ({ id: badge._id }));
+      ).map((badge) => ({
+        id: badge._id,
+        status: 'assigned',
+      }));
 
       user = {
         _id: Random.id(),

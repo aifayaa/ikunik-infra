@@ -84,6 +84,7 @@ export default async (
             $addToSet: {
               badges: {
                 id: userBadgeObj._id,
+                status: 'assigned',
                 addedAt: new Date(),
                 addedBy: adminUserId,
               },
