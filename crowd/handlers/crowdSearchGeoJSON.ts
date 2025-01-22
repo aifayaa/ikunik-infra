@@ -10,7 +10,6 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
-import { z } from 'zod';
 import { parseSearchGeoJSONQuery } from 'crowd/lib/crowdZodSchemas';
 
 export default async (event: APIGatewayProxyEvent) => {
