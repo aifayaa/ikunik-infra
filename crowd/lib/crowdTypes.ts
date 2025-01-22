@@ -1,5 +1,5 @@
 type CrowdViewType = 'user' | 'device' | 'userDevice';
-type OnlyBadgesType = 'requested' | 'validated' | 'rejected';
+type OnlyBadgesType = 'assigned' | 'requested' | 'validated' | 'rejected';
 
 export type GeoJSONCoordinatesType = [number, number];
 

@@ -83,7 +83,10 @@ export async function setUserBadges(client, user, badgeIds) {
   const userBadgesIds = (user.badges || []).map(({ id }) => id);
 
   if (!listsContentEquals(existingBadgesIds, userBadgesIds)) {
-    const badges = existingBadges.map(({ _id }) => ({ id: _id }));
+    const badges = existingBadges.map(({ _id }) => ({
+      id: _id,
+      status: 'assigned',
+    }));
     await client
       .db()
       .collection(COLL_USERS)
@@ -215,7 +218,10 @@ export const wordpressLogin = async (
           .collection(COLL_USER_BADGES)
           .find({ appId, isDefault: true })
           .toArray()
-      ).map((badge) => ({ id: badge._id }));
+      ).map((badge) => ({
+        id: badge._id,
+        status: 'assigned',
+      }));
     }
 
     const loginToken = {
@@ -296,7 +302,10 @@ export const wordpressLogin = async (
         badges.forEach((badge) => {
           const id = user.badges.findIndex((badge2) => badge2.id === badge.id);
           if (id < 0) {
-            user.badges.push({ id: badge.id });
+            user.badges.push({
+              id: badge.id,
+              status: 'assigned',
+            });
           }
         });
       }

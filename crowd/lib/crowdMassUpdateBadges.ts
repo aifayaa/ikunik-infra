@@ -79,6 +79,7 @@ export async function crowdMassUpdateBadgesApply({
     let pendingPromises = [];
     const badgesObjectsIds = badgeIds.map((id) => ({
       id,
+      status: 'assigned',
     }));
 
     while (await itemsCursor.hasNext()) {

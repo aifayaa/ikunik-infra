@@ -97,7 +97,7 @@ export function buildCrowdSearchPipeline(
   }
 
   if (filters.badgeId) {
-    $match['user.badge.id'] = filters.badgeId;
+    $match['user.badges.id'] = filters.badgeId;
   }
 
   if (filters.articleId) {

@@ -45,7 +45,11 @@ export default async (appId, userId) => {
     }, {});
 
     const ownedBadges = userBadges.reduce((acc, itm) => {
-      if (!itm.status || itm.status === 'validated') {
+      if (
+        !itm.status ||
+        itm.status === 'validated' ||
+        itm.status === 'assigned'
+      ) {
         acc[itm.id] = true;
       }
       return acc;

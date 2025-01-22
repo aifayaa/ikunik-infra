@@ -287,8 +287,8 @@ BadgeChecker.prototype.checkBadges = async function checkBadges(
   const { allow = 'any' } = toCheckbadges;
 
   const userBadgesMap = userBadges.reduce((acc, perm) => {
-    const status = perm.status || 'validated';
-    if (status === 'validated') {
+    const status = perm.status || 'assigned';
+    if (status === 'validated' || status === 'assigned') {
       acc[perm.id] = true;
     }
     return acc;
