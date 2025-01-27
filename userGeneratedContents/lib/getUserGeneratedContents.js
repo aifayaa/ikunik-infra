@@ -3,7 +3,8 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { getUGCArticleCommentsCount } from './getUGCCounts';
 
-const { COLL_USERS, COLL_USER_GENERATED_CONTENTS } = mongoCollections;
+const { COLL_PICTURES, COLL_USERS, COLL_USER_GENERATED_CONTENTS } =
+  mongoCollections;
 
 export default async (
   appId,
@@ -32,6 +33,7 @@ export default async (
       data: 1,
       parentCollection: 1,
       parentId: 1,
+      pictures: 1,
       rootParentCollection: 1,
       rootParentId: 1,
       reason: 1,
@@ -66,6 +68,14 @@ export default async (
       },
     ];
     pipeline.push(
+      {
+        $lookup: {
+          from: COLL_PICTURES,
+          localField: 'data.pictures',
+          foreignField: '_id',
+          as: 'pictures',
+        },
+      },
       {
         $lookup: {
           from: COLL_USERS,
