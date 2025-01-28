@@ -11,6 +11,73 @@ type GetIapPollResultsParamsType = {
   limit: number | null;
 };
 
+type GetIapPollResultsForOutputType = {
+  _id: string;
+  iapPollId: string;
+  priceId: string | null;
+  counts: number;
+  votes: number;
+  totalPoints: number;
+};
+
+export async function getIapPollResultsFor(
+  userId: string,
+  appId: string,
+  iapPollId: string,
+  articleId: string
+) {
+  const client = await MongoClient.connect();
+
+  try {
+    const $match: any = {
+      appId,
+      iapPollId,
+      userId,
+    };
+
+    if (articleId) $match.articleId = articleId;
+
+    const pipeline: any[] = [
+      {
+        $match,
+      },
+    ];
+
+    pipeline.push({
+      $group: {
+        _id: '$priceId',
+
+        iapPollId: { $first: '$iapPollId' },
+        priceId: { $first: '$priceId' },
+
+        counts: { $sum: '$count' },
+        votes: { $sum: 1 },
+        totalPoints: { $sum: '$totalPoints' },
+      },
+    });
+
+    const results = (await client
+      .db()
+      .collection(COLL_PRESS_IAP_POLLS_VOTES)
+      .aggregate(pipeline)
+      .toArray()) as GetIapPollResultsForOutputType[];
+
+    const mappedResults: Record<string, GetIapPollResultsForOutputType> = {};
+
+    results.forEach((result) => {
+      if (result.priceId === null) {
+        mappedResults['%FREE%'] = result;
+      } else {
+        mappedResults[result.priceId] = result;
+      }
+    });
+
+    return mappedResults;
+  } finally {
+    await client.close();
+  }
+}
+
 export default async (
   iapPollId: string,
   appId: string,
@@ -118,6 +185,6 @@ export default async (
 
     return ret;
   } finally {
-    client.close();
+    await client.close();
   }
 };
