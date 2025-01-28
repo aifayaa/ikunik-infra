@@ -1,5 +1,8 @@
 /* eslint-disable import/no-relative-packages */
-import addVote, { checkIsIapPollVotableAndGetOption } from '../lib/addVote';
+import addVote, {
+  canUserVoteForFree,
+  checkIsIapPollVotableAndGetOption,
+} from '../lib/addVote';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
@@ -37,7 +40,7 @@ const bodySchema = z
       })
       .trim()
       .min(1),
-    priceId: z.enum(IapPollPriceIdsList),
+    priceId: z.enum(IapPollPriceIdsList).or(z.null()),
     count: z.number().int().gte(1).optional().default(1),
   })
   .strict();
@@ -68,35 +71,44 @@ export default async (event: APIGatewayProxyEvent) => {
       validatedBody.priceId
     );
 
-    const price =
-      ArticlePrices[option.priceId as IapPollPriceIdsType] *
-      validatedBody.count;
-
-    const balance = await getBalance(appId, userId, validatedBody.deviceId);
-
-    if (!balance || price > balance.amount) {
-      throw new CrowdaaError(
-        ERROR_TYPE_IAP,
-        INSUFFICIENT_BALANCE_FUNDS_CODE,
-        `Insufficient funds to validate purchase for price ${validatedBody.priceId} (balance: ${balance})`
+    if (option === null) {
+      await canUserVoteForFree(
+        appId,
+        userId,
+        iapPollId,
+        validatedBody.articleId
       );
+    } else {
+      const price =
+        ArticlePrices[option.priceId as IapPollPriceIdsType] *
+        validatedBody.count;
+
+      const balance = await getBalance(appId, userId, validatedBody.deviceId);
+
+      if (!balance || price > balance.amount) {
+        throw new CrowdaaError(
+          ERROR_TYPE_IAP,
+          INSUFFICIENT_BALANCE_FUNDS_CODE,
+          `Insufficient funds to validate purchase for price ${validatedBody.priceId} (balance: ${balance})`
+        );
+      }
+
+      const operationStatus = await addBalance(
+        appId,
+        userId,
+        validatedBody.deviceId,
+        price * -1
+      );
+      if (!operationStatus) {
+        throw new CrowdaaError(
+          ERROR_TYPE_IAP,
+          BALANCE_UPDATE_FAILED_CODE,
+          `Balance update failed for app ${appId}, user ${userId}, device ${validatedBody.deviceId} (balance: ${balance}, operation: ${price * -1})`
+        );
+      }
     }
 
-    const operationStatus = await addBalance(
-      appId,
-      userId,
-      validatedBody.deviceId,
-      price * -1
-    );
-    if (!operationStatus) {
-      throw new CrowdaaError(
-        ERROR_TYPE_IAP,
-        BALANCE_UPDATE_FAILED_CODE,
-        `Balance update failed for app ${appId}, user ${userId}, device ${validatedBody.deviceId} (balance: ${balance}, operation: ${price * -1})`
-      );
-    }
-
-    const voted = await addVote(iapPollId, appId, userId, validatedBody);
+    const voted = await addVote(iapPoll, appId, userId, validatedBody);
     return response({
       code: 200,
       body: formatResponseBody({

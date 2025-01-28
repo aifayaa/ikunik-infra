@@ -11,9 +11,25 @@ import {
 } from '../../libs/httpResponses/errorCodes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import { z } from 'zod';
+import { getIapPollResultsFor } from 'pressIapPolls/lib/getIapPollResults';
+
+const urlSchema = z
+  .object({
+    getResults: z
+      .enum(['true', 'false'])
+      .transform((x) => x === 'true')
+      .optional(),
+    articleId: z.string().trim().min(1).optional(),
+  })
+  .strict();
 
 export default async (event: APIGatewayProxyEvent) => {
-  const { appId, superAdmin } = event.requestContext.authorizer as {
+  const {
+    appId,
+    principalId: userId,
+    superAdmin,
+  } = event.requestContext.authorizer as {
     appId: string;
     principalId: string;
     superAdmin?: boolean;
@@ -21,6 +37,8 @@ export default async (event: APIGatewayProxyEvent) => {
   const { id: iapPollId } = event.pathParameters as { id: string };
 
   try {
+    const validatedParams = urlSchema.parse(event.queryStringParameters || {});
+
     if (!superAdmin) {
       const allowed = await checkAppPlanForLimitAccess(appId, 'iapPolls');
 
@@ -34,6 +52,25 @@ export default async (event: APIGatewayProxyEvent) => {
     }
 
     const iapPoll = await getIapPoll(iapPollId, appId);
+
+    if (validatedParams.getResults && validatedParams.articleId) {
+      const results = await getIapPollResultsFor(
+        userId,
+        appId,
+        iapPollId,
+        validatedParams.articleId
+      );
+
+      return response({
+        code: 200,
+        body: formatResponseBody({
+          data: {
+            ...iapPoll,
+            results,
+          },
+        }),
+      });
+    }
 
     return response({
       code: 200,
