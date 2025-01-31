@@ -115,7 +115,6 @@ export default async (
     if (Object.keys($unset).length > 0) {
       updates.$unset = $unset;
     }
-    console.log('DBG', { userId, appId }, updates);
     const { matchedCount } = await db.collection(COLL_USERS).updateOne(
       {
         _id: userId,
