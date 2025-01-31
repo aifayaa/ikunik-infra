@@ -95,6 +95,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    getSummary: {
+      handler: 'handlers/getSummary.default',
+      events: [
+        {
+          http: {
+            path: 'userMetrics/summary',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerWithPermsId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     getUserMetrics: {
       handler: 'handlers/getUserMetrics.default',
       events: [
