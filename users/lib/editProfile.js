@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { appUserCheckUsername } from './appUserChecks.ts';
 
 const { ADMIN_APP } = process.env;
 
@@ -18,6 +19,7 @@ export default async (
     ...extraFields
   }
 ) => {
+  console.log('RooUsrena', username);
   const $set = {
     'profile.username': `${username}`,
   };
@@ -32,6 +34,8 @@ export default async (
   } else if (lastname === null) {
     $unset['profile.lastname'] = '';
   }
+
+  await appUserCheckUsername(username, { appId });
 
   const client = await MongoClient.connect();
   const db = client.db();
@@ -82,13 +86,10 @@ export default async (
         }
 
         user.profile[field] = extraFields[field];
-      });
-
-      Object.keys(user.profile).forEach((key) => {
-        if (extraFields[key] === null) {
-          $unset[`profile.${key}`] = '';
+        if (extraFields[field] === null) {
+          $unset[`profile.${field}`] = '';
         } else {
-          $set[`profile.${key}`] = user.profile[key];
+          $set[`profile.${field}`] = user.profile[field];
         }
       });
     }
@@ -114,7 +115,7 @@ export default async (
     if (Object.keys($unset).length > 0) {
       updates.$unset = $unset;
     }
-
+    console.log('DBG', { userId, appId }, updates);
     const { matchedCount } = await db.collection(COLL_USERS).updateOne(
       {
         _id: userId,

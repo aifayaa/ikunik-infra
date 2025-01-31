@@ -3,6 +3,7 @@ import { typeCheck } from 'type-check';
 import response from '../../libs/httpResponses/response.ts';
 import { register } from '../lib/register';
 import errorMessage from '../../libs/httpResponses/errorMessage';
+import { appUserCheckUsername } from '../../users/lib/appUserChecks.ts';
 
 const PASSWORD_MIN_LENGTH = 6;
 
@@ -20,6 +21,9 @@ export default async (event) => {
       throw new Error('invalid_password_length');
 
     const { appId } = event.requestContext.authorizer;
+
+    await appUserCheckUsername(username, { appId });
+
     const { userId } = await register(email, username, password, appId);
 
     return response({
