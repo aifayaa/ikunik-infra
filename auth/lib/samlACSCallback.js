@@ -7,6 +7,7 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import postLoginChecks from './postLoginChecks.ts';
 import { WordpressAPI } from '../../libs/backends/wordpress';
 import { objGet } from '../../libs/utils';
+import syncUserRegisterBaserow from './backends/syncUserRegisterBaserow.ts';
 
 const { COLL_APPS, COLL_SAML_LOGINS, COLL_USERS, COLL_USER_BADGES } =
   mongoCollections;
@@ -148,6 +149,8 @@ export default async (loginXmlData) => {
         },
         { $set: userFields }
       );
+
+      await syncUserRegisterBaserow(userId, 'saml');
     } else if (users.length === 1) {
       newUser = false;
       [user] = users;

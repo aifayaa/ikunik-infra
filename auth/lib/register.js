@@ -7,6 +7,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { wordpressRegister } from './backends/wordpressRegister';
 import { crowdaaRegister } from './backends/crowdaaRegister.ts';
+import syncUserRegisterBaserow from './backends/syncUserRegisterBaserow.ts';
 import postLoginChecks from './postLoginChecks.ts';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 import { getAppActiveUsers } from '../../userMetrics/lib/getAppActiveUsers';
@@ -60,6 +61,7 @@ export const register = async (
       switch (app.backend.type) {
         case 'wordpress':
           ret = await wordpressRegister(username, rawEmail, password, app);
+          await syncUserRegisterBaserow(ret.userId, 'wordpress');
           break;
         default:
           throw new Error('unknown_backend');
@@ -69,6 +71,8 @@ export const register = async (
         firstname,
         lastname,
       });
+
+      await syncUserRegisterBaserow(ret.userId, 'crowdaa');
     }
 
     await postLoginChecks(ret, app, 'register');
