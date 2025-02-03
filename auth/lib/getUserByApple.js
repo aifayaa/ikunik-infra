@@ -15,6 +15,7 @@ import {
   ERROR_TYPE_NOT_ALLOWED,
 } from '../../libs/httpResponses/errorCodes.ts';
 import { getApp } from '../../apps/lib/appsUtils.ts';
+import syncUserRegisterBaserow from './backends/syncUserRegisterBaserow.ts';
 
 const { COLL_USERS } = mongoCollections;
 
@@ -169,6 +170,8 @@ export const getUserByApple = async (
         },
       };
       await collection.insertOne(userDoc);
+
+      await syncUserRegisterBaserow(userId, 'siwa');
     }
     return {
       userId,
