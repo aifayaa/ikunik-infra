@@ -60,15 +60,8 @@ export default async (
             reason: 1,
             moderated: 1,
             user: {
-              firstname: 1,
-              isUserPicture: 1,
-              lastname: 1,
-              profile: {
-                avatar: 1,
-                isUserPicture: 1,
-                username: 1,
-              },
-              status: 1,
+              profile: 1,
+              medals: 1,
               username: 1,
               _id: 1,
             },
