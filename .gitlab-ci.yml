@@ -184,6 +184,8 @@ incrementVersion:
     - git pull
     - |
       case "$CI_COMMIT_TITLE" in
+        "Merge branch 'feat/"* |
+        "Merge branch 'hotfeat/"* |
         "Merge branch 'release/"*)
           export NEW_VERSION=$(npm version minor --no-git-tag-version);;
         *)
