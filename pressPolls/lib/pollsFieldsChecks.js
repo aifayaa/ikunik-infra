@@ -4,6 +4,15 @@ const isNonEmptyString = (val) => typeof val === 'string' && val.length > 0;
 const isValidDate = (val) =>
   typeof val === 'string' && !Number.isNaN(new Date(val).getFullYear());
 
+export const defaultCreateFields = {
+  description: '',
+  requires: 'none',
+  multipleChoices: false,
+  displayResults: false,
+  canUpdate: false,
+  active: true,
+};
+
 export const createFieldChecks = {
   title: isNonEmptyString,
   description: isString,

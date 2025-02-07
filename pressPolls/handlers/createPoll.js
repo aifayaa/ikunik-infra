@@ -1,6 +1,9 @@
 /* eslint-disable import/no-relative-packages */
 import createPoll from '../lib/createPoll';
-import { createFieldChecks } from '../lib/pollsFieldsChecks';
+import {
+  createFieldChecks,
+  defaultCreateFields,
+} from '../lib/pollsFieldsChecks';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
@@ -60,7 +63,10 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
 
-    const bodyParsed = JSON.parse(event.body);
+    const bodyParsed = {
+      ...defaultCreateFields,
+      ...JSON.parse(event.body),
+    };
 
     Object.keys(createFieldChecks).forEach((field) => {
       const cb = createFieldChecks[field];
