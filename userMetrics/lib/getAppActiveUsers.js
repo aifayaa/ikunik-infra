@@ -11,7 +11,7 @@ const { COLL_USER_METRICS } = mongoCollections;
 // etc.
 export async function getAppActiveUsers(
   app,
-  { period = 0, now = new Date() } = {}
+  { period = 0, now = new Date(), fromDate = null, toDate = null } = {}
 ) {
   const client = await MongoClient.connect();
 
@@ -30,45 +30,42 @@ export async function getAppActiveUsers(
       targetDate.setMonth(now.getMonth() + period); // Set to current month + shift
     }
 
-    const [startDate, endDate] = computePlanDates(
+    let [startDate, endDate] = computePlanDates(
       'month',
       'rolling',
       planDate,
       targetDate
     );
 
+    if (fromDate && toDate) {
+      startDate = fromDate;
+      endDate = toDate;
+    }
+
+    const pipeline = [
+      {
+        $match: {
+          appId: app._id,
+          userId: { $ne: null },
+          $or: [
+            { createdAt: { $gte: startDate, $lt: endDate } },
+            { modifiedAt: { $gte: startDate, $lt: endDate } },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: '$userId',
+        },
+      },
+      {
+        $count: 'count',
+      },
+    ];
+
     const [{ count = 0 } = {}] = await db
       .collection(COLL_USER_METRICS)
-      .aggregate([
-        {
-          $match: {
-            appId: app._id,
-            userId: { $ne: null },
-            $or: [
-              {
-                $and: [
-                  { createdAt: { $gte: startDate } },
-                  { createdAt: { $lt: endDate } },
-                ],
-              },
-              {
-                $and: [
-                  { modifiedAt: { $gte: startDate } },
-                  { modifiedAt: { $lt: endDate } },
-                ],
-              },
-            ],
-          },
-        },
-        {
-          $group: {
-            _id: '$userId',
-          },
-        },
-        {
-          $count: 'count',
-        },
-      ])
+      .aggregate(pipeline)
       .toArray();
 
     return {
