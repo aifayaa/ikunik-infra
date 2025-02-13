@@ -19,6 +19,7 @@ import {
 import { AppType } from '@apps/lib/appEntity';
 import { addSessionTokenFor } from 'auth/lib/addSessionTokenFor';
 import { RecordCreateParams } from 'cloudflare/resources/dns/records';
+import { UserType } from '@users/lib/userEntity';
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4',
@@ -156,10 +157,10 @@ export default async (
       );
     }
 
-    const dbUser = await client
+    const dbUser = (await client
       .db()
       .collection(COLL_USERS)
-      .findOne({ _id: userId, appId: ADMIN_APP });
+      .findOne({ _id: userId, appId: ADMIN_APP })) as UserType | null;
     if (!dbUser) {
       throw new CrowdaaError(
         ERROR_TYPE_VALIDATION_ERROR,
@@ -245,7 +246,7 @@ export default async (
     await session.commitTransaction();
     session = null;
 
-    const sessionToken = await addSessionTokenFor(userId, appId);
+    const sessionToken = await addSessionTokenFor(userId, dbUser.appId);
 
     const lambdaInvokeArgs = {
       initTemplate: bucketKey,

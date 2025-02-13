@@ -46,6 +46,7 @@ export type UTMType = {
 
 export type UserType = {
   _id: string;
+  appId: string;
   services: {
     password?: {
       bcrypt: string;
