@@ -4,18 +4,31 @@ type GetSummaryParamsType = {
   fromDate?: Date | null;
   toDate: Date | null;
   getTotalReadingTime?: boolean;
+  getTimePerArticle?: boolean;
 };
+
+type TimePerArticleArrayType = Array<{
+  articleId: string;
+  sum: number;
+  avg: number;
+}>;
 
 type GetSummaryReturnType = {
   users: number;
   singleDevices: number;
   allDevices: number;
   totalReadingTime?: number;
+  timePerArticle?: TimePerArticleArrayType;
 };
 
 export async function getSummary(
   appId: string,
-  { fromDate, toDate, getTotalReadingTime }: GetSummaryParamsType
+  {
+    fromDate,
+    toDate,
+    getTotalReadingTime,
+    getTimePerArticle,
+  }: GetSummaryParamsType
 ) {
   const client = await MongoClient.connect();
 
@@ -68,6 +81,46 @@ export async function getSummary(
         .toArray();
 
       ret.totalReadingTime = totalReadingTime;
+    }
+
+    if (getTimePerArticle) {
+      const timePerArticle = (await client
+        .db()
+        .collection('userMetrics')
+        .aggregate([
+          { $match: { appId, type: 'time', ...commonQuery } },
+          {
+            $group: {
+              _id: {
+                $concat: [
+                  '$contentId',
+                  '|',
+                  { $ifNull: ['$userId', '$deviceId'] },
+                ],
+              },
+              articleId: { $first: '$contentId' },
+              timeSum: { $sum: '$time' },
+            },
+          },
+          {
+            $group: {
+              _id: '$articleId',
+              sum: { $sum: '$timeSum' },
+              avg: { $avg: '$timeSum' },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              articleId: '$_id',
+              sum: 1,
+              avg: 1,
+            },
+          },
+        ])
+        .toArray()) as TimePerArticleArrayType;
+
+      ret.timePerArticle = timePerArticle;
     }
 
     return ret;
