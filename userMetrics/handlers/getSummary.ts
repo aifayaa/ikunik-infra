@@ -27,6 +27,11 @@ const queryStringSchema = z.object({
     .optional()
     .default('false')
     .transform((x) => x === 'true'),
+  timePerArticle: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((x) => x === 'true'),
 });
 
 export default async (event: APIGatewayEvent) => {
@@ -40,6 +45,7 @@ export default async (event: APIGatewayEvent) => {
       from: fromDate,
       to: toDate,
       totalReadingTime: getTotalReadingTime,
+      timePerArticle: getTimePerArticle,
     } = queryStringSchema.parse(event.queryStringParameters);
 
     await checkPermsForApp(userId, appId, ['admin']);
@@ -48,6 +54,7 @@ export default async (event: APIGatewayEvent) => {
       fromDate,
       toDate,
       getTotalReadingTime,
+      getTimePerArticle,
     });
     return response({
       code: 200,
