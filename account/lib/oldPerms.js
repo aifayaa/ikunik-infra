@@ -1,4 +1,4 @@
-export default {
+export const allOldPerms = {
   apps_getInfos: true,
   apps_getProfile: true,
   crowd_blast: true,
@@ -8,4 +8,8 @@ export default {
   search_press: true,
   userGeneratedContents_all: true,
   userGeneratedContents_notify: true,
+};
+
+export const oldPressPerms = {
+  pressArticles_all: true,
 };

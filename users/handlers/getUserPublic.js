@@ -4,8 +4,11 @@ import doGetUser from '../lib/getUser';
 import { getTos } from '../../termsOfServices/lib/getTos';
 import getSelfUserBadges from '../../userBadges/lib/getSelfUserBadges';
 import response from '../../libs/httpResponses/response.ts';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
-import allPerms from '../../account/lib/allPerms';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
+import { allOldPerms, oldPressPerms } from '../../account/lib/oldPerms';
 
 export default async (event) => {
   try {
@@ -20,6 +23,13 @@ export default async (event) => {
       return response({ code: 403, message: 'access_forbidden' });
     }
 
+    const isArticleEditor = await checkFeaturePermsForApp(
+      userId,
+      appId,
+      ['articlesEditor'],
+      { dontThrow: true }
+    );
+
     const results = pick(await doGetUser(urlId, appId), [
       'country',
       'createdAt',
@@ -33,7 +43,13 @@ export default async (event) => {
       'settings',
       'superAdmin',
     ]);
-    results.perms = isAdmin ? allPerms : perms;
+    if (isAdmin) {
+      results.perms = allOldPerms;
+    } else if (isArticleEditor) {
+      results.perms = oldPressPerms;
+    } else {
+      results.perms = perms;
+    }
     try {
       results.allBadges = await getSelfUserBadges(appId, urlId);
     } catch (e) {

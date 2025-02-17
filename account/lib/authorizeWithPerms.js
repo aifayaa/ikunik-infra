@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import allPerms from './allPerms';
+import { allOldPerms } from './oldPerms';
 
 const { ADMIN_APP } = process.env;
 
@@ -75,23 +75,29 @@ export default async (hashedToken, appId) => {
       return {
         id: user._id,
         loginToken,
-        perms: user.superAdmin ? allPerms : {},
+        perms: user.superAdmin ? allOldPerms : {},
         superAdmin: user.superAdmin,
       };
     }
 
     /* get user perms */
     const permGroupIds = (user && user.permGroupIds) || [];
-    const permsAll = permGroupIds.length
-      ? await client
+    const getPermsAll = async () => {
+      if (permGroupIds.length) {
+        const ret = await client
           .db()
           .collection(COLL_PERM_GROUPS)
           .find({
             _id: { $in: permGroupIds },
             appId,
           })
-          .toArray()
-      : [];
+          .toArray();
+
+        return ret;
+      }
+      return [];
+    };
+    const permsAll = await getPermsAll();
 
     const perms = permsAll.reduce((acc, curr) => {
       Object.keys(curr.perms).forEach((key) => {
@@ -105,7 +111,7 @@ export default async (hashedToken, appId) => {
     return {
       id: user && user._id,
       loginToken,
-      perms: user.superAdmin ? allPerms : perms,
+      perms: user.superAdmin ? allOldPerms : perms,
       superAdmin: user.superAdmin,
     };
   } finally {

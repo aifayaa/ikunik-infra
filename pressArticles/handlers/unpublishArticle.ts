@@ -6,7 +6,10 @@ import {
   unpublishArticlesInDb,
   unpublishArticlesNotifications,
 } from '../lib/unpublishArticles';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor';
 
 export default async (event: APIGatewayProxyEvent) => {
   try {
@@ -15,7 +18,11 @@ export default async (event: APIGatewayProxyEvent) => {
       principalId: string;
     };
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    try {
+      await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
+    } catch (e) {
+      await checkPermsForApp(userId, appId, ['admin']);
+    }
 
     const { id: articleId } = event.pathParameters as { id: string };
 
