@@ -11,7 +11,10 @@ import { postArticle } from '../lib/postArticle';
 import { publishArticle } from '../lib/publishArticle';
 import checkActions from '../lib/checks/checkActions';
 import articlePrices from '../articlePrices.json';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
 import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
 export default async (event) => {
@@ -22,7 +25,11 @@ export default async (event) => {
       superAdmin,
     } = event.requestContext.authorizer;
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    try {
+      await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
+    } catch (e) {
+      await checkPermsForApp(userId, appId, ['admin']);
+    }
 
     if (!event.body) {
       throw new Error('missing_payload');
@@ -90,7 +97,8 @@ export default async (event) => {
           likes,
           md = '',
           mediaCaptions,
-          pdfs = [],
+          pdfs = /*
+          To fix eslint/prettier conflict... */ [],
           pdfsOpenButton = '',
           pictures,
           productId,

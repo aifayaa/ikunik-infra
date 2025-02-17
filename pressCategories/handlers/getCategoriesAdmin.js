@@ -2,7 +2,10 @@
 import getCategories from '../lib/getCategories';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -13,7 +16,11 @@ export default async (event) => {
 
   try {
     const requestedPermissions = ['viewer', 'moderator', 'editor'];
-    await checkPermsForApp(userId, appId, requestedPermissions);
+    try {
+      await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
+    } catch (e) {
+      await checkPermsForApp(userId, appId, requestedPermissions);
+    }
 
     if (parentId === 'null') {
       parentId = null;
