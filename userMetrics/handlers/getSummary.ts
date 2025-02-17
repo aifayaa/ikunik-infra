@@ -46,7 +46,7 @@ export default async (event: APIGatewayEvent) => {
       to: toDate,
       totalReadingTime: getTotalReadingTime,
       timePerArticle: getTimePerArticle,
-    } = queryStringSchema.parse(event.queryStringParameters);
+    } = queryStringSchema.parse(event.queryStringParameters || {});
 
     await checkPermsForApp(userId, appId, ['admin']);
 
