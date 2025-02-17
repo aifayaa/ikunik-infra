@@ -7,7 +7,10 @@ import response from '../../libs/httpResponses/response.ts';
 import { publishArticle } from '../lib/publishArticle';
 import { putArticle } from '../lib/putArticle';
 import { queueArticleNotifications } from '../lib/notificationsQueue.ts';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
 
 import articlePrices from '../articlePrices.json';
 import { getArticle } from '../lib/getArticle';
@@ -21,7 +24,11 @@ export default async (event) => {
       superAdmin,
     } = event.requestContext.authorizer;
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    try {
+      await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
+    } catch (e) {
+      await checkPermsForApp(userId, appId, ['admin']);
+    }
 
     if (!event.body) {
       throw new Error('mal_formed_request');

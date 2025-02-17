@@ -1,7 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import { getArticle } from '../lib/getArticle';
 import response from '../../libs/httpResponses/response.ts';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {
@@ -10,9 +13,18 @@ export default async (event) => {
     const { id: articleId } = event.pathParameters;
     const { deviceId = null } = event.queryStringParameters || {};
 
-    const publishedOnly = !(await checkPermsForApp(userId, appId, ['admin'], {
+    let isAdmin = await checkPermsForApp(userId, appId, ['admin'], {
       dontThrow: true,
-    }));
+    });
+    if (!isAdmin) {
+      isAdmin =
+        isAdmin ||
+        (await checkFeaturePermsForApp(userId, appId, ['articlesEditor'], {
+          dontThrow: true,
+        }));
+    }
+
+    const publishedOnly = !isAdmin;
 
     const results = await getArticle(articleId, appId, {
       deviceId,

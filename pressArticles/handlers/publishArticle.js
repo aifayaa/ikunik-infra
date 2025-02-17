@@ -5,13 +5,20 @@ import {
   cleanPendingArticleNotifications,
 } from '../lib/notificationsQueue.ts';
 import { publishArticle } from '../lib/publishArticle';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
 
 export default async (event) => {
   try {
     const { appId, principalId: userId } = event.requestContext.authorizer;
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    try {
+      await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
+    } catch (e) {
+      await checkPermsForApp(userId, appId, ['admin']);
+    }
 
     if (!event.body) {
       throw new Error('mal_formed_request');
