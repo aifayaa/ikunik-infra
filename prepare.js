@@ -507,6 +507,14 @@ verbose(
           key: { 'services.password.reset.when': 1 },
           opts: makeOpts('sparse'),
         },
+        {
+          name: 'crowdaa_perms',
+          key: {
+            appId: 1,
+            perms: 1,
+          },
+          opts: makeOpts('sparse'),
+        },
       ],
       [COLL_PUSH_NOTIFICATIONS]: [
         {
@@ -534,6 +542,33 @@ verbose(
         {
           name: 'crowdaa_apps_org_id',
           key: { 'organization._id': 1 },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_apps_ios_sns_renewing',
+          key: {
+            'settings.platformApplicationArns.iOS.arn': 1,
+            'settings.platformApplicationArns.iOS.expiresAt': 1,
+            'settings.platformApplicationArns.iOS.retryAfter': 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_apps_ios_builds_status',
+          key: {
+            'builds.ios.pipeline.status': 1,
+            'builds.ios.pipeline._id': 1,
+            'builds.ios.ready': 1,
+          },
+          opts: makeOpts('sparse'),
+        },
+        {
+          name: 'crowdaa_apps_android_builds_status',
+          key: {
+            'builds.android.pipeline.status': 1,
+            'builds.android.pipeline._id': 1,
+            'builds.android.ready': 1,
+          },
           opts: makeOpts('sparse'),
         },
       ],
