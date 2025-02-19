@@ -144,11 +144,6 @@ const serverlessConfiguration = {
       handler: 'handlers/ugcOffensiveAsyncAnalysis.default',
       memorySize: 256,
       timeout: 120,
-      events: [
-        {
-          sns: '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_SNS_TOPIC_ARN}',
-        },
-      ],
     },
     postUGC: {
       handler: 'handlers/postUserGeneratedContents.default',
