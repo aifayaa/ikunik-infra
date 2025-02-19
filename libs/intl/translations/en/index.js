@@ -221,21 +221,21 @@ export default {
     moderation_notification: {
       rejected: {
         ai: {
-          text: '“{abstract}”',
+          text: '“{{- abstract}}”',
           title: 'Your publication was considered offending and rejected :',
         },
         human: {
-          text: '“{abstract}”',
-          title: 'Your publication was rejected because : {reason}',
+          text: '“{{- abstract}}”',
+          title: 'Your publication was rejected because : {{- reason}}',
         },
       },
       validated: {
         ai: {
-          text: '“{abstract}”',
+          text: '“{{- abstract}}”',
           title: 'Your publication was automatically validated :',
         },
         human: {
-          text: '“{abstract}”',
+          text: '“{{- abstract}}”',
           title: 'Your publication was validated :',
         },
       },
