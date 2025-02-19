@@ -24,6 +24,11 @@ const serverlessConfiguration = {
         AI_DETECTION_DEFAULT_REGION: 'us-east-1',
         AI_DETECTION_SNS_TOPIC_ARN:
           'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicDevUs',
+        topicCompletionSNSEvents: [
+          {
+            sns: 'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicDevUs',
+          },
+        ],
       },
     },
     preprod: {
@@ -36,6 +41,7 @@ const serverlessConfiguration = {
         AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
         AI_DETECTION_SNS_TOPIC_ARN:
           'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicPreprodFr',
+        topicCompletionSNSEvents: [],
       },
     },
     prod: {
@@ -48,6 +54,11 @@ const serverlessConfiguration = {
         AI_DETECTION_DEFAULT_REGION: 'us-east-1',
         AI_DETECTION_SNS_TOPIC_ARN:
           'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdUs',
+        topicCompletionSNSEvents: [
+          {
+            sns: 'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdUs',
+          },
+        ],
       },
       'eu-west-3': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
@@ -58,6 +69,7 @@ const serverlessConfiguration = {
         AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
         AI_DETECTION_SNS_TOPIC_ARN:
           'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdFr',
+        topicCompletionSNSEvents: [],
       },
     },
     esbuild: {
@@ -134,11 +146,8 @@ const serverlessConfiguration = {
       handler: 'handlers/ugcSNSTopicCompletion.default',
       memorySize: 256,
       timeout: 120,
-      events: [
-        {
-          sns: '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_SNS_TOPIC_ARN}',
-        },
-      ],
+      events:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.topicCompletionSNSEvents}',
     },
     ugcOffensiveAsyncAnalysis: {
       handler: 'handlers/ugcOffensiveAsyncAnalysis.default',
