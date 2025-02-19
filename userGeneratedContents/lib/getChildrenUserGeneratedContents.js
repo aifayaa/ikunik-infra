@@ -76,6 +76,7 @@ function buildPipeline({
         reason: 1,
         reviewed: 1,
         moderated: 1,
+        offensive: 1,
         type: 1,
         user: {
           profile: 1,
