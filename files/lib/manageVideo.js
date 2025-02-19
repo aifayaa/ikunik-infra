@@ -48,12 +48,6 @@ export default async (bucket, object, file) => {
     const videoDoc = Object.assign(document, {
       _id: id,
       title: title || '',
-      profil_ID: null,
-      views: 0,
-      likes: 0,
-      project_ID: null,
-      feat: null,
-      releaseDate: null,
       status: uploadStatus.ENCODING,
     });
 

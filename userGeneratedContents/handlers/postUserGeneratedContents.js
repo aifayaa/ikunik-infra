@@ -104,6 +104,8 @@ export default async (event) => {
         break;
     }
 
+    const lang = getUserLanguage(event.headers);
+
     const result = await postUserGeneratedContents(
       appId,
       parentId,
@@ -112,10 +114,9 @@ export default async (event) => {
       rootParentCollection,
       userId,
       type,
-      data
+      data,
+      lang
     );
-
-    const lang = getUserLanguage(event.headers);
 
     try {
       await sendNewUGCPushNotifications({

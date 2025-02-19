@@ -218,6 +218,28 @@ export default {
       text: 'User {{- username}} reacted to your comment',
       title: 'New reaction',
     },
+    moderation_notification: {
+      rejected: {
+        ai: {
+          text: '“{abstract}”',
+          title: 'Your publication was considered offending and rejected :',
+        },
+        human: {
+          text: '“{abstract}”',
+          title: 'Your publication was rejected because : {reason}',
+        },
+      },
+      validated: {
+        ai: {
+          text: '“{abstract}”',
+          title: 'Your publication was automatically validated :',
+        },
+        human: {
+          text: '“{abstract}”',
+          title: 'Your publication was validated :',
+        },
+      },
+    },
   },
   liveStream: {
     view_stream_html_page: liveStreamView,

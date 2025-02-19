@@ -155,7 +155,7 @@ export default async (userId, appId, { roomId, message, haveAttachments }) => {
         Payload: JSON.stringify({
           appId,
           notifyAt: new Date().toISOString(),
-          type: 'chat-message',
+          type: 'chatMessage',
           only: 'users',
           data: {
             message: formatMessage(message, haveAttachments),

@@ -98,6 +98,7 @@ export const sendNotifications = async (appId, queueId) => {
             sendNotificationTo(
               {
                 ...notificationData,
+                crowdaaNotificationType: rootNotifQueue.type,
                 endpoint,
               },
               (error /* , res */) => {
