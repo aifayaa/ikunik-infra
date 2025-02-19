@@ -12,26 +12,52 @@ const serverlessConfiguration = {
     'serverless-disable-request-validators': {
       action: 'delete',
     },
+    AI_VIDEO_MODERATION_COMPLETION_ROLE_ARN:
+      'arn:aws:iam::630176884077:role/ugcVideoModerationCompletionTopicRole',
     dev: {
       'us-east-1': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/dev-us',
         REACT_APP_API_URL: 'https://dev-api.aws.crowdaa.com/v1',
+        S3_UPLOAD_BUCKET: 'slsupload-dev',
+        AI_DETECTION_DEFAULT_LANG: 'en',
+        AI_DETECTION_ENABLED: 'true',
+        AI_DETECTION_DEFAULT_REGION: 'us-east-1',
+        AI_DETECTION_SNS_TOPIC_ARN:
+          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicDevUs',
       },
     },
     preprod: {
       'eu-west-3': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/preprod-fr',
         REACT_APP_API_URL: 'https://preprod-api.aws.crowdaa.com/v1',
+        S3_UPLOAD_BUCKET: 'slsupload-preprod',
+        AI_DETECTION_DEFAULT_LANG: 'en',
+        AI_DETECTION_ENABLED: 'false',
+        AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
+        AI_DETECTION_SNS_TOPIC_ARN:
+          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicPreprodFr',
       },
     },
     prod: {
       'us-east-1': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
         REACT_APP_API_URL: 'https://api.aws.crowdaa.com/v1',
+        S3_UPLOAD_BUCKET: 'slsupload-prod',
+        AI_DETECTION_DEFAULT_LANG: 'en',
+        AI_DETECTION_ENABLED: 'true',
+        AI_DETECTION_DEFAULT_REGION: 'us-east-1',
+        AI_DETECTION_SNS_TOPIC_ARN:
+          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdUs',
       },
       'eu-west-3': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
         REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
+        S3_UPLOAD_BUCKET: 'slsupload-prod-fr',
+        AI_DETECTION_DEFAULT_LANG: 'en',
+        AI_DETECTION_ENABLED: 'false',
+        AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
+        AI_DETECTION_SNS_TOPIC_ARN:
+          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdFr',
       },
     },
     esbuild: {
@@ -50,6 +76,18 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_DASHBOARD_URL}',
       REACT_APP_API_URL:
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_API_URL}',
+      S3_UPLOAD_BUCKET:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.S3_UPLOAD_BUCKET}',
+      AI_DETECTION_DEFAULT_LANG:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_DEFAULT_LANG}',
+      AI_DETECTION_ENABLED:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_ENABLED}',
+      AI_DETECTION_DEFAULT_REGION:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_DEFAULT_REGION}',
+      AI_DETECTION_SNS_TOPIC_ARN:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_SNS_TOPIC_ARN}',
+      AI_VIDEO_MODERATION_COMPLETION_ROLE_ARN:
+        '${self:custom.AI_VIDEO_MODERATION_COMPLETION_ROLE_ARN}',
     },
     iam: {
       role: {
@@ -58,6 +96,21 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: [
+              'comprehend:DetectToxicContent',
+              'rekognition:DetectModerationLabels',
+              'rekognition:StartContentModeration',
+              'rekognition:GetContentModeration',
+            ],
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['iam:PassRole'],
+            Resource: '${self:custom.AI_VIDEO_MODERATION_COMPLETION_ROLE_ARN}',
           },
         ],
       },
@@ -77,8 +130,29 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
+    ugcSNSTopicCompletion: {
+      handler: 'handlers/ugcSNSTopicCompletion.default',
+      memorySize: 256,
+      timeout: 120,
+      events: [
+        {
+          sns: '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_SNS_TOPIC_ARN}',
+        },
+      ],
+    },
+    ugcOffensiveAsyncAnalysis: {
+      handler: 'handlers/ugcOffensiveAsyncAnalysis.default',
+      memorySize: 256,
+      timeout: 120,
+      events: [
+        {
+          sns: '${self:custom.${self:provider.stage}.${self:provider.region}.AI_DETECTION_SNS_TOPIC_ARN}',
+        },
+      ],
+    },
     postUGC: {
       handler: 'handlers/postUserGeneratedContents.default',
+      memorySize: 256,
       events: [
         {
           http: {
@@ -206,6 +280,7 @@ const serverlessConfiguration = {
     },
     patchUGC: {
       handler: 'handlers/patchUserGeneratedContents.default',
+      memorySize: 256,
       events: [
         {
           http: {

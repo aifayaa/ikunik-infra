@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import checkOwner from '../../libs/perms/checkOwner';
-import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents';
+import reviewUserGeneratedContents from '../lib/reviewUserGeneratedContents.ts';
 import errorMessage from '../../libs/httpResponses/errorMessage';
 import response from '../../libs/httpResponses/response.ts';
 import mongoCollections from '../../libs/mongoCollections.json';

@@ -11,11 +11,13 @@ const sns = new SNS({
   },
 });
 
-export const sendNotificationTo = (data, cb) => {
-  const { isText = false, endpoint } = data;
+export const sendNotificationTo = (
+  { isText = false, endpoint, ...payload },
+  cb
+) => {
   const msg = {};
   if (isText) {
-    const { title = '', content: message = '', extraData = {} } = data;
+    const { title = '', content: message = '', extraData = {} } = payload;
     msg.default = '';
     if (endpoint.Platform === 'APNS') {
       let alert;
@@ -28,8 +30,8 @@ export const sendNotificationTo = (data, cb) => {
         aps: {
           alert,
           sound: 'default',
-          ...extraData,
         },
+        ...extraData,
       });
     } else {
       msg[endpoint.Platform] = JSON.stringify({
