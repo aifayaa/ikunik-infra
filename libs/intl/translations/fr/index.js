@@ -203,6 +203,28 @@ export default {
       text: "L'utilisateur {{- username}} a réagi à à votre commentaire",
       title: 'Nouvelle réaction',
     },
+    moderation_notification: {
+      rejected: {
+        ai: {
+          text: '« {{- abstract}} »',
+          title: 'Votre publication a été considérée offençante et rejetée :',
+        },
+        human: {
+          text: '« {{- abstract}} »',
+          title: 'Votre publication a été rejetée car : {{- reason}}',
+        },
+      },
+      validated: {
+        ai: {
+          text: '« {{- abstract}} »',
+          title: 'Votre publication a été validée automatiquement :',
+        },
+        human: {
+          text: '« {{- abstract}} »',
+          title: 'Votre publication a été validée :',
+        },
+      },
+    },
   },
   liveStream: {
     view_stream_html_page: liveStreamView,

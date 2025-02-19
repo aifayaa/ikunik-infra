@@ -1,11 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../../libs/mongoCollections.json';
-import BadgeChecker from '../../../libs/badges/BadgeChecker';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
 function UGCHandler() {
-  this.badgeChecker = new BadgeChecker(this.appId);
+  /* Empty */
 }
 
 UGCHandler.prototype.init = async function init() {

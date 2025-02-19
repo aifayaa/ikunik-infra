@@ -4,13 +4,15 @@ import UGCHandler from './UGCHandler';
 import ChatMessageHandler from './ChatMessageHandler';
 import UsersDirectPushHandler from './UsersDirectPushHandler';
 import CrowdMassNotifyPushHandler from './CrowdMassNotifyPushHandler';
+import UGCModerationHandler from './UGCModerationHandler';
 
 const handlers = {
   pressArticle: PressArticleHandler,
   userArticle: UGCHandler,
-  'chat-message': ChatMessageHandler,
+  chatMessage: ChatMessageHandler,
   usersDirectPush: UsersDirectPushHandler,
   crowdMassNotify: CrowdMassNotifyPushHandler,
+  ugcModeration: UGCModerationHandler,
 };
 
 function NotificationSpecificsHandler(client, appId, rootNotifQueue) {

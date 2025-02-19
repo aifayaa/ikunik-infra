@@ -8,6 +8,9 @@
     "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000"
   },
   "dependencies": {
+    "@aws-sdk/client-comprehend": "^3.744.0",
+    "@aws-sdk/client-lambda": "^3.744.0",
+    "@aws-sdk/client-rekognition": "^3.744.0",
     "aws-sdk": "^2.1129.0",
     "mongodb": "^3.5.0",
     "source-map-support": "^0.5.16",

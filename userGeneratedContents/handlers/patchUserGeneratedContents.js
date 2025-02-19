@@ -65,14 +65,15 @@ export default async (event) => {
         break;
     }
 
+    const lang = getUserLanguage(event.headers);
+
     const results = await patchUserGeneratedContents(
       appId,
       userId,
       userGeneratedContentsId,
-      data
+      data,
+      lang
     );
-
-    const lang = getUserLanguage(event.headers);
 
     /*
       try to send email to appAdmin
@@ -89,7 +90,7 @@ export default async (event) => {
       const { subject, body } = await emailTemplate(
         userId,
         appId,
-        { contentId: userGeneratedContentsId, data },
+        userGeneratedContentsId,
         lang,
         { isEdition: true }
       );
