@@ -11,7 +11,7 @@ export async function toggleReactionOn(
   userId,
   reactionType,
   reactionName,
-  reactionAt = null,
+  reactionAt = new Date(),
   disableOtherReactions = true
 ) {
   const client = await MongoClient.connect();
@@ -24,7 +24,6 @@ export async function toggleReactionOn(
       userId,
       reactionType,
       reactionName,
-      reactionAt,
     });
 
     if (!reaction) {
@@ -56,7 +55,6 @@ export async function toggleReactionOn(
         targetCollection,
         targetId,
         userId,
-        reactionAt,
         reactionType,
         // no reactionName, we delete all other reactions
       };
@@ -80,7 +78,7 @@ export async function setReactionOn(
   userId,
   reactionType,
   reactionName,
-  reactionAt = null,
+  reactionAt = new Date(),
   disableOtherReactions = true
 ) {
   const client = await MongoClient.connect();
@@ -114,7 +112,6 @@ export async function setReactionOn(
         targetCollection,
         targetId,
         userId,
-        reactionAt,
         reactionType,
         // no reactionName, we delete all other reactions
       };
@@ -141,7 +138,7 @@ export async function unsetReactionOn(
   const client = await MongoClient.connect();
 
   try {
-    await client.db().collection(COLL_USER_REACTIONS).deleteOne({
+    const deleteOneQuery = {
       appId,
       targetCollection,
       targetId,
@@ -149,10 +146,15 @@ export async function unsetReactionOn(
       reactionType,
       reactionName,
       reactionAt,
-    });
+    };
+    if (reactionAt) {
+      deleteOneQuery.reactionAt = reactionAt;
+    }
+
+    await client.db().collection(COLL_USER_REACTIONS).deleteOne(deleteOneQuery);
 
     if (disableOtherReactions) {
-      const query = {
+      const deleteManyQuery = {
         appId,
         targetCollection,
         targetId,
@@ -161,8 +163,14 @@ export async function unsetReactionOn(
         reactionType,
         // no reactionName, we delete all other reactions
       };
+      if (reactionAt) {
+        deleteManyQuery.reactionAt = reactionAt;
+      }
 
-      await client.db().collection(COLL_USER_REACTIONS).deleteMany(query);
+      await client
+        .db()
+        .collection(COLL_USER_REACTIONS)
+        .deleteMany(deleteManyQuery);
     }
   } finally {
     client.close();
