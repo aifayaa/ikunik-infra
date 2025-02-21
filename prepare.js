@@ -946,7 +946,6 @@ verbose(
             userId: 1,
             reactionType: 1,
             reactionName: 1,
-            reactionAt: 1,
           },
           opts: makeOpts('unique'),
         },

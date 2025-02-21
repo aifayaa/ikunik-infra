@@ -61,7 +61,12 @@ export default async function ugcGetReactions(
           },
         };
 
-        if (reactionName === '#total') {
+        if (reactionName === '#views') {
+          acc[reactionName].updateQuery.pipeline[0].$match.reactionType =
+            'views';
+          acc[reactionName].updateQuery.pipeline[0].$match.reactionName =
+            'views';
+        } else if (reactionName === '#total') {
           delete acc[reactionName].updateQuery.pipeline[0].$match.reactionName;
         }
 
