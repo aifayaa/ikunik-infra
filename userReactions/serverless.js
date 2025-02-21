@@ -112,6 +112,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    ugcView: {
+      handler: 'handlers/ugcView.default',
+      events: [
+        {
+          http: {
+            path: 'userGeneratedContents/{id}/viewed',
+            method: 'put',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     ugcGetReactions: {
       handler: 'handlers/ugcGetReactions.default',
       events: [
