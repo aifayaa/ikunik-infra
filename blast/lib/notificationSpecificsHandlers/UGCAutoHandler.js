@@ -31,7 +31,13 @@ UGCAutoHandler.prototype.init = async function init() {
   this.ugcUserId = ugc.userId;
   this.ugcAutoNotifications = app.settings.press.ugcAutoNotifications || {};
 
-  if (!this.ugcAutoNotifications.enabled) return false;
+  if (
+    !this.ugcAutoNotifications.enabled ||
+    (this.ugcAutoNotifications.maxPerInterval || 0) <= 0 ||
+    (this.ugcAutoNotifications.interval || 0) <= 0
+  ) {
+    return false;
+  }
 
   this.title = this.queueData.title;
   this.content = this.queueData.content;
