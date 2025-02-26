@@ -5,10 +5,12 @@ import ChatMessageHandler from './ChatMessageHandler';
 import UsersDirectPushHandler from './UsersDirectPushHandler';
 import CrowdMassNotifyPushHandler from './CrowdMassNotifyPushHandler';
 import UGCModerationHandler from './UGCModerationHandler';
+import UGCAutoHandler from './UGCAutoHandler';
 
 const handlers = {
   pressArticle: PressArticleHandler,
   userArticle: UGCHandler,
+  userArticleAuto: UGCAutoHandler,
   chatMessage: ChatMessageHandler,
   usersDirectPush: UsersDirectPushHandler,
   crowdMassNotify: CrowdMassNotifyPushHandler,

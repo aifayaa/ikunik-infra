@@ -67,6 +67,9 @@ const allAllowedSettings = [
   'press.env.startTab',
   'press.env.tabOrder',
   'press.moderationRequired',
+  'press.ugcAutoNotifications.enabled',
+  'press.ugcAutoNotifications.interval',
+  'press.ugcAutoNotifications.maxPerInterval',
 ];
 
 export default async (appId, settings, isSuperAdmin = false) => {

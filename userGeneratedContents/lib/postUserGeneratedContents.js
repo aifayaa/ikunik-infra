@@ -9,6 +9,7 @@ import {
   startAiModerationForUgc,
 } from './aiModerationTools.ts';
 import { DEFAULT_APP_SETTINGS } from '../../apps/lib/createApp';
+import { autoNotifyUgc } from './notifications.ts';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
@@ -66,6 +67,10 @@ export default async (
 
     if (aiModerationEnabled) {
       await startAiModerationForUgc(_id);
+    }
+
+    if (type === 'article') {
+      await autoNotifyUgc(userGeneratedContents, { client });
     }
 
     return { _id, ...userGeneratedContents };
