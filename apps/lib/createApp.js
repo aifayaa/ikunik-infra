@@ -16,6 +16,11 @@ export const DEFAULT_APP_SETTINGS = {
   press: {
     chatNotificationsEnabled: true,
     moderationRequired: false,
+    ugcAutoNotifications: {
+      enabled: false,
+      interval: 86400,
+      maxPerInterval: 4,
+    },
     env: {
       apiKeyCanBeChanged: false,
       articleFromCommunityDateFormat: 'lll',

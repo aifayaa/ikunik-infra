@@ -2,6 +2,7 @@
 import Lambda from 'aws-sdk/clients/lambda';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { prepareNotif } from './notifications.ts';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 const { REGION, STAGE } = process.env;
@@ -9,24 +10,6 @@ const { REGION, STAGE } = process.env;
 const lambda = new Lambda({
   region: REGION,
 });
-
-const prepareNotif = (text, length = 116, ellipsis = false) => {
-  const preparedText = text
-    /* Replace new lines with whitespaces */
-    .replace(/[\n\r]+/g, ' ')
-
-    /* Remove successive whitespaces */
-    .replace(/\s{2,}/g, ' ')
-
-    /* Remove trailing whitespace at the beginning and at the end */
-    .replace(/^\s+|\s+$/, '');
-
-  /* Cut string at size but preserve word */
-  const cutRegex = new RegExp(`^(.{${length}}[^\\s]*).*`, 'g');
-  const cuttedText = preparedText.replace(cutRegex, '$1');
-
-  return `${cuttedText}${ellipsis ? '...' : ''}`;
-};
 
 export default async (
   appId,

@@ -10,10 +10,9 @@ export type UGCOffensiveFieldType = {
   }>;
 };
 
-export type UGCType = {
+type UGCCommonType = {
   _id: string;
   appId: string;
-  type: 'comment' | 'article';
   userId: string;
 
   parentId: string | null;
@@ -21,14 +20,6 @@ export type UGCType = {
   rootParentId: string | null;
   rootParentCollection: '' | 'userGeneratedContents' | 'pressArticles';
 
-  data:
-    | string
-    | {
-        content: string;
-        title: string;
-        pictures: string[];
-        videos: string[];
-      };
   lang?: string;
 
   offensive?: UGCOffensiveFieldType;
@@ -40,9 +31,26 @@ export type UGCType = {
 
   createdAt: Date;
   modifiedAt: false | Date;
-  removedAt: Date;
-  removedBy: string;
+  removedAt?: Date;
+  removedBy?: string;
 };
+
+export type UGCArticleType = UGCCommonType & {
+  type: 'article';
+  data: {
+    content: string;
+    title: string;
+    pictures: string[];
+    videos: string[];
+  };
+};
+
+export type UGCCommentType = UGCCommonType & {
+  type: 'comment';
+  data: string;
+};
+
+export type UGCType = UGCArticleType | UGCCommentType;
 
 export type UGCModerationNotificationDataType = {
   appId: string;

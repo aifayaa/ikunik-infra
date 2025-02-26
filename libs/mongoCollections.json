@@ -71,6 +71,7 @@
   "COLL_SHOP_ITEMS": "shopItems",
   "COLL_SHOP_ORDERS": "shopOrders",
   "COLL_STAGES": "stages",
+  "COLL_SENT_NOTIFICATIONS": "sentNotifications",
   "COLL_SUBSCRIPTIONS": "subscriptions",
   "COLL_TICKET_CATEGORIES": "ticketCategories",
   "COLL_TICKETS": "tickets",
