@@ -329,6 +329,7 @@ verbose(
     COLL_PRESS_CATEGORIES,
     COLL_PRESS_DRAFTS,
     COLL_PUSH_NOTIFICATIONS,
+    COLL_SENT_NOTIFICATIONS,
     COLL_USER_GENERATED_CONTENTS,
     COLL_USER_METRICS,
     COLL_USER_REACTIONS,
@@ -514,6 +515,13 @@ verbose(
             perms: 1,
           },
           opts: makeOpts('sparse'),
+        },
+      ],
+      [COLL_SENT_NOTIFICATIONS]: [
+        {
+          name: 'crowdaa_sent_notifs_ugc_auto',
+          key: { appId: 1, deviceId: 1, type: 1, sentAt: 1 },
+          opts: makeOpts(),
         },
       ],
       [COLL_PUSH_NOTIFICATIONS]: [
