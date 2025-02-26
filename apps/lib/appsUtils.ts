@@ -148,7 +148,7 @@ export function getAppDefaultBuildFields(name: string, platform: string) {
     description: `Welcome on ${name} community app!`,
     email: 'support@crowdaa.com',
     version: '0.0.1',
-    hotpushEnabled: 0,
+    hotpushEnabled: 1,
   };
 }
 
