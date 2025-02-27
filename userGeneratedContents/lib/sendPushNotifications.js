@@ -95,6 +95,7 @@ export default async function sendNewUGCPushNotifications({
             notifSettingsField: 'ugc_post_replies',
             title: formatMessage('ugc:ugc_post_replied_push.title'),
             userId: rootUgc.userId,
+            commentType: 'postComment',
           },
           client
         );
@@ -127,6 +128,7 @@ export default async function sendNewUGCPushNotifications({
             notifSettingsField: 'ugc_comment_replies',
             title: formatMessage('ugc:ugc_comment_replied_push.title'),
             userId: ugc.userId,
+            commentType: 'commentReply',
           },
           client
         );
