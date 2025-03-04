@@ -35,7 +35,8 @@ const bodySchema = z
         required_error: 'description is required',
         invalid_type_error: 'description must be a string',
       })
-      .trim(),
+      .trim()
+      .default(''),
     startDate: z
       .string({
         required_error: 'startDate is required',

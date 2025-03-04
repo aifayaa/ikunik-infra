@@ -1,6 +1,6 @@
 {
   "name": "crowdaa-microservices",
-  "version": "1.92.2",
+  "version": "1.92.3",
   "private": true,
   "description": "Crowdaa AWS microservices implemented via serverless.",
   "main": "index.js",
