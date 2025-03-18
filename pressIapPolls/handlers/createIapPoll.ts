@@ -4,7 +4,7 @@ import response, { handleException } from '../../libs/httpResponses/response';
 import { checkPermsForApp } from '../../libs/perms/checkPermsFor';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits';
 import mongoCollections from '../../libs/mongoCollections.json';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
 import {
   APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
@@ -57,6 +57,7 @@ const bodySchema = z
       z.object({
         priceId: z.enum(IapPollPriceIdsList),
         points: z.number().int(),
+        maxVotesPerUserPerArticle: z.number().int().optional().default(0),
       })
     ),
     displayResults: z.boolean(),
@@ -121,7 +122,15 @@ export default async (event: APIGatewayProxyEvent) => {
     // validation
     const validatedBody = bodySchema.parse(body);
 
-    const newIapPoll = await createIapPoll(appId, userId, validatedBody);
+    const options = validatedBody.options.map((option) => ({
+      ...option,
+      optionId: ObjectID().toString(),
+    }));
+
+    const newIapPoll = await createIapPoll(appId, userId, {
+      ...validatedBody,
+      options,
+    });
 
     return response({
       code: 200,

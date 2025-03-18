@@ -2,6 +2,7 @@
 import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { userPrivateFieldsProjection } from '../../users/lib/usersUtils.js';
+import { IapPollPriceIdsType } from './iapPollsTypes.js';
 
 const { COLL_PRESS_IAP_POLLS_VOTES, COLL_USERS } = mongoCollections;
 
@@ -14,7 +15,8 @@ type GetIapPollResultsParamsType = {
 type GetIapPollResultsForOutputType = {
   _id: string;
   iapPollId: string;
-  priceId: string | null;
+  priceId: IapPollPriceIdsType | null;
+  optionId?: string;
   counts: number;
   votes: number;
   totalPoints: number;
@@ -24,7 +26,8 @@ export async function getIapPollResultsFor(
   userId: string,
   appId: string,
   iapPollId: string,
-  articleId: string
+  articleId: string,
+  deviceId?: string
 ) {
   const client = await MongoClient.connect();
 
@@ -34,6 +37,13 @@ export async function getIapPollResultsFor(
       iapPollId,
       userId,
     };
+    if (userId) {
+      $match.userId = userId;
+    } else if (deviceId) {
+      $match.deviceId = deviceId;
+    } else {
+      return {};
+    }
 
     if (articleId) $match.articleId = articleId;
 
@@ -69,6 +79,10 @@ export async function getIapPollResultsFor(
         mappedResults['%FREE%'] = result;
       } else {
         mappedResults[result.priceId] = result;
+      }
+
+      if (result.optionId) {
+        mappedResults[result.optionId] = result;
       }
     });
 

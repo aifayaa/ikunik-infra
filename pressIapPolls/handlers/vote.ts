@@ -40,6 +40,7 @@ const bodySchema = z
       })
       .trim()
       .min(1),
+    optionId: z.string().optional(),
     priceId: z.enum(IapPollPriceIdsList).or(z.null()),
     count: z.number().int().gte(1).optional().default(1),
   })
@@ -68,15 +69,17 @@ export default async (event: APIGatewayProxyEvent) => {
     const iapPoll = await getIapPoll(iapPollId, appId);
     const option = checkIsIapPollVotableAndGetOption(
       iapPoll,
-      validatedBody.priceId
+      validatedBody.priceId,
+      validatedBody.optionId
     );
 
-    if (option === null) {
+    if (!option || !option.priceId) {
       await canUserVoteForFree(
         appId,
         userId,
         iapPollId,
-        validatedBody.articleId
+        validatedBody.articleId,
+        option
       );
     } else {
       const price =
