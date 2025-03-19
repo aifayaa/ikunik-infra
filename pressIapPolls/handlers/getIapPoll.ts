@@ -21,6 +21,7 @@ const urlSchema = z
       .transform((x) => x === 'true')
       .optional(),
     articleId: z.string().trim().min(1).optional(),
+    deviceId: z.string().trim().min(1).optional(),
   })
   .strict();
 
@@ -58,7 +59,8 @@ export default async (event: APIGatewayProxyEvent) => {
         userId,
         appId,
         iapPollId,
-        validatedParams.articleId
+        validatedParams.articleId,
+        validatedParams.deviceId
       );
 
       return response({
