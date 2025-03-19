@@ -8,6 +8,7 @@ import {
   IapPollType,
 } from './iapPollsTypes';
 import {
+  CONNECTION_REQUIRED_CODE,
   ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   IAP_POLL_AFTER_END_CODE,
@@ -43,34 +44,35 @@ export async function canUserVoteForFree(
     if (!userId) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_ALLOWED,
-        IAP_POLL_ALREADY_VOTED_CODE,
-        'You cannot vote for free'
+        CONNECTION_REQUIRED_CODE,
+        'You are not connected'
       );
     }
 
-    if (
-      option &&
-      option.optionId &&
-      !option.priceId &&
-      typeof option.maxVotesPerUserPerArticle === 'number' &&
-      option.maxVotesPerUserPerArticle > 0
-    ) {
-      const results = await getIapPollResultsFor(
-        userId,
-        appId,
-        iapPollId,
-        articleId
-      );
+    if (option) {
+      if (
+        option.optionId &&
+        !option.priceId &&
+        typeof option.maxVotesPerUserPerArticle === 'number' &&
+        option.maxVotesPerUserPerArticle > 0
+      ) {
+        const results = await getIapPollResultsFor(
+          userId,
+          appId,
+          iapPollId,
+          articleId
+        );
 
-      if (results[option.optionId]) {
-        if (
-          results[option.optionId].counts >= option.maxVotesPerUserPerArticle
-        ) {
-          throw new CrowdaaError(
-            ERROR_TYPE_NOT_ALLOWED,
-            IAP_POLL_FREE_QUOTA_EXCEEDED_CODE,
-            `You used all of your free vote quota on this option '${iapPollId}'/'${option.optionId}'`
-          );
+        if (results[option.optionId]) {
+          if (
+            results[option.optionId].counts >= option.maxVotesPerUserPerArticle
+          ) {
+            throw new CrowdaaError(
+              ERROR_TYPE_NOT_ALLOWED,
+              IAP_POLL_FREE_QUOTA_EXCEEDED_CODE,
+              `You used all of your free vote quota on this option '${iapPollId}'/'${option.optionId}'`
+            );
+          }
         }
       }
     } else {
@@ -130,9 +132,8 @@ export function checkIsIapPollVotableAndGetOption(
     return null;
   }
 
-  const option = iapPoll.options.find(
-    (option) =>
-      (optionId && optionId == option.optionId) || option.priceId === priceId
+  const option = iapPoll.options.find((option) =>
+    optionId ? optionId == option.optionId : option.priceId === priceId
   );
 
   if (!option) {

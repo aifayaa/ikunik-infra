@@ -53,34 +53,57 @@ export async function getIapPollResultsFor(
       },
     ];
 
-    pipeline.push({
-      $group: {
-        _id: '$priceId',
-
-        iapPollId: { $first: '$iapPollId' },
-        priceId: { $first: '$priceId' },
-
-        counts: { $sum: '$count' },
-        votes: { $sum: 1 },
-        totalPoints: { $sum: '$totalPoints' },
-      },
-    });
-
-    const results = (await client
+    const resultsForPriceId = (await client
       .db()
       .collection(COLL_PRESS_IAP_POLLS_VOTES)
-      .aggregate(pipeline)
+      .aggregate([
+        ...pipeline,
+        {
+          $group: {
+            _id: '$priceId',
+
+            iapPollId: { $first: '$iapPollId' },
+            priceId: { $first: '$priceId' },
+
+            counts: { $sum: '$count' },
+            votes: { $sum: 1 },
+            totalPoints: { $sum: '$totalPoints' },
+          },
+        },
+      ])
+      .toArray()) as GetIapPollResultsForOutputType[];
+
+    const resultsForOptionId = (await client
+      .db()
+      .collection(COLL_PRESS_IAP_POLLS_VOTES)
+      .aggregate([
+        ...pipeline,
+        {
+          $group: {
+            _id: '$optionId',
+
+            iapPollId: { $first: '$iapPollId' },
+            optionId: { $first: '$optionId' },
+
+            counts: { $sum: '$count' },
+            votes: { $sum: 1 },
+            totalPoints: { $sum: '$totalPoints' },
+          },
+        },
+      ])
       .toArray()) as GetIapPollResultsForOutputType[];
 
     const mappedResults: Record<string, GetIapPollResultsForOutputType> = {};
 
-    results.forEach((result) => {
+    resultsForPriceId.forEach((result) => {
       if (result.priceId === null) {
         mappedResults['%FREE%'] = result;
       } else {
         mappedResults[result.priceId] = result;
       }
+    });
 
+    resultsForOptionId.forEach((result) => {
       if (result.optionId) {
         mappedResults[result.optionId] = result;
       }
@@ -154,27 +177,24 @@ export default async (
         },
         {
           $limit: limit,
+        },
+        {
+          $lookup: {
+            from: COLL_USERS,
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [{ $project: userPrivateFieldsProjection }],
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: true,
+          },
         }
       );
     }
-
-    pipeline.push(
-      {
-        $lookup: {
-          from: COLL_USERS,
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-          pipeline: [{ $project: userPrivateFieldsProjection }],
-        },
-      },
-      {
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true,
-        },
-      }
-    );
 
     const votes = await client
       .db()
