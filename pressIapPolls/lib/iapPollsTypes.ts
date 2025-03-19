@@ -1,4 +1,5 @@
 export const IapPollPriceIdsList = [
+  '',
   'article_01',
   'article_02',
   'article_03',
@@ -26,7 +27,12 @@ export const IapPollPriceIdsList = [
 
 export type IapPollPriceIdsType = (typeof IapPollPriceIdsList)[number];
 
-export type IapPollOptionType = { priceId: string; points: number };
+export type IapPollOptionType = {
+  optionId?: string;
+  priceId: string;
+  points: number;
+  maxVotesPerUserPerArticle?: number;
+};
 export type IapPollType = {
   _id: string;
   appId: string;
@@ -56,6 +62,7 @@ export type IapPollVoteType = {
   deviceId: string;
 
   priceId: IapPollPriceIdsType;
+  optionId?: string;
 
   count: number;
   points: number;

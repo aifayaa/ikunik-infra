@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { IapPollPriceIdsList } from 'pressIapPolls/lib/iapPollsTypes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import { ObjectID } from '@libs/mongoClient';
 
 const bodySchema = z
   .object({
@@ -53,8 +54,10 @@ const bodySchema = z
     options: z
       .array(
         z.object({
+          optionId: z.string().optional(),
           priceId: z.enum(IapPollPriceIdsList),
           points: z.number().int(),
+          maxVotesPerUserPerArticle: z.number().int().optional().default(0),
         })
       )
       .optional(),
@@ -62,6 +65,24 @@ const bodySchema = z
     active: z.boolean().optional(),
   })
   .strict();
+
+function prepareOptionsIds(validatedBody: z.infer<typeof bodySchema>) {
+  const { options, ...remainingBody } = validatedBody;
+
+  if (!options) return remainingBody;
+
+  return {
+    ...remainingBody,
+    options: options.map((option) => {
+      const { optionId } = option;
+      if (optionId) {
+        return { ...option, optionId: optionId as string };
+      }
+
+      return { ...option, optionId: ObjectID().toString() };
+    }),
+  };
+}
 
 export default async (event: APIGatewayProxyEvent) => {
   const {
@@ -107,7 +128,7 @@ export default async (event: APIGatewayProxyEvent) => {
       iapPollId,
       appId,
       userId,
-      validatedBody
+      prepareOptionsIds(validatedBody)
     );
 
     return response({

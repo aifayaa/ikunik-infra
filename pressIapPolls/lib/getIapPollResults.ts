@@ -2,6 +2,7 @@
 import MongoClient from '../../libs/mongoClient.js';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { userPrivateFieldsProjection } from '../../users/lib/usersUtils.js';
+import { IapPollPriceIdsType } from './iapPollsTypes.js';
 
 const { COLL_PRESS_IAP_POLLS_VOTES, COLL_USERS } = mongoCollections;
 
@@ -14,7 +15,8 @@ type GetIapPollResultsParamsType = {
 type GetIapPollResultsForOutputType = {
   _id: string;
   iapPollId: string;
-  priceId: string | null;
+  priceId: IapPollPriceIdsType | null;
+  optionId?: string;
   counts: number;
   votes: number;
   totalPoints: number;
@@ -24,7 +26,8 @@ export async function getIapPollResultsFor(
   userId: string,
   appId: string,
   iapPollId: string,
-  articleId: string
+  articleId: string,
+  deviceId?: string
 ) {
   const client = await MongoClient.connect();
 
@@ -34,6 +37,13 @@ export async function getIapPollResultsFor(
       iapPollId,
       userId,
     };
+    if (userId) {
+      $match.userId = userId;
+    } else if (deviceId) {
+      $match.deviceId = deviceId;
+    } else {
+      return {};
+    }
 
     if (articleId) $match.articleId = articleId;
 
@@ -43,32 +53,59 @@ export async function getIapPollResultsFor(
       },
     ];
 
-    pipeline.push({
-      $group: {
-        _id: '$priceId',
-
-        iapPollId: { $first: '$iapPollId' },
-        priceId: { $first: '$priceId' },
-
-        counts: { $sum: '$count' },
-        votes: { $sum: 1 },
-        totalPoints: { $sum: '$totalPoints' },
-      },
-    });
-
-    const results = (await client
+    const resultsForPriceId = (await client
       .db()
       .collection(COLL_PRESS_IAP_POLLS_VOTES)
-      .aggregate(pipeline)
+      .aggregate([
+        ...pipeline,
+        {
+          $group: {
+            _id: '$priceId',
+
+            iapPollId: { $first: '$iapPollId' },
+            priceId: { $first: '$priceId' },
+
+            counts: { $sum: '$count' },
+            votes: { $sum: 1 },
+            totalPoints: { $sum: '$totalPoints' },
+          },
+        },
+      ])
+      .toArray()) as GetIapPollResultsForOutputType[];
+
+    const resultsForOptionId = (await client
+      .db()
+      .collection(COLL_PRESS_IAP_POLLS_VOTES)
+      .aggregate([
+        ...pipeline,
+        {
+          $group: {
+            _id: '$optionId',
+
+            iapPollId: { $first: '$iapPollId' },
+            optionId: { $first: '$optionId' },
+
+            counts: { $sum: '$count' },
+            votes: { $sum: 1 },
+            totalPoints: { $sum: '$totalPoints' },
+          },
+        },
+      ])
       .toArray()) as GetIapPollResultsForOutputType[];
 
     const mappedResults: Record<string, GetIapPollResultsForOutputType> = {};
 
-    results.forEach((result) => {
+    resultsForPriceId.forEach((result) => {
       if (result.priceId === null) {
         mappedResults['%FREE%'] = result;
       } else {
         mappedResults[result.priceId] = result;
+      }
+    });
+
+    resultsForOptionId.forEach((result) => {
+      if (result.optionId) {
+        mappedResults[result.optionId] = result;
       }
     });
 
@@ -140,27 +177,24 @@ export default async (
         },
         {
           $limit: limit,
+        },
+        {
+          $lookup: {
+            from: COLL_USERS,
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [{ $project: userPrivateFieldsProjection }],
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: true,
+          },
         }
       );
     }
-
-    pipeline.push(
-      {
-        $lookup: {
-          from: COLL_USERS,
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-          pipeline: [{ $project: userPrivateFieldsProjection }],
-        },
-      },
-      {
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true,
-        },
-      }
-    );
 
     const votes = await client
       .db()
