@@ -56,29 +56,17 @@ const serverlessConfiguration = {
     mongoDB: {
       dev: {
         'us-east-1':
-          'mongodb+srv://crowdaaMS:9871e59eac27cc669218907c570da230@dev.ykqidgl.mongodb.net/crowdaaDev',
+          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@dev.ykqidgl.mongodb.net/crowdaaDev',
       },
       preprod: {
         'eu-west-3':
-          'mongodb+srv://crowdaaMSpreprod:9YUPYr3XDicdKTiN@preprod.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
+          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@preprod.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
       },
       prod: {
         'us-east-1':
-          'mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@crowdaa-shard-00-00-vtd2k.mongodb.net:27017,crowdaa-shard-00-01-vtd2k.mongodb.net:27017,crowdaa-shard-00-02-vtd2k.mongodb.net:27017/crowdaaDev?ssl=true&replicaSet=crowdaa-shard-0&authSource=admin',
+          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@crowdaa.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
         'eu-west-3':
-          'mongodb+srv://crowdaaMSProdFr:7cd2lRM1lPzvuqBwAO4nwBSw2UKgpP8yA@prodfr.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
-      },
-      defJam: {
-        'us-east-1':
-          'mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@aws-us-west-2-portal.2.dblayer.com:18201,aws-us-west-2-portal.1.dblayer.com:18201/crowdaaDev?ssl=true',
-      },
-      awax: {
-        'eu-west-1':
-          'mongodb://crowdaaMS:9871e59eac27cc669218907c570da230@awax-shard-00-00-vtd2k.mongodb.net:27017,awax-shard-00-01-vtd2k.mongodb.net:27017,awax-shard-00-02-vtd2k.mongodb.net:27017/crowdaaDev?ssl=true&replicaSet=awax-shard-0&authSource=admin',
-      },
-      awaxDev: {
-        'eu-west-1':
-          'mongodb://crowdaaMS:b0cfc2ffd49b6f27af7ed0cda6a49025@mongodevawax.aws.crowdaa.com:27017/crowdaaDev',
+          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@prodfr.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
       },
     },
     domains: {

@@ -51,6 +51,13 @@ const serverlessConfiguration = {
             ],
             Resource: '*',
           },
+          {
+            Effect: 'Allow',
+            Action: ['s3:GetObject'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*',
+            ],
+          },
         ],
       },
     },
