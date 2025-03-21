@@ -8,14 +8,6 @@ const { S3_APPS_RESSOURCES_REGION, S3_APPS_RESSOURCES } = process.env;
 
 const { COLL_APPS } = mongoCollections;
 
-/*
- * A new user was added for this file, since this bucket has restricted access.
- * To avoid filling the environment even more, it was placed here,
- * but it should be placed in a more appropriate place later.
- */
-const S3_ACCESS_KEY_ID = 'AKIAZFOLYEVWTZ76YINP';
-const S3_SECRET_ACCESS_KEY = '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';
-
 const DEFAULTS = {
   payload: {},
   audience: 'https://appleid.apple.com',
@@ -32,10 +24,6 @@ async function refreshJwtToken(
 ) {
   const s3 = new S3({
     region: S3_APPS_RESSOURCES_REGION,
-    credentials: {
-      accessKeyId: S3_ACCESS_KEY_ID,
-      secretAccessKey: S3_SECRET_ACCESS_KEY,
-    },
   });
   const s3Path = `${app._id}/ios/AppleSignInKey.p8`;
   let s3KeyResponse;
