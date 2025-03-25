@@ -24,7 +24,7 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
     const {
-      date,
+      date = new Date().toISOString(),
       draftId,
       notificationContent = null,
       notificationDate = null,
