@@ -19,7 +19,13 @@ export default async (event) => {
   const client = await MongoClient.connect();
 
   try {
-    const { state, userMetadata, outputKeyPrefix } = JSON.parse(message);
+    const {
+      state,
+      userMetadata,
+      outputKeyPrefix,
+      playlists = [],
+      outputs = [],
+    } = JSON.parse(message);
     const { id, name } = userMetadata;
 
     const document = await client.db().collection(COLL_VIDEOS).findOne({
@@ -31,12 +37,34 @@ export default async (event) => {
     }
 
     if (state !== 'COMPLETED') {
+      const rawErrors = []
+        .concat(playlists, outputs)
+        .filter(({ status = '' }) => status.toLowerCase() === 'error')
+        .map(({ statusDetail }) => statusDetail);
+      const errors = rawErrors
+        .map((e) => {
+          const parts = e.split(/:/g);
+          parts.shift();
+          return parts.join(':');
+        })
+        .reduce((acc, e) => {
+          if (acc.indexOf(e) < 0) {
+            acc.push(e);
+          }
+          return acc;
+        }, []);
       await client
         .db()
         .collection(COLL_VIDEOS)
         .updateOne(
           { _id: id },
-          { $set: { status: uploadStatus.ENCODING_ERROR } }
+          {
+            $set: {
+              status: uploadStatus.ENCODING_ERROR,
+              rawErrors,
+              errors,
+            },
+          }
         );
       throw new Error('encoding_error');
     }
