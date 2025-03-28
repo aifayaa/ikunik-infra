@@ -12,7 +12,12 @@ export default async (event) => {
   const client = await MongoClient.connect();
 
   try {
-    const { state, userMetadata } = JSON.parse(message);
+    const {
+      state,
+      userMetadata,
+      playlists = [],
+      outputs = [],
+    } = JSON.parse(message);
     const { id } = userMetadata;
 
     const document = await client.db().collection(COLL_VIDEOS).findOne({
@@ -24,12 +29,34 @@ export default async (event) => {
     }
 
     if (state !== 'COMPLETED') {
+      const rawErrors = []
+        .concat(playlists, outputs)
+        .filter(({ status = '' }) => status.toLowerCase() === 'error')
+        .map(({ statusDetail }) => statusDetail);
+      const errors = rawErrors
+        .map((e) => {
+          const parts = e.split(/:/g);
+          parts.shift();
+          return parts.join(':').trim();
+        })
+        .reduce((acc, e) => {
+          if (acc.indexOf(e) < 0) {
+            acc.push(e);
+          }
+          return acc;
+        }, []);
       await client
         .db()
         .collection(COLL_VIDEOS)
         .updateOne(
           { _id: id },
-          { $set: { status: uploadStatus.ENCODING_ERROR } }
+          {
+            $set: {
+              status: uploadStatus.ENCODING_ERROR,
+              rawErrors,
+              errors,
+            },
+          }
         );
     }
 
