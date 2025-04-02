@@ -1,34 +1,17 @@
-export type FeaturePlanIdType =
-  | 'legacyFeaturePlanId'
-  | 'freeFeaturePlanId'
-  | 'proFeaturePlanId'
-  | 'entertainmentFeaturePlanId'
-  | 'devTestFeaturePlanId';
-export const allPlanTypes: FeaturePlanIdType[] = [
+export const allPlanTypes = [
   'legacyFeaturePlanId',
   'freeFeaturePlanId',
+  'basicFeaturePlanId',
   'proFeaturePlanId',
+  'premiumFeaturePlanId',
   'entertainmentFeaturePlanId',
   'devTestFeaturePlanId',
-];
+] as const;
+export type FeaturePlanIdType = (typeof allPlanTypes)[number];
 
-export type FeatureIdType =
-  | 'activeUsers'
-  | 'appTabs'
-  | 'appTheme'
-  | 'badges'
-  | 'chat'
-  | 'crowd'
-  | 'iapPolls'
-  | 'leaderboardWp'
-  | 'liveStreamDuration'
-  | 'liveStreams'
-  | 'playlists'
-  | 'polls'
-  | 'startupScreen'
-  | 'translations';
-export const allFeatureIds: FeatureIdType[] = [
+export const allFeatureIds = [
   'activeUsers',
+  'advertisements',
   'appTabs',
   'appTheme',
   'badges',
@@ -40,9 +23,11 @@ export const allFeatureIds: FeatureIdType[] = [
   'liveStreams',
   'playlists',
   'polls',
+  'pushNotifications',
   'startupScreen',
   'translations',
-];
+] as const;
+export type FeatureIdType = (typeof allFeatureIds)[number];
 
 export type FeatureResetPeriodType = 'week' | 'month' | 'year';
 export const allFeatureResetPeriod: FeatureResetPeriodType[] = [
