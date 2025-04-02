@@ -24,7 +24,7 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     const setCurrentPlanSchema = z
       .object({
-        featurePlanId: z.enum(allPlanTypes as [string, ...string[]]),
+        featurePlanId: z.enum(allPlanTypes),
         startedAt: z
           .string({
             required_error: 'startDate is required',
