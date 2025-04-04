@@ -18,6 +18,17 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
+    cronSubscriptionChecks: {
+      handler: 'handlers/cronSubscriptionChecks.default',
+      timeout: 900,
+      events: [
+        {
+          eventBridge: {
+            schedule: 'rate(1 hour)',
+          },
+        },
+      ],
+    },
     validatePurchase: {
       handler: 'handlers/validatePurchase.default',
       events: [
