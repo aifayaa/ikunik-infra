@@ -1,18 +1,12 @@
 /* eslint-disable import/no-relative-packages */
-import get from 'lodash/get';
-import iap from 'in-app-purchase';
 import MongoClient from '../../libs/mongoClient';
-import mongoCollections from '../../libs/mongoCollections.json';
 import { addBalance } from '../../userBalances/lib/addBalance';
 import { setBalance } from '../../userBalances/lib/setBalance';
 import { addPurchaseHistory } from '../lib/addPurchaseHistory';
 import response from '../../libs/httpResponses/response.ts';
 import articlePrices from '../../pressArticles/articlePrices.json';
 import badgePrices from '../../userBadges/badgePrices.json';
-
-const { STAGE } = process.env;
-
-const { COLL_APPS } = mongoCollections;
+import validatePurchase from '../lib/validatePurchase';
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
@@ -26,103 +20,22 @@ export default async (event) => {
 
     const bodyParsed = JSON.parse(event.body);
 
-    const appInfo = await client
-      .db()
-      .collection(COLL_APPS)
-      .findOne(
-        { _id: appId },
-        {
-          projection: {
-            'builds.android.googleApiData': true,
-            'settings.iap.appleSecret': true,
-            'settings.iap.googleLicenceKey': true,
-          },
-        }
-      );
+    const {
+      productId,
+      isValidated,
+      isCanceled,
+      isExpired,
+      validatedData,
+      purchaseData,
+    } = await validatePurchase(appId, bodyParsed);
 
-    if (!appInfo) {
-      throw new Error('app_not_found');
+    if (!isValidated) {
+      throw new Error('invalid_purchase');
+    } else if (isCanceled) {
+      throw new Error('canceled_purchase');
+    } else if (isExpired) {
+      throw new Error('expired_purchase');
     }
-
-    const googleApiData = get(appInfo, 'builds.android.googleApiData');
-    const applePassword = get(appInfo, 'settings.iap.appleSecret');
-    const googleLicenceKey = get(appInfo, 'settings.iap.googleLicenceKey');
-    const googleSubscriptionCredentials = get(
-      appInfo,
-      'settings.iap.googleSubscriptionCredentials'
-    );
-    const receiptRaw = get(bodyParsed, 'transaction.receipt');
-    const appleReceipt = get(bodyParsed, 'transaction.appStoreReceipt');
-    const googleReceipt = receiptRaw && JSON.parse(receiptRaw);
-
-    if (
-      !(appleReceipt && applePassword) &&
-      !(googleReceipt && googleApiData && googleLicenceKey)
-    ) {
-      throw new Error('missing_arguments');
-    }
-
-    const { client_email: clientEmail, privateKey } = googleApiData || {};
-
-    const iapConfiguration = {
-      requestDefaults: {},
-      // For Apple and Google Play to force Sandbox validation only
-      test: STAGE !== 'prod',
-      // Output debug logs to stdout stream
-      verbose: true,
-
-      // googlePublicKeyPath
-      googlePublicKeyStrLive: googleLicenceKey,
-      // googlePublicKeyStrSandBox
-
-      // Apple
-      // if you want to exclude old transaction, set this to true. Default is false
-      appleExcludeOldTransactions: true,
-      // this comes from iTunes Connect (You need this to valiate subscriptions)
-      applePassword,
-    };
-    // Optionnal fields for Google Play subscriptions
-    // googleAccToken, googleRefToken, googleClientID, googleClientSecret
-
-    if (clientEmail && privateKey) {
-      iapConfiguration.googleServiceAccount = {
-        clientEmail,
-        privateKey,
-      };
-    }
-
-    if (googleSubscriptionCredentials) {
-      iapConfiguration.googleClientID =
-        googleSubscriptionCredentials.googleClientID;
-      iapConfiguration.googleClientSecret =
-        googleSubscriptionCredentials.googleClientSecret;
-      iapConfiguration.googleAccToken =
-        googleSubscriptionCredentials.googleAccToken;
-      iapConfiguration.googleRefToken =
-        googleSubscriptionCredentials.googleRefToken;
-    }
-
-    iap.config(iapConfiguration);
-
-    await iap.setup();
-
-    const validatedData = await iap.validate(
-      appleReceipt || {
-        data: googleReceipt,
-        signature: bodyParsed.transaction.signature,
-      }
-    );
-
-    const options = {
-      // Apple ONLY (for now...): purchaseData will NOT contain cancceled items
-      ignoreCanceled: true,
-      // purchaseData will NOT contain exipired subscription items
-      ignoreExpired: true,
-    };
-    // validatedData contains sandbox: true/false for Apple and Amazon
-    const [purchaseData] = iap.getPurchaseData(validatedData, options);
-    // get only last part of productId (com.crowdaa.press.article_01 => article_01)
-    const productId = purchaseData.productId.split('.').pop();
 
     if (articlePrices[productId]) {
       const price = articlePrices[productId];
@@ -161,6 +74,8 @@ export default async (event) => {
 
     return response({ code: 500, message: 'unknown_product_id' });
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log('Caught error :', e);
     if (typeof e === 'string') {
       try {
         // eslint-disable-next-line no-ex-assign

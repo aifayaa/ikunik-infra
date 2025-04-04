@@ -175,3 +175,17 @@ export async function getDetailedPictureFields(
     }
   }
 }
+
+export function promiseExecUntilTrue(exec) {
+  return new Promise((resolve, reject) => {
+    const process = (ret) => {
+      if (ret === true) {
+        resolve(true);
+      } else {
+        exec().then(process).catch(reject);
+      }
+    };
+
+    process();
+  });
+}
