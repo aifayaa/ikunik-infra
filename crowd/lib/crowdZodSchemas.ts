@@ -5,11 +5,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { z } from 'zod';
-import {
-  CrowdSearchOnlyBadgesType,
-  CrowdSearchTypeFieldType,
-  GeoJSONCoordinatesType,
-} from './crowdTypes';
+import { CrowdSearchTypeFieldType, GeoJSONCoordinatesType } from './crowdTypes';
 
 /* ################ *
  * Common functions *
@@ -93,43 +89,46 @@ export const crowdMassUpdateActionSchema = z
   .strict()
   .required();
 
-const crowdMassUpdateFiltersSchema = z
-  .object({
-    articleId: z.string().trim().optional(),
-    username: z.string().trim().optional(),
-    firstname: z.string().trim().optional(),
-    lastname: z.string().trim().optional(),
-    search: z.string().trim().optional(),
-    email: z.string().trim().optional(),
-    badgeId: z.string().trim().optional(),
+const crowdMassUpdateFiltersSchema = z.object({
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
+  onlyBadges: z
+    .enum(['assigned', 'requested', 'validated', 'rejected'])
+    .optional(),
 
-    lat: z.number().optional(),
-    lng: z.number().optional(),
-    radius: z.number().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  radius: z.number().optional(),
 
-    limit: z.number().int().optional(),
-    skip: z.number().int().optional(),
+  limit: z.number().int().optional(),
+  skip: z.number().int().optional(),
 
-    sortBy: z
-      .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-      .optional(),
-    sortOrder: z.enum(['asc', 'desc']).optional(),
+  sortBy: z
+    .enum(['readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 
-    type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-    memberId: z.array(z.string().trim()).optional(),
-    notMemberId: z.array(z.string().trim()).optional(),
-    deviceId: z.array(z.string().trim()).optional(),
-    geoWithin: z
-      .array(
-        z
-          .array(z.number())
-          .length(2)
-          .transform((x) => x as GeoJSONCoordinatesType)
-      )
-      .min(3)
-      .optional(),
-  })
-  .strict();
+  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+  memberId: z.array(z.string().trim()).optional(),
+  notMemberId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+  userId: z.array(z.string().trim()).optional(),
+
+  geoWithin: z
+    .array(
+      z
+        .array(z.number())
+        .length(2)
+        .transform((x) => x as GeoJSONCoordinatesType)
+    )
+    .min(3)
+    .optional(),
+});
 
 export const crowdMassUpdateNotifySchema = z.object({
   filters: crowdMassUpdateFiltersSchema,
@@ -157,41 +156,39 @@ export const crowdMassUpdateBadgesSchema = z.object({
 /* ###### *
  * Search *
  * ###### */
-const crowdSearchSchema = z
-  .object({
-    articleId: z.string().trim().optional(),
-    username: z.string().trim().optional(),
-    firstname: z.string().trim().optional(),
-    lastname: z.string().trim().optional(),
-    search: z.string().trim().optional(),
-    email: z.string().trim().optional(),
-    badgeId: z.string().trim().optional(),
+const crowdSearchSchema = z.object({
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
+  onlyBadges: z
+    .enum(['assigned', 'requested', 'validated', 'rejected'])
+    .optional(),
 
-    lat: z.custom<'123'>(floatStrParser).optional(),
-    lng: z.custom<'123'>(floatStrParser).optional(),
-    radius: z.custom<'123'>(floatStrParser).optional(),
+  lat: z.custom<'123'>(floatStrParser).optional(),
+  lng: z.custom<'123'>(floatStrParser).optional(),
+  radius: z.custom<'123'>(floatStrParser).optional(),
 
-    limit: z.custom<'123'>(intStrParser).optional(),
-    skip: z.custom<'123'>(intStrParser).optional(),
+  limit: z.custom<'123'>(intStrParser).optional(),
+  skip: z.custom<'123'>(intStrParser).optional(),
 
-    sortBy: z
-      .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-      .optional(),
-    sortOrder: z.enum(['', 'asc', 'desc']).optional(),
-  })
-  .strict();
+  sortBy: z
+    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
+  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
+});
 
-const crowdSearchMultiSchema = z
-  .object({
-    type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-    userId: z.array(z.string().trim()).optional(),
-    deviceId: z.array(z.string().trim()).optional(),
-    geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
-    onlyBadges: z
-      .array(z.enum(['assigned', 'requested', 'validated', 'rejected']))
-      .optional(),
-  })
-  .strict();
+const crowdSearchMultiSchema = z.object({
+  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+  userId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+  memberId: z.array(z.string().trim()).optional(),
+  notMemberId: z.array(z.string().trim()).optional(),
+  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+});
 
 function filterArrayParams(params: string[] | undefined) {
   if (!params) return undefined;
@@ -219,14 +216,14 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
     search: params.search ? params.search : undefined,
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
+    onlyBadges: params.onlyBadges ? params.onlyBadges : undefined,
 
     type: filterArrayParams(multiParams.type) as CrowdSearchTypeFieldType[],
 
     userId: filterArrayParams(multiParams.userId),
     deviceId: filterArrayParams(multiParams.deviceId),
-    onlyBadges: filterArrayParams(
-      multiParams.onlyBadges
-    ) as CrowdSearchOnlyBadgesType[],
+    memberId: filterArrayParams(multiParams.memberId),
+    notMemberId: filterArrayParams(multiParams.notMemberId),
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,
@@ -247,41 +244,39 @@ export function parseSearchQuery(event: APIGatewayProxyEvent) {
 /* ############# *
  * SearchGeoJSON *
  * ############# */
-const crowdSearchGeoJSONSchema = z
-  .object({
-    articleId: z.string().trim().optional(),
-    username: z.string().trim().optional(),
-    firstname: z.string().trim().optional(),
-    lastname: z.string().trim().optional(),
-    search: z.string().trim().optional(),
-    email: z.string().trim().optional(),
-    badgeId: z.string().trim().optional(),
+const crowdSearchGeoJSONSchema = z.object({
+  articleId: z.string().trim().optional(),
+  username: z.string().trim().optional(),
+  firstname: z.string().trim().optional(),
+  lastname: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  badgeId: z.string().trim().optional(),
 
-    lat: z.custom<'123'>(floatStrParser).optional(),
-    lng: z.custom<'123'>(floatStrParser).optional(),
-    radius: z.custom<'123'>(floatStrParser).optional(),
+  lat: z.custom<'123'>(floatStrParser).optional(),
+  lng: z.custom<'123'>(floatStrParser).optional(),
+  radius: z.custom<'123'>(floatStrParser).optional(),
+  onlyBadges: z
+    .enum(['assigned', 'requested', 'validated', 'rejected'])
+    .optional(),
 
-    limit: z.custom<'123'>(intStrParser).optional(),
-    skip: z.custom<'123'>(intStrParser).optional(),
+  limit: z.custom<'123'>(intStrParser).optional(),
+  skip: z.custom<'123'>(intStrParser).optional(),
 
-    sortBy: z
-      .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
-      .optional(),
-    sortOrder: z.enum(['', 'asc', 'desc']).optional(),
-  })
-  .strict();
+  sortBy: z
+    .enum(['', 'readingTime', 'firstMetricAt', 'lastMetricAt', 'distance'])
+    .optional(),
+  sortOrder: z.enum(['', 'asc', 'desc']).optional(),
+});
 
-const crowdSearchGeoJSONMultiSchema = z
-  .object({
-    type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
-    userId: z.array(z.string().trim()).optional(),
-    deviceId: z.array(z.string().trim()).optional(),
-    geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
-    onlyBadges: z
-      .array(z.enum(['assigned', 'requested', 'validated', 'rejected']))
-      .optional(),
-  })
-  .strict();
+const crowdSearchGeoJSONMultiSchema = z.object({
+  type: z.array(z.enum(['user', 'device', 'userDevice'])).optional(),
+  userId: z.array(z.string().trim()).optional(),
+  deviceId: z.array(z.string().trim()).optional(),
+  geoWithin: z.array(z.custom<string>(floatArrayPairsStrParser)).optional(),
+  memberId: z.array(z.string().trim()).optional(),
+  notMemberId: z.array(z.string().trim()).optional(),
+});
 
 export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
   const params = (event.queryStringParameters || {}) as z.infer<
@@ -299,13 +294,13 @@ export function parseSearchGeoJSONQuery(event: APIGatewayProxyEvent) {
     search: params.search ? params.search : undefined,
     email: params.email ? params.email : undefined,
     badgeId: params.badgeId ? params.badgeId : undefined,
+    onlyBadges: params.onlyBadges ? params.onlyBadges : undefined,
 
     type: filterArrayParams(multiParams.type) as CrowdSearchTypeFieldType[],
     userId: filterArrayParams(multiParams.userId),
     deviceId: filterArrayParams(multiParams.deviceId),
-    onlyBadges: filterArrayParams(
-      multiParams.onlyBadges
-    ) as CrowdSearchOnlyBadgesType[],
+    memberId: filterArrayParams(multiParams.memberId),
+    notMemberId: filterArrayParams(multiParams.notMemberId),
 
     lat: params.lat ? parseFloat(params.lat) : undefined,
     lng: params.lng ? parseFloat(params.lng) : undefined,

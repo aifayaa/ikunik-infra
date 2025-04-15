@@ -56,11 +56,6 @@ export function buildCrowdSearchPipeline(
     };
   }
 
-  if (filters.onlyBadges) {
-    $match['user.badges.status'] = {
-      $in: filters.onlyBadges,
-    };
-  }
   if (filters.requires === 'geolocation') {
     $match.metricsGeoLast = { $ne: null };
   }
@@ -98,6 +93,16 @@ export function buildCrowdSearchPipeline(
 
   if (filters.badgeId) {
     $match['user.badges.id'] = filters.badgeId;
+    if (filters.onlyBadges) {
+      $match['user.badges'] = {
+        id: filters.badgeId,
+        status: filters.onlyBadges,
+      };
+    } else {
+      $match['user.badges.id'] = filters.badgeId;
+    }
+  } else if (filters.onlyBadges) {
+    $match['user.badges.status'] = filters.onlyBadges;
   }
 
   if (filters.articleId) {
