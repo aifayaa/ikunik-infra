@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import response from '../../libs/httpResponses/response.ts';
-import createLiveStream from '../lib/createLiveStream';
+import createLiveStream, { createAppLiveStream } from '../lib/createLiveStream';
 import checks from '../lib/checks';
 import {
   checkFeaturePermsForApp,
@@ -66,22 +66,29 @@ export default async (event) => {
       throw new Error('mal_formed_request');
     }
     const bodyParsed = JSON.parse(event.body);
-    const { name, startDateTime } = bodyParsed;
+    const { name, startDateTime, fromApp = false } = bodyParsed;
 
-    if (!name || !startDateTime) {
-      throw new Error('mal_formed_request');
+    if (!fromApp) {
+      if (!name || !startDateTime) {
+        throw new Error('mal_formed_request');
+      }
+
+      if (!checks.name(name, appId) || !checks.startDateTime(startDateTime)) {
+        throw new Error('mal_formed_request');
+      }
+
+      const results = await createLiveStream(appId, {
+        userId,
+        name,
+        startDateTime,
+      });
+      return response({ code: 200, body: results });
+    } else {
+      const results = await createAppLiveStream(appId, {
+        userId,
+      });
+      return response({ code: 200, body: results });
     }
-
-    if (!checks.name(name, appId) || !checks.startDateTime(startDateTime)) {
-      throw new Error('mal_formed_request');
-    }
-
-    const results = await createLiveStream(appId, {
-      userId,
-      name,
-      startDateTime,
-    });
-    return response({ code: 200, body: results });
   } catch (e) {
     return response({ code: 500, message: e.message });
   }
