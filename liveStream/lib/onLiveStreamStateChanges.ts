@@ -3,7 +3,6 @@ import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import { LiveStreamType } from './liveStreamTypes';
-import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const {
   REGION,
