@@ -5,9 +5,17 @@ import {
   IvsClient,
   StopStreamCommand,
 } from '@aws-sdk/client-ivs';
+import {
+  DeleteStageCommand,
+  IVSRealTimeClient,
+  StopCompositionCommand,
+} from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
+import {
+  LIVESTREAM_PROVIDER_AWS_IVS,
+  LIVESTREAM_PROVIDER_AWS_IVS_APP,
+} from './constants';
 
 const { IVS_REGION } = process.env;
 
@@ -17,7 +25,23 @@ const ivsClient = new IvsClient({
   region: IVS_REGION,
 });
 
+const ivsRTClient = new IVSRealTimeClient({
+  region: IVS_REGION,
+});
+
 async function deleteLiveStreamInfra(dbLiveStream) {
+  if (dbLiveStream.provider === LIVESTREAM_PROVIDER_AWS_IVS_APP) {
+    try {
+      await ivsRTClient.send(
+        new StopCompositionCommand({
+          arn: dbLiveStream.aws.compositionArn,
+        })
+      );
+    } catch (e) {
+      /* Even if that fails, we shall be able to delete the stream, which will delete the key too */
+    }
+  }
+
   try {
     await ivsClient.send(
       new DeleteStreamKeyCommand({
@@ -35,6 +59,18 @@ async function deleteLiveStreamInfra(dbLiveStream) {
   }
 
   await ivsClient.send(new DeleteChannelCommand({ arn: dbLiveStream.aws.arn }));
+
+  if (dbLiveStream.provider === LIVESTREAM_PROVIDER_AWS_IVS_APP) {
+    try {
+      await ivsRTClient.send(
+        new DeleteStageCommand({
+          arn: dbLiveStream.aws.stageArn,
+        })
+      );
+    } catch (e) {
+      /* Even if that fails, we shall be able to delete the stream, which will delete the key too */
+    }
+  }
 }
 
 export default async (appId, liveStreamId) => {
@@ -46,7 +82,9 @@ export default async (appId, liveStreamId) => {
       .findOne({
         _id: liveStreamId,
         appId,
-        provider: LIVESTREAM_PROVIDER_AWS_IVS,
+        provider: {
+          $in: [LIVESTREAM_PROVIDER_AWS_IVS, LIVESTREAM_PROVIDER_AWS_IVS_APP],
+        },
       });
 
     if (!dbLiveStream) {
