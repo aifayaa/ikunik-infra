@@ -9,13 +9,20 @@ import { filterOutput } from './utils';
 
 const { COLL_LIVE_STREAMS } = mongoCollections;
 
-export default async (appId, { id, start, limit }) => {
+export default async (appId, { id, start, limit, type }) => {
   const $match = {
     appId,
-    provider: {
-      $in: [LIVESTREAM_PROVIDER_AWS_IVS, LIVESTREAM_PROVIDER_AWS_IVS_APP],
-    },
   };
+
+  if (type === 'app') {
+    $match.provider = LIVESTREAM_PROVIDER_AWS_IVS_APP;
+  } else if (type === 'dashboard') {
+    $match.provider = LIVESTREAM_PROVIDER_AWS_IVS;
+  } else {
+    $match.provider = {
+      $in: [LIVESTREAM_PROVIDER_AWS_IVS, LIVESTREAM_PROVIDER_AWS_IVS_APP],
+    };
+  }
 
   const client = await MongoClient.connect();
   try {
