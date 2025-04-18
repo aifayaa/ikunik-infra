@@ -42,6 +42,7 @@ export class CreatingStatus extends AbstractStatus {
       ...baseFindInvitationQuery,
       ...queryFromTarget,
       ...queryFromMethod,
+      expiredAt: { $gt: new Date() },
     };
 
     const existingInvitation = await this.mongoClient
