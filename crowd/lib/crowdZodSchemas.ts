@@ -98,7 +98,7 @@ const crowdMassUpdateFiltersSchema = z.object({
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
   onlyBadges: z
-    .enum(['assigned', 'requested', 'validated', 'rejected'])
+    .enum(['', 'assigned', 'requested', 'validated', 'rejected'])
     .optional(),
 
   lat: z.number().optional(),
@@ -165,7 +165,7 @@ const crowdSearchSchema = z.object({
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
   onlyBadges: z
-    .enum(['assigned', 'requested', 'validated', 'rejected'])
+    .enum(['', 'assigned', 'requested', 'validated', 'rejected'])
     .optional(),
 
   lat: z.custom<'123'>(floatStrParser).optional(),
@@ -257,7 +257,7 @@ const crowdSearchGeoJSONSchema = z.object({
   lng: z.custom<'123'>(floatStrParser).optional(),
   radius: z.custom<'123'>(floatStrParser).optional(),
   onlyBadges: z
-    .enum(['assigned', 'requested', 'validated', 'rejected'])
+    .enum(['', 'assigned', 'requested', 'validated', 'rejected'])
     .optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),
