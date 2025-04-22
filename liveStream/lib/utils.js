@@ -12,7 +12,7 @@ export function filterOutput(input) {
     ingestEndpoint: input.ingestEndpoint,
     streamKey: input.streamKey,
     playbackUrl: input.playbackUrl,
-    appStreamToken: input.playbackUrl,
+    appStreamToken: input.appStreamToken,
 
     recordings: input.recordings,
   };

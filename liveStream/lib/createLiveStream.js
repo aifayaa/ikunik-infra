@@ -37,6 +37,8 @@ const ivsRTClient = new IVSRealTimeClient({
 const NORMAL_EXPIRATION_DELAY_MS = 7 * 86400 * 1000; // 7 days
 const APP_EXPIRATION_DELAY_MIN = 2 * 24 * 60; // 2 days
 const APP_EXPIRATION_DELAY_MS = 1 * APP_EXPIRATION_DELAY_MIN * 60 * 1000;
+const APP_STREAM_SCREEN_WIDTH = 720;
+const APP_STREAM_SCREEN_HEIGHT = 1280;
 
 async function getRecordingConfiguration() {
   const awsRecordingName = `crowdaa-liveStream-recording-${STAGE}`;
@@ -270,8 +272,8 @@ export async function createAppLiveStream(appId, { userId }) {
       const encoderParams = {
         name: `app-streams-encoder-${STAGE}`,
         video: {
-          width: 720,
-          height: 1280,
+          width: APP_STREAM_SCREEN_WIDTH,
+          height: APP_STREAM_SCREEN_HEIGHT,
           framerate: 30,
           bitrate: 3500,
         },
@@ -299,9 +301,11 @@ export async function createAppLiveStream(appId, { userId }) {
       layout: {
         pip: {
           omitStoppedVideo: false,
-          videoFillMode: 'COVER',
+          videoFillMode: 'CONTAIN',
           pipBehavior: 'STATIC',
           pipPosition: 'BOTTOM_RIGHT',
+          pipWidth: APP_STREAM_SCREEN_WIDTH,
+          pipHeight: APP_STREAM_SCREEN_HEIGHT,
         },
       },
       destinations: [
