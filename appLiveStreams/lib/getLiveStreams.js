@@ -5,7 +5,7 @@ import { filterOutput } from './utils';
 
 const { COLL_APP_LIVE_STREAMS } = mongoCollections;
 
-export default async (appId, userId, { id, start, limit }) => {
+export default async (appId, userId, { id, start, limit, active = null }) => {
   const $match = {
     appId,
   };
@@ -19,6 +19,10 @@ export default async (appId, userId, { id, start, limit }) => {
       start = parseInt(start, 10) || 0;
       limit = parseInt(limit, 10) || 10;
       pipelineSkipLimit = [{ $skip: start }, { $limit: limit }];
+    }
+
+    if (typeof active === 'boolean') {
+      $match.isStreaming = active;
     }
 
     const pipeline = [
