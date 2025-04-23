@@ -19,8 +19,8 @@ export async function createAppLiveStream(appId, { userId }) {
   const client = await MongoClient.connect();
   try {
     const now = new Date();
-    const dbId = new ObjectID().toString();
-    const ivsStageName = `${appId}-${STAGE}-${userId}-${dbId}`;
+    const _id = new ObjectID().toString();
+    const ivsStageName = `${appId}-${STAGE}-${userId}-${_id}`;
 
     const expireDateTime = new Date(now);
     expireDateTime.setTime(expireDateTime.getTime() + ALS_EXPIRATION_DELAY_MS);
@@ -43,7 +43,7 @@ export async function createAppLiveStream(appId, { userId }) {
     const userParticipantId = participantTokens[0].participantId;
 
     const dbLiveStream = {
-      _id: new ObjectID().toString(),
+      _id,
       createdAt: now,
       createdBy: userId,
       appId,
