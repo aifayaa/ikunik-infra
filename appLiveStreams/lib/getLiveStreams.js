@@ -3,7 +3,7 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
 
-const { COLL_LIVE_STREAMS } = mongoCollections;
+const { COLL_APP_LIVE_STREAMS } = mongoCollections;
 
 export default async (appId, userId, { id, start, limit }) => {
   const $match = {
@@ -34,14 +34,14 @@ export default async (appId, userId, { id, start, limit }) => {
 
     let list = await client
       .db()
-      .collection(COLL_LIVE_STREAMS)
+      .collection(COLL_APP_LIVE_STREAMS)
       .aggregate(pipeline)
       .toArray();
     list = list.map((item) => filterOutput(item, userId === item.createdBy));
 
     const count = await client
       .db()
-      .collection(COLL_LIVE_STREAMS)
+      .collection(COLL_APP_LIVE_STREAMS)
       .find($match, { projection: { _id: 1 } })
       .count();
 

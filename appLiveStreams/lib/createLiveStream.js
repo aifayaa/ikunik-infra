@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils';
 
 const { IVS_REGION, STAGE } = process.env;
 
@@ -13,9 +14,6 @@ const { COLL_APP_LIVE_STREAMS } = mongoCollections;
 const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
-
-const ALS_EXPIRATION_DELAY_MIN = 2 * 24 * 60; // 2 days
-const ALS_EXPIRATION_DELAY_MS = 1 * ALS_EXPIRATION_DELAY_MIN * 60 * 1000;
 
 export async function createAppLiveStream(appId, { userId }) {
   const client = await MongoClient.connect();
@@ -42,6 +40,7 @@ export async function createAppLiveStream(appId, { userId }) {
     );
 
     const userToken = participantTokens[0].token;
+    const userParticipantId = participantTokens[0].participantId;
 
     const dbLiveStream = {
       _id: new ObjectID().toString(),
@@ -52,7 +51,8 @@ export async function createAppLiveStream(appId, { userId }) {
       expireDateTime,
       expired: false,
 
-      appStreamToken: userToken,
+      userStreamToken: userToken,
+      userParticipantId,
 
       aws: {
         ivsStageName,

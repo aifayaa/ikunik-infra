@@ -30,7 +30,7 @@ export default async function watchLiveStream(appId, liveStreamId, deviceId) {
     let alsToken = await client
       .db()
       .collection(COLL_APP_LIVE_STREAMS_TOKENS)
-      .findOne({ liveStreamId, appId, deviceId });
+      .findOne({ alsId: liveStreamId, appId, deviceId });
 
     if (!alsToken) {
       const { participantToken } = await ivsRTClient.send(
@@ -44,7 +44,7 @@ export default async function watchLiveStream(appId, liveStreamId, deviceId) {
       const { participantId, token } = participantToken;
 
       alsToken = {
-        liveStreamId,
+        alsId: liveStreamId,
         appId,
         deviceId,
         participantId,
@@ -58,7 +58,7 @@ export default async function watchLiveStream(appId, liveStreamId, deviceId) {
     }
 
     return {
-      liveStreamId,
+      alsId: liveStreamId,
       appId,
       deviceId,
       participantId: alsToken.participantId,

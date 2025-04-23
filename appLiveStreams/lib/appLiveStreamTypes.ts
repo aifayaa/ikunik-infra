@@ -7,7 +7,7 @@ export type AppLiveStreamType = {
   expireDateTime: Date;
   expired: boolean;
 
-  appStreamToken: string;
+  userStreamToken: string;
 
   aws: {
     ivsStageName: string;
