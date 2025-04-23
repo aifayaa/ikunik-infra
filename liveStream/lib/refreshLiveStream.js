@@ -4,10 +4,7 @@ import MediaConvert from 'aws-sdk/clients/mediaconvert';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
-import {
-  LIVESTREAM_PROVIDER_AWS_IVS,
-  LIVESTREAM_PROVIDER_AWS_IVS_APP,
-} from './constants';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_BUCKET, IVS_REGION } = process.env;
 
@@ -50,9 +47,7 @@ export default async (appId, liveStreamId) => {
       .findOne({
         _id: liveStreamId,
         appId,
-        provider: {
-          $in: [LIVESTREAM_PROVIDER_AWS_IVS, LIVESTREAM_PROVIDER_AWS_IVS_APP],
-        },
+        provider: LIVESTREAM_PROVIDER_AWS_IVS,
       });
     if (!dbLiveStream) {
       throw new Error('live_stream_not_found');

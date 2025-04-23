@@ -44,6 +44,16 @@ const serverlessConfiguration = {
       ...env,
       IVS_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_REGION}',
+      IVS_BUCKET:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_BUCKET}',
+      MEDIACONVERT_IAM_ROLE_ARN:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_IAM_ROLE_ARN}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE}',
     },
     iam: {
       role: {

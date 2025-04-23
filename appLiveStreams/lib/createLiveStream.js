@@ -3,9 +3,9 @@ import {
   CreateStageCommand,
   IVSRealTimeClient,
 } from '@aws-sdk/client-ivs-realtime';
-import MongoClient, { ObjectID } from '../../libs/mongoClient';
+import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils.ts';
+import Random from '../../libs/account_utils/random.ts';
 
 const { IVS_REGION, STAGE } = process.env;
 
@@ -15,12 +15,14 @@ const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
+const ALS_EXPIRATION_DELAY_MIN = 2 * 24 * 60; // 2 days
+const ALS_EXPIRATION_DELAY_MS = 1 * ALS_EXPIRATION_DELAY_MIN * 60 * 1000;
+
 export async function createAppLiveStream(appId, { userId }) {
   const client = await MongoClient.connect();
   try {
     const now = new Date();
-    const _id = new ObjectID().toString();
-    const ivsStageName = `${appId}-${STAGE}-${userId}-${_id}`;
+    const ivsStageName = `${appId}-${STAGE}-${userId}-${now.toISOString()}`;
 
     const expireDateTime = new Date(now);
     expireDateTime.setTime(expireDateTime.getTime() + ALS_EXPIRATION_DELAY_MS);
@@ -40,24 +42,17 @@ export async function createAppLiveStream(appId, { userId }) {
     );
 
     const userToken = participantTokens[0].token;
-    const userParticipantId = participantTokens[0].participantId;
 
     const dbLiveStream = {
-      _id,
+      _id: `${Date.now()}-${Random.id()}`,
       createdAt: now,
       createdBy: userId,
       appId,
       startDateTime: now,
       expireDateTime,
-      state: {
-        isExpired: false,
-        isStreaming: false,
-        lastUpdate: new Date(),
-        viewersCount: 0,
-      },
+      expired: false,
 
-      userStreamToken: userToken,
-      userParticipantId,
+      appStreamToken: userToken,
 
       aws: {
         ivsStageName,

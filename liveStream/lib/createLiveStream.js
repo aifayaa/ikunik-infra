@@ -6,21 +6,11 @@ import {
   IvsClient,
   ListRecordingConfigurationsCommand,
 } from '@aws-sdk/client-ivs';
-import {
-  CreateEncoderConfigurationCommand,
-  CreateStageCommand,
-  IVSRealTimeClient,
-  ListEncoderConfigurationsCommand,
-  StartCompositionCommand,
-} from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random.ts';
 import { filterOutput } from './utils';
-import {
-  LIVESTREAM_PROVIDER_AWS_IVS,
-  LIVESTREAM_PROVIDER_AWS_IVS_APP,
-} from './constants';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_BUCKET, IVS_REGION, STAGE } = process.env;
 
@@ -30,15 +20,7 @@ const ivsClient = new IvsClient({
   region: IVS_REGION,
 });
 
-const ivsRTClient = new IVSRealTimeClient({
-  region: IVS_REGION,
-});
-
 const NORMAL_EXPIRATION_DELAY_MS = 7 * 86400 * 1000; // 7 days
-const APP_EXPIRATION_DELAY_MIN = 2 * 24 * 60; // 2 days
-const APP_EXPIRATION_DELAY_MS = 1 * APP_EXPIRATION_DELAY_MIN * 60 * 1000;
-const APP_STREAM_SCREEN_WIDTH = 720;
-const APP_STREAM_SCREEN_HEIGHT = 1280;
 
 async function getRecordingConfiguration() {
   const awsRecordingName = `crowdaa-liveStream-recording-${STAGE}`;
@@ -180,166 +162,3 @@ export default async (appId, { name, startDateTime, userId }) => {
     client.close();
   }
 };
-
-export async function createAppLiveStream(appId, { userId }) {
-  const client = await MongoClient.connect();
-  try {
-    const now = new Date();
-    const name = `APP-${now.toISOString()}`;
-    const dbName = `${appId}-${STAGE}-${name.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-
-    const recordingConfigurationArn = await getRecordingConfiguration();
-
-    const ivsParams = {
-      name: dbName,
-      authorized: false,
-      latencyMode: 'LOW',
-      type: 'STANDARD',
-      recordingConfigurationArn,
-    };
-
-    const { channel, streamKey } = await ivsClient.send(
-      new CreateChannelCommand(ivsParams)
-    );
-
-    const expireDateTime = new Date(now);
-    expireDateTime.setTime(expireDateTime.getTime() + APP_EXPIRATION_DELAY_MS);
-
-    const dbLiveStream = {
-      _id: `${Date.now()}-${Random.id()}`,
-      provider: LIVESTREAM_PROVIDER_AWS_IVS_APP,
-      createdAt: new Date(),
-      createdBy: userId,
-      appId,
-      name: dbName,
-      displayName: name,
-      startDateTime: now,
-      expireDateTime,
-      expired: false,
-
-      ingestEndpoint: channel.ingestEndpoint,
-      streamKey: streamKey.value,
-      playbackUrl: channel.playbackUrl,
-
-      aws: {
-        arn: channel.arn,
-        recordingConfigurationArn,
-        streamKeyArn: streamKey.arn,
-
-        latencyMode: channel.latencyMode,
-        type: channel.type,
-        authorized: channel.authorized,
-      },
-    };
-
-    await client.db().collection(COLL_LIVE_STREAMS).insertOne(dbLiveStream);
-
-    const stageParams = {
-      name: dbName,
-      participantTokenConfigurations: [
-        {
-          duration: APP_EXPIRATION_DELAY_MIN,
-          capabilities: ['PUBLISH'],
-        },
-      ],
-    };
-
-    const { participantTokens, stage } = await ivsRTClient.send(
-      new CreateStageCommand(stageParams)
-    );
-
-    const userToken = participantTokens[0].token;
-
-    await client
-      .db()
-      .collection(COLL_LIVE_STREAMS)
-      .updateOne(
-        { _id: dbLiveStream._id },
-        {
-          $set: { 'aws.stageArn': stage.arn, appStreamToken: userToken },
-        }
-      );
-
-    const encoderName = `app-streams-encoder-${STAGE}`;
-    const encoders = await ivsRTClient.send(
-      new ListEncoderConfigurationsCommand({})
-    );
-    let encoder = encoders.encoderConfigurations.find(
-      (item) => item.name === encoderName
-    );
-
-    if (!encoder) {
-      const encoderParams = {
-        name: `app-streams-encoder-${STAGE}`,
-        video: {
-          width: APP_STREAM_SCREEN_WIDTH,
-          height: APP_STREAM_SCREEN_HEIGHT,
-          framerate: 30,
-          bitrate: 3500,
-        },
-      };
-
-      const newAwsEncoder = await ivsRTClient.send(
-        new CreateEncoderConfigurationCommand(encoderParams)
-      );
-
-      encoder = newAwsEncoder.encoderConfiguration;
-    }
-
-    await client
-      .db()
-      .collection(COLL_LIVE_STREAMS)
-      .updateOne(
-        { _id: dbLiveStream._id },
-        {
-          $set: { 'aws.encoderArn': encoder.arn },
-        }
-      );
-
-    const compositionParams = {
-      stageArn: stage.arn,
-      layout: {
-        pip: {
-          omitStoppedVideo: false,
-          videoFillMode: 'CONTAIN',
-          pipBehavior: 'STATIC',
-          pipPosition: 'BOTTOM_RIGHT',
-          pipWidth: APP_STREAM_SCREEN_WIDTH,
-          pipHeight: APP_STREAM_SCREEN_HEIGHT,
-        },
-      },
-      destinations: [
-        {
-          channel: {
-            // ChannelDestinationConfiguration
-            channelArn: channel.arn,
-            encoderConfigurationArn: encoder.arn,
-          },
-        },
-      ],
-    };
-
-    const { composition } = await ivsRTClient.send(
-      new StartCompositionCommand(compositionParams)
-    );
-
-    await client
-      .db()
-      .collection(COLL_LIVE_STREAMS)
-      .updateOne(
-        { _id: dbLiveStream._id },
-        {
-          $set: { 'aws.compositionArn': composition.arn },
-        }
-      );
-
-    const finalDbLiveStream = await client
-      .db()
-      .collection(COLL_LIVE_STREAMS)
-      .findOne({ _id: dbLiveStream._id });
-
-    return filterOutput(finalDbLiveStream);
-  } finally {
-    client.close();
-  }
-}

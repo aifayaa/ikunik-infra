@@ -1,7 +1,4 @@
-import {
-  LIVESTREAM_PROVIDER_AWS_IVS,
-  LIVESTREAM_PROVIDER_AWS_IVS_APP,
-} from './constants';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 type LiveStreamCommonType = {
   _id: string;
@@ -30,25 +27,13 @@ export type LiveStreamAwsIvsType = LiveStreamCommonType & {
   provider: typeof LIVESTREAM_PROVIDER_AWS_IVS;
 };
 
-export type LiveStreamAwsIvsAppType = LiveStreamCommonType & {
-  provider: typeof LIVESTREAM_PROVIDER_AWS_IVS_APP;
-  appStreamToken: string;
-  aws: {
-    stageArn: string;
-    encoderArn: string;
-    compositionArn: string;
-  };
-};
-
-export type LiveStreamType = LiveStreamAwsIvsType | LiveStreamAwsIvsAppType;
+export type LiveStreamType = LiveStreamAwsIvsType;
 
 export type LiveStreamDurationType = {
   liveStreamId: string;
   appId: string;
   awsStreamId: string;
-  type:
-    | typeof LIVESTREAM_PROVIDER_AWS_IVS
-    | typeof LIVESTREAM_PROVIDER_AWS_IVS_APP;
+  type: typeof LIVESTREAM_PROVIDER_AWS_IVS;
   startTime?: Date;
   endTime?: Date;
   duration: number;
