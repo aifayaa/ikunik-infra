@@ -8,6 +8,7 @@ export type AppLiveStreamType = {
   expired: boolean;
 
   userStreamToken: string;
+  userParticipantId: string;
 
   aws: {
     ivsStageName: string;
