@@ -2,10 +2,15 @@
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
+import { userPrivateFields } from '../../users/lib/usersUtils.ts';
 
-const { COLL_APP_LIVE_STREAMS } = mongoCollections;
+const { COLL_APP_LIVE_STREAMS, COLL_USERS } = mongoCollections;
 
-export default async (appId, userId, { id, start, limit, active = null }) => {
+export default async (
+  appId,
+  userId,
+  { id, start, limit, active = null, users = false }
+) => {
   const $match = {
     appId,
   };
@@ -13,6 +18,7 @@ export default async (appId, userId, { id, start, limit, active = null }) => {
   const client = await MongoClient.connect();
   try {
     let pipelineSkipLimit = [];
+    let pipelineFetchUsers = [];
     if (id) {
       $match._id = id;
     } else {
@@ -25,6 +31,31 @@ export default async (appId, userId, { id, start, limit, active = null }) => {
       $match.isStreaming = active;
     }
 
+    if (users) {
+      pipelineFetchUsers = [
+        {
+          $lookup: {
+            from: COLL_USERS,
+            localField: 'createdBy',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $project: userPrivateFields.reduce((acc, field) => {
+            acc[`user.${field}`] = 0;
+            return acc;
+          }, {}),
+        },
+      ];
+    }
+
     const pipeline = [
       { $match },
       {
@@ -33,6 +64,7 @@ export default async (appId, userId, { id, start, limit, active = null }) => {
           name: 1,
         },
       },
+      ...pipelineFetchUsers,
       ...pipelineSkipLimit,
     ];
 

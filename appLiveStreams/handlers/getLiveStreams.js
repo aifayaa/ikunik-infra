@@ -8,10 +8,14 @@ function stringToBool3(x) {
   if (x === 'false') return false;
   return null;
 }
+function stringToBool2(x) {
+  if (x === 'true') return true;
+  return null;
+}
 
 export default async (event) => {
   const { appId, principalId: userId } = event.requestContext.authorizer;
-  const { id, start, limit, active } = event.queryStringParameters || {};
+  const { id, start, limit, active, users } = event.queryStringParameters || {};
 
   try {
     const results = await getLiveStreams(appId, userId, {
@@ -19,6 +23,7 @@ export default async (event) => {
       start,
       limit,
       active: stringToBool3(active),
+      users: stringToBool2(users),
     });
     return response({ code: 200, body: results });
   } catch (e) {
