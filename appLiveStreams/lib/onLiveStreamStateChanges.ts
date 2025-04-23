@@ -1,8 +1,31 @@
+import IVS, { StreamSessionSummary } from 'aws-sdk/clients/ivs';
+import StepFunctions from 'aws-sdk/clients/stepfunctions';
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import { AppLiveStreamType } from './appLiveStreamTypes';
 
+const {
+  REGION,
+  STAGE,
+  LIVE_STREAM_WATCHER_STATE_MACHINE_NAME,
+  LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE,
+  LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE,
+} = process.env as {
+  STAGE: CrowdaaStageType;
+  REGION: CrowdaaRegionType;
+  LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: string;
+  LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE: string;
+  LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE: string;
+};
+
 const { COLL_APP_LIVE_STREAMS } = mongoCollections;
+
+const { IVS_REGION } = process.env;
+
+const ivs = new IVS({
+  apiVersion: '2020-07-14',
+  region: IVS_REGION,
+});
 
 async function getDbStreamFromStageArn(
   stageArn: string,
