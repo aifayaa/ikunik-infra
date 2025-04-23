@@ -66,8 +66,6 @@ export default async (
       detail: { event_name: eventName },
     } = event;
 
-    console.log('DEBUG event', event);
-
     if (event.resources.length < 1) {
       console.error('Error: Resource not found. Event :', event);
       return;
