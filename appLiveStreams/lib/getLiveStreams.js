@@ -73,7 +73,10 @@ export default async (
       .collection(COLL_APP_LIVE_STREAMS)
       .aggregate(pipeline)
       .toArray();
-    list = list.map((item) => filterOutput(item, userId === item.createdBy));
+    list = list.map((item) => ({
+      ...filterOutput(item, userId === item.createdBy),
+      user: item.user,
+    }));
 
     const count = await client
       .db()
