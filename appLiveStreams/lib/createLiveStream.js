@@ -3,9 +3,8 @@ import {
   CreateStageCommand,
   IVSRealTimeClient,
 } from '@aws-sdk/client-ivs-realtime';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import Random from '../../libs/account_utils/random.ts';
 
 const { IVS_REGION, STAGE } = process.env;
 
@@ -22,7 +21,8 @@ export async function createAppLiveStream(appId, { userId }) {
   const client = await MongoClient.connect();
   try {
     const now = new Date();
-    const ivsStageName = `${appId}-${STAGE}-${userId}-${now.toISOString()}`;
+    const dbId = new ObjectID().toString();
+    const ivsStageName = `${appId}-${STAGE}-${userId}-${dbId}`;
 
     const expireDateTime = new Date(now);
     expireDateTime.setTime(expireDateTime.getTime() + ALS_EXPIRATION_DELAY_MS);
@@ -44,7 +44,7 @@ export async function createAppLiveStream(appId, { userId }) {
     const userToken = participantTokens[0].token;
 
     const dbLiveStream = {
-      _id: `${Date.now()}-${Random.id()}`,
+      _id: new ObjectID().toString(),
       createdAt: now,
       createdBy: userId,
       appId,
