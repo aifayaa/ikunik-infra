@@ -6,6 +6,7 @@ export type AppLiveStreamType = {
   startDateTime: Date;
   expireDateTime: Date;
   expired: boolean;
+  isStreaming?: boolean;
 
   userStreamToken: string;
   userParticipantId: string;

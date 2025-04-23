@@ -13,6 +13,7 @@ export function filterOutput(
     startDateTime: input.startDateTime,
     expireDateTime: input.expireDateTime,
     expired: input.expired,
+    isStreaming: input.isStreaming || false,
 
     ...(includeStreamingKey ? { userStreamToken: input.userStreamToken } : {}),
   };
