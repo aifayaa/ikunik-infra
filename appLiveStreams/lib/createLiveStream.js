@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils';
+import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils.ts';
 
 const { IVS_REGION, STAGE } = process.env;
 

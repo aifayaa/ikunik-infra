@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { filterOutput } from './utils';
+import { filterOutput } from './utils.ts';
 import { userPrivateFields } from '../../users/lib/usersUtils.ts';
 
 const { COLL_APP_LIVE_STREAMS, COLL_USERS } = mongoCollections;

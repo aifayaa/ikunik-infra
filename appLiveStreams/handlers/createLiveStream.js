@@ -5,7 +5,7 @@ import {
   checkFeaturePermsForApp,
   checkPermsForApp,
 } from '../../libs/perms/checkPermsFor.ts';
-import { filterOutput } from '../lib/utils';
+import { filterOutput } from '../lib/utils.ts';
 
 export default async (event) => {
   try {
