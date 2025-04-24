@@ -8,7 +8,8 @@ import mongoCollections from '../../libs/mongoCollections.json';
 
 const { IVS_REGION } = process.env;
 
-const { COLL_APP_LIVE_STREAMS } = mongoCollections;
+const { COLL_APP_LIVE_STREAMS, COLL_APP_LIVE_STREAMS_TOKENS } =
+  mongoCollections;
 
 const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
@@ -49,6 +50,11 @@ export default async (appId, liveStreamId) => {
       .db()
       .collection(COLL_APP_LIVE_STREAMS)
       .deleteOne({ _id: liveStreamId });
+
+    await client
+      .db()
+      .collection(COLL_APP_LIVE_STREAMS_TOKENS)
+      .deleteMany({ alsId: liveStreamId });
 
     return true;
   } finally {

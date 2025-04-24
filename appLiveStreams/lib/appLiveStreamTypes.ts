@@ -1,3 +1,5 @@
+import { ObjectID } from '../../libs/mongoClient';
+
 export type AppLiveStreamType = {
   _id: string;
   createdAt: Date;
@@ -15,4 +17,13 @@ export type AppLiveStreamType = {
     ivsStageName: string;
     ivsStageArn: string;
   };
+};
+
+export type AppLiveStreamTokenType = {
+  _id: ObjectID;
+  alsId: string;
+  appId: string;
+  deviceId: string;
+  participantId: string;
+  token: string;
 };
