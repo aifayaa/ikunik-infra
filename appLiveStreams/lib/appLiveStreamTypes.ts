@@ -1,5 +1,12 @@
 import { ObjectID } from '../../libs/mongoClient';
 
+export type AppLiveStreamStateType = {
+  isExpired: boolean;
+  isStreaming: boolean;
+  lastUpdate: Date;
+  viewersCount: number;
+};
+
 export type AppLiveStreamType = {
   _id: string;
   createdAt: Date;
@@ -7,8 +14,6 @@ export type AppLiveStreamType = {
   appId: string;
   startDateTime: Date;
   expireDateTime: Date;
-  expired: boolean;
-  isStreaming?: boolean;
 
   userStreamToken: string;
   userParticipantId: string;
@@ -17,6 +22,8 @@ export type AppLiveStreamType = {
     ivsStageName: string;
     ivsStageArn: string;
   };
+
+  state: AppLiveStreamStateType;
 };
 
 export type AppLiveStreamTokenType = {

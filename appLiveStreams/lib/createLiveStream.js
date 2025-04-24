@@ -49,7 +49,12 @@ export async function createAppLiveStream(appId, { userId }) {
       appId,
       startDateTime: now,
       expireDateTime,
-      expired: false,
+      state: {
+        isExpired: false,
+        isStreaming: false,
+        lastUpdate: new Date(),
+        viewersCount: 0,
+      },
 
       userStreamToken: userToken,
       userParticipantId,

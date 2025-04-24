@@ -28,7 +28,7 @@ export default async (
     }
 
     if (typeof active === 'boolean') {
-      $match.isStreaming = active;
+      $match['state.isStreaming'] = active;
     }
 
     if (users) {

@@ -42,7 +42,7 @@ export default async (appId, liveStreamId) => {
       throw new Error('live_stream_not_found');
     }
 
-    if (!dbLiveStream.expired) {
+    if (!dbLiveStream.state.isExpired) {
       await deleteLiveStreamInfra(dbLiveStream);
     }
 
