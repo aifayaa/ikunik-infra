@@ -21,7 +21,7 @@ export type AppLiveStreamType = {
 
 export type AppLiveStreamTokenType = {
   _id: ObjectID;
-  alsId: string;
+  liveStreamId: string;
   appId: string;
   deviceId: string;
   participantId: string;

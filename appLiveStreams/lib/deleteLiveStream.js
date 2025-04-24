@@ -54,7 +54,7 @@ export default async (appId, liveStreamId) => {
     await client
       .db()
       .collection(COLL_APP_LIVE_STREAMS_TOKENS)
-      .deleteMany({ alsId: liveStreamId });
+      .deleteMany({ liveStreamId });
 
     return true;
   } finally {
