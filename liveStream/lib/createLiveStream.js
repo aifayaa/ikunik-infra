@@ -1,27 +1,33 @@
 /* eslint-disable import/no-relative-packages */
-import IVS from 'aws-sdk/clients/ivs';
+import {
+  CreateChannelCommand,
+  CreateRecordingConfigurationCommand,
+  GetRecordingConfigurationCommand,
+  IvsClient,
+  ListRecordingConfigurationsCommand,
+} from '@aws-sdk/client-ivs';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import Random from '../../libs/account_utils/random.ts';
 import { filterOutput } from './utils';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_BUCKET, IVS_REGION, STAGE } = process.env;
 
 const { COLL_LIVE_STREAMS } = mongoCollections;
 
-const ivs = new IVS({
-  apiVersion: '2020-07-14',
+const ivsClient = new IvsClient({
   region: IVS_REGION,
 });
 
-const EXPIRATION_DELAY = 7 * 86400 * 1000;
+const NORMAL_EXPIRATION_DELAY_MS = 7 * 86400 * 1000; // 7 days
 
 async function getRecordingConfiguration() {
   const awsRecordingName = `crowdaa-liveStream-recording-${STAGE}`;
 
-  const { recordingConfigurations } = await ivs
-    .listRecordingConfigurations({})
-    .promise();
+  const { recordingConfigurations } = await ivsClient.send(
+    new ListRecordingConfigurationsCommand({})
+  );
 
   let recordingConfiguration;
   for (let i = 0; i < recordingConfigurations.length; i += 1) {
@@ -32,8 +38,8 @@ async function getRecordingConfiguration() {
   }
 
   if (!recordingConfiguration) {
-    const response = await ivs
-      .createRecordingConfiguration({
+    const response = await ivsClient.send(
+      new CreateRecordingConfigurationCommand({
         name: awsRecordingName,
         destinationConfiguration: {
           s3: {
@@ -41,7 +47,7 @@ async function getRecordingConfiguration() {
           },
         },
       })
-      .promise();
+    );
     recordingConfiguration = response.recordingConfiguration;
   }
 
@@ -53,11 +59,11 @@ async function getRecordingConfiguration() {
 
   await new Promise((resolve, reject) => {
     const refreshRecordingState = async () => {
-      const rec = await ivs
-        .getRecordingConfiguration({
+      const rec = await ivsClient.send(
+        new GetRecordingConfigurationCommand({
           arn: recordingConfigurationArn,
         })
-        .promise();
+      );
 
       return rec.recordingConfiguration.state;
     };
@@ -84,14 +90,14 @@ async function getRecordingConfiguration() {
   return recordingConfigurationArn;
 }
 
-export default async (appId, { name, startDateTime }) => {
+export default async (appId, { name, startDateTime, userId }) => {
   const client = await MongoClient.connect();
   try {
     const dbName = `${appId}-${STAGE}-${name.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
     const query = {
       appId,
       name: dbName,
-      provider: 'aws-ivs',
+      provider: LIVESTREAM_PROVIDER_AWS_IVS,
     };
 
     let dbLiveStream = await client
@@ -113,15 +119,20 @@ export default async (appId, { name, startDateTime }) => {
       recordingConfigurationArn,
     };
 
-    const { channel, streamKey } = await ivs.createChannel(ivsParams).promise();
+    const { channel, streamKey } = await ivsClient.send(
+      new CreateChannelCommand(ivsParams)
+    );
 
     const expireDateTime = new Date(startDateTime);
-    expireDateTime.setTime(expireDateTime.getTime() + EXPIRATION_DELAY);
+    expireDateTime.setTime(
+      expireDateTime.getTime() + NORMAL_EXPIRATION_DELAY_MS
+    );
 
     dbLiveStream = {
       _id: `${Date.now()}-${Random.id()}`,
-      provider: 'aws-ivs',
+      provider: LIVESTREAM_PROVIDER_AWS_IVS,
       createdAt: new Date(),
+      createdBy: userId,
       appId,
       name: dbName,
       displayName: name,

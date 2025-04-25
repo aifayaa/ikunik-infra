@@ -1,6 +1,8 @@
 {
   "COLL_ADVERTISEMENTS": "advertisements",
   "COLL_AI_QUERIES": "aiQueries",
+  "COLL_APP_LIVE_STREAMS": "appLiveStreams",
+  "COLL_APP_LIVE_STREAMS_TOKENS": "appLiveStreamsTokens",
   "COLL_APPS": "apps",
   "COLL_ARTIST_CONTACT_LIST": "artistContactList",
   "COLL_ARTISTS_FAV": "artistsFav",
@@ -33,8 +35,8 @@
   "COLL_GENRES": "genres",
   "COLL_INVITATIONS": "invitations",
   "COLL_LINEUPS": "lineup",
-  "COLL_LIVE_STREAMS": "liveStream",
   "COLL_LIVE_STREAMS_DURATIONS": "liveStreamsDurations",
+  "COLL_LIVE_STREAMS": "liveStream",
   "COLL_MAINTENANCE": "maintenance",
   "COLL_MEDIUM_SELECTION_LINKS": "mediumSelectionLinks",
   "COLL_METRICS": "metrics",

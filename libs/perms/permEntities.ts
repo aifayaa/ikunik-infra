@@ -5,11 +5,13 @@ export type AppsPermType =
   | 'moderator'
   | 'viewer';
 
-export type AppsFeaturePermType = 'ticketingScanner' | 'articlesEditor';
-export const appsFeaturePermsList: AppsFeaturePermType[] = [
+export const appsFeaturePermsList = [
   'ticketingScanner',
   'articlesEditor',
-];
+  'appLiveStreaming',
+] as const;
+
+export type AppsFeaturePermType = (typeof appsFeaturePermsList)[number];
 
 export type AppsPermWithoutOwnerType = Omit<AppsPermType, 'owner'>;
 
