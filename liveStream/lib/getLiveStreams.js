@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 import { filterOutput } from './utils';
 
 const { COLL_LIVE_STREAMS } = mongoCollections;
@@ -8,7 +9,7 @@ const { COLL_LIVE_STREAMS } = mongoCollections;
 export default async (appId, { id, start, limit }) => {
   const $match = {
     appId,
-    provider: 'aws-ivs',
+    provider: LIVESTREAM_PROVIDER_AWS_IVS,
   };
 
   const client = await MongoClient.connect();

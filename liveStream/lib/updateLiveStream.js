@@ -3,6 +3,7 @@ import IVS from 'aws-sdk/clients/ivs';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { filterOutput } from './utils';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_REGION, STAGE } = process.env;
 
@@ -22,7 +23,7 @@ export default async (appId, liveStreamId, { name, startDateTime }) => {
     const query = {
       appId,
       _id: liveStreamId,
-      provider: 'aws-ivs',
+      provider: LIVESTREAM_PROVIDER_AWS_IVS,
     };
 
     const dbLiveStream = await client

@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-comprehend": "^3.744.0",
+    "@aws-sdk/client-ivs": "^3.787.0",
+    "@aws-sdk/client-ivs-realtime": "^3.787.0",
     "@aws-sdk/client-lambda": "^3.744.0",
     "@aws-sdk/client-rekognition": "^3.744.0",
     "accept-language-parser": "^1.5.0",

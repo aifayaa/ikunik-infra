@@ -1,8 +1,8 @@
 {
-  "name": "livestream",
+  "name": "applivestreams",
   "version": "1.0.0",
   "private": true,
-  "description": "Crowdaa Live Stream API.",
+  "description": "Crowdaa App Live Streams API.",
   "main": "handler.js",
   "scripts": {
     "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000"

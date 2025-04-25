@@ -2,7 +2,10 @@
 import response from '../../libs/httpResponses/response.ts';
 import createLiveStream from '../lib/createLiveStream';
 import checks from '../lib/checks';
-import { checkPermsForApp } from '../../libs/perms/checkPermsFor.ts';
+import {
+  checkFeaturePermsForApp,
+  checkPermsForApp,
+} from '../../libs/perms/checkPermsFor.ts';
 import { checkAppPlanForLimitIncrease } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -53,7 +56,11 @@ export default async (event) => {
       }
     }
 
-    await checkPermsForApp(userId, appId, ['admin']);
+    try {
+      await checkFeaturePermsForApp(userId, appId, ['appLiveStreaming']);
+    } catch (e) {
+      await checkPermsForApp(userId, appId, ['admin']);
+    }
 
     if (!event.body) {
       throw new Error('mal_formed_request');
@@ -70,6 +77,7 @@ export default async (event) => {
     }
 
     const results = await createLiveStream(appId, {
+      userId,
       name,
       startDateTime,
     });
