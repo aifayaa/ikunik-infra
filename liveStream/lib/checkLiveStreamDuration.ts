@@ -286,14 +286,14 @@ export async function checkLiveStreamDuration({
         .updateOne(
           {
             appId,
-            type: 'aws-ivs',
+            type: dbStream.provider,
             liveStreamId: dbStreamId,
             awsStreamId: streamId,
           },
           {
             $set: {
               appId,
-              type: 'aws-ivs',
+              type: dbStream.provider,
               liveStreamId: dbStreamId,
               awsStreamId: streamId,
 

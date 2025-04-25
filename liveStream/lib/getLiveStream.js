@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { COLL_LIVE_STREAMS } = mongoCollections;
 
@@ -11,7 +12,7 @@ export default async (appId, liveStreamId) => {
     return await client.db().collection(COLL_LIVE_STREAMS).findOne({
       _id: liveStreamId,
       appId,
-      provider: 'aws-ivs',
+      provider: LIVESTREAM_PROVIDER_AWS_IVS,
     });
   } finally {
     client.close();

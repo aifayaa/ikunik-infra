@@ -27,7 +27,7 @@ const ivs = new IVS({
   region: IVS_REGION,
 });
 
-async function getAppFromChannelArn(channelArn: string) {
+async function getDbStreamFromChannelArn(channelArn: string) {
   const client = await MongoClient.connect();
 
   try {
@@ -45,7 +45,7 @@ async function recomputeStreamDurations(channelArn: string) {
   const client = await MongoClient.connect();
 
   try {
-    const dbStream = await getAppFromChannelArn(channelArn);
+    const dbStream = await getDbStreamFromChannelArn(channelArn);
 
     if (!dbStream) {
       // Maybe other stage, maybe old stream, who cares, discard it
@@ -89,14 +89,14 @@ async function recomputeStreamDurations(channelArn: string) {
           .updateOne(
             {
               appId,
-              type: 'aws-ivs',
+              type: dbStream.provider,
               liveStreamId: _id,
               awsStreamId: streamId,
             },
             {
               $set: {
                 appId,
-                type: 'aws-ivs',
+                type: dbStream.provider,
                 liveStreamId: _id,
                 awsStreamId: streamId,
 
@@ -214,7 +214,7 @@ export async function handleStreamStarted(
 ) {
   const [channelArn] = resources;
 
-  const dbStream = await getAppFromChannelArn(channelArn);
+  const dbStream = await getDbStreamFromChannelArn(channelArn);
   if (dbStream) {
     await startStreamWatcher(channelArn, streamId, dbStream);
   }

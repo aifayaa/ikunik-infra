@@ -1,7 +1,9 @@
-export type LiveStreamType = {
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
+
+type LiveStreamCommonType = {
   _id: string;
-  provider: string;
   createdAt: Date;
+  createdBy: string;
   appId: string;
   name: string;
   displayName: string;
@@ -21,11 +23,17 @@ export type LiveStreamType = {
   };
 };
 
+export type LiveStreamAwsIvsType = LiveStreamCommonType & {
+  provider: typeof LIVESTREAM_PROVIDER_AWS_IVS;
+};
+
+export type LiveStreamType = LiveStreamAwsIvsType;
+
 export type LiveStreamDurationType = {
   liveStreamId: string;
   appId: string;
   awsStreamId: string;
-  type: 'aws-ivs';
+  type: typeof LIVESTREAM_PROVIDER_AWS_IVS;
   startTime?: Date;
   endTime?: Date;
   duration: number;

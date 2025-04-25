@@ -318,6 +318,7 @@ verbose(
 
   const {
     COLL_ADVERTISEMENTS,
+    COLL_APP_LIVE_STREAMS_TOKENS,
     COLL_APPS,
     COLL_BLAST_NOTIFICATIONS_QUEUE,
     COLL_COUNTERS,
@@ -975,6 +976,17 @@ verbose(
             reactionType: 1,
             targetCollection: 1,
             targetId: 1,
+          },
+          opts: makeOpts(),
+        },
+      ],
+      [COLL_APP_LIVE_STREAMS_TOKENS]: [
+        {
+          name: 'crowdaa_live_stream_duration_update_key',
+          key: {
+            liveStreamId: 1,
+            appId: 1,
+            deviceId: 1,
           },
           opts: makeOpts(),
         },

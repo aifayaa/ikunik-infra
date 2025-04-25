@@ -2,6 +2,7 @@
 import MediaConvert from 'aws-sdk/clients/mediaconvert';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_BUCKET, IVS_REGION, MEDIACONVERT_IAM_ROLE_ARN } = process.env;
 
@@ -36,7 +37,7 @@ export default async (appId, liveStreamId, recordingRoot) => {
     const dbQuery = {
       _id: liveStreamId,
       appId,
-      provider: 'aws-ivs',
+      provider: LIVESTREAM_PROVIDER_AWS_IVS,
       'recordings.root': recordingRoot,
     };
     const dbLiveStream = await client

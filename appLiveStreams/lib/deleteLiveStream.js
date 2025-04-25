@@ -1,40 +1,30 @@
 /* eslint-disable import/no-relative-packages */
 import {
-  DeleteChannelCommand,
-  DeleteStreamKeyCommand,
-  IvsClient,
-  StopStreamCommand,
-} from '@aws-sdk/client-ivs';
+  DeleteStageCommand,
+  IVSRealTimeClient,
+} from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_REGION } = process.env;
 
-const { COLL_LIVE_STREAMS } = mongoCollections;
+const { COLL_APP_LIVE_STREAMS, COLL_APP_LIVE_STREAMS_TOKENS } =
+  mongoCollections;
 
-const ivsClient = new IvsClient({
+const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
 async function deleteLiveStreamInfra(dbLiveStream) {
   try {
-    await ivsClient.send(
-      new DeleteStreamKeyCommand({
-        arn: dbLiveStream.aws.streamKeyArn,
+    await ivsRTClient.send(
+      new DeleteStageCommand({
+        arn: dbLiveStream.aws.ivsStageArn,
       })
     );
   } catch (e) {
     /* Even if that fails, we shall be able to delete the stream, which will delete the key too */
   }
-
-  try {
-    await ivsClient.send(new StopStreamCommand({ arn: dbLiveStream.aws.arn }));
-  } catch (e) {
-    /* Do nothing, it was probably stopped... */
-  }
-
-  await ivsClient.send(new DeleteChannelCommand({ arn: dbLiveStream.aws.arn }));
 }
 
 export default async (appId, liveStreamId) => {
@@ -42,25 +32,29 @@ export default async (appId, liveStreamId) => {
   try {
     const dbLiveStream = await client
       .db()
-      .collection(COLL_LIVE_STREAMS)
+      .collection(COLL_APP_LIVE_STREAMS)
       .findOne({
         _id: liveStreamId,
         appId,
-        provider: LIVESTREAM_PROVIDER_AWS_IVS,
       });
 
     if (!dbLiveStream) {
       throw new Error('live_stream_not_found');
     }
 
-    if (!dbLiveStream.expired) {
+    if (!dbLiveStream.state.isExpired) {
       await deleteLiveStreamInfra(dbLiveStream);
     }
 
     await client
       .db()
-      .collection(COLL_LIVE_STREAMS)
+      .collection(COLL_APP_LIVE_STREAMS)
       .deleteOne({ _id: liveStreamId });
+
+    await client
+      .db()
+      .collection(COLL_APP_LIVE_STREAMS_TOKENS)
+      .deleteMany({ liveStreamId });
 
     return true;
   } finally {

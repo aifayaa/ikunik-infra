@@ -1,47 +1,43 @@
 /* eslint-disable import/no-relative-packages */
 import {
-  DeleteChannelCommand,
-  DeleteStreamKeyCommand,
-  IvsClient,
-  StopStreamCommand,
-} from '@aws-sdk/client-ivs';
+  DeleteStageCommand,
+  IVSRealTimeClient,
+} from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { LIVESTREAM_PROVIDER_AWS_IVS } from './constants';
 
 const { IVS_REGION } = process.env;
 
-const { COLL_LIVE_STREAMS } = mongoCollections;
+const { COLL_APP_LIVE_STREAMS, COLL_APP_LIVE_STREAMS_TOKENS } =
+  mongoCollections;
 
-const ivsClient = new IvsClient({
+const ivsClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
-async function expireLiveStream(dbLiveStream, client, dbUpdate = true) {
+async function expireLiveStream(dbLiveStream, client) {
   try {
     await ivsClient.send(
-      new DeleteStreamKeyCommand({
-        arn: dbLiveStream.aws.streamKeyArn,
+      new DeleteStageCommand({
+        arn: dbLiveStream.aws.ivsStageArn,
       })
     );
   } catch (e) {
     /* Even if that fails, we shall be able to delete the stream, which will delete the key too */
   }
 
-  try {
-    await ivsClient.send(new StopStreamCommand({ arn: dbLiveStream.aws.arn }));
-  } catch (e) {
-    /* Do nothing, it was probably stopped... */
-  }
+  await client
+    .db()
+    .collection(COLL_APP_LIVE_STREAMS)
+    .updateOne(
+      { _id: dbLiveStream._id },
+      { $set: { 'state.isExpired': true } }
+    );
 
-  await ivsClient.send(new DeleteChannelCommand({ arn: dbLiveStream.aws.arn }));
-
-  if (dbUpdate) {
-    await client
-      .db()
-      .collection(COLL_LIVE_STREAMS)
-      .updateOne({ _id: dbLiveStream._id }, { $set: { expired: true } });
-  }
+  await client
+    .db()
+    .collection(COLL_APP_LIVE_STREAMS_TOKENS)
+    .deleteMany({ liveStreamId: dbLiveStream._id });
 }
 
 /* To be used internally only */
@@ -52,11 +48,10 @@ export default async () => {
 
     await client
       .db()
-      .collection(COLL_LIVE_STREAMS)
+      .collection(COLL_APP_LIVE_STREAMS)
       .find({
-        provider: LIVESTREAM_PROVIDER_AWS_IVS,
         expireDateTime: { $lt: new Date() },
-        expired: false,
+        'state.isExpired': false,
       })
       .forEach((dbLiveStream) => {
         promises.push(expireLiveStream(dbLiveStream, client));
