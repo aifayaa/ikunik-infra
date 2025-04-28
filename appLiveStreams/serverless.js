@@ -239,7 +239,7 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'appLiveStreams/{id}',
-            method: 'post',
+            method: 'get',
             cors: true,
             authorizer: {
               type: 'CUSTOM',
