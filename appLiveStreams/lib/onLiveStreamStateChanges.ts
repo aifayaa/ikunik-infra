@@ -34,10 +34,10 @@ async function startStreamWatcher(dbStream: AppLiveStreamType) {
     type: 'STANDARD',
     definition: JSON.stringify(
       {
-        Comment: 'LiveStream live participant counter',
+        Comment: 'AppLiveStreams participant counter',
         StartAt: 'callLambda',
         States: {
-          delay: {
+          sleep: {
             Type: 'Wait',
             SecondsPath: '$.delay',
             Next: 'callLambda',
@@ -70,7 +70,7 @@ async function startStreamWatcher(dbStream: AppLiveStreamType) {
               {
                 Variable: '$.lastExec.Payload.retry',
                 BooleanEquals: true,
-                Next: 'delay',
+                Next: 'sleep',
               },
             ],
             Default: 'Success',
@@ -130,6 +130,7 @@ async function setStreamStatus(
       },
       {
         $set: {
+          'state.viewersCount': 0,
           'state.isStreaming': isStreaming,
           'state.lastUpdate': new Date(),
         },

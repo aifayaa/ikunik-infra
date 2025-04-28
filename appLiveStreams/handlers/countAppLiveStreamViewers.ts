@@ -5,7 +5,9 @@ import countAppLiveStreamViewers, {
 
 export default async (event: CountAppLiveStreamViewersInputType) => {
   try {
-    await countAppLiveStreamViewers(event);
+    const ret = await countAppLiveStreamViewers(event);
+
+    return ret;
   } catch (e) {
     // TODO Handle me later, maybe?
     console.error('Error :', e);

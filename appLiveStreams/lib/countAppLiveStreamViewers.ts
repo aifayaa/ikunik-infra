@@ -69,8 +69,7 @@ async function getCurrentViewersCount(
     const listParticipantsParams = new ListParticipantsCommand({
       stageArn: dbStream.aws.ivsStageArn,
       sessionId,
-      maxResults: 200,
-      filterByPublished: false,
+      maxResults: 100,
       filterByState: 'CONNECTED',
       ...(nextToken ? { nextToken } : {}),
     });
@@ -79,7 +78,10 @@ async function getCurrentViewersCount(
       listParticipantsParams
     );
 
-    viewersCount += participants?.length || 0;
+    const viewers = (participants || []).filter(
+      (participant) => participant.published === false
+    );
+    viewersCount += viewers.length;
 
     if (nextToken2) {
       nextToken = nextToken2;
