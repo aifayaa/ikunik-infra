@@ -38,6 +38,8 @@ async function expireLiveStream(dbLiveStream, client) {
     .db()
     .collection(COLL_APP_LIVE_STREAMS_TOKENS)
     .deleteMany({ liveStreamId: dbLiveStream._id });
+
+  return dbLiveStream._id;
 }
 
 /* To be used internally only */

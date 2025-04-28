@@ -15,19 +15,40 @@ const serverlessConfiguration = {
     dev: {
       'us-east-1': {
         IVS_REGION: 'us-east-1',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'DevCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-countAppLiveStreamViewers-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:us-east-1:630176884077:function:liveStream-dev-countAppLiveStreamViewers',
       },
     },
     preprod: {
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
+          'PreprodCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-countAppLiveStreamViewers-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:eu-west-3:630176884077:function:liveStream-preprod-countAppLiveStreamViewers',
       },
     },
     prod: {
       'us-east-1': {
         IVS_REGION: 'us-east-1',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-countAppLiveStreamViewers-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:us-east-1:630176884077:function:liveStream-prod-countAppLiveStreamViewers',
       },
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-countAppLiveStreamViewers-role',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:eu-west-3:630176884077:function:liveStream-prod-countAppLiveStreamViewers',
       },
     },
     esbuild: {
@@ -44,6 +65,14 @@ const serverlessConfiguration = {
       ...env,
       IVS_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_REGION}',
+
+      // state machine
+      LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE}',
+      LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE}',
     },
     iam: {
       role: {
@@ -53,6 +82,32 @@ const serverlessConfiguration = {
             Action: ['ivs:*'],
             Resource:
               'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
+          },
+
+          // state machine
+          {
+            Effect: 'Allow',
+            Action: ['states:CreateStateMachine', 'states:StartExecution'],
+            Resource:
+              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['iam:PassRole'],
+            Resource:
+              '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE}',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['states:StopExecution'],
+            Resource:
+              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}:${self:provider.stage}*',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['lambda:InvokeFunction'],
+            Resource:
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-sendEmailMailgun',
           },
         ],
       },
@@ -91,6 +146,10 @@ const serverlessConfiguration = {
           },
         },
       ],
+    },
+    countAppLiveStreamViewers: {
+      handler: 'handlers/countAppLiveStreamViewers.default',
+      timeout: 300,
     },
     createLiveStream: {
       handler: 'handlers/createLiveStream.default',
