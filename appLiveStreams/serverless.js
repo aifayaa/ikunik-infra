@@ -19,7 +19,7 @@ const serverlessConfiguration = {
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-countAppLiveStreamViewers-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:liveStream-dev-countAppLiveStreamViewers',
+          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStream-dev-countAppLiveStreamViewers',
       },
     },
     preprod: {
@@ -30,7 +30,7 @@ const serverlessConfiguration = {
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-countAppLiveStreamViewers-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:liveStream-preprod-countAppLiveStreamViewers',
+          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStream-preprod-countAppLiveStreamViewers',
       },
     },
     prod: {
@@ -40,7 +40,7 @@ const serverlessConfiguration = {
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-countAppLiveStreamViewers-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:liveStream-prod-countAppLiveStreamViewers',
+          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStream-prod-countAppLiveStreamViewers',
       },
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
@@ -48,7 +48,7 @@ const serverlessConfiguration = {
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-countAppLiveStreamViewers-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:liveStream-prod-countAppLiveStreamViewers',
+          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStream-prod-countAppLiveStreamViewers',
       },
     },
     esbuild: {
