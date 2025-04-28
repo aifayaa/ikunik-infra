@@ -20,7 +20,7 @@ export async function createAppLiveStream(appId, { userId }) {
   try {
     const now = new Date();
     const _id = new ObjectID().toString();
-    const ivsStageName = `${appId}-${STAGE}-${userId}-${_id}`;
+    const ivsStageName = `${STAGE}-${appId}-${userId}-${_id}`;
 
     const expireDateTime = new Date(now);
     expireDateTime.setTime(expireDateTime.getTime() + ALS_EXPIRATION_DELAY_MS);
