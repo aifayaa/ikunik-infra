@@ -18,5 +18,5 @@ export function filterOutput(
   };
 }
 
-export const ALS_EXPIRATION_DELAY_MIN = 2 * 24 * 60; // 2 days
+export const ALS_EXPIRATION_DELAY_MIN = 1 * 24 * 60; // 1 day
 export const ALS_EXPIRATION_DELAY_MS = 1 * ALS_EXPIRATION_DELAY_MIN * 60 * 1000;
