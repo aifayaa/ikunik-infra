@@ -20,7 +20,7 @@ export default async (event: APIGatewayProxyEvent) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: liveStream && filterOutput(liveStream),
+        data: filterOutput(liveStream),
       }),
     });
   } catch (exception) {
