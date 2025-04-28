@@ -4,7 +4,12 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { ALS_EXPIRATION_DELAY_MIN } from './utils.ts';
+import { ALS_EXPIRATION_DELAY_MIN } from './utils';
+import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+import {
+  ERROR_TYPE_INTERNAL_EXCEPTION,
+  UNMANAGED_EXCEPTION_CODE,
+} from '@libs/httpResponses/errorCodes';
 
 const { IVS_REGION } = process.env;
 
@@ -15,7 +20,11 @@ const ivsRTClient = new IVSRealTimeClient({
 const { COLL_APP_LIVE_STREAMS, COLL_APP_LIVE_STREAMS_TOKENS } =
   mongoCollections;
 
-export default async function watchLiveStream(appId, liveStreamId, deviceId) {
+export default async function watchLiveStream(
+  appId: string,
+  liveStreamId: string,
+  deviceId: string
+) {
   const client = await MongoClient.connect();
   try {
     const dbLiveStream = await client
@@ -40,6 +49,14 @@ export default async function watchLiveStream(appId, liveStreamId, deviceId) {
           capabilities: ['SUBSCRIBE'],
         })
       );
+
+      if (!participantToken) {
+        throw new CrowdaaError(
+          ERROR_TYPE_INTERNAL_EXCEPTION,
+          UNMANAGED_EXCEPTION_CODE,
+          'Missing participant token in response'
+        );
+      }
 
       const { participantId, token } = participantToken;
 

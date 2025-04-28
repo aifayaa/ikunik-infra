@@ -5,6 +5,14 @@ export type AppLiveStreamType = {
   createdAt: Date;
   createdBy: string;
   appId: string;
+  title: string;
+  image?: {
+    _id: string;
+    thumbUrl?: string;
+    mediumUrl?: string;
+    largeUrl?: string;
+    pictureUrl?: string;
+  };
   startDateTime: Date;
   expireDateTime: Date;
 

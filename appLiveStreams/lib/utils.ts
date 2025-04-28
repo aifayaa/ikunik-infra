@@ -1,7 +1,7 @@
 import { AppLiveStreamType } from './appLiveStreamTypes';
 
 /* eslint-disable import/no-relative-packages */
-export function filterOutput(
+export function filterAppLiveStreamOutput(
   input: AppLiveStreamType,
   includeStreamingKey = false
 ) {
@@ -10,6 +10,8 @@ export function filterOutput(
     createdAt: input.createdAt,
     createdBy: input.createdBy,
     appId: input.appId,
+    title: input.title,
+    image: input.image,
     startDateTime: input.startDateTime,
     expireDateTime: input.expireDateTime,
     state: input.state,

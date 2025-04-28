@@ -1,29 +1,47 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { filterOutput } from './utils.ts';
-import { userPrivateFields } from '../../users/lib/usersUtils.ts';
+import { filterAppLiveStreamOutput } from './utils';
+import { userPrivateFields } from '../../users/lib/usersUtils';
+import { AppLiveStreamType } from './appLiveStreamTypes';
 
 const { COLL_APP_LIVE_STREAMS, COLL_USERS } = mongoCollections;
 
+type GetLiveStreamsParamsType = {
+  id?: string;
+  start?: string;
+  limit?: string;
+  active: boolean | null | undefined;
+  users: boolean | null | undefined;
+};
+
 export default async (
-  appId,
-  userId,
-  { id, start, limit, active = null, users = false }
+  appId: string,
+  userId: string,
+  {
+    id,
+    start: inputStart,
+    limit: inputLimit,
+    active = null,
+    users = false,
+  }: GetLiveStreamsParamsType
 ) => {
-  const $match = {
+  const $match: Record<string, any> = {
     appId,
   };
 
   const client = await MongoClient.connect();
   try {
-    let pipelineSkipLimit = [];
-    let pipelineFetchUsers = [];
+    let pipelineSkipLimit: Array<any> = [];
+    let pipelineFetchUsers: Array<any> = [];
+    let start: number;
+    let limit: number;
+
     if (id) {
       $match._id = id;
     } else {
-      start = parseInt(start, 10) || 0;
-      limit = parseInt(limit, 10) || 10;
+      start = (inputStart && parseInt(inputStart, 10)) || 0;
+      limit = (inputLimit && parseInt(inputLimit, 10)) || 10;
       pipelineSkipLimit = [{ $skip: start }, { $limit: limit }];
     }
 
@@ -48,10 +66,13 @@ export default async (
           },
         },
         {
-          $project: userPrivateFields.reduce((acc, field) => {
-            acc[`user.${field}`] = 0;
-            return acc;
-          }, {}),
+          $project: userPrivateFields.reduce(
+            (acc, field) => {
+              acc[`user.${field}`] = 0;
+              return acc;
+            },
+            {} as Record<string, number>
+          ),
         },
       ];
     }
@@ -73,8 +94,8 @@ export default async (
       .collection(COLL_APP_LIVE_STREAMS)
       .aggregate(pipeline)
       .toArray();
-    list = list.map((item) => ({
-      ...filterOutput(item, userId === item.createdBy),
+    list = list.map((item: AppLiveStreamType & { user: {} }) => ({
+      ...filterAppLiveStreamOutput(item, userId === item.createdBy),
       user: item.user,
     }));
 
