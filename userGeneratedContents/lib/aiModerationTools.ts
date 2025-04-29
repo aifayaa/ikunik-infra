@@ -16,6 +16,7 @@ import MongoClient from '@libs/mongoClient';
 import { DEFAULT_APP_SETTINGS } from '@apps/lib/createApp';
 import { UGCModerationNotificationDataType, UGCType } from './ugcEntities';
 import { getUGCModerationAbstractText } from './ugcUtils';
+import { checkFeaturePermsForApp } from '@libs/perms/checkPermsFor';
 
 const {
   AI_DETECTION_DEFAULT_LANG,
@@ -350,13 +351,13 @@ type UGCOffensiveFieldType = {
   }>;
 };
 
-export async function isOffensiveMaterialFilteringEnabled() {
+export function isOffensiveMaterialFilteringEnabled() {
   return AI_DETECTION_ENABLED === 'true';
 }
 
-export function getUGCDefaultOffensiveField() {
+export function getUGCDefaultOffensiveField(enabled: boolean) {
   const offensive: UGCOffensiveFieldType = {
-    status: AI_DETECTION_ENABLED === 'true' ? 'checking' : 'unchecked',
+    status: enabled ? 'checking' : 'unchecked',
     title: false,
     content: false,
     picturesIds: [],
@@ -400,7 +401,7 @@ export async function synchronousUgcAnalyze(ugcId: string) {
       moderationRequired = DEFAULT_APP_SETTINGS.press.moderationRequired,
     } = app.settings.press || {};
 
-    const offensive = getUGCDefaultOffensiveField();
+    const offensive = getUGCDefaultOffensiveField(true);
 
     if (AI_DETECTION_ENABLED !== 'true') {
       return;

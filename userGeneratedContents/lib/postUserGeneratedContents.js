@@ -3,6 +3,7 @@ import uuid from 'uuid';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import getAppSettings from '../../apps/lib/getAppSettings';
+import { checkFeaturePermsForApp } from '../../libs/perms/checkPermsFor.ts';
 import {
   getUGCDefaultOffensiveField,
   isOffensiveMaterialFilteringEnabled,
@@ -35,8 +36,19 @@ export default async (
 
     const _id = uuid.v4();
 
+    const notModeratedUser = await checkFeaturePermsForApp(
+      userId,
+      appId,
+      ['notUGCModerated'],
+      {
+        dontThrow: true,
+      }
+    );
+
     const aiModerationEnabled = isOffensiveMaterialFilteringEnabled();
-    const offensive = getUGCDefaultOffensiveField();
+    const offensive = getUGCDefaultOffensiveField(
+      aiModerationEnabled && !notModeratedUser
+    );
 
     /* Otherwise, insert the category to the database and return it */
     const userGeneratedContents = {
@@ -56,7 +68,7 @@ export default async (
       offensive,
     };
 
-    if (moderationRequired) {
+    if (moderationRequired && !notModeratedUser) {
       userGeneratedContents.reviewed = false;
     }
 
@@ -65,7 +77,7 @@ export default async (
       .collection(COLL_USER_GENERATED_CONTENTS)
       .insertOne(userGeneratedContents);
 
-    if (aiModerationEnabled) {
+    if (aiModerationEnabled && !notModeratedUser) {
       await startAiModerationForUgc(_id);
     }
 
