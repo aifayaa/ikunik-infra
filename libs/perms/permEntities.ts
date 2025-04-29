@@ -6,9 +6,10 @@ export type AppsPermType =
   | 'viewer';
 
 export const appsFeaturePermsList = [
-  'ticketingScanner',
-  'articlesEditor',
   'appLiveStreaming',
+  'articlesEditor',
+  'notUGCModerated',
+  'ticketingScanner',
 ] as const;
 
 export type AppsFeaturePermType = (typeof appsFeaturePermsList)[number];
