@@ -40,7 +40,7 @@ export async function createAppLiveStream(
     const expireDateTime = new Date(now);
     expireDateTime.setTime(expireDateTime.getTime() + ALS_EXPIRATION_DELAY_MS);
 
-    const dbImage = client
+    const dbImage = await client
       .db()
       .collection(COLL_PICTURES)
       .findOne({ _id: imageId, appId });
