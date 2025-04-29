@@ -7,6 +7,7 @@ import {
   synchronousUgcAnalyze,
 } from './aiModerationTools.ts';
 import { DEFAULT_APP_SETTINGS } from '../../apps/lib/createApp';
+import { checkFeaturePermsForApp } from '../../libs/perms/checkPermsFor.ts';
 
 const { COLL_USER_GENERATED_CONTENTS } = mongoCollections;
 
@@ -47,8 +48,17 @@ export default async (
         { $set: userGeneratedContents }
       );
 
+    const notModeratedUser = await checkFeaturePermsForApp(
+      userId,
+      appId,
+      ['notUGCModerated'],
+      {
+        dontThrow: true,
+      }
+    );
+
     const aiModerationEnabled = isOffensiveMaterialFilteringEnabled();
-    if (modifiedCount > 0 && aiModerationEnabled) {
+    if (modifiedCount > 0 && aiModerationEnabled && !notModeratedUser) {
       await synchronousUgcAnalyze(userGeneratedContentsId);
     }
 
