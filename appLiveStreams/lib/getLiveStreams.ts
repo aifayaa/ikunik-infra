@@ -1,9 +1,13 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { filterAppLiveStreamOutput } from './utils';
+import {
+  filterAppLiveStreamOutput,
+  getVisibleCategoriesForUser,
+} from './utils';
 import { userPrivateFields } from '../../users/lib/usersUtils';
 import { AppLiveStreamType } from './appLiveStreamTypes';
+import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
 
 const { COLL_APP_LIVE_STREAMS, COLL_USERS } = mongoCollections;
 
@@ -32,6 +36,18 @@ export default async (
 
   const client = await MongoClient.connect();
   try {
+    const visibleCategories = await getVisibleCategoriesForUser(userId, appId);
+    const visibleCategoriesHash = visibleCategories.reduce(
+      (acc, category) => {
+        acc[category._id] = category;
+        return acc;
+      },
+      {} as Record<string, (typeof visibleCategories)[number]>
+    );
+
+    $match.categoryId = { $in: [visibleCategories.map(({ _id }) => _id)] };
+    // TODO CONTINUE ME LATER
+
     let pipelineSkipLimit: Array<any> = [];
     let pipelineFetchUsers: Array<any> = [];
     let start: number;
@@ -94,10 +110,20 @@ export default async (
       .collection(COLL_APP_LIVE_STREAMS)
       .aggregate(pipeline)
       .toArray();
-    list = list.map((item: AppLiveStreamType & { user: {} }) => ({
-      ...filterAppLiveStreamOutput(item, userId === item.createdBy),
-      user: item.user,
-    }));
+    list = list.map((item: AppLiveStreamType & { user: {} }) => {
+      let missingBadges: Array<UserBadgeType> = [];
+      let previewOnly = false;
+      if (visibleCategoriesHash[item.categoryId]) {
+        missingBadges = visibleCategoriesHash[item.categoryId].missingBadges;
+        previewOnly = visibleCategoriesHash[item.categoryId].previewOnly;
+      }
+      return {
+        ...filterAppLiveStreamOutput(item, userId === item.createdBy),
+        user: item.user,
+        missingBadges,
+        previewOnly,
+      };
+    });
 
     const count = await client
       .db()
@@ -107,6 +133,6 @@ export default async (
 
     return { list, count };
   } finally {
-    client.close();
+    await client.close();
   }
 };

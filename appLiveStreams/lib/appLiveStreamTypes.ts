@@ -5,16 +5,9 @@ export type AppLiveStreamType = {
   createdAt: Date;
   createdBy: string;
   appId: string;
-  title: string;
-  image?: {
-    _id: string;
-    thumbUrl?: string;
-    mediumUrl?: string;
-    largeUrl?: string;
-    pictureUrl?: string;
-  };
   startDateTime: Date;
   expireDateTime: Date;
+  categoryId: string;
 
   userStreamToken: string;
   userParticipantId: string;
@@ -29,6 +22,7 @@ export type AppLiveStreamType = {
     isStreaming: boolean;
     lastUpdate: Date;
     viewersCount: number;
+    maxViewersCount: number;
   };
 };
 
@@ -39,4 +33,7 @@ export type AppLiveStreamTokenType = {
   deviceId: string;
   participantId: string;
   token: string;
+  userId: string | null;
+  expiresAt: Date;
+  previewOnly: boolean;
 };

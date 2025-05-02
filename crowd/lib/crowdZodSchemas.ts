@@ -6,6 +6,7 @@ import {
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { z } from 'zod';
 import { CrowdSearchTypeFieldType, GeoJSONCoordinatesType } from './crowdTypes';
+import { userBadgesFieldStatusValues } from '@users/lib/userEntity';
 
 /* ################ *
  * Common functions *
@@ -97,9 +98,7 @@ const crowdMassUpdateFiltersSchema = z.object({
   search: z.string().trim().optional(),
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
-  onlyBadges: z
-    .enum(['', 'assigned', 'requested', 'validated', 'rejected'])
-    .optional(),
+  onlyBadges: z.enum(userBadgesFieldStatusValues).optional(),
 
   lat: z.number().optional(),
   lng: z.number().optional(),
@@ -164,9 +163,7 @@ const crowdSearchSchema = z.object({
   search: z.string().trim().optional(),
   email: z.string().trim().optional(),
   badgeId: z.string().trim().optional(),
-  onlyBadges: z
-    .enum(['', 'assigned', 'requested', 'validated', 'rejected'])
-    .optional(),
+  onlyBadges: z.enum(userBadgesFieldStatusValues).optional(),
 
   lat: z.custom<'123'>(floatStrParser).optional(),
   lng: z.custom<'123'>(floatStrParser).optional(),
@@ -256,9 +253,7 @@ const crowdSearchGeoJSONSchema = z.object({
   lat: z.custom<'123'>(floatStrParser).optional(),
   lng: z.custom<'123'>(floatStrParser).optional(),
   radius: z.custom<'123'>(floatStrParser).optional(),
-  onlyBadges: z
-    .enum(['', 'assigned', 'requested', 'validated', 'rejected'])
-    .optional(),
+  onlyBadges: z.enum(userBadgesFieldStatusValues).optional(),
 
   limit: z.custom<'123'>(intStrParser).optional(),
   skip: z.custom<'123'>(intStrParser).optional(),

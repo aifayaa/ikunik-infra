@@ -19,13 +19,9 @@ import { formatResponseBody } from '@libs/httpResponses/formatResponseBody.js';
 
 const bodySchema = z
   .object({
-    title: z.string({
-      required_error: 'title is required',
-      invalid_type_error: 'title must be a string',
-    }),
-    imageId: z.string({
-      required_error: 'imageId is required',
-      invalid_type_error: 'imageId must be a string',
+    categoryId: z.string({
+      required_error: 'categoryId is required',
+      invalid_type_error: 'categoryId must be a string',
     }),
   })
   .required();

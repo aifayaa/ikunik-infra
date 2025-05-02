@@ -135,6 +135,11 @@ export default async function countAppLiveStreamViewers({
 
     const viewersCount = await getCurrentViewersCount(dbStream, sessionId);
 
+    const maxViewersCount =
+      viewersCount > dbStream.state.maxViewersCount
+        ? viewersCount
+        : dbStream.state.maxViewersCount;
+
     await client
       .db()
       .collection(COLL_APP_LIVE_STREAMS)
@@ -148,6 +153,7 @@ export default async function countAppLiveStreamViewers({
         {
           $set: {
             'state.viewersCount': viewersCount,
+            'state.maxViewersCount': maxViewersCount,
             'state.lastUpdate': new Date(),
           },
         }

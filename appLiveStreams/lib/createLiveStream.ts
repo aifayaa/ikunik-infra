@@ -8,14 +8,16 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils';
 import { AppLiveStreamType } from './appLiveStreamTypes';
 import {
+  CATEGORY_NOT_FOUND_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
+  ERROR_TYPE_NOT_FOUND,
   UNMANAGED_EXCEPTION_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 
 const { IVS_REGION, STAGE } = process.env;
 
-const { COLL_APP_LIVE_STREAMS, COLL_PICTURES } = mongoCollections;
+const { COLL_APP_LIVE_STREAMS, COLL_PRESS_CATEGORIES } = mongoCollections;
 
 const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
@@ -23,27 +25,34 @@ const ivsRTClient = new IVSRealTimeClient({
 
 type CreateAppLiveStreamParamsType = {
   userId: string;
-  title: string;
-  imageId: string;
+  categoryId: string;
 };
 
 export async function createAppLiveStream(
   appId: string,
-  { userId, title, imageId }: CreateAppLiveStreamParamsType
+  { userId, categoryId }: CreateAppLiveStreamParamsType
 ) {
   const client = await MongoClient.connect();
   try {
+    const dbCategory = await client
+      .db()
+      .collection(COLL_PRESS_CATEGORIES)
+      .findOne({ _id: categoryId, appId });
+
+    if (!dbCategory) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        CATEGORY_NOT_FOUND_CODE,
+        `Category ID ${categoryId} not found!`
+      );
+    }
+
     const now = new Date();
     const _id = new ObjectID().toString();
     const ivsStageName = `${STAGE}-${appId}-${userId}-${_id}`;
 
     const expireDateTime = new Date(now);
     expireDateTime.setTime(expireDateTime.getTime() + ALS_EXPIRATION_DELAY_MS);
-
-    const dbImage = await client
-      .db()
-      .collection(COLL_PICTURES)
-      .findOne({ _id: imageId, appId });
 
     const stageParams = new CreateStageCommand({
       name: ivsStageName,
@@ -73,18 +82,7 @@ export async function createAppLiveStream(
       createdAt: now,
       createdBy: userId,
       appId,
-      title,
-      ...(dbImage
-        ? {
-            image: {
-              _id: imageId,
-              thumbUrl: dbImage.thumbUrl,
-              mediumUrl: dbImage.mediumUrl,
-              largeUrl: dbImage.largeUrl,
-              pictureUrl: dbImage.pictureUrl,
-            },
-          }
-        : {}),
+      categoryId,
       startDateTime: now,
       expireDateTime,
       state: {
@@ -92,6 +90,7 @@ export async function createAppLiveStream(
         isStreaming: false,
         lastUpdate: new Date(),
         viewersCount: 0,
+        maxViewersCount: 0,
       },
 
       userStreamToken: userToken,

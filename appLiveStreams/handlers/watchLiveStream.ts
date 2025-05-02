@@ -8,8 +8,9 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 
 export default async (event: APIGatewayProxyEvent) => {
   try {
-    const { appId } = event.requestContext.authorizer as {
+    const { appId, principalId: userId } = event.requestContext.authorizer as {
       appId: string;
+      principalId: string | null;
     };
     const { id: liveStreamId } = event.pathParameters as { id: string };
     const { deviceId } = event.queryStringParameters || {};
@@ -18,7 +19,12 @@ export default async (event: APIGatewayProxyEvent) => {
       throw new Error('missing_argument');
     }
 
-    const results = await watchLiveStream(appId, liveStreamId, deviceId);
+    const results = await watchLiveStream(
+      appId,
+      liveStreamId,
+      deviceId,
+      userId
+    );
 
     return response({
       code: 200,
