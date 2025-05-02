@@ -34,8 +34,8 @@ function objGet(obj, keys, dft) {
 }
 
 const allAllowedSettings = [
+  'press.aiModerationEnabled',
   'press.chatNotificationsEnabled',
-  'press.env.aiModerationEnabled',
   'press.env.appThemeColorPrimary',
   'press.env.articleFromCommunityDateFormat',
   'press.env.articleFromFeedDateFormat',
