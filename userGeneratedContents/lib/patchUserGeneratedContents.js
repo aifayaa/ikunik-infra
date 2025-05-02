@@ -24,6 +24,8 @@ export default async (
   try {
     const appSettings = (await getAppSettings(appId, true)) || {};
     const {
+      aiModerationEnabled: appAIModerationEnabled = DEFAULT_APP_SETTINGS.press
+        .aiModerationEnabled,
       moderationRequired = DEFAULT_APP_SETTINGS.press.moderationRequired,
     } = appSettings.press || {};
 
@@ -57,7 +59,8 @@ export default async (
       }
     );
 
-    const aiModerationEnabled = isOffensiveMaterialFilteringEnabled();
+    const aiModerationEnabled =
+      isOffensiveMaterialFilteringEnabled() && appAIModerationEnabled;
     if (modifiedCount > 0 && aiModerationEnabled && !notModeratedUser) {
       await synchronousUgcAnalyze(userGeneratedContentsId);
     }

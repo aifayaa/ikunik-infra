@@ -53,6 +53,7 @@ export type AppType = {
   protocol: string;
   settings: {
     press: {
+      aiModerationEnabled: boolean;
       chatNotificationsEnabled: boolean;
       moderationRequired: boolean;
       env: {

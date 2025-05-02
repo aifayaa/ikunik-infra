@@ -14,6 +14,7 @@ const { COLL_APPS, COLL_USERS, COLL_PICTURES } = mongoCollections;
 
 export const DEFAULT_APP_SETTINGS = {
   press: {
+    aiModerationEnabled: true,
     chatNotificationsEnabled: true,
     moderationRequired: false,
     ugcAutoNotifications: {
