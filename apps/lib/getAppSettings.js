@@ -40,6 +40,11 @@ export default async (appId, allSettings = false) => {
         public: application.settings.public,
         press: {
           env: objGet(application, 'settings.press.env', false),
+          aiModerationEnabled: objGet(
+            application,
+            'settings.press.aiModerationEnabled',
+            false
+          ),
           moderationRequired: objGet(
             application,
             'settings.press.moderationRequired',

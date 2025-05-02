@@ -398,12 +398,13 @@ export async function synchronousUgcAnalyze(ugcId: string) {
       .collection(COLL_APPS)
       .findOne({ _id: ugc.appId });
     const {
+      aiModerationEnabled = DEFAULT_APP_SETTINGS.press.aiModerationEnabled,
       moderationRequired = DEFAULT_APP_SETTINGS.press.moderationRequired,
     } = app.settings.press || {};
 
     const offensive = getUGCDefaultOffensiveField(true);
 
-    if (AI_DETECTION_ENABLED !== 'true') {
+    if (AI_DETECTION_ENABLED !== 'true' || !aiModerationEnabled) {
       return;
     }
 
