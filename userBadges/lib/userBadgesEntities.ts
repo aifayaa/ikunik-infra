@@ -28,8 +28,12 @@ export type UserBadgeType = {
   management: UserBadgesManagementFieldType;
   color: string;
   description: string;
+
   privacyPolicyUrl?: string;
   subscriptionUrl?: string;
+
+  productId?: string;
+  storeProductId?: string;
 
   isDefault: boolean;
 };
