@@ -30,9 +30,10 @@ const ivsRTClient = new IVSRealTimeClient({
 });
 
 const {
-  COLL_APP_LIVE_STREAMS,
   COLL_APP_LIVE_STREAMS_TOKENS,
+  COLL_APP_LIVE_STREAMS,
   COLL_PRESS_CATEGORIES,
+  COLL_USERS,
 } = mongoCollections;
 
 export default async function watchLiveStream(
@@ -80,13 +81,10 @@ export default async function watchLiveStream(
       if (userId) {
         badgeChecker.registerBadges(category.badges.list.map(({ id }) => id));
 
-        const user = (await client
-          .db()
-          .collection(COLL_PRESS_CATEGORIES)
-          .findOne({
-            _id: userId,
-            appId,
-          })) as UserType | null;
+        const user = (await client.db().collection(COLL_USERS).findOne({
+          _id: userId,
+          appId,
+        })) as UserType | null;
 
         if (user) {
           if (user.badges && user.badges.length > 0) {
@@ -101,11 +99,11 @@ export default async function watchLiveStream(
             { userId, appId }
           );
 
-          if (results.canRead) {
+          if (results.canList) {
             canView = true;
           }
 
-          if (results.canList || results.canPreview) {
+          if (results.canRead && results.canPreview) {
             previewOnly = false;
           }
         }

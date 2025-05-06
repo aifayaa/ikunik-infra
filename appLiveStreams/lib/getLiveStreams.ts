@@ -45,7 +45,7 @@ export default async (
       {} as Record<string, (typeof visibleCategories)[number]>
     );
 
-    $match.categoryId = { $in: [visibleCategories.map(({ _id }) => _id)] };
+    $match.categoryId = { $in: visibleCategories.map(({ _id }) => _id) };
     // TODO CONTINUE ME LATER
 
     let pipelineSkipLimit: Array<any> = [];
