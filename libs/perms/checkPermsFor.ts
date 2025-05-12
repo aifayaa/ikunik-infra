@@ -755,20 +755,18 @@ export async function checkFeaturePermsForApp(
       async (permKey: string) => {
         const permKeyCasted = permKey as AppsFeaturePermType;
 
-        if (finalFeaturesPerm[permKeyCasted]) {
-          const checkerResults = await badgeChecker.checkBadges(
-            userBadges,
-            finalFeaturesPerm[permKeyCasted],
-            { userId, appId }
-          );
+        const checkerResults = await badgeChecker.checkBadges(
+          userBadges,
+          finalFeaturesPerm[permKeyCasted],
+          { userId, appId }
+        );
 
-          if (!checkerResults.canRead) {
-            throw new CrowdaaError(
-              ERROR_TYPE_ACCESS,
-              FEATURE_PERMISSION_CODE,
-              `Access to feature ${permKeyCasted} not allowed`
-            );
-          }
+        if (!checkerResults.canRead) {
+          throw new CrowdaaError(
+            ERROR_TYPE_ACCESS,
+            FEATURE_PERMISSION_CODE,
+            `Access to feature ${permKeyCasted} not allowed`
+          );
         }
       }
     );

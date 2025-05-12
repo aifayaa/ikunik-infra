@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { AppLiveStreamType } from './appLiveStreamTypes';
 
 const { IVS_REGION } = process.env;
 
@@ -15,7 +16,7 @@ const ivsClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
-async function expireLiveStream(dbLiveStream, client) {
+async function expireLiveStream(dbLiveStream: AppLiveStreamType, client: any) {
   try {
     await ivsClient.send(
       new DeleteStageCommand({
@@ -38,13 +39,15 @@ async function expireLiveStream(dbLiveStream, client) {
     .db()
     .collection(COLL_APP_LIVE_STREAMS_TOKENS)
     .deleteMany({ liveStreamId: dbLiveStream._id });
+
+  return dbLiveStream._id;
 }
 
 /* To be used internally only */
 export default async () => {
   const client = await MongoClient.connect();
   try {
-    const promises = [];
+    const promises: Array<Promise<string>> = [];
 
     await client
       .db()
@@ -53,7 +56,7 @@ export default async () => {
         expireDateTime: { $lt: new Date() },
         'state.isExpired': false,
       })
-      .forEach((dbLiveStream) => {
+      .forEach((dbLiveStream: AppLiveStreamType) => {
         promises.push(expireLiveStream(dbLiveStream, client));
       });
 

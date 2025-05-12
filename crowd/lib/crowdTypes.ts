@@ -1,10 +1,7 @@
+import { UserBadgesFieldStatusType } from '@users/lib/userEntity';
+
 export type CrowdSearchTypeFieldType = 'user' | 'device' | 'userDevice';
-export type CrowdSearchOnlyBadgesType =
-  | ''
-  | 'assigned'
-  | 'requested'
-  | 'validated'
-  | 'rejected';
+export type CrowdSearchOnlyBadgesType = UserBadgesFieldStatusType;
 
 export type GeoJSONCoordinatesType = [number, number];
 

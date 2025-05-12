@@ -44,6 +44,20 @@ export type UTMType = {
   content?: string;
 };
 
+export const userBadgesFieldStatusValues = [
+  'assigned',
+  'requested',
+  'validated',
+  'rejected',
+] as const;
+
+export type UserBadgesFieldStatusType = typeof userBadgesFieldStatusValues;
+
+export type UserBadgesFieldItemType = {
+  id: string;
+  status: UserBadgesFieldStatusType;
+};
+
 export type UserType = {
   _id: string;
   appId: string;
@@ -59,4 +73,5 @@ export type UserType = {
     apps?: Array<{ _id: string; roles: Array<AppsPermType> }>;
     organizations?: Array<{ _id: string; roles: Array<OrganizationPermType> }>;
   };
+  badges?: Array<UserBadgesFieldItemType>;
 };
