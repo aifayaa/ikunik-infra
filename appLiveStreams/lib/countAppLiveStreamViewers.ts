@@ -127,6 +127,16 @@ export default async function countAppLiveStreamViewers({
     const sessionId = await getCurrentSessionId(dbStream);
 
     if (!sessionId) {
+      await client
+        .db()
+        .collection(COLL_APP_LIVE_STREAMS)
+        .updateOne(
+          {
+            _id: dbStreamId,
+            appId,
+          },
+          { $set: { 'state.isStreaming': false } }
+        );
       return {
         error: 'Cannot find running stream session',
         retry: false,
