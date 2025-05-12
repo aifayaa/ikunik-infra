@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { AppLiveStreamType } from './appLiveStreamTypes';
 
 const { IVS_REGION } = process.env;
 
@@ -15,7 +16,7 @@ const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
-async function deleteLiveStreamInfra(dbLiveStream) {
+async function deleteLiveStreamInfra(dbLiveStream: AppLiveStreamType) {
   try {
     await ivsRTClient.send(
       new DeleteStageCommand({
@@ -27,16 +28,16 @@ async function deleteLiveStreamInfra(dbLiveStream) {
   }
 }
 
-export default async (appId, liveStreamId) => {
+export default async (appId: string, liveStreamId: string) => {
   const client = await MongoClient.connect();
   try {
-    const dbLiveStream = await client
+    const dbLiveStream = (await client
       .db()
       .collection(COLL_APP_LIVE_STREAMS)
       .findOne({
         _id: liveStreamId,
         appId,
-      });
+      })) as AppLiveStreamType | undefined;
 
     if (!dbLiveStream) {
       throw new Error('live_stream_not_found');
@@ -56,7 +57,7 @@ export default async (appId, liveStreamId) => {
       .collection(COLL_APP_LIVE_STREAMS_TOKENS)
       .deleteMany({ liveStreamId });
 
-    return true;
+    return dbLiveStream;
   } finally {
     client.close();
   }

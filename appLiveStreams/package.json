@@ -10,6 +10,7 @@
   "dependencies": {
     "@aws-sdk/client-ivs": "^3.787.0",
     "@aws-sdk/client-ivs-realtime": "^3.787.0",
+    "@aws-sdk/client-sfn": "^3.796.0",
     "aws-sdk": "^2.749.0",
     "request-promise-native": "^1.0.8"
   },

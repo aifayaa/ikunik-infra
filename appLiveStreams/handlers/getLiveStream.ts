@@ -4,7 +4,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import response, { handleException } from '../../libs/httpResponses/response';
 import { formatResponseBody } from '../../libs/httpResponses/formatResponseBody';
 import getLiveStream from '../lib/getLiveStream';
-import { filterOutput } from '../lib/utils';
+import { filterAppLiveStreamOutput } from '../lib/utils';
 
 export default async (event: APIGatewayProxyEvent) => {
   const { appId } = event.requestContext.authorizer as {
@@ -20,7 +20,7 @@ export default async (event: APIGatewayProxyEvent) => {
     return response({
       code: 200,
       body: formatResponseBody({
-        data: liveStream && filterOutput(liveStream),
+        data: filterAppLiveStreamOutput(liveStream),
       }),
     });
   } catch (exception) {

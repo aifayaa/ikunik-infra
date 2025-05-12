@@ -987,6 +987,7 @@ verbose(
             liveStreamId: 1,
             appId: 1,
             deviceId: 1,
+            userId: 1,
           },
           opts: makeOpts(),
         },
