@@ -5,11 +5,11 @@ import { buildCrowdSearchPipeline } from '../../../crowd/lib/crowdUtils.ts';
 
 const { VIEW_USER_METRICS_UUID_AGGREGATED } = mongoViews;
 
-function PressArticleHandler() {
+function CrowdMassNotifyPushHandler() {
   this.badgeChecker = new BadgeChecker(this.appId);
 }
 
-PressArticleHandler.prototype.init = async function init() {
+CrowdMassNotifyPushHandler.prototype.init = async function init() {
   const { filters } = this.queueData;
 
   const crowdPipeline = buildCrowdSearchPipeline(this.appId, filters);
@@ -37,7 +37,7 @@ PressArticleHandler.prototype.init = async function init() {
   return true;
 };
 
-PressArticleHandler.prototype.processOne = function processOne({
+CrowdMassNotifyPushHandler.prototype.processOne = function processOne({
   user,
   deviceId,
 }) {
@@ -65,4 +65,4 @@ PressArticleHandler.prototype.processOne = function processOne({
   };
 };
 
-export default PressArticleHandler;
+export default CrowdMassNotifyPushHandler;
