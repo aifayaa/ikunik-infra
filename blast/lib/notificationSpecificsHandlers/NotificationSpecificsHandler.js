@@ -8,13 +8,13 @@ import UGCModerationHandler from './UGCModerationHandler';
 import UGCAutoHandler from './UGCAutoHandler';
 
 const handlers = {
+  chatMessage: ChatMessageHandler,
+  crowdMassNotify: CrowdMassNotifyPushHandler,
   pressArticle: PressArticleHandler,
+  ugcModeration: UGCModerationHandler,
   userArticle: UGCHandler,
   userArticleAuto: UGCAutoHandler,
-  chatMessage: ChatMessageHandler,
   usersDirectPush: UsersDirectPushHandler,
-  crowdMassNotify: CrowdMassNotifyPushHandler,
-  ugcModeration: UGCModerationHandler,
 };
 
 function NotificationSpecificsHandler(client, appId, rootNotifQueue) {
