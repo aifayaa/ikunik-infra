@@ -1,11 +1,15 @@
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import {
   CreateStateMachineCommand,
   SFNClient,
   StartExecutionCommand,
 } from '@aws-sdk/client-sfn';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import {
+  AppLiveStreamStartNotificationDataType,
+  AppLiveStreamType,
+} from './appLiveStreamTypes';
 
 const {
   LIVE_STREAM_WATCHER_STATE_MACHINE_NAME,
@@ -26,6 +30,30 @@ const { COLL_APP_LIVE_STREAMS } = mongoCollections;
 const sfnClient = new SFNClient({
   region: REGION,
 });
+
+const lambda = new LambdaClient({
+  apiVersion: '2016-06-27',
+  region: REGION,
+});
+
+async function notifyStreamStarted(dbStream: AppLiveStreamType) {
+  const buildNotifyData: AppLiveStreamStartNotificationDataType = {
+    appId: dbStream.appId,
+    notifyAt: new Date(),
+    type: 'appLiveStreamStart',
+    data: {
+      liveStreamId: dbStream._id,
+    },
+  };
+
+  await lambda.send(
+    new InvokeCommand({
+      InvocationType: 'Event',
+      FunctionName: `blast-${STAGE}-queueNotifications`,
+      Payload: JSON.stringify(buildNotifyData),
+    })
+  );
+}
 
 async function startStreamWatcher(dbStream: AppLiveStreamType) {
   const stateMachineParams = new CreateStateMachineCommand({
@@ -148,6 +176,7 @@ export async function handleStreamStarted(resources: Array<string>) {
         await setStreamStatus(dbStream, true, { client });
 
         await startStreamWatcher(dbStream);
+        await notifyStreamStarted(dbStream);
       }
     });
 

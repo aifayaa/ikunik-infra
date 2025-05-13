@@ -319,4 +319,12 @@ export default {
       title: '[{{stage}}/{{region}}] Resource upload for {{- appName}}',
     },
   },
+  appLiveStreams: {
+    notifications: {
+      start: {
+        text: '{{- userName}} just started a live stream',
+        title: 'A live stream is starting',
+      },
+    },
+  },
 };

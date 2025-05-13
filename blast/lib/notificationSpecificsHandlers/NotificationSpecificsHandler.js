@@ -6,8 +6,10 @@ import UsersDirectPushHandler from './UsersDirectPushHandler';
 import CrowdMassNotifyPushHandler from './CrowdMassNotifyPushHandler';
 import UGCModerationHandler from './UGCModerationHandler';
 import UGCAutoHandler from './UGCAutoHandler';
+import AppLiveStreamStartHandler from './AppLiveStreamStartHandler';
 
 const handlers = {
+  appLiveStreamStart: AppLiveStreamStartHandler,
   chatMessage: ChatMessageHandler,
   crowdMassNotify: CrowdMassNotifyPushHandler,
   pressArticle: PressArticleHandler,

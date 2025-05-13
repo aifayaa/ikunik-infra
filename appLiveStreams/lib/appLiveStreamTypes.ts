@@ -37,3 +37,12 @@ export type AppLiveStreamTokenType = {
   expiresAt: Date;
   previewOnly: boolean;
 };
+
+export type AppLiveStreamStartNotificationDataType = {
+  appId: string;
+  notifyAt: Date;
+  type: 'appLiveStreamStart';
+  data: {
+    liveStreamId: string;
+  };
+};
