@@ -77,6 +77,7 @@ const serverlessConfiguration = {
     iam: {
       role: {
         statements: [
+          // Streaming
           {
             Effect: 'Allow',
             Action: ['ivs:*'],
@@ -103,11 +104,14 @@ const serverlessConfiguration = {
             Resource:
               'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
+
+          // Notifications
           {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
-            Resource:
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-sendEmailMailgun',
+            Resource: [
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:blast-${self:provider.stage}-queueNotifications',
+            ],
           },
         ],
       },

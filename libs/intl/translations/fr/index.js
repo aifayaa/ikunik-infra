@@ -298,4 +298,12 @@ export default {
       html: usersFinalizedProfileHtml,
     },
   },
+  appLiveStreams: {
+    notifications: {
+      start: {
+        text: '{{- userName}} a commencé une diffusion en direct',
+        title: 'Un direct a démarré',
+      },
+    },
+  },
 };
