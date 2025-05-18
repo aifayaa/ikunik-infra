@@ -5,36 +5,37 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { ALS_EXPIRATION_DELAY_MIN } from './utils';
+import {
+  ALS_CHAT_EXPIRATION_DELAY_MIN,
+  ALS_EXPIRATION_DELAY_MIN,
+  checkUserPermissionsOnStream,
+} from './utils';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
-  CATEGORY_NOT_FOUND_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_ALLOWED,
-  ERROR_TYPE_NOT_FOUND,
   NOT_ENOUGH_PERMISSIONS_CODE,
-  UNMANAGED_EXCEPTION_CODE,
+  PANIC_CODE,
 } from '@libs/httpResponses/errorCodes';
 import BadgeChecker from '@libs/badges/BadgeChecker';
 import {
   AppLiveStreamTokenType,
   AppLiveStreamType,
 } from './appLiveStreamTypes';
-import { PressCategoryType } from 'pressCategories/lib/pressCategoriesTypes';
-import { UserType } from '@users/lib/userEntity';
+import { CreateChatTokenCommand, IvschatClient } from '@aws-sdk/client-ivschat';
 
-const { IVS_REGION } = process.env;
+const { IVS_REGION } = process.env as { IVS_REGION: string };
 
 const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
-const {
-  COLL_APP_LIVE_STREAMS_TOKENS,
-  COLL_APP_LIVE_STREAMS,
-  COLL_PRESS_CATEGORIES,
-  COLL_USERS,
-} = mongoCollections;
+const ivsChatClient = new IvschatClient({
+  region: IVS_REGION,
+});
+
+const { COLL_APP_LIVE_STREAMS_TOKENS, COLL_APP_LIVE_STREAMS } =
+  mongoCollections;
 
 export default async function watchLiveStream(
   appId: string,
@@ -57,57 +58,10 @@ export default async function watchLiveStream(
       throw new Error('live_stream_not_found');
     }
 
-    const category = (await client
-      .db()
-      .collection(COLL_PRESS_CATEGORIES)
-      .findOne({
-        _id: dbLiveStream.categoryId,
-        appId,
-      })) as PressCategoryType | null;
-
-    if (!category) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_FOUND,
-        CATEGORY_NOT_FOUND_CODE,
-        `Category ID ${dbLiveStream.categoryId} not found!`
-      );
-    }
-
-    let canView = true;
-    let previewOnly = false;
-    if (category.badges && category.badges.list.length > 0) {
-      canView = false;
-      previewOnly = true;
-      badgeChecker.registerBadges(category.badges.list.map(({ id }) => id));
-
-      const user = userId
-        ? ((await client.db().collection(COLL_USERS).findOne({
-            _id: userId,
-            appId,
-          })) as UserType | null)
-        : null;
-
-      const userBadges = (user && user.badges) || [];
-      if (userBadges.length > 0) {
-        badgeChecker.registerBadges(userBadges.map(({ id }) => id));
-      }
-
-      await badgeChecker.loadBadges();
-
-      const results = await badgeChecker.checkBadges(
-        userBadges,
-        category.badges,
-        { userId, appId }
-      );
-
-      if (results.canList) {
-        canView = true;
-      }
-
-      if (results.canRead && results.canPreview) {
-        previewOnly = false;
-      }
-    }
+    const { canView, previewOnly } = await checkUserPermissionsOnStream(
+      dbLiveStream,
+      userId
+    );
 
     if (!canView) {
       throw new CrowdaaError(
@@ -117,8 +71,10 @@ export default async function watchLiveStream(
       );
     }
 
-    let expiresDelay = previewOnly ? 1 : ALS_EXPIRATION_DELAY_MIN;
-    let expiresAt = new Date(Date.now() + expiresDelay * 60 * 1000);
+    const chatUserId = `${liveStreamId}-${userId}-${deviceId}`;
+    const expiresDelay = previewOnly ? 1 : ALS_EXPIRATION_DELAY_MIN;
+    const chatExpiresDelay = previewOnly ? 1 : ALS_CHAT_EXPIRATION_DELAY_MIN;
+    const expiresAt = new Date(Date.now() + expiresDelay * 60 * 1000);
     const dbAlsToken = (await client
       .db()
       .collection(COLL_APP_LIVE_STREAMS_TOKENS)
@@ -161,12 +117,29 @@ export default async function watchLiveStream(
       ) {
         throw new CrowdaaError(
           ERROR_TYPE_INTERNAL_EXCEPTION,
-          UNMANAGED_EXCEPTION_CODE,
+          PANIC_CODE,
           'Missing participant token in response'
         );
       }
 
       const { participantId, token } = participantToken;
+
+      const tokenParams = new CreateChatTokenCommand({
+        roomIdentifier: dbLiveStream.aws.ivsChatRoomArn,
+        userId: chatUserId,
+        capabilities: ['SEND_MESSAGE'],
+        sessionDurationInMinutes: chatExpiresDelay,
+      });
+
+      const { token: chatToken } = await ivsChatClient.send(tokenParams);
+
+      if (!chatToken) {
+        throw new CrowdaaError(
+          ERROR_TYPE_INTERNAL_EXCEPTION,
+          PANIC_CODE,
+          'Missing participant token in response'
+        );
+      }
 
       alsToken = {
         liveStreamId,
@@ -186,6 +159,7 @@ export default async function watchLiveStream(
     }
 
     return {
+      awsRegion: IVS_REGION,
       liveStreamId,
       appId,
       deviceId,

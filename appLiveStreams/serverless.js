@@ -261,6 +261,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    createChatToken: {
+      handler: 'handlers/createChatToken.default',
+      events: [
+        {
+          http: {
+            path: 'appLiveStreams/{id}/chatSession',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',

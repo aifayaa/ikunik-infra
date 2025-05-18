@@ -15,6 +15,7 @@ export type AppLiveStreamType = {
   aws: {
     ivsStageName: string;
     ivsStageArn: string;
+    ivsChatRoomArn: string;
   };
 
   state: {
