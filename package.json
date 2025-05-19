@@ -1,6 +1,6 @@
 {
   "name": "crowdaa-microservices",
-  "version": "1.99.3",
+  "version": "1.100.0",
   "private": true,
   "description": "Crowdaa AWS microservices implemented via serverless.",
   "main": "index.js",
@@ -16,6 +16,7 @@
     "@aws-sdk/client-comprehend": "^3.744.0",
     "@aws-sdk/client-ivs": "^3.787.0",
     "@aws-sdk/client-ivs-realtime": "^3.787.0",
+    "@aws-sdk/client-ivschat": "^3.810.0",
     "@aws-sdk/client-lambda": "^3.744.0",
     "@aws-sdk/client-rekognition": "^3.744.0",
     "@aws-sdk/client-sfn": "^3.796.0",

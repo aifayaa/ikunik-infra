@@ -1,6 +1,5 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../../libs/mongoCollections.json';
-import { formatMessage, intlInit } from '../../../libs/intl/intl';
 
 const { COLL_APPS, COLL_SENT_NOTIFICATIONS, COLL_USER_GENERATED_CONTENTS } =
   mongoCollections;
