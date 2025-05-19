@@ -6,6 +6,7 @@ import {
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { AppLiveStreamType } from './appLiveStreamTypes';
+import { DeleteRoomCommand, IvschatClient } from '@aws-sdk/client-ivschat';
 
 const { IVS_REGION } = process.env;
 
@@ -16,7 +17,21 @@ const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
+const ivsChatClient = new IvschatClient({
+  region: IVS_REGION,
+});
+
 async function deleteLiveStreamInfra(dbLiveStream: AppLiveStreamType) {
+  try {
+    await ivsChatClient.send(
+      new DeleteRoomCommand({
+        identifier: dbLiveStream.aws.ivsChatRoomArn,
+      })
+    );
+  } catch (e) {
+    /* Even if that fails, we shall be able to delete the stream, which will delete the key too */
+  }
+
   try {
     await ivsRTClient.send(
       new DeleteStageCommand({

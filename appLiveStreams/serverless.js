@@ -84,6 +84,12 @@ const serverlessConfiguration = {
             Resource:
               'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
           },
+          {
+            Effect: 'Allow',
+            Action: ['ivschat:*'],
+            Resource:
+              'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:630176884077:*',
+          },
 
           // state machine
           {
@@ -244,6 +250,30 @@ const serverlessConfiguration = {
           http: {
             path: 'appLiveStreams/{id}',
             method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    createChatToken: {
+      handler: 'handlers/createChatToken.default',
+      events: [
+        {
+          http: {
+            path: 'appLiveStreams/{id}/chatSession',
+            method: 'post',
             cors: true,
             authorizer: {
               type: 'CUSTOM',

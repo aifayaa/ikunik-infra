@@ -1,8 +1,10 @@
 /* eslint-disable import/no-relative-packages */
 import {
   CreateStageCommand,
+  DeleteStageCommand,
   IVSRealTimeClient,
 } from '@aws-sdk/client-ivs-realtime';
+import { CreateRoomCommand, IvschatClient } from '@aws-sdk/client-ivschat';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils';
@@ -11,11 +13,14 @@ import {
   CATEGORY_NOT_FOUND_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_FOUND,
-  UNMANAGED_EXCEPTION_CODE,
+  PANIC_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 
-const { IVS_REGION, STAGE } = process.env;
+const { IVS_REGION, STAGE } = process.env as {
+  IVS_REGION: string;
+  STAGE: string;
+};
 
 const { COLL_APP_LIVE_STREAMS, COLL_PRESS_CATEGORIES } = mongoCollections;
 
@@ -23,10 +28,33 @@ const ivsRTClient = new IVSRealTimeClient({
   region: IVS_REGION,
 });
 
+const ivsChatClient = new IvschatClient({
+  region: IVS_REGION,
+});
+
 type CreateAppLiveStreamParamsType = {
   userId: string;
   categoryId: string;
 };
+
+async function createChatRoom(name: string, userId: string) {
+  const roomParams = new CreateRoomCommand({
+    maximumMessageLength: 500,
+    maximumMessageRatePerSecond: 40,
+    name,
+  });
+
+  const { arn: ivsChatRoomArn } = await ivsChatClient.send(roomParams);
+  if (!ivsChatRoomArn) {
+    throw new CrowdaaError(
+      ERROR_TYPE_INTERNAL_EXCEPTION,
+      PANIC_CODE,
+      `Could not create Chat Room for stage ${name}`
+    );
+  }
+
+  return { ivsChatRoomArn };
+}
 
 export async function createAppLiveStream(
   appId: string,
@@ -66,18 +94,33 @@ export async function createAppLiveStream(
 
     const { participantTokens, stage } = await ivsRTClient.send(stageParams);
 
-    if (!participantTokens || !stage) {
+    if (
+      !stage ||
+      !stage.arn ||
+      !participantTokens ||
+      !participantTokens[0].token ||
+      !participantTokens[0].participantId
+    ) {
       throw new CrowdaaError(
         ERROR_TYPE_INTERNAL_EXCEPTION,
-        UNMANAGED_EXCEPTION_CODE,
+        PANIC_CODE,
         'Missing participant token and/or stage in response'
       );
     }
 
-    const userToken = participantTokens[0].token;
+    const userStreamToken = participantTokens[0].token;
     const userParticipantId = participantTokens[0].participantId;
 
-    const dbLiveStream = {
+    let ivsChatRoomArn: string | undefined;
+    try {
+      const results = await createChatRoom(ivsStageName, userId);
+      ivsChatRoomArn = results.ivsChatRoomArn;
+    } catch (e) {
+      await ivsRTClient.send(new DeleteStageCommand({ arn: stage.arn }));
+      throw e;
+    }
+
+    const dbLiveStream: AppLiveStreamType = {
       _id,
       createdAt: now,
       createdBy: userId,
@@ -93,19 +136,20 @@ export async function createAppLiveStream(
         maxViewersCount: 0,
       },
 
-      userStreamToken: userToken,
+      userStreamToken,
       userParticipantId,
 
       aws: {
         ivsStageName,
         ivsStageArn: stage.arn,
+        ivsChatRoomArn,
       },
-    } as AppLiveStreamType;
+    };
 
     await client.db().collection(COLL_APP_LIVE_STREAMS).insertOne(dbLiveStream);
 
-    return dbLiveStream;
+    return { ...dbLiveStream, awsRegion: IVS_REGION };
   } finally {
-    client.close();
+    await client.close();
   }
 }
