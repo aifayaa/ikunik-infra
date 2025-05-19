@@ -84,6 +84,12 @@ const serverlessConfiguration = {
             Resource:
               'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
           },
+          {
+            Effect: 'Allow',
+            Action: ['ivschat:*'],
+            Resource:
+              'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:630176884077:*',
+          },
 
           // state machine
           {
