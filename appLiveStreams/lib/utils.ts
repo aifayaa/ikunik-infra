@@ -20,7 +20,7 @@ export const ALS_EXPIRATION_DELAY_MIN = 1 * 24 * 60; // 1 day
 export const ALS_EXPIRATION_DELAY_MS = ALS_EXPIRATION_DELAY_MIN * 60 * 1000;
 
 export function filterAppLiveStreamOutput(
-  input: AppLiveStreamType,
+  input: AppLiveStreamType & { awsRegion?: string },
   includeStreamingKey = false
 ) {
   return {
@@ -32,6 +32,7 @@ export function filterAppLiveStreamOutput(
     startDateTime: input.startDateTime,
     expireDateTime: input.expireDateTime,
     state: input.state,
+    awsRegion: input.awsRegion,
 
     ...(includeStreamingKey ? { userStreamToken: input.userStreamToken } : {}),
   };
