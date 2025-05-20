@@ -71,7 +71,13 @@ export default async (userId: string, appId: string) => {
     }
 
     const firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert(FIREBASE_CHAT_SERVICE_ACCOUNT),
+      /*
+       * Because of a stupid serverless feature, we need to prefix this var with something (here "JSON:") so that it's not decoded as JSON...
+       * See : https://github.com/serverless/serverless/issues/11289
+       */
+      credential: admin.credential.cert(
+        FIREBASE_CHAT_SERVICE_ACCOUNT.substring(5)
+      ),
       storageBucket: app.credentials.firebase.config.storageBucket,
       projectId: app.credentials.firebase.config.projectId,
     });

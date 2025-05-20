@@ -23,6 +23,10 @@ const serverlessConfiguration = {
     },
     environment: {
       ...env,
+      /*
+       * Because of a stupid serverless feature, we need to prefix this var with something (here "JSON:") so that it's not decoded as JSON...
+       * See : https://github.com/serverless/serverless/issues/11289
+       */
       FIREBASE_CHAT_SERVICE_ACCOUNT:
         '${ssm(us-east-1):/crowdaa_microservices/global/chat/firebase/service_account}',
     },
