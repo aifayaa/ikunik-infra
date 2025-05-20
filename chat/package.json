@@ -8,7 +8,8 @@
     "test": "npx sls export-env; npx env-cmd npx mocha --require esm --recursive --timeout 10000"
   },
   "dependencies": {
-    "aws-sdk": "^2.749.0"
+    "aws-sdk": "^2.749.0",
+    "firebase-admin": "^13.4.0"
   },
   "devDependencies": {
     "aws-sdk-mock": "^5.0.0",

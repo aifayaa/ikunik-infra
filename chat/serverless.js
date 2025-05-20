@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
 
 const serverlessConfiguration = {
   service: 'chat',
@@ -20,7 +21,11 @@ const serverlessConfiguration = {
         ],
       },
     },
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+      FIREBASE_CHAT_SERVICE_ACCOUNT:
+        '${ssm(us-east-1):/crowdaa_microservices/global/chat/firebase/service_account}',
+    },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
@@ -29,6 +34,30 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
+    getChatSession: {
+      handler: 'handlers/getChatSession.default',
+      events: [
+        {
+          http: {
+            path: 'chat/user/session',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     chatMessageSent: {
       handler: 'handlers/chatMessageSent.default',
       events: [

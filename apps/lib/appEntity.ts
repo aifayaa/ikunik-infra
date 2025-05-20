@@ -196,6 +196,16 @@ export type AppType = {
       sessionToken: string;
       autoLoginToken: string;
     };
+    firebase?: {
+      config: {
+        apiKey: string;
+        authDomain: string;
+        projectId: string;
+        storageBucket: string;
+        messagingSenderId: string;
+        appId: string;
+      };
+    };
   };
   appleAccounts?: object;
   firebaseProjectId?: object;

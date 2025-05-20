@@ -647,30 +647,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getChatSettings: {
-      handler: 'handlers/getChatSettings.default',
-      events: [
-        {
-          http: {
-            path: 'users/{id}/chatSettings',
-            method: 'get',
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-            },
-            cors: true,
-            request: {
-              parameters: {
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
   },
   plugins: [
     'serverless-esbuild',

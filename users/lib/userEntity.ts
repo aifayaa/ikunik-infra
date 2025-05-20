@@ -65,6 +65,13 @@ export type UserType = {
     password?: {
       bcrypt: string;
     };
+    firebaseChat?: {
+      userCreated: true;
+      lastToken: {
+        value: string;
+        at: Date;
+      };
+    };
   };
   emails: [{ address: string }];
   superAdmin?: boolean;
