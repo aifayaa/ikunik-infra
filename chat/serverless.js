@@ -40,10 +40,35 @@ const serverlessConfiguration = {
   functions: {
     getChatSession: {
       handler: 'handlers/getChatSession.default',
+      memorySize: 256,
       events: [
         {
           http: {
             path: 'chat/user/session',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getChatChannels: {
+      handler: 'handlers/getChatChannels.default',
+      events: [
+        {
+          http: {
+            path: 'chat/channels',
             method: 'get',
             authorizer: {
               type: 'CUSTOM',
