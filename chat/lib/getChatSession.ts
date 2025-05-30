@@ -10,6 +10,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { UserType } from '@users/lib/userEntity';
 import admin, { AppOptions } from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 const { FIREBASE_CHAT_SERVICE_ACCOUNT } = process.env as {
@@ -51,6 +52,7 @@ export default async (userId: string, appId: string) => {
         {
           projection: {
             'services.firebaseChat': 1,
+            profile: 1,
           },
         }
       ),
@@ -121,6 +123,12 @@ export default async (userId: string, appId: string) => {
         },
       }
     );
+
+    const fsdb = getFirestore(firebaseApp);
+    await fsdb.collection('users').doc(userId).set({
+      updatedAt: new Date(),
+      profile: user.profile,
+    });
 
     return {
       firebaseConfig: app.credentials.firebase.config,
