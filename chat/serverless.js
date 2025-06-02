@@ -63,30 +63,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getChatChannels: {
-      handler: 'handlers/getChatChannels.default',
-      events: [
-        {
-          http: {
-            path: 'chat/channels',
-            method: 'get',
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-            },
-            cors: true,
-            request: {
-              parameters: {
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
     chatMessageSent: {
       handler: 'handlers/chatMessageSent.default',
       events: [
