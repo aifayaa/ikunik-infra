@@ -68,6 +68,7 @@ function buildPipeline({
     },
     {
       $project: {
+        createdAt: 1,
         data: 1,
         parentCollection: 1,
         parentId: 1,
