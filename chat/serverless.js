@@ -80,13 +80,30 @@ const serverlessConfiguration = {
         },
       ],
     },
-    chatUserActivity: {
-      handler: 'handlers/chatUserActivity.default',
+    chatSelfActivity: {
+      handler: 'handlers/chatSelfActivity.default',
       events: [
         {
           http: {
-            path: 'chat/user/activity',
+            path: 'chat/self/activity',
             method: 'put',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatUsersSearch: {
+      handler: 'handlers/chatUsersSearch.default',
+      events: [
+        {
+          http: {
+            path: 'chat/users/search',
+            method: 'get',
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
