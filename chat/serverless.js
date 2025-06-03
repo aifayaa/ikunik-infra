@@ -114,6 +114,24 @@ const serverlessConfiguration = {
         },
       ],
     },
+    chatUsersInvite: {
+      handler: 'handlers/chatUsersInvite.default',
+      memorySize: 256,
+      events: [
+        {
+          http: {
+            path: 'chat/users/invite',
+            method: 'post',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',

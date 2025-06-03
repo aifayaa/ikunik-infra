@@ -12,21 +12,13 @@ import { UserType } from '@users/lib/userEntity';
 import admin, { AppOptions } from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
 
 const { FIREBASE_CHAT_SERVICE_ACCOUNT } = process.env as {
   FIREBASE_CHAT_SERVICE_ACCOUNT: string;
 };
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
-
-// Function to get or create a Firebase app with a specific name
-function getFirebaseApp(appName: string, config: AppOptions) {
-  try {
-    return admin.app(appName);
-  } catch (error) {
-    return admin.initializeApp(config, appName);
-  }
-}
 
 export default async (userId: string, appId: string) => {
   const client = await MongoClient.connect();
@@ -80,13 +72,7 @@ export default async (userId: string, appId: string) => {
       };
     }
 
-    /*
-     * Because of a stupid serverless feature, we need to prefix this var with something (here "JSON:") so that it's not decoded as JSON by serverless itself, which would make it crash in our case...
-     * See : https://github.com/serverless/serverless/issues/11289
-     */
-    const serviceAccount = JSON.parse(
-      FIREBASE_CHAT_SERVICE_ACCOUNT.substring(5)
-    );
+    const serviceAccount = getServiceAccount();
 
     const firebaseApp = getFirebaseApp(appId, {
       credential: admin.credential.cert(serviceAccount),

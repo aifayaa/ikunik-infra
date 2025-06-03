@@ -1,12 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import chatUsersSearch from '../lib/chatUsersSearch';
 import response, { handleException } from '../../libs/httpResponses/response';
-import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits';
-import { CrowdaaError } from '../../libs/httpResponses/CrowdaaError';
-import {
-  APP_FEATURE_PLAN_QUOTA_EXCEEDED_CODE,
-  ERROR_TYPE_NOT_ALLOWED,
-} from '../../libs/httpResponses/errorCodes';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
 
