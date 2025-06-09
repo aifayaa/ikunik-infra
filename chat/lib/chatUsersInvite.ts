@@ -16,6 +16,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
+import { ChatInvitationType, ChatUserType } from './chatEntities';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -81,10 +82,11 @@ export default async (
     const fsdb = getFirestore(firebaseApp);
 
     // Always ensure the user we are handling is created & up to date
-    await fsdb.collection('users').doc(toUserId).set({
+    const chatUserData: ChatUserType = {
       updatedAt: new Date(),
       profile: toUser.profile,
-    });
+    };
+    await fsdb.collection('users').doc(toUserId).set(chatUserData);
 
     const channelRef = await fsdb.collection('channels').doc(channelId).get();
 
@@ -103,7 +105,7 @@ export default async (
     const invitation = await invitationRef.get();
 
     if (invitation.exists) {
-      await invitationRef.set(
+      const invitationUpdate: Omit<ChatInvitationType, 'createdAt' | 'status'> =
         {
           fromUser: {
             id: fromUser._id,
@@ -117,7 +119,9 @@ export default async (
             id: channelId,
             name: channelData.name,
           },
-        },
+        };
+      await invitationRef.set(
+        invitationUpdate,
         // Just update the invitation data, not it's status
         { merge: true }
       );
@@ -125,7 +129,7 @@ export default async (
       return { invited: false };
     }
 
-    await invitationRef.set({
+    const invitationData: ChatInvitationType = {
       fromUser: {
         id: fromUser._id,
         profile: fromUser.profile,
@@ -140,7 +144,8 @@ export default async (
       },
       createdAt: new Date(),
       status: 'pending',
-    });
+    };
+    await invitationRef.set(invitationData);
 
     return { invited: true };
   } finally {
