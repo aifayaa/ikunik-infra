@@ -4,11 +4,8 @@ import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
-  APP_NOT_FOUND_CODE,
   CHAT_NOT_CONFIGURED_CODE,
-  ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_SETUP,
-  USER_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { UserType } from '@users/lib/userEntity';
 import { escapeRegex } from '@libs/utils';

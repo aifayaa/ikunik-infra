@@ -13,7 +13,7 @@ import admin, { AppOptions } from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
-import { ChatUserType } from './chatEntities';
+import { ChatUserType, firebaseCollections } from './chatEntities';
 
 const { FIREBASE_CHAT_SERVICE_ACCOUNT } = process.env as {
   FIREBASE_CHAT_SERVICE_ACCOUNT: string;
@@ -116,7 +116,10 @@ export default async (userId: string, appId: string) => {
       updatedAt: new Date(),
       profile: user.profile,
     };
-    await fsdb.collection('users').doc(userId).set(chatUserData);
+    await fsdb
+      .collection(firebaseCollections.COLL_USERS)
+      .doc(userId)
+      .set(chatUserData);
 
     return {
       firebaseConfig: app.credentials.firebase.config,

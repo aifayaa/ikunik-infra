@@ -16,7 +16,11 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
-import { ChatInvitationType, ChatUserType } from './chatEntities';
+import {
+  ChatInvitationType,
+  ChatUserType,
+  firebaseCollections,
+} from './chatEntities';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -58,7 +62,7 @@ export default async (
       appId,
     });
     const toUser = await db.collection(COLL_USERS).findOne({
-      _id: fromUserId,
+      _id: toUserId,
       appId,
     });
 
@@ -86,9 +90,15 @@ export default async (
       updatedAt: new Date(),
       profile: toUser.profile,
     };
-    await fsdb.collection('users').doc(toUserId).set(chatUserData);
+    await fsdb
+      .collection(firebaseCollections.COLL_USERS)
+      .doc(toUserId)
+      .set(chatUserData);
 
-    const channelRef = await fsdb.collection('channels').doc(channelId).get();
+    const channelRef = await fsdb
+      .collection(firebaseCollections.COLL_CHANNELS)
+      .doc(channelId)
+      .get();
 
     const channelData = channelRef.data();
     if (!channelRef.exists || !channelData) {
@@ -100,7 +110,7 @@ export default async (
     }
 
     const invitationRef = fsdb
-      .collection('invitations')
+      .collection(firebaseCollections.COLL_INVITATIONS)
       .doc(`${channelId}-${fromUserId}-${toUserId}`);
     const invitation = await invitationRef.get();
 

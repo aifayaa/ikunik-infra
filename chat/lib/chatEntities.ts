@@ -21,3 +21,9 @@ export type ChatUserType = {
   updatedAt: Date;
   profile: UserProfileType;
 };
+
+export const firebaseCollections = {
+  COLL_USERS: 'users',
+  COLL_CHANNELS: 'channels',
+  COLL_INVITATIONS: 'invitations',
+};
