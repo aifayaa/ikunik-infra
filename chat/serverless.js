@@ -114,14 +114,32 @@ const serverlessConfiguration = {
         },
       ],
     },
-    chatUsersInvite: {
-      handler: 'handlers/chatUsersInvite.default',
+    chatInviteUser: {
+      handler: 'handlers/chatInviteUser.default',
       memorySize: 256,
       events: [
         {
           http: {
-            path: 'chat/users/invite',
+            path: 'chat/invitations',
             method: 'post',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatInvitationAction: {
+      handler: 'handlers/chatInvitationAction.default',
+      memorySize: 256,
+      events: [
+        {
+          http: {
+            path: 'chat/invitations/{id}',
+            method: 'put',
             authorizer: {
               type: 'CUSTOM',
               authorizerId:

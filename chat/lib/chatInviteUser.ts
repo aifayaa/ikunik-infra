@@ -7,6 +7,9 @@ import {
   APP_NOT_FOUND_CODE,
   CHAT_CHANNEL_CODE,
   CHAT_NOT_CONFIGURED_CODE,
+  CHAT_USER_ALREADY_MEMBER_CODE,
+  CHAT_USER_BANNED_CODE,
+  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_SETUP,
   USER_NOT_FOUND_CODE,
@@ -17,6 +20,8 @@ import { getAuth } from 'firebase-admin/auth';
 
 import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
 import {
+  ChatChannelType,
+  ChatInvitationStatusType,
   ChatInvitationType,
   ChatUserType,
   firebaseCollections,
@@ -24,7 +29,7 @@ import {
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
-type ChatUsersInviteParams = {
+type ChatInviteUserParams = {
   fromUserId: string;
   toUserId: string;
   channelId: string;
@@ -32,7 +37,7 @@ type ChatUsersInviteParams = {
 
 export default async (
   appId: string,
-  { fromUserId, toUserId, channelId }: ChatUsersInviteParams
+  { fromUserId, toUserId, channelId }: ChatInviteUserParams
 ) => {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -100,7 +105,7 @@ export default async (
       .doc(channelId)
       .get();
 
-    const channelData = channelRef.data();
+    const channelData = channelRef.data() as ChatChannelType | null;
     if (!channelRef.exists || !channelData) {
       throw new CrowdaaError(
         ERROR_TYPE_NOT_FOUND,
@@ -109,14 +114,52 @@ export default async (
       );
     }
 
-    const invitationRef = fsdb
-      .collection(firebaseCollections.COLL_INVITATIONS)
-      .doc(`${channelId}-${fromUserId}-${toUserId}`);
-    const invitation = await invitationRef.get();
+    const isMember =
+      channelData.isPublic || channelData.members.indexOf(toUserId) >= 0;
+    const isBanned = channelData.bannedUsers.indexOf(toUserId) >= 0;
 
-    if (invitation.exists) {
-      const invitationUpdate: Omit<ChatInvitationType, 'createdAt' | 'status'> =
-        {
+    if (isBanned) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_ALLOWED,
+        CHAT_USER_BANNED_CODE,
+        `The user '${toUserId}' was banned from the channel ${channelId}`
+      );
+    }
+
+    if (isMember) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_ALLOWED,
+        CHAT_USER_ALREADY_MEMBER_CODE,
+        `The user '${toUserId}' is already a member of channel ${channelId}`
+      );
+    }
+
+    const collInvitationsRef = fsdb.collection(
+      firebaseCollections.COLL_INVITATIONS
+    );
+    const invitationsSnapshot = await collInvitationsRef
+      .where('toUser.id', '==', toUserId)
+      .where('channel.id', '==', channelId)
+      .where('status', '==', 'pending')
+      .get();
+    if (!invitationsSnapshot.empty) {
+      let pendingInvitationIds: Array<string> = [];
+      let toDisableInvitationIds: Array<string> = [];
+
+      invitationsSnapshot.forEach((doc) => {
+        const invitationData = doc.data() as ChatInvitationType;
+        if (invitationData.fromUser.id === fromUserId) {
+          pendingInvitationIds.push(doc.id);
+        } else {
+          toDisableInvitationIds.push(doc.id);
+        }
+      });
+
+      if (pendingInvitationIds.length > 0) {
+        const invitationUpdate: Omit<
+          ChatInvitationType,
+          'createdAt' | 'status'
+        > = {
           fromUser: {
             id: fromUser._id,
             profile: fromUser.profile,
@@ -129,14 +172,37 @@ export default async (
             id: channelId,
             name: channelData.name,
           },
+          updatedAt: new Date(),
         };
-      await invitationRef.set(
-        invitationUpdate,
-        // Just update the invitation data, not it's status
-        { merge: true }
-      );
+        const promises = pendingInvitationIds.map(async (id) => {
+          await collInvitationsRef.doc(id).set(
+            invitationUpdate,
+            // Just update the invitation data, not it's status
+            { merge: true }
+          );
+        });
 
-      return { invited: false };
+        await Promise.all(promises);
+      }
+
+      if (toDisableInvitationIds.length > 0) {
+        const promises = pendingInvitationIds.map(async (id) => {
+          const update: { status: ChatInvitationStatusType } = {
+            status: 'disabled',
+          };
+          await collInvitationsRef.doc(id).set(
+            update,
+            // Just update the invitation data, not it's status
+            { merge: true }
+          );
+        });
+
+        await Promise.all(promises);
+      }
+
+      if (pendingInvitationIds.length > 0) {
+        return { invited: false };
+      }
     }
 
     const invitationData: ChatInvitationType = {
@@ -153,9 +219,10 @@ export default async (
         name: channelData.name,
       },
       createdAt: new Date(),
+      updatedAt: new Date(),
       status: 'pending',
     };
-    await invitationRef.set(invitationData);
+    await collInvitationsRef.add(invitationData);
 
     return { invited: true };
   } finally {

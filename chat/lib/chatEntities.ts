@@ -1,5 +1,11 @@
 import { UserProfileType } from '@users/lib/userEntity';
 
+export type ChatInvitationStatusType =
+  | 'pending'
+  | 'accepted'
+  | 'rejected'
+  | 'disabled';
+
 export type ChatInvitationType = {
   fromUser: {
     id: string;
@@ -14,13 +20,35 @@ export type ChatInvitationType = {
     name: string;
   };
   createdAt: Date;
-  status: 'pending' | 'accepted' | 'rejected';
+  updatedAt: Date;
+  status: ChatInvitationStatusType;
 };
 
 export type ChatUserType = {
   updatedAt: Date;
   profile: UserProfileType;
 };
+
+type ChatChannelCommonType = {
+  createdAt: Date;
+  createdBy: string;
+  description: string;
+  isDeleted: boolean;
+  isPublic: boolean;
+  bannedUsers: Array<string>;
+  name: string;
+};
+
+type ChatChannelPrivateType = ChatChannelCommonType & {
+  members: Array<string>;
+  isPublic: false;
+};
+
+type ChatChannelPublicType = ChatChannelCommonType & {
+  isPublic: true;
+};
+
+export type ChatChannelType = ChatChannelPrivateType | ChatChannelPublicType;
 
 export const firebaseCollections = {
   COLL_USERS: 'users',
