@@ -1,6 +1,8 @@
 /* eslint-disable no-template-curly-in-string */
 const env = require('../env');
 
+const firebaseMemory = 512;
+
 const serverlessConfiguration = {
   service: 'chat',
   provider: {
@@ -40,11 +42,11 @@ const serverlessConfiguration = {
   functions: {
     getChatSession: {
       handler: 'handlers/getChatSession.default',
-      memorySize: 256,
+      memorySize: firebaseMemory,
       events: [
         {
           http: {
-            path: 'chat/user/session',
+            path: 'chat/self/session',
             method: 'get',
             authorizer: {
               type: 'CUSTOM',
@@ -68,7 +70,7 @@ const serverlessConfiguration = {
       events: [
         {
           http: {
-            path: 'chat/message/sent',
+            path: 'chat/channel/{id}/messageSent',
             method: 'put',
             authorizer: {
               type: 'CUSTOM',
@@ -116,7 +118,7 @@ const serverlessConfiguration = {
     },
     chatInviteUser: {
       handler: 'handlers/chatInviteUser.default',
-      memorySize: 256,
+      memorySize: firebaseMemory,
       events: [
         {
           http: {
@@ -134,11 +136,29 @@ const serverlessConfiguration = {
     },
     chatInvitationAction: {
       handler: 'handlers/chatInvitationAction.default',
-      memorySize: 256,
+      memorySize: firebaseMemory,
       events: [
         {
           http: {
             path: 'chat/invitations/{id}',
+            method: 'put',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatLeaveChannel: {
+      handler: 'handlers/chatLeaveChannel.default',
+      memorySize: firebaseMemory,
+      events: [
+        {
+          http: {
+            path: 'chat/channel/{id}/leave',
             method: 'put',
             authorizer: {
               type: 'CUSTOM',
