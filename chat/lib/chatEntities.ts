@@ -46,6 +46,7 @@ type ChatChannelPrivateType = ChatChannelCommonType & {
 
 type ChatChannelPublicType = ChatChannelCommonType & {
   isPublic: true;
+  // This still contains a `members` array, but it is not used, and should be
 };
 
 export type ChatChannelType = ChatChannelPrivateType | ChatChannelPublicType;
