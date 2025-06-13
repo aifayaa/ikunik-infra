@@ -67,6 +67,7 @@ const serverlessConfiguration = {
     },
     chatMessageSent: {
       handler: 'handlers/chatMessageSent.default',
+      memorySize: firebaseMemory,
       events: [
         {
           http: {
