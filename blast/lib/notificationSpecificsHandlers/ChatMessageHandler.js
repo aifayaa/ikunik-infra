@@ -1,46 +1,35 @@
 /* eslint-disable import/no-relative-packages */
-import mongoCollections from '../../../libs/mongoCollections.json';
-import { ObjectID } from '../../../libs/mongoClient';
-
-const { COLL_CHATENGINE_ROOM_USERS } = mongoCollections;
 
 const CHAT_INACTIVITY_NOTIFICATION_THRESHOLD = 60 * 1000;
 
 function ChatMessageHandler() {}
 
-ChatMessageHandler.prototype.init = async function init() {
-  const roomUsers = await this.client
-    .db()
-    .collection(COLL_CHATENGINE_ROOM_USERS)
-    .findOne({
-      _id: ObjectID(this.queueData.roomUsersId),
-    });
-
-  if (!roomUsers) return false;
-
-  this.roomId = this.queueData.roomId;
+ChatMessageHandler.prototype.init = function init() {
+  this.channelId = this.queueData.channelId;
   this.message = this.queueData.message;
-  this.usersHash = roomUsers.users.reduce((acc, userId) => {
-    acc[userId] = true;
-    return acc;
-  }, {});
 
-  return true;
+  this.membersHash =
+    this.channelMembersIds === null
+      ? null
+      : this.channelMembersIds.reduce((acc, userId) => {
+          acc[userId] = true;
+          return acc;
+        }, {});
+
+  return Promise.resolve(true);
 };
 
 ChatMessageHandler.prototype.processOne = function processOne({ user }) {
-  const { message, roomId, usersHash } = this;
+  const { message, channelId, membersHash } = this;
 
   if (!user) return { canNotify: false };
-  if (!usersHash[user._id]) return { canNotify: false };
-
-  if (!user.services || !user.services.chatengine) {
+  if (membersHash !== null && !membersHash[user._id]) {
     return { canNotify: false };
   }
 
   const lastActivity =
-    user.services.chatengine.lastActivity &&
-    user.services.chatengine.lastActivity.getTime();
+    user.services.firebaseChat.lastActivity &&
+    user.services.firebaseChat.lastActivity.getTime();
   const maxActivityTimeAllowed =
     Date.now() - CHAT_INACTIVITY_NOTIFICATION_THRESHOLD;
   if (lastActivity && lastActivity > maxActivityTimeAllowed) {
@@ -52,7 +41,7 @@ ChatMessageHandler.prototype.processOne = function processOne({ user }) {
     data: {
       isText: true,
       content: message,
-      extraData: { chatRoomId: roomId },
+      extraData: { channelId },
     },
   };
 };

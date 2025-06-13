@@ -8,25 +8,20 @@ import {
   CHAT_CHANNEL_CODE,
   CHAT_INVITATION_CODE,
   CHAT_NOT_CONFIGURED_CODE,
-  CHAT_USER_ALREADY_MEMBER_CODE,
-  CHAT_USER_BANNED_CODE,
-  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
   ERROR_TYPE_SETUP,
   ERROR_TYPE_VALIDATION_ERROR,
   INVALID_CHAT_INVITATION_STATUS_CODE,
   USER_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
-import admin, { AppOptions } from 'firebase-admin';
+import admin from 'firebase-admin';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
 
 import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
 import {
   ChatChannelType,
   ChatInvitationStatusType,
   ChatInvitationType,
-  ChatUserType,
   firebaseCollections,
 } from './chatEntities';
 

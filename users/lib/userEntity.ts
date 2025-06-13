@@ -4,7 +4,7 @@ import {
 } from '../../libs/perms/permEntities';
 
 export type UserProfileType = {
-  username: string | number;
+  username: string;
   avatar?: string;
   avatarId?: string;
   email?: string;

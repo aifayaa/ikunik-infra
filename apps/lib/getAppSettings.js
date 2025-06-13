@@ -25,7 +25,6 @@ export default async (appId, allSettings = false) => {
 
     if (allSettings) {
       return {
-        chatengine: application.settings.chatengine,
         internalProfileFields: application.settings.internalProfileFields,
         playlistManagementUrl: application.settings.playlistManagementUrl,
         press: application.settings.press,

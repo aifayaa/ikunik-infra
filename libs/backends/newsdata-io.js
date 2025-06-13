@@ -4,8 +4,6 @@ import request from 'request-promise-native';
 const BASE_URL = 'https://newsdata.io/api/1/news';
 const APIKEY = 'pub_21679acf2b92336b1e7014ae26502b9ca0b98';
 
-// See documentation here : https://rest.chatengine.io/
-
 function NewsDataIO() {}
 
 NewsDataIO.prototype.getNews = async function call(

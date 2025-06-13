@@ -107,6 +107,7 @@ export default async (userId: string, appId: string) => {
       {
         $set: {
           'services.firebaseChat.lastToken': { value: token, at: new Date() },
+          'services.firebaseChat.lastActivity': new Date(),
         },
       }
     );
