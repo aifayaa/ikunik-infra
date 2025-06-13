@@ -1,5 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 
+import { objGet } from '../../../libs/utils';
+
 const CHAT_INACTIVITY_NOTIFICATION_THRESHOLD = 60 * 1000;
 
 function ChatMessageHandler() {}
@@ -9,9 +11,9 @@ ChatMessageHandler.prototype.init = function init() {
   this.message = this.queueData.message;
 
   this.membersHash =
-    this.channelMembersIds === null
+    this.queueData.channelMembersIds === null
       ? null
-      : this.channelMembersIds.reduce((acc, userId) => {
+      : this.queueData.channelMembersIds.reduce((acc, userId) => {
           acc[userId] = true;
           return acc;
         }, {});
@@ -27,12 +29,15 @@ ChatMessageHandler.prototype.processOne = function processOne({ user }) {
     return { canNotify: false };
   }
 
-  const lastActivity =
-    user.services.firebaseChat.lastActivity &&
-    user.services.firebaseChat.lastActivity.getTime();
+  const lastActivity = objGet(user, [
+    'services',
+    'firebaseChat',
+    'lastActivity',
+  ]);
+  const lastActivityTime = lastActivity && lastActivity.getTime();
   const maxActivityTimeAllowed =
     Date.now() - CHAT_INACTIVITY_NOTIFICATION_THRESHOLD;
-  if (lastActivity && lastActivity > maxActivityTimeAllowed) {
+  if (lastActivityTime && lastActivityTime > maxActivityTimeAllowed) {
     return { canNotify: false };
   }
 
