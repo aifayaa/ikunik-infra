@@ -4,7 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'userGeneratedContents',
   custom: {
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     prune: {
       automatic: true,
       number: 3,

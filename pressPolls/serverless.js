@@ -3,7 +3,7 @@
 const serverlessConfiguration = {
   service: 'pressPolls',
   custom: {
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     prune: {
       automatic: true,
       number: 3,

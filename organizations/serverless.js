@@ -434,7 +434,7 @@ const serverlessConfiguration = {
         subnetIds: ['subnet-0977176abc4c94459'],
       },
     },
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     prune: {
       automatic: true,
       number: 3,

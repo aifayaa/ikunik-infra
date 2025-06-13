@@ -122,7 +122,7 @@ const serverlessConfiguration = {
     'serverless-plugin-log-retention',
   ],
   custom: {
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     prune: {
       automatic: true,
       number: 3,
