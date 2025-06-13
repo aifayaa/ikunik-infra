@@ -31,7 +31,7 @@ export type ChatUserType = {
 
 type ChatChannelCommonType = {
   createdAt: Date;
-  createdBy: string;
+  ownerId: string;
   description: string;
   isDeleted: boolean;
   isPublic: boolean;
