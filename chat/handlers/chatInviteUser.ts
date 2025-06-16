@@ -8,6 +8,7 @@ import {
   MISSING_BODY_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
+import { getUserLanguage } from '@libs/intl/intl';
 
 const bodySchema = z
   .object({
@@ -42,6 +43,8 @@ export default async (event: APIGatewayProxyEvent) => {
       );
     }
 
+    const lang = getUserLanguage(event.headers);
+
     // Validate the body of the request
     const body = JSON.parse(event.body);
 
@@ -51,6 +54,7 @@ export default async (event: APIGatewayProxyEvent) => {
       channelId,
       fromUserId,
       toUserId,
+      lang,
     });
 
     return response({

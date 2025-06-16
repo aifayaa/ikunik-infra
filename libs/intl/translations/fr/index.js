@@ -306,4 +306,12 @@ export default {
       },
     },
   },
+  chat: {
+    notifications: {
+      user_invitation: {
+        text: '{{- fromUserName}} vous invite à rejoindre "{{- channelName}}"',
+        title: 'Invitation à rejoindre un canal du chat',
+      },
+    },
+  },
 };
