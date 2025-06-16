@@ -46,7 +46,7 @@ ChatMessageHandler.prototype.processOne = function processOne({ user }) {
     data: {
       isText: true,
       content: message,
-      extraData: { channelId },
+      extraData: { channelId, isMessage: true },
     },
   };
 };

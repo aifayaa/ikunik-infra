@@ -327,4 +327,12 @@ export default {
       },
     },
   },
+  chat: {
+    notifications: {
+      user_invitation: {
+        text: '{{- fromUserName}} is inviting you to join "{{- channelName}}"',
+        title: 'Invitation to join a chat channel',
+      },
+    },
+  },
 };

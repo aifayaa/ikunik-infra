@@ -1,4 +1,5 @@
 /* eslint-disable import/no-relative-packages */
+import Lambda from 'aws-sdk/clients/lambda';
 import { AppType } from '@apps/lib/appEntity';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
@@ -26,18 +27,62 @@ import {
   ChatUserType,
   firebaseCollections,
 } from './chatEntities';
+import { formatMessage, intlInit } from '@libs/intl/intl';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
+
+const { REGION, STAGE } = process.env;
+
+const lambda = new Lambda({
+  region: REGION,
+});
+
+async function sendInvitationNotification(
+  appId: string,
+  {
+    channelId,
+    fromUserId,
+    text,
+    title,
+    toUserId,
+  }: {
+    channelId: string;
+    fromUserId: string;
+    text: string;
+    title: string;
+    toUserId: string;
+  }
+) {
+  await lambda
+    .invoke({
+      FunctionName: `blast-${STAGE}-queueNotifications`,
+      Payload: JSON.stringify({
+        appId,
+        notifyAt: new Date().toISOString(),
+        type: 'chatInvitation',
+        only: 'users',
+        data: {
+          channelId,
+          fromUserId,
+          text,
+          title,
+          toUserId,
+        },
+      }),
+    })
+    .promise();
+}
 
 type ChatInviteUserParams = {
   fromUserId: string;
   toUserId: string;
   channelId: string;
+  lang: string;
 };
 
 export default async (
   appId: string,
-  { fromUserId, toUserId, channelId }: ChatInviteUserParams
+  { fromUserId, toUserId, channelId, lang }: ChatInviteUserParams
 ) => {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -217,6 +262,22 @@ export default async (
       status: 'pending',
     };
     await collInvitationsRef.add(invitationData);
+
+    intlInit(lang);
+
+    await sendInvitationNotification(appId, {
+      fromUserId,
+      toUserId,
+      channelId,
+      text: formatMessage('chat:notification.user_invitation.text', {
+        fromUserName: fromUser.profile.username,
+        channelName: channelData.name,
+      }),
+      title: formatMessage('chat:notification.user_invitation.title', {
+        fromUserName: fromUser.profile.username,
+        channelName: channelData.name,
+      }),
+    });
 
     return { invited: true };
   } finally {
