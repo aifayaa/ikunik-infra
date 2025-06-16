@@ -18,7 +18,7 @@ import admin, { AppOptions } from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
-import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
+import { getFirebaseApp } from './chatFirebaseUtils';
 import {
   ChatChannelType,
   ChatInvitationStatusType,
@@ -80,13 +80,7 @@ export default async (
       );
     }
 
-    const serviceAccount = getServiceAccount();
-
-    const firebaseApp = getFirebaseApp(appId, {
-      credential: admin.credential.cert(serviceAccount),
-      storageBucket: app.credentials.firebase.config.storageBucket,
-      projectId: app.credentials.firebase.config.projectId,
-    });
+    const firebaseApp = getFirebaseApp(app);
 
     const fsdb = getFirestore(firebaseApp);
 

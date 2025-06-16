@@ -12,7 +12,7 @@ import { UserType } from '@users/lib/userEntity';
 import admin, { AppOptions } from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirebaseApp, getServiceAccount } from './chatFirebaseUtils';
+import { getFirebaseApp } from './chatFirebaseUtils';
 import { ChatUserType, firebaseCollections } from './chatEntities';
 
 const { FIREBASE_CHAT_SERVICE_ACCOUNT } = process.env as {
@@ -33,7 +33,7 @@ export default async (userId: string, appId: string) => {
         },
         {
           projection: {
-            'credentials.firebase.config': 1,
+            'credentials.firebase': 1,
           },
         }
       ),
@@ -73,13 +73,7 @@ export default async (userId: string, appId: string) => {
       };
     }
 
-    const serviceAccount = getServiceAccount();
-
-    const firebaseApp = getFirebaseApp(appId, {
-      credential: admin.credential.cert(serviceAccount),
-      storageBucket: app.credentials.firebase.config.storageBucket,
-      projectId: app.credentials.firebase.config.projectId,
-    });
+    const firebaseApp = getFirebaseApp(app);
 
     const auth = getAuth(firebaseApp);
 

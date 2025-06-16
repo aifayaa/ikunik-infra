@@ -36,7 +36,7 @@ export default async (
   try {
     const app: AppType | null = await db.collection(COLL_APPS).findOne({
       _id: appId,
-      'credentials.firebase.config': { $exists: true },
+      'credentials.firebase': { $exists: true },
     });
 
     if (!app) {

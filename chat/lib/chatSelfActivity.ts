@@ -19,7 +19,7 @@ export default async (userId: string, appId: string) => {
         },
         {
           projection: {
-            'credentials.firebase.config': 1,
+            'credentials.firebase': 1,
           },
         }
       ) as Promise<AppType>,
