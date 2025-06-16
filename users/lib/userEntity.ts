@@ -4,7 +4,7 @@ import {
 } from '../../libs/perms/permEntities';
 
 export type UserProfileType = {
-  username: string | number;
+  username: string;
   avatar?: string;
   avatarId?: string;
   email?: string;
@@ -64,6 +64,13 @@ export type UserType = {
   services: {
     password?: {
       bcrypt: string;
+    };
+    firebaseChat?: {
+      userCreated: true;
+      lastToken: {
+        value: string;
+        at: Date;
+      };
     };
   };
   emails: [{ address: string }];

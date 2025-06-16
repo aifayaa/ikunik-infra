@@ -76,6 +76,7 @@ export default async (bucket, object, fileHead) => {
     finalDocument.filename = destKey;
     finalDocument.url = `https://${CDN_DOMAIN_NAME}/${destKey}`;
     finalDocument.status = uploadStatus.READY;
+    finalDocument.size = file.ContentLength;
 
     await client
       .db()

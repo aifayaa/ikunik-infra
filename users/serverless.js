@@ -4,7 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'users',
   custom: {
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     prune: {
       automatic: true,
       number: 3,
@@ -630,30 +630,6 @@ const serverlessConfiguration = {
           http: {
             path: 'users/{id}',
             method: 'put',
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-            },
-            cors: true,
-            request: {
-              parameters: {
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    getChatSettings: {
-      handler: 'handlers/getChatSettings.default',
-      events: [
-        {
-          http: {
-            path: 'users/{id}/chatSettings',
-            method: 'get',
             authorizer: {
               type: 'CUSTOM',
               authorizerId:

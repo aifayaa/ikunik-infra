@@ -78,7 +78,6 @@ export const appPrivateFields = [
   'credentials.apple.clientSecret',
   'credentials.apple.expireTime',
   'credentials.apple.keyId',
-  'credentials.chatengine.privateKey',
   'credentials.facebook.appSecret',
   'credentials.wordpressPlaylists.autoLoginToken',
   'credentials.wordpressPlaylists.email',
@@ -93,7 +92,6 @@ export const appPrivateFields = [
 
   // Not included/public, may be needed by the dashboard :
   // 'credentials.apple.clientId',
-  // 'credentials.chatengine.publicKey',
   // 'credentials.facebook.appId',
   // 'credentials.facebook.permissions',
   // 'credentials.wordpressPlaylists.baseUrl',
