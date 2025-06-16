@@ -18,7 +18,6 @@
   "COLL_BLOCKED_CONTENTS": "blockedContents",
   "COLL_BOOKABLES": "bookables",
   "COLL_CARTS": "carts",
-  "COLL_CHATENGINE_ROOM_USERS": "chatengineRoomUsers",
   "COLL_CONTACTS": "contacts",
   "COLL_CONTENT_BY_USER_METRIC": "contentByUserMetric",
   "COLL_CONTENT_PERMISSIONS": "contentPermissions",

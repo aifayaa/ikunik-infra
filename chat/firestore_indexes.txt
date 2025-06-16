@@ -1,0 +1,10 @@
+# Liste des indexes :
+# collection: champ [ASC/DESC] ...
+
+invitations: fromUser.id ASC channel.id ASC
+
+channels: isDeleted DESC name ASC
+
+messages: isDeleted DESC createdAt DESC
+
+invitations: toUser.id ASC channel.id ASC

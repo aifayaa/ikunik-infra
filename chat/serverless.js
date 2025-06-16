@@ -1,4 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
+const env = require('../env');
+
+const firebaseMemory = 512;
 
 const serverlessConfiguration = {
   service: 'chat',
@@ -20,7 +23,9 @@ const serverlessConfiguration = {
         ],
       },
     },
-    environment: '${file(../env.js)}',
+    environment: {
+      ...env,
+    },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
       restApiRootResourceId:
@@ -29,12 +34,38 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    chatMessageSent: {
-      handler: 'handlers/chatMessageSent.default',
+    getChatSession: {
+      handler: 'handlers/getChatSession.default',
+      memorySize: firebaseMemory,
       events: [
         {
           http: {
-            path: 'chat/message/sent',
+            path: 'chat/self/session',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    chatMessageSent: {
+      handler: 'handlers/chatMessageSent.default',
+      memorySize: firebaseMemory,
+      events: [
+        {
+          http: {
+            path: 'chat/channel/{id}/messageSent',
             method: 'put',
             authorizer: {
               type: 'CUSTOM',
@@ -46,12 +77,83 @@ const serverlessConfiguration = {
         },
       ],
     },
-    chatUserActivity: {
-      handler: 'handlers/chatUserActivity.default',
+    chatSelfActivity: {
+      handler: 'handlers/chatSelfActivity.default',
       events: [
         {
           http: {
-            path: 'chat/user/activity',
+            path: 'chat/self/activity',
+            method: 'put',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatUsersSearch: {
+      handler: 'handlers/chatUsersSearch.default',
+      events: [
+        {
+          http: {
+            path: 'chat/users/search',
+            method: 'get',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatInviteUser: {
+      handler: 'handlers/chatInviteUser.default',
+      memorySize: firebaseMemory,
+      events: [
+        {
+          http: {
+            path: 'chat/invitations',
+            method: 'post',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatInvitationAction: {
+      handler: 'handlers/chatInvitationAction.default',
+      memorySize: firebaseMemory,
+      events: [
+        {
+          http: {
+            path: 'chat/invitations/{id}',
+            method: 'put',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+          },
+        },
+      ],
+    },
+    chatLeaveChannel: {
+      handler: 'handlers/chatLeaveChannel.default',
+      memorySize: firebaseMemory,
+      events: [
+        {
+          http: {
+            path: 'chat/channel/{id}/leave',
             method: 'put',
             authorizer: {
               type: 'CUSTOM',
@@ -73,7 +175,7 @@ const serverlessConfiguration = {
     'serverless-export-env',
   ],
   custom: {
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     prune: {
       automatic: true,
       number: 3,
