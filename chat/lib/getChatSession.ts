@@ -117,7 +117,7 @@ export default async (userId: string, appId: string) => {
       .set(chatUserData);
 
     return {
-      firebaseConfig: app.credentials.firebase.config,
+      firebaseConfig: app.credentials.firebase.webAppConfig,
       token,
     };
   } finally {
