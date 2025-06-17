@@ -15,7 +15,7 @@ export default async (userId: string, appId: string) => {
       db.collection(COLL_APPS).findOne(
         {
           _id: appId,
-          'credentials.firebase.config': { $exists: true },
+          'credentials.firebase.webAppConfig': { $exists: true },
         },
         {
           projection: {

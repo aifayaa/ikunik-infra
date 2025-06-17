@@ -11,7 +11,10 @@ export function getFirebaseApp(app: AppType) {
   try {
     return admin.app(app._id);
   } catch (error) {
-    if (!app?.credentials?.firebase) {
+    if (
+      !app?.credentials?.firebase?.webAppConfig ||
+      !app?.credentials?.firebase?.chatServiceAccount
+    ) {
       throw new CrowdaaError(
         ERROR_TYPE_SETUP,
         CHAT_NOT_CONFIGURED_CODE,
@@ -22,10 +25,10 @@ export function getFirebaseApp(app: AppType) {
       {
         credential: admin.credential.cert(
           // We do not respect this shape, but it still works, so ignore typescript warning... :
-          app.credentials.firebase.serviceAccount as admin.ServiceAccount
+          app.credentials.firebase.chatServiceAccount as admin.ServiceAccount
         ),
-        storageBucket: app.credentials.firebase.config.storageBucket,
-        projectId: app.credentials.firebase.config.projectId,
+        storageBucket: app.credentials.firebase.webAppConfig.storageBucket,
+        projectId: app.credentials.firebase.webAppConfig.projectId,
       },
       app._id
     );

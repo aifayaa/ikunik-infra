@@ -197,7 +197,7 @@ export type AppType = {
       autoLoginToken: string;
     };
     firebase?: {
-      config: {
+      webAppConfig?: {
         apiKey: string;
         authDomain: string;
         projectId: string;
@@ -205,7 +205,7 @@ export type AppType = {
         messagingSenderId: string;
         appId: string;
       };
-      serviceAccount: {
+      chatServiceAccount?: {
         type: string;
         project_id: string;
         private_key_id: string;
