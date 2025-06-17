@@ -79,6 +79,7 @@ export const appPrivateFields = [
   'credentials.apple.expireTime',
   'credentials.apple.keyId',
   'credentials.facebook.appSecret',
+  'credentials.firebase.chatServiceAccount',
   'credentials.wordpressPlaylists.autoLoginToken',
   'credentials.wordpressPlaylists.email',
   'credentials.wordpressPlaylists.password',
