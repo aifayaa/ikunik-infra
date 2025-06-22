@@ -8,12 +8,14 @@ import UGCModerationHandler from './UGCModerationHandler';
 import UGCAutoHandler from './UGCAutoHandler';
 import AppLiveStreamStartHandler from './AppLiveStreamStartHandler';
 import ChatInvitationHandler from './ChatInvitationHandler';
+import GhantyMyFidNotifyPushHandler from './GhantyMyFidNotifyPushHandler';
 
 const handlers = {
   appLiveStreamStart: AppLiveStreamStartHandler,
   chatInvitation: ChatInvitationHandler,
   chatMessage: ChatMessageHandler,
   crowdMassNotify: CrowdMassNotifyPushHandler,
+  ghantyMyFid: GhantyMyFidNotifyPushHandler,
   pressArticle: PressArticleHandler,
   ugcModeration: UGCModerationHandler,
   userArticle: UGCHandler,
