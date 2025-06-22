@@ -121,7 +121,7 @@ const serverlessConfiguration = {
       events: [
         {
           eventBridge: {
-            schedule: 'cron(0 0 * * * *)',
+            schedule: 'cron(0 0 * * ? *)',
           },
         },
       ],
