@@ -189,3 +189,65 @@ export function promiseExecUntilTrue(exec) {
     process();
   });
 }
+/**
+ * A class that accepts executing up to `maxPending` promises at a time
+ */
+export function PromiseQueue(maxPending, throws = true) {
+  this.pending = 0;
+  this.success = [];
+  this.errors = [];
+  this.throws = throws;
+  this.maxPending = maxPending;
+  this.resetCallback = () => {
+    this.onPromiseEnd = () => {};
+  };
+  this.resetCallback();
+}
+
+PromiseQueue.prototype.add = function add(promise) {
+  this.pending += 1;
+  promise
+    .then((result) => {
+      this.pending -= 1;
+      this.success.push(result);
+      this.onPromiseEnd();
+    })
+    .catch((error) => {
+      this.pending -= 1;
+      this.errors.push(error);
+      this.onPromiseEnd();
+    });
+
+  if (this.pending >= this.maxPending) {
+    return new Promise((resolve, reject) => {
+      this.onPromiseEnd = () => {
+        this.resetCallback();
+        if (this.throws && this.errors.length > 0) {
+          reject(this.errors[0]);
+        } else {
+          resolve();
+        }
+      };
+    });
+  }
+
+  return Promise.resolve();
+};
+
+PromiseQueue.prototype.flush = function flush() {
+  if (this.pending === 0) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    this.onPromiseEnd = () => {
+      if (this.throws && this.errors.length > 0) {
+        this.resetCallback();
+        reject(this.errors[0]);
+      } else if (this.pending === 0) {
+        this.resetCallback();
+        resolve();
+      }
+    };
+  });
+};

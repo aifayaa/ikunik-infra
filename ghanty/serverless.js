@@ -15,6 +15,48 @@ const serverlessConfiguration = {
     esbuild: {
       config: '../esbuild.config.cjs',
     },
+    dev: {
+      'us-east-1': {
+        FID_APPS_ID: '',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
+          'DevGhantyMyFidNotificationPlanner',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-ghantyMyFidNotificationPlanner-role',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:us-east-1:630176884077:function:ghanty-dev-ghantyMyFidNotificationPlanner',
+      },
+    },
+    preprod: {
+      'eu-west-3': {
+        FID_APPS_ID: '',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
+          'PreprodGhantyMyFidNotificationPlanner',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-ghantyMyFidNotificationPlanner-role',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:eu-west-3:630176884077:function:ghanty-preprod-ghantyMyFidNotificationPlanner',
+      },
+    },
+    prod: {
+      'eu-west-3': {
+        FID_APPS_ID: '2d33cf6c-bbc9-490e-bcfd-06eafd5a07ed',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
+          'ProdGhantyMyFidNotificationPlanner',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-ghantyMyFidNotificationPlanner-role',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:eu-west-3:630176884077:function:ghanty-prod-ghantyMyFidNotificationPlanner',
+      },
+      'us-east-1': {
+        FID_APPS_ID: '',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
+          'ProdGhantyMyFidNotificationPlanner',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-ghantyMyFidNotificationPlanner-role',
+        MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
+          'arn:aws:lambda:us-east-1:630176884077:function:ghanty-prod-ghantyMyFidNotificationPlanner',
+      },
+    },
   },
   provider: {
     name: 'aws',
@@ -24,7 +66,14 @@ const serverlessConfiguration = {
     timeout: 30,
     environment: {
       ...env,
-      NODE_OPTIONS: '--enable-source-maps',
+      FID_APPS_ID:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.FID_APPS_ID}',
+      MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}',
+      MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE}',
+      MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE}',
     },
     iam: {
       role: {
@@ -33,6 +82,26 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource: '*',
+          },
+
+          // state machine
+          {
+            Effect: 'Allow',
+            Action: ['states:CreateStateMachine', 'states:StartExecution'],
+            Resource:
+              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['iam:PassRole'],
+            Resource:
+              '${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE}',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['states:StopExecution'],
+            Resource:
+              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
         ],
       },
@@ -47,6 +116,20 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
+    ghantyMyFidNotificationsTrigger: {
+      handler: 'handlers/ghantyMyFidNotificationsTrigger.default',
+      events: [
+        {
+          eventBridge: {
+            schedule: 'cron(0 0 * * * *)',
+          },
+        },
+      ],
+    },
+    ghantyMyFidNotificationPlanner: {
+      handler: 'handlers/ghantyMyFidNotificationPlanner.default',
+      timeout: 600,
+    },
     login: {
       handler: 'handlers/login.default',
       events: [
