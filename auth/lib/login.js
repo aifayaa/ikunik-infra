@@ -27,7 +27,7 @@ export const login = async (rawEmail, username, password, appId) => {
     if (appId !== ADMIN_APP && app.backend) {
       switch (app.backend.type) {
         case 'wordpress':
-          ret = wordpressLogin(username, password, app);
+          ret = wordpressLogin(username || rawEmail, password, app);
           break;
         default:
           throw new Error('unknown_backend');

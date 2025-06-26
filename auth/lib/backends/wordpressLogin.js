@@ -150,7 +150,7 @@ export async function setUserPermissions(client, user, permissions) {
 }
 
 export const wordpressLogin = async (
-  username,
+  usernameOrEmail,
   password,
   app,
   fromRegister = false
@@ -165,11 +165,11 @@ export const wordpressLogin = async (
 
     try {
       reply = await wpApi.call('POST', '/jwt-auth/v1/token', {
-        username,
+        username: usernameOrEmail,
         password,
       });
     } catch (e) {
-      console.log('DEBUG wpLogin e', e, { username, appId });
+      console.log('DEBUG wpLogin e', e, { usernameOrEmail, appId });
       if (!e.response) {
         throw new Error('backend_network_error');
       } else if (e.error && e.error.message) {
@@ -180,11 +180,11 @@ export const wordpressLogin = async (
     }
 
     if (!reply) {
-      console.log('DEBUG wpLogin noreply', { username, appId });
+      console.log('DEBUG wpLogin noreply', { usernameOrEmail, appId });
       throw new Error('backend_error');
     }
     if (!reply.token) {
-      console.log('DEBUG wpLogin reply', reply, { username, appId });
+      console.log('DEBUG wpLogin reply', reply, { usernameOrEmail, appId });
       if (reply.code === 'jwt_auth_failed') {
         throw new Error('invalid_credentials');
       } else {
@@ -236,7 +236,7 @@ export const wordpressLogin = async (
       user = {
         _id: Random.id(),
         createdAt: new Date(),
-        username: userDisplayName || userNicename || username,
+        username: userDisplayName || userNicename || usernameOrEmail,
         services: {
           wordpress: {
             userEmail,
@@ -253,7 +253,7 @@ export const wordpressLogin = async (
         },
         appId,
         profile: {
-          username: userDisplayName || userNicename || username,
+          username: userDisplayName || userNicename || usernameOrEmail,
           email: userEmail,
         },
         emails: [
