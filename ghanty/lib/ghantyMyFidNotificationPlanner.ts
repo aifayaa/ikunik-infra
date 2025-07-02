@@ -256,19 +256,6 @@ export default async (appId: string, offset: number) => {
             'services.ghantyNotifications.proposals',
             null
           );
-          await client
-            .db()
-            .collection(COLL_USERS)
-            .updateOne(
-              { _id: user._id },
-              {
-                $set: {
-                  'services.ghantyNotifications.lastCoupons': lastCoupons,
-                  'services.ghantyNotifications.lastProposals': lastProposals,
-                },
-              }
-            );
-
           const coupons = await getCouponsToNotify(user.username, {
             fidApi,
             now,
@@ -286,6 +273,8 @@ export default async (appId: string, offset: number) => {
               { _id: user._id },
               {
                 $set: {
+                  'services.ghantyNotifications.lastCoupons': lastCoupons,
+                  'services.ghantyNotifications.lastProposals': lastProposals,
                   'services.ghantyNotifications.coupons': coupons,
                   'services.ghantyNotifications.proposals': proposals,
                   'services.ghantyNotifications.updatedAt': new Date(),
