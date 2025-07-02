@@ -283,7 +283,7 @@ export default async (appId: string, offset: number) => {
             );
         } catch (e) {
           console.error(
-            `Caught error fetching/updating user ${user._id}: ${e}`
+            `Caught error fetching/updating user ${user._id} (${user.username}): ${e}`
           );
         }
       };
