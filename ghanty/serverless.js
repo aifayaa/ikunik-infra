@@ -116,20 +116,20 @@ const serverlessConfiguration = {
     deploymentBucket: 'ms-deployment-${self:provider.region}',
   },
   functions: {
-    ghantyMyFidNotificationsTrigger: {
-      handler: 'handlers/ghantyMyFidNotificationsTrigger.default',
-      events: [
-        {
-          eventBridge: {
-            schedule: 'cron(0 0 * * ? *)',
-          },
-        },
-      ],
-    },
-    ghantyMyFidNotificationPlanner: {
-      handler: 'handlers/ghantyMyFidNotificationPlanner.default',
-      timeout: 600,
-    },
+    // ghantyMyFidNotificationsTrigger: {
+    //   handler: 'handlers/ghantyMyFidNotificationsTrigger.default',
+    //   events: [
+    //     {
+    //       eventBridge: {
+    //         schedule: 'cron(0 0 * * ? *)',
+    //       },
+    //     },
+    //   ],
+    // },
+    // ghantyMyFidNotificationPlanner: {
+    //   handler: 'handlers/ghantyMyFidNotificationPlanner.default',
+    //   timeout: 600,
+    // },
     login: {
       handler: 'handlers/login.default',
       events: [
