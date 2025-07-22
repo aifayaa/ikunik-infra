@@ -251,3 +251,18 @@ PromiseQueue.prototype.flush = function flush() {
     };
   });
 };
+
+export function arrayUniq(array) {
+  const set = new Set();
+
+  array.forEach((item) => {
+    set.add(item);
+  });
+  const ret = [];
+
+  set.forEach((item) => {
+    ret.push(item);
+  });
+
+  return ret;
+}

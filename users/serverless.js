@@ -197,8 +197,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getProfile: {
-      handler: 'handlers/getProfile.default',
+    getPublicProfile: {
+      handler: 'handlers/getPublicProfile.default',
       events: [
         {
           http: {
@@ -284,33 +284,6 @@ const serverlessConfiguration = {
         {
           http: {
             path: 'users/{id}/balances',
-            method: 'get',
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}',
-            },
-            cors: true,
-            request: {
-              parameters: {
-                paths: {
-                  id: true,
-                },
-                headers: {
-                  Authorization: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    getPayouts: {
-      handler: 'handlers/getPayouts.default',
-      events: [
-        {
-          http: {
-            path: 'users/{id}/payouts',
             method: 'get',
             authorizer: {
               type: 'CUSTOM',
@@ -490,30 +463,6 @@ const serverlessConfiguration = {
               type: 'CUSTOM',
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
-            },
-            cors: true,
-            request: {
-              parameters: {
-                paths: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      ],
-    },
-    addPayout: {
-      handler: 'handlers/addPayout.default',
-      events: [
-        {
-          http: {
-            path: 'users/{id}/payouts',
-            method: 'post',
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerArtistId}',
             },
             cors: true,
             request: {

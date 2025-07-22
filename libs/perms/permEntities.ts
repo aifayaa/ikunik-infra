@@ -10,6 +10,7 @@ export const appsFeaturePermsList = [
   'articlesEditor',
   'notUGCModerated',
   'ticketingScanner',
+  'forumAdmin',
 ] as const;
 
 export type AppsFeaturePermType = (typeof appsFeaturePermsList)[number];
