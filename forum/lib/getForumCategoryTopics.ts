@@ -92,7 +92,8 @@ export default async (
               .find(
                 { _id: { $in: authorsIds } },
                 { projection: userPrivateFieldsProjection }
-              );
+              )
+              .toArray();
 
       const indexedAuthors = indexObjectArrayWithKey(authors);
       topicsList.forEach((topic) => {
