@@ -1,3 +1,5 @@
+import { UserBadgeGenericEntryEntity } from 'userBadges/lib/userBadgesEntities';
+
 export type ForumCategoryType = {
   _id: string;
   appId: string;
@@ -9,6 +11,8 @@ export type ForumCategoryType = {
     topicsCount: number;
   };
   icon?: string;
+
+  badges: UserBadgeGenericEntryEntity;
 };
 
 export type ForumTopicType = {
@@ -28,6 +32,8 @@ export type ForumTopicType = {
     repliesCount: number;
     viewsCount: number;
   };
+
+  badges: UserBadgeGenericEntryEntity;
 };
 
 export type ForumTopicReplyType = {

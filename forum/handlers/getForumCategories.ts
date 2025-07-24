@@ -31,7 +31,7 @@ export default async (event: APIGatewayProxyEvent) => {
   try {
     let { start, limit } = urlSchema.parse(event.queryStringParameters || {});
 
-    const { items, totalCount } = await getForumCategories(appId, {
+    const { items, totalCount } = await getForumCategories(appId, userId, {
       start,
       limit,
     });

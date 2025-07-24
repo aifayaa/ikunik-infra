@@ -51,7 +51,8 @@ export const userBadgesFieldStatusValues = [
   'rejected',
 ] as const;
 
-export type UserBadgesFieldStatusType = typeof userBadgesFieldStatusValues;
+export type UserBadgesFieldStatusType =
+  (typeof userBadgesFieldStatusValues)[number];
 
 export type UserBadgesFieldItemType = {
   id: string;

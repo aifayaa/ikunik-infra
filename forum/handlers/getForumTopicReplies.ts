@@ -37,11 +37,16 @@ export default async (event: APIGatewayProxyEvent) => {
       event.queryStringParameters || {}
     );
 
-    const { items, totalCount } = await getForumTopicReplies(appId, topicId, {
-      start,
-      limit,
-      sortBy,
-    });
+    const { items, totalCount } = await getForumTopicReplies(
+      appId,
+      topicId,
+      userId,
+      {
+        start,
+        limit,
+        sortBy,
+      }
+    );
 
     return response({
       code: 200,

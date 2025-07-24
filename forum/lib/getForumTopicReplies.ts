@@ -14,6 +14,8 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { arrayUniq, indexObjectArrayWithKey } from '@libs/utils';
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
+import { getUserBadgesList } from './forumUtils';
+import BadgeChecker from '@libs/badges/BadgeChecker';
 
 const {
   COLL_FORUM_CATEGORIES,
@@ -41,11 +43,14 @@ const getSortField = (sortBy: 'creation' | 'lastMessage') => {
 export default async (
   appId: string,
   topicId: string,
+  userId: string,
   { start, limit, sortBy }: GetForumTopicRepliesParamsType
 ) => {
   const client = await MongoClient.connect();
 
   try {
+    const userBadges = await getUserBadgesList(userId, appId, { client });
+
     const topic = (await client
       .db()
       .collection(COLL_FORUM_TOPICS)
@@ -72,6 +77,34 @@ export default async (
         FORUM_CATEGORY_CODE,
         `The forum category ${categoryId} was not found`
       );
+    }
+
+    const badgeChecker = new BadgeChecker(appId);
+
+    try {
+      await badgeChecker.init;
+
+      badgeChecker.registerBadges(userBadges.map(({ id }) => id));
+      badgeChecker.registerBadges(topic.badges.list.map(({ id }) => id));
+      badgeChecker.registerBadges(category.badges.list.map(({ id }) => id));
+      await badgeChecker.loadBadges();
+
+      const topicResults = await badgeChecker.checkBadges(
+        userBadges,
+        topic.badges,
+        { userId }
+      );
+      const categoryResults = await badgeChecker.checkBadges(
+        userBadges,
+        category.badges,
+        { userId }
+      );
+      const finalResults = topicResults.merge(categoryResults);
+      if (!finalResults.canRead || !finalResults.canPreview) {
+        return { items: [], totalCount: 0 };
+      }
+    } finally {
+      await badgeChecker.close();
     }
 
     const searchQuery = { appId, categoryId, topicId };

@@ -41,6 +41,7 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const { items, totalCount } = await getForumCategoryTopics(
       appId,
+      userId,
       categoryId,
       {
         start,

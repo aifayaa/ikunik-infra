@@ -12,7 +12,7 @@ export default async (event: APIGatewayProxyEvent) => {
   const { topicId } = event.pathParameters as { topicId: string };
 
   try {
-    const topic = await getForumTopic(appId, topicId);
+    const topic = await getForumTopic(appId, topicId, userId);
 
     return response({
       code: 200,

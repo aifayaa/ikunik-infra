@@ -9,6 +9,9 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { arrayUniq, indexObjectArrayWithKey } from '@libs/utils';
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
+import { getUserBadgesByPermsLevels, getUserBadgesList } from './forumUtils';
+import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
+import BadgeChecker from '@libs/badges/BadgeChecker';
 
 const { COLL_FORUM_CATEGORIES, COLL_FORUM_TOPICS, COLL_USERS } =
   mongoCollections;
@@ -21,6 +24,9 @@ type GetForumCategoryTopicsParamsType = {
 
 type GetForumCategoryTopicsReturnedType = ForumTopicType & {
   author?: {};
+  restrictedBy?: Array<UserBadgeType>;
+  cannotRead?: true;
+  previewOnly?: true;
 };
 
 function getSortField(sortBy: 'recent' | 'popular' | 'solved') {
@@ -41,18 +47,56 @@ function getSortField(sortBy: 'recent' | 'popular' | 'solved') {
   }
 }
 
+function getBadgesFilteringQuery(badgesList: Array<UserBadgeType>) {
+  if (badgesList.length === 0) {
+    return {
+      'badges.list': { $size: 0 },
+    };
+  }
+
+  const badgesIds = badgesList.map(({ _id }) => _id);
+
+  return {
+    $or: [
+      { 'badges.list': { $size: 0 } },
+      {
+        'badges.allow': 'all',
+        'badges.list.id': { $all: badgesIds },
+      },
+      {
+        'badges.allow': 'any',
+        'badges.list.id': { $in: badgesIds },
+      },
+    ],
+  };
+}
+
 export default async (
   appId: string,
+  userId: string,
   categoryId: string,
   { start, limit, sortBy }: GetForumCategoryTopicsParamsType
 ) => {
   const client = await MongoClient.connect();
 
   try {
+    const userBadges = await getUserBadgesList(userId, appId, { client });
+
+    const badgesByPerms = await getUserBadgesByPermsLevels(userId, appId, {
+      client,
+      userBadges,
+    });
+
+    console.log('DEBUG badgesByPerms', { badgesByPerms, userBadges });
+
     const category = await client
       .db()
       .collection(COLL_FORUM_CATEGORIES)
-      .findOne({ _id: categoryId, appId });
+      .findOne({
+        _id: categoryId,
+        appId,
+        ...getBadgesFilteringQuery(badgesByPerms.canList),
+      });
 
     if (!category) {
       throw new CrowdaaError(
@@ -62,9 +106,13 @@ export default async (
       );
     }
 
-    const searchQuery = { appId, categoryId };
-
     const sortField = getSortField(sortBy);
+
+    const searchQuery = {
+      appId,
+      categoryId,
+      ...getBadgesFilteringQuery(badgesByPerms.canList),
+    };
 
     const topicsList = (await client
       .db()
@@ -103,6 +151,39 @@ export default async (
           topic.author = {};
         }
       });
+    }
+
+    const badgeChecker = new BadgeChecker(appId);
+
+    try {
+      await badgeChecker.init;
+
+      badgeChecker.registerBadges(
+        badgesByPerms.canList.map(({ _id: badgeId }) => badgeId)
+      );
+      await badgeChecker.loadBadges();
+
+      const promises = topicsList.map(async (topic) => {
+        if (topic.badges.list.length > 0) {
+          const results = await badgeChecker.checkBadges(
+            userBadges,
+            topic.badges,
+            { userId }
+          );
+          if (!results.canRead) {
+            topic.content = '';
+            topic.cannotRead = true;
+            topic.restrictedBy = results.restrictedBy;
+          } else if (!results.canPreview) {
+            topic.previewOnly = true;
+            topic.restrictedBy = results.restrictedBy;
+          }
+        }
+      });
+
+      await Promise.all(promises);
+    } finally {
+      await badgeChecker.close();
     }
 
     return { items: topicsList, totalCount: topicsCount };

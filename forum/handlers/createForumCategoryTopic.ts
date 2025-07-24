@@ -25,6 +25,15 @@ const bodySchema = z
       })
       .trim()
       .min(1, 'content must be at least 1 character'),
+    badges: z.array(
+      z
+        .string({
+          invalid_type_error: 'badges must be a string',
+        })
+        .trim()
+        .min(1, 'badges must be at least 1 character')
+    ),
+    badgesAllow: z.enum(['all', 'any']).default('any'),
   })
   .strict()
   .required();

@@ -10,18 +10,26 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
 import { UserType } from '@users/lib/userEntity';
+import { getUserBadgesList } from './forumUtils';
+import BadgeChecker from '@libs/badges/BadgeChecker';
+import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
 
 const { COLL_FORUM_CATEGORIES, COLL_FORUM_TOPICS, COLL_USERS } =
   mongoCollections;
 
 type GetForumTopicReturnType = ForumTopicType & {
   author: UserType;
+  restrictedBy?: Array<UserBadgeType>;
+  cannotRead?: true;
+  previewOnly?: true;
 };
 
-export default async (appId: string, topicId: string) => {
+export default async (appId: string, topicId: string, userId: string) => {
   const client = await MongoClient.connect();
 
   try {
+    const userBadges = await getUserBadgesList(userId, appId, { client });
+
     const topic = (await client
       .db()
       .collection(COLL_FORUM_TOPICS)
@@ -59,6 +67,39 @@ export default async (appId: string, topicId: string) => {
       );
 
     topic.author = author;
+
+    const badgeChecker = new BadgeChecker(appId);
+
+    try {
+      await badgeChecker.init;
+
+      badgeChecker.registerBadges(userBadges.map(({ id }) => id));
+      badgeChecker.registerBadges(topic.badges.list.map(({ id }) => id));
+      badgeChecker.registerBadges(category.badges.list.map(({ id }) => id));
+      await badgeChecker.loadBadges();
+
+      const topicResults = await badgeChecker.checkBadges(
+        userBadges,
+        topic.badges,
+        { userId }
+      );
+      const categoryResults = await badgeChecker.checkBadges(
+        userBadges,
+        category.badges,
+        { userId }
+      );
+      const finalResults = topicResults.merge(categoryResults);
+      if (!finalResults.canRead) {
+        topic.content = '';
+        topic.cannotRead = true;
+        topic.restrictedBy = finalResults.restrictedBy;
+      } else if (!finalResults.canPreview) {
+        topic.previewOnly = true;
+        topic.restrictedBy = finalResults.restrictedBy;
+      }
+    } finally {
+      await badgeChecker.close();
+    }
 
     return topic;
   } finally {

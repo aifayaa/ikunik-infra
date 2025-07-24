@@ -2,6 +2,7 @@
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { ForumCategoryType } from './forumEntities';
+import { getUserFilteredBadgesIdsFromInput } from './forumUtils';
 
 const { COLL_FORUM_CATEGORIES } = mongoCollections;
 
@@ -9,16 +10,33 @@ type CreateForumCategoryParamsType = {
   name: string;
   description: string;
   icon?: string;
+  badges: Array<string>;
+  badgesAllow: 'all' | 'any';
 };
 
 export default async (
   appId: string,
   userId: string,
-  { name, description, icon }: CreateForumCategoryParamsType
+  {
+    name,
+    description,
+    icon,
+    badges: inputBadgesIds,
+    badgesAllow,
+  }: CreateForumCategoryParamsType
 ) => {
   const client = await MongoClient.connect();
   try {
     const _id = ObjectID().toString();
+
+    const filteredBadgesIds = await getUserFilteredBadgesIdsFromInput(
+      userId,
+      appId,
+      inputBadgesIds,
+      {
+        client,
+      }
+    );
 
     const newForumCategory: ForumCategoryType = {
       _id,
@@ -30,6 +48,13 @@ export default async (
       icon,
       stats: {
         topicsCount: 0,
+      },
+
+      badges: {
+        allow: badgesAllow,
+        list: filteredBadgesIds.map((id) => ({
+          id,
+        })),
       },
     };
 
