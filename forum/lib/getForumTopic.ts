@@ -90,12 +90,14 @@ export default async (appId: string, topicId: string, userId: string) => {
       );
       const finalResults = topicResults.merge(categoryResults);
       if (!finalResults.canRead) {
-        topic.content = '';
-        topic.cannotRead = true;
-        topic.restrictedBy = finalResults.restrictedBy;
-      } else if (!finalResults.canPreview) {
-        topic.previewOnly = true;
-        topic.restrictedBy = finalResults.restrictedBy;
+        if (finalResults.canPreview) {
+          topic.previewOnly = true;
+          topic.restrictedBy = finalResults.restrictedBy;
+        } else {
+          topic.content = '';
+          topic.cannotRead = true;
+          topic.restrictedBy = finalResults.restrictedBy;
+        }
       }
     } finally {
       await badgeChecker.close();

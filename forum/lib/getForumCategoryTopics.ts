@@ -169,12 +169,14 @@ export default async (
             { userId }
           );
           if (!results.canRead) {
-            topic.content = '';
-            topic.cannotRead = true;
-            topic.restrictedBy = results.restrictedBy;
-          } else if (!results.canPreview) {
-            topic.previewOnly = true;
-            topic.restrictedBy = results.restrictedBy;
+            if (results.canPreview) {
+              topic.previewOnly = true;
+              topic.restrictedBy = results.restrictedBy;
+            } else {
+              topic.content = '';
+              topic.cannotRead = true;
+              topic.restrictedBy = results.restrictedBy;
+            }
           }
         }
       });
