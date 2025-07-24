@@ -70,7 +70,7 @@ export async function getUserBadgesByPermsLevels(
   const allBadges = (await client
     .db()
     .collection(COLL_USER_BADGES)
-    .find({ _id: { $in: enabledUserBadgesIds }, appId })
+    .find({ appId })
     .toArray()) as Array<UserBadgeType>;
 
   const ret: Record<UserBadgesPermsLevelsType, Array<UserBadgeType>> = {

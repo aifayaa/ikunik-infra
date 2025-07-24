@@ -87,8 +87,6 @@ export default async (
       userBadges,
     });
 
-    console.log('DEBUG badgesByPerms', { badgesByPerms, userBadges });
-
     const category = await client
       .db()
       .collection(COLL_FORUM_CATEGORIES)
