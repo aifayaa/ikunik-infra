@@ -13,7 +13,11 @@ import {
   indexObjectArrayWithKey,
   promiseExecUntilTrue,
 } from '@libs/utils';
-import { ForumCategoryType, ForumTopicType } from './forumEntities';
+import {
+  ForumCategoryType,
+  ForumTopicReplyType,
+  ForumTopicType,
+} from './forumEntities';
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
 
 const {
@@ -324,6 +328,73 @@ export async function addExtraTopicsFields(
   return topicsList;
 }
 
+type AddExtraTopicRepliesFieldsReturnedType = ForumTopicReplyType & {
+  author?: {};
+
+  liked?: boolean;
+};
+export async function addExtraTopicRepliesFields(
+  inputReplies: Array<ForumTopicReplyType>,
+  {
+    userId,
+    client,
+    appId,
+  }: AddExtraTopicsFieldsParamsType
+) {
+  const repliesList: Array<AddExtraTopicRepliesFieldsReturnedType> = [
+    ...inputReplies,
+  ];
+
+  // Authors
+  const authorsIds = arrayUniq(repliesList.map(({ createdBy }) => createdBy));
+  if (repliesList.length > 0) {
+    const authors =
+      authorsIds.length === 0
+        ? []
+        : await client
+            .db()
+            .collection(COLL_USERS)
+            .find(
+              { _id: { $in: authorsIds } },
+              { projection: userPrivateFieldsProjection }
+            )
+            .toArray();
+
+    const indexedAuthors = indexObjectArrayWithKey(authors);
+    repliesList.forEach((topic) => {
+      if (indexedAuthors[topic.createdBy]) {
+        topic.author = indexedAuthors[topic.createdBy];
+      } else {
+        topic.author = {};
+      }
+    });
+  }
+
+  // Self Like
+  const targetCollection = COLL_FORUM_TOPIC_REPLIES;
+  const reactionType = 'reaction';
+  const likesPromises = repliesList.map(async ({ _id }, arrayId) => {
+    const targetId = _id;
+    const reaction = await client.db().collection(COLL_USER_REACTIONS).findOne({
+      appId,
+      targetCollection,
+      targetId,
+      userId,
+      reactionType,
+      reactionName: 'like',
+    });
+
+    if (reaction) {
+      repliesList[arrayId].liked = true;
+    } else {
+      repliesList[arrayId].liked = false;
+    }
+  });
+  await Promise.all(likesPromises);
+
+  return repliesList;
+}
+
 export async function updateTopicViewsCount(
   topic: ForumTopicType,
   { client }: { client: any }
@@ -384,6 +455,37 @@ export async function updateTopicLikesCount(
     );
 
   topic.stats.likesCount = count;
+}
+
+export async function updateTopicRepliesLikesCount(
+  reply: ForumTopicReplyType,
+  { client }: { client: any }
+) {
+  const count = await client
+    .db()
+    .collection(COLL_USER_REACTIONS)
+    .find({
+      appId: reply.appId,
+      targetCollection: COLL_FORUM_TOPIC_REPLIES,
+      targetId: reply._id,
+      reactionType: 'reaction',
+      reactionName: 'like',
+    })
+    .count();
+
+  await client
+    .db()
+    .collection(COLL_FORUM_TOPIC_REPLIES)
+    .updateOne(
+      { _id: reply._id },
+      {
+        $set: {
+          'stats.likesCount': count,
+        },
+      }
+    );
+
+  reply.stats.likesCount = count;
 }
 
 export async function updateTopicRepliesCount(

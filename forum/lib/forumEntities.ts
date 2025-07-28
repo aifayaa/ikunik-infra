@@ -46,4 +46,8 @@ export type ForumTopicReplyType = {
   createdAt: Date;
   createdBy: string;
   content: string;
+
+  stats: {
+    likesCount: number;
+  };
 };

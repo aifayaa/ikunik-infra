@@ -207,14 +207,6 @@ export async function forumTopicActionToggleLike(
       );
     }
 
-    if (topic.createdBy !== userId) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_ALLOWED,
-        NOT_THE_OWNER_CODE,
-        'You are not the creator of this topic'
-      );
-    }
-
     const { categoryId } = topic;
 
     const category = (await client
@@ -294,14 +286,6 @@ export async function forumTopicActionView(
         ERROR_TYPE_NOT_FOUND,
         FORUM_TOPIC_CODE,
         `The forum topic ${topicId} was not found`
-      );
-    }
-
-    if (topic.createdBy !== userId) {
-      throw new CrowdaaError(
-        ERROR_TYPE_NOT_ALLOWED,
-        NOT_THE_OWNER_CODE,
-        'You are not the creator of this topic'
       );
     }
 

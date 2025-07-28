@@ -13,6 +13,7 @@ import {
   getUserBadgesList,
   getUserFilteredBadgesIdsFromInput,
   getUserVisibleBadges,
+  updateCategoryTopicsCount,
 } from './forumUtils';
 import BadgeChecker from '@libs/badges/BadgeChecker';
 
@@ -127,6 +128,8 @@ export default async (
     };
 
     await client.db().collection(COLL_FORUM_TOPICS).insertOne(newForumTopic);
+
+    await updateCategoryTopicsCount(category, { client });
 
     return newForumTopic;
   } finally {

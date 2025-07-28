@@ -14,7 +14,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { arrayUniq, indexObjectArrayWithKey } from '@libs/utils';
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
-import { getUserBadgesList } from './forumUtils';
+import { addExtraTopicRepliesFields, getUserBadgesList } from './forumUtils';
 import BadgeChecker from '@libs/badges/BadgeChecker';
 
 const {
@@ -150,7 +150,13 @@ export default async (
       });
     }
 
-    return { items: repliesList, totalCount: repliesCount };
+    const ret = await addExtraTopicRepliesFields(repliesList, {
+      userId,
+      client,
+      appId,
+    });
+
+    return { items: ret, totalCount: repliesCount };
   } finally {
     await client.close();
   }

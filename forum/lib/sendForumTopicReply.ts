@@ -112,6 +112,10 @@ export default async (
       createdAt: new Date(),
       createdBy: userId,
       content,
+
+      stats: {
+        likesCount: 0,
+      },
     };
 
     await client
