@@ -24,6 +24,7 @@ export type ForumTopicType = {
   title: string;
   content: string;
   solved: boolean;
+  solutionReplyId: string | null;
 
   lastMessageAt?: Date;
   lastMessageBy?: string;
@@ -31,6 +32,7 @@ export type ForumTopicType = {
   stats: {
     repliesCount: number;
     viewsCount: number;
+    likesCount: number;
   };
 
   badges: UserBadgeGenericEntryEntity;

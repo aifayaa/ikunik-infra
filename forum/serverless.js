@@ -104,6 +104,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    forumTopicAction: {
+      handler: 'handlers/forumTopicAction.default',
+      events: [
+        {
+          http: {
+            path: 'forum/topics/{topicId}/action/{action}',
+            method: 'put',
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            cors: true,
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     getForumTopicReplies: {
       handler: 'handlers/getForumTopicReplies.default',
       events: [

@@ -18,7 +18,7 @@ const { COLL_FORUM_CATEGORIES, COLL_FORUM_TOPICS, COLL_USERS } =
   mongoCollections;
 
 type GetForumTopicReturnType = ForumTopicType & {
-  author: UserType;
+  author?: UserType;
   restrictedBy?: Array<UserBadgeType>;
   cannotRead?: true;
   previewOnly?: true;

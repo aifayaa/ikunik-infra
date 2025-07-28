@@ -114,7 +114,9 @@ export default async (
       stats: {
         viewsCount: 0,
         repliesCount: 0,
+        likesCount: 0,
       },
+      solutionReplyId: null,
 
       badges: {
         allow: badgesAllow,
