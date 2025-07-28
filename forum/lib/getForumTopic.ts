@@ -10,7 +10,7 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
 import { UserType } from '@users/lib/userEntity';
-import { getUserBadgesList } from './forumUtils';
+import { addExtraTopicsFields, getUserBadgesList } from './forumUtils';
 import BadgeChecker from '@libs/badges/BadgeChecker';
 import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
 
@@ -58,52 +58,15 @@ export default async (appId: string, topicId: string, userId: string) => {
       );
     }
 
-    const author = await client
-      .db()
-      .collection(COLL_USERS)
-      .findOne(
-        { _id: topic.createdBy },
-        { projection: userPrivateFieldsProjection }
-      );
+    const [topicWithExtras] = await addExtraTopicsFields([topic], {
+      checkBadges: true,
+      userId,
+      client,
+      appId,
+      userBadges,
+    });
 
-    topic.author = author;
-
-    const badgeChecker = new BadgeChecker(appId);
-
-    try {
-      await badgeChecker.init;
-
-      badgeChecker.registerBadges(userBadges.map(({ id }) => id));
-      badgeChecker.registerBadges(topic.badges.list.map(({ id }) => id));
-      badgeChecker.registerBadges(category.badges.list.map(({ id }) => id));
-      await badgeChecker.loadBadges();
-
-      const topicResults = await badgeChecker.checkBadges(
-        userBadges,
-        topic.badges,
-        { userId }
-      );
-      const categoryResults = await badgeChecker.checkBadges(
-        userBadges,
-        category.badges,
-        { userId }
-      );
-      const finalResults = topicResults.merge(categoryResults);
-      if (!finalResults.canRead) {
-        if (finalResults.canPreview) {
-          topic.previewOnly = true;
-          topic.restrictedBy = finalResults.restrictedBy;
-        } else {
-          topic.content = '';
-          topic.cannotRead = true;
-          topic.restrictedBy = finalResults.restrictedBy;
-        }
-      }
-    } finally {
-      await badgeChecker.close();
-    }
-
-    return topic;
+    return topicWithExtras;
   } finally {
     await client.close();
   }

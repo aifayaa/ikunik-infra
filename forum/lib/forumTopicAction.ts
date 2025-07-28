@@ -16,17 +16,20 @@ import {
   NOT_ENOUGH_PERMISSIONS_CODE,
   NOT_THE_OWNER_CODE,
 } from '@libs/httpResponses/errorCodes';
-import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
 import { UserType } from '@users/lib/userEntity';
 import BadgeChecker from '@libs/badges/BadgeChecker';
-import { getUserBadgesList } from './forumUtils';
+import {
+  addExtraTopicsFields,
+  getUserBadgesList,
+  updateTopicLikesCount,
+  updateTopicViewsCount,
+} from './forumUtils';
 
 const {
   COLL_FORUM_CATEGORIES,
   COLL_FORUM_TOPIC_REPLIES,
   COLL_FORUM_TOPICS,
   COLL_USER_REACTIONS,
-  COLL_USERS,
 } = mongoCollections;
 
 type ForumTopicActionSolveReturnType = ForumTopicType & {
@@ -170,31 +173,14 @@ export async function forumTopicActionSolve(
     topic.solutionReplyId = solutionReplyId;
     topic.solved = true;
 
-    await client
-      .db()
-      .collection(COLL_FORUM_TOPICS)
-      .updateOne(
-        {
-          _id: topicId,
-          appId,
-        },
-        {
-          $set: {
-            solutionReplyId: topic.solutionReplyId,
-            solved: topic.solved,
-          },
-        }
-      );
+    const [topicWithExtras] = await addExtraTopicsFields([topic], {
+      checkBadges: true,
+      userId,
+      client,
+      appId,
+    });
 
-    topic.author = await client
-      .db()
-      .collection(COLL_USERS)
-      .findOne(
-        { _id: topic.createdBy },
-        { projection: userPrivateFieldsProjection }
-      );
-
-    return topic;
+    return topicWithExtras;
   } finally {
     await client.close();
   }
@@ -281,6 +267,8 @@ export async function forumTopicActionToggleLike(
     const reaction = await toggleReaction(appId, topicId, userId, 'like', {
       client,
     });
+
+    await updateTopicLikesCount(topic, { client });
 
     return { liked: Boolean(reaction), reactionId: reaction && reaction._id };
   } finally {
@@ -377,6 +365,8 @@ export async function forumTopicActionView(
       'view',
       { client }
     );
+
+    await updateTopicViewsCount(topic, { client });
 
     return { viewed: true, reactionId };
   } finally {

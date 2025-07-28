@@ -17,7 +17,7 @@ import {
 import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
 import { UserType } from '@users/lib/userEntity';
 import BadgeChecker from '@libs/badges/BadgeChecker';
-import { getUserBadgesList } from './forumUtils';
+import { getUserBadgesList, updateTopicRepliesCount } from './forumUtils';
 
 const {
   COLL_FORUM_CATEGORIES,
@@ -138,6 +138,8 @@ export default async (
         projection: userPrivateFieldsProjection,
       }
     )) as UserType;
+
+    await updateTopicRepliesCount(topic, { client });
 
     return { ...newForumReply, author: user };
   } finally {

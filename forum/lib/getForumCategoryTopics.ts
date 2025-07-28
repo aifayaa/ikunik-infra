@@ -7,11 +7,12 @@ import {
   ERROR_TYPE_NOT_FOUND,
   FORUM_CATEGORY_CODE,
 } from '@libs/httpResponses/errorCodes';
-import { arrayUniq, indexObjectArrayWithKey } from '@libs/utils';
-import { userPrivateFieldsProjection } from '@users/lib/usersUtils';
-import { getUserBadgesByPermsLevels, getUserBadgesList } from './forumUtils';
+import {
+  addExtraTopicsFields,
+  getUserBadgesByPermsLevels,
+  getUserBadgesList,
+} from './forumUtils';
 import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
-import BadgeChecker from '@libs/badges/BadgeChecker';
 
 const { COLL_FORUM_CATEGORIES, COLL_FORUM_TOPICS, COLL_USERS } =
   mongoCollections;
@@ -127,66 +128,16 @@ export default async (
       .find(searchQuery)
       .count()) as number;
 
-    const authorsIds = arrayUniq(topicsList.map(({ createdBy }) => createdBy));
-    if (topicsList.length > 0) {
-      const authors =
-        authorsIds.length === 0
-          ? []
-          : await client
-              .db()
-              .collection(COLL_USERS)
-              .find(
-                { _id: { $in: authorsIds } },
-                { projection: userPrivateFieldsProjection }
-              )
-              .toArray();
+    const ret = await addExtraTopicsFields(topicsList, {
+      checkBadges: true,
+      userId,
+      client,
+      appId,
+      userBadges,
+      badgesByPerms,
+    });
 
-      const indexedAuthors = indexObjectArrayWithKey(authors);
-      topicsList.forEach((topic) => {
-        if (indexedAuthors[topic.createdBy]) {
-          topic.author = indexedAuthors[topic.createdBy];
-        } else {
-          topic.author = {};
-        }
-      });
-    }
-
-    const badgeChecker = new BadgeChecker(appId);
-
-    try {
-      await badgeChecker.init;
-
-      badgeChecker.registerBadges(
-        badgesByPerms.canList.map(({ _id: badgeId }) => badgeId)
-      );
-      await badgeChecker.loadBadges();
-
-      const promises = topicsList.map(async (topic) => {
-        if (topic.badges.list.length > 0) {
-          const results = await badgeChecker.checkBadges(
-            userBadges,
-            topic.badges,
-            { userId }
-          );
-          if (!results.canRead) {
-            if (results.canPreview) {
-              topic.previewOnly = true;
-              topic.restrictedBy = results.restrictedBy;
-            } else {
-              topic.content = '';
-              topic.cannotRead = true;
-              topic.restrictedBy = results.restrictedBy;
-            }
-          }
-        }
-      });
-
-      await Promise.all(promises);
-    } finally {
-      await badgeChecker.close();
-    }
-
-    return { items: topicsList, totalCount: topicsCount };
+    return { items: ret, totalCount: topicsCount };
   } finally {
     await client.close();
   }
