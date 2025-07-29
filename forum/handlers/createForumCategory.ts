@@ -51,7 +51,7 @@ export default async (event: APIGatewayProxyEvent) => {
   };
 
   try {
-    await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
+    await checkFeaturePermsForApp(userId, appId, ['forumAdmin']);
 
     if (!event.body) {
       throw new CrowdaaError(
