@@ -173,6 +173,22 @@ export async function forumTopicActionSolve(
     topic.solutionReplyId = solutionReplyId;
     topic.solved = true;
 
+    await client
+      .db()
+      .collection(COLL_FORUM_TOPICS)
+      .updateOne(
+        {
+          _id: topicId,
+          appId,
+        },
+        {
+          $set: {
+            solutionReplyId: topic.solutionReplyId,
+            solved: topic.solved,
+          },
+        }
+      );
+
     const [topicWithExtras] = await addExtraTopicsFields([topic], {
       checkBadges: true,
       userId,
