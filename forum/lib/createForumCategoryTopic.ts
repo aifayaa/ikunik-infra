@@ -119,11 +119,20 @@ export default async (
       },
       solutionReplyId: null,
 
+      lastMessageAt: new Date(),
+
       badges: {
         allow: badgesAllow,
         list: filteredBadgesIds.map((id) => ({
           id,
         })),
+      },
+
+      removed: false,
+      moderation: {
+        checked: false,
+        validated: true,
+        reason: 'string',
       },
     };
 

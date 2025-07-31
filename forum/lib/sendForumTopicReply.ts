@@ -43,10 +43,12 @@ export default async (
 
     const _id = ObjectID().toString();
 
-    const topic = (await client
-      .db()
-      .collection(COLL_FORUM_TOPICS)
-      .findOne({ _id: topicId, appId })) as ForumTopicType | null;
+    const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
+      _id: topicId,
+      appId,
+      removed: false,
+      'moderation.status': 'valid',
+    })) as ForumTopicType | null;
 
     if (!topic) {
       throw new CrowdaaError(
@@ -115,6 +117,13 @@ export default async (
 
       stats: {
         likesCount: 0,
+      },
+
+      removed: false,
+      moderation: {
+        checked: false,
+        validated: true,
+        reason: 'string',
       },
     };
 

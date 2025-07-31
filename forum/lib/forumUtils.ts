@@ -335,11 +335,7 @@ type AddExtraTopicRepliesFieldsReturnedType = ForumTopicReplyType & {
 };
 export async function addExtraTopicRepliesFields(
   inputReplies: Array<ForumTopicReplyType>,
-  {
-    userId,
-    client,
-    appId,
-  }: AddExtraTopicsFieldsParamsType
+  { userId, client, appId }: AddExtraTopicsFieldsParamsType
 ) {
   const repliesList: Array<AddExtraTopicRepliesFieldsReturnedType> = [
     ...inputReplies,
@@ -499,6 +495,8 @@ export async function updateTopicRepliesCount(
       appId: topic.appId,
       topicId: topic._id,
       categoryId: topic.categoryId,
+      removed: false,
+      'moderation.status': 'valid',
     })
     .count();
 
@@ -527,6 +525,8 @@ export async function updateCategoryTopicsCount(
     .find({
       appId: category.appId,
       categoryId: category._id,
+      removed: false,
+      'moderation.status': 'valid',
     })
     .count();
 

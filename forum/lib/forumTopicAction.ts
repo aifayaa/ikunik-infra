@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
-import MongoClient from '../../libs/mongoClient';
+import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import {
   ForumCategoryType,
@@ -24,11 +24,14 @@ import {
   updateTopicLikesCount,
   updateTopicViewsCount,
 } from './forumUtils';
+import { GenericContentReportType } from '@libs/genericEntities';
+import deleteUser from '../../users/lib/deleteUser.js';
 
 const {
   COLL_FORUM_CATEGORIES,
   COLL_FORUM_TOPIC_REPLIES,
   COLL_FORUM_TOPICS,
+  COLL_GENERIC_CONTENT_REPORTS,
   COLL_USER_REACTIONS,
 } = mongoCollections;
 
@@ -132,6 +135,8 @@ export async function forumTopicActionSolve(
   try {
     const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
       _id: topicId,
+      removed: false,
+      'moderation.status': 'valid',
       appId,
     })) as ForumTopicActionSolveReturnType | null;
 
@@ -161,6 +166,8 @@ export async function forumTopicActionSolve(
         appId,
         categoryId,
         topicId,
+        removed: false,
+        'moderation.status': 'valid',
       })) as ForumTopicReplyType | null;
 
     if (!reply) {
@@ -213,6 +220,8 @@ export async function forumTopicActionToggleLike(
     const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
       _id: topicId,
       appId,
+      removed: false,
+      'moderation.status': 'valid',
     })) as ForumTopicActionSolveReturnType | null;
 
     if (!topic) {
@@ -284,6 +293,156 @@ export async function forumTopicActionToggleLike(
   }
 }
 
+type ForumTopicActionModerateParamsType = {
+  contentIs: 'valid' | 'invalid';
+  actions: {
+    deleteUser?: boolean;
+    removeElement?: boolean;
+    deleteContent?: boolean;
+  };
+  reason: string;
+};
+export async function forumTopicActionModerate(
+  appId: string,
+  topicId: string,
+  userId: string,
+  { reason, contentIs, actions }: ForumTopicActionModerateParamsType
+) {
+  const client = await MongoClient.connect();
+
+  try {
+    const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
+      _id: topicId,
+      appId,
+    })) as ForumTopicType | null;
+
+    if (!topic) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        FORUM_TOPIC_CODE,
+        `The forum topic ${topicId} was not found`
+      );
+    }
+
+    topic.moderation = {
+      checked: true,
+      validated: contentIs === 'valid',
+      reason,
+      checkedBy: userId,
+    };
+
+    await client
+      .db()
+      .collection(COLL_FORUM_TOPICS)
+      .updateOne(
+        { _id: topicId },
+        {
+          $set: {
+            moderation: topic.moderation,
+          },
+        }
+      );
+
+    if (actions.deleteUser) {
+      await deleteUser(userId, appId);
+    }
+    if (actions.removeElement) {
+      topic.removed = true;
+      await client
+        .db()
+        .collection(COLL_FORUM_TOPICS)
+        .updateOne({ _id: topicId }, { $set: { removed: topic.removed } });
+      await client
+        .db()
+        .collection(COLL_FORUM_TOPIC_REPLIES)
+        .updateMany({ topicId }, { $set: { removed: true } });
+    } else if (actions.deleteContent) {
+      topic.title = '-';
+      topic.content = '-';
+      await client
+        .db()
+        .collection(COLL_FORUM_TOPICS)
+        .updateOne(
+          { _id: topicId },
+          {
+            $set: {
+              title: topic.title,
+              content: topic.content,
+            },
+          }
+        );
+    }
+
+    return topic;
+  } finally {
+    await client.close();
+  }
+}
+
+export async function forumTopicActionReport(
+  appId: string,
+  topicId: string,
+  userId: string,
+  { reason }: { reason: string }
+) {
+  const client = await MongoClient.connect();
+
+  try {
+    const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
+      _id: topicId,
+      appId,
+      removed: false,
+      'moderation.status': 'valid',
+    })) as ForumTopicType | null;
+
+    if (!topic) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        FORUM_TOPIC_CODE,
+        `The forum topic ${topicId} was not found`
+      );
+    }
+
+    const { categoryId } = topic;
+
+    const category = (await client
+      .db()
+      .collection(COLL_FORUM_CATEGORIES)
+      .findOne({ _id: categoryId, appId })) as ForumCategoryType | null;
+
+    if (!category) {
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        FORUM_CATEGORY_CODE,
+        `The forum category ${categoryId} was not found`
+      );
+    }
+
+    const report: GenericContentReportType = {
+      _id: ObjectID().toString(),
+      createdAt: new Date(),
+      createdBy: userId,
+      targetUserId: topic.createdBy,
+      appId,
+      targetCollection: COLL_FORUM_TOPICS,
+      targetId: topicId,
+      reason,
+      context: {
+        from: 'forum',
+      },
+    };
+
+    await client
+      .db()
+      .collection(COLL_GENERIC_CONTENT_REPORTS)
+      .insertOne(report);
+
+    return { reportId: report._id };
+  } finally {
+    await client.close();
+  }
+}
+
 export async function forumTopicActionView(
   appId: string,
   topicId: string,
@@ -295,6 +454,8 @@ export async function forumTopicActionView(
     const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
       _id: topicId,
       appId,
+      removed: false,
+      'moderation.status': 'valid',
     })) as ForumTopicActionSolveReturnType | null;
 
     if (!topic) {
