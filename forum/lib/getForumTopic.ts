@@ -30,10 +30,12 @@ export default async (appId: string, topicId: string, userId: string) => {
   try {
     const userBadges = await getUserBadgesList(userId, appId, { client });
 
-    const topic = (await client
-      .db()
-      .collection(COLL_FORUM_TOPICS)
-      .findOne({ _id: topicId, appId })) as GetForumTopicReturnType | null;
+    const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
+      _id: topicId,
+      appId,
+      removed: false,
+      'moderation.validated': true,
+    })) as GetForumTopicReturnType | null;
 
     if (!topic) {
       throw new CrowdaaError(

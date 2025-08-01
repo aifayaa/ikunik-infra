@@ -51,10 +51,12 @@ export default async (
   try {
     const userBadges = await getUserBadgesList(userId, appId, { client });
 
-    const topic = (await client
-      .db()
-      .collection(COLL_FORUM_TOPICS)
-      .findOne({ _id: topicId, appId })) as ForumTopicType | null;
+    const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
+      _id: topicId,
+      appId,
+      removed: false,
+      'moderation.validated': true,
+    })) as ForumTopicType | null;
 
     if (!topic) {
       throw new CrowdaaError(
@@ -107,7 +109,13 @@ export default async (
       await badgeChecker.close();
     }
 
-    const searchQuery = { appId, categoryId, topicId };
+    const searchQuery = {
+      appId,
+      categoryId,
+      topicId,
+      removed: false,
+      'moderation.validated': true,
+    };
 
     const sortField = getSortField(sortBy);
 
