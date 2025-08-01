@@ -20,6 +20,7 @@ import {
   checkFeaturePermsForApp,
   checkPermsForApp,
 } from '@libs/perms/checkPermsFor';
+import { getUserLanguage } from '@libs/intl/intl';
 
 const urlActionsSchema = z.enum([
   'solve',
@@ -108,8 +109,11 @@ export default async (event: APIGatewayProxyEvent) => {
     } else if (action === 'report') {
       const { reason } = parseAPIRequestBody(bodyReportSchema, event.body);
 
+      const lang = getUserLanguage(event.headers);
+
       replyData = await forumTopicActionReport(appId, topicId, userId, {
         reason,
+        lang,
       });
     } else if (action === 'moderate') {
       try {

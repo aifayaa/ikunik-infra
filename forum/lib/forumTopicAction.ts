@@ -26,6 +26,7 @@ import {
 } from './forumUtils';
 import { GenericContentReportType } from '@libs/genericEntities';
 import deleteUser from '../../users/lib/deleteUser.js';
+import { forumSendReportTopicEmail } from './forumReportingEmailUtils';
 
 const {
   COLL_FORUM_CATEGORIES,
@@ -383,7 +384,7 @@ export async function forumTopicActionReport(
   appId: string,
   topicId: string,
   userId: string,
-  { reason }: { reason: string }
+  { reason, lang }: { reason: string; lang: string }
 ) {
   const client = await MongoClient.connect();
 
@@ -436,6 +437,15 @@ export async function forumTopicActionReport(
       .db()
       .collection(COLL_GENERIC_CONTENT_REPORTS)
       .insertOne(report);
+
+    try {
+      await forumSendReportTopicEmail(userId, topic, reason, lang);
+    } catch (e) {
+      console.log(
+        `VERBOSE caught error reporting topic ${topic._id} (report ${report._id}) :`,
+        e
+      );
+    }
 
     return { reportId: report._id };
   } finally {

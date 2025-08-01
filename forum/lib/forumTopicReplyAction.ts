@@ -20,6 +20,7 @@ import BadgeChecker from '@libs/badges/BadgeChecker';
 import { getUserBadgesList, updateTopicRepliesLikesCount } from './forumUtils';
 import { GenericContentReportType } from '@libs/genericEntities';
 import deleteUser from '../../users/lib/deleteUser.js';
+import { forumSendReportTopicReplyEmail } from './forumReportingEmailUtils';
 
 const {
   COLL_FORUM_CATEGORIES,
@@ -185,7 +186,7 @@ export async function forumTopicReplyActionReport(
   appId: string,
   replyId: string,
   userId: string,
-  { reason }: { reason: string }
+  { reason, lang }: { reason: string; lang: string }
 ) {
   const client = await MongoClient.connect();
 
@@ -256,6 +257,15 @@ export async function forumTopicReplyActionReport(
       .db()
       .collection(COLL_GENERIC_CONTENT_REPORTS)
       .insertOne(report);
+
+    try {
+      await forumSendReportTopicReplyEmail(userId, reply, reason, lang);
+    } catch (e) {
+      console.log(
+        `VERBOSE caught error reporting topic reply ${reply._id} (report ${report._id}) :`,
+        e
+      );
+    }
 
     return { reportId: report._id };
   } finally {

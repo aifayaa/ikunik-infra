@@ -18,6 +18,7 @@ import {
   checkPermsForApp,
 } from '@libs/perms/checkPermsFor';
 import { parseAPIRequestBody } from '@libs/httpRequests/requestParsing';
+import { getUserLanguage } from '@libs/intl/intl';
 
 const urlActionsSchema = z.enum(['like', 'report']);
 
@@ -73,8 +74,11 @@ export default async (event: APIGatewayProxyEvent) => {
     } else if (action === 'report') {
       const { reason } = parseAPIRequestBody(bodyReportSchema, event.body);
 
+      const lang = getUserLanguage(event.headers);
+
       replyData = await forumTopicReplyActionReport(appId, replyId, userId, {
         reason,
+        lang,
       });
     } else if (action === 'moderate') {
       try {

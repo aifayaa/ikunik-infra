@@ -23,6 +23,8 @@ import userBadgeRequestHtml from './userBadgeRequestHtml';
 import userBadgeRequestRejectedHtml from './userBadgeRequestRejectedHtml';
 import userBadgeRequestValidatedHtml from './userBadgeRequestValidatedHtml';
 import usersFinalizedProfileHtml from './usersFinalizedProfileHtml';
+import reportedForumTopicEmailHtml from './reportedForumTopicEmailHtml';
+import reportedForumTopicReplyEmailHtml from './reportedForumTopicReplyEmailHtml';
 
 export default {
   libsEmail: {
@@ -312,6 +314,18 @@ export default {
         text: '{{- fromUserName}} vous invite à rejoindre "{{- channelName}}"',
         title: 'Invitation à rejoindre un canal du chat',
       },
+    },
+  },
+  forum: {
+    reported_topic_email: {
+      html: reportedForumTopicEmailHtml,
+      title:
+        '[{{- appName}}/{{- category.name}}] Forum: Un utilisateur a signalé un sujet',
+    },
+    reported_topic_reply_email: {
+      html: reportedForumTopicReplyEmailHtml,
+      title:
+        '[{{- appName}}/{{- category.name}}] Forum: Un utilisateur a signalé une réponse',
     },
   },
 };
