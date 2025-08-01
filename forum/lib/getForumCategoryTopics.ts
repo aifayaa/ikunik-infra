@@ -111,7 +111,7 @@ export default async (
       appId,
       categoryId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
       ...getBadgesFilteringQuery(badgesByPerms.canList),
     };
 

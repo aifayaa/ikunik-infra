@@ -136,7 +136,7 @@ export async function forumTopicActionSolve(
     const topic = (await client.db().collection(COLL_FORUM_TOPICS).findOne({
       _id: topicId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
       appId,
     })) as ForumTopicActionSolveReturnType | null;
 
@@ -167,7 +167,7 @@ export async function forumTopicActionSolve(
         categoryId,
         topicId,
         removed: false,
-        'moderation.status': 'valid',
+        'moderation.validated': true,
       })) as ForumTopicReplyType | null;
 
     if (!reply) {
@@ -221,7 +221,7 @@ export async function forumTopicActionToggleLike(
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as ForumTopicActionSolveReturnType | null;
 
     if (!topic) {
@@ -392,7 +392,7 @@ export async function forumTopicActionReport(
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as ForumTopicType | null;
 
     if (!topic) {
@@ -455,7 +455,7 @@ export async function forumTopicActionView(
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as ForumTopicActionSolveReturnType | null;
 
     if (!topic) {

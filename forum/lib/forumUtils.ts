@@ -496,7 +496,7 @@ export async function updateTopicRepliesCount(
       topicId: topic._id,
       categoryId: topic.categoryId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })
     .count();
 
@@ -526,7 +526,7 @@ export async function updateCategoryTopicsCount(
       appId: category.appId,
       categoryId: category._id,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })
     .count();
 

@@ -47,7 +47,7 @@ export default async (
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as ForumTopicType | null;
 
     if (!topic) {

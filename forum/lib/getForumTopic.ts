@@ -34,7 +34,7 @@ export default async (appId: string, topicId: string, userId: string) => {
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as GetForumTopicReturnType | null;
 
     if (!topic) {

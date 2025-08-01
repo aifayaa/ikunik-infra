@@ -94,7 +94,7 @@ export async function forumTopicReplyActionToggleLike(
         _id: replyId,
         appId,
         removed: false,
-        'moderation.status': 'valid',
+        'moderation.validated': true,
       })) as ForumTopicReplyActionSolveReturnType | null;
 
     if (!reply) {
@@ -111,7 +111,7 @@ export async function forumTopicReplyActionToggleLike(
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as ForumTopicType | null;
 
     if (!topic) {
@@ -197,7 +197,7 @@ export async function forumTopicReplyActionReport(
         _id: replyId,
         appId,
         removed: false,
-        'moderation.status': 'valid',
+        'moderation.validated': true,
       })) as ForumTopicReplyType | null;
 
     if (!reply) {
@@ -214,7 +214,7 @@ export async function forumTopicReplyActionReport(
       _id: topicId,
       appId,
       removed: false,
-      'moderation.status': 'valid',
+      'moderation.validated': true,
     })) as ForumTopicType | null;
 
     if (!topic) {
