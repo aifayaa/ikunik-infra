@@ -15,6 +15,13 @@ export type ForumCategoryType = {
   badges: UserBadgeGenericEntryEntity;
 };
 
+type ForumCommonModerationField = {
+  checked: boolean;
+  validated: boolean;
+  reason: string;
+  checkedBy?: string;
+};
+
 export type ForumTopicType = {
   _id: string;
   appId: string;
@@ -26,8 +33,11 @@ export type ForumTopicType = {
   solved: boolean;
   solutionReplyId: string | null;
 
-  lastMessageAt?: Date;
+  lastMessageAt: Date;
   lastMessageBy?: string;
+
+  removed: boolean;
+  moderation: ForumCommonModerationField;
 
   stats: {
     repliesCount: number;
@@ -46,6 +56,9 @@ export type ForumTopicReplyType = {
   createdAt: Date;
   createdBy: string;
   content: string;
+
+  removed: boolean;
+  moderation: ForumCommonModerationField;
 
   stats: {
     likesCount: number;

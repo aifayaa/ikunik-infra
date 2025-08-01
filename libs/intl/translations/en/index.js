@@ -26,6 +26,8 @@ import userBadgeRequestHtml from './userBadgeRequestHtml';
 import userBadgeRequestRejectedHtml from './userBadgeRequestRejectedHtml';
 import userBadgeRequestValidatedHtml from './userBadgeRequestValidatedHtml';
 import usersFinalizedProfileHtml from './usersFinalizedProfileHtml';
+import reportedForumTopicEmailHtml from './reportedForumTopicEmailHtml';
+import reportedForumTopicReplyEmailHtml from './reportedForumTopicReplyEmailHtml';
 
 export default {
   libsEmail: {
@@ -333,6 +335,18 @@ export default {
         text: '{{- fromUserName}} is inviting you to join "{{- channelName}}"',
         title: 'Invitation to join a chat channel',
       },
+    },
+  },
+  forum: {
+    reported_topic_email: {
+      html: reportedForumTopicEmailHtml,
+      title:
+        '[{{- appName}}/{{- category.name}}] Forum: A user reported a topic',
+    },
+    reported_topic_reply_email: {
+      html: reportedForumTopicReplyEmailHtml,
+      title:
+        '[{{- appName}}/{{- category.name}}] Forum: A user reported a topic reply',
     },
   },
 };

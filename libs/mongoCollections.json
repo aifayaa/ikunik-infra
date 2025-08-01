@@ -34,6 +34,7 @@
   "COLL_FORUM_CATEGORIES": "forumCategories",
   "COLL_FORUM_TOPIC_REPLIES": "forumTopicReplies",
   "COLL_FORUM_TOPICS": "forumTopics",
+  "COLL_GENERIC_CONTENT_REPORTS": "genericContentReports",
   "COLL_GENRES": "genres",
   "COLL_INVITATIONS": "invitations",
   "COLL_LINEUPS": "lineup",

@@ -110,6 +110,8 @@ export default async (
     const searchQuery = {
       appId,
       categoryId,
+      removed: false,
+      'moderation.validated': true,
       ...getBadgesFilteringQuery(badgesByPerms.canList),
     };
 
