@@ -314,6 +314,9 @@ export default {
         text: '{{- fromUserName}} vous invite à rejoindre "{{- channelName}}"',
         title: 'Invitation à rejoindre un canal du chat',
       },
+      message_sent: {
+        text: 'Un nouveau message disponible',
+      },
     },
   },
   forum: {

@@ -269,11 +269,11 @@ export default async (
       fromUserId,
       toUserId,
       channelId,
-      text: formatMessage('chat:notification.user_invitation.text', {
+      text: formatMessage('chat:notifications.user_invitation.text', {
         fromUserName: fromUser.profile.username,
         channelName: channelData.name,
       }),
-      title: formatMessage('chat:notification.user_invitation.title', {
+      title: formatMessage('chat:notifications.user_invitation.title', {
         fromUserName: fromUser.profile.username,
         channelName: channelData.name,
       }),
