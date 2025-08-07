@@ -5,7 +5,6 @@ import mongoCollections from '../../libs/mongoCollections.json';
 import { AppType } from '@apps/lib/appEntity';
 import { UserType } from '@users/lib/userEntity';
 import { getFirestore } from 'firebase-admin/firestore';
-import admin from 'firebase-admin';
 import { getFirebaseApp } from './chatFirebaseUtils';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
@@ -17,6 +16,7 @@ import {
   USER_NOT_FOUND_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { ChatChannelType, firebaseCollections } from './chatEntities';
+import { formatMessage, intlInit } from '@libs/intl/intl';
 
 const { COLL_APPS, COLL_USERS } = mongoCollections;
 
@@ -26,49 +26,50 @@ const lambda = new Lambda({
   region: REGION,
 });
 
-function formatMessage(
-  from: string,
-  channelName: string,
-  text: string,
-  haveAttachments: boolean = false
-) {
-  const length = 116;
+// function formatMessage(
+//   from: string,
+//   channelName: string,
+//   text: string,
+//   haveAttachments: boolean = false
+// ) {
+//   const length = 116;
 
-  const preparedText = `[${channelName}] ${from}: ${text}`
-    /* Remove any html markup */
-    .replace(/<[^>]+>/g, ' ')
-    /* Replace new lines with whitespaces */
-    .replace(/[\n\r]+/g, ' ')
-    /* Remove successive whitespaces */
-    .replace(/\s{2,}/g, ' ')
-    /* Remove trailing whitespace at the beginning and at the end */
-    .replace(/^\s+|\s+$/, '');
+//   const preparedText = `[${channelName}] ${from}: ${text}`
+//     /* Remove any html markup */
+//     .replace(/<[^>]+>/g, ' ')
+//     /* Replace new lines with whitespaces */
+//     .replace(/[\n\r]+/g, ' ')
+//     /* Remove successive whitespaces */
+//     .replace(/\s{2,}/g, ' ')
+//     /* Remove trailing whitespace at the beginning and at the end */
+//     .replace(/^\s+|\s+$/, '');
 
-  /* Cut string at size but preserve word */
-  const cutRegex = new RegExp(`^(.{${length}}[^\\s]*).*`, 'g');
-  const cuttedText = preparedText.replace(cutRegex, '$1');
+//   /* Cut string at size but preserve word */
+//   const cutRegex = new RegExp(`^(.{${length}}[^\\s]*).*`, 'g');
+//   const cuttedText = preparedText.replace(cutRegex, '$1');
 
-  if (!cuttedText && haveAttachments) {
-    return '📁';
-  }
+//   if (!cuttedText && haveAttachments) {
+//     return '📁';
+//   }
 
-  if (cuttedText.length < text.length) {
-    return `${cuttedText}...`;
-  }
+//   if (cuttedText.length < text.length) {
+//     return `${cuttedText}...`;
+//   }
 
-  return cuttedText;
-}
+//   return cuttedText;
+// }
 
 type ChatMessageSentParamsType = {
   channelId: string;
   message: string;
   haveAttachments: boolean;
+  lang: string;
 };
 
 export default async (
   userId: string,
   appId: string,
-  { channelId, message, haveAttachments }: ChatMessageSentParamsType
+  { channelId, message, haveAttachments, lang }: ChatMessageSentParamsType
 ) => {
   const client = await MongoClient.connect();
   const db = client.db();
@@ -131,6 +132,19 @@ export default async (
 
     const channelMembersIds = channelData.isPublic ? null : channelData.members;
 
+    intlInit(lang);
+
+    const notificationMessage = formatMessage(
+      'chat:notifications.message_sent.text',
+      {
+        // These variables are not needed for the text formatting, but still keeping them here to avoid changing the function parameters or API format, for future evolutions.
+        username: user.profile.username,
+        channelName: channelData.name,
+        message,
+        haveAttachments,
+      }
+    );
+
     await lambda
       .invoke({
         FunctionName: `blast-${STAGE}-queueNotifications`,
@@ -140,12 +154,7 @@ export default async (
           type: 'chatMessage',
           only: 'users',
           data: {
-            message: formatMessage(
-              user.profile.username,
-              channelData.name,
-              message,
-              haveAttachments
-            ),
+            message: notificationMessage,
             channelMembersIds,
             channelId,
           },

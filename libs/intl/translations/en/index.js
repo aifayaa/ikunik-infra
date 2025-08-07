@@ -335,6 +335,9 @@ export default {
         text: '{{- fromUserName}} is inviting you to join "{{- channelName}}"',
         title: 'Invitation to join a chat channel',
       },
+      message_sent: {
+        text: 'A new message availabe',
+      },
     },
   },
   forum: {

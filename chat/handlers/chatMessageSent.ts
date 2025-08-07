@@ -10,6 +10,7 @@ import {
   MISSING_BODY_CODE,
 } from '@libs/httpResponses/errorCodes';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';
+import { getUserLanguage } from '@libs/intl/intl';
 
 const bodySchema = z
   .object({
@@ -46,10 +47,13 @@ export default async (event: APIGatewayProxyEvent) => {
 
     const { message, haveAttachments } = bodySchema.parse(body);
 
+    const lang = getUserLanguage(event.headers);
+
     await chatMessageSent(userId, appId, {
       channelId,
       haveAttachments,
       message,
+      lang,
     });
     return response({
       code: 200,
