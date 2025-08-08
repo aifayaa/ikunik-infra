@@ -29,6 +29,8 @@ module.exports = {
   S3_BUCKET_TOS_HOST: 'https://tos.aws.crowdaa.com',
   S3_REGION: 'us-east-1',
   SMTP_FROM: 'noreply@aws.crowdaa.com',
+  MONGODB_ENCRYPTION_KEY:
+    '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/${self:provider.region}/mongodb/encryption-key}',
   SMTP_LOGIN: 'AKIAZFOLYEVWVZYZR2G4',
   SMTP_SERVER: 'email-smtp.eu-west-3.amazonaws.com:465',
   SMTP_SECURE: true,
