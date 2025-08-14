@@ -8,7 +8,7 @@ import { CreateRoomCommand, IvschatClient } from '@aws-sdk/client-ivschat';
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { ALS_EXPIRATION_DELAY_MIN, ALS_EXPIRATION_DELAY_MS } from './utils';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import { AppLiveStreamType } from './appLiveStreamEntities';
 import {
   CATEGORY_NOT_FOUND_CODE,
   ERROR_TYPE_INTERNAL_EXCEPTION,
@@ -17,8 +17,15 @@ import {
 } from '@libs/httpResponses/errorCodes';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 
-const { IVS_REGION, STAGE } = process.env as {
+const {
+  IVS_REGION,
+  STAGE,
+  LIVE_STREAM_RECORDING_CONFIGURATION_ARN, // Created manually
+  LIVE_STREAM_LOGGING_CONFIGURATION_ARN, // Created manually
+} = process.env as {
   IVS_REGION: string;
+  LIVE_STREAM_RECORDING_CONFIGURATION_ARN: string;
+  LIVE_STREAM_LOGGING_CONFIGURATION_ARN: string;
   STAGE: string;
 };
 
@@ -37,11 +44,12 @@ type CreateAppLiveStreamParamsType = {
   categoryId: string;
 };
 
-async function createChatRoom(name: string, userId: string) {
+async function createChatRoom(name: string) {
   const roomParams = new CreateRoomCommand({
     maximumMessageLength: 500,
     maximumMessageRatePerSecond: 40,
     name,
+    loggingConfigurationIdentifiers: [LIVE_STREAM_LOGGING_CONFIGURATION_ARN],
   });
 
   const { arn: ivsChatRoomArn } = await ivsChatClient.send(roomParams);
@@ -90,6 +98,16 @@ export async function createAppLiveStream(
           capabilities: ['PUBLISH'],
         },
       ],
+      autoParticipantRecordingConfiguration: {
+        storageConfigurationArn: LIVE_STREAM_RECORDING_CONFIGURATION_ARN,
+        mediaTypes: ['AUDIO_VIDEO'],
+        thumbnailConfiguration: {
+          // ParticipantThumbnailConfiguration
+          targetIntervalSeconds: 60,
+          storage: ['LATEST'],
+          recordingMode: 'INTERVAL',
+        },
+      },
     });
 
     const { participantTokens, stage } = await ivsRTClient.send(stageParams);
@@ -113,7 +131,7 @@ export async function createAppLiveStream(
 
     let ivsChatRoomArn: string | undefined;
     try {
-      const results = await createChatRoom(ivsStageName, userId);
+      const results = await createChatRoom(ivsStageName);
       ivsChatRoomArn = results.ivsChatRoomArn;
     } catch (e) {
       await ivsRTClient.send(new DeleteStageCommand({ arn: stage.arn }));

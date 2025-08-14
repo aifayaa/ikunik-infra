@@ -21,7 +21,7 @@ import BadgeChecker from '@libs/badges/BadgeChecker';
 import {
   AppLiveStreamTokenType,
   AppLiveStreamType,
-} from './appLiveStreamTypes';
+} from './appLiveStreamEntities';
 import { CreateChatTokenCommand, IvschatClient } from '@aws-sdk/client-ivschat';
 
 const { IVS_REGION } = process.env as { IVS_REGION: string };

@@ -1,5 +1,5 @@
 import MongoClient from '../../libs/mongoClient';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import { AppLiveStreamType } from './appLiveStreamEntities';
 import mongoCollections from '../../libs/mongoCollections.json';
 import { PressCategoryType } from 'pressCategories/lib/pressCategoriesTypes';
 import { UserType } from '@users/lib/userEntity';
@@ -18,6 +18,7 @@ const { COLL_USERS, COLL_PRESS_CATEGORIES } = mongoCollections;
 export const ALS_CHAT_EXPIRATION_DELAY_MIN = 180; // Maximum allowed value by AWS
 export const ALS_EXPIRATION_DELAY_MIN = 1 * 24 * 60; // 1 day
 export const ALS_EXPIRATION_DELAY_MS = ALS_EXPIRATION_DELAY_MIN * 60 * 1000;
+export const LIVESTREAM_PROVIDER_AWS_IVS = 'aws-ivs';
 
 export function filterAppLiveStreamOutput(
   input: AppLiveStreamType & { awsRegion?: string },

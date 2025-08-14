@@ -6,7 +6,7 @@ import {
   getVisibleCategoriesForUser,
 } from './utils';
 import { userPrivateFields } from '../../users/lib/usersUtils';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import { AppLiveStreamType } from './appLiveStreamEntities';
 import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
 
 const { COLL_APP_LIVE_STREAMS, COLL_USERS } = mongoCollections;

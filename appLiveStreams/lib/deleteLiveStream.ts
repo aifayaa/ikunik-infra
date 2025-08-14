@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-ivs-realtime';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import { AppLiveStreamType } from './appLiveStreamEntities';
 import { DeleteRoomCommand, IvschatClient } from '@aws-sdk/client-ivschat';
 
 const { IVS_REGION } = process.env;
