@@ -15,6 +15,11 @@ const serverlessConfiguration = {
     dev: {
       'us-east-1': {
         IVS_REGION: 'us-east-1',
+        IVS_BUCKET: 'aals-live-streams-recordings-dev-us',
+        LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
+          'arn:aws:ivschat:us-east-1:630176884077:logging-configuration/kpz9Hkhw0JZW',
+        LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
+          'arn:aws:ivs:us-east-1:630176884077:storage-configuration/gGfB810FW5i7',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'DevCountAppLiveStreamViewers',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-countAppLiveStreamViewers-role',
@@ -25,6 +30,11 @@ const serverlessConfiguration = {
     preprod: {
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
+        IVS_BUCKET: 'aals-live-streams-recordings-preprod-fr',
+        LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
+          'arn:aws:ivschat:eu-west-1:630176884077:logging-configuration/npshJBdn8dLt',
+        LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
+          'arn:aws:ivs:eu-west-1:630176884077:storage-configuration/GFhrn550Yngd',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
           'PreprodCountAppLiveStreamViewers',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
@@ -36,6 +46,11 @@ const serverlessConfiguration = {
     prod: {
       'us-east-1': {
         IVS_REGION: 'us-east-1',
+        IVS_BUCKET: 'aals-live-streams-recordings-prod-us',
+        LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
+          'arn:aws:ivschat:us-east-1:630176884077:logging-configuration/APwRBhl1ukrr',
+        LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
+          'arn:aws:ivs:us-east-1:630176884077:storage-configuration/yMAca4Tyd9Oj',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCountAppLiveStreamViewers',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-countAppLiveStreamViewers-role',
@@ -44,6 +59,11 @@ const serverlessConfiguration = {
       },
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
+        IVS_BUCKET: 'aals-live-streams-recordings-prod-fr',
+        LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
+          'arn:aws:ivschat:eu-west-1:630176884077:logging-configuration/lDpG9UuoJpcB',
+        LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
+          'arn:aws:ivs:eu-west-1:630176884077:storage-configuration/uMW5ndSoawyE',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCountAppLiveStreamViewers',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-countAppLiveStreamViewers-role',
@@ -65,6 +85,14 @@ const serverlessConfiguration = {
       ...env,
       IVS_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_REGION}',
+
+      // Recording
+      IVS_BUCKET:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.IVS_BUCKET}',
+      LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_RECORDING_CONFIGURATION_ARN}',
+      LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_LOGGING_CONFIGURATION_ARN}',
 
       // state machine
       LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
@@ -89,6 +117,17 @@ const serverlessConfiguration = {
             Action: ['ivschat:*'],
             Resource:
               'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:630176884077:*',
+          },
+
+          // Recording
+          {
+            Effect: 'Allow',
+            Action: [
+              'ivsrealtime:GetStorageConfiguration',
+              'ivsrealtime:ListStorageConfigurations',
+            ],
+            Resource:
+              'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
           },
 
           // state machine

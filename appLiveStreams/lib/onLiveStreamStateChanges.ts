@@ -9,7 +9,7 @@ import {
 import {
   AppLiveStreamStartNotificationDataType,
   AppLiveStreamType,
-} from './appLiveStreamTypes';
+} from './appLiveStreamEntities';
 
 const {
   LIVE_STREAM_WATCHER_STATE_MACHINE_NAME,

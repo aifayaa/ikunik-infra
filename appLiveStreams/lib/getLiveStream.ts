@@ -1,6 +1,6 @@
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import { AppLiveStreamType } from './appLiveStreamEntities';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_NOT_FOUND,

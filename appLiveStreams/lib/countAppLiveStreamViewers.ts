@@ -5,7 +5,7 @@ import {
   ListParticipantsCommand,
   ListStageSessionsCommand,
 } from '@aws-sdk/client-ivs-realtime';
-import { AppLiveStreamType } from './appLiveStreamTypes';
+import { AppLiveStreamType } from './appLiveStreamEntities';
 import { promiseExecUntilTrue } from '@libs/utils';
 
 const { IVS_REGION } = process.env;
