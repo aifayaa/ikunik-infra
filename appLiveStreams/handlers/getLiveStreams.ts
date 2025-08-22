@@ -1,6 +1,5 @@
 /* eslint-disable import/no-relative-packages */
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import errorMessage from '../../libs/httpResponses/errorMessage';
 import response, { handleException } from '../../libs/httpResponses/response';
 import getLiveStreams from '../lib/getLiveStreams';
 import { formatResponseBody } from '@libs/httpResponses/formatResponseBody';

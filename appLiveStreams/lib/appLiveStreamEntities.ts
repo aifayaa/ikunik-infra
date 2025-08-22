@@ -1,5 +1,24 @@
 import { ObjectID } from '../../libs/mongoClient';
 
+export type AppLiveStreamRecordingType = {
+  start: Date;
+  duration: number;
+  baseUrl: string;
+  root: string;
+
+} & (
+  | {
+      state: 'started' | 'failed';
+    }
+  | {
+      state: 'ended';
+      playlist: string;
+      thumbnailPath: string;
+      end: Date;
+      pressArticleId?: string;
+    }
+);
+
 export type AppLiveStreamType = {
   _id: string;
   createdAt: Date;
@@ -25,6 +44,10 @@ export type AppLiveStreamType = {
     viewersCount: number;
     maxViewersCount: number;
   };
+
+  recordings?: Array<AppLiveStreamRecordingType>;
+  messagesCount?: number;
+  streamWatcherId?: string;
 };
 
 export type AppLiveStreamTokenType = {
@@ -45,5 +68,24 @@ export type AppLiveStreamStartNotificationDataType = {
   type: 'appLiveStreamStart';
   data: {
     liveStreamId: string;
+  };
+};
+
+export type AppLiveStreamLogLineType = {
+  _id: ObjectID;
+  appId: string;
+  liveStreamId: string;
+  s3bucket: string;
+  s3Key: string;
+  awsId: string;
+  sendTime: Date;
+
+  content: string;
+  userId: string;
+  username: string;
+
+  attributes: {
+    messageType?: 'heart_reaction' | 'stream_status' | 'viewer_join';
+    reactionData?: string;
   };
 };

@@ -8,9 +8,7 @@ import { UserBadgeType } from 'userBadges/lib/userBadgesEntities';
 import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   CATEGORY_NOT_FOUND_CODE,
-  ERROR_TYPE_NOT_ALLOWED,
   ERROR_TYPE_NOT_FOUND,
-  NOT_ENOUGH_PERMISSIONS_CODE,
 } from '@libs/httpResponses/errorCodes';
 
 const { COLL_USERS, COLL_PRESS_CATEGORIES } = mongoCollections;
@@ -18,7 +16,6 @@ const { COLL_USERS, COLL_PRESS_CATEGORIES } = mongoCollections;
 export const ALS_CHAT_EXPIRATION_DELAY_MIN = 180; // Maximum allowed value by AWS
 export const ALS_EXPIRATION_DELAY_MIN = 1 * 24 * 60; // 1 day
 export const ALS_EXPIRATION_DELAY_MS = ALS_EXPIRATION_DELAY_MIN * 60 * 1000;
-export const LIVESTREAM_PROVIDER_AWS_IVS = 'aws-ivs';
 
 export function filterAppLiveStreamOutput(
   input: AppLiveStreamType & { awsRegion?: string },
@@ -34,6 +31,8 @@ export function filterAppLiveStreamOutput(
     expireDateTime: input.expireDateTime,
     state: input.state,
     awsRegion: input.awsRegion,
+    recordings: input.recordings,
+    messagesCount: input.messagesCount,
 
     ...(includeStreamingKey ? { userStreamToken: input.userStreamToken } : {}),
   };
