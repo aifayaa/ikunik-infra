@@ -40,6 +40,8 @@ export default async (event) => {
       forcePictures,
       forceVideos,
       sendNotifications = false,
+      notificationTitle,
+      notificationContent,
     } = event.queryStringParameters || {};
 
     let actions;
@@ -252,7 +254,9 @@ export default async (event) => {
           appId,
           results.articleId,
           results.draftId,
-          new Date()
+          new Date(),
+          notificationContent,
+          notificationTitle
         );
         results.notificationSent = true;
       }

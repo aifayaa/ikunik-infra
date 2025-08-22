@@ -2,6 +2,7 @@
   "COLL_ADVERTISEMENTS": "advertisements",
   "COLL_AI_QUERIES": "aiQueries",
   "COLL_APP_LIVE_STREAMS": "appLiveStreams",
+  "COLL_APP_LIVE_STREAMS_LOGS": "appLiveStreamsLogs",
   "COLL_APP_LIVE_STREAMS_TOKENS": "appLiveStreamsTokens",
   "COLL_APPS": "apps",
   "COLL_ARTIST_CONTACT_LIST": "artistContactList",

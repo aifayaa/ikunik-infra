@@ -318,6 +318,7 @@ verbose(
 
   const {
     COLL_ADVERTISEMENTS,
+    COLL_APP_LIVE_STREAMS_LOGS,
     COLL_APP_LIVE_STREAMS_TOKENS,
     COLL_APPS,
     COLL_BLAST_NOTIFICATIONS_QUEUE,
@@ -988,6 +989,34 @@ verbose(
             appId: 1,
             deviceId: 1,
             userId: 1,
+          },
+          opts: makeOpts(),
+        },
+      ],
+      [COLL_APP_LIVE_STREAMS_LOGS]: [
+        {
+          name: 'crowdaa_aals_logs_awsId_uniq',
+          key: {
+            awsId: 1,
+          },
+          opts: makeOpts('unique'),
+        },
+        {
+          name: 'crowdaa_aals_logs_search1',
+          key: {
+            appId: 1,
+            liveStreamId: 1,
+            sendTime: 1,
+          },
+          opts: makeOpts(),
+        },
+        {
+          name: 'crowdaa_aals_logs_insert_key',
+          key: {
+            appId: 1,
+            awsStreamId: 1,
+            s3bucket: 1,
+            s3Key: 1,
           },
           opts: makeOpts(),
         },

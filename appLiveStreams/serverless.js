@@ -20,11 +20,11 @@ const serverlessConfiguration = {
           'arn:aws:ivschat:us-east-1:630176884077:logging-configuration/kpz9Hkhw0JZW',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
           'arn:aws:ivs:us-east-1:630176884077:storage-configuration/gGfB810FW5i7',
-        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'DevCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'DevSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-countAppLiveStreamViewers-role',
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStreams-dev-countAppLiveStreamViewers',
+          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStreams-dev-sfnCheckAppLiveStream',
       },
     },
     preprod: {
@@ -35,12 +35,11 @@ const serverlessConfiguration = {
           'arn:aws:ivschat:eu-west-1:630176884077:logging-configuration/npshJBdn8dLt',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
           'arn:aws:ivs:eu-west-1:630176884077:storage-configuration/GFhrn550Yngd',
-        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME:
-          'PreprodCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'PreprodSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-countAppLiveStreamViewers-role',
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStreams-preprod-countAppLiveStreamViewers',
+          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStreams-preprod-sfnCheckAppLiveStream',
       },
     },
     prod: {
@@ -51,11 +50,11 @@ const serverlessConfiguration = {
           'arn:aws:ivschat:us-east-1:630176884077:logging-configuration/APwRBhl1ukrr',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
           'arn:aws:ivs:us-east-1:630176884077:storage-configuration/yMAca4Tyd9Oj',
-        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-countAppLiveStreamViewers-role',
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStreams-prod-countAppLiveStreamViewers',
+          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStreams-prod-sfnCheckAppLiveStream',
       },
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
@@ -64,11 +63,11 @@ const serverlessConfiguration = {
           'arn:aws:ivschat:eu-west-1:630176884077:logging-configuration/lDpG9UuoJpcB',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
           'arn:aws:ivs:eu-west-1:630176884077:storage-configuration/uMW5ndSoawyE',
-        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCountAppLiveStreamViewers',
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-countAppLiveStreamViewers-role',
+          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStreams-prod-countAppLiveStreamViewers',
+          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStreams-prod-sfnCheckAppLiveStream',
       },
     },
     esbuild: {
@@ -130,7 +129,17 @@ const serverlessConfiguration = {
               'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
           },
 
-          // state machine
+          // Handling/Viewing replay
+          {
+            Effect: 'Allow',
+            Action: ['s3:GetBucketLocation', 's3:ListBucket', 's3:GetObject'],
+            Resource: [
+              'arn:aws:s3:::${self:provider.environment.IVS_BUCKET}',
+              'arn:aws:s3:::${self:provider.environment.IVS_BUCKET}/*',
+            ],
+          },
+
+          // state machine / stream state checks
           {
             Effect: 'Allow',
             Action: ['states:CreateStateMachine', 'states:StartExecution'],
@@ -156,6 +165,8 @@ const serverlessConfiguration = {
             Action: ['lambda:InvokeFunction'],
             Resource: [
               'arn:aws:lambda:${self:provider.region}:630176884077:function:blast-${self:provider.stage}-queueNotifications',
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:files-${self:provider.stage}-getUploadUrl',
+              'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-${self:provider.stage}-postArticle',
             ],
           },
         ],
@@ -196,9 +207,10 @@ const serverlessConfiguration = {
         },
       ],
     },
-    countAppLiveStreamViewers: {
-      handler: 'handlers/countAppLiveStreamViewers.default',
+    sfnCheckAppLiveStream: {
+      handler: 'handlers/sfnCheckAppLiveStream.default',
       timeout: 300,
+      memorySize: 256,
     },
     createLiveStream: {
       handler: 'handlers/createLiveStream.default',
@@ -211,7 +223,7 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
             },
           },
         },
@@ -245,7 +257,7 @@ const serverlessConfiguration = {
             authorizer: {
               type: 'CUSTOM',
               authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
             },
             request: {
               parameters: {
@@ -282,12 +294,84 @@ const serverlessConfiguration = {
         },
       ],
     },
+    refreshLiveStreamRecordings: {
+      handler: 'handlers/refreshLiveStreamRecordings.default',
+      events: [
+        {
+          http: {
+            path: 'appLiveStreams/{id}/refresh',
+            method: 'put',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
     getLiveStream: {
       handler: 'handlers/getLiveStream.default',
       events: [
         {
           http: {
             path: 'appLiveStreams/{id}',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getLiveStreamRecordingViewingParameters: {
+      handler: 'handlers/getLiveStreamRecordingViewingParameters.default',
+      events: [
+        {
+          http: {
+            path: 'appLiveStreams/{id}/view',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    getLiveStreamRecordingMessages: {
+      handler: 'handlers/getLiveStreamRecordingMessages.default',
+      events: [
+        {
+          http: {
+            path: 'appLiveStreams/{id}/messages',
             method: 'get',
             cors: true,
             authorizer: {

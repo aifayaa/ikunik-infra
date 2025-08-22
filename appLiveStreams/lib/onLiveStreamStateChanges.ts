@@ -1,8 +1,10 @@
-import MongoClient from '@libs/mongoClient';
+import MongoClient, { ObjectID } from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import {
   CreateStateMachineCommand,
+  DeleteStateMachineCommand,
+  ListStateMachinesCommand,
   SFNClient,
   StartExecutionCommand,
 } from '@aws-sdk/client-sfn';
@@ -55,7 +57,7 @@ async function notifyStreamStarted(dbStream: AppLiveStreamType) {
   );
 }
 
-async function startStreamWatcher(dbStream: AppLiveStreamType) {
+async function createStateMachine() {
   const stateMachineParams = new CreateStateMachineCommand({
     name: LIVE_STREAM_WATCHER_STATE_MACHINE_NAME,
     roleArn: LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE,
@@ -67,7 +69,7 @@ async function startStreamWatcher(dbStream: AppLiveStreamType) {
         States: {
           sleep: {
             Type: 'Wait',
-            SecondsPath: '$.delay',
+            SecondsPath: '$.lastExec.Payload.delay',
             Next: 'callLambda',
           },
           callLambda: {
@@ -110,18 +112,80 @@ async function startStreamWatcher(dbStream: AppLiveStreamType) {
       },
       null,
       2
-    ) /** < Formatting because it can be read on the amazon web interface */,
+    ) /** < Formatting because it can be read on the AWS web interface */,
   });
 
   const { stateMachineArn } = await sfnClient.send(stateMachineParams);
 
+  return stateMachineArn;
+}
+
+async function deleteStateMachine() {
+  let nextToken: string | undefined = undefined;
+  let toDeleteStateMachineArn: string | undefined = undefined;
+
+  do {
+    const listCommand: ListStateMachinesCommand = new ListStateMachinesCommand({
+      maxResults: 500,
+      nextToken,
+    });
+    const listResults = await sfnClient.send(listCommand);
+    nextToken = listResults.nextToken;
+    if (!listResults.stateMachines) break;
+    for (let i = 0; i < listResults.stateMachines?.length; i += 1) {
+      if (
+        listResults.stateMachines[i].name ===
+        LIVE_STREAM_WATCHER_STATE_MACHINE_NAME
+      ) {
+        toDeleteStateMachineArn = listResults.stateMachines[i].stateMachineArn;
+        break;
+      }
+    }
+  } while (nextToken && !toDeleteStateMachineArn);
+
+  if (toDeleteStateMachineArn) {
+    const deleteCommand = new DeleteStateMachineCommand({
+      stateMachineArn: toDeleteStateMachineArn,
+    });
+
+    await sfnClient.send(deleteCommand);
+
+    return true;
+  }
+
+  return false;
+}
+
+async function createStateMachineWithRetry() {
+  try {
+    const stateMachineArn = await createStateMachine();
+    return stateMachineArn;
+  } catch (e) {
+    const deleted = await deleteStateMachine();
+
+    if (deleted) {
+      const stateMachineArn = await createStateMachine();
+      return stateMachineArn;
+    }
+
+    throw e;
+  }
+}
+
+async function startStreamWatcher(
+  liveStream: AppLiveStreamType,
+  streamWatcherId: string
+) {
+  const stateMachineArn = await createStateMachineWithRetry();
+
   const execParams = new StartExecutionCommand({
     stateMachineArn,
-    name: `${STAGE}-${dbStream._id}-${Date.now()}`,
+    name: `${STAGE}-${liveStream._id}-${Date.now()}`,
     input: JSON.stringify({
-      dbStreamId: dbStream._id,
-      appId: dbStream.appId,
+      appId: liveStream.appId,
       delay: 5,
+      liveStreamId: liveStream._id,
+      streamWatcherId,
     }),
   });
 
@@ -175,8 +239,25 @@ export async function handleStreamStarted(resources: Array<string>) {
       if (dbStream) {
         await setStreamStatus(dbStream, true, { client });
 
-        await startStreamWatcher(dbStream);
+        const streamWatcherId = new ObjectID().toString();
+        const sfnStreamWatcherArn = await startStreamWatcher(
+          dbStream,
+          streamWatcherId
+        );
         await notifyStreamStarted(dbStream);
+
+        dbStream.streamWatcherId = streamWatcherId;
+        await client
+          .db()
+          .collection(COLL_APP_LIVE_STREAMS)
+          .updateOne(
+            { _id: dbStream._id },
+            {
+              $set: {
+                streamWatcherId: streamWatcherId,
+              },
+            }
+          );
       }
     });
 

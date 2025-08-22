@@ -2,7 +2,7 @@
 import response, {
   handleException,
 } from '../../libs/httpResponses/response.js';
-import deleteLiveStream from '../lib/deleteLiveStream.js';
+import refreshLiveStreamRecordings from '../lib/refreshLiveStreamRecordings.js';
 import {
   checkFeaturePermsForApp,
   checkPermsForApp,
@@ -48,11 +48,14 @@ export default async (event: APIGatewayProxyEvent) => {
       await checkPermsForApp(userId, appId, ['admin']);
     }
 
-    const deletedStream = await deleteLiveStream(appId, liveStreamId);
+    const updatedLiveStream = await refreshLiveStreamRecordings(
+      appId,
+      liveStreamId
+    );
     return response({
       code: 200,
       body: formatResponseBody({
-        data: filterAppLiveStreamOutput(deletedStream),
+        data: filterAppLiveStreamOutput(updatedLiveStream),
       }),
     });
   } catch (exception) {
