@@ -13,7 +13,7 @@ type reponseType = {
   code?: number;
   body?: string | Object;
   message?: string;
-  raw?: string;
+  raw?: boolean;
 };
 
 /* eslint-disable import/no-relative-packages */

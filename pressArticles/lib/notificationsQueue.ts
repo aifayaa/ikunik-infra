@@ -33,10 +33,10 @@ export async function queueArticleNotifications(
       appId,
     });
 
-    if (!title) {
+    if (typeof title !== 'string') {
       title = title || prepareNotif(article.title, 60, false);
     }
-    if (!content) {
+    if (typeof content !== 'string') {
       content = content || prepareNotif(article.plainText);
     }
 

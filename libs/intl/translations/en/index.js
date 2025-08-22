@@ -327,6 +327,12 @@ export default {
         text: '{{- userName}} just started a live stream',
         title: 'A live stream is starting',
       },
+      new_recording_replay: {
+        title: 'A new live stream replay of {{- username}} is available!',
+      },
+    },
+    replay_press_article: {
+      title: "Replay of {{- username}}'s live stream the {{- date}}",
     },
   },
   chat: {

@@ -306,6 +306,13 @@ export default {
         text: '{{- userName}} a commencé une diffusion en direct',
         title: 'Un direct a démarré',
       },
+      new_recording_replay: {
+        title:
+          'Une nouvelle rediffusion du direct de {{- username}} est disponible!',
+      },
+    },
+    replay_press_article: {
+      title: 'Rediffusion du direct de {{- username}} le {{- date}}',
     },
   },
   chat: {

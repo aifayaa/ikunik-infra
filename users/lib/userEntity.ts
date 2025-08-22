@@ -62,6 +62,7 @@ export type UserBadgesFieldItemType = {
 export type UserType = {
   _id: string;
   appId: string;
+  username: string;
   services: {
     password?: {
       bcrypt: string;
