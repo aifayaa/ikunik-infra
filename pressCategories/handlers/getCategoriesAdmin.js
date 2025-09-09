@@ -16,24 +16,17 @@ export default async (event) => {
 
   try {
     const requestedPermissions = ['viewer', 'moderator', 'editor'];
-    const isAppStreamer = await checkFeaturePermsForApp(
+    const haveFeaturesPerms = await checkFeaturePermsForApp(
       userId,
       appId,
-      ['appLiveStreaming'],
+      ['appLiveStreaming', 'articlesEditor'],
       {
         dontThrow: true,
-      }
-    );
-    const isAppAdmin = await checkFeaturePermsForApp(
-      userId,
-      appId,
-      ['articlesEditor'],
-      {
-        dontThrow: true,
+        requireAll: false,
       }
     );
 
-    if (!isAppStreamer && !isAppAdmin) {
+    if (!haveFeaturesPerms) {
       await checkPermsForApp(userId, appId, requestedPermissions);
     }
 

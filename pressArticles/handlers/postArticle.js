@@ -25,9 +25,13 @@ export default async (event) => {
       superAdmin,
     } = event.requestContext.authorizer;
 
-    try {
-      await checkFeaturePermsForApp(userId, appId, ['articlesEditor']);
-    } catch (e) {
+    const allowedFeature = await checkFeaturePermsForApp(
+      userId,
+      appId,
+      ['articlesEditor', 'appLiveStreaming'],
+      { dontThrow: true, requireAll: false }
+    );
+    if (!allowedFeature) {
       await checkPermsForApp(userId, appId, ['admin']);
     }
 

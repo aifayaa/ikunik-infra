@@ -686,7 +686,7 @@ export async function checkFeaturePermsForApp(
   userId: string,
   appId: string,
   requestedPermissions: Array<AppsFeaturePermType>,
-  options = { dontThrow: false }
+  { dontThrow = false, requireAll = false } = {}
 ) {
   const client = await MongoClient.connect();
   const badgeChecker = new BadgeChecker(appId);
@@ -727,6 +727,19 @@ export async function checkFeaturePermsForApp(
       {} as Record<AppsFeaturePermType, UserBadgeGenericEntryEntity | null>
     );
 
+    if (!requireAll) {
+      const allIsNull = Object.values(finalFeaturesPerm).every(
+        (x) => x === null
+      );
+      if (allIsNull) {
+        throw new CrowdaaError(
+          ERROR_TYPE_ACCESS,
+          FEATURE_PERMISSION_CODE,
+          `Access to features ${requestedPermissions.join(', ')} not allowed`
+        );
+      }
+    }
+
     const userBadges = [...((user && user.badges) || [])];
 
     await badgeChecker.init;
@@ -737,41 +750,58 @@ export async function checkFeaturePermsForApp(
       const permKeyCasted = permKey as AppsFeaturePermType;
 
       if (!finalFeaturesPerm[permKeyCasted]) {
-        throw new CrowdaaError(
-          ERROR_TYPE_ACCESS,
-          FEATURE_PERMISSION_CODE,
-          `Access to feature ${permKeyCasted} not allowed`
-        );
-      }
-
-      badgeChecker.registerBadges(
-        finalFeaturesPerm[permKeyCasted].list.map(({ id }) => id)
-      );
-    });
-
-    await badgeChecker.loadBadges();
-
-    const promises = Object.keys(finalFeaturesPerm).map(
-      async (permKey: string) => {
-        const permKeyCasted = permKey as AppsFeaturePermType;
-
-        const checkerResults = await badgeChecker.checkBadges(
-          userBadges,
-          finalFeaturesPerm[permKeyCasted],
-          { userId, appId }
-        );
-
-        if (!checkerResults.canRead) {
+        if (requireAll) {
           throw new CrowdaaError(
             ERROR_TYPE_ACCESS,
             FEATURE_PERMISSION_CODE,
             `Access to feature ${permKeyCasted} not allowed`
           );
         }
+      } else {
+        badgeChecker.registerBadges(
+          finalFeaturesPerm[permKeyCasted].list.map(({ id }) => id)
+        );
+      }
+    });
+
+    await badgeChecker.loadBadges();
+
+    let haveAtLeastOnePerm = false;
+    const promises = Object.keys(finalFeaturesPerm).map(
+      async (permKey: string) => {
+        const permKeyCasted = permKey as AppsFeaturePermType;
+
+        if (finalFeaturesPerm[permKeyCasted]) {
+          const checkerResults = await badgeChecker.checkBadges(
+            userBadges,
+            finalFeaturesPerm[permKeyCasted],
+            { userId, appId }
+          );
+
+          if (!checkerResults.canRead) {
+            if (requireAll) {
+              throw new CrowdaaError(
+                ERROR_TYPE_ACCESS,
+                FEATURE_PERMISSION_CODE,
+                `Access to feature ${permKeyCasted} not allowed`
+              );
+            }
+          } else {
+            haveAtLeastOnePerm = true;
+          }
+        }
       }
     );
 
     const results = await Promise.allSettled(promises);
+
+    if (!haveAtLeastOnePerm && !requireAll) {
+      throw new CrowdaaError(
+        ERROR_TYPE_ACCESS,
+        FEATURE_PERMISSION_CODE,
+        `Access to features ${requestedPermissions.join(', ')} not allowed`
+      );
+    }
 
     results.forEach((value: PromiseSettledResult<void>) => {
       if (value.status === 'rejected') {
@@ -781,7 +811,7 @@ export async function checkFeaturePermsForApp(
 
     return true;
   } catch (e) {
-    if (options.dontThrow) {
+    if (dontThrow) {
       return false;
     } else {
       throw e;
