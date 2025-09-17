@@ -11,6 +11,18 @@ const sns = new SNS({
   },
 });
 
+export class NoNotificationTypeError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NoNotificationTypeError';
+
+    // Maintain proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, NoNotificationTypeError);
+    }
+  }
+}
+
 export const sendNotificationTo = (
   { isText = false, endpoint, ...payload },
   cb
@@ -43,7 +55,11 @@ export const sendNotificationTo = (
       });
     }
   } else {
-    cb(new Error('No notification type defined, notification not sent'));
+    cb(
+      new NoNotificationTypeError(
+        'No notification type defined, notification not sent'
+      )
+    );
     return null;
   }
   const params = {

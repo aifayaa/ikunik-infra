@@ -14,6 +14,8 @@ const serverlessConfiguration = {
     },
     dev: {
       'us-east-1': {
+        pushNotificationErrorSNSTopicArn:
+          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-dev-us',
         NOTIFICATION_STATE_MACHINE_NAME: 'DevSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-DevUsSendNotifications-role',
@@ -25,6 +27,8 @@ const serverlessConfiguration = {
     },
     preprod: {
       'eu-west-3': {
+        pushNotificationErrorSNSTopicArn:
+          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-preprod-fr',
         NOTIFICATION_STATE_MACHINE_NAME: 'PreprodSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodFrSendNotifications-role',
@@ -36,6 +40,8 @@ const serverlessConfiguration = {
     },
     prod: {
       'us-east-1': {
+        pushNotificationErrorSNSTopicArn:
+          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-prod-us',
         NOTIFICATION_STATE_MACHINE_NAME: 'ProdSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdUsSendNotifications-role',
@@ -45,6 +51,8 @@ const serverlessConfiguration = {
         IOS_APP_ID: 1074256465,
       },
       'eu-west-3': {
+        pushNotificationErrorSNSTopicArn:
+          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-prod-fr',
         NOTIFICATION_STATE_MACHINE_NAME: 'ProdSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
           'arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrSendNotifications-role',
@@ -188,6 +196,16 @@ const serverlessConfiguration = {
                 },
               },
             },
+          },
+        },
+      ],
+    },
+    onPushNotificationSendFailure: {
+      handler: 'handlers/onPushNotificationSendFailure.default',
+      events: [
+        {
+          sns: {
+            arn: '${self:custom.${self:provider.stage}.${self:provider.region}.pushNotificationErrorSNSTopicArn}',
           },
         },
       ],
