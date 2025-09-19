@@ -20,27 +20,22 @@ const serverlessConfiguration = {
   functions: {
     networkRequest: {
       handler: 'handlers/networkRequest.default',
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
     sendEmailMailgun: {
       handler: 'handlers/sendEmailMailgun.default',
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
     sendEmailTemplate: {
       handler: 'handlers/sendEmailTemplate.default',
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
     rebuildUserMetricsView: {
       handler: 'handlers/rebuildUserMetricsView.default',
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
     userMetricsViewOnUserIdentify: {
       handler: 'handlers/userMetricsViewOnUserIdentify.default',
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
       timeout: 600,
     },
   },
@@ -59,17 +54,6 @@ const serverlessConfiguration = {
     },
     'serverless-disable-request-validators': {
       action: 'delete',
-    },
-    /* This is the internal network (used to call internal APIs like baserow) */
-    vpcConfig: {
-      'us-east-1': {
-        securityGroupIds: ['sg-022c00c994d25c46e'],
-        subnetIds: ['subnet-0eef72fa8d060da6e'],
-      },
-      'eu-west-3': {
-        securityGroupIds: ['sg-05867825a09444a43'],
-        subnetIds: ['subnet-0977176abc4c94459'],
-      },
     },
     esbuild: {
       config: '../esbuild.config.cjs',

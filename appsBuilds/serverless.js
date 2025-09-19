@@ -7,17 +7,6 @@ const serverlessConfiguration = {
     logRetentionInDays: 7,
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
-    /* This is the internal network (used to call internal APIs like baserow) */
-    vpcConfig: {
-      'us-east-1': {
-        securityGroupIds: ['sg-022c00c994d25c46e'],
-        subnetIds: ['subnet-0eef72fa8d060da6e'],
-      },
-      'eu-west-3': {
-        securityGroupIds: ['sg-05867825a09444a43'],
-        subnetIds: ['subnet-0977176abc4c94459'],
-      },
-    },
     dev: {
       'us-east-1': {
         REACT_APP_AUTH_URL: 'https://dev-auth.crowdaa.com',
@@ -119,7 +108,6 @@ const serverlessConfiguration = {
           },
         },
       ],
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
     },
     getBuildsStatus: {
       handler: 'handlers/getBuildsStatus.default',

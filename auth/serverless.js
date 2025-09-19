@@ -236,7 +236,6 @@ const serverlessConfiguration = {
           },
         },
       ],
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
     },
     resetPassword: {
       handler: 'handlers/resetPassword.default',
@@ -415,16 +414,6 @@ const serverlessConfiguration = {
     },
     'serverless-disable-request-validators': {
       action: 'delete',
-    },
-    vpcConfig: {
-      'us-east-1': {
-        securityGroupIds: ['sg-022c00c994d25c46e'],
-        subnetIds: ['subnet-0eef72fa8d060da6e'],
-      },
-      'eu-west-3': {
-        securityGroupIds: ['sg-05867825a09444a43'],
-        subnetIds: ['subnet-0977176abc4c94459'],
-      },
     },
     dev: {
       'us-east-1': {

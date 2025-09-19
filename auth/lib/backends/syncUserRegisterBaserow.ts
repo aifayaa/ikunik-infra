@@ -16,8 +16,8 @@ const { COLL_USERS } = mongoCollections;
 
 const BASEROW_URL =
   STAGE === 'prod'
-    ? 'http://automation.operations.aws.crowdaa.com/webhook/367c7500-f44b-408b-bc4a-7856b9bdf2dd'
-    : 'http://automation.operations.aws.crowdaa.com/webhook-test/367c7500-f44b-408b-bc4a-7856b9bdf2dd';
+    ? 'https://n8n.crowdaa.com/webhook/367c7500-f44b-408b-bc4a-7856b9bdf2dd'
+    : 'https://n8n.crowdaa.com/webhook-test/367c7500-f44b-408b-bc4a-7856b9bdf2dd';
 const BASEROW_METHOD = 'POST';
 
 export default async (

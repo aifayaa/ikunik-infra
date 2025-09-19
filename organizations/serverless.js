@@ -87,7 +87,6 @@ const serverlessConfiguration = {
           },
         },
       ],
-      vpc: '${self:custom.vpcConfig.${self:provider.region}}',
     },
     deleteOrg: {
       handler: 'handlers/deleteOrg.default',
@@ -423,17 +422,6 @@ const serverlessConfiguration = {
     'serverless-export-env',
   ],
   custom: {
-    /* This is the internal network (used to call internal APIs like baserow) */
-    vpcConfig: {
-      'us-east-1': {
-        securityGroupIds: ['sg-022c00c994d25c46e'],
-        subnetIds: ['subnet-0eef72fa8d060da6e'],
-      },
-      'eu-west-3': {
-        securityGroupIds: ['sg-05867825a09444a43'],
-        subnetIds: ['subnet-0977176abc4c94459'],
-      },
-    },
     logRetentionInDays: 7,
     prune: {
       automatic: true,
