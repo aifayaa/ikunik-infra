@@ -9,8 +9,8 @@ const { CROWDAA_REGION, STAGE } = process.env;
 
 const BASEROW_URL =
   STAGE === 'prod'
-    ? 'http://automation.operations.aws.crowdaa.com/webhook/insert-organization-28716b61-546e-4a24-bd4b-f2bbb70d1b3a'
-    : 'http://automation.operations.aws.crowdaa.com/webhook-test/insert-organization-28716b61-546e-4a24-bd4b-f2bbb70d1b3a';
+    ? 'https://n8n.crowdaa.com/webhook/insert-organization-28716b61-546e-4a24-bd4b-f2bbb70d1b3a'
+    : 'https://n8n.crowdaa.com/webhook-test/insert-organization-28716b61-546e-4a24-bd4b-f2bbb70d1b3a';
 const BASEROW_METHOD = 'POST';
 
 export default async (userId, { orgId, name, stripeCustomerId }) => {

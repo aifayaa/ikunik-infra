@@ -11,8 +11,8 @@ const { CROWDAA_REGION, STAGE } = process.env;
 
 const BASEROW_URL =
   STAGE === 'prod'
-    ? 'http://automation.operations.aws.crowdaa.com/webhook/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9'
-    : 'http://automation.operations.aws.crowdaa.com/webhook-test/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9';
+    ? 'https://n8n.crowdaa.com/webhook/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9'
+    : 'https://n8n.crowdaa.com/webhook-test/createCustomerCrowdaa-mdfi-pd2645-95dg-dol9';
 const BASEROW_METHOD = 'POST';
 
 export default async (

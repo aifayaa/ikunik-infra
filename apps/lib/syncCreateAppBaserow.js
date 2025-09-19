@@ -9,8 +9,8 @@ const { CROWDAA_REGION, STAGE } = process.env;
 
 const BASEROW_URL =
   STAGE === 'prod'
-    ? 'http://automation.operations.aws.crowdaa.com/webhook/createProjects-fa567-anbo86-eocq9-p7t58re'
-    : 'http://automation.operations.aws.crowdaa.com/webhook-test/createProjects-fa567-anbo86-eocq9-p7t58re';
+    ? 'https://n8n.crowdaa.com/webhook/createProjects-fa567-anbo86-eocq9-p7t58re'
+    : 'https://n8n.crowdaa.com/webhook-test/createProjects-fa567-anbo86-eocq9-p7t58re';
 const BASEROW_METHOD = 'POST';
 
 export default async (userId, { appId, name, apiKey }) => {
