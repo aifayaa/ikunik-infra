@@ -88,6 +88,12 @@ export async function getUserBadgesByPermsLevels(
           .find({ _id: { $in: enabledUserBadgesIds }, appId })
           .toArray()) as Array<UserBadgeType>);
 
+  const userBadgesAsUserFieldItemType: Array<UserBadgesFieldItemType> =
+    userBadges.map(({ _id }) => ({
+      id: _id,
+      status: 'assigned',
+    }));
+
   const allBadges = (await client
     .db()
     .collection(COLL_USER_BADGES)
@@ -118,7 +124,7 @@ export async function getUserBadgesByPermsLevels(
       if (!badge) return true;
 
       const results = await badgeChecker.checkBadges(
-        userBadges,
+        userBadgesAsUserFieldItemType,
         {
           allow: 'all',
           list: [{ id: badge._id }],
