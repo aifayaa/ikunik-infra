@@ -5,6 +5,7 @@ import { intlInit, formatMessage } from '../../libs/intl/intl';
 import { sendEmailTemplate } from '../../libs/email/sendEmail';
 import getAppAdmins from '../../apps/lib/getAppAdmins.ts';
 import { objGet } from '../../libs/utils';
+import { syncUserBadges } from '../../libs/wordpress/wordpressApiSync';
 
 const { ADMIN_APP } = process.env;
 
@@ -146,6 +147,10 @@ export async function finalizeBadge(userId, appId, badgeId) {
         },
       }
     );
+
+    if (app.backend && app.backend.type === 'wordpress') {
+      await syncUserBadges(user);
+    }
 
     return true;
   } finally {
