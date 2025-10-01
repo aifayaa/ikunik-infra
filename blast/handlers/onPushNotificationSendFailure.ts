@@ -1,5 +1,23 @@
+import MongoClient from '@libs/mongoClient';
+import SNS from 'aws-sdk/clients/sns';
 import { promiseExecUntilTrue } from '@libs/utils';
+import mongoCollections from '@libs/mongoCollections.json';
 import { SNSEvent } from 'aws-lambda';
+
+const { COLL_PUSH_NOTIFICATIONS } = mongoCollections;
+const { SNS_KEY_ID, SNS_REGION, SNS_SECRET } = process.env as {
+  SNS_KEY_ID: string;
+  SNS_REGION: string;
+  SNS_SECRET: string;
+};
+
+const sns = new SNS({
+  region: SNS_REGION,
+  credentials: {
+    accessKeyId: SNS_KEY_ID,
+    secretAccessKey: SNS_SECRET,
+  },
+});
 
 /**
  * Input example :
@@ -25,24 +43,83 @@ import { SNSEvent } from 'aws-lambda';
     }
   ]
 }
+
+{
+  "EventSource": "aws:sns",
+  "EventVersion": "1.0",
+  "EventSubscriptionArn": "arn:aws:sns:us-west-2:630176884077:blast-push-failure-dev-us:aebd9a83-5093-462f-860a-50b3ddb0e4bb",
+  "Sns": {
+    "Type": "Notification",
+    "MessageId": "840e4627-943e-558a-b849-277255d709a2",
+    "TopicArn": "arn:aws:sns:us-west-2:630176884077:blast-push-failure-dev-us",
+    "Message": "{\"DeliveryAttempts\":1,\"EndpointArn\":\"arn:aws:sns:us-west-2:630176884077:endpoint/GCM/dev-dev-InAppPureChaise-android/466beb61-4e32-3538-884c-8539bd184056\",\"EventType\":\"DeliveryFailure\",\"FailureMessage\":\"Platform token associated with the endpoint is not valid\",\"FailureType\":\"InvalidPlatformToken\",\"MessageId\":\"374edf5f-9e35-5eeb-a03a-be0a5fdccbc3\",\"Resource\":\"arn:aws:sns:us-west-2:630176884077:app/GCM/dev-dev-InAppPureChaise-android\",\"Service\":\"SNS\",\"Time\":\"2025-09-30T11:31:53.650Z\"}",
+    "Timestamp": "2025-09-30T11:31:53.693Z",
+    "SignatureVersion": "1",
+    "Signature": "YBN1NJh97uEymMEFGEVo1MiaqWQL0Q5eJkai+OW2kT+0+4CFFGgDW0PQjB2LmYQ5krjBmSSOvsjWYsyZJB//jGz4uZ4/5sPUCfkIecVRPBVoqsbFHpDfHgnKMRksJNS/Kytg/Vn4gLsqIAL3b259Ntq0q6uvFTaP1iKlUU2dpfqljU8e6KH/1YBJ1ukDPqGhlr4QaeaF7Oc0vR36XrVwr2JDCp0rkWIMLmABgM6xBfWgBR0r9ficNNPqJbw8yYrVdH4eK6LIgOEF/ULdX8qRLgxcHKicVTow++88MFe2+++eWaUwvY+FYRxpZ0KGm4QaY121pqIqMNwpM4AnMlUSlw==",
+    "SigningCertUrl": "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-6209c161c6221fdf56ec1eb5c821d112.pem",
+    "Subject": "DeliveryFailure event for app dev-dev-InAppPureChaise-android (GCM)",
+    "UnsubscribeUrl": "https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:630176884077:blast-push-failure-dev-us:aebd9a83-5093-462f-860a-50b3ddb0e4bb",
+    "MessageAttributes": {}
+  }
+}
  */
+
+/*
+ * For a list of failure types, see :
+ * https://docs.aws.amazon.com/sns/latest/dg/sns-fcm-v1-payloads.html#:~:text=Notification%20body%20is%20invalid.,to%20the%20newest%20device%20token.
+ */
+
 export default async (event: SNSEvent) => {
+  const client = await MongoClient.connect();
   const toProcessRecords = [...event.Records];
-  await promiseExecUntilTrue(async () => {
-    const record = toProcessRecords.pop();
-    if (!record) {
-      return true;
-    }
 
-    console.log('DEBUG record', JSON.stringify(record, null, 2));
-
-    try {
-      const message = JSON.parse(record.Sns.Message);
-      console.log('DEBUG message', JSON.stringify(message, null, 2));
-    } catch (e) {
-      console.log('Error parsing message :', e);
-    }
-
-    return false;
+  await new Promise((resolve) => {
+    // Give enough time to insert message data on the sending part, if the error arrives too fast.
+    setTimeout(resolve, 200);
   });
+
+  try {
+    const db = client.db();
+    await promiseExecUntilTrue(async () => {
+      const record = toProcessRecords.pop();
+      if (!record) {
+        return true;
+      }
+
+      try {
+        const message = JSON.parse(record.Sns.Message);
+        const { EndpointArn, MessageId } = message;
+
+        if (message.FailureType === 'InvalidPlatformToken') {
+          await db.collection(COLL_PUSH_NOTIFICATIONS).deleteOne({
+            EndpointArn,
+          });
+
+          await sns
+            .deleteEndpoint({
+              EndpointArn,
+            })
+            .promise();
+        } else {
+          console.info(
+            'Unhandled message FailureType :',
+            JSON.stringify(message, null, 2)
+          );
+        }
+
+        /// @TODO HANDLE MessageId to mark message as not sent
+      } catch (e) {
+        console.error(
+          'Error processing message',
+          record.Sns.Message,
+          ', error :',
+          e
+        );
+      }
+
+      return false;
+    });
+  } finally {
+    await client.close();
+  }
 };
