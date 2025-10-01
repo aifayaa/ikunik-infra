@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient, { ObjectID } from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { sendNotificationTo } from './snsNotifications';
+import { sendNotificationToAndHandleErrors } from './snsNotifications';
 
 import NotificationSpecificsHandler from './notificationSpecificsHandlers/NotificationSpecificsHandler';
 
@@ -13,9 +13,8 @@ const PROCESS_BATCH_SIZE = 200;
 export const sendNotifications = async (appId, queueId) => {
   const client = await MongoClient.connect();
   try {
-    const queueCollection = client
-      .db()
-      .collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
+    const db = client.db();
+    const queueCollection = db.collection(COLL_BLAST_NOTIFICATIONS_QUEUE);
     const $match = { appId, queueId: new ObjectID(queueId), root: false };
     const $rootMatch = { _id: new ObjectID(queueId), appId, root: true };
     const rootNotifQueue = await queueCollection.findOne($rootMatch);
@@ -95,18 +94,34 @@ export const sendNotifications = async (appId, queueId) => {
           }
 
           await new Promise((resolve) => {
-            sendNotificationTo(
+            sendNotificationToAndHandleErrors(
               {
                 ...notificationData,
                 crowdaaNotificationType: rootNotifQueue.type,
                 endpoint,
               },
-              (error /* , res */) => {
-                if (!error) sent += 1;
-                else failed += 1;
+              { db }
+            )
+              .then((result) => {
+                if (result.ok) {
+                  sent += 1;
+                } else {
+                  failed += 1;
+                  // eslint-disable-next-line no-console
+                  console.error(
+                    'Issue sending notification to',
+                    endpoint,
+                    ', result :',
+                    result
+                  );
+                }
                 resolve();
-              }
-            );
+              })
+              .catch((error) => {
+                // eslint-disable-next-line no-console
+                console.error('Error/crash sending notification :', error);
+                failed += 1;
+              });
           });
         });
         await Promise.all(promises);

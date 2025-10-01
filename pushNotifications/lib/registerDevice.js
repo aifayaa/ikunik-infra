@@ -101,12 +101,21 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
         appId,
       },
     };
-    return await collection.updateOne(
-      pick(modifier.$set, 'deviceUUID', 'platform', 'appId'),
-      modifier,
-      { upsert: true }
-    );
+    const searchQuery = pick(modifier.$set, 'deviceUUID', 'platform', 'appId');
+    const previousDevice = await collection.findOne(searchQuery);
+
+    if (
+      previousDevice &&
+      previousDevice.EndpointArn &&
+      previousDevice.EndpointArn !== EndpointArn // Should never be false, but anyway...
+    ) {
+      await sns
+        .deleteEndpoint({ EndpointArn: previousDevice.EndpointArn })
+        .promise();
+    }
+
+    return await collection.updateOne(searchQuery, modifier, { upsert: true });
   } finally {
-    client.close();
+    await client.close();
   }
 };
