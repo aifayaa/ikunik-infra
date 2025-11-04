@@ -52,7 +52,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['mediaconvert:CreateJob', 'mediaconvert:TagResource'],
             Resource:
-              'arn:aws:mediaconvert:${self:provider.environment.MEDIACONVERT_REGION}:630176884077:*',
+              'arn:aws:mediaconvert:${self:provider.environment.REGION}:630176884077:*',
           },
           {
             Effect: 'Allow',
@@ -66,8 +66,6 @@ const serverlessConfiguration = {
       ...env,
       MEDIACONVERT_ROLE_ARN:
         '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_ROLE_ARN}',
-      MEDIACONVERT_REGION:
-        '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_REGION}',
       S3_VIDEOS_BUCKET:
         '${self:custom.${self:provider.stage}.${self:provider.region}.S3_VIDEOS_BUCKET}',
       CDN_DOMAIN_NAME:
@@ -231,7 +229,6 @@ const serverlessConfiguration = {
     },
     dev: {
       'us-east-1': {
-        MEDIACONVERT_REGION: 'us-east-1',
         MEDIACONVERT_ROLE_ARN:
           'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-dev',
         S3_VIDEOS_BUCKET: 'video-stream-dev.crowdaa.com',
@@ -244,7 +241,6 @@ const serverlessConfiguration = {
     },
     preprod: {
       'eu-west-3': {
-        MEDIACONVERT_REGION: 'eu-west-1',
         MEDIACONVERT_ROLE_ARN:
           'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-preprod',
         S3_VIDEOS_BUCKET: 'video-stream-preprod.crowdaa.com',
@@ -257,7 +253,6 @@ const serverlessConfiguration = {
     },
     prod: {
       'us-east-1': {
-        MEDIACONVERT_REGION: 'us-east-1',
         MEDIACONVERT_ROLE_ARN:
           'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-prod-us',
         S3_VIDEOS_BUCKET: 'video-stream-prod.crowdaa.com',
@@ -268,7 +263,6 @@ const serverlessConfiguration = {
         S3_APPS_PUBLIC_RESSOURCES: 'us-apps-public-resources-prod',
       },
       'eu-west-3': {
-        MEDIACONVERT_REGION: 'eu-west-1',
         MEDIACONVERT_ROLE_ARN:
           'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-prod-fr',
         S3_VIDEOS_BUCKET: 'video-stream-prod-fr.crowdaa.com',
