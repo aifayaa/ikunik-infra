@@ -8,17 +8,12 @@ import MongoClient from '../../libs/mongoClient';
 import getCollectionFromContentType from './getCollectionFromContentType';
 import uploadStatus from '../uploadStatus.json';
 
-const {
-  MEDIACONVERT_REGION,
-  MEDIACONVERT_ROLE_ARN,
-  STAGE,
-  REGION,
-  S3_PICTURES_BUCKET,
-} = process.env;
+const { MEDIACONVERT_ROLE_ARN, STAGE, REGION, S3_PICTURES_BUCKET } =
+  process.env;
 
 const mediaconvert = new MediaConvertClient({
   apiVersion: '2017-08-29',
-  region: MEDIACONVERT_REGION,
+  region: REGION,
 });
 
 export default async (bucket, object, file) => {
