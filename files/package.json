@@ -8,6 +8,7 @@
     "deploy": "sh dockerLogin.sh; docker-compose run -e STAGE=${npm_config_stage:=dev} -e REGION=${npm_config_region:=us-east-1} deploy"
   },
   "dependencies": {
+    "@aws-sdk/client-mediaconvert": "^3.918.0",
     "aws-sdk": "^2.749.0",
     "heic-decode": "^1.1.2",
     "sharp": "^0.31.2",

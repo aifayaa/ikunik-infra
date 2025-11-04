@@ -50,18 +50,24 @@ const serverlessConfiguration = {
           },
           {
             Effect: 'Allow',
-            Action: ['elastictranscoder:CreateJob'],
-            Resource: '*',
+            Action: ['mediaconvert:CreateJob', 'mediaconvert:TagResource'],
+            Resource:
+              'arn:aws:mediaconvert:${self:provider.environment.MEDIACONVERT_REGION}:630176884077:*',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['iam:PassRole'],
+            Resource: '${self:provider.environment.MEDIACONVERT_ROLE_ARN}',
           },
         ],
       },
     },
     environment: {
       ...env,
-      EL_PIPELINE:
-        '${self:custom.${self:provider.stage}.${self:provider.region}.EL_PIPELINE}',
-      EL_PIPELINE_REGION:
-        '${self:custom.${self:provider.stage}.${self:provider.region}.EL_PIPELINE_REGION}',
+      MEDIACONVERT_ROLE_ARN:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_ROLE_ARN}',
+      MEDIACONVERT_REGION:
+        '${self:custom.${self:provider.stage}.${self:provider.region}.MEDIACONVERT_REGION}',
       S3_VIDEOS_BUCKET:
         '${self:custom.${self:provider.stage}.${self:provider.region}.S3_VIDEOS_BUCKET}',
       CDN_DOMAIN_NAME:
@@ -138,19 +144,19 @@ const serverlessConfiguration = {
         },
       ],
     },
-    onVideoEncoded: {
-      handler: 'handlers/onVideoEncoded.default',
+    onMediaconvertDone: {
+      handler: 'handlers/onMediaconvertDone.default',
       events: [
         {
-          sns: 'video-stream-${self:provider.stage}',
-        },
-      ],
-    },
-    onVideoEncodeError: {
-      handler: 'handlers/onVideoEncodeError.default',
-      events: [
-        {
-          sns: 'video-stream-${self:provider.stage}-error',
+          eventBridge: {
+            pattern: {
+              source: ['aws.mediaconvert'],
+              'detail-type': ['MediaConvert Job State Change'],
+              detail: {
+                status: ['COMPLETE', 'ERROR', 'CANCELED'],
+              },
+            },
+          },
         },
       ],
     },
@@ -225,8 +231,9 @@ const serverlessConfiguration = {
     },
     dev: {
       'us-east-1': {
-        EL_PIPELINE: '1571641859135-b15oxn',
-        EL_PIPELINE_REGION: 'us-east-1',
+        MEDIACONVERT_REGION: 'us-east-1',
+        MEDIACONVERT_ROLE_ARN:
+          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-dev',
         S3_VIDEOS_BUCKET: 'video-stream-dev.crowdaa.com',
         CDN_DOMAIN_NAME: 'd2vivde2vsot4v.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-dev',
@@ -237,8 +244,9 @@ const serverlessConfiguration = {
     },
     preprod: {
       'eu-west-3': {
-        EL_PIPELINE: '1609825954482-wbbflt',
-        EL_PIPELINE_REGION: 'eu-west-1',
+        MEDIACONVERT_REGION: 'eu-west-1',
+        MEDIACONVERT_ROLE_ARN:
+          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-preprod',
         S3_VIDEOS_BUCKET: 'video-stream-preprod.crowdaa.com',
         CDN_DOMAIN_NAME: 'd2altfyur5witx.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-preprod',
@@ -249,8 +257,9 @@ const serverlessConfiguration = {
     },
     prod: {
       'us-east-1': {
-        EL_PIPELINE: '1571641895186-gemqrt',
-        EL_PIPELINE_REGION: 'us-east-1',
+        MEDIACONVERT_REGION: 'us-east-1',
+        MEDIACONVERT_ROLE_ARN:
+          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-prod-us',
         S3_VIDEOS_BUCKET: 'video-stream-prod.crowdaa.com',
         CDN_DOMAIN_NAME: 'd1tmdgml10ct6o.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-prod',
@@ -259,8 +268,9 @@ const serverlessConfiguration = {
         S3_APPS_PUBLIC_RESSOURCES: 'us-apps-public-resources-prod',
       },
       'eu-west-3': {
-        EL_PIPELINE: '1630391856362-90g5lx',
-        EL_PIPELINE_REGION: 'eu-west-1',
+        MEDIACONVERT_REGION: 'eu-west-1',
+        MEDIACONVERT_ROLE_ARN:
+          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-prod-fr',
         S3_VIDEOS_BUCKET: 'video-stream-prod-fr.crowdaa.com',
         CDN_DOMAIN_NAME: 'd3gi4cpq7lf81i.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-prod-fr',
