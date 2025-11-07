@@ -46,7 +46,12 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
       { Token, PlatformApplicationArn, appId },
       { projection: { _id: 1 } }
     );
-    if (found) throw new Error('already_registered_token');
+    if (found) {
+      if (found.userId !== userId) {
+        await collection.updateOne({ _id: found._id }, { $set: { userId } });
+      }
+      return;
+    }
 
     const Platform = platformApplicationArns[platform].platform;
     let CustomUserData = uuidv4();
@@ -114,7 +119,7 @@ export default async ({ userId, Token, deviceUUID, platform, appId }) => {
         .promise();
     }
 
-    return await collection.updateOne(searchQuery, modifier, { upsert: true });
+    await collection.updateOne(searchQuery, modifier, { upsert: true });
   } finally {
     await client.close();
   }
