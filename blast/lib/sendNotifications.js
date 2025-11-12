@@ -5,6 +5,8 @@ import { sendNotificationToAndHandleErrors } from './snsNotifications';
 
 import NotificationSpecificsHandler from './notificationSpecificsHandlers/NotificationSpecificsHandler';
 
+import { storeSentNotification } from '../../notifications/lib/storeSentNotification.ts';
+
 const { COLL_BLAST_NOTIFICATIONS_QUEUE, COLL_PUSH_NOTIFICATIONS, COLL_USERS } =
   mongoCollections;
 
@@ -93,36 +95,53 @@ export const sendNotifications = async (appId, queueId) => {
             return;
           }
 
-          await new Promise((resolve) => {
-            sendNotificationToAndHandleErrors(
+          let sendResult;
+          try {
+            sendResult = await sendNotificationToAndHandleErrors(
               {
                 ...notificationData,
                 crowdaaNotificationType: rootNotifQueue.type,
                 endpoint,
               },
               { db }
-            )
-              .then((result) => {
-                if (result.ok) {
-                  sent += 1;
-                } else {
-                  failed += 1;
-                  // eslint-disable-next-line no-console
-                  console.error(
-                    'Issue sending notification to',
-                    endpoint,
-                    ', result :',
-                    result
-                  );
-                }
-                resolve();
-              })
-              .catch((error) => {
-                // eslint-disable-next-line no-console
-                console.error('Error/crash sending notification :', error);
-                failed += 1;
-              });
-          });
+            );
+            if (sendResult.ok) {
+              sent += 1;
+            } else {
+              failed += 1;
+              // eslint-disable-next-line no-console
+              console.error(
+                'Issue sending notification to',
+                endpoint,
+                ', sendResult :',
+                sendResult
+              );
+            }
+
+            storeSentNotification({
+              deviceId: endpoint.deviceUUID,
+              userId: endpoint.userId,
+
+              blastQueueId: queueId,
+              appId,
+              type: rootNotifQueue.type,
+
+              aws: sendResult.ok
+                ? {
+                    sent: true,
+                    deleted: sendResult.deleted,
+                  }
+                : { sent: false, MessageId: sendResult.MessageId },
+
+              title: notificationData.title,
+              content: notificationData.content,
+              extraData: notificationData.extraData,
+            });
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Error/crash sending notification :', error);
+            failed += 1;
+          }
         });
         await Promise.all(promises);
       }

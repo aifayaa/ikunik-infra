@@ -46,6 +46,7 @@
   "COLL_MEDIUM_SELECTION_LINKS": "mediumSelectionLinks",
   "COLL_METRICS": "metrics",
   "COLL_NAME": "selection",
+  "COLL_NOTIFICATIONS": "notifications",
   "COLL_ORGANIZATIONS": "organizations",
   "COLL_PACKAGE_PURCHASES": "purchasesPackages",
   "COLL_PAYOUTS": "payouts",

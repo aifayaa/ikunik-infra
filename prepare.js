@@ -326,6 +326,7 @@ verbose(
     COLL_EXTERNAL_PURCHASES,
     COLL_GHANTY_MYFID_TICKETS,
     COLL_LIVE_STREAMS_DURATIONS,
+    COLL_NOTIFICATIONS,
     COLL_PICTURES,
     COLL_PRESS_ARTICLES_CACHE,
     COLL_PRESS_ARTICLES,
@@ -1070,6 +1071,22 @@ verbose(
             enseigne: 1,
           },
           opts: makeOpts(),
+        },
+      ],
+      [COLL_NOTIFICATIONS]: [
+        {
+          name: 'crowdaa_uniq_user_push',
+          key: {
+            appId: 1,
+            blastQueueId: 1,
+            target: 1,
+            userId: 1,
+          },
+          opts: makeOpts('unique', {
+            partialFilterExpression: {
+              target: 'user',
+            },
+          }),
         },
       ],
     };
