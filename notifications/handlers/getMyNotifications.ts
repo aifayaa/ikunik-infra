@@ -50,14 +50,14 @@ export default async (event: APIGatewayProxyEvent) => {
       event.queryStringParameters || {}
     );
 
-    const session = await getMyNotifications(userId, appId, {
+    const notifications = await getMyNotifications(userId, appId, {
       nextToken,
       limit,
     });
     return response({
       code: 200,
       body: formatResponseBody({
-        data: session,
+        data: notifications,
       }),
     });
   } catch (exception) {

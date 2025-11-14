@@ -25,6 +25,6 @@ export default async function notificationClicked(
 
     return { ok: true };
   } finally {
-    client.close();
+    await client.close();
   }
 }

@@ -48,7 +48,7 @@ export default async function getMyNotifications(
       .db()
       .collection(COLL_NOTIFICATIONS)
       .find($match, { projection: { _id: 1 } })
-      .total();
+      .count();
 
     let newNextToken = null;
     if (list.length === limit) {
@@ -57,6 +57,6 @@ export default async function getMyNotifications(
 
     return { list, total, nextToken: newNextToken };
   } finally {
-    client.close();
+    await client.close();
   }
 }
