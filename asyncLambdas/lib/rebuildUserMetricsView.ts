@@ -41,6 +41,28 @@ function makeFinalPipelineSteps(type: 'device' | 'user' | 'userDevice') {
         ]
       : []),
 
+    /* Final $project to limit arrays sizes, so that we don't blow up mongodb limits (16MB per object) */
+    {
+      $project: {
+        _id: 1,
+        type: 1,
+
+        deviceId: 1,
+        deviceIds: 1,
+        userId: 1,
+        user: 1,
+
+        appId: 1,
+        readingTime: 1,
+        totalReadingTime: 1,
+        firstMetricAt: 1,
+        lastMetricAt: 1,
+
+        metricsGeo: { $slice: ['$metricsGeo', 100] },
+        metricsTime: { $slice: ['$metricsTime', 100] },
+      },
+    },
+
     /* Final merge to the view */
     {
       $merge: {
