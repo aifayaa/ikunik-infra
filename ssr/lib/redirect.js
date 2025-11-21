@@ -31,7 +31,7 @@ export default (userAgent, redirectUrl, appId, appProtocol, webAppUrl) => {
 
       if (webAppUrl) {
         webAppUrl = new URL(webAppUrl);
-        webAppUrl.path = path;
+        webAppUrl.pathname = decodeUrlData.pathname;
         locationRedirectUrl.searchParams.set(
           'web_app_redirect_url',
           webAppUrl.toString()
