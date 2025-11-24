@@ -298,6 +298,23 @@ const serverlessConfiguration = {
         },
       ],
     },
+    provAdvCalendarGet: {
+      handler: 'handlers/provAdvCalendarGet.default',
+      events: [
+        {
+          http: {
+            path: 'providers/adventcalendar/get',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
