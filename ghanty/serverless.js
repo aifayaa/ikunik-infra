@@ -181,24 +181,6 @@ const serverlessConfiguration = {
         },
       ],
     },
-    // Not used anymore in latest code, delete me in 30 days to be safe.
-    getResetPasswordURL: {
-      handler: 'handlers/getResetPasswordURL.default',
-      events: [
-        {
-          http: {
-            path: 'ghanty/myfid/getResetPasswordURL',
-            method: 'get',
-            cors: true,
-            authorizer: {
-              type: 'CUSTOM',
-              authorizerId:
-                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
-            },
-          },
-        },
-      ],
-    },
     resetPassword: {
       handler: 'handlers/resetPassword.default',
       events: [
@@ -396,6 +378,17 @@ const serverlessConfiguration = {
               authorizerId:
                 '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
             },
+          },
+        },
+      ],
+    },
+    getLastPurchasesQueue: {
+      handler: 'handlers/getLastPurchasesQueue.default',
+      timeout: 300,
+      events: [
+        {
+          eventBridge: {
+            schedule: 'cron(*/5 * * * ? *)',
           },
         },
       ],
