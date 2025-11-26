@@ -324,6 +324,7 @@ verbose(
     COLL_BLAST_NOTIFICATIONS_QUEUE,
     COLL_COUNTERS,
     COLL_EXTERNAL_PURCHASES,
+    COLL_GHANTY_MYFID_TICKETS,
     COLL_LIVE_STREAMS_DURATIONS,
     COLL_PICTURES,
     COLL_PRESS_ARTICLES_CACHE,
@@ -1049,6 +1050,24 @@ verbose(
             appId: 1,
             queueId: 1,
             root: 1,
+          },
+          opts: makeOpts(),
+        },
+      ],
+      [COLL_GHANTY_MYFID_TICKETS]: [
+        {
+          name: 'crowdaa_ghanty_tickets_unique',
+          key: {
+            idTicket: 1,
+          },
+          opts: makeOpts('unique'),
+        },
+        {
+          name: 'crowdaa_ghanty_tickets_lookup',
+          key: {
+            date: 1,
+            username: 1,
+            enseigne: 1,
           },
           opts: makeOpts(),
         },

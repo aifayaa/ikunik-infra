@@ -5,6 +5,7 @@
   "description": "Crowdaa Ghanty specific customer API.",
   "main": "handler.js",
   "dependencies": {
+    "@azure/service-bus": "^7.9.5",
     "aws-sdk": "^2.978.0",
     "jsonwebtoken": "^8.5.1",
     "ofetch": "^1.3.4",
