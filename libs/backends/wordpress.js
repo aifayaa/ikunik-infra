@@ -42,7 +42,7 @@ WordpressAPI.prototype.call = async function call(
     params.form = data;
   } else if (options.body === 'raw') {
     params.body = data;
-  } else {
+  } else if (data !== undefined) {
     params.json = data;
   }
 
