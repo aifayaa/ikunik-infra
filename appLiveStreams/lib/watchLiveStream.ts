@@ -14,6 +14,8 @@ import { CrowdaaError } from '@libs/httpResponses/CrowdaaError';
 import {
   ERROR_TYPE_INTERNAL_EXCEPTION,
   ERROR_TYPE_NOT_ALLOWED,
+  ERROR_TYPE_NOT_FOUND,
+  LIVE_STREAM_NOT_FOUND_CODE,
   NOT_ENOUGH_PERMISSIONS_CODE,
   PANIC_CODE,
 } from '@libs/httpResponses/errorCodes';
@@ -55,7 +57,11 @@ export default async function watchLiveStream(
       .findOne({ _id: liveStreamId, appId })) as AppLiveStreamType | null;
 
     if (!dbLiveStream) {
-      throw new Error('live_stream_not_found');
+      throw new CrowdaaError(
+        ERROR_TYPE_NOT_FOUND,
+        LIVE_STREAM_NOT_FOUND_CODE,
+        `Cannot find live stream '${liveStreamId}' for app '${appId}'`
+      );
     }
 
     const { canView, previewOnly } = await checkUserPermissionsOnStream(

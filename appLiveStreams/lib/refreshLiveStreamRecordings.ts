@@ -173,7 +173,7 @@ type AALSChatLineType = {
     RequestId: string;
     Attributes: {
       crowdaaUserId: string;
-      messageType?: 'heart_reaction' | 'stream_status' | 'viewer_join';
+      messageType?: 'viewer_reaction' | 'stream_status' | 'viewer_join';
       reactionData?: string;
       username: string;
     };
