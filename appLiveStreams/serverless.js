@@ -414,6 +414,30 @@ const serverlessConfiguration = {
         },
       ],
     },
+    streamGift: {
+      handler: 'handlers/streamGift.default',
+      events: [
+        {
+          http: {
+            path: 'appLiveStreams/{id}/gift',
+            method: 'post',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+            request: {
+              parameters: {
+                paths: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',

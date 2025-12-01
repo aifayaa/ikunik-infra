@@ -5,7 +5,6 @@ export type AppLiveStreamRecordingType = {
   duration: number;
   baseUrl: string;
   root: string;
-
 } & (
   | {
       state: 'started' | 'failed';
@@ -85,7 +84,18 @@ export type AppLiveStreamLogLineType = {
   username: string;
 
   attributes: {
-    messageType?: 'heart_reaction' | 'stream_status' | 'viewer_join';
+    messageType?: 'viewer_reaction' | 'stream_status' | 'viewer_join';
     reactionData?: string;
   };
+};
+
+export type AppLiveStreamGiftType = {
+  _id: ObjectID;
+  appId: string;
+  userId: string | null;
+  deviceId: string;
+  liveStreamId: string;
+  productId: string;
+  amountInCurrency: string;
+  giftTime: Date;
 };
