@@ -48,8 +48,6 @@ export async function callGetUploadUrlLambda(
     })
   );
 
-  console.log('DEBUG lambdaResponse', lambdaResponse);
-
   const { Payload } = lambdaResponse;
   if (!Payload) {
     throw new Error(
@@ -57,21 +55,13 @@ export async function callGetUploadUrlLambda(
     );
   }
 
-  console.log('DEBUG Payload', Payload);
-
   const { statusCode, body, ...remaining } = JSON.parse(
     Buffer.from(Payload || '').toString('utf8')
   );
-  console.log('DEBUG { statusCode, body, ...remaining }', {
-    statusCode,
-    body,
-    ...remaining,
-  });
+
   if (statusCode < 200 || statusCode >= 300) {
     throw new Error(`Media upload URL generation error : ${body}`);
   }
-
-  console.log('DEBUG body', body);
 
   const [{ id, url }] = JSON.parse(body);
 
