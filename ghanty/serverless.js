@@ -393,6 +393,17 @@ const serverlessConfiguration = {
         },
       ],
     },
+    processUsersStars: {
+      handler: 'handlers/processUsersStars.default',
+      timeout: 600,
+      events: [
+        {
+          eventBridge: {
+            schedule: 'cron(*/5 * * * ? *)',
+          },
+        },
+      ],
+    },
   },
   plugins: [
     'serverless-esbuild',
