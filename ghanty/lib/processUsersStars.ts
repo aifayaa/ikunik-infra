@@ -149,7 +149,7 @@ export default async (appId: string) => {
     let foundItems = 0;
     let markedAsProcessed = 0;
     let disabledUsers = 0;
-    let fidApiErrors = 0;
+    let fidProcessingErrors = 0;
 
     while (
       (await toProcess.hasNext()) &&
@@ -222,6 +222,7 @@ export default async (appId: string) => {
           await markItemAsProcessed(item, db);
         }
       } catch (e) {
+        fidProcessingErrors += 1;
         console.log('Caught error during loop :', `${e}`);
       }
     }
@@ -230,7 +231,7 @@ export default async (appId: string) => {
       foundItems,
       markedAsProcessed,
       disabledUsers,
-      fidApiErrors,
+      fidProcessingErrors,
       dateIsOk: Date.now() < endProcessingAt.getTime(),
     };
   } finally {
