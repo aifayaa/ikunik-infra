@@ -149,6 +149,7 @@ export default async (appId: string) => {
     let foundItems = 0;
     let markedAsProcessed = 0;
     let disabledUsers = 0;
+    let fidApiErrors = 0;
 
     while (
       (await toProcess.hasNext()) &&
@@ -166,61 +167,62 @@ export default async (appId: string) => {
         continue;
       }
 
-      let shouldMarkAsProcessed = false;
-      let reachedEnd = false;
-      let processedTickets = 0;
-      let page = 1;
-      const brands = new Set<string>();
+      try {
+        let shouldMarkAsProcessed = false;
+        let reachedEnd = false;
+        let processedTickets = 0;
+        let page = 1;
+        const brands = new Set<string>();
 
-      do {
-        const response = await tryCallAPI(fidApi, item, page, { db });
-        // const response: GhantyMyFidAPITransactionsResponse = await fidApi.call(
-        //   `/users/${item.username}/transactions?pageSize=${TICKETS_PER_PAGE}&pageNumber=${page}`
-        // );
+        do {
+          const response = await tryCallAPI(fidApi, item, page, { db });
 
-        response.transactions.forEach((transaction) => {
-          const transactionDate = new Date(`${transaction.date} +0400`);
+          response.transactions.forEach((transaction) => {
+            const transactionDate = new Date(`${transaction.date} +0400`);
 
-          if (
-            transactionDate.getTime() >= FROM_DATE.getTime() &&
-            transactionDate.getTime() < TO_DATE.getTime()
-          ) {
-            brands.add(transaction.brand);
-          } else if (transactionDate.getTime() < FROM_DATE.getTime()) {
+            if (
+              transactionDate.getTime() >= FROM_DATE.getTime() &&
+              transactionDate.getTime() < TO_DATE.getTime()
+            ) {
+              brands.add(transaction.brand);
+            } else if (transactionDate.getTime() < FROM_DATE.getTime()) {
+              reachedEnd = true;
+              shouldMarkAsProcessed = true;
+            }
+          });
+
+          processedTickets += response.transactions.length;
+
+          if (response.transactions.length < TICKETS_PER_PAGE) {
             reachedEnd = true;
-            shouldMarkAsProcessed = true;
+            if (processedTickets === response.total) {
+              // If not the case, other transaction may have been added in the meantime, it will need an other processing.
+              shouldMarkAsProcessed = true;
+            }
           }
-        });
 
-        processedTickets += response.transactions.length;
+          page += 1;
+        } while (!reachedEnd && Date.now() < endProcessingAt.getTime());
 
-        if (response.transactions.length < TICKETS_PER_PAGE) {
-          reachedEnd = true;
-          if (processedTickets === response.total) {
-            // If not the case, other transaction may have been added in the meantime, it will need an other processing.
-            shouldMarkAsProcessed = true;
+        const stars = brands.size;
+        const enseignes = setToArray(brands);
+
+        await db.collection(COLL_USERS).updateOne(
+          { appId, username: item.username },
+          {
+            $set: {
+              'profile.stars': stars,
+              'profile.enseignes': enseignes,
+            },
           }
+        );
+
+        if (shouldMarkAsProcessed) {
+          markedAsProcessed += 1;
+          await markItemAsProcessed(item, db);
         }
-
-        page += 1;
-      } while (!reachedEnd && Date.now() < endProcessingAt.getTime());
-
-      const stars = brands.size;
-      const enseignes = setToArray(brands);
-
-      await db.collection(COLL_USERS).updateOne(
-        { appId, username: item.username },
-        {
-          $set: {
-            'profile.stars': stars,
-            'profile.enseignes': enseignes,
-          },
-        }
-      );
-
-      if (shouldMarkAsProcessed) {
-        markedAsProcessed += 1;
-        await markItemAsProcessed(item, db);
+      } catch (e) {
+        console.log('Caught error during loop :', `${e}`);
       }
     }
 
@@ -228,6 +230,7 @@ export default async (appId: string) => {
       foundItems,
       markedAsProcessed,
       disabledUsers,
+      fidApiErrors,
       dateIsOk: Date.now() < endProcessingAt.getTime(),
     };
   } finally {
