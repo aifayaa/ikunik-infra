@@ -324,7 +324,7 @@ verbose(
     COLL_BLAST_NOTIFICATIONS_QUEUE,
     COLL_COUNTERS,
     COLL_EXTERNAL_PURCHASES,
-    COLL_GHANTY_MYFID_TICKETS,
+    COLL_GHANTY_MYFID_USERS_STARS,
     COLL_LIVE_STREAMS_DURATIONS,
     COLL_NOTIFICATIONS,
     COLL_PICTURES,
@@ -1055,20 +1055,18 @@ verbose(
           opts: makeOpts(),
         },
       ],
-      [COLL_GHANTY_MYFID_TICKETS]: [
+      [COLL_GHANTY_MYFID_USERS_STARS]: [
         {
-          name: 'crowdaa_ghanty_tickets_unique',
+          name: 'crowdaa_ghany_users_stars_unique',
           key: {
-            idTicket: 1,
+            username: 1,
           },
           opts: makeOpts('unique'),
         },
         {
-          name: 'crowdaa_ghanty_tickets_lookup',
+          name: 'crowdaa_ghanty_users_stars_sort',
           key: {
-            date: 1,
-            username: 1,
-            enseigne: 1,
+            requiresUpdate: -1,
           },
           opts: makeOpts(),
         },
