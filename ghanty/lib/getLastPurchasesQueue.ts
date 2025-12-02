@@ -12,8 +12,9 @@ import {
 import MongoClient from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import { objGet } from '@libs/utils';
+import { ghantyDisabledAccounts } from './ghantyUtils';
 
-const { COLL_APPS, COLL_GHANTY_MYFID_TICKETS, COLL_USERS } = mongoCollections;
+const { COLL_APPS, COLL_GHANTY_MYFID_USERS_STARS } = mongoCollections;
 
 type GhantyServiceBusTicketType = {
   IdTicket: string;
@@ -79,7 +80,7 @@ export async function processQueue(
   subscriptionName: string,
   appId: string,
   db: any
-): Promise<{ processedUsers: number; processedMessages: number }> {
+) {
   const endProcessingAt = new Date(Date.now() + LAMBDA_TIMEOUT);
   const sbClient = new ServiceBusClient(connectionString);
 
@@ -93,6 +94,7 @@ export async function processQueue(
     let messages: Array<ServiceBusReceivedMessage> = [];
     const ticketsUsers: Record<string, true> = {};
     let processedMessages = 0;
+    let badUsers = 0;
 
     do {
       messages = await queueReceiver.receiveMessages(10, {
@@ -102,37 +104,16 @@ export async function processQueue(
       if (messages.length > 0) {
         for (let message of messages) {
           const body: GhantyServiceBusTicketType = message.body;
-          const date = new Date(body.Date);
 
-          const existingTicket = await db
-            .collection(COLL_GHANTY_MYFID_TICKETS)
-            .findOne({ idTicket: body.IdTicket });
-
-          if (!existingTicket) {
-            await db.collection(COLL_GHANTY_MYFID_TICKETS).insertOne({
-              idTicket: body.IdTicket,
-              date: date,
-              enseigne: body.CodeEnseigne,
-              username: body.NumeroClient,
-            });
+          if (ghantyDisabledAccounts.includes(body.NumeroClient)) {
+            badUsers += 1;
           } else {
-            await db.collection(COLL_GHANTY_MYFID_TICKETS).updateOne(
-              { _id: existingTicket._id },
-              {
-                $set: {
-                  idTicket: body.IdTicket,
-                  date: date,
-                  enseigne: body.CodeEnseigne,
-                  username: body.NumeroClient,
-                },
-              }
-            );
+            ticketsUsers[body.NumeroClient] = true;
           }
 
           await queueReceiver.completeMessage(message);
 
           processedMessages += 1;
-          ticketsUsers[body.NumeroClient] = true;
         }
       }
     } while (messages.length > 0 && Date.now() < endProcessingAt.getTime());
@@ -140,41 +121,33 @@ export async function processQueue(
     const toProcessUsers = Object.keys(ticketsUsers);
 
     for (let username of toProcessUsers) {
-      const enseignesObjs: Array<{ _id: string }> = await db
-        .collection(COLL_GHANTY_MYFID_TICKETS)
-        .aggregate([
-          {
-            $match: {
-              date: {
-                $gte: new Date('2025-12-01T00:00:00+0400'),
-                $lt: new Date('2026-01-01T00:00:00+0400'),
-              },
-              username,
-            },
-          },
-          {
-            $group: {
-              _id: '$enseigne',
-            },
-          },
-        ])
-        .toArray();
+      const userStars = await db
+        .collection(COLL_GHANTY_MYFID_USERS_STARS)
+        .findOne({ username });
 
-      const count = enseignesObjs.length;
-      const enseignes = enseignesObjs.map(({ _id }: { _id: string }) => _id);
-
-      await db.collection(COLL_USERS).updateOne(
-        { appId, username },
-        {
-          $set: {
-            'profile.stars': count,
-            'profile.enseignes': enseignes,
-          },
-        }
-      );
+      if (userStars) {
+        await db.collection(COLL_GHANTY_MYFID_USERS_STARS).updateOne(
+          { _id: userStars._id },
+          {
+            $set: {
+              inputAt: new Date(),
+              requiresUpdate: true,
+            },
+          }
+        );
+      } else {
+        await db
+          .collection(COLL_GHANTY_MYFID_USERS_STARS)
+          .insertOne({ username, inputAt: new Date(), requiresUpdate: true });
+      }
     }
 
-    return { processedUsers: toProcessUsers.length, processedMessages };
+    return {
+      processedUsers: toProcessUsers.length,
+      processedMessages,
+      badUsers,
+      dateIsOk: Date.now() < endProcessingAt.getTime(),
+    };
   } finally {
     await queueReceiver.close();
     await sbClient.close();
