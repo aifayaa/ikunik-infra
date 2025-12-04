@@ -3,9 +3,15 @@ import getAppBuilds from '../lib/getAppBuilds';
 import response from '../../libs/httpResponses/response.ts';
 
 export default async (event) => {
-  const appId = event.pathParameters.id;
+  const pathAppId = event.pathParameters && event.pathParameters.id;
+  const authorizerAppId =
+    event.requestContext &&
+    event.requestContext.authorizer &&
+    event.requestContext.authorizer.appId;
 
   try {
+    const appId = pathAppId || authorizerAppId;
+
     const results = await getAppBuilds(appId);
 
     if (results === false) {

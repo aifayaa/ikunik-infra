@@ -89,6 +89,18 @@ const serverlessConfiguration = {
             request: { parameters: { paths: { id: true } } },
           },
         },
+        {
+          http: {
+            path: 'apps/builds',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerPublicId}',
+            },
+          },
+        },
       ],
     },
     startBuilds: {
