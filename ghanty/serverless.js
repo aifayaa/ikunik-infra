@@ -382,6 +382,23 @@ const serverlessConfiguration = {
         },
       ],
     },
+    ghantyGetMyStars: {
+      handler: 'handlers/getMyStars.default',
+      events: [
+        {
+          http: {
+            path: 'ghanty/mystars',
+            method: 'get',
+            cors: true,
+            authorizer: {
+              type: 'CUSTOM',
+              authorizerId:
+                '${cf:account-${self:provider.stage}.ApiGatewayAuthorizerId}',
+            },
+          },
+        },
+      ],
+    },
     getLastPurchasesQueue: {
       handler: 'handlers/getLastPurchasesQueue.default',
       timeout: 300,
