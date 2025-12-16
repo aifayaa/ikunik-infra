@@ -11,6 +11,7 @@ export const appsFeaturePermsList = [
   'notUGCModerated',
   'ticketingScanner',
   'forumAdmin',
+  'chatCreatePublicChannel',
 ] as const;
 
 export type AppsFeaturePermType = (typeof appsFeaturePermsList)[number];
