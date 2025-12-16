@@ -84,16 +84,20 @@ async function getFeaturesPerms(app, user) {
 
   const promises = Object.keys(finalFeaturesPerm).map(async (permKey) => {
     if (finalFeaturesPerm[permKey]) {
-      const checkerResults = await badgeChecker.checkBadges(
-        userBadges,
-        finalFeaturesPerm[permKey],
-        { userId, appId }
-      );
-
-      if (!checkerResults.canRead) {
-        ret[permKey] = false;
-      } else {
+      if (finalFeaturesPerm[permKey].allGranted) {
         ret[permKey] = true;
+      } else {
+        const checkerResults = await badgeChecker.checkBadges(
+          userBadges,
+          finalFeaturesPerm[permKey],
+          { userId, appId }
+        );
+
+        if (!checkerResults.canRead) {
+          ret[permKey] = false;
+        } else {
+          ret[permKey] = true;
+        }
       }
     }
   });
