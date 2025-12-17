@@ -3,6 +3,7 @@ export type NotificationTypeType =
   | 'chatInvitation'
   | 'chatMessage'
   | 'crowdMassNotify'
+  | 'genericPush'
   | 'ghantyMyFid'
   | 'pressArticle'
   | 'ugcModeration'

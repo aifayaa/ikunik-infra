@@ -7,6 +7,7 @@ import {
 import MongoClient, { ObjectID } from '@libs/mongoClient';
 import mongoCollections from '@libs/mongoCollections.json';
 import { ghantyDisabledAccounts } from './ghantyUtils';
+import { sendNotificationToUser } from './getMyStars';
 
 const { COLL_APPS, COLL_GHANTY_MYFID_USERS_STARS, COLL_USERS } =
   mongoCollections;
@@ -206,16 +207,26 @@ export default async (appId: string) => {
 
         const stars = brands.size;
         const enseignes = setToArray(brands);
+        const user = await db
+          .collection(COLL_USERS)
+          .findOne({ appId, username: item.username });
 
-        await db.collection(COLL_USERS).updateOne(
-          { appId, username: item.username },
-          {
-            $set: {
-              'profile.stars': stars,
-              'profile.enseignes': enseignes,
-            },
+        if (user) {
+          await db.collection(COLL_USERS).updateOne(
+            { _id: user._id },
+            {
+              $set: {
+                'profile.stars': stars,
+                'profile.enseignes': enseignes,
+              },
+            }
+          );
+
+          const userStars = (user.profile && user.profile.stars) || 0;
+          if (userStars < stars) {
+            await sendNotificationToUser(user._id, appId);
           }
-        );
+        }
 
         if (shouldMarkAsProcessed) {
           markedAsProcessed += 1;
