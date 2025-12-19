@@ -116,7 +116,7 @@ AppLiveStreamStartHandler.prototype.processOne = async function processOne({
     userBadges,
     this.category.badges,
     {
-      userId: user._id,
+      userId: user && user._id,
       appId: this.dbStream.appId,
     }
   );
