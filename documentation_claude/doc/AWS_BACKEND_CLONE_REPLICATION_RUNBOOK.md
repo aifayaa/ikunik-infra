@@ -78,10 +78,32 @@ curl -s -o /dev/null -w '%{http_code}\n' "$REST/userGeneratedContents"
 curl -s -o /dev/null -w '%{http_code}\n' "$REST/files/formats"
 curl -s -o /dev/null -w '%{http_code}\n' "$REST/appLiveStreams"
 ```
+   Scripted smoke check (recommended):
+```bash
+cd /Users/crowdaa/Desktop/dev/crowdaa_microservices
+./smoke_prod_clone.sh
+# optional custom API Gateway URL:
+# BASE_URL='https://<api-id>.execute-api.eu-west-3.amazonaws.com/prod' ./smoke_prod_clone.sh
+```
 4. Confirm ARN hardening is complete:
 ```bash
 rg -n "630176884077" --glob "*/serverless.js" || true
 ```
+
+### Phase 5: Git remote cutover (new GitHub owner)
+When handing off this cloned backend repo to a new GitHub account:
+
+```bash
+cd /Users/crowdaa/Desktop/dev/crowdaa_microservices
+git remote rename origin gitlab
+git remote rename github origin
+git push -u origin dev:main
+```
+
+Expected result:
+- `origin` points to the new GitHub repository.
+- Legacy GitLab remote remains available as `gitlab`.
+- `dev` tracks `origin/main` for migration-lane continuity.
 
 ## Known high-risk areas
 - `files`: S3 event custom resource, bucket ownership, MediaConvert roles.
