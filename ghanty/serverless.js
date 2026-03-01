@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'ghanty',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -21,9 +22,9 @@ const serverlessConfiguration = {
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
           'DevGhantyMyFidNotificationPlanner',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-ghantyMyFidNotificationPlanner-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-dev-us-ghantyMyFidNotificationPlanner-role',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:ghanty-dev-ghantyMyFidNotificationPlanner',
+          'arn:aws:lambda:us-east-1:${self:custom.awsAccountId}:function:ghanty-dev-ghantyMyFidNotificationPlanner',
       },
     },
     preprod: {
@@ -32,9 +33,9 @@ const serverlessConfiguration = {
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
           'PreprodGhantyMyFidNotificationPlanner',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-ghantyMyFidNotificationPlanner-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-preprod-fr-ghantyMyFidNotificationPlanner-role',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:ghanty-preprod-ghantyMyFidNotificationPlanner',
+          'arn:aws:lambda:eu-west-3:${self:custom.awsAccountId}:function:ghanty-preprod-ghantyMyFidNotificationPlanner',
       },
     },
     prod: {
@@ -43,18 +44,18 @@ const serverlessConfiguration = {
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
           'ProdGhantyMyFidNotificationPlanner',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-ghantyMyFidNotificationPlanner-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-prod-fr-ghantyMyFidNotificationPlanner-role',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:ghanty-prod-ghantyMyFidNotificationPlanner',
+          'arn:aws:lambda:eu-west-3:${self:custom.awsAccountId}:function:ghanty-prod-ghantyMyFidNotificationPlanner',
       },
       'us-east-1': {
         FID_APPS_ID: '',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME:
           'ProdGhantyMyFidNotificationPlanner',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-ghantyMyFidNotificationPlanner-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-prod-us-ghantyMyFidNotificationPlanner-role',
         MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:ghanty-prod-ghantyMyFidNotificationPlanner',
+          'arn:aws:lambda:us-east-1:${self:custom.awsAccountId}:function:ghanty-prod-ghantyMyFidNotificationPlanner',
       },
     },
   },
@@ -89,7 +90,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:CreateStateMachine', 'states:StartExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}',
           },
           {
             Effect: 'Allow',
@@ -101,7 +102,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:StopExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}:${self:provider.stage}*',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:execution:${self:custom.${self:provider.stage}.${self:provider.region}.MYFID_NOTIFICATIONS_PLANNING_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
         ],
       },
@@ -113,7 +114,7 @@ const serverlessConfiguration = {
     },
     region:
       '${opt:region, file(../api-v1/serverless.yml):custom.region.${self:provider.stage}, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     // ghantyMyFidNotificationsTrigger: {

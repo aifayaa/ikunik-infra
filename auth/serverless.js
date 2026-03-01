@@ -70,7 +70,7 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     appleLogin: {
@@ -407,6 +407,7 @@ const serverlessConfiguration = {
     'serverless-export-env',
   ],
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -459,7 +460,8 @@ const serverlessConfiguration = {
         INSTAGRAM_CLIENT_SECRET: 'ad01b10b27954a7d9ee3630ad82bf31b',
         REACT_APP_AUTH_URL: 'https://auth-fr.crowdaa.com',
         REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
-        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
+        S3_APPS_RESSOURCES:
+          '${env:AUTH_S3_APPS_RESSOURCES_BUCKET, "crowdaa-apps-resources-prod-fr-${self:custom.awsAccountId}"}',
         S3_APPS_RESSOURCES_REGION: 'eu-west-3',
         CROWDAA_REGION: 'fr',
       },

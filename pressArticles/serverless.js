@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'pressArticles',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -17,9 +18,9 @@ const serverlessConfiguration = {
         REACT_APP_SSR_URL: 'dev-ssr.aws.crowdaa.com',
         NOTIFICATION_STATE_MACHINE_NAME: 'DevSendArticleNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-DevUsSendArticleNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-DevUsSendArticleNotifications-role',
         NOTIFICATION_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-dev-sendArticleNotifications',
+          'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:pressArticles-dev-sendArticleNotifications',
       },
     },
     preprod: {
@@ -27,9 +28,9 @@ const serverlessConfiguration = {
         REACT_APP_SSR_URL: 'preprod-ssr.aws.crowdaa.com',
         NOTIFICATION_STATE_MACHINE_NAME: 'PreprodSendArticleNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodFrSendArticleNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-PreprodFrSendArticleNotifications-role',
         NOTIFICATION_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-preprod-sendArticleNotifications',
+          'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:pressArticles-preprod-sendArticleNotifications',
       },
     },
     prod: {
@@ -37,17 +38,17 @@ const serverlessConfiguration = {
         REACT_APP_SSR_URL: 'ssr.aws.crowdaa.com',
         NOTIFICATION_STATE_MACHINE_NAME: 'ProdSendArticleNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdUsSendArticleNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-ProdUsSendArticleNotifications-role',
         NOTIFICATION_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications',
+          'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:pressArticles-prod-sendArticleNotifications',
       },
       'eu-west-3': {
         REACT_APP_SSR_URL: 'ssr-fr.aws.crowdaa.com',
         NOTIFICATION_STATE_MACHINE_NAME: 'ProdSendArticleNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrSendArticleNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-ProdFrSendArticleNotifications-role',
         NOTIFICATION_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-prod-sendArticleNotifications',
+          'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:pressArticles-prod-sendArticleNotifications',
       },
     },
     esbuild: {
@@ -83,7 +84,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:CreateStateMachine', 'states:StartExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:stateMachine:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}',
           },
           {
             Effect: 'Allow',
@@ -95,13 +96,13 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:StopExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:execution:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}:${self:provider.stage}*',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:execution:${file(../blast/env.notificationStateMachine.yml):${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_ROLE}:${self:provider.stage}*',
           },
           {
             Effect: 'Allow',
             Action: ['states:StopExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:execution:${self:provider.environment.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
         ],
       },
@@ -117,7 +118,7 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     sendArticleNotifications: {

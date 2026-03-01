@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'providers',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -32,31 +33,33 @@ const serverlessConfiguration = {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
             'crowdaa-hosting-env-prod-us-website-deploy-function',
           WEBSITES_DATABASE_HOST:
-            'prod-us-shared-websites-database.cluster-cw8upw4ik27m.us-east-1.rds.amazonaws.com',
-          WEBSITES_DATABASE_EXISTS: 'yes',
+            '${env:WEBSITES_DATABASE_HOST_PROD_US, ""}',
+          WEBSITES_DATABASE_EXISTS:
+            '${env:WEBSITES_DATABASE_EXISTS_PROD_US, "yes"}',
           WEBSITES_DATABASE_ARN:
-            'arn:aws:rds:us-east-1:630176884077:cluster:prod-us-shared-websites-database',
+            '${env:WEBSITES_DATABASE_ARN_PROD_US, "arn:aws:rds:us-east-1:${self:custom.awsAccountId}:cluster:prod-us-shared-websites-database"}',
           WEBSITES_DATABASE_CREDENTIALS_ARN:
-            'arn:aws:secretsmanager:us-east-1:630176884077:secret:prod/us/shared_websites_database-4RSLyH',
+            '${env:WEBSITES_DATABASE_CREDENTIALS_ARN_PROD_US, "arn:aws:secretsmanager:us-east-1:${self:custom.awsAccountId}:secret:prod/us/shared_websites_database*"}',
           WEBSITES_DATABASE_IAM_PERM:
-            'arn:aws:rds:us-east-1:630176884077:cluster:prod-us-shared-websites-database',
+            '${env:WEBSITES_DATABASE_IAM_PERM_PROD_US, "arn:aws:rds:us-east-1:${self:custom.awsAccountId}:cluster:prod-us-shared-websites-database"}',
           WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
-            'arn:aws:secretsmanager:us-east-1:630176884077:secret:prod/us/shared_websites_database-4RSLyH',
+            '${env:WEBSITES_DATABASE_CREDENTIALS_IAM_PERM_PROD_US, "arn:aws:secretsmanager:us-east-1:${self:custom.awsAccountId}:secret:prod/us/shared_websites_database*"}',
         },
         'eu-west-3': {
           MERCHWP_LAMBDA_CREATE_WEBSITE:
             'crowdaa-hosting-env-prod-fr-website-deploy-function',
           WEBSITES_DATABASE_HOST:
-            'prod-fr-shared-websites-database.cluster-c7i8ynro0ztw.eu-west-3.rds.amazonaws.com',
-          WEBSITES_DATABASE_EXISTS: 'yes',
+            '${env:WEBSITES_DATABASE_HOST_PROD_FR, ""}',
+          WEBSITES_DATABASE_EXISTS:
+            '${env:WEBSITES_DATABASE_EXISTS_PROD_FR, "no"}',
           WEBSITES_DATABASE_ARN:
-            'arn:aws:rds:eu-west-3:630176884077:cluster:prod-fr-shared-websites-database',
+            '${env:WEBSITES_DATABASE_ARN_PROD_FR, "arn:aws:rds:eu-west-3:${self:custom.awsAccountId}:cluster:prod-fr-shared-websites-database"}',
           WEBSITES_DATABASE_CREDENTIALS_ARN:
-            'arn:aws:secretsmanager:eu-west-3:630176884077:secret:prod/fr/shared_websites_database-yAMDUI',
+            '${env:WEBSITES_DATABASE_CREDENTIALS_ARN_PROD_FR, "arn:aws:secretsmanager:eu-west-3:${self:custom.awsAccountId}:secret:prod/fr/shared_websites_database*"}',
           WEBSITES_DATABASE_IAM_PERM:
-            'arn:aws:rds:eu-west-3:630176884077:cluster:prod-fr-shared-websites-database',
+            '${env:WEBSITES_DATABASE_IAM_PERM_PROD_FR, "arn:aws:rds:eu-west-3:${self:custom.awsAccountId}:cluster:prod-fr-shared-websites-database"}',
           WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
-            'arn:aws:secretsmanager:eu-west-3:630176884077:secret:prod/fr/shared_websites_database-yAMDUI',
+            '${env:WEBSITES_DATABASE_CREDENTIALS_IAM_PERM_PROD_FR, "arn:aws:secretsmanager:eu-west-3:${self:custom.awsAccountId}:secret:prod/fr/shared_websites_database*"}',
         },
       },
       preprod: {
@@ -66,9 +69,9 @@ const serverlessConfiguration = {
           WEBSITES_DATABASE_EXISTS: 'no',
           // Do not exists, but serverless needs a variable anyway...
           WEBSITES_DATABASE_IAM_PERM:
-            'arn:aws:rds:eu-west-3:630176884077:cluster:preprod-fr-shared-websites-database',
+            'arn:aws:rds:eu-west-3:${self:custom.awsAccountId}:cluster:preprod-fr-shared-websites-database',
           WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
-            'arn:aws:secretsmanager:eu-west-3:630176884077:secret:preprod/fr/shared_websites_database-abcdef',
+            'arn:aws:secretsmanager:eu-west-3:${self:custom.awsAccountId}:secret:preprod/fr/shared_websites_database*',
         },
       },
       dev: {
@@ -78,9 +81,9 @@ const serverlessConfiguration = {
           WEBSITES_DATABASE_EXISTS: 'no',
           // Do not exists, but serverless needs a variable anyway...
           WEBSITES_DATABASE_IAM_PERM:
-            'arn:aws:rds:us-east-1:630176884077:cluster:dev-us-shared-websites-database',
+            'arn:aws:rds:us-east-1:${self:custom.awsAccountId}:cluster:dev-us-shared-websites-database',
           WEBSITES_DATABASE_CREDENTIALS_IAM_PERM:
-            'arn:aws:secretsmanager:us-east-1:630176884077:secret:dev/us/shared_websites_database-abcdef',
+            'arn:aws:secretsmanager:us-east-1:${self:custom.awsAccountId}:secret:dev/us/shared_websites_database*',
         },
       },
     },
@@ -119,7 +122,8 @@ const serverlessConfiguration = {
       CLOUDFLARE_API_TOKEN:
         '${ssm(us-east-1):/crowdaa_microservices/global/cloudflare/api-token}',
       CLOUDFLARE_CROWDAA_DOT_COM_ZONE_ID: 'ee25cd95b6fd5c3d5c0485aad22bf00a',
-      WEBSITES_TEMPLATES_BUCKET: 'crowdaa-hosting-common-templates',
+      WEBSITES_TEMPLATES_BUCKET:
+        '${env:WEBSITES_TEMPLATES_BUCKET, "crowdaa-hosting-common-templates"}',
       MERCHWP_LAMBDA_CREATE_WEBSITE:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.MERCHWP_LAMBDA_CREATE_WEBSITE}',
       WEBSITES_DATABASE_HOST:
@@ -131,7 +135,7 @@ const serverlessConfiguration = {
       WEBSITES_DATABASE_EXISTS:
         '${self:custom.merchwp.${self:provider.stage}.${self:provider.region}.WEBSITES_DATABASE_EXISTS, ""}',
       MICROSERVICES_API_URL:
-        'https://${file(../api-v1/serverless.js):custom.domains.${self:provider.stage}.${self:provider.region}}/v1',
+        '${cf:api-v1-${self:provider.stage}.ServiceEndpoint}/v1',
     },
     apiGateway: {
       restApiId: '${cf:api-v1-${self:provider.stage}.RestApiId}',
@@ -140,7 +144,8 @@ const serverlessConfiguration = {
     },
     region:
       '${opt:region, file(../api-v1/serverless.js):custom.region.${self:provider.stage}, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
     iam: {
       role: {
         statements: [
@@ -148,8 +153,8 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource: [
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.MERCHWP_LAMBDA_CREATE_WEBSITE}',
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-*',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:${self:provider.environment.MERCHWP_LAMBDA_CREATE_WEBSITE}',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:asyncLambdas-${self:provider.stage}-*',
             ],
           },
           {

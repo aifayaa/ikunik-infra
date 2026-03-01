@@ -36,7 +36,7 @@ const serverlessConfiguration = {
           '${cf:userGeneratedContents-${self:provider.stage}.RestApiRootResourceUGCItemId}',
       },
     },
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     pressArticleGetReactions: {

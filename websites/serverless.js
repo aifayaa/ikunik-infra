@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'websites',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -87,7 +88,8 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
     iam: {
       role: {
         statements: [
@@ -95,10 +97,10 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource: [
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.WEBSITES_LAMBDA_UPDATE_DOMAINS}',
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.WEBSITES_LAMBDA_GET_STATUS}',
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.WEBSITES_LAMBDA_START_STOP}',
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:${self:provider.environment.WEBSITES_LAMBDA_DESTROY}',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:${self:provider.environment.WEBSITES_LAMBDA_UPDATE_DOMAINS}',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:${self:provider.environment.WEBSITES_LAMBDA_GET_STATUS}',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:${self:provider.environment.WEBSITES_LAMBDA_START_STOP}',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:${self:provider.environment.WEBSITES_LAMBDA_DESTROY}',
             ],
           },
         ],

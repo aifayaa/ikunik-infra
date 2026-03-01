@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'apps',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: { automatic: true, number: 3 },
     'serverless-disable-request-validators': { action: 'delete' },
@@ -38,7 +39,8 @@ const serverlessConfiguration = {
         REACT_APP_AUTH_URL: 'https://auth-fr.crowdaa.com',
         REACT_APP_PRESS_SERVICE_URL: 'https://blog-fr.crowdaa.com',
         CROWDAA_REGION: 'fr',
-        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
+        S3_APPS_RESSOURCES:
+          '${env:APPS_S3_APPS_RESSOURCES_BUCKET, "crowdaa-apps-resources-prod-fr-${self:custom.awsAccountId}"}',
       },
     },
     esbuild: {
@@ -74,7 +76,7 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
     iam: {
       role: {
         statements: [

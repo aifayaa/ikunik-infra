@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'blast',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -15,10 +16,10 @@ const serverlessConfiguration = {
     dev: {
       'us-east-1': {
         pushNotificationErrorSNSTopicArn:
-          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-dev-us',
+          'arn:aws:sns:us-west-2:${self:custom.awsAccountId}:blast-push-failure-dev-us',
         NOTIFICATION_STATE_MACHINE_NAME: 'DevSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-DevUsSendNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-DevUsSendNotifications-role',
         MAILGUN_API_KEY: 'key-ee8f3c350f56cbe4002b9c00cce04769',
         MAILGUN_DOMAIN: 'sandboxe8ecbf94ba82415c9ce55b169129af2e.mailgun.org',
         ANDROID_PACKAGE_ID: 'com.crowdaa.free.www',
@@ -28,10 +29,10 @@ const serverlessConfiguration = {
     preprod: {
       'eu-west-3': {
         pushNotificationErrorSNSTopicArn:
-          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-preprod-fr',
+          'arn:aws:sns:us-west-2:${self:custom.awsAccountId}:blast-push-failure-preprod-fr',
         NOTIFICATION_STATE_MACHINE_NAME: 'PreprodSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-PreprodFrSendNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-PreprodFrSendNotifications-role',
         MAILGUN_API_KEY: 'key-ee8f3c350f56cbe4002b9c00cce04769',
         MAILGUN_DOMAIN: 'mg.crowdaa.com',
         ANDROID_PACKAGE_ID: 'com.crowdaa.free.www',
@@ -41,10 +42,10 @@ const serverlessConfiguration = {
     prod: {
       'us-east-1': {
         pushNotificationErrorSNSTopicArn:
-          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-prod-us',
+          'arn:aws:sns:us-west-2:${self:custom.awsAccountId}:blast-push-failure-prod-us',
         NOTIFICATION_STATE_MACHINE_NAME: 'ProdSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdUsSendNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-ProdUsSendNotifications-role',
         MAILGUN_API_KEY: 'key-ee8f3c350f56cbe4002b9c00cce04769',
         MAILGUN_DOMAIN: 'mg.crowdaa.com',
         ANDROID_PACKAGE_ID: 'com.crowdaa.free.www',
@@ -52,10 +53,10 @@ const serverlessConfiguration = {
       },
       'eu-west-3': {
         pushNotificationErrorSNSTopicArn:
-          'arn:aws:sns:us-west-2:630176884077:blast-push-failure-prod-fr',
+          '${env:BLAST_PUSH_FAILURE_TOPIC_ARN_PROD_FR, "arn:aws:sns:us-west-2:${self:custom.awsAccountId}:blast-push-failure-prod-fr"}',
         NOTIFICATION_STATE_MACHINE_NAME: 'ProdSendNotifications',
         NOTIFICATION_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-ProdFrSendNotifications-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-ProdFrSendNotifications-role',
         MAILGUN_API_KEY: 'key-ee8f3c350f56cbe4002b9c00cce04769',
         MAILGUN_DOMAIN: 'mg.crowdaa.com',
         ANDROID_PACKAGE_ID: 'com.crowdaa.free.www',
@@ -83,7 +84,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:CreateStateMachine', 'states:StartExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}',
           },
           {
             Effect: 'Allow',
@@ -95,7 +96,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:StopExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:execution:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
         ],
       },
@@ -117,7 +118,7 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     blastEmail: {

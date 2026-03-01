@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'userGeneratedContents',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -13,7 +14,7 @@ const serverlessConfiguration = {
       action: 'delete',
     },
     AI_VIDEO_MODERATION_COMPLETION_ROLE_ARN:
-      'arn:aws:iam::630176884077:role/ugcVideoModerationCompletionTopicRole',
+      'arn:aws:iam::${self:custom.awsAccountId}:role/ugcVideoModerationCompletionTopicRole',
     dev: {
       'us-east-1': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/dev-us',
@@ -23,10 +24,10 @@ const serverlessConfiguration = {
         AI_DETECTION_ENABLED: 'true',
         AI_DETECTION_DEFAULT_REGION: 'us-east-1',
         AI_DETECTION_SNS_TOPIC_ARN:
-          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicDevUs',
+          'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicDevUs',
         topicCompletionSNSEvents: [
           {
-            sns: 'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicDevUs',
+            sns: 'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicDevUs',
           },
         ],
       },
@@ -40,7 +41,7 @@ const serverlessConfiguration = {
         AI_DETECTION_ENABLED: 'false',
         AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
         AI_DETECTION_SNS_TOPIC_ARN:
-          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicPreprodFr',
+          'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicPreprodFr',
         topicCompletionSNSEvents: [],
       },
     },
@@ -53,22 +54,23 @@ const serverlessConfiguration = {
         AI_DETECTION_ENABLED: 'true',
         AI_DETECTION_DEFAULT_REGION: 'us-east-1',
         AI_DETECTION_SNS_TOPIC_ARN:
-          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdUs',
+          'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicProdUs',
         topicCompletionSNSEvents: [
           {
-            sns: 'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdUs',
+            sns: 'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicProdUs',
           },
         ],
       },
       'eu-west-3': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
         REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
-        S3_UPLOAD_BUCKET: 'slsupload-prod-fr',
+        S3_UPLOAD_BUCKET:
+          '${env:UGC_S3_UPLOAD_BUCKET, "slsupload-prod-fr-${self:custom.awsAccountId}"}',
         AI_DETECTION_DEFAULT_LANG: 'en',
         AI_DETECTION_ENABLED: 'false',
         AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
         AI_DETECTION_SNS_TOPIC_ARN:
-          'arn:aws:sns:us-east-1:630176884077:ugcVideoModerationCompletionTopicProdFr',
+          'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicProdFr',
         topicCompletionSNSEvents: [],
       },
     },
@@ -139,7 +141,7 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     ugcSNSTopicCompletion: {

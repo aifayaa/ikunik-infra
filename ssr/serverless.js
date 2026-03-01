@@ -19,7 +19,7 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.APPS_WEBSITE_URL}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     article: {

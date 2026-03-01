@@ -15,7 +15,7 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
     iam: {
       role: {
         statements: [
@@ -23,7 +23,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource:
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:asyncLambdas-${self:provider.stage}-*',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:asyncLambdas-${self:provider.stage}-*',
           },
         ],
       },
@@ -177,6 +177,7 @@ const serverlessConfiguration = {
     'serverless-export-env',
   ],
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,

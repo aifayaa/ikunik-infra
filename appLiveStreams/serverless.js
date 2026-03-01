@@ -4,6 +4,7 @@ const env = require('../env');
 const serverlessConfiguration = {
   service: 'appLiveStreams',
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -17,14 +18,14 @@ const serverlessConfiguration = {
         IVS_REGION: 'us-east-1',
         IVS_BUCKET: 'aals-live-streams-recordings-dev-us',
         LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
-          'arn:aws:ivschat:us-east-1:630176884077:logging-configuration/kpz9Hkhw0JZW',
+          'arn:aws:ivschat:us-east-1:${self:custom.awsAccountId}:logging-configuration/kpz9Hkhw0JZW',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
-          'arn:aws:ivs:us-east-1:630176884077:storage-configuration/gGfB810FW5i7',
+          'arn:aws:ivs:us-east-1:${self:custom.awsAccountId}:storage-configuration/gGfB810FW5i7',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'DevSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-dev-us-sfnCheckAppLiveStream-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-dev-us-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStreams-dev-sfnCheckAppLiveStream',
+          'arn:aws:lambda:us-east-1:${self:custom.awsAccountId}:function:appLiveStreams-dev-sfnCheckAppLiveStream',
       },
     },
     preprod: {
@@ -32,14 +33,14 @@ const serverlessConfiguration = {
         IVS_REGION: 'eu-west-1',
         IVS_BUCKET: 'aals-live-streams-recordings-preprod-fr',
         LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
-          'arn:aws:ivschat:eu-west-1:630176884077:logging-configuration/npshJBdn8dLt',
+          'arn:aws:ivschat:eu-west-1:${self:custom.awsAccountId}:logging-configuration/npshJBdn8dLt',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
-          'arn:aws:ivs:eu-west-1:630176884077:storage-configuration/GFhrn550Yngd',
+          'arn:aws:ivs:eu-west-1:${self:custom.awsAccountId}:storage-configuration/GFhrn550Yngd',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'PreprodSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-preprod-fr-sfnCheckAppLiveStream-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-preprod-fr-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStreams-preprod-sfnCheckAppLiveStream',
+          'arn:aws:lambda:eu-west-3:${self:custom.awsAccountId}:function:appLiveStreams-preprod-sfnCheckAppLiveStream',
       },
     },
     prod: {
@@ -47,27 +48,27 @@ const serverlessConfiguration = {
         IVS_REGION: 'us-east-1',
         IVS_BUCKET: 'aals-live-streams-recordings-prod-us',
         LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
-          'arn:aws:ivschat:us-east-1:630176884077:logging-configuration/APwRBhl1ukrr',
+          'arn:aws:ivschat:us-east-1:${self:custom.awsAccountId}:logging-configuration/APwRBhl1ukrr',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
-          'arn:aws:ivs:us-east-1:630176884077:storage-configuration/yMAca4Tyd9Oj',
+          'arn:aws:ivs:us-east-1:${self:custom.awsAccountId}:storage-configuration/yMAca4Tyd9Oj',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-us-sfnCheckAppLiveStream-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-prod-us-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:us-east-1:630176884077:function:appLiveStreams-prod-sfnCheckAppLiveStream',
+          'arn:aws:lambda:us-east-1:${self:custom.awsAccountId}:function:appLiveStreams-prod-sfnCheckAppLiveStream',
       },
       'eu-west-3': {
         IVS_REGION: 'eu-west-1',
         IVS_BUCKET: 'aals-live-streams-recordings-prod-fr',
         LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
-          'arn:aws:ivschat:eu-west-1:630176884077:logging-configuration/lDpG9UuoJpcB',
+          'arn:aws:ivschat:eu-west-1:${self:custom.awsAccountId}:logging-configuration/lDpG9UuoJpcB',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
-          'arn:aws:ivs:eu-west-1:630176884077:storage-configuration/uMW5ndSoawyE',
+          'arn:aws:ivs:eu-west-1:${self:custom.awsAccountId}:storage-configuration/uMW5ndSoawyE',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
-          'arn:aws:iam::630176884077:role/service-role/StepFunctions-prod-fr-sfnCheckAppLiveStream-role',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-prod-fr-sfnCheckAppLiveStream-role',
         LIVE_STREAM_WATCHER_STATE_MACHINE_RESOURCE:
-          'arn:aws:lambda:eu-west-3:630176884077:function:appLiveStreams-prod-sfnCheckAppLiveStream',
+          'arn:aws:lambda:eu-west-3:${self:custom.awsAccountId}:function:appLiveStreams-prod-sfnCheckAppLiveStream',
       },
     },
     esbuild: {
@@ -109,13 +110,13 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['ivs:*'],
             Resource:
-              'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
+              'arn:aws:ivs:${self:provider.environment.IVS_REGION}:${self:custom.awsAccountId}:*',
           },
           {
             Effect: 'Allow',
             Action: ['ivschat:*'],
             Resource:
-              'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:630176884077:*',
+              'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:${self:custom.awsAccountId}:*',
           },
 
           // Recording
@@ -126,7 +127,7 @@ const serverlessConfiguration = {
               'ivsrealtime:ListStorageConfigurations',
             ],
             Resource:
-              'arn:aws:ivs:${self:provider.environment.IVS_REGION}:630176884077:*',
+              'arn:aws:ivs:${self:provider.environment.IVS_REGION}:${self:custom.awsAccountId}:*',
           },
 
           // Handling/Viewing replay
@@ -144,7 +145,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:CreateStateMachine', 'states:StartExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:stateMachine:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}',
           },
           {
             Effect: 'Allow',
@@ -156,7 +157,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['states:StopExecution'],
             Resource:
-              'arn:aws:states:${self:provider.region}:630176884077:execution:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}:${self:provider.stage}*',
+              'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:execution:${self:custom.${self:provider.stage}.${self:provider.region}.LIVE_STREAM_WATCHER_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
 
           // Notifications
@@ -164,9 +165,9 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource: [
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:blast-${self:provider.stage}-queueNotifications',
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:files-${self:provider.stage}-getUploadUrl',
-              'arn:aws:lambda:${self:provider.region}:630176884077:function:pressArticles-${self:provider.stage}-postArticle',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:blast-${self:provider.stage}-queueNotifications',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:files-${self:provider.stage}-getUploadUrl',
+              'arn:aws:lambda:${self:provider.region}:${self:custom.awsAccountId}:function:pressArticles-${self:provider.stage}-postArticle',
             ],
           },
         ],
@@ -178,7 +179,7 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     /* For IVS RT EventBridge events, see https://docs.aws.amazon.com/ivs/latest/RealTimeUserGuide/eventbridge.html */

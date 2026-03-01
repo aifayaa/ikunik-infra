@@ -33,7 +33,7 @@ const serverlessConfiguration = {
       restApiRootResourceId:
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     onboarding: {
@@ -63,6 +63,7 @@ const serverlessConfiguration = {
     'serverless-export-env',
   ],
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -89,7 +90,8 @@ const serverlessConfiguration = {
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources',
       },
       'eu-west-3': {
-        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
+        S3_APPS_RESSOURCES:
+          '${env:ONBOARDING_S3_APPS_RESSOURCES_BUCKET, "crowdaa-apps-resources-prod-fr-${self:custom.awsAccountId}"}',
       },
     },
   },

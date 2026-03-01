@@ -30,7 +30,7 @@ const serverlessConfiguration = {
           '${cf:press-${self:provider.stage}.RestApiRootResourceAdminPressId}',
       },
     },
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     tasksRunner: {

@@ -52,7 +52,7 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['mediaconvert:CreateJob', 'mediaconvert:TagResource'],
             Resource:
-              'arn:aws:mediaconvert:${self:provider.environment.REGION}:630176884077:*',
+              'arn:aws:mediaconvert:${self:provider.environment.REGION}:${self:custom.awsAccountId}:*',
           },
           {
             Effect: 'Allow',
@@ -85,7 +85,7 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: 'ms-deployment-${self:provider.region}',
+    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     getUploadUrl: {
@@ -216,6 +216,7 @@ const serverlessConfiguration = {
     'serverless-export-env',
   ],
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
@@ -230,7 +231,7 @@ const serverlessConfiguration = {
     dev: {
       'us-east-1': {
         MEDIACONVERT_ROLE_ARN:
-          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-dev',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-dev',
         S3_VIDEOS_BUCKET: 'video-stream-dev.crowdaa.com',
         CDN_DOMAIN_NAME: 'd2vivde2vsot4v.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-dev',
@@ -242,7 +243,7 @@ const serverlessConfiguration = {
     preprod: {
       'eu-west-3': {
         MEDIACONVERT_ROLE_ARN:
-          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-preprod',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-preprod',
         S3_VIDEOS_BUCKET: 'video-stream-preprod.crowdaa.com',
         CDN_DOMAIN_NAME: 'd2altfyur5witx.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-preprod',
@@ -254,7 +255,7 @@ const serverlessConfiguration = {
     prod: {
       'us-east-1': {
         MEDIACONVERT_ROLE_ARN:
-          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-prod-us',
+          'arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-prod-us',
         S3_VIDEOS_BUCKET: 'video-stream-prod.crowdaa.com',
         CDN_DOMAIN_NAME: 'd1tmdgml10ct6o.cloudfront.net',
         S3_UPLOAD_BUCKET: 'slsupload-prod',
@@ -264,13 +265,19 @@ const serverlessConfiguration = {
       },
       'eu-west-3': {
         MEDIACONVERT_ROLE_ARN:
-          'arn:aws:iam::630176884077:role/user-video-processing-mediaconvert-role-prod-fr',
-        S3_VIDEOS_BUCKET: 'video-stream-prod-fr.crowdaa.com',
-        CDN_DOMAIN_NAME: 'd3gi4cpq7lf81i.cloudfront.net',
-        S3_UPLOAD_BUCKET: 'slsupload-prod-fr',
-        S3_PICTURES_BUCKET: 'crowdaa-pictures-prod-fr',
-        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-prod-fr',
-        S3_APPS_PUBLIC_RESSOURCES: 'fr-apps-public-resources-prod',
+          '${env:FILES_MEDIACONVERT_ROLE_ARN, "arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-prod-fr"}',
+        S3_VIDEOS_BUCKET:
+          '${env:FILES_S3_VIDEOS_BUCKET, "video-stream-prod-fr-${self:custom.awsAccountId}"}',
+        CDN_DOMAIN_NAME:
+          '${env:FILES_CDN_DOMAIN_NAME, "d3gi4cpq7lf81i.cloudfront.net"}',
+        S3_UPLOAD_BUCKET:
+          '${env:FILES_S3_UPLOAD_BUCKET, "slsupload-prod-fr-${self:custom.awsAccountId}"}',
+        S3_PICTURES_BUCKET:
+          '${env:FILES_S3_PICTURES_BUCKET, "crowdaa-pictures-prod-fr-${self:custom.awsAccountId}"}',
+        S3_APPS_RESSOURCES:
+          '${env:FILES_S3_APPS_RESSOURCES_BUCKET, "crowdaa-apps-resources-prod-fr-${self:custom.awsAccountId}"}',
+        S3_APPS_PUBLIC_RESSOURCES:
+          '${env:FILES_S3_APPS_PUBLIC_RESSOURCES_BUCKET, "fr-apps-public-resources-prod-${self:custom.awsAccountId}"}',
       },
     },
   },
