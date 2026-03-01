@@ -5,6 +5,8 @@
 - AWS backend clone replication: `documentation_claude/doc/AWS_BACKEND_CLONE_REPLICATION_RUNBOOK.md`
 - Source-ARN hardening matrix: `documentation_claude/doc/AWS_BACKEND_CLONE_PHASE11_SOURCE_ARN_MATRIX.md`
 - Production clone smoke script: `./smoke_prod_clone.sh`
+- UAT options A/B/C runbook: `documentation_claude/doc/UAT_OPTIONS_ABC_RUNBOOK.md`
+- UAT options A/B/C runner: `./uat_options_abc.sh`
 
 # Development environment
 

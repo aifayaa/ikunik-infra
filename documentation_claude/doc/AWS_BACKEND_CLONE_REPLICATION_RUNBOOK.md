@@ -122,3 +122,14 @@ Expected result:
 3. Mongo data strategy execution (keep source Atlas temporarily or migrate).
 4. API domain strategy for apps (gateway URL vs custom domain/DNS cutover).
 5. UAT against new infra before app store deployment.
+
+### UAT execution shortcut (Options A/B/C)
+Use the automated runner to execute API, hybrid, and dress-rehearsal validations in one pass:
+
+```bash
+cd /Users/crowdaa/Desktop/dev/crowdaa_microservices
+API_KEY='<app-api-key>' AWS_PROFILE=crowdaa AWS_REGION=eu-west-3 ./uat_options_abc.sh
+```
+
+Detailed runbook:
+- `documentation_claude/doc/UAT_OPTIONS_ABC_RUNBOOK.md`
