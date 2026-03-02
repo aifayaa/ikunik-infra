@@ -1,0 +1,30 @@
+crowdaa_utils v0.2.22[0m
+[buildIosV2] Starting build[0m
+(node:24919) NOTE: We are formalizing our plans to enter AWS SDK for JavaScript (v2) into maintenance mode in 2023.
+
+Please migrate your code to use AWS SDK for JavaScript (v3).
+For more information, check the migration guide at https://a.co/7PzMCcy
+(Use `node --trace-warnings ...` to show where the warning was created)
+[buildIosV2] cleanup[0m
+[buildIosV2] Executing 'git' with args ['checkout', '--', '.'][0m
+[buildIosV2] Executing 'git' with args ['clean', '-d', '-f'][0m
+[buildIosV2] Executing 'git' with args ['fetch'][0m
+[buildIosV2] Executing 'git' with args ['checkout', 'staging/target-infra-build-ready'][0m
+[buildIosV2] Executing 'git' with args ['reset', '--hard', 'origin/staging/target-infra-build-ready'][0m
+[buildIosV2] Executing 'git' with args ['pull'][0m
+[buildIosV2] Executing 'killall' with args ['Xcode'][0m
+[buildIosV2] Executing 'xcrun' with args ['-k'][0m
+[buildIosV2] Executing 'xcodebuild' with args ['-alltargets', 'clean'][0m
+[buildIosV2] Executing 'gem' with args ['cleanup'][0m
+[buildIosV2] build tools installation[0m
+[buildIosV2] Executing 'git' with args ['clone', '--single-branch', '--depth', '1', '--branch', 'master', 'git@gitlab.aws.crowdaa.com:crowdaa/crowdaa_utils.git', 'crowdaa_utils'][0m
+[buildIosV2] An error occured : Error:  Cloning into 'crowdaa_utils'...
+ssh: connect to host gitlab.aws.crowdaa.com port 22: Operation timed out
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[0m
+[buildIosV2] Sending build result email[0m
+[buildIosV2] Email sent[0m
+[buildIosV2] done[0m

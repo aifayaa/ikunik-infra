@@ -1,0 +1,465 @@
+crowdaa_utils v0.2.22[0m
+[buildIosV2] Starting build[0m
+(node:25189) NOTE: We are formalizing our plans to enter AWS SDK for JavaScript (v2) into maintenance mode in 2023.
+
+Please migrate your code to use AWS SDK for JavaScript (v3).
+For more information, check the migration guide at https://a.co/7PzMCcy
+(Use `node --trace-warnings ...` to show where the warning was created)
+[buildIosV2] cleanup[0m
+[buildIosV2] Executing 'git' with args ['checkout', '--', '.'][0m
+[buildIosV2] Executing 'git' with args ['clean', '-d', '-f'][0m
+[buildIosV2] Executing 'git' with args ['fetch'][0m
+[buildIosV2] Executing 'git' with args ['checkout', 'staging/target-infra-build-ready'][0m
+[buildIosV2] Executing 'git' with args ['reset', '--hard', 'origin/staging/target-infra-build-ready'][0m
+[buildIosV2] Executing 'git' with args ['pull'][0m
+[buildIosV2] Executing 'killall' with args ['Xcode'][0m
+[buildIosV2] Executing 'xcrun' with args ['-k'][0m
+[buildIosV2] Executing 'xcodebuild' with args ['-alltargets', 'clean'][0m
+[buildIosV2] Executing 'gem' with args ['cleanup'][0m
+[buildIosV2] build tools installation[0m
+[buildIosV2] Executing 'git' with args ['clone', '--single-branch', '--depth', '1', '--branch', 'master', '/Users/crowdaa/Desktop/gits/ikunik-build-tools', 'crowdaa_utils'][0m
+[buildIosV2] Executing 'npm' with args ['install'][0m
+[buildIosV2] Start script, doing some checks[0m
+[buildIosV2] Checks ok, starting ios build[0m
+[buildIosV2] Getting app[0m
+[buildIosV2] Getting build[0m
+[buildIosV2] Handling version number[0m
+[buildIosV2] 0.0.20[0m
+[buildIosV2/setConfigXmlCommand] Executing command ...[0m
+[buildIosV2/setConfigXmlCommand] Executing '/Users/crowdaa/Desktop/gits/ikunik-build-tools/bin/setConfigXml.sh' with args ['--path=config.xml', '--packageId=com.crowdaa.afvttd99e7n', '--appName=Diamond-The-Body', '--desc=Welcome on Diamond The Body community app!', '--urlScheme=crowdaadiamondthebodyphwvtjy9proto', '--appVersion=0.0.20', '--author=Dweblife Sports Assistant', '--email=admin+changeme@crowdaa.com'][0m
+[buildIosV2/setEnv] Getting app[0m
+[buildIosV2/setEnv] Getting build[0m
+[buildIosV2/setEnv] Handling version number[0m
+[buildIosV2/setEnv] 0.0.20[0m
+[buildIosV2/editIntlForApp] Start script[0m
+[buildIosV2/editIntlForApp] no additional settings for intl[0m
+[buildIosV2/editIntlForApp] Start script[0m
+[buildIosV2/editIntlForApp] no additional settings for localizationStrings[0m
+[buildIosV2/setIosIntlBundleName] 2 json files found in folder /Users/crowdaa/Desktop/gits/ikunik-app/translations/app[0m
+[buildIosV2/setIosIntlBundleName] editing /Users/crowdaa/Desktop/gits/ikunik-app/translations/app/en.json[0m
+[buildIosV2/setIosIntlBundleName] ok[0m
+[buildIosV2/setIosIntlBundleName] editing /Users/crowdaa/Desktop/gits/ikunik-app/translations/app/fr.json[0m
+[buildIosV2/setIosIntlBundleName] ok[0m
+[buildIosV2/generateResources] Executing 'sed' with args ['-i', '', '/<icon/d', './config.xml'][0m
+[buildIosV2/generateResources] Executing 'sed' with args ['-i', '', '/<splash/d', './config.xml'][0m
+[buildIosV2/generateResources] Start Script[0m
+[buildIosV2/generateResources] checking for app...[0m
+[buildIosV2/generateResources] app exists[0m
+[buildIosV2/generateResources] No custom archive found[0m
+[buildIosV2/generateResources] Can't get from custom archive, continue with defaults resources[0m
+
+getting 1 of 4 files
+getting 2 of 4 files
+[buildIosV2/generateResources] use default backgroud for android adaptive icon[0m
+[buildIosV2/generateResources] use default backgroud for android adaptive icon[0m
+[buildIosV2/generateResources] WARN:	Orientation preference set to 'portrait'. Only configuring portrait resources.
+[0m
+[buildIosV2/generateResources] Generated 18 resources for Android
+Generated 47 resources for iOS
+Wrote to config.xml
+[0m
+[buildIosV2/cordovaInit] Executing 'npx' with args ['cordova', 'platform', 'rm', 'android'][0m
+[buildIosV2/cordovaInit] Executing 'npx' with args ['cordova', 'platform', 'rm', 'ios'][0m
+[buildIosV2/cordovaInit] Executing 'npm' with args ['install', 'cordova-ios@7'][0m
+[buildIosV2/cordovaInit] Executing 'npx' with args ['cordova', 'platform', 'add', 'ios'][0m
+[buildIosV2/cordovaInit] Executing 'npx' with args ['cordova', 'prepare', 'ios'][0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'rm', 'cordova-plugin-customurlscheme', '--variable', 'URL_SCHEME=crowdaadiamondthebodyphwvtjy9proto'][0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'add', 'cordova-plugin-customurlscheme', '--variable', 'URL_SCHEME=crowdaadiamondthebodyphwvtjy9proto'][0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'rm', 'cordova-plugin-sign-in-with-apple'][0m
+[buildIosV2/cordovaPrepare] remove signInWithFacebook plugin[0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'rm', 'cordova-plugin-facebook-connect'][0m
+[buildIosV2/cordovaPrepare] add geolocation plugin[0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'add', 'cordova-plugin-geolocation'][0m
+[buildIosV2/cordovaPrepare] add hotpush plugin[0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'add', './npm-packages/cordova-plugin-meteor-webapp'][0m
+[buildIosV2/cordovaPrepare] add IAP plugin[0m
+[buildIosV2/cordovaPrepare] Executing 'npx' with args ['cordova', 'plugin', 'add', 'cordova-plugin-purchase'][0m
+[buildIosV2/build] build[0m
+[buildIosV2/build] Executing 'npm' with args ['run', 'build', '--stage=prod', '--region=us'][0m
+[buildIosV2/build] 
+> crowdaa_news_yui@0.88.3 build
+> cp .env.${npm_config_stage:=dev}.${npm_config_region:=us} .env && node scripts/write-build-fingerprint-env.js .env && npx webpack --mode=${npm_config_mode:=production} && rm -rf www && mv build www
+
+assets by info 13.5 MiB [immutable]
+  assets by chunk 5.01 MiB (auxiliary name: app) 28 assets
+  assets by path *.js 6.62 MiB 3 assets
+  assets by path *.css 1.88 MiB
+    asset styles.31d647e010be9c47c4a0.css 1.33 MiB [emitted] [immutable] [minimized] [big] (name: styles) (id hint: styles)
+    asset vendors.31d647e010be9c47c4a0.css 557 KiB [emitted] [immutable] [minimized] [big] (name: vendors) (id hint: vendor)
+assets by path sounds/ 775 KiB
+  asset sounds/new_version.mp3 148 KiB [emitted] [from: public/sounds/new_version.mp3] [copied]
+  asset sounds/sad.mp3 117 KiB [emitted] [from: public/sounds/sad.mp3] [copied]
+  asset sounds/bell.mp3 117 KiB [emitted] [from: public/sounds/bell.mp3] [copied]
+  asset sounds/airhorn.mp3 95.5 KiB [emitted] [from: public/sounds/airhorn.mp3] [copied]
+  asset sounds/laugh.mp3 80.7 KiB [emitted] [from: public/sounds/laugh.mp3] [copied]
+  + 5 assets
+asset index.html 1.08 KiB [emitted]
+asset .keep 0 bytes [emitted] [from: public/.keep] [copied]
+Entrypoint app [big] 8.4 MiB (5.01 MiB) = vendors.31d647e010be9c47c4a0.css 557 KiB vendors.31d647e010be9c47c4a0.js 4.02 MiB styles.31d647e010be9c47c4a0.css 1.33 MiB app.31d647e010be9c47c4a0.js 2.51 MiB 28 auxiliary assets
+orphan modules 8.85 MiB (javascript) 4.69 MiB (asset) 1.99 MiB (runtime) [orphan] 3875 modules
+runtime modules 35.6 KiB 20 modules
+built modules 15.2 MiB (javascript) 2.86 MiB (css/mini-extract) [built]
+  javascript modules 15.1 MiB
+    modules by path ./node_modules/ 10.5 MiB 607 modules
+    modules by path ./src/ 4.58 MiB 567 modules
+    readable-stream (ignored) 15 bytes [built] [code generated]
+    min-document (ignored) 15 bytes [built] [code generated]
+  css modules 2.86 MiB 152 modules
+  json modules 62.9 KiB
+    modules by path ./node_modules/react-html-parser/node_modules/dom-serializer/ 32.8 KiB 5 modules
+    modules by path ./node_modules/react-html-parser/node_modules/entities/ 30 KiB
+      ./node_modules/react-html-parser/node_modules/entities/maps/entities.json 28.4 KiB [built] [code generated]
+      + 3 modules
+
+WARNING in chunk styles [mini-css-extract-plugin]
+Conflicting order. Following module has been added:
+ * css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/components/Skeleton/Skeleton.scss
+despite it was not able to fulfill desired ordering with these modules:
+ * css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/components/CommunityFeed/components/CommentsSheet/CommentActions.scss
+   - couldn't fulfill desired order of chunk group(s) 
+ * css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/components/CommunityFeed/components/CommentsSheet/CommentNewForm.scss
+   - couldn't fulfill desired order of chunk group(s) 
+ * css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/components/AppRatingPopup.scss
+   - couldn't fulfill desired order of chunk group(s) 
+   - while fulfilling desired order of chunk group(s) app
+
+WARNING in asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  b0611e6c3d34fbc5c60f132f93349461.svg (305 KiB)
+  4b8a7d10ca32f3125696.ttf (292 KiB)
+  e34ea07999c09813c6b7.ttf (397 KiB)
+  96f06762fadb3580597a.ttf (428 KiB)
+  3403b410905f2b5e8cbd.ttf (503 KiB)
+  589c8afc4d54d7f4df33.ttf (366 KiB)
+  ec293811f76a95196f79.ttf (502 KiB)
+  app.31d647e010be9c47c4a0.js (2.51 MiB)
+  vendors.31d647e010be9c47c4a0.css (557 KiB)
+  vendors.31d647e010be9c47c4a0.js (4.02 MiB)
+  styles.31d647e010be9c47c4a0.css (1.33 MiB)
+
+WARNING in entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  app (8.4 MiB)
+      vendors.31d647e010be9c47c4a0.css
+      vendors.31d647e010be9c47c4a0.js
+      styles.31d647e010be9c47c4a0.css
+      app.31d647e010be9c47c4a0.js
+
+webpack 5.90.3 compiled with 3 warnings in 36502 ms
+[0m
+[buildIosV2/build-manifest] build-manifest[0m
+[buildIosV2/build-manifest] Getting app[0m
+[buildIosV2/build-manifest] Getting build[0m
+[buildIosV2/build-manifest] Handling version number[0m
+[buildIosV2/build-manifest] 0.0.20[0m
+[buildIosV2/build-manifest] Reading files list to add to the manifest[0m
+[buildIosV2/build-manifest] Adding file .keep[0m
+[buildIosV2/build-manifest] Adding file 0ed5d059ac8feec71b65.woff2[0m
+[buildIosV2/build-manifest] Adding file 10392ddecb5cf9de8c9d.woff2[0m
+[buildIosV2/build-manifest] Adding file 272ed5523e3269cd7e92495eef83aeb0.png[0m
+[buildIosV2/build-manifest] Adding file 286bd8fcebb566a45853.woff[0m
+[buildIosV2/build-manifest] Adding file 29f69495373abc444d9d.woff2[0m
+[buildIosV2/build-manifest] Adding file 3403b410905f2b5e8cbd.ttf[0m
+[buildIosV2/build-manifest] Adding file 3d5230a086e0bf11fdda.eot[0m
+[buildIosV2/build-manifest] Adding file 4b8a7d10ca32f3125696.ttf[0m
+[buildIosV2/build-manifest] Adding file 589c8afc4d54d7f4df33.ttf[0m
+[buildIosV2/build-manifest] Adding file 68ae25f8dcb0857da463.eot[0m
+[buildIosV2/build-manifest] Adding file 6af2605828547b3c87d0.woff2[0m
+[buildIosV2/build-manifest] Adding file 74.31d647e010be9c47c4a0.js[0m
+[buildIosV2/build-manifest] Adding file 7f4f6f70695e8f57ff2f4ba86dd573a5.svg[0m
+[buildIosV2/build-manifest] Adding file 82f2ffc710f462cf9597.svg[0m
+[buildIosV2/build-manifest] Adding file 852655880420bcb785bd.woff2[0m
+[buildIosV2/build-manifest] Adding file 8708c68c640497abaf3d.woff[0m
+[buildIosV2/build-manifest] Adding file 942ad4671573f0333081.woff[0m
+[buildIosV2/build-manifest] Adding file 96f06762fadb3580597a.ttf[0m
+[buildIosV2/build-manifest] Adding file 9ccb81843119a5936672.woff2[0m
+[buildIosV2/build-manifest] Adding file app.31d647e010be9c47c4a0.js[0m
+[buildIosV2/build-manifest] Adding file app.31d647e010be9c47c4a0.js.LICENSE.txt[0m
+[buildIosV2/build-manifest] Adding file b0611e6c3d34fbc5c60f132f93349461.svg[0m
+[buildIosV2/build-manifest] Adding file b4513beb3eac2c66b5b4.woff[0m
+[buildIosV2/build-manifest] Adding file b5ee78a9ef9b309c1857.woff[0m
+[buildIosV2/build-manifest] Adding file bf631d47baffc1c78e59.woff[0m
+[buildIosV2/build-manifest] Adding file c9de44a7c6bc54f9a7f2.woff2[0m
+[buildIosV2/build-manifest] Adding file d28353edaac5ab62f7c6.ttf[0m
+[buildIosV2/build-manifest] Adding file e34ea07999c09813c6b7.ttf[0m
+[buildIosV2/build-manifest] Adding file e710a4df0e6019f8694b7c4536887d9f.png[0m
+[buildIosV2/build-manifest] Adding file ec293811f76a95196f79.ttf[0m
+[buildIosV2/build-manifest] Adding file f5fdf9d4be49040c6fb6.woff[0m
+[buildIosV2/build-manifest] Adding file index.html[0m
+[buildIosV2/build-manifest] Adding file sounds/README.md[0m
+[buildIosV2/build-manifest] Adding file sounds/airhorn.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/applause.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/bell.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/drum.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/laugh.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/new_version.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/party.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/sad.mp3[0m
+[buildIosV2/build-manifest] Adding file sounds/wow.mp3[0m
+[buildIosV2/build-manifest] Adding file styles.31d647e010be9c47c4a0.css[0m
+[buildIosV2/build-manifest] Adding file vendors.31d647e010be9c47c4a0.css[0m
+[buildIosV2/build-manifest] Adding file vendors.31d647e010be9c47c4a0.js[0m
+[buildIosV2/build-manifest] Adding file vendors.31d647e010be9c47c4a0.js.LICENSE.txt[0m
+[buildIosV2/build-manifest] Writing manifest file[0m
+[buildIosV2/hotpush] hotpush[0m
+[buildIosV2/hotpush/files upload] Uploading files to S3[0m
+[buildIosV2/hotpush/files upload] Uploading file .keep[0m
+[buildIosV2/hotpush/files upload] Uploading file 0ed5d059ac8feec71b65.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file 10392ddecb5cf9de8c9d.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file 272ed5523e3269cd7e92495eef83aeb0.png[0m
+[buildIosV2/hotpush/files upload] Uploading file 286bd8fcebb566a45853.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file 29f69495373abc444d9d.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file 3403b410905f2b5e8cbd.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file 3d5230a086e0bf11fdda.eot[0m
+[buildIosV2/hotpush/files upload] Uploading file 4b8a7d10ca32f3125696.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file 589c8afc4d54d7f4df33.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file 68ae25f8dcb0857da463.eot[0m
+[buildIosV2/hotpush/files upload] Uploading file 6af2605828547b3c87d0.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file 74.31d647e010be9c47c4a0.js[0m
+[buildIosV2/hotpush/files upload] Uploading file 7f4f6f70695e8f57ff2f4ba86dd573a5.svg[0m
+[buildIosV2/hotpush/files upload] Uploading file 82f2ffc710f462cf9597.svg[0m
+[buildIosV2/hotpush/files upload] Uploading file 852655880420bcb785bd.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file 8708c68c640497abaf3d.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file 942ad4671573f0333081.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file 96f06762fadb3580597a.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file 9ccb81843119a5936672.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file app.31d647e010be9c47c4a0.js[0m
+[buildIosV2/hotpush/files upload] Uploading file app.31d647e010be9c47c4a0.js.LICENSE.txt[0m
+[buildIosV2/hotpush/files upload] Uploading file b0611e6c3d34fbc5c60f132f93349461.svg[0m
+[buildIosV2/hotpush/files upload] Uploading file b4513beb3eac2c66b5b4.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file b5ee78a9ef9b309c1857.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file bf631d47baffc1c78e59.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file c9de44a7c6bc54f9a7f2.woff2[0m
+[buildIosV2/hotpush/files upload] Uploading file d28353edaac5ab62f7c6.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file e34ea07999c09813c6b7.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file e710a4df0e6019f8694b7c4536887d9f.png[0m
+[buildIosV2/hotpush/files upload] Uploading file ec293811f76a95196f79.ttf[0m
+[buildIosV2/hotpush/files upload] Uploading file f5fdf9d4be49040c6fb6.woff[0m
+[buildIosV2/hotpush/files upload] Uploading file index.html[0m
+[buildIosV2/hotpush/files upload] Uploading file manifest.json[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/README.md[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/airhorn.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/applause.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/bell.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/drum.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/laugh.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/new_version.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/party.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/sad.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file sounds/wow.mp3[0m
+[buildIosV2/hotpush/files upload] Uploading file styles.31d647e010be9c47c4a0.css[0m
+[buildIosV2/hotpush/files upload] Uploading file vendors.31d647e010be9c47c4a0.css[0m
+[buildIosV2/hotpush/files upload] Uploading file vendors.31d647e010be9c47c4a0.js[0m
+[buildIosV2/hotpush/files upload] Uploading file vendors.31d647e010be9c47c4a0.js.LICENSE.txt[0m
+[buildIosV2/hotpush] Removing extra files from s3[0m
+[buildIosV2/hotpush] Deleted 7 extra files[0m
+[buildIosV2/hotpush] Done[0m
+[buildIosV2/prepare-ios] prepare-ios[0m
+[buildIosV2/prepare-ios] Executing 'npm' with args ['run', 'prepare-ios'][0m
+[buildIosV2/prepare-ios] 
+> crowdaa_news_yui@0.88.3 prepare-ios
+> npx cordova prepare ios
+
+Pbx project written with localization groups [ 'fr', 'en' ]
+[0m
+[buildIosV2/fastlane-prepare] fastlane-prepare[0m
+[buildIosV2/fastlane-prepare] Executing 'npm' with args ['run', 'fastlane-prepare'][0m
+[buildIosV2/fastlane-prepare] Executing 'pod' with args ['install'][0m
+[buildIosV2/fastlane] fastlane[0m
+[buildIosV2/fastlane] Executing 'fastlane' with args ['deploy'][0m
+[buildIosV2/fastlane] An error occured : Error: [12:59:40]: [33mfastlane detected a Gemfile in the current directory[0m
+[12:59:40]: [33mHowever, it seems like you didn't use `bundle exec`[0m
+[12:59:40]: [33mTo launch fastlane faster, please use[0m
+[12:59:40]: 
+[12:59:40]: [36m$ bundle exec fastlane deploy[0m
+[12:59:40]: 
+[12:59:40]: [33mGet started using a Gemfile for fastlane https://docs.fastlane.tools/getting-started/ios/setup/#use-a-gemfile[0m
++-----------------------------------------------------------+
+|                       Used plugins                        |
++------------------------+---------+------------------------+
+| Plugin                 | Version | Action                 |
++------------------------+---------+------------------------+
+| fastlane-plugin-upgra  | 0.0.2   | upgrade_super_old_xco  |
+| de_super_old_xcode_pr  |         | de_project             |
+| oject                  |         |                        |
+| fastlane-plugin-versi  | 0.7.1   | ci_build_number,       |
+| oning                  |         | get_app_store_version  |
+|                        |         | _number,               |
+|                        |         | get_build_number_from  |
+|                        |         | _plist,                |
+|                        |         | get_build_number_from  |
+|                        |         | _xcodeproj,            |
+|                        |         | get_info_plist_path,   |
+|                        |         | get_version_number_fr  |
+|                        |         | om_git_branch,         |
+|                        |         | get_version_number_fr  |
+|                        |         | om_plist,              |
+|                        |         | get_version_number_fr  |
+|                        |         | om_xcodeproj,          |
+|                        |         | increment_build_numbe  |
+|                        |         | r_in_plist,            |
+|                        |         | increment_build_numbe  |
+|                        |         | r_in_xcodeproj,        |
+|                        |         | increment_version_num  |
+|                        |         | ber_in_plist,          |
+|                        |         | increment_version_num  |
+|                        |         | ber_in_xcodeproj       |
++------------------------+---------+------------------------+
+
+[12:59:41]: ------------------------------
+[12:59:41]: --- Step: default_platform ---
+[12:59:41]: ------------------------------
+[12:59:41]: Driving the lane 'ios deploy' 🚀
+[12:59:41]: ---------------------
+[12:59:41]: --- Step: produce ---
+[12:59:41]: ---------------------
+
++-------------------------------------------------------------+
+|                 Summary for produce 2.228.0                 |
++-----------------------------------+-------------------------+
+| language                          | French                  |
+| app_version                       | 0.0.1                   |
+| enable_services.push_notification | on                      |
+| enable_services.in_app_purchase   | off                     |
+| username                          | apple@crowdaa.com       |
+| app_identifier                    | com.crowdaa.afvttd99e7n |
+| app_name                          | Diamond-The-Body        |
+| sku                               | 1772441981              |
+| platform                          | ios                     |
+| skip_itc                          | false                   |
+| skip_devcenter                    | false                   |
+| team_id                           | 5WL7PJXX24              |
+| itc_team_id                       | 108212833               |
++-----------------------------------+-------------------------+
+
+Available session is not valid anymore. Continuing with normal login.
+Session loaded from environment variable is not valid. Continuing with normal login.
+[12:59:51]: [DevCenter] App 'com.crowdaa.afvttd99e7n' already exists, nothing to do on the Dev Center
+Available session is not valid anymore. Continuing with normal login.
+Session loaded from environment variable is not valid. Continuing with normal login.
+[13:00:00]: App 'com.crowdaa.afvttd99e7n' already exists (6754700875), nothing to do on App Store Connect
+[13:00:00]: ----------------------------------
+[13:00:00]: --- Step: get_push_certificate ---
+[13:00:00]: ----------------------------------
+
++----------------------------------------------------------+
+|                 Summary for PEM 2.228.0                  |
++-------------------+--------------------------------------+
+| app_identifier    | com.crowdaa.afvttd99e7n              |
+| save_private_key  | true                                 |
+| output_path       | /var/folders/p3/vp_ynnqx25s75gd0v1b  |
+|                   | y23b00000gn/T/d20260302-28540-3rnkl  |
+|                   | 4                                    |
+| pem_name          | pushCertificate                      |
+| platform          | ios                                  |
+| development       | false                                |
+| website_push      | false                                |
+| generate_p12      | true                                 |
+| active_days_limit | 30                                   |
+| force             | false                                |
+| username          | apple@crowdaa.com                    |
+| team_id           | 5WL7PJXX24                           |
++-------------------+--------------------------------------+
+
+[13:00:00]: Starting login with user 'apple@crowdaa.com'
+[13:00:02]: Successfully logged in
+[13:00:04]: Existing ios push notification profile for 'com.crowdaa.afvttd99e7n' is valid for 272 more days.
+[13:00:04]: You already have a push certificate, which is active for more than 30 more days. No need to create a new one
+[13:00:04]: If you still want to create a new one, use the --force option when running PEM.
+[13:00:04]: --------------------------------------------
+[13:00:04]: --- Step: latest_testflight_build_number ---
+[13:00:04]: --------------------------------------------
+[13:00:04]: Login to App Store Connect (apple@crowdaa.com)
+[13:00:06]: Login successful
+[13:00:07]: Fetching the latest build number for any version
+[13:00:08]: Latest upload for version 0.0.19 on ios platform is build: 1.0.18
+[13:00:08]: ---------------------------------------------
+[13:00:08]: --- Step: increment_build_number_in_plist ---
+[13:00:08]: ---------------------------------------------
+[13:00:08]: Resolving Swift Package Manager dependencies...
+[13:00:08]: $ xcodebuild -resolvePackageDependencies -scheme Diamond-The-Body -project Diamond-The-Body.xcodeproj
+[13:00:09]: ▸ Command line invocation:
+[13:00:09]: ▸     /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -resolvePackageDependencies -scheme Diamond-The-Body -project Diamond-The-Body.xcodeproj
+[13:00:09]: ▸ User defaults from command line:
+[13:00:09]: ▸     IDEPackageSupportUseBuiltinSCM = YES
+[13:00:09]: ▸ resolved source packages: 
+[13:00:09]: $ xcodebuild -showBuildSettings -scheme Diamond-The-Body -project Diamond-The-Body.xcodeproj 2>&1
+[13:00:10]: will continue and update the info plist key. this will replace the existing value.
+[13:00:10]: ---------------------------
+[13:00:10]: --- Step: tactical_nuke ---
+[13:00:10]: ---------------------------
+[13:00:10]: Successfully loaded '/Users/crowdaa/Desktop/gits/ikunik-app/platforms/ios/fastlane/Matchfile' 📄
+
++-----------------------------------------------------+
+|     Detected Values from './fastlane/Matchfile'     |
++--------------+--------------------------------------+
+| git_url      | git@gitlab.aws.crowdaa.com:crowdaa/  |
+|              | crowdaa_fastlane.git                 |
+| storage_mode | git                                  |
+| type         | appstore                             |
++--------------+--------------------------------------+
+
+[13:00:10]: Going to auto-revoke your expired/unknown 'distribution' certificate type and provisioning profiles
+[13:00:12]: Cloning remote git repo...
+[13:00:12]: If cloning the repo takes too long, you can use the `clone_branch_directly` option in match.
+Cloning into '/var/folders/p3/vp_ynnqx25s75gd0v1by23b00000gn/T/d20260302-28540-8430jl'...
+ssh: connect to host gitlab.aws.crowdaa.com port 22: Operation timed out
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[13:01:27]: Exit status: 128
+[13:01:27]: Error cloning certificates repo, please make sure you have read access to the repository you want to use
+[13:01:27]: Run the following command manually to make sure you're properly authenticated:
+[13:01:27]: $ git clone git@gitlab.aws.crowdaa.com:crowdaa/crowdaa_fastlane.git /var/folders/p3/vp_ynnqx25s75gd0v1by23b00000gn/T/d20260302-28540-8430jl
++------------------------------------------------+
+|                  Lane Context                  |
++-----------------------------------+------------+
+| DEFAULT_PLATFORM                  | ios        |
+| PLATFORM_NAME                     | ios        |
+| LANE_NAME                         | ios deploy |
+| PRODUCE_APPLE_ID                  | 6754700875 |
+| LATEST_TESTFLIGHT_BUILD_NUMBER    | 1.0.18     |
+| LATEST_TESTFLIGHT_VERSION         | 0.0.19     |
+| GET_INFO_PLIST_VALUE_CUSTOM_VALUE | 0.0.20     |
+| BUILD_NUMBER                      | 1.0.19     |
++-----------------------------------+------------+
+[13:01:27]: Called from Fastfile at line 82
+[13:01:27]: ```
+[13:01:27]:     80:	    )
+[13:01:27]:     81:	
+[13:01:27]:  => 82:	    tactical_nuke({
+[13:01:27]:     83:	      :type => 'appstore',
+[13:01:27]:     84:	      :readonly => false,
+[13:01:27]: ```
+[13:01:27]: Error cloning certificates git repo, please make sure you have access to the repository - see instructions above
+
++---------------------------------------------+
+|              fastlane summary               |
++------+------------------------+-------------+
+| Step | Action                 | Time (in s) |
++------+------------------------+-------------+
+| 1    | default_platform       | 0           |
+| 2    | produce                | 18          |
+| 3    | get_push_certificate   | 4           |
+| 4    | latest_testflight_bui  | 4           |
+|      | ld_number              |             |
+| 5    | increment_build_numbe  | 1           |
+|      | r_in_plist             |             |
+| 💥   | tactical_nuke          | 77          |
++------+------------------------+-------------+
+
+[13:01:27]: fastlane finished with errors
+
+#######################################################################
+# fastlane 2.232.2 is available. You are on 2.228.0.
+# You should use the latest version.
+# Please update using `fastlane update_fastlane`.
+#######################################################################
+ 
+[!] Error cloning certificates git repo, please make sure you have access to the repository - see instructions above
+[0m
+[buildIosV2/fastlane] Sending build result email[0m
+[buildIosV2/fastlane] Email sent[0m
+[buildIosV2/fastlane] done[0m

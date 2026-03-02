@@ -98,3 +98,76 @@
 
 ### Outcome
 - Validation goal "build app on new infra profile for appId 05e8d798-57b8-413d-b1cc-d81866c01cf0" is green and reproducible across sessions when the target-seed origin strategy is applied.
+
+## iOS validation - build + TestFlight (same appId)
+
+### Goal
+- Build iOS for `05e8d798-57b8-413d-b1cc-d81866c01cf0` in isolated target lane and upload to TestFlight.
+
+### Attempt 1
+- Command:
+  - `buildIosV2 ... --no-screenshots --no-pipeline` (non-verbose)
+- Observation:
+  - wrapper printed `done` but no `.ipa` generated.
+  - root cause: `buildIosV2` swallows internal errors and can return success at CLI level.
+- Log:
+  - `EVIDENCE_LOGS/2026-03-02_build_ios_05e8d798_attempt1.log`
+
+### Attempt 2 (verbose)
+- Command:
+  - `buildIosV2 ... --no-screenshots --no-pipeline --verbose`
+- Failure:
+  - blocked in initialization at `git clone git@gitlab.aws.crowdaa.com:crowdaa/crowdaa_utils.git` (SSH/22 timeout).
+- Log:
+  - `EVIDENCE_LOGS/2026-03-02_build_ios_05e8d798_attempt2_verbose.log`
+
+### Remediation A - local utils mirror
+- Patched isolated `ikunik-build-tools/js/libs/buildIosV2.js`:
+  - use `CROWDAA_UTILS_LOCAL_PATH` when present.
+- Commit in isolated build-tools repo:
+  - `86ea178 chore(ios-build): allow local utils mirror and APPLE_ID override`
+
+### Attempt 3 (local utils)
+- Command:
+  - `CROWDAA_UTILS_LOCAL_PATH=/Users/crowdaa/Desktop/gits/ikunik-build-tools buildIosV2 ... --verbose`
+- Failure:
+  - fastlane failed at `tactical_nuke/match` because `crowdaa_fastlane` GitLab SSH repo was unreachable.
+- Log:
+  - `EVIDENCE_LOGS/2026-03-02_build_ios_05e8d798_attempt3_localutils.log`
+
+### Remediation B - skip match on local installed signing for validation
+- Patched `ikunik-app-buildseed/fastlane/platforms/ios/fastlane/Fastfile`:
+  - add `SKIP_MATCH=1` path to skip `tactical_nuke/match`.
+- Commit in local buildseed repo:
+  - `bab1e35a chore(ios): allow SKIP_MATCH fallback for local signing`
+- Verified local signing assets exist:
+  - profile `match AppStore com.crowdaa.afvttd99e7n`
+  - Apple Distribution certificate for team `5WL7PJXX24`
+
+### Attempt 4 (requested Apple ID test)
+- Command:
+  - `APPLE_ID=vigilehoareau@gmail.com SKIP_MATCH=1 ... buildIosV2 ... --verbose`
+- Failure:
+  - fastlane `produce` failed with `Invalid username and password combination` for `vigilehoareau@gmail.com`.
+- Log:
+  - `EVIDENCE_LOGS/2026-03-02_build_ios_05e8d798_attempt4_skipmatch_vigile.log`
+
+### Attempt 5 (final)
+- Command:
+  - `SKIP_MATCH=1 CROWDAA_UTILS_LOCAL_PATH=/Users/crowdaa/Desktop/gits/ikunik-build-tools buildIosV2 ... --verbose`
+- Result:
+  - success: `.ipa` built, uploaded to S3, build finalized.
+  - fastlane report confirms `build_ios_app` then `upload_to_testflight` step completed.
+- Logs/evidence:
+  - `EVIDENCE_LOGS/2026-03-02_build_ios_05e8d798_attempt5_skipmatch_apple.log`
+  - `EVIDENCE_LOGS/2026-03-02_ios_fastlane_report_attempt5.xml`
+
+### iOS output verification
+- Artifact:
+  - `/Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.ipa` (14M)
+- SHA-256:
+  - `3b3e3dc4e271a27538f83a0c5d858fc5e59d58bb55c98616baaafe8fc60d0732`
+- Endpoint profile still target after build reset:
+  - `.env.prod.us` contains:
+    - `REACT_APP_API_URL=https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod`
+    - `REACT_APP_SSR_URL=qqhfk0vr85.execute-api.eu-west-3.amazonaws.com/prod`

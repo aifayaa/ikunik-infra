@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000131">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: produce" time="5.88763">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: get_push_certificate" time="3.03862">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: latest_testflight_build_number" time="3.571436">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: increment_build_number_in_plist" time="1.780461">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: update_code_signing_settings" time="0.038688">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: update_app_identifier" time="0.028894">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: build_ios_app" time="32.857352">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="8: upload_to_testflight" time="287.956143">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

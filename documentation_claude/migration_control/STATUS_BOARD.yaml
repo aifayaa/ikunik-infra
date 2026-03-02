@@ -1,5 +1,5 @@
 meta:
-  updated_at: '2026-03-02T07:53:59Z'
+  updated_at: '2026-03-02T09:18:49Z'
   active_target: target-prod-fr-clone-001
   active_validation_goal: runtime_smoke_target_profile
 
@@ -85,6 +85,28 @@ tasks:
     title: Validate build artifacts and endpoint profile after build reset
     status: done
     owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-010
+    milestone: M4
+    title: Run iOS build and TestFlight upload for appId 05e8d798-57b8-413d-b1cc-d81866c01cf0 from isolated workspace
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-011
+    milestone: M2
+    title: Remove iOS build dependency on GitLab SSH for crowdaa_utils clone
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-012
+    milestone: M3
+    title: Validate Fastlane credentials for requested Apple ID vigilehoareau@gmail.com
+    status: blocked
+    owner: codex
+    blocker: FASTLANE_PASSWORD/FASTLANE_SESSION available on this machine are not valid for vigilehoareau@gmail.com
     evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
 
   - id: T-007

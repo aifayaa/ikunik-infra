@@ -15,10 +15,18 @@ app_validation_goal:
   execution_region_for_build_validation: us
 
 build_reset_behavior:
-  script: buildAndroidV3
-  resets_from: origin/<branch>
-  mitigation: point ikunik-app origin to local target-seed repo (push disabled)
-  target_seed_repo: /Users/crowdaa/Desktop/gits/ikunik-app-buildseed
+  android:
+    script: buildAndroidV3
+    resets_from: origin/<branch>
+    mitigation: point ikunik-app origin to local target-seed repo (push disabled)
+    target_seed_repo: /Users/crowdaa/Desktop/gits/ikunik-app-buildseed
+  ios:
+    script: buildIosV2
+    resets_from: origin/<branch>
+    mitigation:
+      - point ikunik-app origin to local target-seed repo (push disabled)
+      - set CROWDAA_UTILS_LOCAL_PATH=/Users/crowdaa/Desktop/gits/ikunik-build-tools
+      - set SKIP_MATCH=1 when GitLab SSH match repo is unreachable
 
 runtime_endpoints:
   api_base_url: https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod
@@ -35,6 +43,22 @@ latest_validation_build:
   sha256:
     aab: 89063b38cff6df3aef2b16c1d9f02d6f9e2e06d8820de4ded807c502bdc80c3e
     apk: 8f11b68ee2381a3c085e5a54f7cf7305346ee9880c2f90927a97e0bb6b53ed46
+
+latest_ios_validation_build:
+  date: '2026-03-02'
+  attempt: attempt5_skipmatch_apple
+  stage: prod
+  region: us
+  artifact:
+    ipa: /Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.ipa
+  sha256:
+    ipa: 3b3e3dc4e271a27538f83a0c5d858fc5e59d58bb55c98616baaafe8fc60d0732
+  testflight:
+    upload_step: upload_to_testflight
+    report_xml: /Users/crowdaa/Desktop/gits/ikunik-infra/documentation_claude/migration_control/EVIDENCE_LOGS/2026-03-02_ios_fastlane_report_attempt5.xml
+  requested_apple_id:
+    email: vigilehoareau@gmail.com
+    status: blocked_invalid_credentials
 
 database_runtime_mode:
   mode: temporary_legacy_atlas
