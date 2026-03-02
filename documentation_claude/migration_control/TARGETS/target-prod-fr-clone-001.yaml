@@ -14,9 +14,27 @@ app_validation_goal:
   resolved_source_region_for_this_app_id: us
   execution_region_for_build_validation: us
 
+build_reset_behavior:
+  script: buildAndroidV3
+  resets_from: origin/<branch>
+  mitigation: point ikunik-app origin to local target-seed repo (push disabled)
+  target_seed_repo: /Users/crowdaa/Desktop/gits/ikunik-app-buildseed
+
 runtime_endpoints:
   api_base_url: https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod
   ssr_base_host: qqhfk0vr85.execute-api.eu-west-3.amazonaws.com/prod
+
+latest_validation_build:
+  date: '2026-03-02'
+  attempt: attempt3_targetseed
+  stage: prod
+  region: us
+  artifacts:
+    aab: /Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.aab
+    apk: /Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.apk
+  sha256:
+    aab: 89063b38cff6df3aef2b16c1d9f02d6f9e2e06d8820de4ded807c502bdc80c3e
+    apk: 8f11b68ee2381a3c085e5a54f7cf7305346ee9880c2f90927a97e0bb6b53ed46
 
 database_runtime_mode:
   mode: temporary_legacy_atlas

@@ -1,7 +1,7 @@
 meta:
-  updated_at: '2026-03-02T11:38:00Z'
+  updated_at: '2026-03-02T07:53:59Z'
   active_target: target-prod-fr-clone-001
-  active_validation_goal: runtime_smoke
+  active_validation_goal: runtime_smoke_target_profile
 
 milestones:
   - id: M0
@@ -69,6 +69,20 @@ tasks:
   - id: T-006
     milestone: M4
     title: Resolve stage/region for validation appId and align build profile to target API/SSR
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-008
+    milestone: M2
+    title: Enforce build reset determinism via target-seed origin remote
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-009
+    milestone: M4
+    title: Validate build artifacts and endpoint profile after build reset
     status: done
     owner: codex
     evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md

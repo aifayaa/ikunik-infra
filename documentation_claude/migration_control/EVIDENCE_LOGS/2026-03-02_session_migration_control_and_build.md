@@ -60,3 +60,41 @@
 - `ikunik-app` is intentionally dirty after build (generated resources, config rewrites, artifacts).
 - Do not commit generated files blindly.
 - Keep only intentional profile/config deltas (for this session: `.env.prod.us` API/SSR override for target backend validation).
+
+## Build validation hardening - target-seed deterministic run (attempt 3)
+
+### Problem discovered after attempt 2
+- `buildAndroidV3` resets the app workspace to `origin/<branch>`.
+- If `origin` points to a repo with legacy `.env` values, target API/SSR overrides are lost before build.
+
+### Deterministic mitigation
+- Created local target-seed repo:
+  - `/Users/crowdaa/Desktop/gits/ikunik-app-buildseed`
+- Committed target profile in seed:
+  - `.env.prod.us`:
+    - `REACT_APP_API_URL=https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod`
+    - `REACT_APP_SSR_URL=qqhfk0vr85.execute-api.eu-west-3.amazonaws.com/prod`
+- Repointed isolated build workspace remote:
+  - `ikunik-app` `origin` -> `/Users/crowdaa/Desktop/gits/ikunik-app-buildseed` (push disabled)
+
+### Attempt 3 (definitive)
+- Command (in `/Users/crowdaa/Desktop/gits/ikunik-build-tools`):
+  - `APP_SOURCES=/Users/crowdaa/Desktop/gits/ikunik-app ./js/bin/buildAndroidV3 --appId 05e8d798-57b8-413d-b1cc-d81866c01cf0 --stage prod --region us --branch staging/target-infra-build-ready --no-screenshots --no-pipeline`
+- Result:
+  - success (`done`).
+- Full build log:
+  - `EVIDENCE_LOGS/2026-03-02_build_app_05e8d798_attempt3_targetseed.log`
+
+### Post-build verification
+- Effective endpoint profile in `ikunik-app/.env.prod.us`:
+  - `REACT_APP_API_URL=https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod`
+  - `REACT_APP_SSR_URL=qqhfk0vr85.execute-api.eu-west-3.amazonaws.com/prod`
+- Artifacts:
+  - `/Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.aab` (15M)
+  - `/Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.apk` (16M)
+- SHA-256:
+  - `89063b38cff6df3aef2b16c1d9f02d6f9e2e06d8820de4ded807c502bdc80c3e` (AAB)
+  - `8f11b68ee2381a3c085e5a54f7cf7305346ee9880c2f90927a97e0bb6b53ed46` (APK)
+
+### Outcome
+- Validation goal "build app on new infra profile for appId 05e8d798-57b8-413d-b1cc-d81866c01cf0" is green and reproducible across sessions when the target-seed origin strategy is applied.
