@@ -1,0 +1,87 @@
+meta:
+  updated_at: '2026-03-02T11:38:00Z'
+  active_target: target-prod-fr-clone-001
+  active_validation_goal: runtime_smoke
+
+milestones:
+  - id: M0
+    title: Isolation Ready
+    status: done
+  - id: M1
+    title: Config Isolation
+    status: in_progress
+  - id: M2
+    title: Build Chain Isolation
+    status: in_progress
+  - id: M3
+    title: Security Isolation
+    status: pending
+  - id: M4
+    title: App Build Green
+    status: done
+  - id: M5
+    title: Runtime Smoke Green
+    status: pending
+  - id: M6
+    title: UAT Green
+    status: pending
+  - id: M7
+    title: Production Readiness
+    status: pending
+
+tasks:
+  - id: T-001
+    milestone: M0
+    title: Create isolated local target-lane repos
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-002
+    milestone: M0
+    title: Push-disable seed and legacy remotes in target-lane repos
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-003
+    milestone: M1
+    title: Capture target profile and validation appId in TARGETS yaml
+    status: done
+    owner: codex
+    evidence: TARGETS/target-prod-fr-clone-001.yaml
+
+  - id: T-004
+    milestone: M4
+    title: Run build for appId 05e8d798-57b8-413d-b1cc-d81866c01cf0 from isolated workspace
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-005
+    milestone: M2
+    title: Provision GitHub target repos ikunik-app and ikunik-build-tools
+    status: blocked
+    owner: codex
+    blocker: GitHub repositories not found at expected URLs
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-006
+    milestone: M4
+    title: Resolve stage/region for validation appId and align build profile to target API/SSR
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+  - id: T-007
+    milestone: M5
+    title: Run runtime smoke tests using built app profile against target API
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+
+temporary_exceptions:
+  - id: EX-001
+    description: Build tools still use legacy Atlas runtime for temporary validation mode.
+    owner: codex
+    remove_by_milestone: M7

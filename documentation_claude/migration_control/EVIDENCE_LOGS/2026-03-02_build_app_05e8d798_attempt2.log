@@ -1,0 +1,26 @@
+crowdaa_utils v0.2.22[0m
+[buildAndroidV3] Starting build[0m
+(node:2925) NOTE: We are formalizing our plans to enter AWS SDK for JavaScript (v2) into maintenance mode in 2023.
+
+Please migrate your code to use AWS SDK for JavaScript (v3).
+For more information, check the migration guide at https://a.co/7PzMCcy
+(Use `node --trace-warnings ...` to show where the warning was created)
+[buildAndroidV3/commands/setConfigXmlCommand] Executing command ...[0m
+[buildAndroidV3/commands/setEnv/generateResources] No custom archive found[0m
+[buildAndroidV3/commands/setEnv/generateResources] Can't get from custom archive, continue with defaults resources[0m
+
+getting 1 of 4 files
+getting 2 of 4 files
+getting 3 of 4 files
+getting 4 of 4 files
+[buildAndroidV3/commands] setup-android[0m
+[buildAndroidV3/commands] add hotpush plugin[0m
+[buildAndroidV3/commands] remove signInWithFacebook plugin[0m
+[buildAndroidV3/commands] inject signing to gradle[0m
+[buildAndroidV3/commands] build[0m
+[buildAndroidV3/commands/build-manifest] build-manifest[0m
+[buildAndroidV3/commands/hotpush] hotpush[0m
+[buildAndroidV3/commands/hotpush/files upload] Uploading files to S3[0m
+[buildAndroidV3/commands] build-android[0m
+[buildAndroidV3] Sending .apk file to S3[0m
+done[0m

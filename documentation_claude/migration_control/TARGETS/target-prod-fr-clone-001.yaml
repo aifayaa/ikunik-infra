@@ -1,0 +1,31 @@
+id: target-prod-fr-clone-001
+created_at: '2026-03-02'
+owner: codex
+
+repositories:
+  infra_control_repo: /Users/crowdaa/Desktop/gits/ikunik-infra
+  app_repo: /Users/crowdaa/Desktop/gits/ikunik-app
+  build_tools_repo: /Users/crowdaa/Desktop/gits/ikunik-build-tools
+
+app_validation_goal:
+  app_id: 05e8d798-57b8-413d-b1cc-d81866c01cf0
+  stage: prod
+  region: fr
+  resolved_source_region_for_this_app_id: us
+  execution_region_for_build_validation: us
+
+runtime_endpoints:
+  api_base_url: https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod
+  ssr_base_host: qqhfk0vr85.execute-api.eu-west-3.amazonaws.com/prod
+
+database_runtime_mode:
+  mode: temporary_legacy_atlas
+  note: Legacy Atlas retained temporarily for validation phase only.
+
+remote_strategy:
+  legacy_push_policy: disabled
+  target_owner: aifayaa
+  expected_target_repos:
+    - git@github.com:aifayaa/ikunik-infra.git
+    - git@github.com:aifayaa/ikunik-app.git
+    - git@github.com:aifayaa/ikunik-build-tools.git
