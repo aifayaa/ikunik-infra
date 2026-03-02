@@ -55,3 +55,8 @@
 - SHA-256:
   - `a366d0bdf44567a7ff64b89b00879163e2dd79ec8090b1e324b77ab42daebe02` (AAB)
   - `32a60a9ea308b44664bb2690c9fa169866fbe15456a0d6ec96cd467513915959` (APK)
+
+### Workspace state after build
+- `ikunik-app` is intentionally dirty after build (generated resources, config rewrites, artifacts).
+- Do not commit generated files blindly.
+- Keep only intentional profile/config deltas (for this session: `.env.prod.us` API/SSR override for target backend validation).
