@@ -37,6 +37,7 @@ latest_validation_build:
   attempt: attempt3_targetseed
   stage: prod
   region: us
+  note: Local artifact files may be removed by subsequent build cleanup; keep hashes/logs as source of truth.
   artifacts:
     aab: /Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.aab
     apk: /Users/crowdaa/Desktop/gits/ikunik-app/app-05e8d798-57b8-413d-b1cc-d81866c01cf0.apk
