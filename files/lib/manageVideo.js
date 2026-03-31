@@ -16,11 +16,12 @@ const mediaconvert = new MediaConvertClient({
   region: REGION,
 });
 
-export default async (bucket, object, file) => {
+export default async (bucket, object, file, document) => {
   const client = await MongoClient.connect();
 
-  /* all key names are lowercaser in metadata */
-  const { id, title, type } = file.Metadata;
+  const id = document?._id;
+  const type = document?.mimeType;
+  const title = document?.uploadMetadata?.title || document?.title;
 
   if (!id) {
     throw new Error('missing_id');
@@ -29,11 +30,11 @@ export default async (bucket, object, file) => {
   try {
     /* Get existing document and check it exists */
     const collection = getCollectionFromContentType(type);
-    const document = await client.db().collection(collection).findOne({
+    const persistedDocument = await client.db().collection(collection).findOne({
       _id: id,
     });
 
-    if (!document) {
+    if (!persistedDocument) {
       throw new Error('document_not_found');
     }
 
@@ -43,14 +44,14 @@ export default async (bucket, object, file) => {
         .db()
         .collection(collection)
         .updateOne(
-          { _id: document._id },
+          { _id: persistedDocument._id },
           { $set: { status: uploadStatus.UPLOAD_ERROR } }
         );
       throw new Error('content_type_mismatch');
     }
 
     /* Update video document with more info and status */
-    const videoDoc = Object.assign(document, {
+    const videoDoc = Object.assign(persistedDocument, {
       _id: id,
       title: title || '',
       status: uploadStatus.ENCODING,
@@ -59,7 +60,7 @@ export default async (bucket, object, file) => {
     await client
       .db()
       .collection(collection)
-      .updateOne({ _id: document._id }, { $set: videoDoc });
+      .updateOne({ _id: persistedDocument._id }, { $set: videoDoc });
 
     /* Proceed to encoding */
     const videoPath = `${decodeURI(object.key).replace(/\+/gi, ' ')}`;
@@ -157,7 +158,7 @@ export default async (bucket, object, file) => {
         ],
       }));
       const input = {
-        ClientRequestToken: document._id,
+        ClientRequestToken: persistedDocument._id,
         Role: MEDIACONVERT_ROLE_ARN,
         Settings: {
           Inputs: [
@@ -246,12 +247,12 @@ export default async (bucket, object, file) => {
           automated: 'true',
           from: 'api',
           module: 'files/manageVideo',
-          id: document._id,
+          id: persistedDocument._id,
           stage: STAGE,
           region: REGION,
         },
         UserMetadata: {
-          id: document._id,
+          id: persistedDocument._id,
           name,
         },
       };
@@ -272,14 +273,14 @@ export default async (bucket, object, file) => {
       //     }
       //   );
     } catch (e) {
-      await client
-        .db()
-        .collection(collection)
-        .updateOne(
-          { _id: document._id },
-          {
-            $set: {
-              message: e.message,
+        await client
+          .db()
+          .collection(collection)
+          .updateOne(
+            { _id: persistedDocument._id },
+            {
+              $set: {
+                message: e.message,
               status: uploadStatus.ENCODING_JOB_ERROR,
             },
           }

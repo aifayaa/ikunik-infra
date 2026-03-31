@@ -13,20 +13,21 @@ const s3 = new S3({
   signatureVersion: 'v4',
 });
 
-export default async (bucket, object, fileHead) => {
+export default async (bucket, object, fileHead, document) => {
   const client = await MongoClient.connect();
 
-  /* all key names are lowercaser in metadata */
-  const { id, title, type } = fileHead.Metadata;
+  const id = document?._id;
+  const type = document?.mimeType;
+  const title = document?.uploadMetadata?.title || document?.title;
 
   try {
     /* Get existing document and check it exists */
     const collection = getCollectionFromContentType(type);
-    const document = await client.db().collection(collection).findOne({
+    const persistedDocument = await client.db().collection(collection).findOne({
       _id: id,
     });
 
-    if (!document) {
+    if (!persistedDocument) {
       throw new Error('document_not_found');
     }
 
@@ -36,13 +37,13 @@ export default async (bucket, object, fileHead) => {
         .db()
         .collection(collection)
         .updateOne(
-          { _id: document._id },
+          { _id: persistedDocument._id },
           { $set: { status: uploadStatus.UPLOAD_ERROR } }
         );
       throw new Error('content_type_mismatch');
     }
 
-    const finalDocument = Object.assign(document, {
+    const finalDocument = Object.assign(persistedDocument, {
       status: uploadStatus.ENCODING,
       title,
       type,
@@ -51,7 +52,7 @@ export default async (bucket, object, fileHead) => {
     await client
       .db()
       .collection(collection)
-      .updateOne({ _id: document._id }, { $set: finalDocument });
+      .updateOne({ _id: persistedDocument._id }, { $set: finalDocument });
 
     const params = {
       Bucket: bucket.name,
@@ -69,7 +70,6 @@ export default async (bucket, object, fileHead) => {
         Bucket: S3_PICTURES_BUCKET,
         ContentType: type,
         Key: destKey,
-        Metadata: document.Metadata,
       })
       .promise();
 
@@ -81,7 +81,7 @@ export default async (bucket, object, fileHead) => {
     await client
       .db()
       .collection(collection)
-      .updateOne({ _id: document._id }, { $set: finalDocument });
+      .updateOne({ _id: persistedDocument._id }, { $set: finalDocument });
   } finally {
     client.close();
   }

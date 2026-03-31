@@ -52,12 +52,6 @@ export default async (userId, appId, files, metadata) => {
       Bucket: S3_UPLOAD_BUCKET,
       Key: key,
       ContentType: type,
-      ACL: 'public-read',
-      Metadata: {
-        ...metadata,
-        id,
-        type,
-      },
       /* URL will expire in 6 hours. Required for big videos (or files in general)
        * since the timeout silently discard the upload if it's still running */
       Expires: 21600,
@@ -71,6 +65,9 @@ export default async (userId, appId, files, metadata) => {
       appId,
       status: uploadStatus.UPLOADING,
       sourceKey: key,
+      mimeType: type,
+      originalSize: file.size,
+      uploadMetadata: metadata || {},
       name: path.basename(name),
     };
 

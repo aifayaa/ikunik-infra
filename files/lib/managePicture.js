@@ -90,7 +90,6 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
     Bucket: oBucket,
     ContentType: 'image/jpeg',
     Key: oKey,
-    Metadata: picture.Metadata,
   }).promise();
 
   return {
@@ -100,11 +99,13 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   };
 };
 
-export default async (bucket, object, file) => {
+export default async (bucket, object, file, document) => {
   const client = await MongoClient.connect();
 
-  /* all key names are lowercaser in metadata */
-  const { id, title, type, opts = '{}' } = file.Metadata;
+  const id = document?._id;
+  const type = document?.mimeType;
+  const title = document?.uploadMetadata?.title || document?.title;
+  const opts = document?.uploadMetadata?.opts || '{}';
 
   if (!id) {
     throw new Error('missing_id');
@@ -112,11 +113,11 @@ export default async (bucket, object, file) => {
 
   const collection = getCollectionFromContentType(type);
   try {
-    const document = await client.db().collection(collection).findOne({
+    const persistedDocument = await client.db().collection(collection).findOne({
       _id: id,
     });
 
-    if (!document) {
+    if (!persistedDocument) {
       throw new Error('document_not_found');
     }
 
@@ -125,13 +126,13 @@ export default async (bucket, object, file) => {
         .db()
         .collection(collection)
         .updateOne(
-          { _id: document._id },
+          { _id: persistedDocument._id },
           { $set: { status: uploadStatus.UPLOAD_ERROR } }
         );
       throw new Error('content_type_mismatch');
     }
 
-    const pictureDoc = Object.assign(document, {
+    const pictureDoc = Object.assign(persistedDocument, {
       largeFilename: null,
       largeHeight: 0,
       largeUrl: null,
@@ -150,13 +151,13 @@ export default async (bucket, object, file) => {
     });
 
     if (title) {
-      document.title = title;
+      persistedDocument.title = title;
     }
 
     await client
       .db()
       .collection(collection)
-      .updateOne({ _id: document._id }, { $set: pictureDoc });
+      .updateOne({ _id: persistedDocument._id }, { $set: pictureDoc });
 
     const resParams = resizeParams(JSON.parse(opts));
     for (let i = 0; i < resParams.length; i += 1) {
@@ -183,7 +184,7 @@ export default async (bucket, object, file) => {
     await client
       .db()
       .collection(collection)
-      .updateOne({ _id: document._id }, { $set: pictureDoc });
+      .updateOne({ _id: persistedDocument._id }, { $set: pictureDoc });
   } catch (e) {
     await client
       .db()
