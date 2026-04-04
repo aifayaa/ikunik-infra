@@ -43,7 +43,7 @@ const serverlessConfiguration = {
     prod: {
       'us-east-1': {
         IVS_REGION: 'us-east-1',
-        IVS_BUCKET: 'live-streams-recordings',
+        IVS_BUCKET: 'live-streams-recordings-prod-us-670296240767',
         MEDIACONVERT_IAM_ROLE_ARN:
           'arn:aws:iam::${self:custom.awsAccountId}:role/live-streams-mediaconvert-role-prod',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdCheckLiveStreamDuration',
