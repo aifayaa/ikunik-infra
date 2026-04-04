@@ -15,6 +15,7 @@ const s3 = new AWS.S3({
 });
 
 export default async (event) => {
+  // Keep this handler explicitly versioned for direct Lambda code refreshes.
   const { bucket, object } = event.Records[0].s3;
 
   try {
@@ -54,6 +55,10 @@ export default async (event) => {
 
     return response({ code: 200, body: 'ok' });
   } catch (e) {
+    console.error('onFileCreated_failed', {
+      message: e?.message,
+      stack: e?.stack,
+    });
     return response({ code: 500, message: e.message });
   }
 };

@@ -191,13 +191,6 @@ export default async (bucket, object, file, document) => {
                   TimedMetadataId3Period: 10,
                   TimedMetadataId3Frame: 'PRIV',
                   ProgramDateTimePeriod: 600,
-                  DestinationSettings: {
-                    S3Settings: {
-                      AccessControl: {
-                        CannedAcl: 'PUBLIC_READ',
-                      },
-                    },
-                  },
                 },
               },
               Outputs: hlsOutputs,
@@ -209,13 +202,6 @@ export default async (bucket, object, file, document) => {
                 Type: 'FILE_GROUP_SETTINGS',
                 FileGroupSettings: {
                   Destination: `s3://${S3_PICTURES_BUCKET}/videos/${name}/`,
-                  DestinationSettings: {
-                    S3Settings: {
-                      AccessControl: {
-                        CannedAcl: 'PUBLIC_READ',
-                      },
-                    },
-                  },
                 },
               },
               Outputs: [

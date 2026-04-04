@@ -1,5 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 const env = require('../env');
+const enableUploadBucketHook = process.env.SKIP_FILES_S3_HOOK !== '1';
 
 const serverlessConfiguration = {
   service: 'files',
@@ -129,19 +130,23 @@ const serverlessConfiguration = {
         },
       ],
     },
-    onFileCreated: {
-      handler: 'handlers/onFileCreated.default',
-      timeout: 600,
-      events: [
-        {
-          s3: {
-            bucket: '${self:provider.environment.S3_UPLOAD_BUCKET}',
-            event: 's3:ObjectCreated:*',
-            existing: true,
+    ...(enableUploadBucketHook
+      ? {
+          onFileCreated: {
+            handler: 'handlers/onFileCreated.default',
+            timeout: 600,
+            events: [
+              {
+                s3: {
+                  bucket: '${self:provider.environment.S3_UPLOAD_BUCKET}',
+                  event: 's3:ObjectCreated:*',
+                  existing: true,
+                },
+              },
+            ],
           },
-        },
-      ],
-    },
+        }
+      : {}),
     onMediaconvertDone: {
       handler: 'handlers/onMediaconvertDone.default',
       events: [
@@ -256,10 +261,12 @@ const serverlessConfiguration = {
       'us-east-1': {
         MEDIACONVERT_ROLE_ARN:
           'arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-prod-us',
-        S3_VIDEOS_BUCKET: 'video-stream-prod.crowdaa.com',
-        CDN_DOMAIN_NAME: 'd1tmdgml10ct6o.cloudfront.net',
-        S3_UPLOAD_BUCKET: 'slsupload-prod',
-        S3_PICTURES_BUCKET: 'crowdaa-pictures-prod',
+        S3_VIDEOS_BUCKET: 'ikunik-media-content-prod-us-${self:custom.awsAccountId}',
+        CDN_DOMAIN_NAME:
+          'ikunik-media-content-prod-us-${self:custom.awsAccountId}.s3.eu-west-3.amazonaws.com',
+        S3_UPLOAD_BUCKET: 'slsupload-prod-us-${self:custom.awsAccountId}',
+        S3_PICTURES_BUCKET:
+          'ikunik-media-content-prod-us-${self:custom.awsAccountId}',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources',
         S3_APPS_PUBLIC_RESSOURCES: 'us-apps-public-resources-prod',
       },

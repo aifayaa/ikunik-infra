@@ -2,7 +2,6 @@
 /* eslint-disable no-await-in-loop */
 import AWS from 'aws-sdk';
 import Sharp from 'sharp';
-import heicDecode from 'heic-decode';
 import path from 'path';
 import MongoClient from '../../libs/mongoClient';
 import getCollectionFromContentType from './getCollectionFromContentType';
@@ -68,6 +67,7 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
   const options = {};
 
   if (heicMimeTypes[picture.ContentType]) {
+    const { default: heicDecode } = await import('heic-decode');
     const rawData = await heicDecode({ buffer: body });
     body = Buffer.from(rawData.data);
     options.raw = {
@@ -85,7 +85,6 @@ const resizeAndUpload = async (picture, oBucket, oKey, resizeOpts) => {
     .toBuffer({ resolveWithObject: true });
 
   await S3.putObject({
-    ACL: 'public-read',
     Body: resizeBuffer,
     Bucket: oBucket,
     ContentType: 'image/jpeg',

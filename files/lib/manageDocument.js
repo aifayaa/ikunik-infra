@@ -65,7 +65,6 @@ export default async (bucket, object, fileHead, document) => {
     const destKey = `documents/${decodedName}`;
     await s3
       .putObject({
-        ACL: 'public-read',
         Body: file.Body,
         Bucket: S3_PICTURES_BUCKET,
         ContentType: type,
