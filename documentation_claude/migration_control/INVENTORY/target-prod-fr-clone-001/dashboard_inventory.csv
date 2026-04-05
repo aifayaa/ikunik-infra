@@ -1,0 +1,11 @@
+item,legacy_value,target_temp_value,target_final_value,owner,status,notes
+api_base_url,https://api-fr.aws.crowdaa.com/v1,https://6koicomg10.execute-api.eu-west-3.amazonaws.com/prod,pending_final_api_domain,codex,in_progress,build override uses CROWDAA_TARGET_API_URL
+dashboard_base_url,https://app.crowdaa.com,https://d1jmbvp87c05ud.cloudfront.net,https://d1jmbvp87c05ud.cloudfront.net,codex,done,cloudfront default domain promoted as effective final url for current phase custom domain cutover deferred
+legacy_dashboard_url,"https://blog.crowdaa.com|https://blog-fr.crowdaa.com",unchanged,unchanged_until_cutover,codex,done,legacy fallback URLs intentionally unchanged during temporary-domain phase
+legacy_crowd_url,"https://crowd.crowdaa.com|https://crowd-fr.crowdaa.com",unchanged,unchanged_until_cutover,codex,done,legacy fallback URLs intentionally unchanged during temporary-domain phase
+tos_privacy_url,https://crowdaa-tos.s3.us-east-1.amazonaws.com/crowdaa-dashboard/20250805-CROWDAA_TOS.pdf,unchanged,unchanged_or_new_legal_bucket,codex,pending,legal docs migration out of dashboard scope
+analytics_gtm_id,GTM-PLPTLHXX,unchanged,unchanged,codex,pending,review ownership and env split at cutover
+analytics_hotjar_site_id,5015493,unchanged,unchanged,codex,pending,review ownership and env split at cutover
+analytics_sentry_dsn_key_name,sentry_dashboard_dsn,unchanged,target_sentry_dsn,codex,pending,DSN value in code should move to secret-managed env in hardening phase
+mapbox_token_key_name,mapbox_dashboard_token,unchanged,target_mapbox_token,codex,pending,token currently embedded in code
+stripe_billing_portal_url,https://billing.stripe.com/p/login/cN2cQa28hcf25UcaEE,unchanged,target_stripe_portal,codex,pending,confirm target Stripe account before cutover

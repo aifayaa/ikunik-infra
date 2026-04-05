@@ -1,0 +1,117 @@
+
+Deploying account to stage prod (eu-west-3)
+
+before:package:createDeploymentArtifacts
+Compiling to node16 bundle with esbuild...
+Compiling with concurrency: Infinity
+Compiling completed.
+Zipping with concurrency: Infinity
+Function zipped: authorizeNoApp - 867.05 KB [79 ms]
+Function zipped: authorize - 885.52 KB [80 ms]
+Function zipped: authorizeAdmin - 866.53 KB [79 ms]
+Function zipped: authorizeRole - 886.58 KB [80 ms]
+Function zipped: authorizeArtist - 886.35 KB [80 ms]
+Function zipped: authorizePublic - 887.20 KB [79 ms]
+Function zipped: authorizeWithPerms - 888.37 KB [81 ms]
+All functions zipped.
+after:package:createDeploymentArtifacts
+[serverless-disable-request-validators] Plugin configuration: action=delete
+[serverless-disable-request-validators] Found 0 request validator(s)
+Uploading CloudFormation file to S3
+Uploading State file to S3
+Uploading service authorize.zip file to S3 (906.77 kB)
+Uploading service authorizeNoApp.zip file to S3 (887.86 kB)
+Uploading service authorizeArtist.zip file to S3 (907.62 kB)
+Uploading service authorizeRole.zip file to S3 (907.85 kB)
+Uploading service authorizeWithPerms.zip file to S3 (909.69 kB)
+Uploading service authorizePublic.zip file to S3 (908.5 kB)
+Uploading service authorizeAdmin.zip file to S3 (887.33 kB)
+Creating new change set
+Waiting for new change set to be created
+Change Set did not reach desired state, retrying
+Change Set did not reach desired state, retrying
+Executing created change set
+  UPDATE_IN_PROGRESS - AWS::CloudFormation::Stack - account-prod
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizeNoAppLambdaFunction
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizeAdminLambdaFunction
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizeRoleLambdaFunction
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizeWithPermsLambdaFunction
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizeLambdaFunction
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizePublicLambdaFunction
+  UPDATE_IN_PROGRESS - AWS::Lambda::Function - AuthorizeArtistLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizeNoAppLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizeAdminLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizeRoleLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizePublicLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizeLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizeWithPermsLambdaFunction
+  UPDATE_COMPLETE - AWS::Lambda::Function - AuthorizeArtistLambdaFunction
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeNoAppLambdaVersionOli7AmlDVoSUmAz3DtXseHYlH3cmaOtGwZfx5IjH3cA
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeAdminLambdaVersionGoRbz1V5ANhS2PpcBlz9EmXzsX1HO9eimKbdYNOGjQQ
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeRoleLambdaVersionKnL7pU4zskYBz9WPIoKQ3KonOrmiNWGBqiGGj8
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizePublicLambdaVersionmgZAoEqCou32tGNeyoO5nZ6VljexYIZtCEplNYYCw
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeLambdaVersionz9Q5qOAdmU53bTlj9PZOinXTSa3PAetuDgnzZvZeMs4
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeWithPermsLambdaVersionUyUo4eZNPbVtuUrO2IbQxctclYy5eh8DU8iHOgg60c
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeArtistLambdaVersionKKhbDjoX9TdF4lBjyF9JIfNE9ycuNjpSaPZhiZBri3w
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeNoAppLambdaVersionOli7AmlDVoSUmAz3DtXseHYlH3cmaOtGwZfx5IjH3cA
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeAdminLambdaVersionGoRbz1V5ANhS2PpcBlz9EmXzsX1HO9eimKbdYNOGjQQ
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeLambdaVersionz9Q5qOAdmU53bTlj9PZOinXTSa3PAetuDgnzZvZeMs4
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeRoleLambdaVersionKnL7pU4zskYBz9WPIoKQ3KonOrmiNWGBqiGGj8
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizePublicLambdaVersionmgZAoEqCou32tGNeyoO5nZ6VljexYIZtCEplNYYCw
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeWithPermsLambdaVersionUyUo4eZNPbVtuUrO2IbQxctclYy5eh8DU8iHOgg60c
+  CREATE_IN_PROGRESS - AWS::Lambda::Version - AuthorizeArtistLambdaVersionKKhbDjoX9TdF4lBjyF9JIfNE9ycuNjpSaPZhiZBri3w
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizeAdminLambdaVersionGoRbz1V5ANhS2PpcBlz9EmXzsX1HO9eimKbdYNOGjQQ
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizeNoAppLambdaVersionOli7AmlDVoSUmAz3DtXseHYlH3cmaOtGwZfx5IjH3cA
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizeLambdaVersionz9Q5qOAdmU53bTlj9PZOinXTSa3PAetuDgnzZvZeMs4
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizeRoleLambdaVersionKnL7pU4zskYBz9WPIoKQ3KonOrmiNWGBqiGGj8
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizePublicLambdaVersionmgZAoEqCou32tGNeyoO5nZ6VljexYIZtCEplNYYCw
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizeWithPermsLambdaVersionUyUo4eZNPbVtuUrO2IbQxctclYy5eh8DU8iHOgg60c
+  CREATE_COMPLETE - AWS::Lambda::Version - AuthorizeArtistLambdaVersionKKhbDjoX9TdF4lBjyF9JIfNE9ycuNjpSaPZhiZBri3w
+  UPDATE_COMPLETE_CLEANUP_IN_PROGRESS - AWS::CloudFormation::Stack - account-prod
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizeWithPermsLambdaVersionmWHkA3mjZOSF10ut0lXuNsU4Dcjq3gAS9xcgif1OvFw
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizeAdminLambdaVersionKC7ydZmQ6IQTi4VS88C6bkLb29NH4RvC0gcD5OiYqc
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizeLambdaVersionn4roaxgK2aldItWmNJrv0mVBZ0owgb1lM9QLofuOc0
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizeArtistLambdaVersionVv1ZcSqevSDPSo6Exeb3jmzjG8lXpdHyhlVbzDyCw8
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizePublicLambdaVersionqwQ1K9swocP9FDUAKOd4ADRNr9CNIGIuTrgYgPenE
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizeRoleLambdaVersionGLyIQcwhNNDdRxPY33GXpdeQfXyBsQ8uAkwjd3sXDf4
+  DELETE_SKIPPED - AWS::Lambda::Version - AuthorizeNoAppLambdaVersionG365HcBc7qMudBeKOWDhmcWzb4Ef5e8yD0bQxkgAA
+  UPDATE_COMPLETE - AWS::CloudFormation::Stack - account-prod
+Deleting function version account-prod-authorize:131.
+Deleting function version account-prod-authorizeNoApp:131.
+Deleting function version account-prod-authorizeArtist:129.
+Deleting function version account-prod-authorizeRole:129.
+Deleting function version account-prod-authorizeWithPerms:131.
+Deleting function version account-prod-authorizePublic:131.
+Deleting function version account-prod-authorizeAdmin:28.
+✔ Pruning of functions complete
+Removing old service artifacts from S3
+
+✔ Service deployed to stack account-prod (77s)
+
+functions:
+  authorize: account-prod-authorize (907 kB)
+  authorizeNoApp: account-prod-authorizeNoApp (888 kB)
+  authorizeArtist: account-prod-authorizeArtist (908 kB)
+  authorizeRole: account-prod-authorizeRole (908 kB)
+  authorizeWithPerms: account-prod-authorizeWithPerms (910 kB)
+  authorizePublic: account-prod-authorizePublic (908 kB)
+  authorizeAdmin: account-prod-authorizeAdmin (887 kB)
+
+Stack Outputs:
+  ApiGatewayAuthorizerArtistId: ip9sgs
+  ApiGatewayAuthorizerNoAppId: akmtnh
+  AuthorizeAdminLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorizeAdmin:31
+  ApiGatewayAuthorizerRoleId: id34ib
+  AuthorizeLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorize:134
+  AuthorizeNoAppLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorizeNoApp:134
+  ApiGatewayAuthorizerAdminId: n8gtxt
+  AuthorizeRoleLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorizeRole:132
+  ServerlessDeploymentBucketName: ms-deployment-eu-west-3
+  AuthorizeArtistLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorizeArtist:132
+  ApiGatewayAuthorizerWithPermsId: wzwd8k
+  AuthorizeWithPermsLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorizeWithPerms:134
+  ApiGatewayAuthorizerId: 3979jd
+  AuthorizePublicLambdaFunctionQualifiedArn: arn:aws:lambda:eu-west-3:630176884077:function:account-prod-authorizePublic:134
+  ApiGatewayAuthorizerPublicId: zzyw1d
+
+Update available. Run "npm install serverless@^3.40.0" to update

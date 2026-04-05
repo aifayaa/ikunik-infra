@@ -1,0 +1,11 @@
+item,legacy_value,target_temp_value,target_final_value,owner,status,notes
+api_base_url,,,,,,
+dashboard_base_url,,,,,,
+legacy_dashboard_url,,,,,,
+legacy_crowd_url,,,,,,
+tos_privacy_url,,,,,,
+analytics_gtm_id,,,,,,
+analytics_hotjar_site_id,,,,,,
+analytics_sentry_dsn_key_name,,,,,,
+mapbox_token_key_name,,,,,,
+stripe_billing_portal_url,,,,,,

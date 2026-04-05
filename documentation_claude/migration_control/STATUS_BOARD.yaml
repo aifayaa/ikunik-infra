@@ -1,7 +1,8 @@
 meta:
-  updated_at: '2026-03-02T09:18:49Z'
-  active_target: target-prod-fr-clone-001
-  active_validation_goal: runtime_smoke_target_profile
+  updated_at: '2026-03-14T15:00:00Z'
+  platform_name: ikunik
+  active_target: target-prod-us-unified-001
+  active_validation_goal: full_platform_green
 
 milestones:
   - id: M0
@@ -15,19 +16,28 @@ milestones:
     status: in_progress
   - id: M3
     title: Security Isolation
-    status: pending
+    status: in_progress
   - id: M4
     title: App Build Green
     status: done
   - id: M5
     title: Runtime Smoke Green
-    status: pending
+    status: in_progress
   - id: M6
     title: UAT Green
-    status: pending
+    status: blocked
   - id: M7
     title: Production Readiness
-    status: pending
+    status: done
+  - id: M8
+    title: Dashboard Deployment Ready
+    status: done
+  - id: M9
+    title: Dashboard Runtime Green
+    status: done
+  - id: M10
+    title: Full Platform Green (Ikunik)
+    status: in_progress
 
 tasks:
   - id: T-001
@@ -49,7 +59,7 @@ tasks:
     title: Capture target profile and validation appId in TARGETS yaml
     status: done
     owner: codex
-    evidence: TARGETS/target-prod-fr-clone-001.yaml
+    evidence: TARGETS/target-prod-us-unified-001.yaml
 
   - id: T-004
     milestone: M4
@@ -61,10 +71,9 @@ tasks:
   - id: T-005
     milestone: M2
     title: Provision GitHub target repos ikunik-app and ikunik-build-tools
-    status: blocked
+    status: done
     owner: codex
-    blocker: GitHub repositories not found at expected URLs
-    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
 
   - id: T-006
     milestone: M4
@@ -104,20 +113,301 @@ tasks:
   - id: T-012
     milestone: M3
     title: Validate Fastlane credentials for requested Apple ID vigilehoareau@gmail.com
-    status: blocked
+    status: done
     owner: codex
-    blocker: FASTLANE_PASSWORD/FASTLANE_SESSION available on this machine are not valid for vigilehoareau@gmail.com
-    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+    evidence: EVIDENCE_LOGS/2026-03-06_plan_1_to_4_closure.md
 
   - id: T-007
     milestone: M5
     title: Run runtime smoke tests using built app profile against target API
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-013
+    milestone: M8
+    title: Create isolated dashboard repo for target lane and disable legacy push path
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-04_dashboard_migration_plan_single_scope.md
+
+  - id: T-014
+    milestone: M8
+    title: Lock dashboard scope to prod/us-east-1 and define temporary domain strategy in target profile
+    status: done
+    owner: codex
+    evidence: TARGETS/target-prod-us-unified-001.yaml
+
+  - id: T-015
+    milestone: M8
+    title: Build dashboard infra-specific inventory and endpoint mapping for target lane
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-04_dashboard_deploy_and_smoke_target.md
+
+  - id: T-016
+    milestone: M9
+    title: Deploy dashboard to temporary target domain and run smoke checks
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-04_dashboard_deploy_and_smoke_target.md
+
+  - id: T-017
+    milestone: M9
+    title: Prepare final dashboard DNS cutover checklist and rollback path
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-04_dashboard_deploy_and_smoke_target.md
+
+  - id: T-018
+    milestone: M1
+    title: Freeze canonical target endpoint profile to US API across app env + runbooks
+    status: done
+    owner: codex
+    evidence: TARGETS/target-prod-us-unified-001.yaml
+
+  - id: T-019
+    milestone: M2
+    title: Add CI guardrails to enforce target AWS account and reject legacy destination buckets
+    status: done
+    owner: codex
+    evidence: DECISIONS.md
+
+  - id: T-020
+    milestone: M2
+    title: Cut over app/build-tools/dashboard origin remotes to GitHub target repos
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-021
+    milestone: M2
+    title: Enforce safe Git push routing and remove legacy dashboard branch upstream
+    status: done
+    owner: codex
+    evidence: DECISIONS.md
+
+  - id: T-022
+    milestone: M2
+    title: Create/grant access to GitHub target repos for app/build-tools/dashboard
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-023
+    milestone: M2
+    title: Switch app/build-tools origin remotes from local-seed to GitHub target repos
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-024
+    milestone: M2
+    title: Validate HEAD vs origin parity for build branches on target repos
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-025
+    milestone: M5
+    title: Execute US runtime smoke for dashboard and app content flows on canonical API
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-026
+    milestone: M3
+    title: Validate temporary Mongo legacy bridge health checks and rollback drill
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-027
+    milestone: M2
+    title: Run CI canary pipelines on target account only (app/dashboard/infra)
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-028
+    milestone: M10
+    title: Full platform sign-off (dashboard + app runtime + ci/build + temp mongo bridge)
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-029
+    milestone: M6
+    title: Execute UAT Options A/B/C and final green gates on canonical US API
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-030
+    milestone: M10
+    title: Re-run control-plane consistency and remote isolation checks after GitHub cutover
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_ikunik_platform_runtime_smoke_and_isolation.md
+
+  - id: T-031
+    milestone: M7
+    title: Enforce canonical clean app workspace for release builds and quarantine divergent workspace
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_plan_1_to_4_closure.md
+
+  - id: T-032
+    milestone: M3
+    title: Complete secrets inventory and remove inline credential material from active target paths
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_plan_1_to_4_closure.md
+
+  - id: T-033
+    milestone: M3
+    title: Resolve Fastlane credential blocker for vigilehoareau@gmail.com or publish ADR waiver
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_plan_1_to_4_closure.md
+
+  - id: T-034
+    milestone: M7
+    title: Finalize dashboard DNS cutover and rollback drill evidence on target lane
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_plan_1_to_4_closure.md
+
+  - id: T-035
+    milestone: M7
+    title: Migrate scoped app media content to Ikunik-named buckets and validate availability
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_app_content_migration_selected_apps.md
+
+  - id: T-036
+    milestone: M10
+    title: Promote US-only single-platform target profile and remove FR scope defaults from active code/docs
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_us_only_single_platform_unification.md
+
+  - id: T-037
+    milestone: M6
+    title: Resolve UAT blockers on canonical US API (metrics.post 500 and stack reconcile missing stacks)
+    status: blocked
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-06_us_only_single_platform_unification.md
+
+  - id: T-038
+    milestone: M9
+    title: Redeploy dashboard US-only bundle and enforce strict forbidden-token runtime checks
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-08_dashboard_us_only_runtime_fix.md
+
+  - id: T-039
+    milestone: M10
+    title: Add DB migration scripts and initialize missing active db/resource inventories for target-prod-us-unified-001
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-09_ikunik_us_atlas_replication_execution.md
+
+  - id: T-040
+    milestone: M10
+    title: Run baseline runtime validation before DB cutover (smoke + UAT + dashboard US-only)
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-09_ikunik_us_atlas_replication_execution.md
+
+  - id: T-041
+    milestone: M10
+    title: Provision target Ikunik Atlas cluster/user/network and provide target mongo URI for replication
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-11_atlas_restore_resume_and_validation.md
+
+  - id: T-042
+    milestone: M10
+    title: Execute source-to-target DB replication and parity checks (inventory compare + canary queries)
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-11_atlas_restore_resume_and_validation.md
+
+  - id: T-043
+    milestone: M10
+    title: Final DB cutover (SSM + deploy) and post-cutover green validation
     status: pending
     owner: codex
-    evidence: EVIDENCE_LOGS/2026-03-02_session_migration_control_and_build.md
+    evidence: EVIDENCE_LOGS/2026-03-09_ikunik_us_atlas_replication_execution.md
+
+  - id: T-044
+    milestone: M10
+    title: Run cross-repo US-only audit and publish regression evidence for app/dashboard/api/build-tools
+    status: done
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-045
+    milestone: M1
+    title: Remove FR/EU mappings from active API deploy path and restrict target lane to prod/us-east-1
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-046
+    milestone: M2
+    title: Restrict CI/manual deploy controls to US region and disable FR/preprod jobs on active target lane
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-047
+    milestone: M2
+    title: Prune build-tools active profile to US-only and remove legacy FR/preprod Mongo/API runtime paths
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-048
+    milestone: M1
+    title: Align app env and preview generation to US-only profile and delete stale FR artifacts from active branch
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-049
+    milestone: M5
+    title: Re-run US-only validation gates (dashboard apps listing, bundle guard, API smoke/UAT, iOS+Android build canary)
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-050
+    milestone: M3
+    title: Rotate exposed credentials and enforce secret scanning guard in active target CI
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_us_only_audit_regression_and_remediation_plan.md
+
+  - id: T-051
+    milestone: M4
+    title: Rebuild batch apps (excluding Diamond The Body) for iOS and Android on newui build lane
+    status: blocked
+    owner: codex
+    blocker: App 3e9dbeb2-aeac-428d-8a87-dc4ed0b8c73d missing build source metadata (build data unavailable).
+    evidence: EVIDENCE_LOGS/2026-03-14_rebuild_batch_non_diamond_ios_android.md
+
+  - id: T-052
+    milestone: M4
+    title: Repair build metadata for app 3e9dbeb2-aeac-428d-8a87-dc4ed0b8c73d and rerun iOS/Android rebuild
+    status: pending
+    owner: codex
+    evidence: EVIDENCE_LOGS/2026-03-14_rebuild_batch_non_diamond_ios_android.md
 
 temporary_exceptions:
   - id: EX-001
-    description: Build tools still use legacy Atlas runtime for temporary validation mode.
+    description: Legacy Atlas bridge remains temporarily approved while target-lane isolation and runtime gates stay green.
     owner: codex
-    remove_by_milestone: M7
+    status: approved_extension
+    extension_review_by: '2026-04-15'

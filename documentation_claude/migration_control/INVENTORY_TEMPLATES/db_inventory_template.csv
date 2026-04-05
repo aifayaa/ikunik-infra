@@ -1,0 +1,2 @@
+collection_name,app_scope,source_doc_count,target_doc_count,source_index_count,target_index_count,migration_mode,validation_query,status,evidence_path,notes
+apps,global,,,,,temporary_legacy_bridge,"db.apps.countDocuments({})",pending,,

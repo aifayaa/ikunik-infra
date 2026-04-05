@@ -1,6 +1,6 @@
 # UAT Options A/B/C Runbook
 
-Last updated: 2026-03-01
+Last updated: 2026-03-06
 
 ## Goal
 Execute full backend UAT in three waves and reach a green state:
@@ -11,19 +11,19 @@ Execute full backend UAT in three waves and reach a green state:
 ## Prerequisites
 1. Backend clone already deployed and stack reconciliation green.
 2. API endpoint reachable (default currently):
-   - `https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod`
+   - `https://api.aws.crowdaa.com/v1`
 3. API key for app context:
    - `API_KEY` env var required.
 4. AWS access for observability:
    - `AWS_PROFILE` (default: `crowdaa`)
-   - `AWS_REGION` (default: `eu-west-3`)
+   - `AWS_REGION` (default: `us-east-1`)
 
 ## Command
 From repository root:
 
 ```bash
 cd /Users/crowdaa/Desktop/dev/crowdaa_microservices
-API_KEY='<app-api-key>' AWS_PROFILE=crowdaa AWS_REGION=eu-west-3 ./uat_options_abc.sh
+API_KEY='<app-api-key>' AWS_PROFILE=crowdaa AWS_REGION=us-east-1 ./uat_options_abc.sh
 ```
 
 ## What the runner validates

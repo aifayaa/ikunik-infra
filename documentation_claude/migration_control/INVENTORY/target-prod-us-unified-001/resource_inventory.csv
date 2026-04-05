@@ -1,0 +1,2 @@
+resource_id,resource_type,service,stage,region,source_account_id,target_account_id,source_of_truth,recreation_method,criticality,status,owner,evidence_path,notes
+example-api-v1,apigateway,api-v1,prod,us-east-1,630176884077,670296240767,serverless,serverless_deploy,p0,pending,codex,,

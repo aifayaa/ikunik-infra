@@ -1,0 +1,3551 @@
+{
+  "generatedAt": "2026-03-09T12:46:11.031Z",
+  "dbName": "crowdaaDev",
+  "countMode": "estimated",
+  "connection": "mongodb+srv://crowdaa-microservices:***@crowdaa.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority",
+  "collections": [
+    {
+      "collection": "__kdconfig",
+      "count": 0,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "expires_1",
+          "key": {
+            "expires": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": 3600
+        }
+      ]
+    },
+    {
+      "collection": "__pre_musicStorage",
+      "count": 0,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "createdAt_1",
+          "key": {
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": 10800
+        }
+      ]
+    },
+    {
+      "collection": "__pre_pictureStorage",
+      "count": 0,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "createdAt_1",
+          "key": {
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": 10800
+        }
+      ]
+    },
+    {
+      "collection": "__pre_videoStorage",
+      "count": 0,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "createdAt_1",
+          "key": {
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": 10800
+        }
+      ]
+    },
+    {
+      "collection": "advertisements",
+      "count": 57,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_adverts_lookup",
+          "key": {
+            "appId": 1,
+            "location": 1,
+            "active": 1,
+            "limits.notAfter": 1,
+            "limits.notBefore": 1,
+            "remaining.clicks": 1,
+            "remaining.displays": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "aiQueries",
+      "count": 54,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "appLiveStreams",
+      "count": 412,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "appLiveStreamsGifts",
+      "count": 25,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "appLiveStreamsLogs",
+      "count": 1994,
+      "indexCount": 4,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_aals_logs_awsId_uniq",
+          "key": {
+            "awsId": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_aals_logs_search1",
+          "key": {
+            "appId": 1,
+            "liveStreamId": 1,
+            "sendTime": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_aals_logs_insert_key",
+          "key": {
+            "appId": 1,
+            "awsStreamId": 1,
+            "s3bucket": 1,
+            "s3Key": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "appLiveStreamsTokens",
+      "count": 0,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_live_stream_duration_update_key",
+          "key": {
+            "liveStreamId": 1,
+            "appId": 1,
+            "deviceId": 1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "apps",
+      "count": 596,
+      "indexCount": 6,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apps_org_id",
+          "key": {
+            "organization._id": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apps_preview_key",
+          "key": {
+            "settings.previewKey": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apps_ios_sns_renewing",
+          "key": {
+            "settings.platformApplicationArns.iOS.arn": 1,
+            "settings.platformApplicationArns.iOS.expiresAt": 1,
+            "settings.platformApplicationArns.iOS.retryAfter": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apps_ios_builds_status",
+          "key": {
+            "builds.ios.pipeline.status": 1,
+            "builds.ios.pipeline._id": 1,
+            "builds.ios.ready": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apps_android_builds_status",
+          "key": {
+            "builds.android.pipeline.status": 1,
+            "builds.android.pipeline._id": 1,
+            "builds.android.ready": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "appsTranslations",
+      "count": 2,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "artistContactList",
+      "count": 148,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "user_ID_1",
+          "key": {
+            "user_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "artistEmailsBalance",
+      "count": 344,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "artistNotificationBalance",
+      "count": 306,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "user_ID_1",
+          "key": {
+            "user_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "artists",
+      "count": 466,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1",
+          "key": {
+            "profil_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "artistName_text",
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "artistsFav",
+      "count": 381,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "artistTextMessageBalance",
+      "count": 329,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "user_ID_1",
+          "key": {
+            "user_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "audio",
+      "count": 1075,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1_project_ID_1",
+          "key": {
+            "profil_ID": 1,
+            "project_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "project_ID_1",
+          "key": {
+            "project_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "backup_pressArticles_fix_2026-03-06T18-20-48-296Z",
+      "count": 417,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "banners",
+      "count": 5,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "betaSubscribers",
+      "count": 42,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "billing",
+      "count": 222,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "email_1",
+          "key": {
+            "email": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "blastNotificationsQueue",
+      "count": 3080621,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_mongodb_atlas_suggested_1",
+          "key": {
+            "appId": 1,
+            "queueId": 1,
+            "root": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "blasts",
+      "count": 228,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "blockedContents",
+      "count": 1231,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "carts",
+      "count": 8,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs_gridfs._tempstore.files",
+      "count": 5450,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "filename_1",
+          "key": {
+            "filename": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs._tempstore.chunks",
+      "count": 978,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.AssetsStorage.filerecord",
+      "count": 251,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.IDFilesStorage.filerecord",
+      "count": 29,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.MediumStorage.filerecord",
+      "count": 528,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.MusicStorage.filerecord",
+      "count": 947,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.PictureStorage.filerecord",
+      "count": 368,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.ThumbStorage.filerecord",
+      "count": 528,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.Video480Storage.filerecord",
+      "count": 91,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "cfs.VideoStorage.filerecord",
+      "count": 157,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "chatengineRoomUsers",
+      "count": 174,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "comments",
+      "count": 4,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "contacts",
+      "count": 106533,
+      "indexCount": 4,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "firstame_1_lastname_1_invitedByProfil_ID_1",
+          "key": {
+            "firstame": 1,
+            "lastname": 1,
+            "invitedByProfil_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "firstname_text_lastname_text_email_text_cleandedPhoneNumber_text",
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "invitedByProfil_ID_1",
+          "key": {
+            "invitedByProfil_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "contentByUserMetric",
+      "count": 52249,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "content_ID_1",
+          "key": {
+            "content_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "user_ID_1",
+          "key": {
+            "user_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "contentPermissions",
+      "count": 1151,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "counters",
+      "count": 165627,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_counters_key",
+          "key": {
+            "appId": 1,
+            "type": 1,
+            "name": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "creditPackages",
+      "count": 3,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "credits",
+      "count": 2158,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "crowdaaIDs",
+      "count": 186,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaaArtistID_1",
+          "key": {
+            "crowdaaArtistID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "dashboardData",
+      "count": 14,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "deadlines",
+      "count": 16178,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "content_ID_1_userId_1",
+          "key": {
+            "content_ID": 1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "defaultQuery",
+      "count": 2,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "deletedElements",
+      "count": 6202,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "documents",
+      "count": 66,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "externalPurchases",
+      "count": 12,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_extPurchases_lookup",
+          "key": {
+            "appId": 1,
+            "collection": 1,
+            "userId": 1,
+            "itemId": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_extPurchases_auth_insert",
+          "key": {
+            "appId": 1,
+            "collection": 1,
+            "source": 1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "favorites",
+      "count": 568,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "fbFriends",
+      "count": 41364,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "featuredList",
+      "count": 10,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "festivals",
+      "count": 2,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "forms",
+      "count": 53,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "forumCategories",
+      "count": 1,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "genres",
+      "count": 292,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "ghantyMyFidTickets",
+      "count": 0,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_ghanty_tickets_lookup",
+          "key": {
+            "date": 1,
+            "username": 1,
+            "enseigne": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_ghanty_tickets_unique",
+          "key": {
+            "idTicket": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "ghantyMyFidUsersStars",
+      "count": 0,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_ghany_users_stars_unique",
+          "key": {
+            "username": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_ghanty_users_stars_sort",
+          "key": {
+            "requiresUpdate": -1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "giftPurchases",
+      "count": 2,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "homemenu",
+      "count": 6,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "invitations",
+      "count": 211,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "lastUpdatePostCollection",
+      "count": 1,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "lineup",
+      "count": 62,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "liveShows",
+      "count": 23,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "liveStream",
+      "count": 289,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "liveStreamsDurations",
+      "count": 257,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_live_stream_duration_update_key",
+          "key": {
+            "appId": 1,
+            "type": 1,
+            "liveStreamId": 1,
+            "awsStreamId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_live_stream_duration_read_key",
+          "key": {
+            "appId": 1,
+            "startTime": 1,
+            "endTime": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "maintenance",
+      "count": 1,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "meteor_accounts_loginServiceConfiguration",
+      "count": 3,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "service_1",
+          "key": {
+            "service": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "meteor_oauth_pendingCredentials",
+      "count": 0,
+      "indexCount": 4,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "createdAt_1",
+          "key": {
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "credentialSecret_1",
+          "key": {
+            "credentialSecret": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "key_1",
+          "key": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "meteor_oauth_pendingRequestTokens",
+      "count": 0,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "createdAt_1",
+          "key": {
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "key_1",
+          "key": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "metrics",
+      "count": 3,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "migrations",
+      "count": 1,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "musicStorage",
+      "count": 425,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "nftCollections",
+      "count": 7,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "count": 17273954,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_uniq_user_push",
+          "key": {
+            "appId": 1,
+            "blastQueueId": 1,
+            "target": 1,
+            "userId": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "orders",
+      "count": 6,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "organizations",
+      "count": 121,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "originalContactImport",
+      "count": 273,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "payingViewsHistory",
+      "count": 6768,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "payouts",
+      "count": 3,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "permGroupsOld",
+      "count": 826,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "name_text",
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "phoneCollection",
+      "count": 329,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "phonesCollection",
+      "count": 7935,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pictures",
+      "count": 2201681,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1_project_ID_1",
+          "key": {
+            "profil_ID": 1,
+            "project_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_pictures_appid_created",
+          "key": {
+            "appId": 1,
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pictureStorage",
+      "count": 247,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pipelines",
+      "count": 1215,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "posts",
+      "count": 388,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressArticles",
+      "count": 80564,
+      "indexCount": 6,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_search_dashboard",
+          "key": {
+            "appId": 1,
+            "trashed": 1,
+            "categoryId": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_search_public",
+          "key": {
+            "appId": 1,
+            "trashed": 1,
+            "hideFromFeed": 1,
+            "categoryId": 1,
+            "categoriesId": 1,
+            "pinned": -1,
+            "publicationDate": -1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_search_public2",
+          "key": {
+            "appId": 1,
+            "trashed": 1,
+            "hideFromFeed": 1,
+            "categoryId": 1,
+            "categoriesId": 1,
+            "pinned": -1,
+            "eventStartDate": -1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_stats",
+          "key": {
+            "appId": 1,
+            "isPublished": 1,
+            "publicationDate": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_search_text",
+          "key": {
+            "appId": 1,
+            "isPublished": 1,
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressArticlesCache",
+      "count": 7,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_cache_main",
+          "key": {
+            "appId": 1,
+            "type": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressAutomationTasks",
+      "count": 3,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressBlasts",
+      "count": 101,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressCategories",
+      "count": 5247,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_categories_hidden",
+          "key": {
+            "appId": 1,
+            "hidden": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressDrafts",
+      "count": 119054,
+      "indexCount": 5,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_drafts_by_ancestor",
+          "key": {
+            "ancestor": 1,
+            "appId": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_drafts_dashboard",
+          "key": {
+            "articleId": 1,
+            "createdAt": -1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_drafts_by_articleid",
+          "key": {
+            "articleId": 1,
+            "appId": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_drafts_by_appid",
+          "key": {
+            "appId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressIapPolls",
+      "count": 21,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressIapPollsVotes",
+      "count": 109,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressModals",
+      "count": 3,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressNotificationsQueue",
+      "count": 953,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressPolls",
+      "count": 59,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pressPollsVotes",
+      "count": 843,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "profil",
+      "count": 403,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "UserId_1",
+          "key": {
+            "UserId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "Project",
+      "count": 404,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1",
+          "key": {
+            "profil_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "fromUserId_1",
+          "key": {
+            "fromUserId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "purchasableProducts",
+      "count": 2318,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "purchases",
+      "count": 6817,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "pushNotifications",
+      "count": 43159,
+      "indexCount": 4,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_blast_query_1",
+          "key": {
+            "appId": 1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_blast_query_2",
+          "key": {
+            "appId": 1,
+            "deviceUUID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_blast_single_1",
+          "key": {
+            "appId": 1,
+            "Token": 1,
+            "PlatformApplicationArn": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "remainingViews",
+      "count": 215,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "roles",
+      "count": 0,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "name_1",
+          "key": {
+            "name": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "selection",
+      "count": 661,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "sendHubCollection",
+      "count": 84,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "sentNotifications",
+      "count": 2695152,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_sent_notifs_ugc_auto",
+          "key": {
+            "appId": 1,
+            "deviceId": 1,
+            "type": 1,
+            "sentAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "service",
+      "count": 100,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "shareToUnlock",
+      "count": 584,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1",
+          "key": {
+            "profil_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "stages",
+      "count": 8,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "name_text",
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "stats",
+      "count": 76458,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "subscriptions",
+      "count": 4,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "termsOfServices",
+      "count": 211,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "textMessages",
+      "count": 370,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "TextMessages_1",
+          "key": {
+            "TextMessages": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "tokenPackages",
+      "count": 24,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "ugcReports",
+      "count": 83,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "ugcUserReports",
+      "count": 24,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "unlocks",
+      "count": 3384,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1",
+          "key": {
+            "profil_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "service_1_verified_1",
+          "key": {
+            "service": 1,
+            "verified": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userBadges",
+      "count": 269,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userBalances",
+      "count": 1244,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "UserData",
+      "count": 3,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userFavorites",
+      "count": 8,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userGeneratedContents",
+      "count": 13751,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_suggested_atlas_1",
+          "key": {
+            "appId": 1,
+            "rootParentCollection": 1,
+            "rootParentId": 1,
+            "type": 1,
+            "trashed": 1,
+            "moderated": 1,
+            "reviewed": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userHistory",
+      "count": 56268,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "userId_1_date_-1",
+          "key": {
+            "userId": 1,
+            "date": -1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userMetrics",
+      "count": 983642,
+      "indexCount": 10,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "location_2dsphere",
+          "key": {
+            "location": "2dsphere"
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_query1",
+          "key": {
+            "appId": 1,
+            "contentCollection": 1,
+            "type": 1,
+            "trashed": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_query2",
+          "key": {
+            "appId": 1,
+            "deviceId": 1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_query_mau1",
+          "key": {
+            "appId": 1,
+            "createdAt": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_query_mau2",
+          "key": {
+            "appId": 1,
+            "updatedAt": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_atlas_suggested_1",
+          "key": {
+            "appId": 1,
+            "contentCollection": 1,
+            "type": 1,
+            "trashed": 1,
+            "createdAt": -1,
+            "deviceId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_atlas_suggested_2",
+          "key": {
+            "appId": 1,
+            "contentCollection": 1,
+            "type": 1,
+            "trashed": 1,
+            "createdAt": -1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_userId",
+          "key": {
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_query_mau3",
+          "key": {
+            "appId": 1,
+            "userId": 1,
+            "createdAt": 1,
+            "updatedAt": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userReactions",
+      "count": 278415,
+      "indexCount": 4,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_mongodb_atlas_suggested_1",
+          "key": {
+            "appId": 1,
+            "reactionType": 1,
+            "targetCollection": 1,
+            "targetId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_mongodb_atlas_suggested_2",
+          "key": {
+            "appId": 1,
+            "reactionName": 1,
+            "reactionType": 1,
+            "targetCollection": 1,
+            "targetId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_user_reactions_key",
+          "key": {
+            "appId": 1,
+            "targetCollection": 1,
+            "targetId": 1,
+            "userId": 1,
+            "reactionType": 1,
+            "reactionName": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "count": 45297,
+      "indexCount": 25,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_username_search",
+          "key": {
+            "appId": 1,
+            "username": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_appid_facebookid_unique",
+          "key": {
+            "appId": 1,
+            "services.facebook.id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_appid_email_unique",
+          "key": {
+            "appId": 1,
+            "emails.address": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_appid_instagramid_unique",
+          "key": {
+            "appId": 1,
+            "services.instagram.id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_appid_twitterid_unique",
+          "key": {
+            "appId": 1,
+            "services.twitter.id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_email_validationtoken_unique",
+          "key": {
+            "emails.validationTokens.token": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_sv_email_verificationtoken_unique",
+          "key": {
+            "services.email.verificationTokens.token": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_sv_email_passwordresettoken_unique",
+          "key": {
+            "services.password.reset.token": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_sv_accesstoken_search",
+          "key": {
+            "services.accessTokens.tokens.hashedToken": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_location_loc_search",
+          "key": {
+            "location.loc": "2dsphere"
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_facebook_exp_mod_access_search",
+          "key": {
+            "services.facebook.expiresAt": 1,
+            "profile.fbModifiedAt": 1,
+            "services.facebook.accessToken": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "meteor_resume_hashtoken_unique",
+          "key": {
+            "services.resume.loginTokens.hashedToken": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "meteor_resume_token_unique",
+          "key": {
+            "services.resume.loginTokens.token": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "meteor_resume_haveloginstodelete_search",
+          "key": {
+            "services.resume.haveLoginTokensToDelete": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "meteor_resume_logintokens_when",
+          "key": {
+            "services.resume.loginTokens.when": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "meteor_password_reset_when_search",
+          "key": {
+            "services.password.reset.when": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_login_hashtoken_unique",
+          "key": {
+            "appId": 1,
+            "services.resume.loginTokens.hashedToken": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apitoken_hashtoken_appid",
+          "key": {
+            "appId": 1,
+            "services.apiTokens.hashedToken": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_apitoken_hashtoken",
+          "key": {
+            "services.apiTokens.hashedToken": 1
+          },
+          "unique": true,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_appid_profile_email",
+          "key": {
+            "appId": 1,
+            "profile.email": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_perms_org_id",
+          "key": {
+            "perms.organizations._id": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_appid_appleid_unique",
+          "key": {
+            "appId": 1,
+            "services.apple.userId": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_user_wordpress_email",
+          "key": {
+            "appId": 1,
+            "services.wordpress.userEmail": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_perms",
+          "key": {
+            "appId": 1,
+            "perms": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "userSubscriptions",
+      "count": 11,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "video",
+      "count": 17350,
+      "indexCount": 3,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "profil_ID_1_project_ID_1",
+          "key": {
+            "profil_ID": 1,
+            "project_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "project_ID_1",
+          "key": {
+            "project_ID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "VideoChatCallLog",
+      "count": 1,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "videoStorage",
+      "count": 46,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "VideoStream",
+      "count": 10,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "videoYoutube",
+      "count": 107,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "view_userMetricsAllAggregated",
+      "count": 96256,
+      "indexCount": 10,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_search_text",
+          "key": {
+            "appId": 1,
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_search_all3",
+          "key": {
+            "appId": 1,
+            "readingTime": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_search_all1",
+          "key": {
+            "appId": 1,
+            "firstMetricAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_mongodb_atlas_suggested_1",
+          "key": {
+            "appId": 1,
+            "lastMetricAt": -1,
+            "metricsGeoLast": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_userMetrics_search_all2",
+          "key": {
+            "appId": 1,
+            "lastMetricAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "location_2dsphere",
+          "key": {
+            "appId": 1,
+            "type": 1,
+            "metricsGeoLast.location": "2dsphere"
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_articles_search_fields",
+          "key": {
+            "appId": 1,
+            "type": 1,
+            "user.profile.username": 1,
+            "user.profile.firstname": 1,
+            "user.profile.lastname": 1,
+            "user.profile.email": 1,
+            "emails.address": 1
+          },
+          "unique": false,
+          "sparse": true,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_mongodb_atlas_suggested_2",
+          "key": {
+            "appId": 1,
+            "deviceId": 1,
+            "type": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "crowdaa_mongodb_atlas_suggested_3",
+          "key": {
+            "appId": 1,
+            "type": 1,
+            "userId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "view_userMetricsAllAggregated_meta",
+      "count": 123,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "views",
+      "count": 50192,
+      "indexCount": 2,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        },
+        {
+          "name": "content_ID_1_userID_1",
+          "key": {
+            "content_ID": 1,
+            "userID": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    },
+    {
+      "collection": "websites",
+      "count": 18,
+      "indexCount": 1,
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "expireAfterSeconds": null
+        }
+      ]
+    }
+  ]
+}

@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod}"
+BASE_URL="${BASE_URL:-https://api.aws.crowdaa.com/v1}"
 API_KEY="${API_KEY:-}"
 AWS_PROFILE="${AWS_PROFILE:-crowdaa}"
-AWS_REGION="${AWS_REGION:-eu-west-3}"
+AWS_REGION="${AWS_REGION:-us-east-1}"
 REPORT_DIR="${REPORT_DIR:-/Users/crowdaa/Desktop/backend_clone_handoff/logs}"
 SMOKE_SCRIPT="${SMOKE_SCRIPT:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/smoke_prod_clone.sh}"
 

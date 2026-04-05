@@ -1,6 +1,6 @@
 # AWS Backend Clone Replication Runbook
 
-Last updated: 2026-03-01
+Last updated: 2026-03-06
 
 ## Goal
 Replicate the backend stack to a target AWS account and reach a "green" state where:
@@ -10,7 +10,7 @@ Replicate the backend stack to a target AWS account and reach a "green" state wh
 - no hardcoded source account ID (`630176884077`) remains in `*/serverless.js`.
 
 ## Scope and assumptions
-- Active stage/region for production clone: `prod` + `eu-west-3`.
+- Active stage/region for production clone: `prod` + `us-east-1`.
 - Source account historical ID: `630176884077`.
 - Target account ID used in this migration lane: `670296240767`.
 - Base repo: `/Users/crowdaa/Desktop/dev/crowdaa_microservices`.
@@ -26,7 +26,7 @@ AWS_PROFILE=crowdaa aws sts get-caller-identity
 ```bash
 AWS_PROFILE=crowdaa
 AWS_SDK_LOAD_CONFIG=1
-MS_DEPLOYMENT_BUCKET=ms-deployment-eu-west-3-670296240767
+MS_DEPLOYMENT_BUCKET=ms-deployment-us-east-1-670296240767
 ```
 
 ## Phase sequence
@@ -36,11 +36,24 @@ MS_DEPLOYMENT_BUCKET=ms-deployment-eu-west-3-670296240767
 2. Verify API Gateway quota `L-01C8A9E0` (Resources/Routes per REST/WebSocket API).
 3. If quota blocks deployment, request increase:
 ```bash
-AWS_PROFILE=crowdaa AWS_REGION=eu-west-3 aws service-quotas request-service-quota-increase \
+AWS_PROFILE=crowdaa AWS_REGION=us-east-1 aws service-quotas request-service-quota-increase \
   --service-code apigateway \
   --quota-code L-01C8A9E0 \
   --desired-value 600
 ```
+
+#### Quota mitigation fallback (when increase is not immediate)
+If deployments are blocked by API Gateway resource limits in `prod/us-east-1`, prune unused endpoints before retrying blocked stacks.
+
+Recommended process:
+1. Build a telemetry-based candidate list from legacy US production (365d window).
+2. Disable only candidate endpoints in target `ikunik-infra` services.
+3. Keep dependency anchor services that export API resource IDs (notably `press`) deployable.
+4. Redeploy impacted services, then retry previously blocked stacks.
+
+Important notes:
+- Fully empty services can fail packaging with `ENOENT ... .esbuild/.serverless`; for those, delete stack intentionally if scope allows.
+- Do not delete `press` stack unless all dependent stacks (`pressArticles`, `pressCategories`, `pressPolls`, `pressIapPolls`, `pressAutomation`, `pressSearch`, `pressBanners`, `pressModals`) are also updated, because they consume `press` exported API resource IDs.
 
 ### Phase 2: Deploy wave
 1. Deploy modules in `deployOrderList` order.
@@ -48,8 +61,8 @@ AWS_PROFILE=crowdaa AWS_REGION=eu-west-3 aws service-quotas request-service-quot
 ```bash
 cd <module>
 AWS_PROFILE=crowdaa AWS_SDK_LOAD_CONFIG=1 \
-MS_DEPLOYMENT_BUCKET=ms-deployment-eu-west-3-670296240767 \
-npx serverless deploy --stage prod --region eu-west-3
+MS_DEPLOYMENT_BUCKET=ms-deployment-us-east-1-670296240767 \
+npx serverless deploy --stage prod --region us-east-1
 ```
 3. If a stack is `ROLLBACK_COMPLETE`, delete and redeploy.
 4. If `files` fails on S3 custom resource, ensure target buckets exist and retry.
@@ -71,7 +84,7 @@ rg -n "630176884077" --glob "*/serverless.js"
 2. Ensure no non-complete `-prod` stacks.
 3. Smoke checks (examples):
 ```bash
-REST='https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod'
+REST='https://api.aws.crowdaa.com/v1'
 curl -s -o /dev/null -w '%{http_code}\n' "$REST/"
 curl -s -o /dev/null -w '%{http_code}\n' "$REST/press/articles"
 curl -s -o /dev/null -w '%{http_code}\n' "$REST/userGeneratedContents"
@@ -83,7 +96,7 @@ curl -s -o /dev/null -w '%{http_code}\n' "$REST/appLiveStreams"
 cd /Users/crowdaa/Desktop/dev/crowdaa_microservices
 ./smoke_prod_clone.sh
 # optional custom API Gateway URL:
-# BASE_URL='https://<api-id>.execute-api.eu-west-3.amazonaws.com/prod' ./smoke_prod_clone.sh
+# BASE_URL='https://api.aws.crowdaa.com/v1' ./smoke_prod_clone.sh
 ```
 4. Confirm ARN hardening is complete:
 ```bash
@@ -128,7 +141,7 @@ Use the automated runner to execute API, hybrid, and dress-rehearsal validations
 
 ```bash
 cd /Users/crowdaa/Desktop/dev/crowdaa_microservices
-API_KEY='<app-api-key>' AWS_PROFILE=crowdaa AWS_REGION=eu-west-3 ./uat_options_abc.sh
+API_KEY='<app-api-key>' AWS_PROFILE=crowdaa AWS_REGION=us-east-1 ./uat_options_abc.sh
 ```
 
 Detailed runbook:

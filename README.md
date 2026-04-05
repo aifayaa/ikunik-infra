@@ -4,6 +4,8 @@
 
 - AWS backend clone replication: `documentation_claude/doc/AWS_BACKEND_CLONE_REPLICATION_RUNBOOK.md`
 - Source-ARN hardening matrix: `documentation_claude/doc/AWS_BACKEND_CLONE_PHASE11_SOURCE_ARN_MATRIX.md`
+- Migration control plane index: `documentation_claude/migration_control/README.md`
+- Next-client dashboard deployment runbook: `documentation_claude/migration_control/DASHBOARD_DEPLOYMENT_NEXT_CLIENT_RUNBOOK.md`
 - Production clone smoke script: `./smoke_prod_clone.sh`
 - UAT options A/B/C runbook: `documentation_claude/doc/UAT_OPTIONS_ABC_RUNBOOK.md`
 - UAT options A/B/C runner: `./uat_options_abc.sh`
@@ -69,3 +71,18 @@ This folder is used by other modules, that's not a microservice by itself.
 ### ./deployDiff.sh
 
 This file deploys changes microservices on dev/preprod/prod automatically using gitlab-ci. When a variable `CI_FIRST_DEPLOY` is defined at `true` in the AWS microservice codebuild environment variables, it will run a full & deploy to create everything, not using the changed folders list. This variable is needed for all of the codebuilds in the codepipeline.
+
+## US Bootstrap Notes (Migration)
+
+For first-time US (`prod` + `us-east-1`) bootstrap in target account:
+
+- Use Node 16 when invoking serverless locally:
+  - `npx -y -p node@16 node ../node_modules/serverless/bin/serverless.js ...`
+- Use explicit deployment bucket:
+  - `MS_DEPLOYMENT_BUCKET=ms-deployment-us-east-1-670296240767`
+- If ACM/custom-domain prerequisites are not ready yet, deploy API stack without domain-manager:
+  - `SKIP_CUSTOM_DOMAIN=1`
+- If existing S3 upload bucket notifications are not yet permission-ready for `files`, bootstrap without the S3 event hook:
+  - `SKIP_FILES_S3_HOOK=1`
+
+These switches are only for controlled bootstrap/dark-launch. Remove them once custom-domain and S3-event prerequisites are fully configured.

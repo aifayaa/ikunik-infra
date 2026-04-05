@@ -1,0 +1,74 @@
+id: target-<client>-<stage>-<region>-<nnn>
+created_at: 'YYYY-MM-DD'
+owner: codex
+
+repositories:
+  infra_control_repo: /absolute/path/to/infra/repo
+  app_repo: /absolute/path/to/app/repo
+  build_tools_repo: /absolute/path/to/build-tools/repo
+  dashboard_repo: /absolute/path/to/dashboard/repo
+  app_branch: <branch-name>
+  build_tools_branch: <branch-name>
+  dashboard_branch: <branch-name>
+
+execution_scope:
+  stage: prod
+  region: us-east-1
+  aws_profile: <aws-profile-name>
+  single_scope_lock: true
+  source_account_id: '<12-digit-id>'
+  target_account_id: '<12-digit-id>'
+
+app_validation_goal:
+  app_id: <uuid>
+  stage: prod
+  region: <us>
+  execution_region_for_build_validation: <us>
+
+runtime_endpoints:
+  api_base_url: https://api.aws.crowdaa.com/v1
+  ssr_base_host: <host-or-url>
+  dashboard_temp_url: <temporary-dashboard-url>
+  dashboard_final_url: <final-dashboard-domain-or-pending>
+
+dashboard_deployment:
+  stage: prod
+  serverless_region_key: <us>
+  aws_region: us-east-1
+  single_scope_lock: true
+  bucket_name: <dashboard-bucket-name>
+  cloudfront_distribution_id: <distribution-id>
+  cloudfront_domain: <distribution-domain>
+  temporary_domain_strategy:
+    mode: temporary_raw_target_domain
+    target_type: cloudfront_default_domain
+    legacy_custom_domain_policy: keep_legacy_unchanged_until_cutover
+    note: publish dashboard on temporary target URL first, then perform DNS cutover.
+
+build_reset_behavior:
+  android:
+    script: buildAndroidV3
+    resets_from: origin/<branch>
+    mitigation: <documented strategy>
+  ios:
+    script: buildIosV2
+    resets_from: origin/<branch>
+    mitigation:
+      - <documented strategy 1>
+      - <documented strategy 2>
+
+database_runtime_mode:
+  mode: temporary_legacy_bridge
+  source: mongodb-atlas
+  target: mongodb-atlas
+  migration_strategy: pending
+  rollback_reference: pending
+
+remote_strategy:
+  legacy_push_policy: disabled
+  target_owner: <github-owner>
+  expected_target_repos:
+    - git@github.com:<owner>/infra.git
+    - git@github.com:<owner>/app.git
+    - git@github.com:<owner>/build-tools.git
+    - git@github.com:<owner>/dashboard.git

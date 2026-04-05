@@ -5,9 +5,9 @@ set -euo pipefail
 # Smoke-test key public/protected endpoints on the cloned production backend.
 # Usage:
 #   ./smoke_prod_clone.sh
-#   BASE_URL="https://<api-id>.execute-api.eu-west-3.amazonaws.com/prod" ./smoke_prod_clone.sh
+#   BASE_URL="https://api.aws.crowdaa.com/v1" ./smoke_prod_clone.sh
 
-BASE_URL="${BASE_URL:-https://ooeq303hg5.execute-api.eu-west-3.amazonaws.com/prod}"
+BASE_URL="${BASE_URL:-https://api.aws.crowdaa.com/v1}"
 
 check_endpoint() {
   local path="$1"
