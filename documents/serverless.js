@@ -18,7 +18,8 @@ const serverlessConfiguration = {
     deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
-    getDocuments: {
+    /* ikunik-us-dev-disabled function getDocuments (unused endpoints)
+getDocuments: {
       handler: 'handlers/getDocuments.default',
       events: [
         {
@@ -35,6 +36,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getDocument: {
       handler: 'handlers/getDocument.default',
       events: [
@@ -59,7 +61,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getDocumentDataLocation: {
+    /* ikunik-us-dev-disabled function getDocumentDataLocation (unused endpoints)
+getDocumentDataLocation: {
       handler: 'handlers/getDocumentDataLocation.default',
       events: [
         {
@@ -83,6 +86,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

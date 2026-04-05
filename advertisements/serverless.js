@@ -35,7 +35,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getAdCounters: {
+    /* ikunik-us-dev-disabled function getAdCounters (unused endpoints)
+getAdCounters: {
       handler: 'handlers/getAdCounters.default',
       events: [
         {
@@ -52,6 +53,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     updateAd: {
       handler: 'handlers/updateAd.default',
       events: [

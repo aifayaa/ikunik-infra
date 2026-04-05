@@ -153,7 +153,8 @@ const serverlessConfiguration = {
       handler: 'handlers/unqueueNotifications.default',
       timeout: 300,
     },
-    getBlasts: {
+    /* ikunik-us-dev-disabled function getBlasts (unused endpoints)
+getBlasts: {
       handler: 'handlers/getBlasts.default',
       events: [
         {
@@ -177,7 +178,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    sendBlastUsersPush: {
+*/
+    /* ikunik-us-dev-disabled function sendBlastUsersPush (unused endpoints)
+sendBlastUsersPush: {
       handler: 'handlers/sendBlastUsersPush.default',
       events: [
         {
@@ -201,6 +204,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     onPushNotificationSendFailure: {
       handler: 'handlers/onPushNotificationSendFailure.default',
       events: [

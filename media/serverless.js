@@ -60,7 +60,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    postMediumView: {
+    /* ikunik-us-dev-disabled function postMediumView (unused endpoints)
+postMediumView: {
       handler: 'handlers/postMediumView.default',
       events: [
         {
@@ -88,7 +89,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getMediumLockState: {
+*/
+    /* ikunik-us-dev-disabled function getMediumLockState (unused endpoints)
+getMediumLockState: {
       handler: 'handlers/getMediumLockState.default',
       events: [
         {
@@ -113,6 +116,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

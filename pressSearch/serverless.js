@@ -46,7 +46,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    search2: {
+    /* ikunik-us-dev-disabled function search2 (unused endpoints)
+search2: {
       handler: 'handlers/search2.default',
       events: [
         {
@@ -71,6 +72,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     atlasSearch: {
       handler: 'handlers/atlasSearch.handleSearch',
       events: [

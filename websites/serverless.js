@@ -108,7 +108,8 @@ const serverlessConfiguration = {
     },
   },
   functions: {
-    getWebsiteStatus: {
+    /* ikunik-us-dev-disabled function getWebsiteStatus (unused endpoints)
+getWebsiteStatus: {
       handler: 'handlers/getWebsiteStatus.default',
       events: [
         {
@@ -132,7 +133,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    deleteWebsite: {
+*/
+    /* ikunik-us-dev-disabled function deleteWebsite (unused endpoints)
+deleteWebsite: {
       handler: 'handlers/deleteWebsite.default',
       events: [
         {
@@ -156,6 +159,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     crowdaaSyncWPPluginAutoSetup: {
       handler: 'handlers/crowdaaSyncWPPluginAutoSetup.default',
       events: [

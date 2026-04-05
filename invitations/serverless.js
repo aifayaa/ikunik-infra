@@ -88,7 +88,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    declineInvitation: {
+    /* ikunik-us-dev-disabled function declineInvitation (unused endpoints)
+declineInvitation: {
       handler: 'handlers/declineInvitation.default',
       events: [
         {
@@ -105,6 +106,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     invitationAction: {
       handler: 'handlers/invitationAction.default',
       events: [

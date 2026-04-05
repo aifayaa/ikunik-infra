@@ -107,7 +107,8 @@ const serverlessConfiguration = {
     createApp: {
       handler: 'handlers/createApp.default',
       events: [
-        {
+        /* ikunik-us-dev-disabled event /admin/apps in createApp
+{
           http: {
             path: 'admin/apps',
             method: 'post',
@@ -124,6 +125,7 @@ const serverlessConfiguration = {
             },
           },
         },
+*/
         {
           http: {
             path: 'apps',
@@ -371,7 +373,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getAppPreview: {
+    /* ikunik-us-dev-disabled function getAppPreview (unused endpoints)
+getAppPreview: {
       handler: 'handlers/getAppPreview.default',
       events: [
         {
@@ -389,7 +392,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    sendPreviewInfo: {
+*/
+    /* ikunik-us-dev-disabled function sendPreviewInfo (unused endpoints)
+sendPreviewInfo: {
       handler: 'handlers/sendPreviewInfo.default',
       events: [
         {
@@ -409,6 +414,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getAppTos: {
       handler: 'handlers/getAppTos.default',
       events: [

@@ -148,7 +148,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    register: {
+    /* ikunik-us-dev-disabled function register (unused endpoints)
+register: {
       handler: 'handlers/register.default',
       events: [
         {
@@ -165,7 +166,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    deleteAccount: {
+*/
+    /* ikunik-us-dev-disabled function deleteAccount (unused endpoints)
+deleteAccount: {
       handler: 'handlers/deleteAccount.default',
       events: [
         {
@@ -182,7 +185,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    resetPassword: {
+*/
+    /* ikunik-us-dev-disabled function resetPassword (unused endpoints)
+resetPassword: {
       handler: 'handlers/resetPassword.default',
       events: [
         {
@@ -199,7 +204,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetCoupons: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetCoupons (unused endpoints)
+ghantyGetCoupons: {
       handler: 'handlers/getCoupons.default',
       events: [
         {
@@ -216,7 +223,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetProfile: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetProfile (unused endpoints)
+ghantyGetProfile: {
       handler: 'handlers/getProfile.default',
       events: [
         {
@@ -233,7 +242,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetTransactions: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetTransactions (unused endpoints)
+ghantyGetTransactions: {
       handler: 'handlers/getTransactions.default',
       events: [
         {
@@ -250,7 +261,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetProposals: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetProposals (unused endpoints)
+ghantyGetProposals: {
       handler: 'handlers/getProposals.default',
       events: [
         {
@@ -267,7 +280,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetProposal: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetProposal (unused endpoints)
+ghantyGetProposal: {
       handler: 'handlers/getProposal.default',
       events: [
         {
@@ -291,7 +306,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyUseProposal: {
+*/
+    /* ikunik-us-dev-disabled function ghantyUseProposal (unused endpoints)
+ghantyUseProposal: {
       handler: 'handlers/useProposal.default',
       events: [
         {
@@ -315,7 +332,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetPersonalData: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetPersonalData (unused endpoints)
+ghantyGetPersonalData: {
       handler: 'handlers/getPersonalData.default',
       events: [
         {
@@ -332,7 +351,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyUpdatePersonalData: {
+*/
+    /* ikunik-us-dev-disabled function ghantyUpdatePersonalData (unused endpoints)
+ghantyUpdatePersonalData: {
       handler: 'handlers/updatePersonalData.default',
       events: [
         {
@@ -349,7 +370,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetMalls: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetMalls (unused endpoints)
+ghantyGetMalls: {
       handler: 'handlers/getMalls.default',
       events: [
         {
@@ -366,7 +389,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetBrands: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetBrands (unused endpoints)
+ghantyGetBrands: {
       handler: 'handlers/getBrands.default',
       events: [
         {
@@ -383,7 +408,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    ghantyGetMyStars: {
+*/
+    /* ikunik-us-dev-disabled function ghantyGetMyStars (unused endpoints)
+ghantyGetMyStars: {
       handler: 'handlers/getMyStars.default',
       events: [
         {
@@ -400,6 +427,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getLastPurchasesQueue: {
       handler: 'handlers/getLastPurchasesQueue.default',
       timeout: 300,

@@ -3,6 +3,19 @@
 // configValidationMode: error
 /* eslint-disable no-template-curly-in-string */
 const env = require('../env');
+const enableCustomDomain = process.env.SKIP_CUSTOM_DOMAIN !== '1';
+const plugins = [
+  'serverless-esbuild',
+  'serverless-offline',
+  'serverless-disable-request-validators',
+  'serverless-prune-plugin',
+  'serverless-plugin-log-retention',
+  'serverless-export-env',
+];
+
+if (enableCustomDomain) {
+  plugins.unshift('serverless-domain-manager');
+}
 
 const serverlessConfiguration = {
   service: 'ssr',
@@ -61,15 +74,7 @@ const serverlessConfiguration = {
       ],
     },
   },
-  plugins: [
-    'serverless-domain-manager',
-    'serverless-esbuild',
-    'serverless-offline',
-    'serverless-disable-request-validators',
-    'serverless-prune-plugin',
-    'serverless-plugin-log-retention',
-    'serverless-export-env',
-  ],
+  plugins,
   package: {
     individually: true,
   },
@@ -112,12 +117,16 @@ const serverlessConfiguration = {
         'eu-west-3': 'ssr-fr.aws.crowdaa.com',
       },
     },
-    customDomain: {
-      domainName:
-        '${self:custom.domains.${self:provider.stage}.${self:provider.region}}',
-      stage: '${self:provider.stage}',
-      createRoute53Record: true,
-    },
+    ...(enableCustomDomain
+      ? {
+          customDomain: {
+            domainName:
+              '${self:custom.domains.${self:provider.stage}.${self:provider.region}}',
+            stage: '${self:provider.stage}',
+            createRoute53Record: true,
+          },
+        }
+      : {}),
     esbuild: {
       config: '../esbuild.config.cjs',
     },

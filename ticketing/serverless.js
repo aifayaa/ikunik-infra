@@ -27,7 +27,8 @@ const serverlessConfiguration = {
     deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
-    createBookable: {
+    /* ikunik-us-dev-disabled function createBookable (unused endpoints)
+createBookable: {
       handler: 'handlers/createBookable.default',
       events: [
         {
@@ -51,7 +52,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    updateBookable: {
+*/
+    /* ikunik-us-dev-disabled function updateBookable (unused endpoints)
+updateBookable: {
       handler: 'handlers/updateBookable.default',
       events: [
         {
@@ -75,7 +78,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getBookable: {
+*/
+    /* ikunik-us-dev-disabled function getBookable (unused endpoints)
+getBookable: {
       handler: 'handlers/getBookable.default',
       events: [
         {
@@ -99,7 +104,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getBookables: {
+*/
+    /* ikunik-us-dev-disabled function getBookables (unused endpoints)
+getBookables: {
       handler: 'handlers/getBookables.default',
       events: [
         {
@@ -123,7 +130,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    deleteBookable: {
+*/
+    /* ikunik-us-dev-disabled function deleteBookable (unused endpoints)
+deleteBookable: {
       handler: 'handlers/deleteBookable.default',
       events: [
         {
@@ -147,7 +156,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    bookBookable: {
+*/
+    /* ikunik-us-dev-disabled function bookBookable (unused endpoints)
+bookBookable: {
       handler: 'handlers/bookBookable.default',
       events: [
         {
@@ -171,7 +182,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getTicket: {
+*/
+    /* ikunik-us-dev-disabled function getTicket (unused endpoints)
+getTicket: {
       handler: 'handlers/getTicket.default',
       events: [
         {
@@ -195,7 +208,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getTickets: {
+*/
+    /* ikunik-us-dev-disabled function getTickets (unused endpoints)
+getTickets: {
       handler: 'handlers/getTickets.default',
       events: [
         {
@@ -219,7 +234,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    scanTicket: {
+*/
+    /* ikunik-us-dev-disabled function scanTicket (unused endpoints)
+scanTicket: {
       handler: 'handlers/scanTicket.default',
       events: [
         {
@@ -243,6 +260,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

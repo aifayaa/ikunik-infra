@@ -387,7 +387,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getReports: {
+    /* ikunik-us-dev-disabled function getReports (unused endpoints)
+getReports: {
       handler: 'handlers/getUserGeneratedContentReports.default',
       events: [
         {
@@ -414,6 +415,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     reviewUGC: {
       handler: 'handlers/reviewUserGeneratedContents.default',
       events: [

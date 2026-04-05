@@ -65,7 +65,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    runTask: {
+    /* ikunik-us-dev-disabled function runTask (unused endpoints)
+runTask: {
       handler: 'handlers/runTask.default',
       events: [
         {
@@ -89,7 +90,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getTaskNews: {
+*/
+    /* ikunik-us-dev-disabled function getTaskNews (unused endpoints)
+getTaskNews: {
       handler: 'handlers/getTaskNews.default',
       events: [
         {
@@ -113,7 +116,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getNewsPreview: {
+*/
+    /* ikunik-us-dev-disabled function getNewsPreview (unused endpoints)
+getNewsPreview: {
       handler: 'handlers/getNewsPreview.default',
       events: [
         {
@@ -137,7 +142,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getTaskPreview: {
+*/
+    /* ikunik-us-dev-disabled function getTaskPreview (unused endpoints)
+getTaskPreview: {
       handler: 'handlers/getTaskPreview.default',
       events: [
         {
@@ -161,7 +168,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getTask: {
+*/
+    /* ikunik-us-dev-disabled function getTask (unused endpoints)
+getTask: {
       handler: 'handlers/getTask.default',
       events: [
         {
@@ -185,7 +194,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    createTask: {
+*/
+    /* ikunik-us-dev-disabled function createTask (unused endpoints)
+createTask: {
       handler: 'handlers/createTask.default',
       events: [
         {
@@ -209,7 +220,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    updateTask: {
+*/
+    /* ikunik-us-dev-disabled function updateTask (unused endpoints)
+updateTask: {
       handler: 'handlers/updateTask.default',
       events: [
         {
@@ -233,7 +246,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    deleteTask: {
+*/
+    /* ikunik-us-dev-disabled function deleteTask (unused endpoints)
+deleteTask: {
       handler: 'handlers/deleteTask.default',
       events: [
         {
@@ -257,6 +272,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

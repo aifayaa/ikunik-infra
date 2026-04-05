@@ -49,7 +49,8 @@ const serverlessConfiguration = {
             },
           },
         },
-        {
+        /* ikunik-us-dev-disabled event /tos/{id} in getTos
+{
           http: {
             path: 'tos/{id}',
             method: 'get',
@@ -68,6 +69,7 @@ const serverlessConfiguration = {
             },
           },
         },
+*/
       ],
     },
   },

@@ -432,7 +432,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    generateContent: {
+    /* ikunik-us-dev-disabled function generateContent (unused endpoints)
+generateContent: {
       handler: 'handlers/generateContent.default',
       events: [
         {
@@ -456,6 +457,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getArticlesStats: {
       handler: 'handlers/getArticlesStats.default',
       events: [
@@ -480,7 +482,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    generatedContentStatus: {
+    /* ikunik-us-dev-disabled function generatedContentStatus (unused endpoints)
+generatedContentStatus: {
       handler: 'handlers/generatedContentStatus.default',
       events: [
         {
@@ -504,6 +507,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     unpublishArticle: {
       handler: 'handlers/unpublishArticle.default',
       events: [

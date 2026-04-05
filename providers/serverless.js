@@ -203,7 +203,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    provCPME92GetWebsitePage: {
+    /* ikunik-us-dev-disabled function provCPME92GetWebsitePage (unused endpoints)
+provCPME92GetWebsitePage: {
       handler: 'handlers/CPME92/getWebsitePage.default',
       events: [
         {
@@ -215,7 +216,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    provLeQuotidienViewPdf: {
+*/
+    /* ikunik-us-dev-disabled function provLeQuotidienViewPdf (unused endpoints)
+provLeQuotidienViewPdf: {
       handler: 'handlers/leQuotidien/viewPdf.default',
       events: [
         {
@@ -239,7 +242,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    provLeQuotidienValidateArticleAccess: {
+*/
+    /* ikunik-us-dev-disabled function provLeQuotidienValidateArticleAccess (unused endpoints)
+provLeQuotidienValidateArticleAccess: {
       handler: 'handlers/leQuotidien/validateArticleAccess.default',
       events: [
         {
@@ -251,6 +256,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     provFontAwesomeGetSessionToken: {
       handler: 'handlers/fontawesome/getSessionToken.default',
       events: [
@@ -268,7 +274,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    provMerchWPSetupHandler: {
+    /* ikunik-us-dev-disabled function provMerchWPSetupHandler (unused endpoints)
+provMerchWPSetupHandler: {
       handler: 'handlers/merchwp/setup.default',
       events: [
         {
@@ -285,6 +292,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     provLeaderboardWPSetupHandler: {
       handler: 'handlers/leaderboardWpSetup.default',
       memorySize: 256, // Crashes with 128... Why??? It also happens with stripe...
@@ -303,7 +311,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    provAdvCalendarGet: {
+    /* ikunik-us-dev-disabled function provAdvCalendarGet (unused endpoints)
+provAdvCalendarGet: {
       handler: 'handlers/provAdvCalendarGet.default',
       events: [
         {
@@ -320,6 +329,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

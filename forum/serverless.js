@@ -80,7 +80,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getForumTopic: {
+    /* ikunik-us-dev-disabled function getForumTopic (unused endpoints)
+getForumTopic: {
       handler: 'handlers/getForumTopic.default',
       events: [
         {
@@ -104,7 +105,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    forumTopicAction: {
+*/
+    /* ikunik-us-dev-disabled function forumTopicAction (unused endpoints)
+forumTopicAction: {
       handler: 'handlers/forumTopicAction.default',
       events: [
         {
@@ -128,7 +131,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getForumTopicReplies: {
+*/
+    /* ikunik-us-dev-disabled function getForumTopicReplies (unused endpoints)
+getForumTopicReplies: {
       handler: 'handlers/getForumTopicReplies.default',
       events: [
         {
@@ -152,7 +157,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    forumTopicReplyAction: {
+*/
+    /* ikunik-us-dev-disabled function forumTopicReplyAction (unused endpoints)
+forumTopicReplyAction: {
       handler: 'handlers/forumTopicReplyAction.default',
       events: [
         {
@@ -176,7 +183,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    sendForumTopicReply: {
+*/
+    /* ikunik-us-dev-disabled function sendForumTopicReply (unused endpoints)
+sendForumTopicReply: {
       handler: 'handlers/sendForumTopicReply.default',
       events: [
         {
@@ -200,6 +209,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     createForumCategory: {
       handler: 'handlers/createForumCategory.default',
       events: [

@@ -86,7 +86,8 @@ const serverlessConfiguration = {
             },
           },
         },
-        {
+        /* ikunik-us-dev-disabled event /apps/{id}/translations in getAppTranslations
+{
           http: {
             path: 'apps/{id}/translations',
             method: 'get',
@@ -103,9 +104,11 @@ const serverlessConfiguration = {
             },
           },
         },
+*/
       ],
     },
-    patchAppTranslations: {
+    /* ikunik-us-dev-disabled function patchAppTranslations (unused endpoints)
+patchAppTranslations: {
       handler: 'handlers/patchAppTranslations.default',
       events: [
         {
@@ -127,6 +130,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

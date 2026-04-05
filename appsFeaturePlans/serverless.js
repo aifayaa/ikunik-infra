@@ -105,7 +105,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    setCurrentPlan: {
+    /* ikunik-us-dev-disabled function setCurrentPlan (unused endpoints)
+setCurrentPlan: {
       handler: 'handlers/setCurrentPlan.default',
       events: [
         {
@@ -130,6 +131,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
   },
   plugins: [
     'serverless-esbuild',

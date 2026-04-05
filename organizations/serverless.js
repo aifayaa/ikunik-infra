@@ -357,7 +357,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    delOrgApp: {
+    /* ikunik-us-dev-disabled function delOrgApp (unused endpoints)
+delOrgApp: {
       handler: 'handlers/delOrgApp.default',
       events: [
         {
@@ -385,6 +386,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getOrgInvitations: {
       handler: 'handlers/getOrgInvitations.default',
       events: [

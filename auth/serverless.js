@@ -90,7 +90,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    facebookLogin: {
+    /* ikunik-us-dev-disabled function facebookLogin (unused endpoints)
+facebookLogin: {
       handler: 'handlers/facebookLogin.default',
       events: [
         {
@@ -107,6 +108,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     forgotPassword: {
       handler: 'handlers/forgotPassword.default',
       events: [
@@ -144,7 +146,8 @@ const serverlessConfiguration = {
     logout: {
       handler: 'handlers/logout.default',
       events: [
-        {
+        /* ikunik-us-dev-disabled event /auth/facebook/logout in logout
+{
           http: {
             path: 'auth/facebook/logout',
             method: 'post',
@@ -162,6 +165,7 @@ const serverlessConfiguration = {
             },
           },
         },
+*/
         {
           http: {
             path: 'auth/logout',
@@ -183,7 +187,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    oidcLogin: {
+    /* ikunik-us-dev-disabled function oidcLogin (unused endpoints)
+oidcLogin: {
       handler: 'handlers/oidcLogin.default',
       events: [
         {
@@ -200,6 +205,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     periodicSIWATokensCheck: {
       handler: 'handlers/periodicSIWATokensCheck.default',
     },
@@ -281,7 +287,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    validateEmail: {
+    /* ikunik-us-dev-disabled function validateEmail (unused endpoints)
+validateEmail: {
       handler: 'handlers/validateEmail.default',
       events: [
         {
@@ -298,6 +305,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     sessionChecks: {
       handler: 'handlers/sessionChecks.default',
       events: [
@@ -332,7 +340,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    samlACSCallback: {
+    /* ikunik-us-dev-disabled function samlACSCallback (unused endpoints)
+samlACSCallback: {
       handler: 'handlers/samlACSCallback.default',
       events: [
         {
@@ -349,7 +358,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    oauthCallback: {
+*/
+    /* ikunik-us-dev-disabled function oauthCallback (unused endpoints)
+oauthCallback: {
       handler: 'handlers/oauthCallback.default',
       events: [
         {
@@ -373,6 +384,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     openSessionAs: {
       handler: 'handlers/openSessionAs.default',
       events: [

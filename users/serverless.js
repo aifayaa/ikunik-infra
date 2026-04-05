@@ -82,7 +82,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    exportUsers: {
+    /* ikunik-us-dev-disabled function exportUsers (unused endpoints)
+exportUsers: {
       handler: 'handlers/exportUsers.default',
       events: [
         {
@@ -99,7 +100,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    addAppId: {
+*/
+    /* ikunik-us-dev-disabled function addAppId (unused endpoints)
+addAppId: {
       handler: 'handlers/addAppId.default',
       events: [
         {
@@ -116,7 +119,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    blastEmail: {
+*/
+    /* ikunik-us-dev-disabled function blastEmail (unused endpoints)
+blastEmail: {
       handler: 'handlers/blastEmail.default',
       events: [
         {
@@ -143,7 +148,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    blastNotification: {
+*/
+    /* ikunik-us-dev-disabled function blastNotification (unused endpoints)
+blastNotification: {
       handler: 'handlers/blastNotification.default',
       events: [
         {
@@ -170,7 +177,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    blastText: {
+*/
+    /* ikunik-us-dev-disabled function blastText (unused endpoints)
+blastText: {
       handler: 'handlers/blastText.default',
       events: [
         {
@@ -197,6 +206,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getPublicProfile: {
       handler: 'handlers/getPublicProfile.default',
       events: [
@@ -278,7 +288,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    getBalances: {
+    /* ikunik-us-dev-disabled function getBalances (unused endpoints)
+getBalances: {
       handler: 'handlers/getBalances.default',
       events: [
         {
@@ -305,6 +316,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getUser: {
       handler: 'handlers/getUser.default',
     },
@@ -332,7 +344,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    finalizeProfile: {
+    /* ikunik-us-dev-disabled function finalizeProfile (unused endpoints)
+finalizeProfile: {
       handler: 'handlers/finalizeProfile.default',
       events: [
         {
@@ -356,6 +369,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getHistory: {
       handler: 'handlers/getHistory.default',
       events: [
@@ -452,7 +466,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    isBlastable: {
+    /* ikunik-us-dev-disabled function isBlastable (unused endpoints)
+isBlastable: {
       handler: 'handlers/isBlastable.default',
       events: [
         {
@@ -476,6 +491,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     sendPinCode: {
       handler: 'handlers/sendPinCode.default',
       events: [

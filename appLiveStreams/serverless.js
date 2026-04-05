@@ -295,7 +295,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    refreshLiveStreamRecordings: {
+    /* ikunik-us-dev-disabled function refreshLiveStreamRecordings (unused endpoints)
+refreshLiveStreamRecordings: {
       handler: 'handlers/refreshLiveStreamRecordings.default',
       events: [
         {
@@ -319,6 +320,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     getLiveStream: {
       handler: 'handlers/getLiveStream.default',
       events: [

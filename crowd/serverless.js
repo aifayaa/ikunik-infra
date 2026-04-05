@@ -34,7 +34,8 @@ const serverlessConfiguration = {
     deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
-    blastSearchEmail: {
+    /* ikunik-us-dev-disabled function blastSearchEmail (unused endpoints)
+blastSearchEmail: {
       handler: 'handlers/blastSearchEmail.default',
       events: [
         {
@@ -59,7 +60,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    blastSearchNotification: {
+*/
+    /* ikunik-us-dev-disabled function blastSearchNotification (unused endpoints)
+blastSearchNotification: {
       handler: 'handlers/blastSearchNotif.default',
       events: [
         {
@@ -84,7 +87,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    blastSearchText: {
+*/
+    /* ikunik-us-dev-disabled function blastSearchText (unused endpoints)
+blastSearchText: {
       handler: 'handlers/blastSearchText.default',
       events: [
         {
@@ -109,7 +114,9 @@ const serverlessConfiguration = {
         },
       ],
     },
-    pressBlastSearchNotification: {
+*/
+    /* ikunik-us-dev-disabled function pressBlastSearchNotification (unused endpoints)
+pressBlastSearchNotification: {
       handler: 'handlers/pressBlastSearchNotif.default',
       events: [
         {
@@ -134,6 +141,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     pressSearch: {
       handler: 'handlers/pressSearch.default',
       events: [
@@ -219,7 +227,8 @@ const serverlessConfiguration = {
         },
       ],
     },
-    crowdLastGeoJSON: {
+    /* ikunik-us-dev-disabled function crowdLastGeoJSON (unused endpoints)
+crowdLastGeoJSON: {
       handler: 'handlers/crowdLastGeoJSON.default',
       events: [
         {
@@ -243,6 +252,7 @@ const serverlessConfiguration = {
         },
       ],
     },
+*/
     crowdMassUpdateBadgesApply: {
       handler: 'handlers/crowdMassUpdateBadgesApply.default',
       timeout: 600,
