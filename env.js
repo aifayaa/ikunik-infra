@@ -2,8 +2,10 @@
 module.exports = {
   ADMIN_APP: '${cf:api-v1-${self:provider.stage}.AdminApp}',
   APP_NAME_DEFAULT: 'crowdaa',
-  APP_API_KEY_DEFAULT: 'nQ9ZO9DEgfaOzWY44Xu2J2uaPtP92t176PpBkdqu',
-  AUTH_PASS: 'fL9lAwCNRO8O',
+  APP_API_KEY_DEFAULT:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/app-api-key-default}',
+  AUTH_PASS:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/auth-pass}',
   AUTH_SMTP: 'ssl0.ovh.net',
   AUTH_USER: 'services@crowdaa.com',
   BASEROW_URL: 'https://baserow.crowdaa.com',
@@ -21,27 +23,34 @@ module.exports = {
   MAILGUN_DOMAIN: '${cf:api-v1-${self:provider.stage}.MailgunDomain}',
   MAILGUN_FROM: 'postmaster',
   MINIMUM_PAYOUT: 600,
-  MONGO_URL: '${cf:api-v1-${self:provider.stage}.MongoURL}',
+  // Temporary legacy Atlas bridge for target infra validation.
+  MONGO_URL:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/mongo-url}',
   NODE_OPTIONS: '--enable-source-maps',
   REGION: '${self:provider.region}',
-  S3_BUCKET: 'crowdaa-user-content',
-  S3_BUCKET_TOS: 'crowdaa-tos',
-  S3_BUCKET_TOS_HOST: 'https://tos.aws.crowdaa.com',
-  S3_REGION: 'us-east-1',
+  S3_BUCKET: 'ikunik-media-content-prod-us-670296240767',
+  S3_BUCKET_TOS: 'ikunik-tos-prod-us-670296240767',
+  S3_BUCKET_TOS_HOST:
+    'https://ikunik-tos-prod-us-670296240767.s3.eu-west-3.amazonaws.com',
+  S3_REGION: 'eu-west-3',
   SMTP_FROM: 'noreply@aws.crowdaa.com',
   MONGODB_ENCRYPTION_KEY:
     '${ssm(us-east-1):/crowdaa_microservices/${self:provider.stage}/${self:provider.region}/mongodb/encryption-key}',
-  SMTP_LOGIN: 'AKIAZFOLYEVWVZYZR2G4',
+  SMTP_LOGIN:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/smtp-login}',
   SMTP_SERVER: 'email-smtp.eu-west-3.amazonaws.com:465',
   SMTP_SECURE: true,
-  SMTP_PASSWORD: 'BBGD8qelikhe37q9ky+j2GfSExD82csZHtevvm+57jVH',
-  SNS_KEY_ID: 'AKIAI3H2I7ZIK4ARL2NA',
+  SMTP_PASSWORD:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/smtp-password}',
+  SNS_KEY_ID:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/sns-key-id}',
   SNS_PLATFORM_ANDROID_ARN:
     'arn:aws:sns:us-west-2:630176884077:app/GCM/Crowdaa-android',
   SNS_PLATFORM_IOS_ARN:
     'arn:aws:sns:us-west-2:630176884077:app/APNS/Crowdaa-iosprod',
   SNS_REGION: 'us-west-2',
-  SNS_SECRET: '0w8fSrKMg+IBRA1YeUoNy4Ytakr7HmBKOoeYThkD',
+  SNS_SECRET:
+    '${ssm(us-east-1):/ikunik/${self:provider.stage}/${self:provider.region}/api-v1/sns-secret}',
   SNS_TOPIC: 'arn:aws:sns:us-west-2:630176884077:crowdaa-test',
   STAGE: '${self:provider.stage}',
 };

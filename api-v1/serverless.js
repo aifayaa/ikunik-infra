@@ -7,6 +7,20 @@
 
 /* eslint-disable no-template-curly-in-string */
 
+const enableCustomDomain = process.env.SKIP_CUSTOM_DOMAIN !== '1';
+const plugins = [
+  'serverless-esbuild',
+  'serverless-offline',
+  'serverless-disable-request-validators',
+  'serverless-prune-plugin',
+  'serverless-plugin-log-retention',
+  'serverless-plugin-bind-deployment-id',
+];
+
+if (enableCustomDomain) {
+  plugins.push('serverless-domain-manager');
+}
+
 const serverlessConfiguration = {
   service: 'api-v1',
   provider: {
@@ -33,15 +47,7 @@ const serverlessConfiguration = {
       ],
     },
   },
-  plugins: [
-    'serverless-esbuild',
-    'serverless-offline',
-    'serverless-disable-request-validators',
-    'serverless-prune-plugin',
-    'serverless-plugin-log-retention',
-    'serverless-plugin-bind-deployment-id',
-    'serverless-domain-manager',
-  ],
+  plugins,
   package: {
     individually: true,
   },
@@ -112,14 +118,18 @@ const serverlessConfiguration = {
         'eu-west-1': 'crowdaa_app_id',
       },
     },
-    customDomain: {
-      basePath: 'v1',
-      domainName:
-        '${self:custom.domains.${self:provider.stage}.${self:provider.region}}',
-      endpointType: 'regional',
-      stage: '${self:provider.stage}',
-      createRoute53Record: true,
-    },
+    ...(enableCustomDomain
+      ? {
+          customDomain: {
+            basePath: 'v1',
+            domainName:
+              '${self:custom.domains.${self:provider.stage}.${self:provider.region}}',
+            endpointType: 'regional',
+            stage: '${self:provider.stage}',
+            createRoute53Record: true,
+          },
+        }
+      : {}),
     MAILGUN_API_KEY: {
       dev: 'key-ee8f3c350f56cbe4002b9c00cce04769',
       preprod: 'key-ee8f3c350f56cbe4002b9c00cce04769',

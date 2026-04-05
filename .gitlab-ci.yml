@@ -26,6 +26,7 @@ variables:
   MODULES: # For the manualMRDeploy step
     description: 'The space-separated list of modules to deploy ; when empty, uses the diff with the target branch'
     value: ''
+  TARGET_AWS_ACCOUNT_ID: '670296240767'
 
 createRelease:
   image: node:16
@@ -83,6 +84,7 @@ preparePreprodDatabase:
     - npm i
     - cd ../..
   script:
+    - if [ "${ALLOW_LEGACY_DB_CLONE:-0}" != "1" ]; then echo "Blocked: preparePreprodDatabase requires ALLOW_LEGACY_DB_CLONE=1 in target lane." >&2; exit 1; fi
     - ./crowdaa_utils/js/bin/cloneDatabase --operation "${OPERATION:-prod_to_preprod}" --drop --tempDir "$PWD/db-clone-temp"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/i
@@ -93,9 +95,12 @@ manualMRDeploy:
   stage: manualMRDeploy
   allow_failure: true
   before_script:
+    - apt-get update -qq && apt-get install -y -qq awscli
     - npm i
     - npm run install
   script:
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - test "${ACCOUNT_ID}" = "${TARGET_AWS_ACCOUNT_ID}"
     - branchName=$(date '+%s')
     - while [ "${#branchName}" -lt 30 ]; do branchName="$branchName$RANDOM"; done
     - branchName="tmp-$branchName"
@@ -220,11 +225,15 @@ pushDevToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: 'crowdaa-ci/ms/dev/in'
+    S3_BUCKET_NAME: $IKUNIK_PUSH_BUCKET_MS_DEV
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - test -n "${S3_BUCKET_NAME}"
+    - if echo "${S3_BUCKET_NAME}" | grep -Eq '^crowdaa-ci(-fr)?/'; then echo "Refusing legacy CI bucket: ${S3_BUCKET_NAME}" >&2; exit 1; fi
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - test "${ACCOUNT_ID}" = "${TARGET_AWS_ACCOUNT_ID}"
     - git fetch
     - git diff --dirstat=files,0 origin/dev^ -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
@@ -239,11 +248,15 @@ pushDevToPreprodAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/preprod/in'
+    S3_BUCKET_NAME: $IKUNIK_PUSH_BUCKET_MS_PREPROD
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - test -n "${S3_BUCKET_NAME}"
+    - if echo "${S3_BUCKET_NAME}" | grep -Eq '^crowdaa-ci(-fr)?/'; then echo "Refusing legacy CI bucket: ${S3_BUCKET_NAME}" >&2; exit 1; fi
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - test "${ACCOUNT_ID}" = "${TARGET_AWS_ACCOUNT_ID}"
     - git fetch
     - cp deployOrderList folderList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
@@ -255,11 +268,15 @@ pushPreprodToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/preprod/in'
+    S3_BUCKET_NAME: $IKUNIK_PUSH_BUCKET_MS_PREPROD_RELEASE
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - test -n "${S3_BUCKET_NAME}"
+    - if echo "${S3_BUCKET_NAME}" | grep -Eq '^crowdaa-ci(-fr)?/'; then echo "Refusing legacy CI bucket: ${S3_BUCKET_NAME}" >&2; exit 1; fi
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - test "${ACCOUNT_ID}" = "${TARGET_AWS_ACCOUNT_ID}"
     - git fetch
     - git diff --dirstat=files,0 origin/master -- . | awk '{ print $2 }' | cut -d'/' -f1 | sort | uniq > diffList
     - awk 'NR==FNR{a[$0]=$0;next}a[$0]' diffList deployOrderList > folderList
@@ -274,11 +291,15 @@ pushProdUsToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: 'crowdaa-ci/ms/prod/in'
+    S3_BUCKET_NAME: $IKUNIK_PUSH_BUCKET_MS_PROD_US
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - test -n "${S3_BUCKET_NAME}"
+    - if echo "${S3_BUCKET_NAME}" | grep -Eq '^crowdaa-ci(-fr)?/'; then echo "Refusing legacy CI bucket: ${S3_BUCKET_NAME}" >&2; exit 1; fi
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - test "${ACCOUNT_ID}" = "${TARGET_AWS_ACCOUNT_ID}"
     - cp deployOrderList folderList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
@@ -289,11 +310,15 @@ pushProdFrToAWS:
   image: python:latest
   stage: push
   variables:
-    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/prod/in'
+    S3_BUCKET_NAME: $IKUNIK_PUSH_BUCKET_MS_PROD_FR
   before_script:
     - apt-get update -qq && apt-get install -y -qq zip
   script:
     - pip install awscli
+    - test -n "${S3_BUCKET_NAME}"
+    - if echo "${S3_BUCKET_NAME}" | grep -Eq '^crowdaa-ci(-fr)?/'; then echo "Refusing legacy CI bucket: ${S3_BUCKET_NAME}" >&2; exit 1; fi
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - test "${ACCOUNT_ID}" = "${TARGET_AWS_ACCOUNT_ID}"
     - cp deployOrderList folderList
     - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
     - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"

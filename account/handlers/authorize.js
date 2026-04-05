@@ -1,15 +1,15 @@
 /* eslint-disable import/no-relative-packages */
-import get from 'lodash/get';
 import authorizeUser from '../lib/authorizeUser';
 import generatePolicy from '../lib/generatePolicy';
 import getAppFromKey from '../lib/getAppFromKey';
 import hashLoginToken from '../lib/hashLoginToken';
+import getRequestApiKey from '../lib/getRequestApiKey';
 
 // To avoid getting a warning with lint
 const jsConsole = console;
 
 export default async ({ headers, methodArn, requestContext }) => {
-  const apiKey = get(requestContext, 'identity.apiKey');
+  const apiKey = getRequestApiKey({ headers, requestContext });
   const authorizationToken = headers.authorization || headers.Authorization;
   try {
     jsConsole.info(authorizationToken, methodArn);
