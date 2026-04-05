@@ -23,12 +23,6 @@ export default async (event) => {
       throw new Error('missing_arguments');
     }
 
-    [data].forEach((item) => {
-      if (item && typeof item !== 'string') {
-        throw new Error('wrong_argument_type');
-      }
-    });
-
     const ugc = await checkOwner(
       appId,
       userGeneratedContentsId,
@@ -40,12 +34,7 @@ export default async (event) => {
 
     switch (type) {
       case AVAILABLE_TYPES.article:
-        if (
-          !data.title ||
-          !data.content ||
-          !data.pictures ||
-          !data.pictures.length
-        ) {
+        if (!data.title || !data.content) {
           throw new Error('missing_arguments');
         }
 
@@ -55,6 +44,14 @@ export default async (event) => {
         ) {
           throw new Error('wrong_argument_type');
         }
+
+        if (
+          (!data.pictures || !data.pictures.length) &&
+          (!data.videos || !data.videos.length)
+        ) {
+          throw new Error('missing_arguments');
+        }
+
         break;
       case AVAILABLE_TYPES.comment:
         if (typeof data !== 'string') {
