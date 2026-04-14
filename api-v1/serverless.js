@@ -65,7 +65,7 @@ const serverlessConfiguration = {
       },
       prod: {
         'us-east-1':
-          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@crowdaa.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
+          'mongodb+srv://ikunik_migration_rw:ncEUWUlJ0T2brOMX@cluster0.wsearw.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
         'eu-west-3':
           'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@prodfr.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
       },

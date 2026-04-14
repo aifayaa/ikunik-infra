@@ -21,7 +21,8 @@ module.exports = {
   MAILGUN_DOMAIN: '${cf:api-v1-${self:provider.stage}.MailgunDomain}',
   MAILGUN_FROM: 'postmaster',
   MINIMUM_PAYOUT: 600,
-  MONGO_URL: '${cf:api-v1-${self:provider.stage}.MongoURL}',
+  MONGO_URL:
+    '${file(../api-v1/serverless.js):custom.mongoDB.${self:provider.stage}.${self:provider.region}}',
   NODE_OPTIONS: '--enable-source-maps',
   REGION: '${self:provider.region}',
   S3_BUCKET: 'crowdaa-user-content',

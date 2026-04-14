@@ -1,4 +1,4 @@
-const moduleName = process.env.npm_package_name.split('/').at(-1);
+const moduleName = (process.env.npm_package_name || '').split('/').at(-1);
 
 let configuration = {
   sourcemap: true,

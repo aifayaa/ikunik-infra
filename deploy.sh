@@ -6,6 +6,10 @@ ALL="$3"
 
 export NODE_OPTIONS='--max_old_space_size=4096'
 
+if [ -x /usr/local/bin/node ]; then
+  export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
+fi
+
 usage() {
   echo "usage : ./deploy.sh [STAGE] [REGION] [ALL]"
   echo ""
@@ -25,7 +29,12 @@ runSlsDeployFor() {
   folder="$1"
   echo "Deploying $folder"
   cd "$folder"
-  npx sls deploy --stage "$STAGE" --region "$REGION"
+  export npm_package_name="${npm_package_name:-crowdaa-microservices/$folder}"
+  if [ -z "$MS_DEPLOYMENT_BUCKET" ]; then
+    account_id=$(aws sts get-caller-identity --query Account --output text)
+    export MS_DEPLOYMENT_BUCKET="ms-deployment-$REGION-$account_id"
+  fi
+  ./node_modules/.bin/serverless deploy --stage "$STAGE" --region "$REGION"
   cd ..
 }
 

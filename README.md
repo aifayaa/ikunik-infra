@@ -10,7 +10,7 @@
 
 # Development environment
 
-We use Node 16.
+We use Node 16 in CI/runtime, and `node 18` is the safe local deploy runtime for this repo.
 
 Install the following plugin in VSCode:
 | Extension name | Extension identifier |
@@ -25,29 +25,29 @@ Move to the concern directory, as "./ghanty" for example.
 Deploy a end point 'myEndPoint':
 
 ```
-npx sls deploy function -f myEndPoint --stage prod --region eu-west-3
-npx sls deploy function -f myEndPoint --stage dev --region us-east-1
+./node_modules/.bin/serverless deploy function -f myEndPoint --stage prod --region eu-west-3
+./node_modules/.bin/serverless deploy function -f myEndPoint --stage dev --region us-east-1
 ```
 
 Deploy end points from the current directory:
 
 ```
-npx sls deploy --stage prod --region eu-west-3
-npx sls deploy --stage dev --region us-east-1
+./node_modules/.bin/serverless deploy --stage prod --region eu-west-3
+./node_modules/.bin/serverless deploy --stage dev --region us-east-1
 ```
 
 Log:
 
 ```
-npx sls logs --stage prod --region eu-west-3 -f myEndPoint
-npx sls logs --stage dev --region us-east-1 -f myEndPoint
+./node_modules/.bin/serverless logs --stage prod --region eu-west-3 -f myEndPoint
+./node_modules/.bin/serverless logs --stage dev --region us-east-1 -f myEndPoint
 ```
 
 Log which stays opened:
 
 ```
-npx sls logs --stage prod --region eu-west-3 -f myEndPoint -t
-npx sls logs --stage dev --region us-east-1 -f myEndPoint -t
+./node_modules/.bin/serverless logs --stage prod --region eu-west-3 -f myEndPoint -t
+./node_modules/.bin/serverless logs --stage dev --region us-east-1 -f myEndPoint -t
 ```
 
 Remark : all `stage` / `region` combination can be found in `./prepare.js`.
@@ -59,6 +59,21 @@ Move to the concern directory, as "./ghanty" for example and launch the `sls-off
 ## Setup
 
 Just run `npm i`. It will install all dependancies in the current directory and then link `node_modules` to each sub-directories.
+
+## Ikunik prod/us deploy guardrails
+
+- Use `node 18` locally for deploys. `serverless` v3 + repo plugins are not reliable on `node 25`.
+- Use the repo-local binary:
+  - `./node_modules/.bin/serverless`
+- Do not use bare `npx serverless`, which can pull Serverless v4 and require login.
+- The deploy path expects:
+  - `npm_package_name=crowdaa-microservices/<service>`
+  - `MS_DEPLOYMENT_BUCKET=ms-deployment-<region>-<aws_account_id>`
+- `./deploy.sh` now sets those automatically when possible.
+- For Ikunik `prod/us`, the canonical Mongo source of truth is:
+  - `api-v1/serverless.js -> custom.mongoDB.prod.us-east-1`
+- Services importing `env.js` now resolve `MONGO_URL` from that source directly.
+- Do not rely on the CloudFormation export `api-v1:prod:MongoURL` for Ikunik `prod/us`; it can still point to legacy values.
 
 ## Specific concerns
 
