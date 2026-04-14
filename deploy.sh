@@ -6,6 +6,13 @@ ALL="$3"
 
 export NODE_OPTIONS='--max_old_space_size=4096'
 
+SECRETS_FILE="${IKUNIK_INFRA_SECRETS_FILE:-$HOME/.crowdaa/ikunik-infra-deploy-secrets.sh}"
+
+if [ -f "$SECRETS_FILE" ]; then
+  # shellcheck disable=SC1090
+  . "$SECRETS_FILE"
+fi
+
 if [ -x /usr/local/bin/node ]; then
   export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
 fi
@@ -38,6 +45,33 @@ runSlsDeployFor() {
   cd ..
 }
 
+mongoVarNameFor() {
+  case "$STAGE:$REGION" in
+    dev:us-east-1) echo "MONGO_URL_DEV_US_EAST_1" ;;
+    preprod:eu-west-3) echo "MONGO_URL_PREPROD_EU_WEST_3" ;;
+    prod:us-east-1) echo "MONGO_URL_PROD_US_EAST_1" ;;
+    prod:eu-west-3) echo "MONGO_URL_PROD_EU_WEST_3" ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
+requireMongoSecret() {
+  mongo_var_name="$(mongoVarNameFor)"
+  if [ -z "$mongo_var_name" ]; then
+    echo "No mongo secret mapping configured for STAGE=$STAGE REGION=$REGION" 1>&2
+    exit 1
+  fi
+
+  mongo_var_value="$(printenv "$mongo_var_name")"
+  if [ -z "$mongo_var_value" ]; then
+    echo "Missing required secret: $mongo_var_name" 1>&2
+    echo "Provide it through $SECRETS_FILE or export it in the shell before deploy." 1>&2
+    exit 1
+  fi
+}
+
 runNpmCustomDeployFor() {
   folder="$1"
   echo "Deploying $folder"
@@ -50,6 +84,8 @@ if ([ "$STAGE" != "dev" ] && [ "$STAGE" != "preprod" ] && [ "$STAGE" != "prod" ]
   usage
   exit 1
 fi
+
+requireMongoSecret
 
 npm i
 npm run install

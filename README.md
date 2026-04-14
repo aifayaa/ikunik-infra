@@ -70,10 +70,33 @@ Just run `npm i`. It will install all dependancies in the current directory and 
   - `npm_package_name=crowdaa-microservices/<service>`
   - `MS_DEPLOYMENT_BUCKET=ms-deployment-<region>-<aws_account_id>`
 - `./deploy.sh` now sets those automatically when possible.
-- For Ikunik `prod/us`, the canonical Mongo source of truth is:
-  - `api-v1/serverless.js -> custom.mongoDB.prod.us-east-1`
-- Services importing `env.js` now resolve `MONGO_URL` from that source directly.
-- Do not rely on the CloudFormation export `api-v1:prod:MongoURL` for Ikunik `prod/us`; it can still point to legacy values.
+- Mongo URLs are no longer allowed in git.
+- `api-v1/serverless.js` now resolves Mongo URLs from deploy-time environment variables:
+  - `MONGO_URL_DEV_US_EAST_1`
+  - `MONGO_URL_PREPROD_EU_WEST_3`
+  - `MONGO_URL_PROD_US_EAST_1`
+  - `MONGO_URL_PROD_EU_WEST_3`
+- Services importing `env.js` resolve `MONGO_URL` from that source.
+- `./deploy.sh` fails fast if the required `MONGO_URL_*` variable is missing.
+- Recommended local secret file:
+  - `~/.crowdaa/ikunik-infra-deploy-secrets.sh`
+- Example local secret file content:
+
+```
+export MONGO_URL_DEV_US_EAST_1='...'
+export MONGO_URL_PREPROD_EU_WEST_3='...'
+export MONGO_URL_PROD_US_EAST_1='...'
+export MONGO_URL_PROD_EU_WEST_3='...'
+```
+
+- Never commit that file.
+- Before pushing infra changes, run:
+
+```
+rg -n "mongodb\\+srv://|mongodb://|AKIA|MAILGUN_API_KEY|SNS_SECRET|SMTP_PASSWORD" .
+```
+
+- The result must be reviewed and cleaned before push.
 
 ## Specific concerns
 

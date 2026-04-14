@@ -56,18 +56,14 @@ const serverlessConfiguration = {
     },
     mongoDB: {
       dev: {
-        'us-east-1':
-          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@dev.ykqidgl.mongodb.net/crowdaaDev',
+        'us-east-1': '${env:MONGO_URL_DEV_US_EAST_1}',
       },
       preprod: {
-        'eu-west-3':
-          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@preprod.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
+        'eu-west-3': '${env:MONGO_URL_PREPROD_EU_WEST_3}',
       },
       prod: {
-        'us-east-1':
-          'mongodb+srv://ikunik_migration_rw:ncEUWUlJ0T2brOMX@cluster0.wsearw.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
-        'eu-west-3':
-          'mongodb+srv://crowdaa-microservices:PQZwfqQ0WMIRXfqmOGZ5SchFAe3aIJg@prodfr.vtd2k.mongodb.net/crowdaaDev?retryWrites=true&w=majority',
+        'us-east-1': '${env:MONGO_URL_PROD_US_EAST_1}',
+        'eu-west-3': '${env:MONGO_URL_PROD_EU_WEST_3}',
       },
     },
     domains: {
