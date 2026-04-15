@@ -104,6 +104,41 @@ rg -n "mongodb\\+srv://|mongodb://|AKIA|MAILGUN_API_KEY|SNS_SECRET|SMTP_PASSWORD
 
 This folder is used by other modules, that's not a microservice by itself.
 
+### appLiveStreams prod/us
+
+For `appLiveStreams` on `prod/us-east-1`, two AWS resources must exist in the
+Ikunik account before deploy/runtime validation:
+
+- an IVS Realtime storage configuration referenced by
+  `LIVE_STREAM_RECORDING_CONFIGURATION_ARN`
+- an IVS Chat logging configuration referenced by
+  `LIVE_STREAM_LOGGING_CONFIGURATION_ARN`
+
+Do not copy stale ARNs from historical configs and assume they still exist.
+Always verify them in the target account first:
+
+```bash
+AWS_PROFILE=target aws ivs-realtime list-storage-configurations --region us-east-1
+AWS_PROFILE=target aws ivschat list-logging-configurations --region us-east-1
+```
+
+If the logging configuration is missing, create it before reusing the ARN:
+
+```bash
+AWS_PROFILE=target aws logs create-log-group \
+  --log-group-name /aws/ivschat/prod-us-appLiveStreams \
+  --region us-east-1
+
+AWS_PROFILE=target aws ivschat create-logging-configuration \
+  --name ikunik-appLiveStreams-prod-us \
+  --destination-configuration cloudWatchLogs={logGroupName=/aws/ivschat/prod-us-appLiveStreams} \
+  --region us-east-1
+```
+
+When `CreateRoom` is denied on the logging configuration ARN, verify the
+resource exists before changing IAM. A missing logging configuration can
+surface as an `ivschat:CreateRoom` access error.
+
 ### ./deployDiff.sh
 
 This file deploys changes microservices on dev/preprod/prod automatically using gitlab-ci. When a variable `CI_FIRST_DEPLOY` is defined at `true` in the AWS microservice codebuild environment variables, it will run a full & deploy to create everything, not using the changed folders list. This variable is needed for all of the codebuilds in the codepipeline.

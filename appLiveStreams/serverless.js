@@ -48,9 +48,9 @@ const serverlessConfiguration = {
         IVS_REGION: 'us-east-1',
         IVS_BUCKET: 'aals-live-streams-recordings-prod-us',
         LIVE_STREAM_LOGGING_CONFIGURATION_ARN:
-          'arn:aws:ivschat:us-east-1:${self:custom.awsAccountId}:logging-configuration/APwRBhl1ukrr',
+          'arn:aws:ivschat:us-east-1:${self:custom.awsAccountId}:logging-configuration/Wh4leqcJD48p',
         LIVE_STREAM_RECORDING_CONFIGURATION_ARN:
-          'arn:aws:ivs:us-east-1:${self:custom.awsAccountId}:storage-configuration/yMAca4Tyd9Oj',
+          'arn:aws:ivs:us-east-1:${self:custom.awsAccountId}:storage-configuration/O0vPkfqf34L1',
         LIVE_STREAM_WATCHER_STATE_MACHINE_NAME: 'ProdSFNCheckAppLiveStream',
         LIVE_STREAM_WATCHER_STATE_MACHINE_ROLE:
           'arn:aws:iam::${self:custom.awsAccountId}:role/service-role/StepFunctions-prod-us-sfnCheckAppLiveStream-role',
@@ -115,8 +115,22 @@ const serverlessConfiguration = {
           {
             Effect: 'Allow',
             Action: ['ivschat:*'],
-            Resource:
-              'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:${self:custom.awsAccountId}:*',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: [
+              'ivschat:CreateRoom',
+              'ivschat:UpdateRoom',
+              'ivschat:DeleteRoom',
+              'ivschat:GetRoom',
+              'ivschat:TagResource',
+              'ivschat:UntagResource',
+            ],
+            Resource: [
+              '${self:provider.environment.LIVE_STREAM_LOGGING_CONFIGURATION_ARN}',
+              'arn:aws:ivschat:${self:provider.environment.IVS_REGION}:${self:custom.awsAccountId}:room/*',
+            ],
           },
 
           // Recording
