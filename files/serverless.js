@@ -245,46 +245,20 @@ const serverlessConfiguration = {
         S3_APPS_PUBLIC_RESSOURCES: 'us-apps-public-resources-dev',
       },
     },
-    preprod: {
-      'eu-west-3': {
-        MEDIACONVERT_ROLE_ARN:
-          'arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-preprod',
-        S3_VIDEOS_BUCKET: 'video-stream-preprod.crowdaa.com',
-        CDN_DOMAIN_NAME: 'd2altfyur5witx.cloudfront.net',
-        S3_UPLOAD_BUCKET: 'slsupload-preprod',
-        S3_PICTURES_BUCKET: 'crowdaa-pictures-preprod',
-        S3_APPS_RESSOURCES: 'crowdaa-apps-resources-preprod',
-        S3_APPS_PUBLIC_RESSOURCES: 'us-apps-public-resources-dev',
-      },
-    },
     prod: {
       'us-east-1': {
         MEDIACONVERT_ROLE_ARN:
           'arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-prod-us',
-        S3_VIDEOS_BUCKET: 'ikunik-media-content-prod-us-${self:custom.awsAccountId}',
+        S3_VIDEOS_BUCKET:
+          '${env:FILES_S3_VIDEOS_BUCKET, "ikunik-media-content-prod-us-${self:custom.awsAccountId}"}',
         CDN_DOMAIN_NAME:
-          'ikunik-media-content-prod-us-${self:custom.awsAccountId}.s3.eu-west-3.amazonaws.com',
-        S3_UPLOAD_BUCKET: 'slsupload-prod-us-${self:custom.awsAccountId}',
+          '${env:FILES_CDN_DOMAIN_NAME, "ikunik-media-content-prod-us-${self:custom.awsAccountId}.s3.eu-west-3.amazonaws.com"}',
+        S3_UPLOAD_BUCKET:
+          '${env:FILES_S3_UPLOAD_BUCKET, "slsupload-prod-us-${self:custom.awsAccountId}"}',
         S3_PICTURES_BUCKET:
-          'ikunik-media-content-prod-us-${self:custom.awsAccountId}',
+          '${env:FILES_S3_PICTURES_BUCKET, "ikunik-media-content-prod-us-${self:custom.awsAccountId}"}',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources',
         S3_APPS_PUBLIC_RESSOURCES: 'us-apps-public-resources-prod',
-      },
-      'eu-west-3': {
-        MEDIACONVERT_ROLE_ARN:
-          '${env:FILES_MEDIACONVERT_ROLE_ARN, "arn:aws:iam::${self:custom.awsAccountId}:role/user-video-processing-mediaconvert-role-prod-fr"}',
-        S3_VIDEOS_BUCKET:
-          '${env:FILES_S3_VIDEOS_BUCKET, "video-stream-prod-fr-${self:custom.awsAccountId}"}',
-        CDN_DOMAIN_NAME:
-          '${env:FILES_CDN_DOMAIN_NAME, "d3gi4cpq7lf81i.cloudfront.net"}',
-        S3_UPLOAD_BUCKET:
-          '${env:FILES_S3_UPLOAD_BUCKET, "slsupload-prod-fr-${self:custom.awsAccountId}"}',
-        S3_PICTURES_BUCKET:
-          '${env:FILES_S3_PICTURES_BUCKET, "crowdaa-pictures-prod-fr-${self:custom.awsAccountId}"}',
-        S3_APPS_RESSOURCES:
-          '${env:FILES_S3_APPS_RESSOURCES_BUCKET, "crowdaa-apps-resources-prod-fr-${self:custom.awsAccountId}"}',
-        S3_APPS_PUBLIC_RESSOURCES:
-          '${env:FILES_S3_APPS_PUBLIC_RESSOURCES_BUCKET, "fr-apps-public-resources-prod-${self:custom.awsAccountId}"}',
       },
     },
   },

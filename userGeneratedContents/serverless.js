@@ -32,24 +32,12 @@ const serverlessConfiguration = {
         ],
       },
     },
-    preprod: {
-      'eu-west-3': {
-        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/preprod-fr',
-        REACT_APP_API_URL: 'https://preprod-api.aws.crowdaa.com/v1',
-        S3_UPLOAD_BUCKET: 'slsupload-preprod',
-        AI_DETECTION_DEFAULT_LANG: 'en',
-        AI_DETECTION_ENABLED: 'false',
-        AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
-        AI_DETECTION_SNS_TOPIC_ARN:
-          'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicPreprodFr',
-        topicCompletionSNSEvents: [],
-      },
-    },
     prod: {
       'us-east-1': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
         REACT_APP_API_URL: 'https://api.aws.crowdaa.com/v1',
-        S3_UPLOAD_BUCKET: 'slsupload-prod',
+        S3_UPLOAD_BUCKET:
+          '${env:UGC_S3_UPLOAD_BUCKET, "slsupload-prod-us-${self:custom.awsAccountId}"}',
         AI_DETECTION_DEFAULT_LANG: 'en',
         AI_DETECTION_ENABLED: 'true',
         AI_DETECTION_DEFAULT_REGION: 'us-east-1',
@@ -60,18 +48,6 @@ const serverlessConfiguration = {
             sns: 'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicProdUs',
           },
         ],
-      },
-      'eu-west-3': {
-        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
-        REACT_APP_API_URL: 'https://api-fr.aws.crowdaa.com/v1',
-        S3_UPLOAD_BUCKET:
-          '${env:UGC_S3_UPLOAD_BUCKET, "slsupload-prod-fr-${self:custom.awsAccountId}"}',
-        AI_DETECTION_DEFAULT_LANG: 'en',
-        AI_DETECTION_ENABLED: 'false',
-        AI_DETECTION_DEFAULT_REGION: 'eu-west-1',
-        AI_DETECTION_SNS_TOPIC_ARN:
-          'arn:aws:sns:us-east-1:${self:custom.awsAccountId}:ugcVideoModerationCompletionTopicProdFr',
-        topicCompletionSNSEvents: [],
       },
     },
     esbuild: {
