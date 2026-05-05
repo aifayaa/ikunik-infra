@@ -16,13 +16,11 @@ variables:
     options:
       - 'dev'
       - 'preprod'
-      - 'prod'
   REGION: # For the manualMRDeploy step
     description: 'The AWS region where to deploy'
     value: 'us-east-1'
     options:
       - 'us-east-1'
-      - 'eu-west-3'
   MODULES: # For the manualMRDeploy step
     description: 'The space-separated list of modules to deploy ; when empty, uses the diff with the target branch'
     value: ''
@@ -96,6 +94,8 @@ manualMRDeploy:
     - npm i
     - npm run install
   script:
+    - test "$STAGE" != "prod"
+    - test "$REGION" = "us-east-1"
     - branchName=$(date '+%s')
     - while [ "${#branchName}" -lt 30 ]; do branchName="$branchName$RANDOM"; done
     - branchName="tmp-$branchName"
@@ -270,35 +270,6 @@ pushPreprodToAWS:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^release\/.*/
 
-pushProdUsToAWS:
-  image: python:latest
-  stage: push
-  variables:
-    S3_BUCKET_NAME: 'crowdaa-ci/ms/prod/in'
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq zip
-  script:
-    - pip install awscli
-    - cp deployOrderList folderList
-    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
-    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/
-
-pushProdFrToAWS:
-  image: python:latest
-  stage: push
-  variables:
-    S3_BUCKET_NAME: 'crowdaa-ci-fr/ms/prod/in'
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq zip
-  script:
-    - pip install awscli
-    - cp deployOrderList folderList
-    - find . -type f -exec zip crowdaa-ms-app-source.zip {} +
-    - aws s3 cp ./ s3://${S3_BUCKET_NAME}/ --recursive --exclude "*" --include "crowdaa-ms-app-source.zip"
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^release-.*/
 # buildDevApiDoc:
 #   image: node:16
 #   stage: buildApiDoc
