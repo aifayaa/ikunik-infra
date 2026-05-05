@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache';
 
 const { COLL_PRESS_CATEGORIES } = mongoCollections;
 
@@ -46,6 +47,7 @@ export async function reorderCategoriesIn(appId, parentId) {
     const updatesCount = updates.length;
     if (updates.length > 0) {
       await collection.bulkWrite(updates, { ordered: false });
+      await invalidateArticlesCache(client.db(), [appId]);
     }
 
     return updatesCount;
@@ -114,6 +116,7 @@ export default async (appId, categoryId, inputOrder) => {
     const updatesCount = updates.length;
     if (updates.length > 0) {
       await collection.bulkWrite(updates, { ordered: false });
+      await invalidateArticlesCache(client.db(), [appId]);
     }
 
     return {

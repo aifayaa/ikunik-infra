@@ -2,7 +2,7 @@
 import { WordpressAPI } from '../../libs/backends/wordpress';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
-import { invalidateArticlesCache } from './invalidateArticlesCache';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache';
 
 const { COLL_APPS, COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 

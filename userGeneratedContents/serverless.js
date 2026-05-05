@@ -35,7 +35,8 @@ const serverlessConfiguration = {
     prod: {
       'us-east-1': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
-        REACT_APP_API_URL: 'https://api.aws.crowdaa.com/v1',
+        REACT_APP_API_URL:
+          'https://ocxuvafsn8.execute-api.us-east-1.amazonaws.com/prod',
         S3_UPLOAD_BUCKET:
           '${env:UGC_S3_UPLOAD_BUCKET, "slsupload-prod-us-${self:custom.awsAccountId}"}',
         AI_DETECTION_DEFAULT_LANG: 'en',
@@ -117,7 +118,8 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     ugcSNSTopicCompletion: {

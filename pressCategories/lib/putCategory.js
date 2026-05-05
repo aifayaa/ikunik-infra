@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache';
 import isAvailable from './isAvailable';
 import notifyAdminsForRSSFeedUrlChange from './notifyAdminsForRSSFeedUrlChange.ts';
 import reorderCategory, { reorderCategoriesIn } from './reorderCategory';
@@ -166,6 +167,8 @@ export default async ({
     } else if (hasOrderChanged) {
       await reorderCategory(appId, categoryId, order);
     }
+
+    await invalidateArticlesCache(client.db(), [appId]);
 
     if (
       rssFeedUrl !== null &&

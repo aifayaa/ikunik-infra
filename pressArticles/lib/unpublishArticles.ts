@@ -1,6 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
-import { invalidateArticlesCache } from './invalidateArticlesCache.js';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache.js';
 import { cleanPendingArticleNotifications } from './notificationsQueue.js';
 
 const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;

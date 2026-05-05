@@ -70,7 +70,8 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     appleLogin: {
@@ -474,7 +475,8 @@ const serverlessConfiguration = {
         INSTAGRAM_CLIENT_ID: '60bf5b13399a42d7a1f63fc31a8bfdba',
         INSTAGRAM_CLIENT_SECRET: 'ad01b10b27954a7d9ee3630ad82bf31b',
         REACT_APP_AUTH_URL: 'https://auth.crowdaa.com',
-        REACT_APP_API_URL: 'https://api.aws.crowdaa.com/v1',
+        REACT_APP_API_URL:
+          'https://ocxuvafsn8.execute-api.us-east-1.amazonaws.com/prod',
         S3_APPS_RESSOURCES: 'crowdaa-apps-resources',
         S3_APPS_RESSOURCES_REGION: 'us-east-1',
         CROWDAA_REGION: 'us',

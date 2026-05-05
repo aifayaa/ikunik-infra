@@ -8,7 +8,8 @@ import mongoCollections from '../../../libs/mongoCollections.json';
 import { postArticle } from '../../lib/postArticle';
 import spyMongoMethods from '../../../libs/test/spyMongoMethods';
 
-const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
+const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES, COLL_PRESS_ARTICLES_CACHE } =
+  mongoCollections;
 
 describe('lib - postArticle', () => {
   let spyMongo;
@@ -66,6 +67,18 @@ describe('lib - postArticle', () => {
       spyMongo.insertOne,
       spyMongo.insertOne.getCall(1).args[0],
       spyMongo.insertOne.getCall(1).args[1]
+    );
+  });
+
+  it('should invalidate first-load articles cache', () => {
+    sinon.assert.calledWith(spyMongo.collection, COLL_PRESS_ARTICLES_CACHE);
+    sinon.assert.calledWith(
+      spyMongo.deleteMany,
+      {
+        appId: { $in: ['appId'] },
+        type: 'firstLoad',
+      },
+      spyMongo.insertOne.getCall(0).args[1]
     );
   });
 

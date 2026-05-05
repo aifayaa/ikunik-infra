@@ -3,6 +3,7 @@ import Lambda from 'aws-sdk/clients/lambda';
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache';
 
 const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
@@ -159,6 +160,8 @@ export const postArticle = async ({
     article._id = draftId;
     article.ancestor = null;
     await client.db().collection(COLL_PRESS_DRAFTS).insertOne(article, opts);
+
+    await invalidateArticlesCache(client.db(), [appId], opts);
 
     await session.commitTransaction();
   } catch (error) {

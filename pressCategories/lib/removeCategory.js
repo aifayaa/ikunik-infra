@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache';
 import notifyAdminsForRSSFeedUrlChange from './notifyAdminsForRSSFeedUrlChange.ts';
 import { reorderCategoriesIn } from './reorderCategory';
 
@@ -31,7 +32,7 @@ export default async (appId, categoryId) => {
       throw new Error('category_has_children_categories');
     }
 
-    const resultDelete = collection.deleteOne({ _id: categoryId });
+    const resultDelete = await collection.deleteOne({ _id: categoryId });
 
     await reorderCategoriesIn(appId, parentId);
 
@@ -165,6 +166,8 @@ export default async (appId, categoryId) => {
         true
       );
     }
+
+    await invalidateArticlesCache(client.db(), [appId]);
 
     return { resultDelete, resultTrashed };
   } finally {

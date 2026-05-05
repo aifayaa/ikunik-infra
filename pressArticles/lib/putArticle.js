@@ -2,6 +2,7 @@
 import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from '../../libs/invalidateArticlesCache';
 import { manageArticleProduct } from './manageArticleProduct';
 
 const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
@@ -157,6 +158,8 @@ export const putArticle = async ({
           },
         }
       );
+
+    await invalidateArticlesCache(client.db(), [appId]);
 
     return { articleId, draftId };
   } finally {
