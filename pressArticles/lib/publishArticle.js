@@ -1,6 +1,7 @@
 /* eslint-disable import/no-relative-packages */
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from './invalidateArticlesCache';
 
 const { COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
@@ -154,6 +155,8 @@ export const publishArticle = async (
         },
         opts
       );
+
+    await invalidateArticlesCache(client.db(), [appId], opts);
 
     await session.commitTransaction();
 

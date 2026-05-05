@@ -2,6 +2,7 @@
 import { WordpressAPI } from '../../libs/backends/wordpress';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from './invalidateArticlesCache';
 
 const { COLL_APPS, COLL_PRESS_DRAFTS, COLL_PRESS_ARTICLES } = mongoCollections;
 
@@ -29,6 +30,8 @@ export const removeArticle = async (_userId, appId, articleId) => {
       },
       opts
     );
+
+    await invalidateArticlesCache(client.db(), [appId], opts);
 
     await session.commitTransaction();
 

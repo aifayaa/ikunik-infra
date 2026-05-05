@@ -1,5 +1,6 @@
 /* eslint-disable import/no-relative-packages */
 import mongoCollections from '../../libs/mongoCollections.json';
+import { invalidateArticlesCache } from './invalidateArticlesCache.js';
 import { cleanPendingArticleNotifications } from './notificationsQueue.js';
 
 const { COLL_PRESS_ARTICLES, COLL_PRESS_DRAFTS } = mongoCollections;
@@ -16,6 +17,21 @@ export async function unpublishArticlesInDb(
     userId?: string;
   }
 ) {
+  const articlesToUnpublish = (await db
+    .collection(COLL_PRESS_ARTICLES)
+    .find(queryArticlesToUnpublish, {
+      projection: { _id: 1, appId: 1 },
+      session,
+    })
+    .toArray()) as Array<{ _id: string; appId: string }>;
+
+  const articleIds = articlesToUnpublish.map(({ _id }) => _id);
+  const appIds = articlesToUnpublish.map(({ appId }) => appId);
+
+  if (!articleIds.length) {
+    return;
+  }
+
   await db.collection(COLL_PRESS_ARTICLES).updateMany(
     queryArticlesToUnpublish,
     {
@@ -29,7 +45,10 @@ export async function unpublishArticlesInDb(
   );
 
   await db.collection(COLL_PRESS_DRAFTS).updateMany(
-    queryArticlesToUnpublish,
+    {
+      articleId: { $in: articleIds },
+      appId: { $in: appIds },
+    },
     {
       $set: {
         isPublished: false,
@@ -37,6 +56,8 @@ export async function unpublishArticlesInDb(
     },
     { session }
   );
+
+  await invalidateArticlesCache(db, appIds, { session });
 }
 
 export async function unpublishArticlesNotifications(
