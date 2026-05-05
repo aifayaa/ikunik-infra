@@ -8,7 +8,7 @@ import {
   RequestOptionsType,
 } from '../../asyncLambdas/lib/sendEmailTemplate';
 
-const { STAGE, REGION, CROWDAA_REGION } = process.env;
+const { STAGE, REGION, CROWDAA_REGION, DASHBOARD_V2_DOMAIN } = process.env;
 
 const MAIL_LANG = 'en';
 const MAIL_TO = 'prod@crowdaa.com';
@@ -36,7 +36,9 @@ export default async (
 
     const urlStageRegionField =
       STAGE === 'prod' ? CROWDAA_REGION : `${STAGE}-${CROWDAA_REGION}`;
-    const dashboardUrl = `https://app.crowdaa.com/${urlStageRegionField}/apps/${appId}/categories/${categoryId}`;
+    const dashboardDomain =
+      DASHBOARD_V2_DOMAIN || 'd1jmbvp87c05ud.cloudfront.net';
+    const dashboardUrl = `https://${dashboardDomain}/${urlStageRegionField}/apps/${appId}/categories/${categoryId}`;
 
     let subject = `[${STAGE}/${CROWDAA_REGION}] RSS Feed URL changed for ${escapeHtmlEntities(app.name)}`;
     let html = `<h3>The RSS Feed URL changed for ${escapeHtmlEntities(app.name)} (${appId}/${categoryId})</h3>

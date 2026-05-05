@@ -34,7 +34,7 @@ const serverlessConfiguration = {
     },
     prod: {
       'us-east-1': {
-        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
+        REACT_APP_DASHBOARD_URL: 'https://d1jmbvp87c05ud.cloudfront.net/us',
         REACT_APP_API_URL:
           'https://ocxuvafsn8.execute-api.us-east-1.amazonaws.com/prod',
         S3_UPLOAD_BUCKET:

@@ -27,7 +27,7 @@ const serverlessConfiguration = {
     },
     prod: {
       'us-east-1': {
-        REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/us',
+        REACT_APP_DASHBOARD_URL: 'https://d1jmbvp87c05ud.cloudfront.net/us',
       },
       'eu-west-3': {
         REACT_APP_DASHBOARD_URL: 'https://app.crowdaa.com/fr',
@@ -73,7 +73,8 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
     iam: {
       role: {
         statements: [

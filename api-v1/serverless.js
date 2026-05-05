@@ -133,7 +133,7 @@ const serverlessConfiguration = {
     DASHBOARD_V2_DOMAIN: {
       dev: 'app.crowdaa.com',
       preprod: 'app.crowdaa.com',
-      prod: 'app.crowdaa.com',
+      prod: 'd1jmbvp87c05ud.cloudfront.net',
     },
     esbuild: {
       config: '../esbuild.config.cjs',
