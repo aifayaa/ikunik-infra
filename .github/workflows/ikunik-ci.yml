@@ -1,0 +1,39 @@
+name: Ikunik Infra CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ikunik-infra-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ikunik-infra-guard:
+    name: ikunik-infra-guard
+    runs-on: ubuntu-latest
+    env:
+      IKUNIK_REPO_KIND: infra
+      IKUNIK_EXPECTED_BRANCH: main
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Guard legacy and branch scope
+        run: bash .github/scripts/ikunik-ci-guard.sh infra
+      - name: Validate serverless JavaScript syntax
+        run: find . -maxdepth 2 -name serverless.js -print0 | xargs -0 -n1 node --check
+      - name: Verify prod/us deploy entrypoint exists
+        run: test -x ./deploy.sh && grep -q 'prod:us-east-1' package.json
