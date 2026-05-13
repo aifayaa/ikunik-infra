@@ -78,7 +78,7 @@ PressArticleHandler.prototype.init = async function init() {
           as: 'category',
         },
       },
-      { $unwind: '$category' },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: COLL_PRESS_CATEGORIES,
