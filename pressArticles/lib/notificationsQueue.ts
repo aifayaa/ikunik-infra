@@ -32,6 +32,9 @@ export async function queueArticleNotifications(
       _id: articleId,
       appId,
     });
+    if (!article) {
+      throw new Error('article_not_found');
+    }
 
     if (typeof title !== 'string') {
       title = title || prepareNotif(article.title, 60, false);
@@ -83,6 +86,18 @@ export async function queueArticleNotifications(
           }
         );
     }
+
+    console.info('queueArticleNotifications()', {
+      appId,
+      articleId,
+      draftId,
+      queueId: queueId || null,
+    });
+
+    return {
+      queued: !!queueId,
+      queueId: queueId || null,
+    };
   } finally {
     await client.close();
   }

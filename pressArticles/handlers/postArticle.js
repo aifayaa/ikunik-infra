@@ -17,6 +17,8 @@ import {
 } from '../../libs/perms/checkPermsFor.ts';
 import { checkAppPlanForLimitAccess } from '../../appsFeaturePlans/lib/checkAppPlanForLimits.ts';
 
+const isTruthyQueryFlag = (value) => value === true || value === 'true';
+
 export default async (event) => {
   try {
     const {
@@ -253,8 +255,8 @@ export default async (event) => {
         new Date()
       );
       results.published = true;
-      if (sendNotifications === 'true') {
-        await queueArticleNotifications(
+      if (isTruthyQueryFlag(sendNotifications)) {
+        results.notificationResults = await queueArticleNotifications(
           appId,
           results.articleId,
           results.draftId,
