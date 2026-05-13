@@ -27,8 +27,47 @@ type JWTBaseType = {
   aud?: string;
   sub?: string;
 };
+type WPPlaylistType = {
+  id?: number | string;
+  title?: string;
+};
 
 const { STAGE, REGION, PLAYLISTS_WORDPRESS_URL } = process.env as EnvType;
+
+function normalizePlaylistTitle(title?: string): string {
+  return (title || '')
+    .replace(/&#8211;|&ndash;/g, '-')
+    .replace(/&#8217;|&rsquo;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function filterPlaylistsForApp(
+  playlists: WPPlaylistType[],
+  app: AppType
+): WPPlaylistType[] {
+  const wordpressPlaylists = app.credentials?.wordpressPlaylists;
+  const allowedPlaylistIds = wordpressPlaylists?.allowedPlaylistIds;
+  const allowedPlaylistTitles = wordpressPlaylists?.allowedPlaylistTitles;
+
+  if (allowedPlaylistIds?.length) {
+    const allowedIds = new Set(allowedPlaylistIds.map((id) => String(id)));
+    return playlists.filter((playlist) => allowedIds.has(String(playlist.id)));
+  }
+
+  if (allowedPlaylistTitles?.length) {
+    const allowedTitles = new Set(
+      allowedPlaylistTitles.map((title) => normalizePlaylistTitle(title))
+    );
+    return playlists.filter((playlist) =>
+      allowedTitles.has(normalizePlaylistTitle(playlist.title))
+    );
+  }
+
+  return playlists;
+}
 
 function decodeJwtSettings(sessionToken?: string): JWTBaseType {
   if (!sessionToken) {
@@ -145,7 +184,7 @@ export class WordpressPlaylistQueryManager {
       response = JSON.parse(response);
     }
 
-    return response;
+    return filterPlaylistsForApp(response, this._app);
   }
 }
 
