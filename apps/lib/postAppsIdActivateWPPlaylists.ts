@@ -81,6 +81,21 @@ function decodeJwtSettings(sessionToken?: string): JWTBaseType {
   }
 }
 
+function normalizeAutologinUrl(autologinUrl: string, baseUrl: string): string {
+  try {
+    const url = new URL(autologinUrl);
+    const base = new URL(baseUrl);
+
+    if (base.protocol === 'https:' && url.hostname === base.hostname) {
+      url.protocol = 'https:';
+    }
+
+    return url.toString();
+  } catch {
+    return autologinUrl;
+  }
+}
+
 export class WordpressPlaylistQueryManager {
   _app: AppType;
   readonly EXPIRES_DELAY = 600;
@@ -133,6 +148,10 @@ export class WordpressPlaylistQueryManager {
       }
 
       const { token, autologin_code, autologin_url } = response;
+      const playlistManagementUrl = normalizeAutologinUrl(
+        autologin_url,
+        baseUrl
+      );
 
       const client = await MongoClient.connect();
 
@@ -144,7 +163,7 @@ export class WordpressPlaylistQueryManager {
           $set: {
             'credentials.wordpressPlaylists.sessionToken': token,
             'credentials.wordpressPlaylists.autoLoginToken': autologin_code,
-            'settings.playlistManagementUrl': autologin_url,
+            'settings.playlistManagementUrl': playlistManagementUrl,
           },
         }
       );
@@ -153,7 +172,7 @@ export class WordpressPlaylistQueryManager {
 
       this._app.credentials.wordpressPlaylists.sessionToken = token;
       this._app.credentials.wordpressPlaylists.autoLoginToken = autologin_code;
-      this._app.settings.playlistManagementUrl = autologin_url;
+      this._app.settings.playlistManagementUrl = playlistManagementUrl;
     }
   }
 
@@ -215,6 +234,10 @@ async function createPlaylistUrl(app: AppType) {
     }
 
     const { token, autologin_code, autologin_url } = response;
+    const playlistManagementUrl = normalizeAutologinUrl(
+      autologin_url,
+      PLAYLISTS_WORDPRESS_URL
+    );
 
     const client = await MongoClient.connect();
 
@@ -232,7 +255,7 @@ async function createPlaylistUrl(app: AppType) {
             sessionToken: token,
             autoLoginToken: autologin_code,
           },
-          'settings.playlistManagementUrl': autologin_url,
+          'settings.playlistManagementUrl': playlistManagementUrl,
         },
       }
     );
@@ -248,7 +271,7 @@ async function createPlaylistUrl(app: AppType) {
       sessionToken: token,
       autoLoginToken: autologin_code,
     };
-    app.settings.playlistManagementUrl = autologin_url;
+    app.settings.playlistManagementUrl = playlistManagementUrl;
 
     return app;
   } else {
