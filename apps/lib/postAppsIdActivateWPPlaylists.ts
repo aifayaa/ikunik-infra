@@ -30,6 +30,18 @@ type JWTBaseType = {
 
 const { STAGE, REGION, PLAYLISTS_WORDPRESS_URL } = process.env as EnvType;
 
+function decodeJwtSettings(sessionToken?: string): JWTBaseType {
+  if (!sessionToken) {
+    return {} as JWTBaseType;
+  }
+
+  try {
+    return JWT.decode(sessionToken) as JWTBaseType;
+  } catch {
+    return {} as JWTBaseType;
+  }
+}
+
 export class WordpressPlaylistQueryManager {
   _app: AppType;
   readonly EXPIRES_DELAY = 600;
@@ -61,7 +73,7 @@ export class WordpressPlaylistQueryManager {
     const { sessionToken, username, password, baseUrl } =
       this._app.credentials.wordpressPlaylists;
 
-    const jwtSettings = JWT.decode(sessionToken) as JWTBaseType;
+    const jwtSettings = decodeJwtSettings(sessionToken);
 
     const expiredAfter = Date.now() / 1000 - this.EXPIRES_DELAY;
     if (!jwtSettings.exp || expiredAfter >= jwtSettings.exp) {
@@ -216,10 +228,6 @@ export default async (appId: string) => {
     const db = client.db();
 
     const app = await getApp(appId);
-
-    if (app.settings.playlistManagementUrl) {
-      return app;
-    }
 
     const updatedApp = await createPlaylistUrl(app);
 
