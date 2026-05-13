@@ -5,18 +5,12 @@ import mongoCollections from '@libs/mongoCollections.json';
 import { SNSEvent } from 'aws-lambda';
 
 const { COLL_PUSH_NOTIFICATIONS } = mongoCollections;
-const { SNS_KEY_ID, SNS_REGION, SNS_SECRET } = process.env as {
-  SNS_KEY_ID: string;
+const { SNS_REGION } = process.env as {
   SNS_REGION: string;
-  SNS_SECRET: string;
 };
 
 const sns = new SNS({
   region: SNS_REGION,
-  credentials: {
-    accessKeyId: SNS_KEY_ID,
-    secretAccessKey: SNS_SECRET,
-  },
 });
 
 /**

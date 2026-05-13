@@ -98,6 +98,18 @@ const serverlessConfiguration = {
             Resource:
               'arn:aws:states:${self:provider.region}:${self:custom.awsAccountId}:execution:${self:custom.${self:provider.stage}.${self:provider.region}.NOTIFICATION_STATE_MACHINE_NAME}:${self:provider.stage}*',
           },
+          {
+            Effect: 'Allow',
+            Action: [
+              'sns:Publish',
+              'sns:GetEndpointAttributes',
+              'sns:DeleteEndpoint',
+            ],
+            Resource: [
+              'arn:aws:sns:*:${self:custom.awsAccountId}:endpoint/*/*/*',
+              'arn:aws:sns:*:${self:custom.awsAccountId}:*',
+            ],
+          },
         ],
       },
     },

@@ -7,16 +7,12 @@ import uuidv4 from 'uuid/v4';
 import MongoClient from '../../libs/mongoClient';
 import mongoCollections from '../../libs/mongoCollections.json';
 
-const { SNS_REGION, SNS_KEY_ID, SNS_SECRET } = process.env;
+const { SNS_REGION } = process.env;
 
 const { COLL_APPS, COLL_PUSH_NOTIFICATIONS } = mongoCollections;
 
 const sns = new SNS({
   region: SNS_REGION,
-  credentials: {
-    accessKeyId: SNS_KEY_ID,
-    secretAccessKey: SNS_SECRET,
-  },
 });
 
 export default async ({ userId, Token, deviceUUID, platform, appId }) => {
