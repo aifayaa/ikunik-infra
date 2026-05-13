@@ -63,7 +63,8 @@ const serverlessConfiguration = {
         '${self:custom.${self:provider.stage}.${self:provider.region}.REACT_APP_PRESS_SERVICE_URL}',
       CROWDAA_REGION:
         '${self:custom.${self:provider.stage}.${self:provider.region}.CROWDAA_REGION}',
-      PLAYLISTS_WORDPRESS_URL: 'https://test-playlist.crowdaa.com/wp-json',
+      PLAYLISTS_WORDPRESS_URL:
+        'https://ff9d384a-83b8-4f39-8b7d-7207622e7745-playlists.crowdaa.com/wp-json',
       S3_APPS_RESSOURCES:
         '${self:custom.${self:provider.stage}.${self:provider.region}.S3_APPS_RESSOURCES}',
     },

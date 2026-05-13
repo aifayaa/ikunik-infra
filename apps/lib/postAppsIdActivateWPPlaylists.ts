@@ -27,8 +27,59 @@ type JWTBaseType = {
   aud?: string;
   sub?: string;
 };
+type WPPlaylistType = {
+  id?: number | string;
+  title?: string;
+};
 
 const { STAGE, REGION, PLAYLISTS_WORDPRESS_URL } = process.env as EnvType;
+
+function normalizePlaylistTitle(title?: string): string {
+  return (title || '')
+    .replace(/&#8211;|&ndash;/g, '-')
+    .replace(/&#8217;|&rsquo;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function filterPlaylistsForApp(
+  playlists: WPPlaylistType[],
+  app: AppType
+): WPPlaylistType[] {
+  const wordpressPlaylists = app.credentials?.wordpressPlaylists;
+  const allowedPlaylistIds = wordpressPlaylists?.allowedPlaylistIds;
+  const allowedPlaylistTitles = wordpressPlaylists?.allowedPlaylistTitles;
+
+  if (allowedPlaylistIds?.length) {
+    const allowedIds = new Set(allowedPlaylistIds.map((id) => String(id)));
+    return playlists.filter((playlist) => allowedIds.has(String(playlist.id)));
+  }
+
+  if (allowedPlaylistTitles?.length) {
+    const allowedTitles = new Set(
+      allowedPlaylistTitles.map((title) => normalizePlaylistTitle(title))
+    );
+    return playlists.filter((playlist) =>
+      allowedTitles.has(normalizePlaylistTitle(playlist.title))
+    );
+  }
+
+  return playlists;
+}
+
+function decodeJwtSettings(sessionToken?: string): JWTBaseType {
+  if (!sessionToken) {
+    return {} as JWTBaseType;
+  }
+
+  try {
+    return JWT.decode(sessionToken) as JWTBaseType;
+  } catch {
+    return {} as JWTBaseType;
+  }
+}
 
 export class WordpressPlaylistQueryManager {
   _app: AppType;
@@ -61,7 +112,7 @@ export class WordpressPlaylistQueryManager {
     const { sessionToken, username, password, baseUrl } =
       this._app.credentials.wordpressPlaylists;
 
-    const jwtSettings = JWT.decode(sessionToken) as JWTBaseType;
+    const jwtSettings = decodeJwtSettings(sessionToken);
 
     const expiredAfter = Date.now() / 1000 - this.EXPIRES_DELAY;
     if (!jwtSettings.exp || expiredAfter >= jwtSettings.exp) {
@@ -133,7 +184,7 @@ export class WordpressPlaylistQueryManager {
       response = JSON.parse(response);
     }
 
-    return response;
+    return filterPlaylistsForApp(response, this._app);
   }
 }
 
@@ -216,10 +267,6 @@ export default async (appId: string) => {
     const db = client.db();
 
     const app = await getApp(appId);
-
-    if (app.settings.playlistManagementUrl) {
-      return app;
-    }
 
     const updatedApp = await createPlaylistUrl(app);
 

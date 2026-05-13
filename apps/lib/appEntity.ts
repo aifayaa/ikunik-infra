@@ -195,6 +195,8 @@ export type AppType = {
       email: string;
       sessionToken: string;
       autoLoginToken: string;
+      allowedPlaylistIds?: Array<number | string>;
+      allowedPlaylistTitles?: string[];
     };
     firebase?: {
       webAppConfig?: {
