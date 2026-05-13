@@ -1,6 +1,5 @@
 /* eslint-disable import/no-relative-packages */
 import AWS from 'aws-sdk/';
-import managePicture from '../lib/managePicture';
 import manageVideo from '../lib/manageVideo';
 import manageDocument from '../lib/manageDocument';
 import response from '../../libs/httpResponses/response.ts';
@@ -45,6 +44,7 @@ export default async (event) => {
     }
 
     if (collection === COLL_PICTURES) {
+      const { default: managePicture } = await import('../lib/managePicture');
       const file = await s3.getObject(params).promise();
       await managePicture(bucket, object, file, document);
     } else if (collection === COLL_VIDEOS) {
