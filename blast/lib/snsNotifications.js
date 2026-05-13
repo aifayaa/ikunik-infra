@@ -3,14 +3,10 @@ import SNS from 'aws-sdk/clients/sns';
 import mongoCollections from '../../libs/mongoCollections.json';
 
 const { COLL_PUSH_NOTIFICATIONS } = mongoCollections;
-const { SNS_KEY_ID, SNS_REGION, SNS_SECRET } = process.env;
+const { SNS_REGION } = process.env;
 
 const sns = new SNS({
   region: SNS_REGION,
-  credentials: {
-    accessKeyId: SNS_KEY_ID,
-    secretAccessKey: SNS_SECRET,
-  },
 });
 
 export class NoNotificationTypeError extends Error {

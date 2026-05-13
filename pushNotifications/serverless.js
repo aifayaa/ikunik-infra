@@ -16,6 +16,24 @@ const serverlessConfiguration = {
     },
     region: '${opt:region, "us-east-1"}',
     deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: [
+              'sns:CreatePlatformEndpoint',
+              'sns:GetEndpointAttributes',
+              'sns:DeleteEndpoint',
+            ],
+            Resource: [
+              'arn:aws:sns:*:${self:custom.awsAccountId}:app/*/*',
+              'arn:aws:sns:*:${self:custom.awsAccountId}:endpoint/*/*/*',
+            ],
+          },
+        ],
+      },
+    },
   },
   functions: {
     registerDevice: {
@@ -51,6 +69,7 @@ const serverlessConfiguration = {
     'serverless-plugin-log-retention',
   ],
   custom: {
+    awsAccountId: '${aws:accountId}',
     logRetentionInDays: 7,
     prune: {
       automatic: true,
