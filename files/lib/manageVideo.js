@@ -126,11 +126,11 @@ export default async (bucket, object, file, document) => {
           },
         },
         VideoDescription: {
+          Width: preset.width,
+          Height: preset.height,
+          ScalingBehavior: 'FIT_NO_UPSCALE',
           CodecSettings: {
             Codec: 'H_264',
-            Width: preset.width,
-            Height: preset.height,
-            ScalingBehavior: 'FIT_NO_UPSCALE',
             H264Settings: {
               RateControlMode: 'QVBR',
               QualityTuningLevel: 'SINGLE_PASS_HQ',
@@ -164,12 +164,14 @@ export default async (bucket, object, file, document) => {
           Inputs: [
             {
               FileInput: `s3://${bucket.name}/${videoPath}`,
+              VideoSelector: {
+                Rotate: 'AUTO',
+              },
               AudioSelectors: {
                 'Audio Selector 1': {
                   DefaultSelection: 'DEFAULT',
                 },
               },
-              VideoSelector: {},
               TimecodeSource: 'ZEROBASED',
             },
           ],
@@ -211,8 +213,8 @@ export default async (bucket, object, file, document) => {
                     Container: 'RAW',
                   },
                   VideoDescription: {
-                    width: presets[0].width,
-                    height: presets[0].height,
+                    Width: presets[0].width,
+                    Height: presets[0].height,
                     ScalingBehavior: 'FIT_NO_UPSCALE',
                     CodecSettings: {
                       Codec: 'FRAME_CAPTURE',
