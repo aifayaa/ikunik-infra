@@ -13,7 +13,7 @@ import { objGet, objSet } from '../../libs/utils';
 import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils.ts';
 
 const { COLL_APPS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
-const MMF_SHOP_BASE_URL = 'https://app.mymerchfactory.com/';
+const MMF_SHOP_BASE_URL = 'https://mpodx.shop/';
 
 export default async (appId, update) => {
   const client = await MongoClient.connect();
