@@ -13,6 +13,7 @@ import { objGet, objSet } from '../../libs/utils';
 import { getAppDefaultBuildFields, getAppLockedFields } from './appsUtils.ts';
 
 const { COLL_APPS, COLL_PICTURES, COLL_VIDEOS } = mongoCollections;
+const MMF_SHOP_BASE_URL = 'https://app.mymerchfactory.com/';
 
 export default async (appId, update) => {
   const client = await MongoClient.connect();
@@ -127,7 +128,7 @@ export default async (appId, update) => {
         id: update.mmfId,
       };
       $set['settings.press.env.merchMMFUrl'] =
-        `https://mpodx.shop/?entry=cat&platform=crowdaa&cart=1&mf_uuid=${update.mmfId}`;
+        `${MMF_SHOP_BASE_URL}?entry=cat&platform=crowdaa&cart=1&mf_uuid=${update.mmfId}`;
     }
     if (update.startupVideo) {
       if (update.startupVideo.delete) {
