@@ -106,7 +106,16 @@ export default async (
         resources: resources.join('\n'),
       });
 
-      await sendEmailTemplate(LANG, 'internal', MAIL_TO, subject, html);
+      try {
+        await sendEmailTemplate(LANG, 'internal', MAIL_TO, subject, html);
+      } catch (e) {
+        // Upload URL generation must not depend on internal email delivery.
+        // eslint-disable-next-line no-console
+        console.warn('resource_upload_email_failed', {
+          appId,
+          message: e && e.message,
+        });
+      }
     }
 
     /* Return the document ID and the upload url */
