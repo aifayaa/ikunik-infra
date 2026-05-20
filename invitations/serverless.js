@@ -20,7 +20,21 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+            Resource: [
+              'arn:aws:ses:eu-west-3:${aws:accountId}:identity/JimmyT@ikunikteklab.com',
+            ],
+          },
+        ],
+      },
+    },
   },
   functions: {
     createInvitation: {
