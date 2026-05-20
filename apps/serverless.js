@@ -77,7 +77,8 @@ const serverlessConfiguration = {
       },
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
     iam: {
       role: {
         statements: [
@@ -99,6 +100,13 @@ const serverlessConfiguration = {
             Effect: 'Allow',
             Action: ['lambda:InvokeFunction'],
             Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+            Resource: [
+              'arn:aws:ses:eu-west-3:${self:custom.awsAccountId}:identity/JimmyT@ikunikteklab.com',
+            ],
           },
         ],
       },

@@ -1,15 +1,18 @@
 /* eslint-disable import/no-relative-packages */
+import AWS from 'aws-sdk';
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mailgun from 'mailgun-js';
-import { sendEmailTemplate } from './sendEmail';
 
 const { MAILGUN_API_KEY, MAILGUN_DOMAIN, EMAIL_SANDBOX_REDIRECT_TO } =
   process.env;
+const EMAIL_SANDBOX_REDIRECT_SES_REGION =
+  process.env.EMAIL_SANDBOX_REDIRECT_SES_REGION || 'eu-west-3';
 
 const mailgun = Mailgun({
   apiKey: MAILGUN_API_KEY,
   domain: MAILGUN_DOMAIN,
 });
+const ses = new AWS.SES({ region: EMAIL_SANDBOX_REDIRECT_SES_REGION });
 
 function escapeHtml(value) {
   return String(value == null ? '' : value)
@@ -59,20 +62,33 @@ async function sendSandboxRedirect({
     return false;
   }
 
-  await sendEmailTemplate(
-    'en',
-    'internal',
-    EMAIL_SANDBOX_REDIRECT_TO,
-    `[SANDBOX REDIRECT for ${originalTo}] ${subject}`,
-    buildRedirectedHtml({
-      originalTo,
-      redirectTo: EMAIL_SANDBOX_REDIRECT_TO,
-      subject,
-      template,
-      vars,
-      body,
+  await ses
+    .sendEmail({
+      Source: EMAIL_SANDBOX_REDIRECT_TO,
+      Destination: {
+        ToAddresses: [EMAIL_SANDBOX_REDIRECT_TO],
+      },
+      Message: {
+        Subject: {
+          Charset: 'UTF-8',
+          Data: `[SANDBOX REDIRECT for ${originalTo}] ${subject}`,
+        },
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: buildRedirectedHtml({
+              originalTo,
+              redirectTo: EMAIL_SANDBOX_REDIRECT_TO,
+              subject,
+              template,
+              vars,
+              body,
+            }),
+          },
+        },
+      },
     })
-  );
+    .promise();
 
   return true;
 }
