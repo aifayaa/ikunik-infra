@@ -11,8 +11,18 @@ const mailgun = Mailgun({
   domain: MAILGUN_DOMAIN,
 });
 
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function buildRedirectedHtml({
   originalTo,
+  redirectTo,
   subject,
   template,
   vars = {},
@@ -20,14 +30,19 @@ function buildRedirectedHtml({
 }) {
   const varsHtml = Object.keys(vars)
     .sort()
-    .map((key) => `<li><b>${key}</b>: ${vars[key]}</li>`)
+    .map(
+      (key) => `<li><b>${escapeHtml(key)}</b>: ${escapeHtml(vars[key])}</li>`
+    )
     .join('');
 
   return `
     <p><b>Sandbox redirected email</b></p>
-    <p><b>Original recipient:</b> ${originalTo}</p>
-    <p><b>Original subject:</b> ${subject}</p>
-    <p><b>Original Mailgun template:</b> ${template || 'html'}</p>
+    <p>This email was <b>not sent to the original recipient</b>. It was redirected to the verified admin inbox below because SES is still in sandbox mode.</p>
+    <p><b>Redirected to admin:</b> ${escapeHtml(redirectTo)}</p>
+    <p><b>Original recipient:</b> ${escapeHtml(originalTo)}</p>
+    <p><b>Original subject:</b> ${escapeHtml(subject)}</p>
+    <p><b>Original Mailgun template:</b> ${escapeHtml(template || 'html')}</p>
+    <p><b>Action required:</b> review this message, then manually forward the relevant invitation/credentials to the original recipient.</p>
     ${varsHtml ? `<ul>${varsHtml}</ul>` : ''}
     ${body ? `<hr>${body}` : ''}
   `;
@@ -49,7 +64,14 @@ async function sendSandboxRedirect({
     'internal',
     EMAIL_SANDBOX_REDIRECT_TO,
     `[SANDBOX REDIRECT for ${originalTo}] ${subject}`,
-    buildRedirectedHtml({ originalTo, subject, template, vars, body })
+    buildRedirectedHtml({
+      originalTo,
+      redirectTo: EMAIL_SANDBOX_REDIRECT_TO,
+      subject,
+      template,
+      vars,
+      body,
+    })
   );
 
   return true;
