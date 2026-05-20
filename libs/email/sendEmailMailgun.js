@@ -1,13 +1,69 @@
 /* eslint-disable import/no-relative-packages */
 import MailComposer from 'nodemailer/lib/mail-composer';
 import Mailgun from 'mailgun-js';
+import { sendEmailTemplate } from './sendEmail';
 
-const { MAILGUN_API_KEY, MAILGUN_DOMAIN } = process.env;
+const { MAILGUN_API_KEY, MAILGUN_DOMAIN, EMAIL_SANDBOX_REDIRECT_TO } =
+  process.env;
 
 const mailgun = Mailgun({
   apiKey: MAILGUN_API_KEY,
   domain: MAILGUN_DOMAIN,
 });
+
+function buildRedirectedHtml({
+  originalTo,
+  subject,
+  template,
+  vars = {},
+  body = null,
+}) {
+  const varsHtml = Object.keys(vars)
+    .sort()
+    .map((key) => `<li><b>${key}</b>: ${vars[key]}</li>`)
+    .join('');
+
+  return `
+    <p><b>Sandbox redirected email</b></p>
+    <p><b>Original recipient:</b> ${originalTo}</p>
+    <p><b>Original subject:</b> ${subject}</p>
+    <p><b>Original Mailgun template:</b> ${template || 'html'}</p>
+    ${varsHtml ? `<ul>${varsHtml}</ul>` : ''}
+    ${body ? `<hr>${body}` : ''}
+  `;
+}
+
+async function sendSandboxRedirect({
+  originalTo,
+  subject,
+  template,
+  vars,
+  body,
+}) {
+  if (!EMAIL_SANDBOX_REDIRECT_TO) {
+    return false;
+  }
+
+  await sendEmailTemplate(
+    'en',
+    'internal',
+    EMAIL_SANDBOX_REDIRECT_TO,
+    `[SANDBOX REDIRECT for ${originalTo}] ${subject}`,
+    buildRedirectedHtml({ originalTo, subject, template, vars, body })
+  );
+
+  return true;
+}
+
+function isDisabledOrForbiddenMailgunError(error) {
+  const message = `${error && error.message ? error.message : error}`;
+  const statusCode = error && (error.statusCode || error.status);
+  return (
+    statusCode === 401 ||
+    statusCode === 403 ||
+    /disabled|forbidden|unauthorized/i.test(message)
+  );
+}
 
 export function sendEmailMailgunTemplate(
   from,
@@ -35,6 +91,20 @@ export function sendEmailMailgunTemplate(
       if (error) reject(error);
       else resolve(body);
     });
+  }).catch(async (error) => {
+    if (!isDisabledOrForbiddenMailgunError(error)) {
+      throw error;
+    }
+    const redirected = await sendSandboxRedirect({
+      originalTo: to,
+      subject,
+      template,
+      vars,
+    });
+    if (redirected) {
+      return { sandboxRedirected: true, originalTo: to };
+    }
+    throw error;
   });
 }
 
@@ -64,5 +134,18 @@ export function sendEmailMailgunHtml(from, to, subject, body, extra = {}) {
         return resolve(true);
       });
     });
+  }).catch(async (error) => {
+    if (!isDisabledOrForbiddenMailgunError(error)) {
+      throw error;
+    }
+    const redirected = await sendSandboxRedirect({
+      originalTo: to,
+      subject,
+      body,
+    });
+    if (redirected) {
+      return { sandboxRedirected: true, originalTo: to };
+    }
+    throw error;
   });
 }
