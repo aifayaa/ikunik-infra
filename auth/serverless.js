@@ -58,6 +58,13 @@ const serverlessConfiguration = {
               'arn:aws:s3:::${self:provider.environment.S3_APPS_RESSOURCES}/*',
             ],
           },
+          {
+            Effect: 'Allow',
+            Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+            Resource: [
+              'arn:aws:ses:eu-west-3:${aws:accountId}:identity/JimmyT@ikunikteklab.com',
+            ],
+          },
         ],
       },
     },
