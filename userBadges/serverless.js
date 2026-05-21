@@ -53,6 +53,13 @@ const serverlessConfiguration = {
             Action: ['lambda:InvokeFunction'],
             Resource: '*',
           },
+          {
+            Effect: 'Allow',
+            Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+            Resource: [
+              'arn:aws:ses:eu-west-3:${aws:accountId}:identity/JimmyT@ikunikteklab.com',
+            ],
+          },
         ],
       },
     },
@@ -68,7 +75,8 @@ const serverlessConfiguration = {
       restApiRootResourceId:
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     addUserBadge: {
