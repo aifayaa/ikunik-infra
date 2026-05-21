@@ -103,6 +103,13 @@ const serverlessConfiguration = {
             Action: ['iam:PassRole'],
             Resource: '${self:custom.AI_VIDEO_MODERATION_COMPLETION_ROLE_ARN}',
           },
+          {
+            Effect: 'Allow',
+            Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+            Resource: [
+              'arn:aws:ses:eu-west-3:${self:custom.awsAccountId}:identity/JimmyT@ikunikteklab.com',
+            ],
+          },
         ],
       },
     },

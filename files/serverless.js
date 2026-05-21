@@ -1,5 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 const env = require('../env');
+
 const enableUploadBucketHook = process.env.SKIP_FILES_S3_HOOK !== '1';
 
 const serverlessConfiguration = {
@@ -60,6 +61,13 @@ const serverlessConfiguration = {
             Action: ['iam:PassRole'],
             Resource: '${self:provider.environment.MEDIACONVERT_ROLE_ARN}',
           },
+          {
+            Effect: 'Allow',
+            Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+            Resource: [
+              'arn:aws:ses:eu-west-3:${self:custom.awsAccountId}:identity/JimmyT@ikunikteklab.com',
+            ],
+          },
         ],
       },
     },
@@ -86,7 +94,8 @@ const serverlessConfiguration = {
         '${cf:api-v1-${self:provider.stage}.RestApiRootResourceId}',
     },
     region: '${opt:region, "us-east-1"}',
-    deploymentBucket: '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
+    deploymentBucket:
+      '${env:MS_DEPLOYMENT_BUCKET, "ms-deployment-${self:provider.region}"}',
   },
   functions: {
     getUploadUrl: {
