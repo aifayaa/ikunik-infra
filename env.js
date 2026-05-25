@@ -27,8 +27,8 @@ module.exports = {
   NODE_OPTIONS: '--enable-source-maps',
   REGION: '${self:provider.region}',
   S3_BUCKET: 'crowdaa-user-content',
-  S3_BUCKET_TOS: 'crowdaa-tos',
-  S3_BUCKET_TOS_HOST: 'https://tos.aws.crowdaa.com',
+  S3_BUCKET_TOS: 'ikunik-preview-target-prod-us-670296240767',
+  S3_BUCKET_TOS_HOST: 'https://d2v5xtqmhp3yyz.cloudfront.net',
   S3_REGION: 'us-east-1',
   SMTP_FROM: 'noreply@aws.crowdaa.com',
   MONGODB_ENCRYPTION_KEY:

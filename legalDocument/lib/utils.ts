@@ -49,7 +49,7 @@ export function computeS3Filepath(
 ) {
   const CROWDAA_STAGE = getEnvironmentVariable('CROWDAA_STAGE');
   const CROWDAA_REGION = getEnvironmentVariable('CROWDAA_REGION');
-  return `${CROWDAA_STAGE}_${CROWDAA_REGION}/${appId}/${documentId}_${type}.html`;
+  return `legal-docs/${CROWDAA_STAGE}_${CROWDAA_REGION}/${appId}/${documentId}_${type}.html`;
 }
 
 export async function writeS3TosBucket(
