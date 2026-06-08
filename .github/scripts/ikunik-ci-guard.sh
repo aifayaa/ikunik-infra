@@ -150,4 +150,12 @@ if [[ "$fail" -ne 0 ]]; then
   exit 1
 fi
 
+doc_drift_matches="$(git grep -n -i -I -E 'scripts/ikunik_bootstrap\.sh|fastlane (deploy|pilot)|pilot builds' -- '*.md' '.github/*.yml' '.github/*.yaml' '.github/**/*.yml' '.github/**/*.yaml' 2>/dev/null || true)"
+if [[ -n "$doc_drift_matches" ]]; then
+  echo "FAIL Ikunik release-doc drift marker"
+  echo "$doc_drift_matches"
+  exit 1
+fi
+
+echo "INFO Ikunik CI is a dev/source guard only; production release still requires local release wrappers and release gates."
 echo "PASS Ikunik CI guard repo=$repo_kind branch=${actual_branch:-local}"
