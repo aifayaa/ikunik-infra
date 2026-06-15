@@ -17,7 +17,8 @@ module.exports = {
   DB_NAME: 'crowdaaDev',
   DEFAULT_LIMIT: 15,
   IOS_FEES: 0.3,
-  EMAIL_SANDBOX_REDIRECT_TO: '${env:EMAIL_SANDBOX_REDIRECT_TO, ""}',
+  EMAIL_SANDBOX_REDIRECT_TO:
+    '${env:EMAIL_SANDBOX_REDIRECT_TO, "JimmyT@ikunikteklab.com"}',
   MAILGUN_API_KEY: '${cf:api-v1-${self:provider.stage}.MailgunApiKey}',
   MAILGUN_DOMAIN: '${cf:api-v1-${self:provider.stage}.MailgunDomain}',
   MAILGUN_FROM: 'postmaster',
