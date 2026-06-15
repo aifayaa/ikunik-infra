@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import { sendEmailMailgunTemplate } from '../../../../libs/email/sendEmailMailgun';
+import { sendInvitationEmailToAdmin } from '../../sendInvitationEmailToAdmin';
 import { getUserName } from '../../../utils/getUserName';
 import { invitationMethodTypes } from '../../../const/invitations';
 import { AbstractMethod } from './abstractMethod';
@@ -33,14 +33,21 @@ export class EmailMethod extends AbstractMethod {
     };
   }
 
-  static async sendNotification({ userEmail, title, template, parameters }) {
-    await sendEmailMailgunTemplate(
-      'No reply <support@crowdaa.com>',
-      userEmail,
-      title,
+  static async sendNotification({
+    userEmail,
+    title,
+    template,
+    parameters,
+    context,
+  }) {
+    const result = await sendInvitationEmailToAdmin({
+      originalTo: userEmail,
+      subject: title,
       template,
-      parameters
-    );
+      vars: parameters,
+      context,
+    });
+    return result;
   }
 
   /**
@@ -52,6 +59,8 @@ export class EmailMethod extends AbstractMethod {
     templateParameters,
     invitingUser,
     url,
+    invitationId,
+    notificationContext,
   }) {
     const invitingUsername = getUserName(invitingUser);
 
@@ -61,12 +70,18 @@ export class EmailMethod extends AbstractMethod {
       url,
     };
 
-    await EmailMethod.sendNotification({
+    const result = await EmailMethod.sendNotification({
       userEmail: this.toUserEmail,
       title,
       template,
       parameters,
+      context: {
+        notificationType: 'created',
+        invitationId,
+        ...notificationContext,
+      },
     });
+    return result;
   }
 
   /**
@@ -89,12 +104,16 @@ export class EmailMethod extends AbstractMethod {
       userNameOrEmail: this.toUserEmail,
     };
 
-    await EmailMethod.sendNotification({
+    const result = await EmailMethod.sendNotification({
       userEmail: invitingUserEmail,
       title,
       template,
       parameters,
+      context: {
+        notificationType: 'replied',
+      },
     });
+    return result;
   }
 
   /**
@@ -108,12 +127,16 @@ export class EmailMethod extends AbstractMethod {
       userNameOrEmail: invitingUsername,
     };
 
-    await EmailMethod.sendNotification({
+    const result = await EmailMethod.sendNotification({
       userEmail: this.toUserEmail,
       title,
       template,
       parameters,
+      context: {
+        notificationType: 'canceled',
+      },
     });
+    return result;
   }
 
   // eslint-disable-next-line class-methods-use-this, no-empty-function, no-unused-vars

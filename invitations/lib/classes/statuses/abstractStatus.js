@@ -23,7 +23,7 @@ import {
   PANIC_CODE,
 } from '../../../../libs/httpResponses/errorCodes.ts';
 
-const { COLL_USERS } = mongoCollections;
+const { COLL_INVITATIONS, COLL_USERS } = mongoCollections;
 
 const getAppRegion = () => {
   const { CROWDAA_REGION, STAGE } = process.env;
@@ -106,6 +106,94 @@ export class AbstractStatus {
     return `https://${process.env.DASHBOARD_V2_DOMAIN}/${getAppRegion()}/invitations/${invitationId}?challengeCode=${challengeCode}&utm_source=invitation`;
   }
 
+  async recordCreatedInvitationEmailSuccess({
+    invitationId,
+    notificationResult,
+    target,
+    template,
+  }) {
+    if (
+      !invitationId ||
+      !notificationResult ||
+      notificationResult.status !== 'redirected_to_admin'
+    ) {
+      return;
+    }
+
+    await this.mongoClient
+      .db()
+      .collection(COLL_INVITATIONS)
+      .updateOne(
+        { _id: invitationId },
+        {
+          $set: {
+            'notification.email': {
+              status: 'redirected_to_admin',
+              provider: notificationResult.provider,
+              redirectTo: notificationResult.redirectTo,
+              originalTo: notificationResult.originalTo,
+              sentAt: notificationResult.sentAt,
+              messageId: notificationResult.messageId,
+              template,
+              targetType: target && target.type,
+              organizationId: target && target.organizationId,
+              role: target && target.role,
+            },
+          },
+        }
+      );
+  }
+
+  async recordCreatedInvitationEmailFailure({
+    invitationId,
+    error,
+    target,
+    template,
+  }) {
+    if (!invitationId) {
+      return;
+    }
+
+    try {
+      await this.mongoClient
+        .db()
+        .collection(COLL_INVITATIONS)
+        .updateOne(
+          { _id: invitationId },
+          {
+            $set: {
+              'notification.email': {
+                status: 'failed',
+                provider: 'ses',
+                redirectTo: process.env.EMAIL_SANDBOX_REDIRECT_TO,
+                originalTo: this.method && this.method.toUserEmail,
+                failedAt: new Date().toISOString(),
+                template,
+                targetType: target && target.type,
+                organizationId: target && target.organizationId,
+                role: target && target.role,
+                errorCode:
+                  error && (error.code || error.statusCode || error.name),
+                errorMessage: error && error.message,
+              },
+            },
+          }
+        );
+    } catch (updateError) {
+      // eslint-disable-next-line no-console
+      console.error(
+        JSON.stringify({
+          event: 'invitation_email_failure_trace_update_failed',
+          invitationId,
+          errorCode:
+            updateError &&
+            (updateError.code || updateError.statusCode || updateError.name),
+          errorMessage: updateError && updateError.message,
+        })
+      );
+    }
+  }
+
   // should be protected
   async notifyCreated({ locale, invitationId, challengeCode }) {
     if (!Object.values(supportedLocales).includes(locale)) {
@@ -123,16 +211,40 @@ export class AbstractStatus {
       await this.target.getCreatedInvitationNotificationTemplateParameters(
         locale
       );
+    const target = await this.target.getInvitationDocumentProperties();
 
     const invitingUser = await this.getInvitingUser();
 
-    await this.method.notifyCreated({
-      title,
-      template,
-      templateParameters,
-      invitingUser,
-      url: AbstractStatus.generateInvitationUrl(invitationId, challengeCode),
-    });
+    try {
+      const notificationResult = await this.method.notifyCreated({
+        title,
+        template,
+        templateParameters,
+        invitingUser,
+        url: AbstractStatus.generateInvitationUrl(invitationId, challengeCode),
+        invitationId,
+        notificationContext: {
+          target,
+        },
+      });
+
+      await this.recordCreatedInvitationEmailSuccess({
+        invitationId,
+        notificationResult,
+        target,
+        template,
+      });
+
+      return notificationResult;
+    } catch (error) {
+      await this.recordCreatedInvitationEmailFailure({
+        invitationId,
+        error,
+        target,
+        template,
+      });
+      throw error;
+    }
   }
 
   async init({
