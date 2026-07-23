@@ -62,7 +62,8 @@ const serverlessConfiguration = {
         'eu-west-3': '${env:MONGO_URL_PREPROD_EU_WEST_3}',
       },
       prod: {
-        'us-east-1': '${env:MONGO_URL_PROD_US_EAST_1}',
+        'us-east-1':
+          '${ssm(us-east-1):/ikunik/prod/us-east-1/api-v1/mongo-url}',
         'eu-west-3': '${env:MONGO_URL_PROD_EU_WEST_3}',
       },
     },
