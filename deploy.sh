@@ -58,6 +58,18 @@ mongoVarNameFor() {
 }
 
 requireMongoSecret() {
+  if [ "$STAGE:$REGION" = "prod:us-east-1" ]; then
+    if ! aws ssm get-parameter \
+      --region us-east-1 \
+      --name /ikunik/prod/us-east-1/api-v1/mongo-url \
+      --query Parameter.ARN \
+      --output text >/dev/null; then
+      echo "Missing required SSM parameter: /ikunik/prod/us-east-1/api-v1/mongo-url" 1>&2
+      exit 1
+    fi
+    return
+  fi
+
   mongo_var_name="$(mongoVarNameFor)"
   if [ -z "$mongo_var_name" ]; then
     echo "No mongo secret mapping configured for STAGE=$STAGE REGION=$REGION" 1>&2

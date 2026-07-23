@@ -54,6 +54,27 @@ const mongoCollections = require('./libs/mongoCollections.json');
 const mongoViews = require('./libs/mongoViews.json');
 const apiServerlessData = require('./api-v1/serverless');
 
+function mongoEnvName(stage, region) {
+  const normalizedRegion = region === 'us-east-1' ? 'us' : region;
+  return `IKUNIK_MONGO_URL_${stage}_${normalizedRegion}`
+    .replace(/[^a-zA-Z0-9]/g, '_')
+    .toUpperCase();
+}
+
+function resolveMongoUrl(stage, region) {
+  const envName = mongoEnvName(stage, region);
+  const fromEnvironment = process.env[envName] || process.env.IKUNIK_MONGO_URL;
+  if (fromEnvironment) return fromEnvironment;
+
+  const configured = apiServerlessData.custom.mongoDB[stage][region];
+  if (!configured || configured.startsWith('${')) {
+    throw new Error(
+      `MongoDB URL is unresolved for ${stage}/${region}. Set ${envName}.`
+    );
+  }
+  return configured;
+}
+
 /**
  * Checks whether the smaller object is included in the bigger one.
  * We cannot use lodash/isMatch here since we also want to compare undefined values, for example :
@@ -312,7 +333,7 @@ verbose(
 );
 
 (async () => {
-  const mongoUrl = apiServerlessData.custom.mongoDB[STAGE][REGION];
+  const mongoUrl = resolveMongoUrl(STAGE, REGION);
 
   const client = await MongoClient.connect(mongoUrl);
 
